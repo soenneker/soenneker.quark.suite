@@ -276,7 +276,7 @@ public abstract class Component : RenderComponent, IComponent
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
-        QuarkPresetContext? preset = BuildPresetContext();
+        var preset = BuildPresetContext();
 
         if (Style.HasContent())
             AppendStyleDecl(ref sty, Style!);
@@ -379,7 +379,7 @@ public abstract class Component : RenderComponent, IComponent
 
     private QuarkPresetContext? BuildPresetContext()
     {
-        IReadOnlyList<QuarkPresetToken>? presets = Presets;
+        var presets = Presets;
 
         if (presets is null || presets.Count == 0)
             return null;

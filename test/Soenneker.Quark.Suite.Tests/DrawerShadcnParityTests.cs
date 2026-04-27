@@ -12,29 +12,29 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<Drawer>(parameters => parameters
             .Add(p => p.Visible, true)
-            .Add(p => p.ChildContent, (Microsoft.AspNetCore.Components.RenderFragment)(builder =>
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
             {
                 builder.OpenComponent<DrawerContent>(0);
-                builder.AddAttribute(1, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(contentBuilder =>
+                builder.AddAttribute(1, "ChildContent", (RenderFragment)(contentBuilder =>
                 {
                     contentBuilder.OpenComponent<DrawerHeader>(0);
-                    contentBuilder.AddAttribute(1, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(headerBuilder =>
+                    contentBuilder.AddAttribute(1, "ChildContent", (RenderFragment)(headerBuilder =>
                     {
                         headerBuilder.OpenComponent<DrawerTitle>(0);
-                        headerBuilder.AddAttribute(1, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(titleBuilder => titleBuilder.AddContent(0, "Edit profile")));
+                        headerBuilder.AddAttribute(1, "ChildContent", (RenderFragment)(titleBuilder => titleBuilder.AddContent(0, "Edit profile")));
                         headerBuilder.CloseComponent();
 
                         headerBuilder.OpenComponent<DrawerDescription>(2);
-                        headerBuilder.AddAttribute(3, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(descriptionBuilder => descriptionBuilder.AddContent(0, "Make changes to your profile here.")));
+                        headerBuilder.AddAttribute(3, "ChildContent", (RenderFragment)(descriptionBuilder => descriptionBuilder.AddContent(0, "Make changes to your profile here.")));
                         headerBuilder.CloseComponent();
                     }));
                     contentBuilder.CloseComponent();
 
                     contentBuilder.OpenComponent<DrawerFooter>(2);
-                    contentBuilder.AddAttribute(3, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(footerBuilder =>
+                    contentBuilder.AddAttribute(3, "ChildContent", (RenderFragment)(footerBuilder =>
                     {
                         footerBuilder.OpenComponent<DrawerClose>(0);
-                        footerBuilder.AddAttribute(1, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment)(closeBuilder => closeBuilder.AddContent(0, "Close")));
+                        footerBuilder.AddAttribute(1, "ChildContent", (RenderFragment)(closeBuilder => closeBuilder.AddContent(0, "Close")));
                         footerBuilder.CloseComponent();
                     }));
                     contentBuilder.CloseComponent();

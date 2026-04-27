@@ -9,7 +9,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Structure_components_emit_semantic_tags_and_theme_slots()
     {
-        IRenderedComponent<Div> cut = Render<Div>(parameters => parameters.Add(p => p.ChildContent, (RenderFragment)(builder =>
+        var cut = Render<Div>(parameters => parameters.Add(p => p.ChildContent, (RenderFragment)(builder =>
         {
             builder.OpenComponent<Main>(0);
             builder.AddAttribute(1, "ChildContent", (RenderFragment)(mainBuilder =>
@@ -40,7 +40,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Figure_fieldset_and_details_preserve_native_accessibility_contracts()
     {
-        IRenderedComponent<Div> cut = Render<Div>(parameters => parameters.Add(p => p.ChildContent, (RenderFragment)(builder =>
+        var cut = Render<Div>(parameters => parameters.Add(p => p.ChildContent, (RenderFragment)(builder =>
         {
             builder.OpenComponent<Figure>(0);
             builder.AddAttribute(1, "ChildContent", (RenderFragment)(figureBuilder =>

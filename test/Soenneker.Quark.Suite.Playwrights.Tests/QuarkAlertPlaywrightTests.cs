@@ -42,7 +42,7 @@ public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(destructive).ToContainTextAsync("Payment failed");
         await Assertions.Expect(actionAlert.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Enable", Exact = true })).ToBeVisibleAsync();
 
-        string? firstClasses = await firstAlert.GetAttributeAsync("class");
+        var firstClasses = await firstAlert.GetAttributeAsync("class");
         firstClasses.Should().Contain("group/alert");
         firstClasses.Should().Contain("has-[>svg]:grid-cols-[auto_1fr]");
         firstClasses.Should().Contain("has-[>svg]:gap-x-2");
@@ -53,7 +53,7 @@ public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
         firstClasses.Should().Contain("py-2");
         (await firstAlert.GetAttributeAsync("style") ?? "").Should().NotContain("border-color");
 
-        string? destructiveClasses = await destructive.GetAttributeAsync("class");
+        var destructiveClasses = await destructive.GetAttributeAsync("class");
         destructiveClasses.Should().Contain("bg-card");
         destructiveClasses.Should().Contain("text-destructive");
         destructiveClasses.Should().Contain("*:data-[slot=alert-description]:text-destructive/90");

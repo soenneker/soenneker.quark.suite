@@ -86,14 +86,14 @@ public sealed class QuarkCommandPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(input).ToBeFocusedAsync();
         await Assertions.Expect(searchEmoji).ToHaveAttributeAsync("data-selected", "true");
-        string? searchEmojiId = await searchEmoji.GetAttributeAsync("id");
+        var searchEmojiId = await searchEmoji.GetAttributeAsync("id");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-activedescendant", searchEmojiId!);
 
         await page.Keyboard.PressAsync("ArrowDown");
 
         await Assertions.Expect(input).ToBeFocusedAsync();
         await Assertions.Expect(profile).ToHaveAttributeAsync("data-selected", "true");
-        string? profileId = await profile.GetAttributeAsync("id");
+        var profileId = await profile.GetAttributeAsync("id");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-activedescendant", profileId!);
 
         await page.Keyboard.PressAsync("Enter");

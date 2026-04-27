@@ -37,97 +37,135 @@
 
     private TimelineColor EffectiveColor => Status == TimelineStatus.Pending ? TimelineColor.Muted : Color;
 
-    private bool IsConnected => ParentTimeline?.ConnectorFit == TimelineConnectorFit.Connected;
+    private bool IsConnected => ReferenceEquals(ParentTimeline?.ConnectorFit, TimelineConnectorFit.Connected);
 
-    private string IconInnerClass => ComputedSize?.Value switch
-    {
-        TimelineSize.SmallValue => "h-4 w-4",
-        TimelineSize.LargeValue => "h-6 w-6",
-        _ => "h-5 w-5"
-    };
+    private string IconInnerClass => ResolveIconInnerClass();
 
-    private string DotClass => ComputedSize?.Value switch
-    {
-        TimelineSize.SmallValue => "h-4 w-4 rounded-full",
-        TimelineSize.LargeValue => "h-6 w-6 rounded-full",
-        _ => "h-5 w-5 rounded-full"
-    };
+    private string DotClass => ResolveDotClass();
 
     protected override void ApplyDefaultParameters()
     {
+        base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        BoxSize ??= ComputedSize?.Value switch
-        {
-            TimelineSize.SmallValue => Quark.Size.Is8,
-            TimelineSize.LargeValue => Quark.Size.Token("12"),
-            _ => Quark.Size.Token("10")
-        };
-        ItemsAlign ??= Quark.Items.Center;
+        BoxSize ??= ResolveBoxSize();
+        ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Rounded ??= Quark.Rounded.Full;
         BackgroundColor ??= ResolveBackgroundColor();
         TextColor ??= ResolveTextColor();
         Shadow ??= Quark.Shadow.Sm;
 
-        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+        if (ReferenceEquals(Variant, TimelineIconVariant.Outline))
         {
             Border ??= Quark.Border.Is2;
             BorderColor ??= ResolveBorderColor();
         }
 
-        base.ApplyDefaultParameters();
     }
 
     private BackgroundColorBuilder ResolveBackgroundColor()
     {
-        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+        if (ReferenceEquals(Variant, TimelineIconVariant.Outline))
             return Quark.BackgroundColor.Background;
 
-        return EffectiveColor?.Value switch
-        {
-            TimelineColor.SecondaryValue => Quark.BackgroundColor.Secondary,
-            TimelineColor.MutedValue => Quark.BackgroundColor.Muted,
-            TimelineColor.AccentValue => Quark.BackgroundColor.Accent,
-            TimelineColor.DestructiveValue => Quark.BackgroundColor.Destructive,
-            _ => Quark.BackgroundColor.Primary
-        };
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Secondary))
+            return Quark.BackgroundColor.Secondary;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Muted))
+            return Quark.BackgroundColor.Muted;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Accent))
+            return Quark.BackgroundColor.Accent;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Destructive))
+            return Quark.BackgroundColor.Destructive;
+
+        return Quark.BackgroundColor.Primary;
     }
 
     private TextColorBuilder ResolveTextColor()
     {
-        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+        if (ReferenceEquals(Variant, TimelineIconVariant.Outline))
         {
-            return EffectiveColor?.Value switch
-            {
-                TimelineColor.SecondaryValue => Quark.TextColor.Secondary,
-                TimelineColor.MutedValue => Quark.TextColor.MutedForeground,
-                TimelineColor.AccentValue => Quark.TextColor.Accent,
-                TimelineColor.DestructiveValue => Quark.TextColor.Destructive,
-                _ => Quark.TextColor.Primary
-            };
+            if (ReferenceEquals(EffectiveColor, TimelineColor.Secondary))
+                return Quark.TextColor.Secondary;
+
+            if (ReferenceEquals(EffectiveColor, TimelineColor.Muted))
+                return Quark.TextColor.MutedForeground;
+
+            if (ReferenceEquals(EffectiveColor, TimelineColor.Accent))
+                return Quark.TextColor.Accent;
+
+            if (ReferenceEquals(EffectiveColor, TimelineColor.Destructive))
+                return Quark.TextColor.Destructive;
+
+            return Quark.TextColor.Primary;
         }
 
-        return EffectiveColor?.Value switch
-        {
-            TimelineColor.SecondaryValue => Quark.TextColor.SecondaryForeground,
-            TimelineColor.MutedValue => Quark.TextColor.MutedForeground,
-            TimelineColor.AccentValue => Quark.TextColor.AccentForeground,
-            TimelineColor.DestructiveValue => Quark.TextColor.DestructiveForeground,
-            _ => Quark.TextColor.PrimaryForeground
-        };
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Secondary))
+            return Quark.TextColor.SecondaryForeground;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Muted))
+            return Quark.TextColor.MutedForeground;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Accent))
+            return Quark.TextColor.AccentForeground;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Destructive))
+            return Quark.TextColor.DestructiveForeground;
+
+        return Quark.TextColor.PrimaryForeground;
     }
 
     private BorderColorBuilder ResolveBorderColor()
     {
-        return EffectiveColor?.Value switch
-        {
-            TimelineColor.SecondaryValue => Quark.BorderColor.Secondary,
-            TimelineColor.MutedValue => Quark.BorderColor.Muted,
-            TimelineColor.AccentValue => Quark.BorderColor.Accent,
-            TimelineColor.DestructiveValue => Quark.BorderColor.Destructive,
-            _ => Quark.BorderColor.Primary
-        };
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Secondary))
+            return Quark.BorderColor.Secondary;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Muted))
+            return Quark.BorderColor.Muted;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Accent))
+            return Quark.BorderColor.Accent;
+
+        if (ReferenceEquals(EffectiveColor, TimelineColor.Destructive))
+            return Quark.BorderColor.Destructive;
+
+        return Quark.BorderColor.Primary;
+    }
+
+    private string ResolveIconInnerClass()
+    {
+        if (ReferenceEquals(ComputedSize, TimelineSize.Small))
+            return "h-4 w-4";
+
+        if (ReferenceEquals(ComputedSize, TimelineSize.Large))
+            return "h-6 w-6";
+
+        return "h-5 w-5";
+    }
+
+    private string ResolveDotClass()
+    {
+        if (ReferenceEquals(ComputedSize, TimelineSize.Small))
+            return "h-4 w-4 rounded-full";
+
+        if (ReferenceEquals(ComputedSize, TimelineSize.Large))
+            return "h-6 w-6 rounded-full";
+
+        return "h-5 w-5 rounded-full";
+    }
+
+    private SizeBuilder ResolveBoxSize()
+    {
+        if (ReferenceEquals(ComputedSize, TimelineSize.Small))
+            return Quark.Size.Is8;
+
+        if (ReferenceEquals(ComputedSize, TimelineSize.Large))
+            return Quark.Size.Token("12");
+
+        return Quark.Size.Token("10");
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

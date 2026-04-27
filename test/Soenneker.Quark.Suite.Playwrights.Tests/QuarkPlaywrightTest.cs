@@ -23,7 +23,7 @@ public abstract class QuarkPlaywrightTest : PlaywrightUnitTest
 
     protected new async ValueTask<BrowserSession> CreateSession(PlaywrightSessionOptions? sessionOptions = null, CancellationToken cancellationToken = default)
     {
-        BrowserSession session = await base.CreateSession(sessionOptions, cancellationToken);
+        var session = await base.CreateSession(sessionOptions, cancellationToken);
         session.Page.SetDefaultTimeout(DefaultTimeoutMs);
         session.Page.SetDefaultNavigationTimeout(DefaultNavigationTimeoutMs);
 

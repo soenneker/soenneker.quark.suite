@@ -84,7 +84,7 @@
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
 	[Parameter]
-	public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
+	public Orientation Orientation { get; set; } = Orientation.Horizontal;
 
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
@@ -101,7 +101,7 @@
 	private bool _sliderBridgeRegistered;
 
 	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
-	private bool IsVertical => Orientation == Soenneker.Bradix.Orientation.Vertical;
+	private bool IsVertical => Orientation == Orientation.Vertical;
 	private string OrientationValue => Orientation.Value;
 	private bool IsHorizontalRtl => !IsVertical && ResolveIsRtl();
 	private bool IsInteractive => !Disabled && !ReadOnly;
@@ -502,7 +502,7 @@
 
 		var attributes = new Dictionary<string, object>();
 
-		BuildStyleAttribute(attributes, (ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder sty) =>
+		BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
 		{
 			if (IsVertical)
 			{
@@ -875,6 +875,7 @@
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{
+	    base.ComputeRenderKeyCore(ref hc);
 		hc.Add(SliderValue);
 		hc.Add(Min);
 		hc.Add(Max);

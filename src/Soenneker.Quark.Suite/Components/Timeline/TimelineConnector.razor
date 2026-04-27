@@ -15,11 +15,12 @@
 
     protected override void ApplyDefaultParameters()
     {
+        base.ApplyDefaultParameters();
         Width ??= Quark.Width.Token("0.5");
 
-        if (ConnectorStyle == TimelineConnectorStyle.Solid)
+        if (ReferenceEquals(ConnectorStyle, TimelineConnectorStyle.Solid))
         {
-            BackgroundColorBuilder? backgroundColor = ResolveBackgroundColor();
+            var backgroundColor = ResolveBackgroundColor();
 
             if (backgroundColor is not null)
                 BackgroundColor ??= backgroundColor;
@@ -30,7 +31,6 @@
             BorderColor ??= ResolveBorderColor();
         }
 
-        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -40,57 +40,75 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            if (ConnectorStyle != TimelineConnectorStyle.Solid)
+            if (!ReferenceEquals(ConnectorStyle, TimelineConnectorStyle.Solid))
             {
-                var borderStyleClass = ConnectorStyle?.Value switch
-                {
-                    TimelineConnectorStyle.DashedValue => "border-dashed",
-                    TimelineConnectorStyle.DottedValue => "border-dotted",
-                    _ => null
-                };
+                var borderStyleClass = ResolveBorderStyleClass();
 
                 if (borderStyleClass != null)
                     AppendClass(ref cls, borderStyleClass);
             }
 
-            if (ConnectorStyle == TimelineConnectorStyle.Solid && Color is null && Status?.Value == TimelineStatus.InProgressValue)
+            if (ReferenceEquals(ConnectorStyle, TimelineConnectorStyle.Solid) && Color is null && ReferenceEquals(Status, TimelineStatus.InProgress))
                 AppendClass(ref cls, "bg-linear-to-b from-primary to-muted");
         });
     }
 
     private BackgroundColorBuilder? ResolveBackgroundColor()
     {
-        return Color?.Value switch
-        {
-            TimelineColor.PrimaryValue => Quark.BackgroundColor.Primary,
-            TimelineColor.SecondaryValue => Quark.BackgroundColor.Secondary,
-            TimelineColor.MutedValue => Quark.BackgroundColor.Muted,
-            TimelineColor.AccentValue => Quark.BackgroundColor.Accent,
-            TimelineColor.DestructiveValue => Quark.BackgroundColor.Destructive,
-            _ => Status?.Value switch
-            {
-                TimelineStatus.InProgressValue => null,
-                TimelineStatus.PendingValue => Quark.BackgroundColor.Muted,
-                _ => Quark.BackgroundColor.Primary
-            }
-        };
+        if (ReferenceEquals(Color, TimelineColor.Primary))
+            return Quark.BackgroundColor.Primary;
+
+        if (ReferenceEquals(Color, TimelineColor.Secondary))
+            return Quark.BackgroundColor.Secondary;
+
+        if (ReferenceEquals(Color, TimelineColor.Muted))
+            return Quark.BackgroundColor.Muted;
+
+        if (ReferenceEquals(Color, TimelineColor.Accent))
+            return Quark.BackgroundColor.Accent;
+
+        if (ReferenceEquals(Color, TimelineColor.Destructive))
+            return Quark.BackgroundColor.Destructive;
+
+        if (ReferenceEquals(Status, TimelineStatus.InProgress))
+            return null;
+
+        return ReferenceEquals(Status, TimelineStatus.Pending)
+            ? Quark.BackgroundColor.Muted
+            : Quark.BackgroundColor.Primary;
     }
 
     private BorderColorBuilder ResolveBorderColor()
     {
-        return Color?.Value switch
-        {
-            TimelineColor.PrimaryValue => Quark.BorderColor.Primary,
-            TimelineColor.SecondaryValue => Quark.BorderColor.Secondary,
-            TimelineColor.MutedValue => Quark.BorderColor.Muted,
-            TimelineColor.AccentValue => Quark.BorderColor.Accent,
-            TimelineColor.DestructiveValue => Quark.BorderColor.Destructive,
-            _ => Status?.Value switch
-            {
-                TimelineStatus.PendingValue => Quark.BorderColor.Muted,
-                _ => Quark.BorderColor.Primary
-            }
-        };
+        if (ReferenceEquals(Color, TimelineColor.Primary))
+            return Quark.BorderColor.Primary;
+
+        if (ReferenceEquals(Color, TimelineColor.Secondary))
+            return Quark.BorderColor.Secondary;
+
+        if (ReferenceEquals(Color, TimelineColor.Muted))
+            return Quark.BorderColor.Muted;
+
+        if (ReferenceEquals(Color, TimelineColor.Accent))
+            return Quark.BorderColor.Accent;
+
+        if (ReferenceEquals(Color, TimelineColor.Destructive))
+            return Quark.BorderColor.Destructive;
+
+        return ReferenceEquals(Status, TimelineStatus.Pending)
+            ? Quark.BorderColor.Muted
+            : Quark.BorderColor.Primary;
+    }
+
+    private string? ResolveBorderStyleClass()
+    {
+        if (ReferenceEquals(ConnectorStyle, TimelineConnectorStyle.Dashed))
+            return "border-dashed";
+
+        if (ReferenceEquals(ConnectorStyle, TimelineConnectorStyle.Dotted))
+            return "border-dotted";
+
+        return null;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

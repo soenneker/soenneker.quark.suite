@@ -6,14 +6,14 @@
 
 @code {
     [Parameter]
-    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
+    public Orientation Orientation { get; set; } = Orientation.Horizontal;
 
     protected override void ApplyDefaultParameters()
     {
+        base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
         Gap ??= Quark.Gap.Is2;
 
-        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -26,7 +26,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "animate-in duration-150 fade-in-0");
-            AppendClass(ref cls, Orientation == Soenneker.Bradix.Orientation.Vertical
+            AppendClass(ref cls, Orientation == Orientation.Vertical
                 ? "flex-col items-start"
                 : "flex-row flex-wrap items-center justify-center");
         });

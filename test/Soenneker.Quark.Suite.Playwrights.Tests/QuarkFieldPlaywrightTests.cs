@@ -85,11 +85,11 @@ public sealed class QuarkFieldPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(label).ToHaveAttributeAsync("data-error", "true");
         await Assertions.Expect(message).ToHaveTextAsync("Email is required.");
 
-        string? inputId = await input.GetAttributeAsync("id");
-        string? labelFor = await label.GetAttributeAsync("for");
-        string? descriptionId = await description.GetAttributeAsync("id");
-        string? messageId = await message.GetAttributeAsync("id");
-        string? describedBy = await input.GetAttributeAsync("aria-describedby");
+        var inputId = await input.GetAttributeAsync("id");
+        var labelFor = await label.GetAttributeAsync("for");
+        var descriptionId = await description.GetAttributeAsync("id");
+        var messageId = await message.GetAttributeAsync("id");
+        var describedBy = await input.GetAttributeAsync("aria-describedby");
 
         inputId.Should().NotBeNullOrWhiteSpace();
         labelFor.Should().Be(inputId);

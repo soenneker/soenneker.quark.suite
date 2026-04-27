@@ -37,12 +37,7 @@
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Size?.Value switch
-        {
-            TimelineSize.SmallValue => Quark.Gap.Is2,
-            TimelineSize.LargeValue => Quark.Gap.Token("6"),
-            _ => Quark.Gap.Is4
-        };
+        Gap ??= ResolveGap();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -59,5 +54,16 @@
         hc.Add(TimelineAlignment);
         hc.Add(Size);
         hc.Add(ConnectorFit);
+    }
+
+    private GapBuilder ResolveGap()
+    {
+        if (ReferenceEquals(Size, TimelineSize.Small))
+            return Quark.Gap.Is2;
+
+        if (ReferenceEquals(Size, TimelineSize.Large))
+            return Quark.Gap.Token("6");
+
+        return Quark.Gap.Is4;
     }
 }

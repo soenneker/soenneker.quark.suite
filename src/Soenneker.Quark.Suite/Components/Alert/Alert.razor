@@ -40,6 +40,7 @@
 
     protected override void ApplyDefaultParameters()
     {
+        base.ApplyDefaultParameters();
         Display ??= Quark.Display.Grid;
         Position ??= Quark.Position.Relative;
         Width ??= Quark.Width.IsFull;
@@ -50,13 +51,12 @@
         TextAlign ??= Quark.TextAlign.Token("left");
         Gap ??= Quark.Gap.Token("0.5");
 
-        if (Variant == AlertVariant.Default)
+        if (ReferenceEquals(Variant, AlertVariant.Default))
         {
             BackgroundColor ??= Quark.BackgroundColor.Card;
             TextColor ??= Quark.TextColor.CardForeground;
         }
 
-        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -79,21 +79,22 @@
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        if (Variant != AlertVariant.Default)
+        if (!ReferenceEquals(Variant, AlertVariant.Default))
             return;
 
         base.ApplyTextColor(ref sty, ref cls, value);
     }
 
-    private LucideIcon GetDefaultIcon() => Variant?.Value switch
+    private LucideIcon GetDefaultIcon()
     {
-        AlertVariant.DestructiveValue => LucideIcon.CircleX,
-        "danger" => LucideIcon.CircleX,
-        _ => LucideIcon.Info
-    };
+        if (IsDestructiveVariant())
+            return LucideIcon.CircleX;
+
+        return LucideIcon.Info;
+    }
 
     private bool IsDestructiveVariant() =>
-        Variant?.Value is AlertVariant.DestructiveValue or "danger";
+        ReferenceEquals(Variant, AlertVariant.Destructive) || string.Equals(Variant?.Value, "danger", StringComparison.Ordinal);
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

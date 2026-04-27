@@ -85,31 +85,32 @@ else
 
     private static string GetVariantClass(SidebarMenuButtonVariant variant)
     {
-        return variant?.Value switch
-        {
-            SidebarMenuButtonVariant.OutlineValue => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
-            SidebarMenuButtonVariant.NavigationValue => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48",
-            _ => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        };
+        if (ReferenceEquals(variant, SidebarMenuButtonVariant.Outline))
+            return "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]";
+
+        if (ReferenceEquals(variant, SidebarMenuButtonVariant.Navigation))
+            return "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48";
+
+        return "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
     }
 
     private static string GetSizeClass(SidebarMenuButtonSize size)
     {
-        return size?.Value switch
-        {
-            SidebarMenuButtonSize.LgValue => "group-data-[collapsible=icon]:p-0!",
-            _ => ""
-        };
+        if (ReferenceEquals(size, SidebarMenuButtonSize.Lg))
+            return "group-data-[collapsible=icon]:p-0!";
+
+        return "";
     }
 
     private static string GetDataSize(SidebarMenuButtonSize size)
     {
-        return size?.Value switch
-        {
-            SidebarMenuButtonSize.SmValue => "sm",
-            SidebarMenuButtonSize.LgValue => "lg",
-            _ => "default"
-        };
+        if (ReferenceEquals(size, SidebarMenuButtonSize.Sm))
+            return "sm";
+
+        if (ReferenceEquals(size, SidebarMenuButtonSize.Lg))
+            return "lg";
+
+        return "default";
     }
 
     protected override void ApplyDefaultParameters()
@@ -128,38 +129,37 @@ else
         OutlineStyle ??= "outline-hidden";
         Transition ??= "transition-[width,height,padding]";
 
-        switch (Size?.Value)
+        if (ReferenceEquals(Size, SidebarMenuButtonSize.Sm))
         {
-            case SidebarMenuButtonSize.SmValue:
-                Height ??= Quark.Height.Token("7");
-                TextSize ??= Quark.TextSize.Xs;
-                break;
-            case SidebarMenuButtonSize.LgValue:
-                Height ??= Quark.Height.Token("12");
-                TextSize ??= Quark.TextSize.Sm;
-                break;
-            default:
-                Height ??= Quark.Height.Is8;
-                TextSize ??= Quark.TextSize.Sm;
-                break;
+            Height ??= Quark.Height.Token("7");
+            TextSize ??= Quark.TextSize.Xs;
+        }
+        else if (ReferenceEquals(Size, SidebarMenuButtonSize.Lg))
+        {
+            Height ??= Quark.Height.Token("12");
+            TextSize ??= Quark.TextSize.Sm;
+        }
+        else
+        {
+            Height ??= Quark.Height.Is8;
+            TextSize ??= Quark.TextSize.Sm;
         }
 
-        switch (Variant?.Value)
+        if (ReferenceEquals(Variant, SidebarMenuButtonVariant.Outline))
         {
-            case SidebarMenuButtonVariant.OutlineValue:
-                BackgroundColor ??= Quark.BackgroundColor.Background;
-                Shadow ??= "shadow-[0_0_0_1px_hsl(var(--sidebar-border))]";
-                break;
-            case SidebarMenuButtonVariant.NavigationValue:
-                Position ??= Quark.Position.Relative;
-                Height ??= Quark.Height.Token("[30px]");
-                Width ??= Quark.Width.IsFit;
-                Overflow ??= Quark.Overflow.Visible;
-                Border ??= Quark.Border.Default;
-                BorderColor ??= Quark.BorderColor.Transparent;
-                TextSize ??= Quark.TextSize.Token("[0.8rem]");
-                FontWeight ??= Quark.FontWeight.Medium;
-                break;
+            BackgroundColor ??= Quark.BackgroundColor.Background;
+            Shadow ??= "shadow-[0_0_0_1px_hsl(var(--sidebar-border))]";
+        }
+        else if (ReferenceEquals(Variant, SidebarMenuButtonVariant.Navigation))
+        {
+            Position ??= Quark.Position.Relative;
+            Height ??= Quark.Height.Token("[30px]");
+            Width ??= Quark.Width.IsFit;
+            Overflow ??= Quark.Overflow.Visible;
+            Border ??= Quark.Border.Default;
+            BorderColor ??= Quark.BorderColor.Transparent;
+            TextSize ??= Quark.TextSize.Token("[0.8rem]");
+            FontWeight ??= Quark.FontWeight.Medium;
         }
     }
 

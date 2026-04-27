@@ -168,7 +168,7 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        BradixSelectContent content = cut.FindComponent<BradixSelectContent>().Instance;
+        var content = cut.FindComponent<BradixSelectContent>().Instance;
 
         content.Position.Should().Be("popper");
         content.CollisionBoundarySelector.Should().Be("#select-boundary-a");

@@ -182,7 +182,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var defaultViewport = defaultSection.Locator("[data-slot='carousel-content']").First;
         var defaultTrack = defaultSection.Locator("[data-slot='carousel-content'] > div").First;
         await defaultViewport.ScrollIntoViewIfNeededAsync();
-        LocatorBoundingBoxResult? defaultBox = await defaultViewport.BoundingBoxAsync();
+        var defaultBox = await defaultViewport.BoundingBoxAsync();
         defaultBox.Should().NotBeNull();
 
         await page.Mouse.MoveAsync((float)(defaultBox!.X + defaultBox.Width * 0.75), (float)(defaultBox.Y + defaultBox.Height / 2));
@@ -196,7 +196,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var verticalViewport = verticalSection.Locator("[data-slot='carousel-content']").First;
         var verticalTrack = verticalSection.Locator("[data-slot='carousel-content'] > div").First;
         await verticalViewport.ScrollIntoViewIfNeededAsync();
-        LocatorBoundingBoxResult? verticalBox = await verticalViewport.BoundingBoxAsync();
+        var verticalBox = await verticalViewport.BoundingBoxAsync();
         verticalBox.Should().NotBeNull();
 
         await page.Mouse.MoveAsync((float)(verticalBox!.X + verticalBox.Width / 2), (float)(verticalBox.Y + verticalBox.Height * 0.75));

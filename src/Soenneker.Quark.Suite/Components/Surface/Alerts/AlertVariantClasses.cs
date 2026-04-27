@@ -7,12 +7,11 @@ public static class AlertVariantClasses
     /// </summary>
     public static string GetVariantClasses(AlertVariant variant, bool accentBorder)
     {
-        return variant?.Value switch
-        {
-            AlertVariant.DestructiveValue or "danger" => accentBorder
+        if (ReferenceEquals(variant, AlertVariant.Destructive) || string.Equals(variant?.Value, "danger", System.StringComparison.Ordinal))
+            return accentBorder
                 ? "border-l-alert-danger bg-alert-danger-bg border-alert-danger/30 [&>svg]:text-alert-danger"
-                : "border-alert-danger/30 bg-alert-danger-bg [&>svg]:text-alert-danger",
-            _ => "bg-muted/30 [&>svg]:text-muted-foreground"
-        };
+                : "border-alert-danger/30 bg-alert-danger-bg [&>svg]:text-alert-danger";
+
+        return "bg-muted/30 [&>svg]:text-muted-foreground";
     }
 }

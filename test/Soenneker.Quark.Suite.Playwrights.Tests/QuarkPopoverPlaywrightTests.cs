@@ -131,7 +131,7 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 
-        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        var contentId = await trigger.GetAttributeAsync("aria-controls");
         contentId.Should().NotBeNullOrWhiteSpace();
         var content = page.Locator($"#{contentId}");
         var title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });

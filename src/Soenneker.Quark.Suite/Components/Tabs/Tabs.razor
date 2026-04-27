@@ -163,16 +163,16 @@
         var attrs = new Dictionary<string, object>
         {
             ["data-slot"] = "tabs-list",
-            ["data-variant"] = TabsListVariant?.Value ?? TabsListVariant.Default.Value
+            ["data-variant"] = ReferenceEquals(TabsListVariant, TabsListVariant.Line) ? "line" : "default"
         };
 
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground data-[variant=line]:rounded-none");
             AppendClass(ref cls, "group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col");
-            if (TabsListVariant == TabsListVariant.Default)
+            if (ReferenceEquals(TabsListVariant, TabsListVariant.Default))
                 AppendClass(ref cls, "bg-muted");
-            if (TabsListVariant != TabsListVariant.Default)
+            if (!ReferenceEquals(TabsListVariant, TabsListVariant.Default))
                 AppendClass(ref cls, "gap-1 bg-transparent");
 
             if (Justified)

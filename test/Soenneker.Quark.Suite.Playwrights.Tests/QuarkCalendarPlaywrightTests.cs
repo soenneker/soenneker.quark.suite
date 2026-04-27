@@ -52,7 +52,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         await target.ClickAsync();
 
         await Assertions.Expect(target).ToHaveAttributeAsync("data-selected-single", "true");
-        string? targetLabel = await target.GetAttributeAsync("aria-label");
+        var targetLabel = await target.GetAttributeAsync("aria-label");
         targetLabel.Should().NotBeNullOrWhiteSpace();
 
         sawPageError.Should().BeFalse();

@@ -10,7 +10,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Main_layout_landing_branch_provides_sidebar_context()
     {
-        var layout = Render<global::Soenneker.Quark.Suite.Demo.MainLayout>(parameters => parameters
+        var layout = Render<Demo.MainLayout>(parameters => parameters
             .Add(p => p.Body, (RenderFragment)(builder =>
             {
                 builder.OpenElement(0, "div");
@@ -28,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Index_matches_shadcn_page_contracts()
     {
-        var page = Render<global::Soenneker.Quark.Suite.Demo.Pages.Index>();
+        var page = Render<Demo.Pages.Index>();
 
         page.Find("div.flex.flex-1.flex-col");
         page.Find("section.border-grid");

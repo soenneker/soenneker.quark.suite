@@ -13,15 +13,16 @@
 
     protected override void ApplyDefaultParameters()
     {
+        base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Margin ??= Quark.Margin.Is2.FromBottom;
 
-        if (Variant?.Value == EmptyMediaVariant.IconValue)
+        if (ReferenceEquals(Variant, EmptyMediaVariant.Icon))
         {
-            BoxSize ??= Quark.Size.Is8;
+            BoxSize ??= Size.Is8;
             Rounded ??= Quark.Rounded.Lg;
             BackgroundColor ??= Quark.BackgroundColor.Muted;
             TextColor ??= Quark.TextColor.Foreground;
@@ -31,7 +32,6 @@
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
         }
 
-        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -39,13 +39,13 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "empty-icon";
-        attributes["data-variant"] = Variant?.Value ?? EmptyMediaVariant.Default.Value;
+        attributes["data-variant"] = ReferenceEquals(Variant, EmptyMediaVariant.Icon) ? "icon" : "default";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
 
-            if (Variant?.Value == EmptyMediaVariant.IconValue)
+            if (ReferenceEquals(Variant, EmptyMediaVariant.Icon))
                 AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
         });
     }

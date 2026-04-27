@@ -142,19 +142,20 @@
         hc.Add(_itemIndex);
     }
 
-    private string ContentGridClass => TimelineAlignment?.Value switch
-    {
-        TimelineAlign.LeftValue => "grid grid-cols-[auto_1fr] gap-4 items-start",
-        TimelineAlign.RightValue => "grid grid-cols-[1fr_auto] gap-4 items-start",
-        _ => "grid grid-cols-[1fr_auto_1fr] gap-4 items-start"
-    };
+    private string ContentGridClass => ResolveContentGridClass();
 
-    private string IconMinHeightClass => Size?.Value switch
+    private string ResolveContentGridClass()
     {
-        TimelineSize.SmallValue => "min-h-8",
-        TimelineSize.LargeValue => "min-h-12",
-        _ => "min-h-10"
-    };
+        if (ReferenceEquals(TimelineAlignment, TimelineAlign.Left))
+            return "grid grid-cols-[auto_1fr] gap-4 items-start";
+
+        if (ReferenceEquals(TimelineAlignment, TimelineAlign.Right))
+            return "grid grid-cols-[1fr_auto] gap-4 items-start";
+
+        return "grid grid-cols-[1fr_auto_1fr] gap-4 items-start";
+    }
+
+    private string IconMinHeightClass => ResolveIconMinHeightClass();
 
     private string ContentWrapperClass => $"grid items-center {IconMinHeightClass}";
 
@@ -162,12 +163,7 @@
 
     private string DateColumnClass => $"flex flex-col justify-center {IconMinHeightClass}";
 
-    private string ConnectorGapClass => Size?.Value switch
-    {
-        TimelineSize.SmallValue => "-mb-2",
-        TimelineSize.LargeValue => "-mb-6",
-        _ => "-mb-4"
-    };
+    private string ConnectorGapClass => ResolveConnectorGapClass();
 
     private string ComputedConnectorClass => $"flex-1 min-h-16 {ConnectorGapClass}{(ConnectorClass.HasContent() ? $" {ConnectorClass}" : null)}";
 
@@ -233,4 +229,26 @@
             @ChildContent
         }
     </div>;
+
+    private string ResolveIconMinHeightClass()
+    {
+        if (ReferenceEquals(Size, TimelineSize.Small))
+            return "min-h-8";
+
+        if (ReferenceEquals(Size, TimelineSize.Large))
+            return "min-h-12";
+
+        return "min-h-10";
+    }
+
+    private string ResolveConnectorGapClass()
+    {
+        if (ReferenceEquals(Size, TimelineSize.Small))
+            return "-mb-2";
+
+        if (ReferenceEquals(Size, TimelineSize.Large))
+            return "-mb-6";
+
+        return "-mb-4";
+    }
 }

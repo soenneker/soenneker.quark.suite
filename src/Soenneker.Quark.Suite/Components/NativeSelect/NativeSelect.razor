@@ -3,9 +3,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelect
-@implements IDisposable
 
-<div class="group/native-select relative w-fit has-[select:disabled]:opacity-50" data-slot="native-select-wrapper" data-size="@(Size == NativeSelectSize.Sm ? "sm" : "default")">
+<div class="group/native-select relative w-fit has-[select:disabled]:opacity-50" data-slot="native-select-wrapper" data-size="@(ReferenceEquals(Size, NativeSelectSize.Sm) ? "sm" : "default")">
     <select value="@Value" @onchange="HandleChange" @attributes="BuildAttributes()">
         @ChildContent
     </select>
@@ -74,7 +73,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "native-select";
-        attributes["data-size"] = Size == NativeSelectSize.Sm ? "sm" : "default";
+        attributes["data-size"] = ReferenceEquals(Size, NativeSelectSize.Sm) ? "sm" : "default";
         ApplyFieldControlAttributes(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>

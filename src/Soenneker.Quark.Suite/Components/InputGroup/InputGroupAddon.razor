@@ -21,7 +21,7 @@
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Auto;
         Cursor ??= Quark.Cursor.Text;
-        ItemsAlign ??= Quark.Items.Center;
+        ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Gap ??= Quark.Gap.Is2;
         TextSize ??= Quark.TextSize.Sm;
@@ -34,44 +34,58 @@
 
     private void ApplyAlignDefaults()
     {
-        switch (AddonAlign?.Value)
+        if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.InlineEnd))
         {
-            case InputGroupAddonAlign.InlineEndValue:
-                Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromRight;
-                break;
-            case InputGroupAddonAlign.BlockStartValue:
-                Width ??= Quark.Width.IsFull;
-                Justify ??= Quark.Justify.Start;
-                Padding ??= Quark.Padding.Is3.OnX.Is3.FromTop;
-                break;
-            case InputGroupAddonAlign.BlockEndValue:
-                Width ??= Quark.Width.IsFull;
-                Justify ??= Quark.Justify.Start;
-                Padding ??= Quark.Padding.Is3.OnX.Is3.FromBottom;
-                break;
-            default:
-                Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromLeft;
-                break;
+            Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromRight;
+            return;
         }
+
+        if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockStart))
+        {
+            Width ??= Quark.Width.IsFull;
+            Justify ??= Quark.Justify.Start;
+            Padding ??= Quark.Padding.Is3.OnX.Is3.FromTop;
+            return;
+        }
+
+        if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockEnd))
+        {
+            Width ??= Quark.Width.IsFull;
+            Justify ??= Quark.Justify.Start;
+            Padding ??= Quark.Padding.Is3.OnX.Is3.FromBottom;
+            return;
+        }
+
+        Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromLeft;
     }
 
     private static string GetAlignValue(InputGroupAddonAlign align)
-        => align?.Value switch
-        {
-            InputGroupAddonAlign.InlineEndValue => "inline-end",
-            InputGroupAddonAlign.BlockStartValue => "block-start",
-            InputGroupAddonAlign.BlockEndValue => "block-end",
-            _ => "inline-start"
-        };
+    {
+        if (ReferenceEquals(align, InputGroupAddonAlign.InlineEnd))
+            return "inline-end";
+
+        if (ReferenceEquals(align, InputGroupAddonAlign.BlockStart))
+            return "block-start";
+
+        if (ReferenceEquals(align, InputGroupAddonAlign.BlockEnd))
+            return "block-end";
+
+        return "inline-start";
+    }
 
     private static string GetAlignClass(InputGroupAddonAlign align)
-        => align?.Value switch
-        {
-            InputGroupAddonAlign.InlineEndValue => "order-last has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
-            InputGroupAddonAlign.BlockStartValue => "order-first group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
-            InputGroupAddonAlign.BlockEndValue => "order-last group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3",
-            _ => "order-first has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]"
-        };
+    {
+        if (ReferenceEquals(align, InputGroupAddonAlign.InlineEnd))
+            return "order-last has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]";
+
+        if (ReferenceEquals(align, InputGroupAddonAlign.BlockStart))
+            return "order-first group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3";
+
+        if (ReferenceEquals(align, InputGroupAddonAlign.BlockEnd))
+            return "order-last group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3";
+
+        return "order-first has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]";
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -90,6 +104,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(AddonAlign);
     }
 

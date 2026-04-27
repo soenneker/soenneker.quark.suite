@@ -10,7 +10,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void DemoSection_preview_shell_matches_shadcn_docs_structure_more_closely()
     {
-        var cut = Render<Soenneker.Quark.Components.DemoSection>(parameters => parameters
+        var cut = Render<Components.DemoSection>(parameters => parameters
             .Add(p => p.Title, "Demo")
             .Add(p => p.Description, "Description")
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Preview</div>"))));

@@ -23,11 +23,11 @@ public sealed record PromptInputAttachmentInfo
         if (bytes < 1024)
             return $"{bytes} B";
 
-        double kb = bytes / 1024d;
+        var kb = bytes / 1024d;
         if (kb < 1024)
             return $"{kb:0.#} KB";
 
-        double mb = kb / 1024d;
+        var mb = kb / 1024d;
         if (mb < 1024)
             return $"{mb:0.#} MB";
 

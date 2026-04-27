@@ -422,6 +422,13 @@
 </Div>
 
 @code {
+    private bool _usageSidebarOpen = true;
+    private bool _composedSidebarOpen = true;
+    private bool _workspaceMenuOpen = true;
+    private bool _resourcesOpen = true;
+    private bool _controlledSidebarOpen;
+    private bool _mobileSidebarOpen;
+
     private const string SidebarCompositionCode =
         """
         SidebarProvider
@@ -532,7 +539,7 @@
                                     <SidebarMenuButton Open="_workspaceMenuOpen" OnClick="ToggleWorkspaceMenu" Tooltip="Projects">
                                         <Icon Name="LucideIcon.Folder" BoxSize="Size.Is4" />
                                         <Span>Projects</Span>
-                                        <Icon Name="LucideIcon.ChevronRight" Class="@($"ml-auto size-4 transition-transform {(_workspaceMenuOpen ? "rotate-90" : string.Empty)}")" />
+                                        <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4" />
                                     </SidebarMenuButton>
                                     <SidebarMenuAction AsChild="true" ShowOnHover="true">
                                         <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs">
@@ -540,25 +547,22 @@
                                             <Span class="sr-only">Create project</Span>
                                         </Button>
                                     </SidebarMenuAction>
-                                    @if (_workspaceMenuOpen)
-                                    {
-                                        <SidebarMenuSub>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton AsChild="true">
-                                                    <Anchor To="cards">
-                                                        <Span>Design System</Span>
-                                                    </Anchor>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton AsChild="true" Active="true">
-                                                    <Anchor To="sidebar">
-                                                        <Span>Sidebar Refresh</Span>
-                                                    </Anchor>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        </SidebarMenuSub>
-                                    }
+                                    <SidebarMenuSub>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton AsChild="true">
+                                                <Anchor To="cards">
+                                                    <Span>Design System</Span>
+                                                </Anchor>
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton AsChild="true" Active="true">
+                                                <Anchor To="sidebar">
+                                                    <Span>Sidebar Refresh</Span>
+                                                </Anchor>
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSub>
                                 </SidebarMenuItem>
                                 <SidebarMenuItem>
                                     <SidebarMenuButton AsChild="true" Tooltip="Inbox">
@@ -573,23 +577,10 @@
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </SidebarContent>
-
-                <SidebarFooter>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" Tooltip="Jake Stevenson">
-                                <Span class="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">JS</Span>
-                                <Div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                    <Span class="truncate font-medium">Jake Stevenson</Span>
-                                    <Span class="truncate text-xs text-sidebar-foreground/70">Product Engineering</Span>
-                                </Div>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarFooter>
-
+                <SidebarFooter>...</SidebarFooter>
                 <SidebarRail />
             </Sidebar>
+            <SidebarInset>...</SidebarInset>
         </SidebarProvider>
         """;
 
@@ -603,21 +594,12 @@
                             <SidebarGroupLabel AsChild="true">
                                 <CollapsibleTrigger>
                                     <Span>Resources</Span>
-                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4" />
                                 </CollapsibleTrigger>
                             </SidebarGroupLabel>
                             <CollapsibleContent>
                                 <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton AsChild="true">
-                                                <Anchor To="cards">
-                                                    <Icon Name="LucideIcon.File" BoxSize="Size.Is4" />
-                                                    <Span>Component inventory</Span>
-                                                </Anchor>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
+                                    <SidebarMenu>...</SidebarMenu>
                                 </SidebarGroupContent>
                             </CollapsibleContent>
                         </SidebarGroup>
@@ -714,12 +696,6 @@
         </SidebarProvider>
         """;
 
-    private bool _usageSidebarOpen = true;
-    private bool _composedSidebarOpen = true;
-    private bool _workspaceMenuOpen = true;
-    private bool _resourcesOpen = true;
-    private bool _controlledSidebarOpen;
-    private bool _mobileSidebarOpen;
 
     private Task OnUsageSidebarOpenChanged(bool value)
     {
@@ -737,7 +713,7 @@
     {
         _resourcesOpen = value;
         return Task.CompletedTask;
-    }
+}
 
     private Task OnControlledSidebarOpenChanged(bool value)
     {
@@ -768,4 +744,4 @@
         _controlledSidebarOpen = false;
         return Task.CompletedTask;
     }
-}
+    }

@@ -5,411 +5,330 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Description="The shadcn combobox pattern built from button, popover, and command primitives."
-                         Code="@PopoverFrameworkCode"
-                         CodeLanguage="razor">
-                <Popover Open="_frameworkCommandOpen" OpenChanged="OnFrameworkCommandOpenChanged">
-                    <PopoverTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline"
-                                role="combobox"
-                                aria-expanded="@_frameworkCommandOpen"
-                                Class="w-[200px] justify-between">
-                            @GetFrameworkCommandLabel()
-                            <Icon Name="LucideIcon.ChevronsUpDown" Class="opacity-50" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent Class="w-[200px] p-0">
-                        <Command>
-                            <CommandInput Placeholder="Search framework..." Class="h-9" />
-                            <CommandList>
-                                <CommandEmpty>No framework found.</CommandEmpty>
-                                <CommandGroup>
-                                    @foreach (var framework in Frameworks)
-                                    {
-                                        <CommandItem SearchValue="@framework" OnSelect="@(() => SelectFrameworkCommand(framework))">
-                                            @framework
-                                            <Icon Name="LucideIcon.Check" Class="@GetFrameworkCommandCheckClass(framework)" />
-                                        </CommandItem>
-                                    }
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
-                    </PopoverContent>
-                </Popover>
-            </DemoSection>
-        </Section>
+        <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Lg">
+            Autocomplete input with a list of suggestions.
+        </Paragraph>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Popover"
-                         Description="The secondary shadcn combobox example for picking a status beside inline label text."
-                         Code="@PopoverStatusCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4">
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Status</Paragraph>
-                    <Popover Open="_statusCommandOpen" OpenChanged="OnStatusCommandOpenChanged">
-                        <PopoverTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Class="w-[150px] justify-start">
-                                @GetStatusCommandLabel()
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent Padding="Padding.Is0" Side="Soenneker.Bradix.Side.Right" Align="Alignment.Start">
-                            <Command>
-                                <CommandInput Placeholder="Change status..." />
-                                <CommandList>
-                                    <CommandEmpty>No results found.</CommandEmpty>
-                                    <CommandGroup>
-                                        @foreach (var status in Statuses)
-                                        {
-                                            <CommandItem SearchValue="@status.Value" OnSelect="@(() => SelectStatusCommand(status))">
-                                                @status.Label
-                                            </CommandItem>
-                                        }
-                                    </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                    </Popover>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextColor="TextColor.MutedForeground">
-                    Quark's dedicated combobox primitive, multi-select patterns, and dialog usage.
-                </Paragraph>
-            </Div>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Input combobox"
-                         Description="Quark's dedicated combobox primitive with inline search, open-state control, and selected value feedback."
-                         Code="@FrameworkCode"
-                         CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is3">
-                    <Combobox Value="@_selectedFramework"
-                              ValueChanged="OnFrameworkChanged"
-                              Search="@_frameworkSearch"
-                              SearchChanged="OnFrameworkSearchChanged"
-                              Open="_frameworkOpen"
-                              OpenChanged="OnFrameworkOpenChanged"
-                              AutoHighlight="true">
-                        <ComboboxInput Placeholder="Select framework..." />
-                        <ComboboxContent>
-                            <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                            <ComboboxList>
-                            @foreach (var framework in FilteredFrameworks)
+        <DemoSection Title="Basic"
+                     Description="A simple combobox with a list of frameworks."
+                     Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_basicFramework"
+                          ValueChanged="OnBasicFrameworkChanged"
+                          Search="@_basicSearch"
+                          SearchChanged="OnBasicSearchChanged"
+                          Open="@_basicOpen"
+                          OpenChanged="OnBasicOpenChanged">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_basicSearch))
                             {
                                 <ComboboxItem Value="@framework">@framework</ComboboxItem>
                             }
-                            </ComboboxList>
-                        </ComboboxContent>
-                    </Combobox>
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
 
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Selected value:
-                        <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@(string.IsNullOrWhiteSpace(_selectedFramework) ? "None" : _selectedFramework)</Span>
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Preset and disabled"
-                         Description="A second combobox with a starting value plus a disabled state for read-only flows."
-                         Code="@PresetDisabledCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap='Gap.Token("6")' Class="md:grid-cols-2">
-                    <Div Space="Space.Y.Is3">
-                        <Combobox Value="@_language"
-                                  ValueChanged="OnLanguageChanged"
-                                  Search="@_languageSearch"
-                                  SearchChanged="OnLanguageSearchChanged"
-                                  Open="_languageOpen"
-                                  OpenChanged="OnLanguageOpenChanged">
-                            <ComboboxInput Placeholder="Choose language..." />
-                            <ComboboxContent>
-                                @foreach (var language in FilteredLanguages)
-                                {
-                                    <ComboboxItem Value="@language">@language</ComboboxItem>
-                                }
-                            </ComboboxContent>
-                        </Combobox>
-
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                            Language:
-                            <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@_language</Span>
-                        </Paragraph>
-                    </Div>
-
-                    <Div Space="Space.Y.Is3">
-                        <Combobox Value="Nuxt.js" Disabled="true">
-                            <ComboboxInput Placeholder="Unavailable" />
-                            <ComboboxContent>
-                                <ComboboxItem Value="Nuxt.js">Nuxt.js</ComboboxItem>
-                            </ComboboxContent>
-                        </Combobox>
-
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Disabled comboboxes keep the same visual treatment without opening the menu.</Paragraph>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Groups"
-                         Description="Use groups, labels, and separators to organize larger result sets."
-                         Code="@GroupsCode"
-                         CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is3">
-                    <Combobox Value="@_timezone"
-                              ValueChanged="OnTimezoneChanged"
-                              Search="@_timezoneSearch"
-                              SearchChanged="OnTimezoneSearchChanged"
-                              Open="_timezoneOpen"
-                              OpenChanged="OnTimezoneOpenChanged"
-                              AutoHighlight="true">
-                        <ComboboxInput Placeholder="Select a timezone" />
-                        <ComboboxContent>
-                            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-                            <ComboboxList>
-                                @for (var groupIndex = 0; groupIndex < FilteredTimezoneGroups.Count; groupIndex++)
-                                {
-                                    var group = FilteredTimezoneGroups[groupIndex];
-                                    <ComboboxGroup>
-                                        <ComboboxLabel>@group.Label</ComboboxLabel>
-                                        @foreach (var item in group.Items)
-                                        {
-                                            <ComboboxItem Value="@item">@item</ComboboxItem>
-                                        }
-                                    </ComboboxGroup>
-
-                                    @if (groupIndex < FilteredTimezoneGroups.Count - 1)
-                                    {
-                                        <ComboboxSeparator />
-                                    }
-                                }
-                            </ComboboxList>
-                        </ComboboxContent>
-                    </Combobox>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Input Group"
-                         Description="ComboboxInput supports inline addons for input-group combobox layouts."
-                         Code="@InputGroupCode"
-                         CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is3">
-                    <Combobox Value="@_timezoneWithAddon"
-                              ValueChanged="OnTimezoneWithAddonChanged"
-                              Search="@_timezoneWithAddonSearch"
-                              SearchChanged="OnTimezoneWithAddonSearchChanged"
-                              Open="_timezoneWithAddonOpen"
-                              OpenChanged="OnTimezoneWithAddonOpenChanged"
-                              AutoHighlight="true">
-                        <ComboboxInput Placeholder="Select a timezone">
-                            <InputGroupAddon>
-                                <Icon Name="LucideIcon.Globe" />
-                            </InputGroupAddon>
-                        </ComboboxInput>
-                        <ComboboxContent AlignOffset="-28" Class="w-60">
-                            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-                            <ComboboxList>
-                                @foreach (var group in FilteredTimezoneGroupsWithAddon)
-                                {
-                                    <ComboboxGroup>
-                                        <ComboboxLabel>@group.Label</ComboboxLabel>
-                                        @foreach (var item in group.Items)
-                                        {
-                                            <ComboboxItem Value="@item">@item</ComboboxItem>
-                                        }
-                                    </ComboboxGroup>
-                                }
-                            </ComboboxList>
-                        </ComboboxContent>
-                    </Combobox>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple Selection"
-                         Description="Use chips plus an inline search input to select and remove multiple values from the same combobox."
-                         Code="@MultipleCode"
-                         CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsLg" Space="Space.Y.Is3">
-                    <Combobox Values="@_selectedFrameworks"
-                              ValueChangedMultiple="OnSelectedFrameworksChanged"
-                              Search="@_multiFrameworkSearch"
-                              SearchChanged="OnMultiFrameworkSearchChanged"
-                              Open="_multiFrameworkOpen"
-                              OpenChanged="OnMultiFrameworkOpenChanged"
-                              Multiple="true"
-                              AutoHighlight="true">
-                        <ComboboxChips>
-                            @foreach (var framework in _selectedFrameworks)
+        <DemoSection Title="Multiple"
+                     Description="A combobox with multiple selection using chips."
+                     Code="@MultipleCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsLg">
+                <Combobox Multiple="true"
+                          Values="@_multipleFrameworks"
+                          ValueChangedMultiple="OnMultipleFrameworksChanged"
+                          Search="@_multipleSearch"
+                          SearchChanged="OnMultipleSearchChanged"
+                          Open="@_multipleOpen"
+                          OpenChanged="OnMultipleOpenChanged">
+                    <ComboboxChips>
+                        @foreach (var framework in _multipleFrameworks)
+                        {
+                            <ComboboxChip Value="@framework">@framework</ComboboxChip>
+                        }
+                        <ComboboxChipsInput Placeholder="Add framework" />
+                    </ComboboxChips>
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_multipleSearch))
                             {
-                                <ComboboxChip Value="@framework">@framework</ComboboxChip>
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
                             }
-                            <ComboboxChipsInput Placeholder="Add frameworks..." />
-                        </ComboboxChips>
-                        <ComboboxContent>
-                            <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                            <ComboboxList>
-                                @foreach (var framework in FilteredFrameworksForMulti)
-                                {
-                                    <ComboboxItem Value="@framework">@framework</ComboboxItem>
-                                }
-                            </ComboboxList>
-                        </ComboboxContent>
-                    </Combobox>
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
 
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Selected frameworks:
-                        <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@(string.Join(", ", _selectedFrameworks))</Span>
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
+        <DemoSection Title="Clear Button"
+                     Description="Use an adjacent clear action when the current value should be easy to reset."
+                     Code="@ClearButtonCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm" Display="Display.Flex" Gap="Gap.Is2" ItemsAlign="Items.Center">
+                <Combobox Value="@_clearFramework"
+                          ValueChanged="OnClearFrameworkChanged"
+                          Search="@_clearSearch"
+                          SearchChanged="OnClearSearchChanged"
+                          Open="@_clearOpen"
+                          OpenChanged="OnClearOpenChanged">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_clearSearch))
+                            {
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="ClearFramework">
+                    <Icon Name="LucideIcon.X" />
+                    <Span Class="sr-only">Clear</Span>
+                </Button>
+            </Div>
+        </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple States"
-                         Description="Disabled, invalid, and no-remove variants cover the remaining multi-select combobox patterns."
-                         Code="@MultipleStatesCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap='Gap.Token("6")' Class="lg:grid-cols-3">
-                    <Div Space="Space.Y.Is3">
-                        <Combobox Values="@_disabledFrameworksSelection"
-                                  Multiple="true"
-                                  Disabled="true">
-                            <ComboboxChips>
-                                @foreach (var framework in _disabledFrameworksSelection)
-                                {
-                                    <ComboboxChip Value="@framework">@framework</ComboboxChip>
-                                }
-                                <ComboboxChipsInput Placeholder="Disabled" Disabled="true" />
-                            </ComboboxChips>
-                            <ComboboxContent>
-                                <ComboboxList>
-                                    @foreach (var framework in Frameworks)
+        <DemoSection Title="Groups"
+                     Description="Use groups, labels, and separators to organize larger result sets."
+                     Code="@GroupsCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_timezone"
+                          ValueChanged="OnTimezoneChanged"
+                          Search="@_timezoneSearch"
+                          SearchChanged="OnTimezoneSearchChanged"
+                          Open="@_timezoneOpen"
+                          OpenChanged="OnTimezoneOpenChanged">
+                    <ComboboxInput Placeholder="Select a timezone" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @for (var groupIndex = 0; groupIndex < FilterTimezoneGroups(_timezoneSearch).Count; groupIndex++)
+                            {
+                                var group = FilterTimezoneGroups(_timezoneSearch)[groupIndex];
+                                <ComboboxGroup>
+                                    <ComboboxLabel>@group.Label</ComboboxLabel>
+                                    @foreach (var item in group.Items)
                                     {
-                                        <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                                        <ComboboxItem Value="@item">@item</ComboboxItem>
                                     }
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Disabled chips keep the selected values visible without allowing edits.</Paragraph>
-                    </Div>
+                                </ComboboxGroup>
 
-                    <Div Space="Space.Y.Is3">
-                        <Combobox Values="@_invalidFrameworks"
-                                  ValueChangedMultiple="OnInvalidFrameworksChanged"
-                                  Search="@_invalidFrameworkSearch"
-                                  SearchChanged="OnInvalidFrameworkSearchChanged"
-                                  Open="_invalidFrameworkOpen"
-                                  OpenChanged="OnInvalidFrameworkOpenChanged"
-                                  Multiple="true"
-                                  AutoHighlight="true">
-                            <ComboboxChips>
-                                @foreach (var framework in _invalidFrameworks)
+                                @if (groupIndex < FilterTimezoneGroups(_timezoneSearch).Count - 1)
                                 {
-                                    <ComboboxChip Value="@framework">@framework</ComboboxChip>
+                                    <ComboboxSeparator />
                                 }
-                                <ComboboxChipsInput Placeholder="Frameworks" aria-invalid="true" />
-                            </ComboboxChips>
-                            <ComboboxContent>
-                                <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                                <ComboboxList>
-                                    @foreach (var framework in FilteredInvalidFrameworks)
-                                    {
-                                        <ComboboxItem Value="@framework">@framework</ComboboxItem>
-                                    }
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive">Select at least one framework before continuing.</Paragraph>
-                    </Div>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
 
-                    <Div Space="Space.Y.Is3">
-                        <Combobox Values="@_lockedFrameworks"
-                                  ValueChangedMultiple="OnLockedFrameworksChanged"
-                                  Search="@_lockedFrameworkSearch"
-                                  SearchChanged="OnLockedFrameworkSearchChanged"
-                                  Open="_lockedFrameworkOpen"
-                                  OpenChanged="OnLockedFrameworkOpenChanged"
-                                  Multiple="true"
-                                  AutoHighlight="true">
-                            <ComboboxChips>
-                                @foreach (var framework in _lockedFrameworks)
+        <DemoSection Title="Custom Items"
+                     Description="Render richer content inside each combobox item."
+                     Code="@CustomItemsCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_customFramework"
+                          ValueChanged="OnCustomFrameworkChanged"
+                          Search="@_customSearch"
+                          SearchChanged="OnCustomSearchChanged"
+                          Open="@_customOpen"
+                          OpenChanged="OnCustomOpenChanged">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FrameworkOptions.Where(option => Matches(option.Label, _customSearch)))
+                            {
+                                <ComboboxItem Value="@framework.Label">
+                                    <Div Display="Display.Flex" FlexDirection="FlexDirection.Col">
+                                        <Span FontWeight="FontWeight.Medium">@framework.Label</Span>
+                                        <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">@framework.Description</Span>
+                                    </Div>
+                                </ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Invalid"
+                     Description="Use aria-invalid to display the invalid combobox state."
+                     Code="@InvalidCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is2">
+                <Combobox Value="@_invalidFramework"
+                          ValueChanged="OnInvalidFrameworkChanged"
+                          Search="@_invalidSearch"
+                          SearchChanged="OnInvalidSearchChanged"
+                          Open="@_invalidOpen"
+                          OpenChanged="OnInvalidOpenChanged">
+                    <ComboboxInput Placeholder="Select a framework" aria-invalid="true" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_invalidSearch))
+                            {
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive" Margin="Margin.Is0">
+                    Select a framework before continuing.
+                </Paragraph>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Disabled"
+                     Description="Use disabled to prevent changes while preserving the selected value."
+                     Code="@DisabledCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="Nuxt.js" Disabled="true">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxItem Value="Nuxt.js">Nuxt.js</ComboboxItem>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Auto Highlight"
+                     Description="Use AutoHighlight to highlight the first matching item as the user filters."
+                     Code="@AutoHighlightCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_autoFramework"
+                          ValueChanged="OnAutoFrameworkChanged"
+                          Search="@_autoSearch"
+                          SearchChanged="OnAutoSearchChanged"
+                          Open="@_autoOpen"
+                          OpenChanged="OnAutoOpenChanged"
+                          AutoHighlight="true">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_autoSearch))
+                            {
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Popup"
+                     Description="Trigger a command-style combobox from a button."
+                     Code="@PopupCode"
+                     CodeLanguage="razor">
+            <Popover Open="@_popupOpen" OpenChanged="OnPopupOpenChanged">
+                <PopoverTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Outline"
+                            role="combobox"
+                            aria-expanded="@_popupOpen"
+                            Class="w-[200px] justify-between">
+                        @(string.IsNullOrWhiteSpace(_popupFramework) ? "Select framework" : _popupFramework)
+                        <Icon Name="LucideIcon.ChevronsUpDown" Class="opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent Class="w-[200px] p-0">
+                    <Command>
+                        <CommandInput Placeholder="Search framework..." Class="h-9" />
+                        <CommandList>
+                            <CommandEmpty>No framework found.</CommandEmpty>
+                            <CommandGroup>
+                                @foreach (var framework in Frameworks)
                                 {
-                                    <ComboboxChip Value="@framework" ShowRemove="false">@framework</ComboboxChip>
+                                    <CommandItem SearchValue="@framework" OnSelect="@(() => SelectPopupFramework(framework))">
+                                        @framework
+                                        <Icon Name="LucideIcon.Check" Class="@GetPopupCheckClass(framework)" />
+                                    </CommandItem>
                                 }
-                                <ComboboxChipsInput Placeholder="Add frameworks..." />
-                            </ComboboxChips>
-                            <ComboboxContent>
-                                <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                                <ComboboxList>
-                                    @foreach (var framework in FilteredLockedFrameworks)
-                                    {
-                                        <ComboboxItem Value="@framework">@framework</ComboboxItem>
-                                    }
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Hide chip removal when selections should only change from the results list.</Paragraph>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="In Dialog"
-                         Description="Combobox popups should continue to position and filter correctly when opened from inside a dialog."
-                         Code="@DialogCode"
-                         CodeLanguage="razor">
-                <Dialog>
-                    <DialogTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Open dialog</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Select framework</DialogTitle>
-                            <DialogDescription>Choose your preferred framework from the same combobox primitive.</DialogDescription>
-                        </DialogHeader>
-
-                        <Combobox Value="@_dialogFramework"
-                                  ValueChanged="OnDialogFrameworkChanged"
-                                  Search="@_dialogFrameworkSearch"
-                                  SearchChanged="OnDialogFrameworkSearchChanged"
-                                  Open="_dialogFrameworkOpen"
-                                  OpenChanged="OnDialogFrameworkOpenChanged"
-                                  AutoHighlight="true">
-                            <ComboboxInput Placeholder="Select framework..." />
-                            <ComboboxContent>
-                                <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                                <ComboboxList>
-                                    @foreach (var framework in FilteredDialogFrameworks)
+        <DemoSection Title="Input Group"
+                     Description="Add an addon inside the combobox input."
+                     Code="@InputGroupCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_inputGroupTimezone"
+                          ValueChanged="OnInputGroupTimezoneChanged"
+                          Search="@_inputGroupSearch"
+                          SearchChanged="OnInputGroupSearchChanged"
+                          Open="@_inputGroupOpen"
+                          OpenChanged="OnInputGroupOpenChanged">
+                    <ComboboxInput Placeholder="Select a timezone">
+                        <InputGroupAddon>
+                            <Icon Name="LucideIcon.Globe" />
+                        </InputGroupAddon>
+                    </ComboboxInput>
+                    <ComboboxContent AlignOffset="-28" Class="w-60">
+                        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var group in FilterTimezoneGroups(_inputGroupSearch))
+                            {
+                                <ComboboxGroup>
+                                    <ComboboxLabel>@group.Label</ComboboxLabel>
+                                    @foreach (var item in group.Items)
                                     {
-                                        <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                                        <ComboboxItem Value="@item">@item</ComboboxItem>
                                     }
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                    </DialogContent>
-                </Dialog>
-            </DemoSection>
-        </Section>
+                                </ComboboxGroup>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="RTL"
+                     Description="Comboboxes inherit right-to-left direction from the surrounding document or container."
+                     Code="@RtlCode"
+                     CodeLanguage="razor">
+            <Div dir="rtl" MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_rtlCategory"
+                          ValueChanged="OnRtlCategoryChanged"
+                          Search="@_rtlSearch"
+                          SearchChanged="OnRtlSearchChanged"
+                          Open="@_rtlOpen"
+                          OpenChanged="OnRtlOpenChanged">
+                    <ComboboxInput Placeholder="الفئات" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>لا توجد نتائج.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var category in ArabicCategories.Where(category => Matches(category, _rtlSearch)))
+                            {
+                                <ComboboxItem Value="@category">@category</ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
     </Div>
 </Div>
 
 @code {
+    private sealed record FrameworkOption(string Label, string Description);
     private sealed record TimezoneGroup(string Label, string[] Items);
-    private sealed record StatusOption(string Value, string Label);
 
     private static readonly string[] Frameworks =
     [
@@ -420,355 +339,115 @@
         "Astro"
     ];
 
-    private static readonly string[] Languages =
+    private static readonly FrameworkOption[] FrameworkOptions =
     [
-        "English",
-        "Spanish",
-        "German",
-        "Japanese",
-        "Arabic"
-    ];
-
-    private static readonly StatusOption[] Statuses =
-    [
-        new("backlog", "Backlog"),
-        new("todo", "Todo"),
-        new("in progress", "In Progress"),
-        new("done", "Done"),
-        new("canceled", "Canceled")
+        new("Next.js", "React framework for production"),
+        new("SvelteKit", "Application framework for Svelte"),
+        new("Nuxt.js", "The intuitive Vue framework"),
+        new("Remix", "Full stack web framework"),
+        new("Astro", "Content-driven site framework")
     ];
 
     private static readonly TimezoneGroup[] TimezoneGroups =
     [
-        new("Americas",
-        [
-            "(GMT-5) New York",
-            "(GMT-8) Los Angeles",
-            "(GMT-6) Chicago"
-        ]),
-        new("Europe",
-        [
-            "(GMT+0) London",
-            "(GMT+1) Paris",
-            "(GMT+1) Berlin"
-        ]),
-        new("Asia/Pacific",
-        [
-            "(GMT+9) Tokyo",
-            "(GMT+8) Singapore",
-            "(GMT+11) Sydney"
-        ])
+        new("Americas", ["(GMT-5) New York", "(GMT-8) Los Angeles", "(GMT-6) Chicago"]),
+        new("Europe", ["(GMT+0) London", "(GMT+1) Paris", "(GMT+1) Berlin"]),
+        new("Asia/Pacific", ["(GMT+9) Tokyo", "(GMT+8) Singapore", "(GMT+11) Sydney"])
     ];
 
-    private string? _selectedFramework;
-    private string? _frameworkSearch;
-    private bool _frameworkOpen;
-    private string? _frameworkCommandValue;
-    private bool _frameworkCommandOpen;
-    private StatusOption? _selectedStatus;
-    private bool _statusCommandOpen;
+    private static readonly string[] ArabicCategories =
+    [
+        "التكنولوجيا",
+        "التصميم",
+        "الأعمال",
+        "التسويق"
+    ];
 
-    private string _language = "English";
-    private string? _languageSearch;
-    private bool _languageOpen;
+    private string? _basicFramework;
+    private string? _basicSearch;
+    private bool _basicOpen;
+    private string[] _multipleFrameworks = ["Next.js"];
+    private string? _multipleSearch;
+    private bool _multipleOpen;
+    private string? _clearFramework = "Next.js";
+    private string? _clearSearch = "Next.js";
+    private bool _clearOpen;
     private string? _timezone;
     private string? _timezoneSearch;
     private bool _timezoneOpen;
-    private string? _timezoneWithAddon;
-    private string? _timezoneWithAddonSearch;
-    private bool _timezoneWithAddonOpen;
-    private string[] _selectedFrameworks = ["Next.js"];
-    private string? _multiFrameworkSearch;
-    private bool _multiFrameworkOpen;
-    private string[] _disabledFrameworksSelection = ["Next.js", "SvelteKit"];
-    private string[] _invalidFrameworks = ["Next.js", "SvelteKit"];
-    private string? _invalidFrameworkSearch;
-    private bool _invalidFrameworkOpen;
-    private string[] _lockedFrameworks = ["Next.js", "SvelteKit"];
-    private string? _lockedFrameworkSearch;
-    private bool _lockedFrameworkOpen;
-    private string? _dialogFramework;
-    private string? _dialogFrameworkSearch;
-    private bool _dialogFrameworkOpen;
+    private string? _customFramework;
+    private string? _customSearch;
+    private bool _customOpen;
+    private string? _invalidFramework;
+    private string? _invalidSearch;
+    private bool _invalidOpen;
+    private string? _autoFramework;
+    private string? _autoSearch;
+    private bool _autoOpen;
+    private string? _popupFramework;
+    private bool _popupOpen;
+    private string? _inputGroupTimezone;
+    private string? _inputGroupSearch;
+    private bool _inputGroupOpen;
+    private string? _rtlCategory;
+    private string? _rtlSearch;
+    private bool _rtlOpen;
 
-    private IEnumerable<string> FilteredFrameworks =>
-        FilterFrameworks(_frameworkSearch);
-
-    private IEnumerable<string> FilteredLanguages =>
-        Languages.Where(language =>
-            string.IsNullOrWhiteSpace(_languageSearch) ||
-            language.Contains(_languageSearch, StringComparison.OrdinalIgnoreCase));
-
-    private List<TimezoneGroup> FilteredTimezoneGroups => FilterTimezoneGroups(_timezoneSearch);
-
-    private List<TimezoneGroup> FilteredTimezoneGroupsWithAddon => FilterTimezoneGroups(_timezoneWithAddonSearch);
-
-    private IEnumerable<string> FilteredFrameworksForMulti => FilterFrameworks(_multiFrameworkSearch);
-
-    private IEnumerable<string> FilteredInvalidFrameworks => FilterFrameworks(_invalidFrameworkSearch);
-
-    private IEnumerable<string> FilteredLockedFrameworks => FilterFrameworks(_lockedFrameworkSearch);
-
-    private IEnumerable<string> FilteredDialogFrameworks => FilterFrameworks(_dialogFrameworkSearch);
-
-    private string GetFrameworkCommandLabel()
+    private static IEnumerable<string> FilterFrameworks(string? search)
     {
-        return string.IsNullOrWhiteSpace(_frameworkCommandValue) ? "Select framework..." : _frameworkCommandValue;
-    }
-
-    private string GetFrameworkCommandCheckClass(string framework)
-    {
-        return string.Equals(_frameworkCommandValue, framework, StringComparison.Ordinal) ? "ml-auto opacity-100" : "ml-auto opacity-0";
-    }
-
-    private string GetStatusCommandLabel()
-    {
-        return _selectedStatus is null ? "+ Set status" : _selectedStatus.Label;
-    }
-
-    private Task OnFrameworkCommandOpenChanged(bool value)
-    {
-        _frameworkCommandOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task SelectFrameworkCommand(string framework)
-    {
-        _frameworkCommandValue = string.Equals(_frameworkCommandValue, framework, StringComparison.Ordinal) ? null : framework;
-        _frameworkCommandOpen = false;
-        return Task.CompletedTask;
-    }
-
-    private Task OnStatusCommandOpenChanged(bool value)
-    {
-        _statusCommandOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task SelectStatusCommand(StatusOption status)
-    {
-        _selectedStatus = status;
-        _statusCommandOpen = false;
-        return Task.CompletedTask;
-    }
-
-    private Task OnFrameworkChanged(string? value)
-    {
-        _selectedFramework = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnFrameworkSearchChanged(string? value)
-    {
-        _frameworkSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnFrameworkOpenChanged(bool value)
-    {
-        _frameworkOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLanguageChanged(string? value)
-    {
-        _language = value ?? _language;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLanguageSearchChanged(string? value)
-    {
-        _languageSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLanguageOpenChanged(bool value)
-    {
-        _languageOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneChanged(string? value)
-    {
-        _timezone = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneSearchChanged(string? value)
-    {
-        _timezoneSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneOpenChanged(bool value)
-    {
-        _timezoneOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneWithAddonChanged(string? value)
-    {
-        _timezoneWithAddon = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneWithAddonSearchChanged(string? value)
-    {
-        _timezoneWithAddonSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnTimezoneWithAddonOpenChanged(bool value)
-    {
-        _timezoneWithAddonOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnSelectedFrameworksChanged(string[] values)
-    {
-        _selectedFrameworks = values;
-        return Task.CompletedTask;
-    }
-
-    private Task OnMultiFrameworkSearchChanged(string? value)
-    {
-        _multiFrameworkSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnMultiFrameworkOpenChanged(bool value)
-    {
-        _multiFrameworkOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnInvalidFrameworksChanged(string[] values)
-    {
-        _invalidFrameworks = values;
-        return Task.CompletedTask;
-    }
-
-    private Task OnInvalidFrameworkSearchChanged(string? value)
-    {
-        _invalidFrameworkSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnInvalidFrameworkOpenChanged(bool value)
-    {
-        _invalidFrameworkOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLockedFrameworksChanged(string[] values)
-    {
-        _lockedFrameworks = values;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLockedFrameworkSearchChanged(string? value)
-    {
-        _lockedFrameworkSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnLockedFrameworkOpenChanged(bool value)
-    {
-        _lockedFrameworkOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnDialogFrameworkChanged(string? value)
-    {
-        _dialogFramework = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnDialogFrameworkSearchChanged(string? value)
-    {
-        _dialogFrameworkSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnDialogFrameworkOpenChanged(bool value)
-    {
-        _dialogFrameworkOpen = value;
-        return Task.CompletedTask;
+        return Frameworks.Where(framework => Matches(framework, search));
     }
 
     private static List<TimezoneGroup> FilterTimezoneGroups(string? search)
     {
         return TimezoneGroups
-            .Select(group => new TimezoneGroup(
-                group.Label,
-                group.Items.Where(item =>
-                        string.IsNullOrWhiteSpace(search) ||
-                        item.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    .ToArray()))
+            .Select(group => new TimezoneGroup(group.Label, group.Items.Where(item => Matches(item, search)).ToArray()))
             .Where(group => group.Items.Length > 0)
             .ToList();
     }
 
-    private static IEnumerable<string> FilterFrameworks(string? search)
+    private static bool Matches(string value, string? search)
     {
-        return Frameworks.Where(framework =>
-            string.IsNullOrWhiteSpace(search) ||
-            framework.Contains(search, StringComparison.OrdinalIgnoreCase));
+        return string.IsNullOrWhiteSpace(search) || value.Contains(search, StringComparison.OrdinalIgnoreCase);
     }
 
-    private const string PopoverFrameworkCode =
-@"<Popover Open=""_frameworkCommandOpen"" OpenChanged=""OnFrameworkCommandOpenChanged"">
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" role=""combobox"" aria-expanded=""@_frameworkCommandOpen"" Class=""w-[200px] justify-between"">
-            @GetFrameworkCommandLabel()
-            <Icon Name=""LucideIcon.ChevronsUpDown"" Class=""opacity-50"" />
-        </Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-[200px] p-0"">
-        <Command>
-            <CommandInput Placeholder=""Search framework..."" Class=""h-9"" />
-            <CommandList>
-                <CommandEmpty>No framework found.</CommandEmpty>
-                <CommandGroup>
-                    <CommandItem SearchValue=""Next.js"">
-                        Next.js
-                        <Icon Name=""LucideIcon.Check"" Class=""ml-auto opacity-100"" />
-                    </CommandItem>
-                </CommandGroup>
-            </CommandList>
-        </Command>
-    </PopoverContent>
-</Popover>";
+    private Task OnBasicFrameworkChanged(string? value) { _basicFramework = value; return Task.CompletedTask; }
+    private Task OnBasicSearchChanged(string? value) { _basicSearch = value; return Task.CompletedTask; }
+    private Task OnBasicOpenChanged(bool value) { _basicOpen = value; return Task.CompletedTask; }
+    private Task OnMultipleFrameworksChanged(string[] values) { _multipleFrameworks = values; return Task.CompletedTask; }
+    private Task OnMultipleSearchChanged(string? value) { _multipleSearch = value; return Task.CompletedTask; }
+    private Task OnMultipleOpenChanged(bool value) { _multipleOpen = value; return Task.CompletedTask; }
+    private Task OnClearFrameworkChanged(string? value) { _clearFramework = value; return Task.CompletedTask; }
+    private Task OnClearSearchChanged(string? value) { _clearSearch = value; return Task.CompletedTask; }
+    private Task OnClearOpenChanged(bool value) { _clearOpen = value; return Task.CompletedTask; }
+    private Task ClearFramework(MouseEventArgs _) { _clearFramework = null; _clearSearch = null; return Task.CompletedTask; }
+    private Task OnTimezoneChanged(string? value) { _timezone = value; return Task.CompletedTask; }
+    private Task OnTimezoneSearchChanged(string? value) { _timezoneSearch = value; return Task.CompletedTask; }
+    private Task OnTimezoneOpenChanged(bool value) { _timezoneOpen = value; return Task.CompletedTask; }
+    private Task OnCustomFrameworkChanged(string? value) { _customFramework = value; return Task.CompletedTask; }
+    private Task OnCustomSearchChanged(string? value) { _customSearch = value; return Task.CompletedTask; }
+    private Task OnCustomOpenChanged(bool value) { _customOpen = value; return Task.CompletedTask; }
+    private Task OnInvalidFrameworkChanged(string? value) { _invalidFramework = value; return Task.CompletedTask; }
+    private Task OnInvalidSearchChanged(string? value) { _invalidSearch = value; return Task.CompletedTask; }
+    private Task OnInvalidOpenChanged(bool value) { _invalidOpen = value; return Task.CompletedTask; }
+    private Task OnAutoFrameworkChanged(string? value) { _autoFramework = value; return Task.CompletedTask; }
+    private Task OnAutoSearchChanged(string? value) { _autoSearch = value; return Task.CompletedTask; }
+    private Task OnAutoOpenChanged(bool value) { _autoOpen = value; return Task.CompletedTask; }
+    private Task OnPopupOpenChanged(bool value) { _popupOpen = value; return Task.CompletedTask; }
+    private Task SelectPopupFramework(string framework) { _popupFramework = string.Equals(_popupFramework, framework, StringComparison.Ordinal) ? null : framework; _popupOpen = false; return Task.CompletedTask; }
+    private string GetPopupCheckClass(string framework) => string.Equals(_popupFramework, framework, StringComparison.Ordinal) ? "ml-auto opacity-100" : "ml-auto opacity-0";
+    private Task OnInputGroupTimezoneChanged(string? value) { _inputGroupTimezone = value; return Task.CompletedTask; }
+    private Task OnInputGroupSearchChanged(string? value) { _inputGroupSearch = value; return Task.CompletedTask; }
+    private Task OnInputGroupOpenChanged(bool value) { _inputGroupOpen = value; return Task.CompletedTask; }
+    private Task OnRtlCategoryChanged(string? value) { _rtlCategory = value; return Task.CompletedTask; }
+    private Task OnRtlSearchChanged(string? value) { _rtlSearch = value; return Task.CompletedTask; }
+    private Task OnRtlOpenChanged(bool value) { _rtlOpen = value; return Task.CompletedTask; }
 
-    private const string PopoverStatusCode =
-@"<Div Class=""flex items-center space-x-4"">
-    <Paragraph Class=""text-sm text-muted-foreground"" Margin=""Margin.Is0"">Status</Paragraph>
-    <Popover Open=""_statusCommandOpen"" OpenChanged=""OnStatusCommandOpenChanged"">
-        <PopoverTrigger AsChild=""true"">
-            <Button Variant=""ButtonVariant.Outline"" Class=""w-[150px] justify-start"">
-                @GetStatusCommandLabel()
-            </Button>
-        </PopoverTrigger>
-        <PopoverContent Class=""p-0"" Side=""Soenneker.Bradix.Side.Right"" Align=""Alignment.Start"">
-            <Command>
-                <CommandInput Placeholder=""Change status..."" />
-                <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup>
-                        <CommandItem SearchValue=""backlog"">Backlog</CommandItem>
-                        <CommandItem SearchValue=""todo"">Todo</CommandItem>
-                    </CommandGroup>
-                </CommandList>
-            </Command>
-        </PopoverContent>
-    </Popover>
-</Div>";
-
-    private const string FrameworkCode =
-@"<Combobox Value=""selectedFramework"" ValueChanged=""OnFrameworkChanged"" Search=""search"" SearchChanged=""OnSearchChanged"">
-    <ComboboxInput Placeholder=""Select framework..."" />
+    private const string BasicCode =
+@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
+    <ComboboxInput Placeholder=""Select a framework"" />
     <ComboboxContent>
-        <ComboboxEmpty>No framework found.</ComboboxEmpty>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
             <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
             <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
@@ -777,15 +456,28 @@
     </ComboboxContent>
 </Combobox>";
 
-    private const string PresetDisabledCode =
-@"<Combobox Value=""_language"" ValueChanged=""OnLanguageChanged"" ...>
-    <ComboboxInput Placeholder=""Choose language..."" />
+    private const string MultipleCode =
+@"<Combobox Multiple=""true"" Values=""@frameworks"" ValueChangedMultiple=""OnFrameworksChanged"">
+    <ComboboxChips>
+        <ComboboxChip Value=""Next.js"">Next.js</ComboboxChip>
+        <ComboboxChipsInput Placeholder=""Add framework"" />
+    </ComboboxChips>
     <ComboboxContent>...</ComboboxContent>
-</Combobox>
-<Combobox Disabled=""true"">...</Combobox>";
+</Combobox>";
+
+    private const string ClearButtonCode =
+@"<Div Class=""flex items-center gap-2"">
+    <Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>...</ComboboxContent>
+    </Combobox>
+    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" OnClick=""ClearFramework"">
+        <Icon Name=""LucideIcon.X"" />
+    </Button>
+</Div>";
 
     private const string GroupsCode =
-@"<Combobox AutoHighlight=""true"">
+@"<Combobox>
     <ComboboxInput Placeholder=""Select a timezone"" />
     <ComboboxContent>
         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
@@ -793,7 +485,6 @@
             <ComboboxGroup>
                 <ComboboxLabel>Americas</ComboboxLabel>
                 <ComboboxItem Value=""(GMT-5) New York"">(GMT-5) New York</ComboboxItem>
-                <ComboboxItem Value=""(GMT-8) Los Angeles"">(GMT-8) Los Angeles</ComboboxItem>
             </ComboboxGroup>
             <ComboboxSeparator />
             <ComboboxGroup>
@@ -804,72 +495,70 @@
     </ComboboxContent>
 </Combobox>";
 
-    private const string InputGroupCode =
+    private const string CustomItemsCode =
+@"<Combobox>
+    <ComboboxInput Placeholder=""Select a framework"" />
+    <ComboboxContent>
+        <ComboboxList>
+            <ComboboxItem Value=""Next.js"">
+                <Div Class=""flex flex-col"">
+                    <Span Class=""font-medium"">Next.js</Span>
+                    <Span Class=""text-xs text-muted-foreground"">React framework for production</Span>
+                </Div>
+            </ComboboxItem>
+        </ComboboxList>
+    </ComboboxContent>
+</Combobox>";
+
+    private const string InvalidCode =
+@"<Combobox>
+    <ComboboxInput Placeholder=""Select a framework"" aria-invalid=""true"" />
+    <ComboboxContent>...</ComboboxContent>
+</Combobox>";
+
+    private const string DisabledCode =
+@"<Combobox Value=""Nuxt.js"" Disabled=""true"">
+    <ComboboxInput Placeholder=""Select a framework"" />
+    <ComboboxContent>...</ComboboxContent>
+</Combobox>";
+
+    private const string AutoHighlightCode =
 @"<Combobox AutoHighlight=""true"">
+    <ComboboxInput Placeholder=""Select a framework"" />
+    <ComboboxContent>...</ComboboxContent>
+</Combobox>";
+
+    private const string PopupCode =
+@"<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"" role=""combobox"">
+            Select framework
+            <Icon Name=""LucideIcon.ChevronsUpDown"" />
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-[200px] p-0"">
+        <Command>
+            <CommandInput Placeholder=""Search framework..."" />
+            <CommandList>...</CommandList>
+        </Command>
+    </PopoverContent>
+</Popover>";
+
+    private const string InputGroupCode =
+@"<Combobox>
     <ComboboxInput Placeholder=""Select a timezone"">
         <InputGroupAddon>
             <Icon Name=""LucideIcon.Globe"" />
         </InputGroupAddon>
     </ComboboxInput>
-    <ComboboxContent AlignOffset=""-28"" Class=""w-60"">
-        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-        <ComboboxList>
-            <ComboboxGroup>
-                <ComboboxLabel>Americas</ComboboxLabel>
-                <ComboboxItem Value=""(GMT-5) New York"">(GMT-5) New York</ComboboxItem>
-            </ComboboxGroup>
-        </ComboboxList>
-    </ComboboxContent>
+    <ComboboxContent>...</ComboboxContent>
 </Combobox>";
 
-    private const string MultipleCode =
-@"<Combobox Multiple=""true"" Values=""selectedFrameworks"" ValueChangedMultiple=""OnSelectedFrameworksChanged"" AutoHighlight=""true"">
-    <ComboboxChips>
-        <ComboboxChip Value=""Next.js"">Next.js</ComboboxChip>
-        <ComboboxChip Value=""SvelteKit"">SvelteKit</ComboboxChip>
-        <ComboboxChipsInput Placeholder=""Add frameworks..."" />
-    </ComboboxChips>
-    <ComboboxContent>
-        <ComboboxEmpty>No framework found.</ComboboxEmpty>
-        <ComboboxList>
-            <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
-            <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
-            <ComboboxItem Value=""Nuxt.js"">Nuxt.js</ComboboxItem>
-        </ComboboxList>
-    </ComboboxContent>
-</Combobox>";
-
-    private const string MultipleStatesCode =
-@"<Combobox Multiple=""true"" Values=""selectedFrameworks"" AutoHighlight=""true"">
-    <ComboboxChips>
-        <ComboboxChip Value=""Next.js"" ShowRemove=""false"">Next.js</ComboboxChip>
-        <ComboboxChip Value=""SvelteKit"">SvelteKit</ComboboxChip>
-        <ComboboxChipsInput Placeholder=""Add frameworks..."" aria-invalid=""true"" />
-    </ComboboxChips>
-    <ComboboxContent>
-        <ComboboxList>
-            <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
-            <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
-        </ComboboxList>
-    </ComboboxContent>
-</Combobox>";
-
-    private const string DialogCode =
-@"<Dialog>
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Open dialog</Button>
-    </DialogTrigger>
-    <DialogContent>
-        <Combobox AutoHighlight=""true"">
-            <ComboboxInput Placeholder=""Select framework..."" />
-            <ComboboxContent>
-                <ComboboxEmpty>No framework found.</ComboboxEmpty>
-                <ComboboxList>
-                    <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
-                    <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
-                </ComboboxList>
-            </ComboboxContent>
-        </Combobox>
-    </DialogContent>
-</Dialog>";
+    private const string RtlCode =
+@"<Div dir=""rtl"">
+    <Combobox>
+        <ComboboxInput Placeholder=""الفئات"" />
+        <ComboboxContent>...</ComboboxContent>
+    </Combobox>
+</Div>";
 }

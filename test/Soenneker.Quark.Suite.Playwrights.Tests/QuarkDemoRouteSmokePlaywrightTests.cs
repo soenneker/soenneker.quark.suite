@@ -32,7 +32,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
         });
 
         await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
-        string landingBodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+        var landingBodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
         landingBodyText.Should().NotBeNullOrWhiteSpace();
 
         page.Console += (_, message) =>
@@ -45,7 +45,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (string route in DiscoverDemoRoutes())
+        foreach (var route in DiscoverDemoRoutes())
         {
             runtimeErrors.Clear();
 
@@ -59,7 +59,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
                 await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
 
-                bool hasVisibleBlazorError = await page.EvaluateAsync<bool>(
+                var hasVisibleBlazorError = await page.EvaluateAsync<bool>(
                     @"() => {
                         const errorUi = document.querySelector('#blazor-error-ui');
                         if (!errorUi) return false;
@@ -71,7 +71,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 if (hasVisibleBlazorError)
                     failures.Add($"{route}: visible Blazor error UI");
 
-                string bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
 
                 if (string.IsNullOrWhiteSpace(bodyText))
                     failures.Add($"{route}: empty page body");
@@ -107,7 +107,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (string route in DiscoverDemoRoutes())
+        foreach (var route in DiscoverDemoRoutes())
         {
             runtimeErrors.Clear();
 
@@ -121,7 +121,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
                 await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
 
-                bool hasVisibleBlazorError = await page.EvaluateAsync<bool>(
+                var hasVisibleBlazorError = await page.EvaluateAsync<bool>(
                     @"() => {
                         const errorUi = document.querySelector('#blazor-error-ui');
                         if (!errorUi) return false;
@@ -133,12 +133,12 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 if (hasVisibleBlazorError)
                     failures.Add($"{route}: visible Blazor error UI");
 
-                string bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
 
                 if (string.IsNullOrWhiteSpace(bodyText))
                     failures.Add($"{route}: empty page body");
 
-                double overflow = await page.EvaluateAsync<double>(
+                var overflow = await page.EvaluateAsync<double>(
                     @"() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth)");
 
                 if (overflow > 24)
@@ -158,8 +158,8 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
     private static IReadOnlyList<string> DiscoverDemoRoutes()
     {
-        string root = FindRepositoryRoot();
-        string pagesRoot = Path.Combine(root, "test", "Soenneker.Quark.Suite.Demo", "Pages");
+        var root = FindRepositoryRoot();
+        var pagesRoot = Path.Combine(root, "test", "Soenneker.Quark.Suite.Demo", "Pages");
 
         return Directory.EnumerateFiles(pagesRoot, "*.razor", SearchOption.AllDirectories)
             .SelectMany(file => DemoPageRouteRegex().Matches(File.ReadAllText(file)).Select(match => match.Groups[1].Value))

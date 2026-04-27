@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark.Forms
 @inherits Soenneker.Quark.Element
-@implements IDisposable
 
 <CascadingValue Name="ParentFormItem" Value="@this" IsFixed="true">
     <CascadingValue Value="_fieldContext" IsFixed="false">
@@ -46,7 +45,7 @@
 
         if (Horizontal)
         {
-            ItemsAlign ??= Quark.Items.Center;
+            ItemsAlign ??= Items.Center;
         }
     }
 
@@ -80,6 +79,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Horizontal);
         hc.Add(Disabled);
         hc.Add(IsInvalid);

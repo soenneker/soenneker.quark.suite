@@ -244,15 +244,25 @@
         CleanupSwipeDismissedIds();
     }
 
-    private static int GetPositionOrder(SonnerPosition position) => position?.Value switch
+    private static int GetPositionOrder(SonnerPosition position)
     {
-        SonnerPosition.TopLeftValue => 0,
-        SonnerPosition.TopCenterValue => 1,
-        SonnerPosition.TopRightValue => 2,
-        SonnerPosition.BottomLeftValue => 3,
-        SonnerPosition.BottomCenterValue => 4,
-        _ => 5
-    };
+        if (ReferenceEquals(position, SonnerPosition.TopLeft))
+            return 0;
+
+        if (ReferenceEquals(position, SonnerPosition.TopCenter))
+            return 1;
+
+        if (ReferenceEquals(position, SonnerPosition.TopRight))
+            return 2;
+
+        if (ReferenceEquals(position, SonnerPosition.BottomLeft))
+            return 3;
+
+        if (ReferenceEquals(position, SonnerPosition.BottomCenter))
+            return 4;
+
+        return 5;
+    }
 
     private static string GetToasterClass() => "toaster group";
 
@@ -304,65 +314,91 @@
         return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
     }
 
-    private static string GetDataType(SonnerToast toast) => toast.Type?.Value switch
+    private static string GetDataType(SonnerToast toast)
     {
-        SonnerToastType.SuccessValue => "success",
-        SonnerToastType.InfoValue => "info",
-        SonnerToastType.WarningValue => "warning",
-        SonnerToastType.ErrorValue => "error",
-        SonnerToastType.LoadingValue => "loading",
-        _ => "default"
-    };
+        if (ReferenceEquals(toast.Type, SonnerToastType.Success))
+            return "success";
 
-    private static string GetXPosition(SonnerPosition position) => position?.Value switch
+        if (ReferenceEquals(toast.Type, SonnerToastType.Info))
+            return "info";
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Warning))
+            return "warning";
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Error))
+            return "error";
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Loading))
+            return "loading";
+
+        return "default";
+    }
+
+    private static string GetXPosition(SonnerPosition position)
     {
-        SonnerPosition.TopLeftValue or SonnerPosition.BottomLeftValue => "left",
-        SonnerPosition.TopCenterValue or SonnerPosition.BottomCenterValue => "center",
-        _ => "right"
-    };
+        if (ReferenceEquals(position, SonnerPosition.TopLeft) || ReferenceEquals(position, SonnerPosition.BottomLeft))
+            return "left";
 
-    private static string GetYPosition(SonnerPosition position) => position?.Value switch
+        if (ReferenceEquals(position, SonnerPosition.TopCenter) || ReferenceEquals(position, SonnerPosition.BottomCenter))
+            return "center";
+
+        return "right";
+    }
+
+    private static string GetYPosition(SonnerPosition position)
     {
-        SonnerPosition.TopLeftValue or SonnerPosition.TopCenterValue or SonnerPosition.TopRightValue => "top",
-        _ => "bottom"
-    };
+        if (ReferenceEquals(position, SonnerPosition.TopLeft) || ReferenceEquals(position, SonnerPosition.TopCenter) || ReferenceEquals(position, SonnerPosition.TopRight))
+            return "top";
 
-    private static bool HasIcon(SonnerToast toast) => toast.Type?.Value != SonnerToastType.DefaultValue;
+        return "bottom";
+    }
+
+    private static bool HasIcon(SonnerToast toast) => !ReferenceEquals(toast.Type, SonnerToastType.Default);
 
     private static RenderFragment GetIcon(SonnerToast toast) => builder =>
     {
-        switch (toast.Type?.Value)
+        if (ReferenceEquals(toast.Type, SonnerToastType.Success))
         {
-            case SonnerToastType.SuccessValue:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.CircleCheck);
-                builder.AddAttribute(2, "Class", "size-4");
-                builder.CloseComponent();
-                break;
-            case SonnerToastType.InfoValue:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.Info);
-                builder.AddAttribute(2, "Class", "size-4");
-                builder.CloseComponent();
-                break;
-            case SonnerToastType.WarningValue:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.TriangleAlert);
-                builder.AddAttribute(2, "Class", "size-4");
-                builder.CloseComponent();
-                break;
-            case SonnerToastType.ErrorValue:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.OctagonX);
-                builder.AddAttribute(2, "Class", "size-4");
-                builder.CloseComponent();
-                break;
-            case SonnerToastType.LoadingValue:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.LoaderCircle);
-                builder.AddAttribute(2, "Class", "size-4 animate-spin");
-                builder.CloseComponent();
-                break;
+            builder.OpenComponent<Icon>(0);
+            builder.AddAttribute(1, "Name", LucideIcon.CircleCheck);
+            builder.AddAttribute(2, "Class", "size-4");
+            builder.CloseComponent();
+            return;
+        }
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Info))
+        {
+            builder.OpenComponent<Icon>(0);
+            builder.AddAttribute(1, "Name", LucideIcon.Info);
+            builder.AddAttribute(2, "Class", "size-4");
+            builder.CloseComponent();
+            return;
+        }
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Warning))
+        {
+            builder.OpenComponent<Icon>(0);
+            builder.AddAttribute(1, "Name", LucideIcon.TriangleAlert);
+            builder.AddAttribute(2, "Class", "size-4");
+            builder.CloseComponent();
+            return;
+        }
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Error))
+        {
+            builder.OpenComponent<Icon>(0);
+            builder.AddAttribute(1, "Name", LucideIcon.OctagonX);
+            builder.AddAttribute(2, "Class", "size-4");
+            builder.CloseComponent();
+            return;
+        }
+
+        if (ReferenceEquals(toast.Type, SonnerToastType.Loading))
+        {
+            builder.OpenComponent<Icon>(0);
+            builder.AddAttribute(1, "Name", LucideIcon.LoaderCircle);
+            builder.AddAttribute(2, "Class", "size-4 animate-spin");
+            builder.CloseComponent();
         }
     };
 

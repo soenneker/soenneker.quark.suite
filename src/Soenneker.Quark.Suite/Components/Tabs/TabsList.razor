@@ -28,20 +28,20 @@
 
         Display ??= Quark.Display.InlineFlex;
         Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Quark.Items.Center;
+        ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Padding ??= Quark.Padding.Token("[3px]");
         TextColor ??= Quark.TextColor.MutedForeground;
 
-        if (ParentTabs?.TabsListVariant == TabsListVariant.Line)
+        if (ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Line))
             Rounded ??= Quark.Rounded.None;
         else
             Rounded ??= Quark.Rounded.Lg;
 
-        if (ParentTabs?.TabsListVariant == TabsListVariant.Default)
+        if (ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Default))
             BackgroundColor ??= Quark.BackgroundColor.Muted;
 
-        if (ParentTabs?.TabsListVariant != TabsListVariant.Default)
+        if (!ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Default))
         {
             Gap ??= Quark.Gap.Is1;
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
@@ -56,7 +56,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tabs-list";
-        attributes["data-variant"] = ParentTabs?.TabsListVariant?.Value ?? TabsListVariant.Default.Value;
+        attributes["data-variant"] = ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Line) ? "line" : "default";
         attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
         attributes[ParentTabs?.Vertical == true ? "data-vertical" : "data-horizontal"] = string.Empty;
         attributes["tabindex"] = -1;

@@ -238,7 +238,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
         Services.AddScoped<IThemeInterop, FakeThemeInterop>();
-        Services.AddScoped<global::Soenneker.Quark.Suite.Demo.Services.ThemeService>();
+        Services.AddScoped<Demo.Services.ThemeService>();
         Services.AddScoped<ICodeEditorInterop, FakeCodeEditorInterop>();
         Services.AddScoped<ITablesInterop, FakeTablesInterop>();
         Services.AddScoped<ISonnerService, SonnerService>();
