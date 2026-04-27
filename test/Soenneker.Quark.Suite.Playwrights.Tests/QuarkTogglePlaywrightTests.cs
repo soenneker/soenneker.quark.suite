@@ -20,10 +20,10 @@ public sealed class QuarkTogglePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}toggles",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Additional examples" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true }),
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Controlled Bookmark" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true }),
             expectedTitle: "Toggle - Quark Suite");
 
-        var bookmarkToggle = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Additional examples" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true });
+        var bookmarkToggle = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Controlled Bookmark" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true });
 
         await Assertions.Expect(bookmarkToggle).ToHaveAttributeAsync("aria-pressed", "false");
         await Assertions.Expect(bookmarkToggle).ToContainTextAsync("Bookmark");

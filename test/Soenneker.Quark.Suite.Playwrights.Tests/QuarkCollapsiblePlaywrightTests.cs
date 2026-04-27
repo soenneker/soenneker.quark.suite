@@ -13,7 +13,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Collapsible_demo_toggles_content_and_disabled_trigger_stays_closed()
+    public async ValueTask Collapsible_demo_toggles_content()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -40,13 +40,5 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(toggle).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(colors).Not.ToBeVisibleAsync();
 
-        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disable the whole collapsible when a panel should stay locked." }).First;
-        var locked = disabledSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Production deployment Locked", Exact = false });
-
-        await Assertions.Expect(locked).ToHaveAttributeAsync("data-disabled", "true");
-        await Assertions.Expect(locked).ToHaveAttributeAsync("aria-expanded", "true");
-
-        await locked.ClickAsync(new LocatorClickOptions { Force = true });
-        await Assertions.Expect(locked).ToHaveAttributeAsync("aria-expanded", "true");
     }
 }

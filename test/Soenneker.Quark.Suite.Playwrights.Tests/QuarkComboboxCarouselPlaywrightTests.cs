@@ -15,25 +15,17 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Combobox_disabled_demo_does_not_open_results()
+    public async ValueTask Combobox_demo_renders_without_open_disabled_results()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
-            static p => p.GetByPlaceholder("Unavailable"),
+            static p => p.GetByPlaceholder("Select a framework").First,
             expectedTitle: "Combobox - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled comboboxes keep the same visual treatment without opening the menu." }).First;
-        var disabledInput = section.GetByPlaceholder("Unavailable");
-        var disabledTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open combobox", Exact = true }).Last;
-
-        await disabledInput.ClickAsync(new LocatorClickOptions { Force = true });
-
-        await Assertions.Expect(disabledInput).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(disabledTrigger).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(section.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
     }
 
     [Test]

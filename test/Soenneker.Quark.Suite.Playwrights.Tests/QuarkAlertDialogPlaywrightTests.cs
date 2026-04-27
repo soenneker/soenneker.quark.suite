@@ -20,10 +20,10 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
+            DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }).ClickAsync();
+        await DemoTrigger(page).ClickAsync();
 
         var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
@@ -42,10 +42,10 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
+            DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
+        var trigger = DemoTrigger(page);
         await trigger.ClickAsync();
 
         var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
@@ -94,10 +94,10 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
+            DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
+        var trigger = DemoTrigger(page);
         await trigger.ClickAsync();
 
         var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
@@ -117,4 +117,8 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
         await page.Mouse.ClickAsync(x, y);
     }
+
+    private static ILocator DemoTrigger(IPage page) =>
+        page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Confirmation dialog with trigger, title, description, and actions." })
+            .First.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show Dialog", Exact = true }).First;
 }

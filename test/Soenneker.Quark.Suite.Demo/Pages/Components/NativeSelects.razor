@@ -37,18 +37,12 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled" Description="Small size and disabled state."
+            <DemoSection Title="Disabled" Description="Disabled selects keep the value visible without allowing changes."
                         Code="@DisabledCode"
 CodeLanguage="razor">
-                <Div Space="Space.Y.Is3">
-                    <NativeSelect Size="NativeSelectSize.Sm" @bind-Value="_sizeDemo">
-                        <NativeSelectOption Value="">Small size</NativeSelectOption>
-                        <NativeSelectOption Value="one">Option one</NativeSelectOption>
-                    </NativeSelect>
-                    <NativeSelect Disabled="true" Value="">
-                        <NativeSelectOption Value="">Disabled select</NativeSelectOption>
-                    </NativeSelect>
-                </Div>
+                <NativeSelect Disabled="true" Value="">
+                    <NativeSelectOption Value="">Disabled select</NativeSelectOption>
+                </NativeSelect>
             </DemoSection>
         </Section>
 
@@ -66,13 +60,25 @@ CodeLanguage="razor">
                 </Div>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL" Description="Native selects inherit direction from the surrounding container."
+                        Code="@RtlCode"
+CodeLanguage="razor">
+                <Div dir="rtl" MaxWidth="MaxWidth.IsSm">
+                    <NativeSelect>
+                        <NativeSelectOption Value="">اختر الحالة</NativeSelectOption>
+                        <NativeSelectOption Value="draft">مسودة</NativeSelectOption>
+                        <NativeSelectOption Value="published">منشور</NativeSelectOption>
+                    </NativeSelect>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
 @code {
     private string? _animal;
-    private string? _sizeDemo;
-
     private const string BasicCode =
 @"<NativeSelect>
     <NativeSelectOption Value="""">Select status</NativeSelectOption>
@@ -96,15 +102,9 @@ CodeLanguage="razor">
 </NativeSelect>";
 
     private const string DisabledCode =
-@"<Div Space=""Space.Y.Is3"">
-    <NativeSelect Size=""NativeSelectSize.Sm"" @bind-Value=""_sizeDemo"">
-        <NativeSelectOption Value="""">Small size</NativeSelectOption>
-        <NativeSelectOption Value=""one"">Option one</NativeSelectOption>
-    </NativeSelect>
-    <NativeSelect Disabled=""true"" Value="""">
-        <NativeSelectOption Value="""">Disabled select</NativeSelectOption>
-    </NativeSelect>
-</Div>";
+@"<NativeSelect Disabled=""true"" Value="""">
+    <NativeSelectOption Value="""">Disabled select</NativeSelectOption>
+</NativeSelect>";
 
 private const string InvalidCode =
 @"<Div Space=""Space.Y.Is2"">
@@ -114,5 +114,14 @@ private const string InvalidCode =
         <NativeSelectOption Value=""pro"">Pro</NativeSelectOption>
     </NativeSelect>
     <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"">Please choose a plan before continuing.</Paragraph>
+</Div>";
+
+private const string RtlCode =
+@"<Div dir=""rtl"">
+    <NativeSelect>
+        <NativeSelectOption Value="""">اختر الحالة</NativeSelectOption>
+        <NativeSelectOption Value=""draft"">مسودة</NativeSelectOption>
+        <NativeSelectOption Value=""published"">منشور</NativeSelectOption>
+    </NativeSelect>
 </Div>";
 }

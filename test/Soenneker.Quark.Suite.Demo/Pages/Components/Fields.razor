@@ -91,6 +91,19 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input"
+                         Description="A label, control, and description in the standard field layout."
+                         Code="@FieldCode"
+                         CodeLanguage="razor">
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="field-email">Email</FieldLabel>
+                    <Input Id="field-email" Type="email" Placeholder="m@example.com" />
+                    <FieldDescription>We will never share your email address.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Textarea"
                          Description="Label, textarea, and helper text in a small field set."
                          Code="@TextareaCode"
@@ -108,40 +121,46 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form Item"
-                         Description="shadcn-style form item with generated label, description, and message relationships."
-                         Code="@FormItemCode"
+            <DemoSection Title="Select"
+                         Description="Use Field with Select when the user chooses from a known set of values."
+                         Code="@SelectCode"
                          CodeLanguage="razor">
-                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
-                    <FormItem IsInvalid="_formItemInvalid">
-                        <FormLabel>Email</FormLabel>
-                        <Input Type="email"
-                               Placeholder="name@example.com"
-                               Required="true"
-                               @bind-Value="_formItemEmail" />
-                        <FormDescription>Use your work email for notifications.</FormDescription>
-                        <FormMessage>Email is required.</FormMessage>
-                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" @onclick="ToggleFormItemInvalid">
-                            Toggle invalid state
-                        </Button>
-                    </FormItem>
-                </Div>
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="field-role">Role</FieldLabel>
+                    <Select TValue="string" SelectedValue="@("viewer")">
+                        <SelectTrigger Id="field-role">
+                            <SelectValue Placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem TValue="string" ItemValue="@("admin")" Text="Admin" />
+                            <SelectItem TValue="string" ItemValue="@("editor")" Text="Editor" />
+                            <SelectItem TValue="string" ItemValue="@("viewer")" Text="Viewer" />
+                        </SelectContent>
+                    </Select>
+                    <FieldDescription>Roles determine what this member can access.</FieldDescription>
+                </Field>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Settings groups, validation errors, and choice-style field GridRows.
-                </Paragraph>
-            </Div>
-
-            <DemoSection Title="Settings Group"
-                         Description="Use field sets and legends to organize related settings into a semantic group."
-                         Code="@SettingsGroupCode"
+            <DemoSection Title="Slider"
+                         Description="Field descriptions can reflect slider values and constraints."
+                         Code="@SliderCode"
                          CodeLanguage="razor">
-                <FieldSet>
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel>Volume</FieldLabel>
+                    <Slider Min="0" Max="100" Step="1" SliderValue="40" />
+                    <FieldDescription>Set the default playback volume.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Fieldset"
+                         Description="Group related controls under a shared legend and description."
+                         Code="@FieldsetCode"
+                         CodeLanguage="razor">
+                <FieldSet MaxWidth="MaxWidth.IsSm">
                     <FieldLegend>Notification preferences</FieldLegend>
                     <FieldGroup>
                         <Field Horizontal="true">
@@ -161,24 +180,62 @@
                     </FieldGroup>
                 </FieldSet>
             </DemoSection>
+        </Section>
 
-            <DemoSection Title="Field Error"
-                         Description="Attach explicit error content when a field needs validation feedback."
-                         Code="@FieldErrorCode"
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Checkbox"
+                         Description="Pair checkbox controls with labels and descriptions in one accessible field."
+                         Code="@CheckboxCode"
                          CodeLanguage="razor">
-                <Field IsInvalid="true">
-                    <FieldLabel For="deploy-branch">Deployment branch</FieldLabel>
-                    <Input Id="deploy-branch" Value="main main" aria-invalid="true" />
-                    <FieldDescription>Use a single git branch name.</FieldDescription>
-                    <FieldError>Branch names cannot contain spaces.</FieldError>
+                <Field Horizontal="true">
+                    <Check Id="field-marketing" />
+                    <FieldContent>
+                        <FieldLabel For="field-marketing">Marketing emails</FieldLabel>
+                        <FieldDescription>Receive emails about new products and features.</FieldDescription>
+                    </FieldContent>
                 </Field>
             </DemoSection>
+        </Section>
 
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Radio"
+                         Description="Use field rows to label radio choices."
+                         Code="@RadioCode"
+                         CodeLanguage="razor">
+                <RadioGroup Name="field-plan" Value="pro" AriaLabel="Plan">
+                    <Field Horizontal="true">
+                        <Radio Id="field-plan-free" Value="free" />
+                        <FieldLabel For="field-plan-free" FontWeight="FontWeight.Normal">Free</FieldLabel>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Radio Id="field-plan-pro" Value="pro" />
+                        <FieldLabel For="field-plan-pro" FontWeight="FontWeight.Normal">Pro</FieldLabel>
+                    </Field>
+                </RadioGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Switch"
+                         Description="Use a horizontal field when the control belongs at the end of the row."
+                         Code="@SwitchCode"
+                         CodeLanguage="razor">
+                <Field Horizontal="true">
+                    <FieldContent>
+                        <FieldLabel For="field-sync">Sync across devices</FieldLabel>
+                        <FieldDescription>Keep this setting consistent on signed-in devices.</FieldDescription>
+                    </FieldContent>
+                    <Switch Id="field-sync" />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Choice Card"
-                         Description="A bordered field row can present a choice as a card-like option."
+                         Description="Use card-like fields for larger selectable choices."
                          Code="@ChoiceCardCode"
                          CodeLanguage="razor">
-                <Field Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                <Field Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" MaxWidth="MaxWidth.IsSm">
                     <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is4">
                         <Div Space="Space.Y.Is1">
                             <FieldLabel>Starter</FieldLabel>
@@ -189,18 +246,72 @@
                 </Field>
             </DemoSection>
         </Section>
-    </Div>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Field Group"
+                         Description="Stack related fields with consistent spacing."
+                         Code="@FieldGroupCode"
+                         CodeLanguage="razor">
+                <FieldGroup MaxWidth="MaxWidth.IsSm">
+                    <Field>
+                        <FieldLabel For="field-group-name">Name</FieldLabel>
+                        <Input Id="field-group-name" Placeholder="Ada Lovelace" />
+                    </Field>
+                    <Field>
+                        <FieldLabel For="field-group-email">Email</FieldLabel>
+                        <Input Id="field-group-email" Type="email" Placeholder="ada@example.com" />
+                    </Field>
+                </FieldGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Field labels, descriptions, and controls mirror correctly in right-to-left layouts."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <FieldGroup MaxWidth="MaxWidth.IsSm" dir="rtl">
+                    <Field>
+                        <FieldLabel For="field-rtl-email">البريد الالكتروني</FieldLabel>
+                        <Input Id="field-rtl-email" Type="email" Placeholder="name@example.com" />
+                        <FieldDescription>سنستخدم هذا البريد للتنبيهات المهمة.</FieldDescription>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Check Id="field-rtl-updates" Checked="true" />
+                        <FieldContent>
+                            <FieldLabel For="field-rtl-updates">تحديثات المنتج</FieldLabel>
+                            <FieldDescription>استلم ملخصا عند توفر ميزات جديدة.</FieldDescription>
+                        </FieldContent>
+                    </Field>
+                </FieldGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Responsive Layout"
+                         Description="Fields can switch from stacked to grid layouts at wider breakpoints."
+                         Code="@ResponsiveLayoutCode"
+                         CodeLanguage="razor">
+                <FieldGroup Class="grid w-full max-w-2xl gap-4 md:grid-cols-2">
+                    <Field>
+                        <FieldLabel For="field-responsive-first">First name</FieldLabel>
+                        <Input Id="field-responsive-first" Placeholder="Ada" />
+                    </Field>
+                    <Field>
+                        <FieldLabel For="field-responsive-last">Last name</FieldLabel>
+                        <Input Id="field-responsive-last" Placeholder="Lovelace" />
+                    </Field>
+                    <Field Class="md:col-span-2">
+                        <FieldLabel For="field-responsive-email">Email</FieldLabel>
+                        <Input Id="field-responsive-email" Type="email" Placeholder="ada@example.com" />
+                    </Field>
+                </FieldGroup>
+            </DemoSection>
+        </Section>
+</Div>
 </Div>
 
 @code {
-    private bool _formItemInvalid = true;
-    private string? _formItemEmail;
-
-    private void ToggleFormItemInvalid()
-    {
-        _formItemInvalid = !_formItemInvalid;
-    }
-
     private const string BasicCode =
 @"<Div Class=""w-full max-w-md"">
     <form>
@@ -281,6 +392,13 @@
     </form>
 </Div>";
 
+    private const string FieldCode =
+@"<Field>
+    <FieldLabel For=""field-email"">Email</FieldLabel>
+    <Input Id=""field-email"" Type=""email"" Placeholder=""m@example.com"" />
+    <FieldDescription>We will never share your email address.</FieldDescription>
+</Field>";
+
     private const string TextareaCode =
 @"<FieldSet Class=""w-full max-w-xs"">
     <FieldGroup>
@@ -292,21 +410,30 @@
     </FieldGroup>
 </FieldSet>";
 
-    private const string FormItemCode =
-@"<FormItem IsInvalid=""_formItemInvalid"">
-    <FormLabel>Email</FormLabel>
-    <Input Type=""email""
-           Placeholder=""name@example.com""
-           Required=""true""
-           @bind-Value=""_formItemEmail"" />
-    <FormDescription>Use your work email for notifications.</FormDescription>
-    <FormMessage>Email is required.</FormMessage>
-    <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" @onclick=""ToggleFormItemInvalid"">
-        Toggle invalid state
-    </Button>
-</FormItem>";
+    private const string SelectCode =
+@"<Field>
+    <FieldLabel For=""field-role"">Role</FieldLabel>
+    <Select TValue=""string"" SelectedValue=""@(""viewer"")"">
+        <SelectTrigger Id=""field-role"">
+            <SelectValue Placeholder=""Select a role"" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectItem TValue=""string"" ItemValue=""@(""admin"")"" Text=""Admin"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""editor"")"" Text=""Editor"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""viewer"")"" Text=""Viewer"" />
+        </SelectContent>
+    </Select>
+    <FieldDescription>Roles determine what this member can access.</FieldDescription>
+</Field>";
 
-    private const string SettingsGroupCode =
+    private const string SliderCode =
+@"<Field>
+    <FieldLabel>Volume</FieldLabel>
+    <Slider Min=""0"" Max=""100"" Step=""1"" SliderValue=""40"" />
+    <FieldDescription>Set the default playback volume.</FieldDescription>
+</Field>";
+
+    private const string FieldsetCode =
 @"<FieldSet>
     <FieldLegend>Notification preferences</FieldLegend>
     <FieldGroup>
@@ -327,6 +454,36 @@
     </FieldGroup>
 </FieldSet>";
 
+    private const string CheckboxCode =
+@"<Field Horizontal=""true"">
+    <Check Id=""field-marketing"" />
+    <FieldContent>
+        <FieldLabel For=""field-marketing"">Marketing emails</FieldLabel>
+        <FieldDescription>Receive emails about new products and features.</FieldDescription>
+    </FieldContent>
+</Field>";
+
+    private const string RadioCode =
+@"<RadioGroup Name=""field-plan"" Value=""pro"" AriaLabel=""Plan"">
+    <Field Horizontal=""true"">
+        <Radio Id=""field-plan-free"" Value=""free"" />
+        <FieldLabel For=""field-plan-free"" FontWeight=""FontWeight.Normal"">Free</FieldLabel>
+    </Field>
+    <Field Horizontal=""true"">
+        <Radio Id=""field-plan-pro"" Value=""pro"" />
+        <FieldLabel For=""field-plan-pro"" FontWeight=""FontWeight.Normal"">Pro</FieldLabel>
+    </Field>
+</RadioGroup>";
+
+    private const string SwitchCode =
+@"<Field Horizontal=""true"">
+    <FieldContent>
+        <FieldLabel For=""field-sync"">Sync across devices</FieldLabel>
+        <FieldDescription>Keep this setting consistent on signed-in devices.</FieldDescription>
+    </FieldContent>
+    <Switch Id=""field-sync"" />
+</Field>";
+
     private const string FieldErrorCode =
 @"<Field IsInvalid=""true"">
     <FieldLabel For=""deploy-branch"">Deployment branch</FieldLabel>
@@ -345,4 +502,48 @@
         <Radio Name=""planChoiceCard"" Value=""Starter"" Checked=""true"" />
     </Div>
 </Field>";
+
+    private const string FieldGroupCode =
+@"<FieldGroup>
+    <Field>
+        <FieldLabel For=""field-group-name"">Name</FieldLabel>
+        <Input Id=""field-group-name"" Placeholder=""Ada Lovelace"" />
+    </Field>
+    <Field>
+        <FieldLabel For=""field-group-email"">Email</FieldLabel>
+        <Input Id=""field-group-email"" Type=""email"" Placeholder=""ada@example.com"" />
+    </Field>
+</FieldGroup>";
+
+    private const string RtlCode =
+@"<FieldGroup dir=""rtl"">
+    <Field>
+        <FieldLabel For=""field-rtl-email"">البريد الالكتروني</FieldLabel>
+        <Input Id=""field-rtl-email"" Type=""email"" Placeholder=""name@example.com"" />
+        <FieldDescription>سنستخدم هذا البريد للتنبيهات المهمة.</FieldDescription>
+    </Field>
+    <Field Horizontal=""true"">
+        <Check Id=""field-rtl-updates"" Checked=""true"" />
+        <FieldContent>
+            <FieldLabel For=""field-rtl-updates"">تحديثات المنتج</FieldLabel>
+            <FieldDescription>استلم ملخصا عند توفر ميزات جديدة.</FieldDescription>
+        </FieldContent>
+    </Field>
+</FieldGroup>";
+
+    private const string ResponsiveLayoutCode =
+@"<FieldGroup Class=""grid gap-4 md:grid-cols-2"">
+    <Field>
+        <FieldLabel For=""field-responsive-first"">First name</FieldLabel>
+        <Input Id=""field-responsive-first"" Placeholder=""Ada"" />
+    </Field>
+    <Field>
+        <FieldLabel For=""field-responsive-last"">Last name</FieldLabel>
+        <Input Id=""field-responsive-last"" Placeholder=""Lovelace"" />
+    </Field>
+    <Field Class=""md:col-span-2"">
+        <FieldLabel For=""field-responsive-email"">Email</FieldLabel>
+        <Input Id=""field-responsive-email"" Type=""email"" Placeholder=""ada@example.com"" />
+    </Field>
+</FieldGroup>";
 }

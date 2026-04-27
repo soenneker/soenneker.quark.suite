@@ -116,11 +116,11 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}context-menus",
-            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }),
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
             expectedTitle: "Context Menus - Quark Suite");
 
         await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
-                  .ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
+                  .First.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
         var menu = page.Locator("[role='menu']:visible").First;
         await Assertions.Expect(menu).ToContainTextAsync("Back");
@@ -156,11 +156,11 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}context-menus",
-            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }),
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
             expectedTitle: "Context Menus - Quark Suite");
 
         await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
-                  .ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
+                  .First.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
         var menu = page.Locator("[role='menu'][data-state='open']:visible").First;
         await Assertions.Expect(menu).ToBeVisibleAsync();

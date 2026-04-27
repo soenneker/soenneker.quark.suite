@@ -27,31 +27,24 @@
             </AlertDialog>
         </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Destructive, compact, media-enhanced, and RTL alert dialogs beyond the shadcn-equivalent demo.
-                </Paragraph>
-            </Div>
-        </Section>
-
-        <DemoSection Title="Destructive"
-                     Description="Use a destructive variant for dangerous actions."
-                     Code="@DestructiveCode"
+        <DemoSection Title="Basic"
+                     Description="The standard shadcn alert dialog pattern with a cancel and continue action."
+                     Code="@DefaultCode"
                      CodeLanguage="razor">
-            <AlertDialog @bind-Visible="_showDestructiveAlert" CloseOnBackdropClick="false">
-                <Button Variant="ButtonVariant.Destructive" OnClick="@(() => _showDestructiveAlert = true)">Delete project</Button>
+            <AlertDialog @bind-Visible="_showBasicAlert" CloseOnBackdropClick="false">
+                <AlertDialogTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Outline">Show Dialog</Button>
+                </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This permanently removes all records for this project and cannot be undone.
+                            This action cannot be undone. This will permanently delete your account from our servers.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Keep project</AlertDialogCancel>
-                        <AlertDialogAction Variant="ButtonVariant.Destructive" OnAction="HandleDelete">Delete</AlertDialogAction>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction OnAction="HandleContinue">Continue</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -79,15 +72,8 @@
         </DemoSection>
 
         <DemoSection Title="Media"
-                     Description="Use `AlertDialogMedia` when the dialog needs an icon or visual cue."
-                     Code="@(@"<AlertDialog>
-    <AlertDialogContent>
-        <AlertDialogHeader>
-            <AlertDialogMedia><Icon Name=""LucideIcon.TriangleAlert"" /></AlertDialogMedia>
-            <AlertDialogTitle>Heads up</AlertDialogTitle>
-        </AlertDialogHeader>
-    </AlertDialogContent>
-</AlertDialog>")"
+                     Description="Use AlertDialogMedia when the dialog needs an icon or visual cue."
+                     Code="@MediaCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showMediaAlert" CloseOnBackdropClick="false">
                 <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showMediaAlert = true)">Show media dialog</Button>
@@ -111,12 +97,7 @@
 
         <DemoSection Title="Small with Media"
                      Description="Small dialogs can still include media when the visual cue is important."
-                     Code="@(@"<AlertDialogContent Size=""sm"">
-    <AlertDialogHeader>
-        <AlertDialogMedia><Icon Name=""LucideIcon.Archive"" /></AlertDialogMedia>
-        <AlertDialogTitle>Archive item?</AlertDialogTitle>
-    </AlertDialogHeader>
-</AlertDialogContent>")"
+                     Code="@SmallMediaCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showSmallMediaAlert" CloseOnBackdropClick="false">
                 <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallMediaAlert = true)">Archive with media</Button>
@@ -138,8 +119,29 @@
             </AlertDialog>
         </DemoSection>
 
+        <DemoSection Title="Destructive"
+                     Description="Use a destructive action for dangerous confirmations."
+                     Code="@DestructiveCode"
+                     CodeLanguage="razor">
+            <AlertDialog @bind-Visible="_showDestructiveAlert" CloseOnBackdropClick="false">
+                <Button Variant="ButtonVariant.Destructive" OnClick="@(() => _showDestructiveAlert = true)">Delete project</Button>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This permanently removes all records for this project and cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Keep project</AlertDialogCancel>
+                        <AlertDialogAction Variant="ButtonVariant.Destructive" OnAction="HandleDelete">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+
         <DemoSection Title="RTL"
-                     Description="Alert dialogs should also read naturally in right-to-left layouts."
+                     Description="Alert dialogs read naturally in right-to-left layouts."
                      Code="@RtlCode"
                      CodeLanguage="razor">
             <DirectionProvider Dir="rtl">
@@ -149,13 +151,13 @@
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                            <AlertDialogTitle>هل أنت متأكد تماما؟</AlertDialogTitle>
                             <AlertDialogDescription>
-                                لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا وإزالة بياناتك من خوادمنا.
+                                لا يمكن التراجع عن هذا الاجراء. سيؤدي هذا إلى حذف حسابك نهائيا وإزالة بياناتك من خوادمنا.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                            <AlertDialogCancel>الغاء</AlertDialogCancel>
                             <AlertDialogAction OnAction="HandleContinue">متابعة</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -167,6 +169,7 @@
 
 @code {
     private bool _showDefaultAlert;
+    private bool _showBasicAlert;
     private bool _showDestructiveAlert;
     private bool _showSmallAlert;
     private bool _showMediaAlert;
@@ -195,6 +198,40 @@
     </AlertDialogContent>
 </AlertDialog>";
 
+    private const string SmallCode =
+@"<AlertDialog @bind-Visible=""showSmall"" CloseOnBackdropClick=""false"">
+    <Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => showSmall = true)"">Archive item</Button>
+    <AlertDialogContent Size=""sm"">
+        <AlertDialogHeader>
+            <AlertDialogTitle>Archive item?</AlertDialogTitle>
+            <AlertDialogDescription>You can restore this item later from archives.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Archive</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
+
+    private const string MediaCode =
+@"<AlertDialog>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogMedia><Icon Name=""LucideIcon.TriangleAlert"" /></AlertDialogMedia>
+            <AlertDialogTitle>Heads up</AlertDialogTitle>
+            <AlertDialogDescription>This change will sign every teammate out.</AlertDialogDescription>
+        </AlertDialogHeader>
+    </AlertDialogContent>
+</AlertDialog>";
+
+    private const string SmallMediaCode =
+@"<AlertDialogContent Size=""sm"">
+    <AlertDialogHeader>
+        <AlertDialogMedia><Icon Name=""LucideIcon.Archive"" /></AlertDialogMedia>
+        <AlertDialogTitle>Archive item?</AlertDialogTitle>
+    </AlertDialogHeader>
+</AlertDialogContent>";
+
     private const string DestructiveCode =
 @"<AlertDialog @bind-Visible=""showDelete"" CloseOnBackdropClick=""false"">
     <Button Variant=""ButtonVariant.Destructive"" OnClick=""@(() => showDelete = true)"">Delete project</Button>
@@ -210,21 +247,6 @@
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string SmallCode =
-@"<AlertDialog @bind-Visible=""showSmall"" CloseOnBackdropClick=""false"">
-    <Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => showSmall = true)"">Archive item</Button>
-    <AlertDialogContent Size=""sm"">
-        <AlertDialogHeader>
-            <AlertDialogTitle>Archive item?</AlertDialogTitle>
-            <AlertDialogDescription>You can restore this later.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Archive</AlertDialogAction>
-        </AlertDialogFooter>
-    </AlertDialogContent>
-</AlertDialog>";
-
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
     <AlertDialog @bind-Visible=""showRtl"" CloseOnBackdropClick=""false"">
@@ -233,13 +255,11 @@
         </AlertDialogTrigger>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
-                <AlertDialogDescription>
-                    لا يمكن التراجع عن هذا الإجراء.
-                </AlertDialogDescription>
+                <AlertDialogTitle>هل أنت متأكد تماما؟</AlertDialogTitle>
+                <AlertDialogDescription>لا يمكن التراجع عن هذا الاجراء.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                <AlertDialogCancel>الغاء</AlertDialogCancel>
                 <AlertDialogAction>متابعة</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

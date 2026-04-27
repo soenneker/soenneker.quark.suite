@@ -32,7 +32,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await basicTrigger.HoverAsync();
         await Assertions.Expect(basicTooltip).ToBeVisibleAsync();
 
-        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Additional examples", Exact = true }).HoverAsync();
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Side", Exact = true }).HoverAsync();
 
         await Assertions.Expect(basicTooltip).ToHaveCountAsync(0);
     }
@@ -83,7 +83,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
                                .Filter(new LocatorFilterOptions { HasText = "Add to library" });
         await Assertions.Expect(basicTooltip).ToBeVisibleAsync();
 
-        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Additional examples", Exact = true }).HoverAsync();
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Side", Exact = true }).HoverAsync();
         await Assertions.Expect(basicTooltip).ToHaveCountAsync(0);
         await page.WaitForTimeoutAsync(350);
 

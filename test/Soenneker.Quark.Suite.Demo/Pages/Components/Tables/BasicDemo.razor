@@ -158,13 +158,35 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Server-backed data table and implementation notes.
-                </Paragraph>
-            </Div>
+            <DemoSection Title="RTL"
+                         Description="Define table columns in one place before rendering the rows."
+                         Code="@ColumnDefinitionsCode"
+                         CodeLanguage="razor">
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th>Key</Th>
+                            <Th>Label</Th>
+                            <Th TextAlign="TextAlign.End">Sortable</Th>
+                            <Th TextAlign="TextAlign.End">Searchable</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        @foreach (var column in ColumnDefinitions)
+                        {
+                            <Tr>
+                                <Td FontWeight="FontWeight.Medium">@column.Key</Td>
+                                <Td>@column.Label</Td>
+                                <Td TextAlign="TextAlign.End">@column.Sortable</Td>
+                                <Td TextAlign="TextAlign.End">@column.Searchable</Td>
+                            </Tr>
+                        }
+                    </Tbody>
+                </TableElement>
+            </DemoSection>
+        </Section>
 
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Server-side table"
                          Description="This example combines searching, sorting, pagination, and an empty state in one server-backed table."
                          Code="@DataTableCode"
@@ -279,6 +301,18 @@
     private const string TableWhatCoversCode =
 @"<!-- This section summarizes patterns shown above: -->
 TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoData, OnInteraction";
+
+    private static readonly ColumnDefinitionRow[] ColumnDefinitions =
+    [
+        new("Name", "Name", true, true),
+        new("Department", "Department", true, true),
+        new("Email", "Email", true, true),
+        new("Salary", "Salary", true, true),
+        new("HireDate", "Hire Date", true, true),
+        new("Status", "Status", true, true)
+    ];
+
+    private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);
 
     private Table? _basicTable;
     private List<Employee> _currentEmployees = [];
@@ -409,6 +443,19 @@ TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoDat
         </Tr>
     </Tbody>
 </TableElement>";
+
+    private const string ColumnDefinitionsCode =
+@"private static readonly ColumnDefinitionRow[] ColumnDefinitions =
+[
+    new(""Name"", ""Name"", true, true),
+    new(""Department"", ""Department"", true, true),
+    new(""Email"", ""Email"", true, true),
+    new(""Salary"", ""Salary"", true, true),
+    new(""HireDate"", ""Hire Date"", true, true),
+    new(""Status"", ""Status"", true, true)
+];
+
+private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);";
 
     protected override async Task OnInitializedAsync()
     {

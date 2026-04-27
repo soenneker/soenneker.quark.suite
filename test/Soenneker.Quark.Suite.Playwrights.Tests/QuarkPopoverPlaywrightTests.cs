@@ -122,7 +122,7 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
+            DemoTrigger,
             expectedTitle: "Popovers - Quark Suite");
 
         await page.WaitForFunctionAsync("() => !!globalThis.FloatingUICore && !!globalThis.FloatingUIDOM");
@@ -154,7 +154,7 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
+            DemoTrigger,
             expectedTitle: "Popovers - Quark Suite");
 
         var customRoleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Popover content can expose a non-dialog role when the surface behaves like a picker or listbox." }).First;
@@ -217,4 +217,8 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
         public string? dataState { get; set; }
         public string? selectedText { get; set; }
     }
+
+    private static ILocator DemoTrigger(IPage page) =>
+        page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays rich content in a portal, triggered by a button." })
+            .First.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
 }

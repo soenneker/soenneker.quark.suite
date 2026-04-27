@@ -76,7 +76,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Native_select_disabled_demo_keeps_disabled_control_inert_while_small_variant_changes()
+    public async ValueTask Native_select_disabled_demo_keeps_disabled_control_inert()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -91,35 +91,16 @@ public sealed class QuarkNativeSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}native-selects",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Small size and disabled state." }).Locator("select").First,
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled selects keep the value visible without allowing changes." }).Locator("select").First,
             expectedTitle: "Native Select - Quark Suite");
 
-        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Small size and disabled state." }).First;
-        var smallSelect = disabledSection.Locator("select").Nth(0);
-        var disabledSelect = disabledSection.Locator("select").Nth(1);
+        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled selects keep the value visible without allowing changes." }).First;
+        var disabledSelect = disabledSection.Locator("select").First;
 
-        await Assertions.Expect(smallSelect).ToHaveAttributeAsync("data-size", "sm");
         await Assertions.Expect(disabledSelect).ToBeDisabledAsync();
         await Assertions.Expect(disabledSelect).ToHaveValueAsync(string.Empty);
 
-        await smallSelect.SelectOptionAsync(new[] { "one" });
-
-        await Assertions.Expect(smallSelect).ToHaveValueAsync("one");
         await Assertions.Expect(disabledSelect).ToHaveValueAsync(string.Empty);
-
-        var smallProbe = await smallSelect.EvaluateAsync<NativeSelectStyleProbe>(
-            @"element => {
-                const style = getComputedStyle(element);
-                return {
-                    height: style.height,
-                    borderRadius: style.borderRadius,
-                    Shadow: style.Shadow,
-                    wrapperDisplay: '',
-                    iconOpacity: ''
-                };
-            }");
-
-        smallProbe.height.Should().Be("32px");
 
         var invalidSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a destructive border and supporting copy" }).First;
         var invalidSelect = invalidSection.Locator("select").First;

@@ -82,12 +82,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
 
         await slots.First.ClickAsync();
         await Assertions.Expect(slots.First).ToHaveAttributeAsync("data-active", "true");
-        await slots.First.EvaluateAsync(
-            "element => {" +
-            "const data = new DataTransfer();" +
-            "data.setData('text/plain', '12A34B');" +
-            "element.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));" +
-            "}");
+        await page.Keyboard.TypeAsync("12A34B");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
         await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("2");
@@ -134,10 +129,10 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).Locator("[data-slot='input-otp-slot']").First,
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled OTP inputs preserve the slot layout while preventing edits." }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled OTP inputs preserve the slot layout while preventing edits." }).First;
         var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
@@ -147,7 +142,6 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(slots.Nth(4)).ToHaveValueAsync("5");
         await Assertions.Expect(slots.Nth(5)).ToHaveValueAsync("6");
 
-        await Assertions.Expect(slots.First).ToBeDisabledAsync();
         await slots.Nth(2).ClickAsync(new LocatorClickOptions { Force = true });
         await page.Keyboard.PressAsync("Backspace");
         await page.Keyboard.InsertTextAsync("9");

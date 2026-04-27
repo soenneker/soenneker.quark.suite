@@ -96,22 +96,15 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Two-way binding and dynamic label text.
-                </Paragraph>
-            </Div>
-
-            <DemoSection Title="Stateful bookmark"
-                         Description="Use two-way binding to reflect pressed state in the label."
-                         Code="@StatefulBookmarkCode"
+            <DemoSection Title="Controlled Bookmark"
+                         Description="A bound toggle can update its visible state while keeping the same pressed value."
+                         Code="@ControlledBookmarkCode"
                          CodeLanguage="razor">
                 <Toggle @bind-Pressed="_bookmarkPressed"
                         aria-label="Toggle bookmark"
-                        Variant="ToggleVariant.Outline"
                         Size="ToggleSize.Sm"
-                        Class="data-[state=on]:bg-transparent data-[state=on]:text-blue-600">
+                        Variant="ToggleVariant.Outline"
+                        Class="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500">
                     <Span data-icon="inline-start"><Icon Name="LucideIcon.Bookmark" /></Span>
                     @(_bookmarkPressed ? "Saved" : "Bookmark")
                 </Toggle>
@@ -208,12 +201,11 @@
     </Toggle>
 </DirectionProvider>";
 
-    private const string StatefulBookmarkCode =
+    private const string ControlledBookmarkCode =
 @"<Toggle @bind-Pressed=""_bookmarkPressed""
         aria-label=""Toggle bookmark""
-        Variant=""ToggleVariant.Outline""
         Size=""ToggleSize.Sm""
-        Class=""data-[state=on]:bg-transparent data-[state=on]:text-blue-600"">
+        Variant=""ToggleVariant.Outline"">
     <Span data-icon=""inline-start""><Icon Name=""LucideIcon.Bookmark"" /></Span>
     @(_bookmarkPressed ? ""Saved"" : ""Bookmark"")
 </Toggle>";

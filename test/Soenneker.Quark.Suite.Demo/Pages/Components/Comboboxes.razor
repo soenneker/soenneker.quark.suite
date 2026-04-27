@@ -9,7 +9,7 @@
             Autocomplete input with a list of suggestions.
         </Paragraph>
 
-        <DemoSection Title="Basic"
+        <DemoSection Title="Demo"
                      Description="A simple combobox with a list of frameworks."
                      Code="@BasicCode"
                      CodeLanguage="razor">
@@ -34,7 +34,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Multiple"
+        <DemoSection Title="Basic"
                      Description="A combobox with multiple selection using chips."
                      Code="@MultipleCode"
                      CodeLanguage="razor">
@@ -66,7 +66,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Clear Button"
+        <DemoSection Title="Multiple"
                      Description="Use an adjacent clear action when the current value should be easy to reset."
                      Code="@ClearButtonCode"
                      CodeLanguage="razor">
@@ -95,7 +95,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Groups"
+        <DemoSection Title="Clear Button"
                      Description="Use groups, labels, and separators to organize larger result sets."
                      Code="@GroupsCode"
                      CodeLanguage="razor">
@@ -132,7 +132,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Custom Items"
+        <DemoSection Title="Groups"
                      Description="Render richer content inside each combobox item."
                      Code="@CustomItemsCode"
                      CodeLanguage="razor">
@@ -162,7 +162,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Invalid"
+        <DemoSection Title="Custom Items"
                      Description="Use aria-invalid to display the invalid combobox state."
                      Code="@InvalidCode"
                      CodeLanguage="razor">
@@ -190,7 +190,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Disabled"
+        <DemoSection Title="Invalid"
                      Description="Use disabled to prevent changes while preserving the selected value."
                      Code="@DisabledCode"
                      CodeLanguage="razor">
@@ -204,7 +204,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Auto Highlight"
+        <DemoSection Title="Disabled"
                      Description="Use AutoHighlight to highlight the first matching item as the user filters."
                      Code="@AutoHighlightCode"
                      CodeLanguage="razor">
@@ -230,7 +230,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Popup"
+        <DemoSection Title="Auto Highlight"
                      Description="Trigger a command-style combobox from a button."
                      Code="@PopupCode"
                      CodeLanguage="razor">
@@ -264,7 +264,7 @@
             </Popover>
         </DemoSection>
 
-        <DemoSection Title="Input Group"
+        <DemoSection Title="Popup"
                      Description="Add an addon inside the combobox input."
                      Code="@InputGroupCode"
                      CodeLanguage="razor">
@@ -292,6 +292,31 @@
                                         <ComboboxItem Value="@item">@item</ComboboxItem>
                                     }
                                 </ComboboxGroup>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Input Group"
+                     Description="Comboboxes inherit right-to-left direction from the surrounding document or container."
+                     Code="@RtlCode"
+                     CodeLanguage="razor">
+            <Div dir="rtl" MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_rtlCategory"
+                          ValueChanged="OnRtlCategoryChanged"
+                          Search="@_rtlSearch"
+                          SearchChanged="OnRtlSearchChanged"
+                          Open="@_rtlOpen"
+                          OpenChanged="OnRtlOpenChanged">
+                    <ComboboxInput Placeholder="الفئات" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>لا توجد نتائج.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var category in ArabicCategories.Where(category => Matches(category, _rtlSearch)))
+                            {
+                                <ComboboxItem Value="@category">@category</ComboboxItem>
                             }
                         </ComboboxList>
                     </ComboboxContent>

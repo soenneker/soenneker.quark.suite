@@ -25,7 +25,7 @@ public sealed class QuarkDatePickerPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByText("Date of birth", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Date Pickers - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Date of Birth" }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Choose a date between" }).First;
         var trigger = section.Locator("button").First;
 
         await section.ScrollIntoViewIfNeededAsync();
@@ -117,10 +117,10 @@ public sealed class QuarkDatePickerPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}datepickers",
-            static p => p.GetByText("DatePicker component", new PageGetByTextOptions { Exact = true }),
+            static p => p.GetByTestId("component-date-picker"),
             expectedTitle: "Date Pickers - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "DatePicker component" }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { Has = page.GetByTestId("component-date-picker") }).First;
         var trigger = section.GetByTestId("component-date-picker");
         var valueChip = section.GetByText("Selected:", new LocatorGetByTextOptions { Exact = false }).First;
 
@@ -150,10 +150,10 @@ public sealed class QuarkDatePickerPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}datepickers",
-            static p => p.GetByText("DatePicker component", new PageGetByTextOptions { Exact = true }),
+            static p => p.GetByTestId("component-date-picker"),
             expectedTitle: "Date Pickers - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "DatePicker component" }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { Has = page.GetByTestId("component-date-picker") }).First;
         var trigger = section.GetByTestId("component-date-picker");
         var launchButton = section.GetByTestId("component-date-launch");
         var clearButton = section.GetByTestId("component-date-clear");

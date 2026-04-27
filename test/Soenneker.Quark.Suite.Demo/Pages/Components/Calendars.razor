@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Single"
+            <DemoSection Title="Demo"
                          Description="Single-date calendar with the month and year dropdown caption used in shadcn's calendar examples."
                          Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" CaptionLayout=""dropdown"" Class=""rounded-lg border"" />")"
                          CodeLanguage="razor">
@@ -17,7 +17,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple"
+            <DemoSection Title="Persian / Hijri / Jalali Calendar"
                          Description="Multiple mode lets users toggle several independent dates from the same calendar."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
@@ -36,7 +36,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Week Numbers"
+            <DemoSection Title="Basic"
                          Description="Week numbers help with scheduling and planning workflows that reference calendar weeks."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
@@ -55,7 +55,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Booked Dates"
+            <DemoSection Title="Range Calendar"
                          Description="Use modifiers plus disabled dates to style and block already-booked days."
                          Code="@BookedDatesCode"
                          CodeLanguage="razor">
@@ -73,7 +73,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Range"
+            <DemoSection Title="Month and Year Selector"
                          Description="Range mode should match shadcn's two-month selection surface, including disabled out-of-bounds dates."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
@@ -96,7 +96,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Range Multiple Months"
+            <DemoSection Title="Presets"
                          Description="Increase `NumberOfMonths` to present a broader range-selection surface."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
@@ -118,7 +118,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Month And Year Selector"
+            <DemoSection Title="Date and Time Picker"
                          Description="Use month and year dropdowns for direct caption navigation."
                          Code="@DropdownCaptionCode"
                          CodeLanguage="razor">
@@ -134,7 +134,42 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom Days"
+            <DemoSection Title="Booked dates"
+                         Description="Preset actions can drive the selected date while keeping the calendar as the source of date selection."
+                         Code="@(@"<Div Class=""flex flex-col gap-3"">
+    <Div Class=""flex gap-2"">
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetToday"">Today</Button>
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetNextWeek"">Next week</Button>
+    </Div>
+    <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" />
+</Div>")"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" Width="Width.IsFit" Margin="Margin.Auto.OnX">
+                    <Div Display="Display.Flex" Gap="Gap.Is2">
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetToday">Today</Button>
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetNextWeek">Next week</Button>
+                    </Div>
+                    <Calendar SelectedDate="_presetDate" SelectedDateChanged="OnPresetDateChanged" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Cell Size"
+                         Description="Use the date-time picker when the calendar selection needs a time value as well."
+                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_calendarDateTime"" />")"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" ItemsAlign="Items.Center">
+                    <DateTimePicker @bind-SelectedDateTime="_calendarDateTime" />
+                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        @_calendarDateTime?.ToString("MMM dd, yyyy HH:mm")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Week Numbers"
                          Description="Customize day cells with additional content such as pricing or availability cues."
                          Code="@CustomDaysCode"
                          CodeLanguage="razor">
@@ -149,18 +184,8 @@
                 </Card>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Bounded historical selection and outside-day visibility variants that extend the core shadcn-backed calendar set.
-                </Paragraph>
-            </Div>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date of Birth"
+<Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
                          Description="Bounds work well for birth dates and other historical-only selections."
                          Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")"
                          CodeLanguage="razor">
@@ -208,6 +233,8 @@
     private DateOnly? _weekNumberDate = DateOnly.FromDateTime(DateTime.Today.AddDays(10));
     private CalendarDateRange? _multiMonthRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(12)), DateOnly.FromDateTime(DateTime.Today.AddDays(42)));
     private DateOnly? _dropdownCaptionDate = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+    private DateOnly? _presetDate = DateOnly.FromDateTime(DateTime.Today);
+    private DateTime? _calendarDateTime = DateTime.Today.AddHours(9);
     private readonly DateOnly _bookedDisplayMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
     private DateOnly[] _bookedDates =
     [
@@ -258,6 +285,22 @@
     {
         _selectedDates = value;
         return Task.CompletedTask;
+    }
+
+    private Task OnPresetDateChanged(DateOnly? value)
+    {
+        _presetDate = value;
+        return Task.CompletedTask;
+    }
+
+    private void SetCalendarPresetToday()
+    {
+        _presetDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private void SetCalendarPresetNextWeek()
+    {
+        _presetDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
     }
 
     private Task OnWeekNumberDateChanged(DateOnly? value)

@@ -24,7 +24,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Simple"
+            <DemoSection Title="Pattern"
                          Description="Base six-character OTP layout using two groups and a separator."
                          Code="@SimpleCode"
                          CodeLanguage="razor">
@@ -49,7 +49,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Digits Only"
+            <DemoSection Title="Separator"
                          Description="Pattern-constrained numeric entry without the grouped separator layout."
                          Code="@DigitsOnlyCode"
                          CodeLanguage="razor">
@@ -71,12 +71,12 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Separator"
+            <DemoSection Title="Disabled"
                          Description="Two-character grouping mirrors the alternate shadcn separator layout."
                          Code="@WithSeparatorCode"
                          CodeLanguage="razor">
                 <Field>
-                    <FieldLabel For="separator-otp">With Separator</FieldLabel>
+                    <FieldLabel For="separator-otp">Separator</FieldLabel>
                     <InputOtp Id="separator-otp" OtpValue="@_separatorValue" OtpValueChanged="OnSeparatorChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
@@ -99,7 +99,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Alphanumeric"
+            <DemoSection Title="Controlled"
                          Description="Pattern filtering now supports the real shadcn alphanumeric example instead of a numeric-only fallback."
                          Code="@AlphanumericCode"
                          CodeLanguage="razor">
@@ -125,7 +125,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
+            <DemoSection Title="Invalid"
                          Description="Disabled OTP inputs preserve the slot layout while preventing edits."
                          Code="@DisabledCode"
                          CodeLanguage="razor">
@@ -150,12 +150,12 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="4 Digits"
+            <DemoSection Title="Four Digits"
                          Description="Short numeric OTP layouts work well for PIN-style flows."
                          Code="@FourDigitsCode"
                          CodeLanguage="razor">
                 <Field>
-                    <FieldLabel For="four-digit-otp">4 Digits</FieldLabel>
+                    <FieldLabel For="four-digit-otp">Four Digits</FieldLabel>
                     <FieldDescription>Common pattern for PIN codes.</FieldDescription>
                     <InputOtp Id="four-digit-otp" OtpValue="@_pinValue" OtpValueChanged="OnPinChanged" Length="4" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
@@ -171,12 +171,12 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid State"
+            <DemoSection Title="Alphanumeric"
                          Description="Invalid styling is applied at the slot level with field error messaging rather than faking a border on the wrapper."
                          Code="@InvalidCode"
                          CodeLanguage="razor">
                 <Field IsInvalid="true">
-                    <FieldLabel For="invalid-otp">Invalid State</FieldLabel>
+                    <FieldLabel For="invalid-otp">Invalid</FieldLabel>
                     <FieldDescription>Example showing the invalid error state.</FieldDescription>
                     <InputOtp Id="invalid-otp" OtpValue="@_invalidValue" OtpValueChanged="OnInvalidChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
@@ -201,14 +201,50 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Controlled state helpers beyond the shadcn-equivalent reference demos.
-            </Paragraph>
+            <DemoSection Title="Form"
+                         Description="Use InputOtp inside a form for verification flows."
+                         Code="@(@"<form>
+    <Field>
+        <FieldLabel For=""form-otp"">Verification code</FieldLabel>
+        <InputOtp Id=""form-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+            <InputOtpInput />
+            <InputOtpGroup>
+                <InputOtpSlot Index=""0"" />
+                <InputOtpSlot Index=""1"" />
+                <InputOtpSlot Index=""2"" />
+                <InputOtpSlot Index=""3"" />
+                <InputOtpSlot Index=""4"" />
+                <InputOtpSlot Index=""5"" />
+            </InputOtpGroup>
+        </InputOtp>
+    </Field>
+    <Button Type=""ButtonType.Submit"">Verify</Button>
+</form>")"
+                         CodeLanguage="razor">
+                <form>
+                    <Div Space="Space.Y.Is4">
+                        <Field>
+                            <FieldLabel For="form-otp">Verification code</FieldLabel>
+                            <InputOtp Id="form-otp" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                                <InputOtpInput />
+                                <InputOtpGroup>
+                                    <InputOtpSlot Index="0" />
+                                    <InputOtpSlot Index="1" />
+                                    <InputOtpSlot Index="2" />
+                                    <InputOtpSlot Index="3" />
+                                    <InputOtpSlot Index="4" />
+                                    <InputOtpSlot Index="5" />
+                                </InputOtpGroup>
+                            </InputOtp>
+                        </Field>
+                        <Button Type="ButtonType.Submit">Verify</Button>
+                    </Div>
+                </form>
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Default Value"
+            <DemoSection Title="RTL"
                          Description="Uncontrolled OTP values should survive normal edits and restore their original default when the surrounding form resets."
                          Code="@DefaultValueCode"
                          CodeLanguage="razor">

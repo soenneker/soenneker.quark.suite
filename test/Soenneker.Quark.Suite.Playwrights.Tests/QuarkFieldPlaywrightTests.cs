@@ -71,36 +71,25 @@ public sealed class QuarkFieldPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}fields",
-            static p => p.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Email", Exact = true }),
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "A label, control, and description in the standard field layout." })
+                .First.GetByRole(AriaRole.Textbox, new LocatorGetByRoleOptions { Name = "Email", Exact = true }),
             expectedTitle: "Fields - Quark Suite");
 
-        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "shadcn-style form item with generated label" }).First;
-        var label = demoSection.Locator("[data-slot='form-label']");
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A label, control, and description in the standard field layout." }).First;
+        var label = demoSection.Locator("[data-slot='field-label']");
         var input = demoSection.GetByRole(AriaRole.Textbox, new LocatorGetByRoleOptions { Name = "Email", Exact = true });
-        var description = demoSection.Locator("[data-slot='form-description']");
-        var message = demoSection.Locator("[data-slot='form-message']");
+        var description = demoSection.Locator("[data-slot='field-description']");
 
         await Assertions.Expect(input).ToBeVisibleAsync();
-        await Assertions.Expect(input).ToHaveAttributeAsync("aria-invalid", "true");
-        await Assertions.Expect(label).ToHaveAttributeAsync("data-error", "true");
-        await Assertions.Expect(message).ToHaveTextAsync("Email is required.");
 
         var inputId = await input.GetAttributeAsync("id");
         var labelFor = await label.GetAttributeAsync("for");
         var descriptionId = await description.GetAttributeAsync("id");
-        var messageId = await message.GetAttributeAsync("id");
         var describedBy = await input.GetAttributeAsync("aria-describedby");
 
         inputId.Should().NotBeNullOrWhiteSpace();
         labelFor.Should().Be(inputId);
         describedBy.Should().Contain(descriptionId);
-        describedBy.Should().Contain(messageId);
-
-        await demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle invalid state", Exact = true }).ClickAsync();
-
-        await Assertions.Expect(label).ToHaveAttributeAsync("data-error", "false");
-        (await input.GetAttributeAsync("aria-invalid")).Should().BeNull();
-        (await input.GetAttributeAsync("aria-describedby")).Should().Contain(descriptionId).And.NotContain(messageId);
 
         consoleErrors.Should().BeEmpty();
         sawPageError.Should().BeFalse();

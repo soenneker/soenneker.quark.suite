@@ -52,7 +52,7 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
-        <DemoSection Title="Composed Menu"
+        <DemoSection Title="Demo"
                      Description="This preview exercises the core menu composition: button-as-child links, group action, menu action, badge, submenu, footer, and rail."
                      Code="@ComposedMenuCode"
                      CodeLanguage="razor">
@@ -261,6 +261,51 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Mobile"
+                     Description="Mobile sidebars can render as full-screen navigation sheets and close after navigation."
+                     Code="@FullScreenMobileCode"
+                     CodeLanguage="razor">
+            <Div id="sidebar-mobile-demo" Width="Width.IsFull" Space="Space.Y.Is4">
+                <SidebarProvider IsMobile="true"
+                                 OpenMobile="_mobileSidebarOpen"
+                                 OpenMobileChanged="OnMobileSidebarOpenChanged"
+                                 SidebarWidthMobile="100vw">
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3">
+                        <SidebarTrigger id="sidebar-mobile-open-trigger" />
+                        <Paragraph id="sidebar-mobile-state" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                            Mobile menu is @(_mobileSidebarOpen ? "open" : "closed")
+                        </Paragraph>
+                    </Div>
+
+                    <Sidebar Collapsible="SidebarCollapsible.None"
+                             MobileMode="SidebarMobileMode.FullScreen"
+                             MobileShowCloseButton="false"
+                             MobileClass="bg-background">
+                        <MobileContent>
+                            <Div id="sidebar-mobile-sheet-content" class="flex min-h-0 flex-1 flex-col">
+                                <Div class="border-b bg-background px-6 py-4">
+                                    <Div class="flex items-center gap-3">
+                                        <SidebarTrigger id="sidebar-mobile-close-trigger" Class="size-8 rounded-md p-0 hover:bg-accent">
+                                            <Icon Name="LucideIcon.X" BoxSize="Size.Is5" />
+                                            <Span class="sr-only">Close menu</Span>
+                                        </SidebarTrigger>
+                                        <Paragraph class="text-base font-semibold">Menu</Paragraph>
+                                    </Div>
+                                </Div>
+                                <Div class="flex flex-col gap-1 p-6">
+                                    <Anchor To="" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Introduction</Anchor>
+                                    <Anchor To="components" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Components</Anchor>
+                                    <Anchor To="validation-summary" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Validation</Anchor>
+                                </Div>
+                            </Div>
+                        </MobileContent>
+                    </Sidebar>
+                </SidebarProvider>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="Controlled Sidebar"
                      Description="Use `Open` and `OpenChanged` on `SidebarProvider` when the parent owns the expanded state."
                      Code="@ControlledCode"
@@ -313,109 +358,6 @@
                         </SidebarInset>
                     </SidebarProvider>
                 </Div>
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <Div Space="Space.Y.Is2">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                Full-screen mobile sidebar and other advanced shell patterns.
-            </Paragraph>
-        </Div>
-
-        <DemoSection Title="Full-Screen Mobile"
-                     Description="Force mobile mode and render the sidebar as a viewport-covering navigation surface."
-                     Code="@FullScreenMobileCode"
-                     CodeLanguage="razor">
-            <Div id="sidebar-mobile-demo" Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
-                <SidebarProvider IsMobile="true"
-                                 OpenMobile="_mobileSidebarOpen"
-                                 OpenMobileChanged="OnMobileSidebarOpenChanged"
-                                 SidebarWidthMobile="100vw"
-                                 Class="h-[20rem]">
-                    <Sidebar Collapsible="SidebarCollapsible.None"
-                             MobileMode="SidebarMobileMode.FullScreen"
-                             MobileShowCloseButton="false"
-                             MobileClass="bg-background">
-                        <MobileContent>
-                            <Div id="sidebar-mobile-sheet-content" class="flex min-h-0 flex-1 flex-col">
-                                <Div class="border-b bg-background px-6 py-4">
-                                    <Div class="flex items-center gap-3">
-                                        <SidebarTrigger id="sidebar-mobile-close-trigger" Class="relative z-50 size-8 rounded-md p-0 hover:bg-accent">
-                                            <Icon Name="LucideIcon.X" BoxSize="Size.Is5" />
-                                            <Span class="sr-only">Close menu</Span>
-                                        </SidebarTrigger>
-                                        <Paragraph class="text-base font-semibold">Menu</Paragraph>
-                                    </Div>
-
-                                    <Div class="mt-6 flex flex-col gap-1">
-                                        <Anchor To="" Display="Display.InlineFlex" Height='Height.Token("12")' ItemsAlign="Items.Center" Padding="Padding.Is0.OnX" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">Home</Anchor>
-                                        <Anchor To="components" Display="Display.InlineFlex" Height='Height.Token("12")' ItemsAlign="Items.Center" Padding="Padding.Is0.OnX" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">Docs</Anchor>
-                                        <Anchor To="sidebar" Display="Display.InlineFlex" Height='Height.Token("12")' ItemsAlign="Items.Center" Padding="Padding.Is0.OnX" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">Components</Anchor>
-                                    </Div>
-                                </Div>
-
-                                <Div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-                                    <SidebarMenu Class="gap-0.5">
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton To="" Match="NavLinkMatch.All">
-                                                <Span>Introduction</Span>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton To="sidebar" Active="true">
-                                                <Span>Sidebar</Span>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton To="validation-summary">
-                                                <Span>Validation</Span>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </Div>
-                            </Div>
-                        </MobileContent>
-
-                        <ChildContent>
-                            <SidebarHeader Class="border-b px-6 py-4">
-                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Documentation</Paragraph>
-                                <Paragraph class="text-xs text-sidebar-foreground/70">Static on desktop, full-screen on mobile.</Paragraph>
-                            </SidebarHeader>
-                            <SidebarContent Class="px-4 pb-6">
-                                <SidebarGroup Class="pt-2">
-                                    <SidebarGroupLabel>Navigate</SidebarGroupLabel>
-                                    <SidebarGroupContent>
-                                        <SidebarMenu Class="gap-0.5">
-                                            <SidebarMenuItem>
-                                                <SidebarMenuButton To="" Match="NavLinkMatch.All">
-                                                    <Span>Overview</Span>
-                                                </SidebarMenuButton>
-                                            </SidebarMenuItem>
-                                            <SidebarMenuItem>
-                                                <SidebarMenuButton To="sidebar" Active="true">
-                                                    <Span>Sidebar</Span>
-                                                </SidebarMenuButton>
-                                            </SidebarMenuItem>
-                                        </SidebarMenu>
-                                    </SidebarGroupContent>
-                                </SidebarGroup>
-                            </SidebarContent>
-                        </ChildContent>
-                    </Sidebar>
-
-                    <SidebarInset>
-                        <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX" Class="relative z-10">
-                            <SidebarTrigger id="sidebar-mobile-open-trigger" Class="relative z-50" />
-                            <Paragraph id="sidebar-mobile-state" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Current state: @(_mobileSidebarOpen ? "open" : "closed")</Paragraph>
-                        </Div>
-                        <Div Padding="Padding.Is6" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                            Open the sidebar to see the full-screen mobile presentation with the same provider and trigger wiring.
-                        </Div>
-                    </SidebarInset>
-                </SidebarProvider>
             </Div>
         </DemoSection>
     </Section>

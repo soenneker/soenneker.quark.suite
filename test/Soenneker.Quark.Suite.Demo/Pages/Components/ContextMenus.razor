@@ -65,14 +65,67 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Submenus, checkbox and radio groups, and RTL behavior beyond the lead shadcn-equivalent demo.
-            </Paragraph>
+            <DemoSection Title="Basic"
+                         Description="Shadcn-aligned Basic example."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <ContextMenu>
+                    <ContextMenuTrigger Id="context-menu-demo-trigger"
+                                        data-testid="context-menu-demo-trigger"
+                                        Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
+                        Right click here
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Width='Width.Token("52")'>
+                            <ContextMenuItem Indented="true">
+                                Back
+                                <ContextMenuShortcut>Cmd+[</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuItem Indented="true" Disabled="true">
+                                Forward
+                                <ContextMenuShortcut>Cmd+]</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuItem Indented="true">
+                                Reload
+                                <ContextMenuShortcut>Cmd+R</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuSub>
+                                <ContextMenuSubTrigger Indented="true">More Tools</ContextMenuSubTrigger>
+                                <ContextMenuSubContent Width='Width.Token("44")'>
+                                    <ContextMenuItem>Save Page...</ContextMenuItem>
+                                    <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                                    <ContextMenuItem>Name Window...</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem Variant="destructive">Delete</ContextMenuItem>
+                                </ContextMenuSubContent>
+                            </ContextMenuSub>
+                            <ContextMenuSeparator />
+                            <ContextMenuCheckboxItem @bind-Checked="_showBookmarks">
+                                Show Bookmarks
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuCheckboxItem @bind-Checked="_showFullUrls">
+                                Show Full URLs
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuRadioGroup>
+                                <ContextMenuLabel Indented="true">People</ContextMenuLabel>
+                                <ContextMenuRadioItem Selected="@IsPedroSelected" SelectedChanged="@(selected => OnPersonSelected("pedro", selected))">
+                                    Pedro Duarte
+                                </ContextMenuRadioItem>
+                                <ContextMenuRadioItem Selected="@IsColmSelected" SelectedChanged="@(selected => OnPersonSelected("colm", selected))">
+                                    Colm Tuite
+                                </ContextMenuRadioItem>
+                            </ContextMenuRadioGroup>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Submenu and shortcuts"
+            <DemoSection Title="Submenu"
                          Description="Use nested actions and shortcuts for denser command palettes."
                          Code="@SubmenuCode"
                          CodeLanguage="razor">
@@ -110,6 +163,88 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Shortcuts"
+                         Description="Use shortcut slots to communicate keyboard equivalents."
+                         Code="@(@"<ContextMenu>
+    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">Right click</ContextMenuTrigger>
+    <ContextMenuContent>
+        <ContextMenuItem>Back<ContextMenuShortcut>Cmd+[</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Reload<ContextMenuShortcut>Cmd+R</ContextMenuShortcut></ContextMenuItem>
+    </ContextMenuContent>
+</ContextMenu>")"
+                         CodeLanguage="razor">
+                <ContextMenu>
+                    <ContextMenuTrigger Id="context-menu-shortcuts-trigger"
+                                        data-testid="context-menu-shortcuts-trigger"
+                                        Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
+                        Right click for shortcuts
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Width='Width.Token("52")'>
+                            <ContextMenuItem>Back<ContextMenuShortcut>Cmd+[</ContextMenuShortcut></ContextMenuItem>
+                            <ContextMenuItem>Reload<ContextMenuShortcut>Cmd+R</ContextMenuShortcut></ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Groups"
+                         Description="Use labels and separators to divide related menu actions."
+                         Code="@(@"<ContextMenuContent>
+    <ContextMenuLabel>View</ContextMenuLabel>
+    <ContextMenuItem>Command Menu</ContextMenuItem>
+    <ContextMenuSeparator />
+    <ContextMenuLabel>Account</ContextMenuLabel>
+    <ContextMenuItem>Profile</ContextMenuItem>
+</ContextMenuContent>")"
+                         CodeLanguage="razor">
+                <ContextMenu>
+                    <ContextMenuTrigger Id="context-menu-groups-trigger"
+                                        data-testid="context-menu-groups-trigger"
+                                        Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
+                        Right click for groups
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Width='Width.Token("52")'>
+                            <ContextMenuLabel>View</ContextMenuLabel>
+                            <ContextMenuItem>Command Menu</ContextMenuItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuLabel>Account</ContextMenuLabel>
+                            <ContextMenuItem>Profile</ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Icons"
+                         Description="Icons make dense context menu items easier to scan."
+                         Code="@(@"<ContextMenuItem>
+    <Icon Name=""LucideIcon.Copy"" />
+    Copy
+</ContextMenuItem>")"
+                         CodeLanguage="razor">
+                <ContextMenu>
+                    <ContextMenuTrigger Id="context-menu-icons-trigger"
+                                        data-testid="context-menu-icons-trigger"
+                                        Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
+                        Right click for icons
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Width='Width.Token("52")'>
+                            <ContextMenuItem><Icon Name="LucideIcon.Copy" />Copy</ContextMenuItem>
+                            <ContextMenuItem><Icon Name="LucideIcon.Share" />Share</ContextMenuItem>
+                            <ContextMenuItem><Icon Name="LucideIcon.Star" />Favorite</ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Checkboxes"
                          Description="Checkbox items work well for toggles that can be enabled independently."
                          Code="@CheckboxCode"
@@ -140,7 +275,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Radio items"
+            <DemoSection Title="Radio"
                          Description="Radio groups keep one active option selected while leaving room for destructive actions below."
                          Code="@RadioCode"
                          CodeLanguage="razor">
@@ -162,6 +297,28 @@
                                     Compact
                                 </ContextMenuRadioItem>
                             </ContextMenuRadioGroup>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem Variant="destructive">Delete project</ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Destructive"
+                         Description="Use the destructive variant for actions that remove or reset data."
+                         Code="@(@"<ContextMenuItem Variant=""destructive"">Delete project</ContextMenuItem>")"
+                         CodeLanguage="razor">
+                <ContextMenu>
+                    <ContextMenuTrigger Id="context-menu-destructive-trigger"
+                                        data-testid="context-menu-destructive-trigger"
+                                        Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
+                        Right click for destructive action
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Width='Width.Token("52")'>
+                            <ContextMenuItem>Edit project</ContextMenuItem>
                             <ContextMenuSeparator />
                             <ContextMenuItem Variant="destructive">Delete project</ContextMenuItem>
                         </Div>

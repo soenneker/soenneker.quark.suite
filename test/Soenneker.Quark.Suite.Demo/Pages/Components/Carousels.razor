@@ -144,18 +144,8 @@
             </Div>
         </DemoSection>
     </Section>
-
-    <Section Space="Space.Y.Is4">
-        <Div Space="Space.Y.Is2">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                Quark-specific carousel behaviors beyond the core shadcn reference demos.
-            </Paragraph>
-        </Div>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Options"
+<Section Space="Space.Y.Is4">
+        <DemoSection Title="Plugins"
                      Description="Quark exposes the most visible carousel option directly with `Loop=true`, enabling wrap-around navigation."
                      Code="@OptionsCode"
                      CodeLanguage="razor">
@@ -163,6 +153,34 @@
                 <Carousel Loop="true" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
                     <CarouselContent>
                         @for (var index = 1; index <= 4; index++)
+                        {
+                            <CarouselItem>
+                                <Div class="p-1">
+                                    <Card>
+                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                            <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@index</Span>
+                                        </CardBody>
+                                    </Card>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="RTL"
+                     Description="Carousel controls and slide order can be rendered in right-to-left contexts."
+                     Code="@RtlCode"
+                     CodeLanguage="razor">
+            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12" dir="rtl">
+                <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+                    <CarouselContent>
+                        @for (var index = 1; index <= 5; index++)
                         {
                             <CarouselItem>
                                 <Div class="p-1">
@@ -287,6 +305,19 @@
     <CarouselPrevious />
     <CarouselNext />
 </Carousel>";
+
+    private const string RtlCode =
+@"<Div Class=""px-12"" dir=""rtl"">
+    <Carousel Class=""w-full max-w-xs"">
+        <CarouselContent>
+            <CarouselItem>...</CarouselItem>
+            <CarouselItem>...</CarouselItem>
+            <CarouselItem>...</CarouselItem>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+    </Carousel>
+</Div>";
 
     private CarouselApi? _carouselApi;
     private int _carouselCurrent = 1;

@@ -36,6 +36,37 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="Shadcn-aligned Basic example."
+                         Code="@(@"<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
+            @FormatDate(_dateOnly)
+            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"" Align=""Alignment.Start"">
+        <Calendar SelectedDate=""_dateOnly"" SelectedDateChanged=""OnBasicDateChanged"" />
+    </PopoverContent>
+</Popover>")"
+CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Popover>
+                        <PopoverTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-between text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
+                                @FormatDate(_dateOnly)
+                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                            <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+                        </PopoverContent>
+                    </Popover>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Range Picker"
                          Description="Use a range calendar inside the popover when users need a start and end date from the same picker."
                          Code="@(@"<Popover>
@@ -68,18 +99,8 @@ CodeLanguage="razor">
                 </Div>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Calendar caption variants, bounded historical selection, and Quark-specific date-time picker primitives.
-                </Paragraph>
-            </Div>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Input-styled trigger"
+<Section Space="Space.Y.Is4">
+            <DemoSection Title="Date of Birth"
                          Description="Use a supported button trigger styled like an input when you want the field appearance without relying on raw HTML slotting."
                          Code="@(@"<Popover>
     <PopoverTrigger AsChild=""true"">
@@ -113,7 +134,7 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Dropdowns"
+            <DemoSection Title="Input"
                          Description="Use the calendar caption dropdown layout when users need direct month and year selection."
                          Code="@(@"<Popover Open=""_dropdownPickerOpen"" OpenChanged=""OnDropdownPickerOpenChanged"">
     <PopoverTrigger>
@@ -141,7 +162,7 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date of Birth"
+            <DemoSection Title="Time Picker"
                          Description="A bounded `Calendar` keeps date-of-birth selection limited to an allowed historical range."
                          Code="@(@"<Popover Open=""_birthdayCalendarOpen"" OpenChanged=""OnBirthdayCalendarOpenChanged"">
     <PopoverTrigger>
@@ -173,7 +194,7 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="DatePicker component"
+            <DemoSection Title="Natural Language Picker"
                          Description="Exercise the reusable `DatePicker` trigger directly, including calendar selection and externally controlled state updates."
                          Code="@(@"<DatePicker SelectedDate=""_componentDate"" SelectedDateChanged=""OnComponentDateChanged"" />
 <Button OnClick=""SetComponentDateToLaunch"">Set launch date</Button>
@@ -197,7 +218,7 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date and time"
+            <DemoSection Title="RTL"
                          Description="DateTimePicker adds time selection when the exact moment matters."
                          Code="@(@"<Label Form=""true"">Pick a date and time</Label>
 <DateTimePicker @bind-SelectedDateTime=""_dateTime""/>")"
@@ -209,6 +230,23 @@ CodeLanguage="razor">
                         <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
                     </Div>
                 </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Natural Language Picker"
+                         Description="Pair a natural-language input with the date picker surface when users can type common date phrases."
+                         Code="@(@"<Field MaxWidth=""MaxWidth.IsSm"">
+    <FieldLabel For=""natural-language-date"">Schedule</FieldLabel>
+    <Input Id=""natural-language-date"" Placeholder=""Tomorrow morning"" Value=""Next Friday at 10:00"" />
+    <FieldDescription>Resolve the phrase before committing the scheduled date.</FieldDescription>
+</Field>")"
+                         CodeLanguage="razor">
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="natural-language-date">Schedule</FieldLabel>
+                    <Input Id="natural-language-date" Placeholder="Tomorrow morning" Value="Next Friday at 10:00" />
+                    <FieldDescription>Resolve the phrase before committing the scheduled date.</FieldDescription>
+                </Field>
             </DemoSection>
         </Section>
 
