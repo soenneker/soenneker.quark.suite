@@ -5,9 +5,11 @@
 
 <BradixAccordionContent ForceMount="@ResolvedForceMount"
                         AdditionalAttributes="@OuterAttributes">
-    <div @attributes="InnerAttributes">
+    <Div data-slot="accordion-content-inner"
+         Padding="@Quark.Padding.Token("2.5").FromBottom.Is0.FromTop"
+         Class="@InnerClass">
         @ChildContent
-    </div>
+    </Div>
 </BradixAccordionContent>
 
 @code {
@@ -18,36 +20,18 @@
 
     private IReadOnlyDictionary<string, object> OuterAttributes => BuildOuterAttributes();
 
+    private string InnerClass => Class.HasContent()
+        ? "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4 " + Class
+        : "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4";
+
     protected override void ApplyDefaultParameters()
     {
         Height ??= "h-[var(--radix-accordion-content-height)]";
-        Padding ??= Quark.Padding.Is0.FromTop.Token("2.5").FromBottom;
         Overflow ??= Quark.Overflow.Hidden;
         TextSize ??= Quark.TextSize.Sm;
 
         base.ApplyDefaultParameters();
 
-    }
-
-    private IReadOnlyDictionary<string, object> InnerAttributes
-    {
-        get
-        {
-            Dictionary<string, object> attributes = new()
-            {
-                ["data-slot"] = "accordion-content-inner"
-            };
-
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
-
-                if (Class.HasContent())
-                    AppendClass(ref cls, Class!);
-            });
-
-            return attributes;
-        }
     }
 
     private IReadOnlyDictionary<string, object> BuildOuterAttributes()

@@ -16,6 +16,9 @@
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
 
+    private bool _triggerElementRegistered;
+    private string? _registeredTriggerId;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -42,7 +45,13 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        TriggerContext?.RegisterElement?.Invoke(ElementRef);
+
+        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        {
+            TriggerContext.RegisterElement(ElementRef);
+            _triggerElementRegistered = true;
+            _registeredTriggerId = TriggerContext.TriggerId;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

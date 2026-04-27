@@ -14,6 +14,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 {
     public RenderedShadcnParityTests()
     {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+
         var module = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix.js");
         module.SetupVoid("mountPortal", _ => true).SetVoidResult();
         module.SetupVoid("unmountPortal", _ => true).SetVoidResult();
@@ -86,6 +88,53 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         module.Setup<bool>("isFormControl", _ => true).SetResult(false);
         module.Setup<bool>("isDirectionRtl", _ => true).SetResult(false);
         module.Setup<bool>("isKeyboardInteractionMode", _ => true).SetResult(false);
+
+        var formsModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/forms.js");
+        formsModule.Setup<bool>("isFormControl", _ => true).SetResult(false);
+        formsModule.SetupVoid("registerRadioGroupItemKeys", _ => true).SetVoidResult();
+        formsModule.SetupVoid("unregisterRadioGroupItemKeys", _ => true).SetVoidResult();
+        formsModule.SetupVoid("syncInputValue", _ => true).SetVoidResult();
+        formsModule.SetupVoid("registerAssociatedFormReset", _ => true).SetVoidResult();
+        formsModule.SetupVoid("unregisterAssociatedFormReset", _ => true).SetVoidResult();
+        formsModule.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
+        formsModule.SetupVoid("unregisterSelectBubbleInput", _ => true).SetVoidResult();
+        formsModule.SetupVoid("syncSelectBubbleInputValue", _ => true).SetVoidResult();
+
+        var scrollAreaModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/scrollArea.js");
+        scrollAreaModule.SetupVoid("registerScrollAreaViewport", _ => true).SetVoidResult();
+        scrollAreaModule.SetupVoid("unregisterScrollAreaViewport", _ => true).SetVoidResult();
+        scrollAreaModule.SetupVoid("registerScrollAreaRoot", _ => true).SetVoidResult();
+        scrollAreaModule.SetupVoid("unregisterScrollAreaRoot", _ => true).SetVoidResult();
+        scrollAreaModule.SetupVoid("registerScrollAreaScrollbar", _ => true).SetVoidResult();
+        scrollAreaModule.SetupVoid("unregisterScrollAreaScrollbar", _ => true).SetVoidResult();
+
+        var dismissableLayerModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/dismissableLayer.js");
+        dismissableLayerModule.SetupVoid("registerDismissableLayerBranch", _ => true).SetVoidResult();
+        dismissableLayerModule.SetupVoid("unregisterDismissableLayerBranch", _ => true).SetVoidResult();
+        dismissableLayerModule.SetupVoid("registerDismissableLayer", _ => true).SetVoidResult();
+        dismissableLayerModule.SetupVoid("unregisterDismissableLayer", _ => true).SetVoidResult();
+
+        var rovingFocusModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/rovingFocus.js");
+        rovingFocusModule.SetupVoid("registerRovingFocusNavigationKeys", _ => true).SetVoidResult();
+        rovingFocusModule.SetupVoid("unregisterRovingFocusNavigationKeys", _ => true).SetVoidResult();
+
+        var portalModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/portal.js");
+        portalModule.SetupVoid("mountPortal", _ => true).SetVoidResult();
+        portalModule.SetupVoid("unmountPortal", _ => true).SetVoidResult();
+
+        var delegatedInteractionModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/delegatedInteraction.js");
+        delegatedInteractionModule.SetupVoid("registerDelegatedInteraction", _ => true).SetVoidResult();
+        delegatedInteractionModule.SetupVoid("unregisterDelegatedInteraction", _ => true).SetVoidResult();
+
+        var selectModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/select.js");
+        selectModule.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
+        selectModule.SetupVoid("unregisterSelectBubbleInput", _ => true).SetVoidResult();
+        selectModule.SetupVoid("syncSelectBubbleInputValue", _ => true).SetVoidResult();
+        selectModule.SetupVoid("registerSelectViewport", _ => true).SetVoidResult();
+        selectModule.SetupVoid("unregisterSelectViewport", _ => true).SetVoidResult();
+        selectModule.SetupVoid("scrollSelectViewportByItem", _ => true).SetVoidResult();
+        selectModule.SetupVoid("registerSelectContentPointerTracker", _ => true).SetVoidResult();
+        selectModule.SetupVoid("unregisterSelectContentPointerTracker", _ => true).SetVoidResult();
 
         var resourceLoaderModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
         resourceLoaderModule.SetupVoid("loadScript", _ => true).SetVoidResult();

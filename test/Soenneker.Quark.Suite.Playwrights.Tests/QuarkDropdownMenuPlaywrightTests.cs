@@ -7,7 +7,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkDropdownMenuPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkDropdownMenuPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -273,6 +273,6 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
 
     private static async Task WaitForFloatingUiAsync(IPage page)
     {
-        await page.WaitForFunctionAsync("() => !!window.FloatingUIDOM", new PageWaitForFunctionOptions { Timeout = 15000 });
+        await page.WaitForFunctionAsync("() => !!window.FloatingUIDOM", new PageWaitForFunctionOptions { Timeout = 5000 });
     }
 }

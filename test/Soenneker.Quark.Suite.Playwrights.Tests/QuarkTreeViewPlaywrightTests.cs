@@ -9,7 +9,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkTreeViewPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkTreeViewPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {

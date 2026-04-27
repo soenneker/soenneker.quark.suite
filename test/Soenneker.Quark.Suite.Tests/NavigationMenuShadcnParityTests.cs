@@ -112,8 +112,8 @@ public sealed partial class RenderedShadcnParityTests
         content.Should().NotContain("rtl:data-[motion");
 
         viewport.Should().Contain("absolute top-full left-1/2 isolate z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 justify-center md:left-0 md:w-auto md:translate-x-0");
-        viewport.Should().Contain("overflow-hidden");
-        viewport.Should().Contain("w-full");
+        viewport.Should().Contain("Overflow ??= Quark.Overflow.Hidden");
+        viewport.Should().Contain("Width ??= Quark.Width.IsFull");
         viewport.Should().Contain("md:w-[var(--radix-navigation-menu-viewport-width)]");
         viewport.Should().NotContain("rtl:left-auto");
     }

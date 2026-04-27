@@ -38,7 +38,7 @@ public sealed partial class RenderedShadcnParityTests
         content.Should().Contain("CollisionBoundarySelector=\"@CollisionBoundarySelector\"");
         content.Should().Contain("Sticky=\"@Sticky\"");
         content.Should().Contain("Border.Default");
-        content.Should().Contain("min-w-[8rem]");
+        content.Should().Contain("MinWidth ??= Quark.MinWidth.Token(\"[8rem]\")");
         content.Should().Contain("data-[state=closed]:animate-out");
         content.Should().Contain("data-[state=open]:animate-in");
         content.Should().NotContain("ring-1");

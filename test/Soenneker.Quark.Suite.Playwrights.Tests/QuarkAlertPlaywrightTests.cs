@@ -8,7 +8,7 @@ using Soenneker.Playwrights.Tests.Unit;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkAlertPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkAlertPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {

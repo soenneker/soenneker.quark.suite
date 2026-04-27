@@ -7,7 +7,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkSelectPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -47,6 +47,9 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         var listbox = page.Locator("[role='listbox']:visible").First;
         await Assertions.Expect(listbox).ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToHaveAttributeAsync("data-state", "open");
+        await page.WaitForFunctionAsync(
+            "() => !!document.querySelector('[role=\"listbox\"][data-state=\"open\"]')" +
+            "?.closest('[data-bradix-dismissable-layer-ready=\"true\"]')");
 
         await page.WaitForFunctionAsync(
             "() => {" +
@@ -64,7 +67,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 
         (renderedOutsideMain).Should().BeTrue();
 
-        await ClickJustOutsideAsync(page, listbox);
+        await page.Mouse.ClickAsync(10, 10);
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(listbox).Not.ToBeVisibleAsync();

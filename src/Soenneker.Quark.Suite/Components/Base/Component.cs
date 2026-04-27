@@ -338,6 +338,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, UserSelect ?? preset?.UserSelect);
         AddCss(ref sty, ref cls, Cursor ?? preset?.Cursor);
         AddCss(ref sty, ref cls, ScreenReader ?? preset?.ScreenReader);
+        AddCss(ref sty, ref cls, Border ?? preset?.Border);
         AddCss(ref sty, ref cls, BorderColor ?? preset?.BorderColor);
         ApplyBorderColor(ref sty, ref cls);
         ApplyBackgroundColor(ref sty, ref cls);

@@ -8,7 +8,7 @@ using Soenneker.Playwrights.Tests.Unit;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkInputOtpPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -81,7 +81,13 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await slots.First.ClickAsync();
-        await page.Keyboard.InsertTextAsync("12A34B");
+        await Assertions.Expect(slots.First).ToHaveAttributeAsync("data-active", "true");
+        await slots.First.EvaluateAsync(
+            "element => {" +
+            "const data = new DataTransfer();" +
+            "data.setData('text/plain', '12A34B');" +
+            "element.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));" +
+            "}");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
         await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("2");

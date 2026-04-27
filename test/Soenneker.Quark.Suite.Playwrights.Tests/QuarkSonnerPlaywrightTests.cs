@@ -9,7 +9,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 [NotInParallel]
-public sealed class QuarkSonnerPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkSonnerPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -142,7 +142,7 @@ public sealed class QuarkSonnerPlaywrightTests : PlaywrightUnitTest
         var toast = matchingToasts.First;
         await Assertions.Expect(toast).ToBeVisibleAsync();
 
-        await toast.HoverAsync();
+        await toast.HoverAsync(new LocatorHoverOptions { Force = true });
         await Assertions.Expect(toast).ToHaveAttributeAsync("data-expanded", "true");
         await page.WaitForTimeoutAsync(1100);
         await Assertions.Expect(toast).ToBeVisibleAsync();

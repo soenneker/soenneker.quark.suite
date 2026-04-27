@@ -8,7 +8,7 @@ using Soenneker.Playwrights.Tests.Unit;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkCommandPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkCommandPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -137,6 +137,10 @@ public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
             "if (!dialog || !main || main.contains(dialog)) return false;" +
             "return Number.parseInt(getComputedStyle(dialog).zIndex, 10) >= 50;" +
             "}");
+
+        await page.WaitForFunctionAsync(
+            "() => !!document.querySelector('[data-slot=\"dialog-content\"][data-state=\"open\"]')" +
+            "?.closest('[data-bradix-dismissable-layer-ready=\"true\"]')");
 
         await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();

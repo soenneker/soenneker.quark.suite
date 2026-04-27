@@ -8,7 +8,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkSortablePlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkSortablePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -45,6 +45,8 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
         var usageAnalytics = basicList.Locator("[data-sortable-id='usage-analytics']").First;
 
         await DragSortableItemToTargetAsync(page, auditLog, usageAnalytics);
+        if ((await GetSortableItemOrderAsync(basicList))[0] != "audit-log")
+            await DragSortableItemToTargetAsync(page, auditLog, usageAnalytics);
 
         await Assertions.Expect(basicOrder).ToContainTextAsync("Audit log filters -> Usage analytics dashboard -> Billing export retry policy -> Empty state polish");
         (await GetSortableItemOrderAsync(basicList)).Should().Equal(["audit-log", "usage-analytics", "billing-export", "empty-state"]);

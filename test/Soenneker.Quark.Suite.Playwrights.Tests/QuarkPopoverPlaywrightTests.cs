@@ -8,7 +8,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkPopoverPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -125,11 +125,15 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popovers - Quark Suite");
 
+        await page.WaitForFunctionAsync("() => !!globalThis.FloatingUICore && !!globalThis.FloatingUIDOM");
+
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays rich content in a portal, triggered by a button." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 
-        var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set the dimensions for the layer." });
+        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        contentId.Should().NotBeNullOrWhiteSpace();
+        var content = page.Locator($"#{contentId}");
         var title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
         var widthInput = page.Locator("#popover-width");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");

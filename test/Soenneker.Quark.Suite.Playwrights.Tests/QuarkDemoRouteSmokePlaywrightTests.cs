@@ -12,7 +12,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 [NotInParallel]
-public sealed partial class QuarkDemoRouteSmokePlaywrightTests : PlaywrightUnitTest
+public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkDemoRouteSmokePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -28,10 +28,10 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : PlaywrightUnitT
         await page.GotoAsync(BaseUrl, new PageGotoOptions
         {
             WaitUntil = WaitUntilState.DOMContentLoaded,
-            Timeout = 15000
+            Timeout = 5000
         });
 
-        await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 15000 });
+        await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
         string landingBodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
         landingBodyText.Should().NotBeNullOrWhiteSpace();
 
@@ -54,10 +54,10 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : PlaywrightUnitT
                 await page.GotoAsync($"{BaseUrl}{route.TrimStart('/')}", new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Timeout = 15000
+                    Timeout = 5000
                 });
 
-                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 15000 });
+                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
 
                 bool hasVisibleBlazorError = await page.EvaluateAsync<bool>(
                     @"() => {
@@ -75,6 +75,74 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : PlaywrightUnitT
 
                 if (string.IsNullOrWhiteSpace(bodyText))
                     failures.Add($"{route}: empty page body");
+
+                if (runtimeErrors.Count > 0)
+                    failures.Add($"{route}: {string.Join(" | ", runtimeErrors.Distinct())}");
+            }
+            catch (Exception exception)
+            {
+                failures.Add($"{route}: {exception.Message}");
+            }
+        }
+
+        failures.Should().BeEmpty();
+    }
+
+    [Test]
+    public async ValueTask Demo_routes_render_at_mobile_viewport_without_browser_or_layout_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var runtimeErrors = new List<string>();
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error" && !IsIgnoredConsoleError(message.Text))
+                runtimeErrors.Add($"console: {message.Text}");
+        };
+
+        page.PageError += (_, exception) => runtimeErrors.Add($"page: {exception}");
+
+        await page.SetViewportSizeAsync(390, 844);
+
+        var failures = new List<string>();
+
+        foreach (string route in DiscoverDemoRoutes())
+        {
+            runtimeErrors.Clear();
+
+            try
+            {
+                await page.GotoAsync($"{BaseUrl}{route.TrimStart('/')}", new PageGotoOptions
+                {
+                    WaitUntil = WaitUntilState.DOMContentLoaded,
+                    Timeout = 5000
+                });
+
+                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
+
+                bool hasVisibleBlazorError = await page.EvaluateAsync<bool>(
+                    @"() => {
+                        const errorUi = document.querySelector('#blazor-error-ui');
+                        if (!errorUi) return false;
+
+                        const style = getComputedStyle(errorUi);
+                        return style.display !== 'none' && style.visibility !== 'hidden' && errorUi.offsetParent !== null;
+                    }");
+
+                if (hasVisibleBlazorError)
+                    failures.Add($"{route}: visible Blazor error UI");
+
+                string bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+
+                if (string.IsNullOrWhiteSpace(bodyText))
+                    failures.Add($"{route}: empty page body");
+
+                double overflow = await page.EvaluateAsync<double>(
+                    @"() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth)");
+
+                if (overflow > 24)
+                    failures.Add($"{route}: horizontal overflow {overflow}px at 390px viewport");
 
                 if (runtimeErrors.Count > 0)
                     failures.Add($"{route}: {string.Join(" | ", runtimeErrors.Distinct())}");

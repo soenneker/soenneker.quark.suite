@@ -8,7 +8,7 @@ using Soenneker.Playwrights.Tests.Unit;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkCheckboxPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -218,7 +218,7 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
         await WaitForCheckboxRootAsync(page, "#terms-checkbox");
         await WaitForCheckboxRootAsync(page, "#select-all-checkbox");
 
-        bool bubbleInputsMatchRoots = await page.EvaluateAsync<bool>(
+        await page.WaitForFunctionAsync(
             """
             () => {
               const roots = Array.from(document.querySelectorAll('[data-slot="checkbox"][data-bradix-checkbox-root]'))
@@ -243,8 +243,6 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
               });
             }
             """);
-
-        await Assert.That(bubbleInputsMatchRoots).IsTrue();
     }
 
     private static async Task WaitForInteractiveAsync(IPage page)

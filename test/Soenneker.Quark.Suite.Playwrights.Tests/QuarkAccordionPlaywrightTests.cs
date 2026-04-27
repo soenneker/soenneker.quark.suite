@@ -8,7 +8,7 @@ using AwesomeAssertions;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkAccordionPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
@@ -112,8 +112,8 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(secondContent).Not.ToBeVisibleAsync();
-        await Assertions.Expect(firstContent).ToHaveCountAsync(0);
-        await Assertions.Expect(secondContent).ToHaveCountAsync(0);
+        await Assertions.Expect(firstContent).Not.ToBeVisibleAsync();
+        await Assertions.Expect(secondContent).Not.ToBeVisibleAsync();
     }
 
     [Test]

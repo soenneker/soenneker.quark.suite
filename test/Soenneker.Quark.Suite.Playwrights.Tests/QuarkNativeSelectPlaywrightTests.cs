@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkNativeSelectPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkNativeSelectPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {

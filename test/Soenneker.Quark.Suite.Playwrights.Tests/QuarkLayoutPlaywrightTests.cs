@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkLayoutPlaywrightTests : PlaywrightUnitTest
+public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
 {
     public QuarkLayoutPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {

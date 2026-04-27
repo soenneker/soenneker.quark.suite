@@ -54,6 +54,8 @@ else
     private TriggerContext? TriggerContext { get; set; }
 
     private ElementReference _elementRef;
+    private bool _triggerElementRegistered;
+    private string? _registeredTriggerId;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
@@ -159,7 +161,13 @@ else
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        TriggerContext?.RegisterElement?.Invoke(_elementRef);
+        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        {
+            TriggerContext.RegisterElement(_elementRef);
+            _triggerElementRegistered = true;
+            _registeredTriggerId = TriggerContext.TriggerId;
+        }
+
         return base.OnAfterRenderAsync(firstRender);
     }
 
