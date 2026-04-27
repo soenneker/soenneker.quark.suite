@@ -146,7 +146,7 @@ public partial class SidebarProvider
         if (OpenChanged.HasDelegate)
             await OpenChanged.InvokeAsync(value);
 
-        await PersistOpenAsync(value);
+        await PersistOpen(value);
         await RefreshOffThread();
     }
 
@@ -191,7 +191,7 @@ public partial class SidebarProvider
         _ = InvokeAsync(() => SetOpenMobile(false));
     }
 
-    private async Task PersistOpenAsync(bool value)
+    private async Task PersistOpen(bool value)
     {
         if (!PersistState || _module is null || string.IsNullOrWhiteSpace(CookieKey))
             return;

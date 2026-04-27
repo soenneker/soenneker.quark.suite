@@ -40,7 +40,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("data-checked:bg-primary");
         classes.Should().NotContain("data-checked:text-primary-foreground");
         classes.Should().Contain("shadow-xs");
-        classes.Should().Contain("transition-[color,box-shadow]");
+        classes.Should().Contain("transition-[color,shadow]");
 
         indicatorClasses.Should().Contain("relative");
         indicatorClasses.Should().Contain("flex");

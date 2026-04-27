@@ -9,7 +9,7 @@
     [Parameter]
     public EventCallback<string> OnSelect { get; set; }
 
-    internal Task SelectAsync(string? value)
+    internal Task Select(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? Task.CompletedTask : OnSelect.InvokeAsync(value);
     }
@@ -30,9 +30,5 @@
         attributes["role"] = "group";
         attributes["aria-label"] = "Suggestions";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, string.Empty);
-        });
     }
 }

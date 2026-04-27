@@ -47,7 +47,7 @@ else
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        await EnsureTriggerRegisteredAsync();
+        await EnsureTriggerRegistered();
     }
 
     public override async ValueTask DisposeAsync()
@@ -137,18 +137,18 @@ else
             OnKeyDown = Tooltip is null ? null : e => HandleTriggerKeyDownCore(e, Tooltip),
             RegisterElement = Tooltip is null
                 ? null
-                : elementReference => _ = InvokeAsync(() => HandleTriggerElementRegisteredAsync(elementReference))
+                : elementReference => _ = InvokeAsync(() => HandleTriggerElementRegistered(elementReference))
         };
     }
 
-    private async Task HandleTriggerElementRegisteredAsync(ElementReference elementReference)
+    private async Task HandleTriggerElementRegistered(ElementReference elementReference)
     {
         _triggerElement = elementReference;
         Tooltip?.RegisterTrigger(elementReference);
-        await EnsureTriggerRegisteredAsync();
+        await EnsureTriggerRegistered();
     }
 
-    private async Task EnsureTriggerRegisteredAsync()
+    private async Task EnsureTriggerRegistered()
     {
         if (_triggerRegistered || Tooltip is null || _triggerElement.Context is null)
             return;

@@ -65,21 +65,21 @@ public abstract class OverlayElement : InteractiveElement
         var wasVisible = _renderedVisible;
         _renderedVisible = Visible;
 
-        return HandleAfterRenderAsync(firstRender, wasVisible);
+        return HandleAfterRender(firstRender, wasVisible);
     }
 
-    private async Task HandleAfterRenderAsync(bool firstRender, bool wasVisible)
+    private async Task HandleAfterRender(bool firstRender, bool wasVisible)
     {
         await base.OnAfterRenderAsync(firstRender);
 
         if (Visible && !wasVisible)
         {
-            await OnOverlayShownAsync();
+            await OnOverlayShown();
             return;
         }
 
         if (!Visible && wasVisible)
-            await OnOverlayHiddenAsync();
+            await OnOverlayHidden();
     }
 
     internal void SetRestoreFocusTarget(ElementReference elementReference)
@@ -94,7 +94,7 @@ public abstract class OverlayElement : InteractiveElement
         _hasOverlayContentElement = true;
     }
 
-    protected virtual async Task OnOverlayShownAsync()
+    protected virtual async Task OnOverlayShown()
     {
         if (!_hasOverlayContentElement)
             return;
@@ -109,13 +109,13 @@ public abstract class OverlayElement : InteractiveElement
         }
     }
 
-    protected virtual async Task OnOverlayHiddenAsync()
+    protected virtual async Task OnOverlayHidden()
     {
-        await DeactivateOverlayBehaviorAsync();
-        await RestoreFocusAsync();
+        await DeactivateOverlayBehavior();
+        await RestoreFocus();
     }
 
-    protected async Task RestoreFocusAsync()
+    protected async Task RestoreFocus()
     {
         if (!_hasRestoreFocusTarget)
             return;
@@ -129,7 +129,7 @@ public abstract class OverlayElement : InteractiveElement
         }
     }
 
-    private async Task DeactivateOverlayBehaviorAsync()
+    private async Task DeactivateOverlayBehavior()
     {
         if (!_overlayBehaviorActive)
             return;
@@ -149,7 +149,7 @@ public abstract class OverlayElement : InteractiveElement
 
     public override async ValueTask DisposeAsync()
     {
-        await DeactivateOverlayBehaviorAsync();
+        await DeactivateOverlayBehavior();
         await base.DisposeAsync();
     }
 

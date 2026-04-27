@@ -65,14 +65,14 @@
         return _entries.Any(entry => ReferenceEquals(entry.Group, group) && entry.IsVisible);
     }
 
-    internal async Task SetSearchAsync(string? value)
+    internal async Task SetSearch(string? value)
     {
         _search = value;
         _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
         await RefreshOffThread();
     }
 
-    internal async Task SetActiveItemAsync(CommandItem item)
+    internal async Task SetActiveItem(CommandItem item)
     {
         if (!item.IsVisibleResolved || item.Disabled)
             return;
@@ -84,7 +84,7 @@
         }
     }
 
-    internal async Task HandleInputNavigationAsync(string key)
+    internal async Task HandleInputNavigation(string key)
     {
         var visibleEntries = GetVisibleEntries();
         if (visibleEntries.Count == 0)
@@ -111,12 +111,12 @@
         await RefreshOffThread();
     }
 
-    internal async Task SelectActiveItemAsync()
+    internal async Task SelectActiveItem()
     {
         if (_activeItem is null || !_activeItem.IsVisibleResolved || _activeItem.Disabled)
             return;
 
-        await _activeItem.SelectAsync();
+        await _activeItem.Select();
     }
 
     private List<CommandEntry> GetVisibleEntries()

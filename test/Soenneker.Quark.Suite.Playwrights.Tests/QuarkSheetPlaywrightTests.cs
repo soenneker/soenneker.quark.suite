@@ -41,7 +41,7 @@ public sealed class QuarkSheetPlaywrightTests : QuarkPlaywrightTest
             "return !!content && document.body.contains(content) && !!main && !main.contains(content);" +
             "}");
 
-        await ClickJustOutsideAsync(page, dialog);
+        await ClickJustOutside(page, dialog);
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
     }
@@ -109,7 +109,7 @@ public sealed class QuarkSheetPlaywrightTests : QuarkPlaywrightTest
         consoleErrors.Should().BeEmpty();
     }
 
-    private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
+    private static async Task ClickJustOutside(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();
         (box).Should().NotBeNull();

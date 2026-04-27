@@ -84,7 +84,7 @@
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
 	[Parameter]
-	public string Orientation { get; set; } = "horizontal";
+	public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
 
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
@@ -101,8 +101,8 @@
 	private bool _sliderBridgeRegistered;
 
 	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
-	private bool IsVertical => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase);
-	private string OrientationValue => IsVertical ? "vertical" : "horizontal";
+	private bool IsVertical => Orientation == Soenneker.Bradix.Orientation.Vertical;
+	private string OrientationValue => Orientation.Value;
 	private bool IsHorizontalRtl => !IsVertical && ResolveIsRtl();
 	private bool IsInteractive => !Disabled && !ReadOnly;
 	public object? ValidationValue => UsesValuesApi ? GetResolvedValues() : SliderValue;
@@ -267,7 +267,7 @@
 		return isLargeStep ? fallback * 10d : fallback;
 	}
 
-	private async Task<double> UpdateValueAsync(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
+	private async Task<double> UpdateValue(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
 	{
 		var currentValues = GetResolvedValues();
 
@@ -332,7 +332,7 @@
 			: Min + (clampedX * range);
 	}
 
-	private async Task RestoreValuesAsync()
+	private async Task RestoreValues()
 	{
 		if (_valuesBeforeSlideStart.Length == 0)
 			return;
@@ -624,7 +624,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "relative block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden active:ring-4 disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, "relative block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,shadow] select-none after:absolute after:-inset-2 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden active:ring-4 disabled:pointer-events-none disabled:opacity-50");
 
 			if (isActive)
 				AppendClass(ref cls, "ring-4");
@@ -750,7 +750,7 @@
 		}
 
 		_focusedThumbIndex = index;
-		await UpdateValueAsync(index, nextValue, notifyInput: true, notifyChange: true, markTouched: true);
+		await UpdateValue(index, nextValue, notifyInput: true, notifyChange: true, markTouched: true);
 	}
 
 	[JSInvokable]
@@ -771,7 +771,7 @@
 		Refresh();
 
 		if (thumbIndex < 0)
-			await UpdateValueAsync(index, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
+			await UpdateValue(index, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
 	}
 
 	[JSInvokable]
@@ -781,7 +781,7 @@
 			return;
 
 		_focusedThumbIndex = _draggingThumbIndex;
-		await UpdateValueAsync(_draggingThumbIndex, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
+		await UpdateValue(_draggingThumbIndex, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
 	}
 
 	[JSInvokable]
@@ -794,7 +794,7 @@
 		var currentValues = GetResolvedValues();
 		var value = index < currentValues.Length ? currentValues[index] : Min;
 
-		await UpdateValueAsync(index, value, notifyInput: false, notifyChange: true, markTouched: true);
+		await UpdateValue(index, value, notifyInput: false, notifyChange: true, markTouched: true);
 		_draggingThumbIndex = -1;
 		_focusedThumbIndex = index;
 		Refresh();
@@ -806,7 +806,7 @@
 		if (_draggingThumbIndex < 0)
 			return;
 
-		await RestoreValuesAsync();
+		await RestoreValues();
 		_draggingThumbIndex = -1;
 		Refresh();
 	}

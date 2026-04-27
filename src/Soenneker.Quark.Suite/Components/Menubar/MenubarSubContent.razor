@@ -28,7 +28,7 @@
     public bool ForceMount { get; set; }
 
     [Parameter]
-    public string Side { get; set; } = "right";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Right;
 
     [Parameter]
     public bool DisableAutoOpen { get; set; }
@@ -73,7 +73,7 @@
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Is1;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        BoxShadow ??= Quark.BoxShadow.Lg;
+        Shadow ??= Quark.Shadow.Lg;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -81,7 +81,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "menubar-sub-content";
-        attributes["data-side"] = Side;
+        attributes["data-side"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

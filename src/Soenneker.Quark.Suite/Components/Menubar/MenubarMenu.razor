@@ -36,21 +36,21 @@
 
     internal MenubarTrigger? Trigger => _trigger;
 
-    internal async Task FocusFirstItemAsync()
+    internal async Task FocusFirstItem()
     {
         var firstItem = _items.FirstOrDefault(i => !i.IsDisabledForNavigation);
         if (firstItem is not null)
-            await firstItem.FocusAsync();
+            await firstItem.Focus();
     }
 
-    internal async Task FocusLastItemAsync()
+    internal async Task FocusLastItem()
     {
         var lastItem = _items.LastOrDefault(i => !i.IsDisabledForNavigation);
         if (lastItem is not null)
-            await lastItem.FocusAsync();
+            await lastItem.Focus();
     }
 
-    internal async Task HandleItemNavigationAsync(IMenubarFocusableItem currentItem, string key)
+    internal async Task HandleItemNavigation(IMenubarFocusableItem currentItem, string key)
     {
         var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
         if (enabledItems.Count == 0)
@@ -70,13 +70,13 @@
         };
 
         if (nextIndex >= 0)
-            await enabledItems[nextIndex].FocusAsync();
+            await enabledItems[nextIndex].Focus();
     }
 
-    internal async Task FocusTriggerAsync()
+    internal async Task FocusTrigger()
     {
         if (_trigger is not null)
-            await _trigger.FocusAsync();
+            await _trigger.Focus();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

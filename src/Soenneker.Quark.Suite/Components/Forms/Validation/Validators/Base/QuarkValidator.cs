@@ -16,7 +16,7 @@ public abstract class QuarkValidator : IQuarkValidator
     /// <summary>
     /// Validates the value asynchronously. Override this method to implement custom async validation logic.
     /// </summary>
-    public virtual Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default)
+    public virtual Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Validate(value));
     }
@@ -41,8 +41,8 @@ public abstract class QuarkValidator : IQuarkValidator
     /// Validates the value asynchronously with enhanced context. Override this method to implement 
     /// custom async validation logic with access to rich validation context.
     /// </summary>
-    public virtual Task<ValidationResult> ValidateAsync(ValidatorEventArgs args, CancellationToken cancellationToken = default)
+    public virtual Task<ValidationResult> Validate(ValidatorEventArgs args, CancellationToken cancellationToken = default)
     {
-        return ValidateAsync(args.Value, cancellationToken);
+        return Validate(args.Value, cancellationToken);
     }
 }

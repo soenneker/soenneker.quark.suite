@@ -40,7 +40,7 @@ public class SimpleValidator : IQuarkValidator
     /// <param name="value">The value to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
-    public Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default)
+    public Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Validate(value));
     }
@@ -68,7 +68,7 @@ public class SimpleValidator : IQuarkValidator
     /// <param name="args">The validation event arguments containing the value and validation context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
-    public Task<ValidationResult> ValidateAsync(ValidatorEventArgs args, CancellationToken cancellationToken = default)
+    public Task<ValidationResult> Validate(ValidatorEventArgs args, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Validate(args));
     }

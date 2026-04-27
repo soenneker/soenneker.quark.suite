@@ -75,7 +75,7 @@
     {
         if (Multiple)
         {
-            await ToggleValueAsync(v);
+            await ToggleValue(v);
             return;
         }
 
@@ -154,7 +154,7 @@
         }
     }
 
-    internal async Task HandleInputKeyDownAsync(string key)
+    internal async Task HandleInputKeyDown(string key)
     {
         switch (key)
         {
@@ -180,12 +180,12 @@
                 break;
             case "Backspace":
                 if (Multiple && Search.IsNullOrEmpty())
-                    await RemoveLastValueAsync();
+                    await RemoveLastValue();
                 break;
         }
     }
 
-    internal async Task RemoveValueAsync(string value)
+    internal async Task RemoveValue(string value)
     {
         if (!Multiple || value.IsNullOrEmpty())
             return;
@@ -256,7 +256,7 @@
         SetActiveValue(visibleItems[0].Value);
     }
 
-    private async Task ToggleValueAsync(string? value)
+    private async Task ToggleValue(string? value)
     {
         if (value.IsNullOrEmpty())
             return;
@@ -282,12 +282,12 @@
         Refresh();
     }
 
-    private async Task RemoveLastValueAsync()
+    private async Task RemoveLastValue()
     {
         if (!Multiple || Values is null || Values.Length == 0)
             return;
 
-        await RemoveValueAsync(Values[^1]);
+        await RemoveValue(Values[^1]);
     }
 
     private void SetActiveValue(string? value)

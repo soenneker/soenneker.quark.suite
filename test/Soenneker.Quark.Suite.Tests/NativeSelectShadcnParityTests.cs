@@ -37,7 +37,7 @@ public sealed partial class RenderedShadcnParityTests
         nativeSelectClasses.Should().Contain("py-1");
         nativeSelectClasses.Should().Contain("pr-9");
         nativeSelectClasses.Should().Contain("px-3");
-        nativeSelectClasses.Should().Contain("transition-[color,box-shadow]");
+        nativeSelectClasses.Should().Contain("transition-[color,shadow]");
         nativeSelectClasses.Should().NotContain("select-none");
         nativeSelectClasses.Should().Contain("focus-visible:ring-[3px]");
         nativeSelectClasses.Should().Contain("data-[size=sm]:h-8");
@@ -51,7 +51,7 @@ public sealed partial class RenderedShadcnParityTests
         nativeSelectClasses.Should().Contain("py-2");
         nativeSelectClasses.Should().Contain("pr-9");
         nativeSelectClasses.Should().Contain("shadow-xs");
-        nativeSelectClasses.Should().Contain("transition-[color,box-shadow]");
+        nativeSelectClasses.Should().Contain("transition-[color,shadow]");
         nativeSelectClasses.Should().Contain("focus-visible:ring-[3px]");
         nativeSelectClasses.Should().NotContain("q-native-select");
 

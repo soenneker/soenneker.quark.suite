@@ -17,7 +17,7 @@ public interface IAccordion : IElement
     /// <summary>
     /// Gets or sets whether multiple items can be open simultaneously.
     /// </summary>
-    BradixSelectionMode Type { get; set; }
+    SelectionMode Type { get; set; }
 
     /// <summary>
     /// Gets or sets whether an open item can be collapsed by activating its trigger again.
@@ -32,7 +32,7 @@ public interface IAccordion : IElement
     /// <summary>
     /// Layout orientation (Radix: vertical uses ArrowUp/ArrowDown; horizontal uses ArrowLeft/ArrowRight with RTL mirroring).
     /// </summary>
-    BradixOrientation Orientation { get; set; }
+    Orientation Orientation { get; set; }
 
     /// <summary>
     /// Gets or sets the currently open item value for single mode.

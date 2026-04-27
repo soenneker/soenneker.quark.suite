@@ -32,8 +32,8 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         var handle = handleSection.Locator("[data-slot='resizable-handle']").First;
         var panels = handleSection.Locator("[data-slot='resizable-panel']");
 
-        var leftBefore = await GetPanelSizeAsync(panels.Nth(0));
-        var rightBefore = await GetPanelSizeAsync(panels.Nth(1));
+        var leftBefore = await GetPanelSize(panels.Nth(0));
+        var rightBefore = await GetPanelSize(panels.Nth(1));
 
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(handle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bfocus-visible:ring-offset-1\b"));
@@ -41,8 +41,8 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         await handle.PressAsync("ArrowRight");
 
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
-        var leftAfter = await GetPanelSizeAsync(panels.Nth(0));
-        var rightAfter = await GetPanelSizeAsync(panels.Nth(1));
+        var leftAfter = await GetPanelSize(panels.Nth(0));
+        var rightAfter = await GetPanelSize(panels.Nth(1));
         (leftAfter > leftBefore).Should().BeTrue();
         (rightAfter < rightBefore).Should().BeTrue();
 
@@ -67,8 +67,8 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
 
         var basicHandle = page.Locator("#resizable-basic-demo [data-slot='resizable-handle']").First;
         var basicPanels = page.Locator("#resizable-basic-demo [data-slot='resizable-panel']");
-        var basicLeftBefore = await GetPanelSizeAsync(basicPanels.Nth(0));
-        var basicRightBefore = await GetPanelSizeAsync(basicPanels.Nth(1));
+        var basicLeftBefore = await GetPanelSize(basicPanels.Nth(0));
+        var basicRightBefore = await GetPanelSize(basicPanels.Nth(1));
 
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("aria-orientation", "vertical");
@@ -76,11 +76,11 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("tabindex", "0");
         await Assertions.Expect(page.Locator("#resizable-basic-demo [data-slot='resizable-panel-group']").First).ToHaveAttributeAsync("aria-orientation", "horizontal");
 
-        await DragHandleAsync(page, basicHandle, 80, 0);
+        await DragHandle(page, basicHandle, 80, 0);
 
         await Assertions.Expect(basicHandle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
-        var basicLeftAfter = await GetPanelSizeAsync(basicPanels.Nth(0));
-        var basicRightAfter = await GetPanelSizeAsync(basicPanels.Nth(1));
+        var basicLeftAfter = await GetPanelSize(basicPanels.Nth(0));
+        var basicRightAfter = await GetPanelSize(basicPanels.Nth(1));
         (basicLeftAfter > basicLeftBefore).Should().BeTrue();
         (basicRightAfter < basicRightBefore).Should().BeTrue();
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
@@ -88,21 +88,21 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
 
         var verticalHandle = page.Locator("#resizable-vertical-demo [data-slot='resizable-handle']").First;
         var verticalPanels = page.Locator("#resizable-vertical-demo [data-slot='resizable-panel']");
-        var verticalTopBefore = await GetPanelSizeAsync(verticalPanels.Nth(0));
-        var verticalBottomBefore = await GetPanelSizeAsync(verticalPanels.Nth(1));
+        var verticalTopBefore = await GetPanelSize(verticalPanels.Nth(0));
+        var verticalBottomBefore = await GetPanelSize(verticalPanels.Nth(1));
 
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("aria-orientation", "horizontal");
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("aria-valuenow", "33.33");
         await Assertions.Expect(page.Locator("#resizable-vertical-demo [data-slot='resizable-panel-group']").First).ToHaveAttributeAsync("aria-orientation", "vertical");
 
-        await DragHandleAsync(page, verticalHandle, 0, 60);
+        await DragHandle(page, verticalHandle, 0, 60);
 
         await Assertions.Expect(verticalHandle).Not.ToHaveAttributeAsync("aria-valuenow", "33.33");
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
         await Assertions.Expect(verticalHandle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "33.33");
-        var verticalTopAfter = await WaitForPanelSizeConditionAsync(verticalPanels.Nth(0), size => size > verticalTopBefore);
-        var verticalBottomAfter = await WaitForPanelSizeConditionAsync(verticalPanels.Nth(1), size => size < verticalBottomBefore);
+        var verticalTopAfter = await WaitForPanelSizeCondition(verticalPanels.Nth(0), size => size > verticalTopBefore);
+        var verticalBottomAfter = await WaitForPanelSizeCondition(verticalPanels.Nth(1), size => size < verticalBottomBefore);
         var verticalValueNow = await verticalHandle.GetAttributeAsync("aria-valuenow");
         var verticalLastPercentage = await verticalHandle.GetAttributeAsync("data-resizable-last-percentage");
         (verticalTopAfter > verticalTopBefore).Should().BeTrue();
@@ -110,21 +110,21 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
 
         var rtlHandle = page.Locator("#resizable-rtl-demo [data-slot='resizable-handle']").First;
         var rtlPanels = page.Locator("#resizable-rtl-demo [data-slot='resizable-panel']");
-        var rtlPrimaryBefore = await GetPanelSizeAsync(rtlPanels.Nth(0));
-        var rtlSecondaryBefore = await GetPanelSizeAsync(rtlPanels.Nth(1));
+        var rtlPrimaryBefore = await GetPanelSize(rtlPanels.Nth(0));
+        var rtlSecondaryBefore = await GetPanelSize(rtlPanels.Nth(1));
 
         await Assertions.Expect(rtlHandle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(rtlHandle).ToHaveAttributeAsync("aria-valuenow", "50");
         (await page.Locator("#resizable-rtl-demo [data-slot='resizable-panel-group']").First.EvaluateAsync<string>(
             "element => getComputedStyle(element).direction")).Should().Be("rtl");
 
-        await DragHandleAsync(page, rtlHandle, -80, 0);
+        await DragHandle(page, rtlHandle, -80, 0);
 
         await Assertions.Expect(rtlHandle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(rtlHandle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
         await Assertions.Expect(rtlHandle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "50");
-        var rtlPrimaryAfter = await WaitForPanelSizeConditionAsync(rtlPanels.Nth(0), size => size > rtlPrimaryBefore);
-        var rtlSecondaryAfter = await WaitForPanelSizeConditionAsync(rtlPanels.Nth(1), size => size < rtlSecondaryBefore);
+        var rtlPrimaryAfter = await WaitForPanelSizeCondition(rtlPanels.Nth(0), size => size > rtlPrimaryBefore);
+        var rtlSecondaryAfter = await WaitForPanelSizeCondition(rtlPanels.Nth(1), size => size < rtlSecondaryBefore);
         (rtlPrimaryAfter > rtlPrimaryBefore).Should().BeTrue();
         (rtlSecondaryAfter < rtlSecondaryBefore).Should().BeTrue();
         runtimeErrors.ConsoleErrors.Should().BeEmpty();
@@ -148,8 +148,8 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         var grip = handle.Locator("svg").First;
         var panels = handleSection.Locator("[data-slot='resizable-panel']");
 
-        var leftBefore = await GetPanelSizeAsync(panels.Nth(0));
-        var rightBefore = await GetPanelSizeAsync(panels.Nth(1));
+        var leftBefore = await GetPanelSize(panels.Nth(0));
+        var rightBefore = await GetPanelSize(panels.Nth(1));
 
         await Assertions.Expect(grip).ToBeVisibleAsync();
         await Assertions.Expect(handle.Locator("div").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bh-4\b.*\bw-3\b.*\brounded-xs\b.*\bborder\b"));
@@ -158,11 +158,11 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(handle).ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(handle).ToHaveAttributeAsync("tabindex", "0");
 
-        await DragHandleAsync(page, handle, 100, 0);
+        await DragHandle(page, handle, 100, 0);
 
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
-        var leftAfter = await GetPanelSizeAsync(panels.Nth(0));
-        var rightAfter = await GetPanelSizeAsync(panels.Nth(1));
+        var leftAfter = await GetPanelSize(panels.Nth(0));
+        var rightAfter = await GetPanelSize(panels.Nth(1));
         (leftAfter > leftBefore).Should().BeTrue();
         (rightAfter < rightBefore).Should().BeTrue();
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
@@ -186,7 +186,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         return new RuntimeErrors(consoleErrors, pageErrors);
     }
 
-    private static async Task<double> GetPanelSizeAsync(ILocator panel)
+    private static async Task<double> GetPanelSize(ILocator panel)
     {
         var style = await panel.GetAttributeAsync("style");
         (style).Should().NotBeNull();
@@ -203,14 +203,14 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         return double.Parse(value, CultureInfo.InvariantCulture);
     }
 
-    private static async Task<double> WaitForPanelSizeConditionAsync(ILocator panel, Func<double, bool> predicate, int timeoutMs = 5000)
+    private static async Task<double> WaitForPanelSizeCondition(ILocator panel, Func<double, bool> predicate, int timeoutMs = 5000)
     {
         var start = DateTime.UtcNow;
-        var lastSize = await GetPanelSizeAsync(panel);
+        var lastSize = await GetPanelSize(panel);
 
         while ((DateTime.UtcNow - start).TotalMilliseconds < timeoutMs)
         {
-            lastSize = await GetPanelSizeAsync(panel);
+            lastSize = await GetPanelSize(panel);
             if (predicate(lastSize))
                 return lastSize;
 
@@ -220,7 +220,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         return lastSize;
     }
 
-    private static async Task DragHandleAsync(IPage page, ILocator handle, double deltaX, double deltaY)
+    private static async Task DragHandle(IPage page, ILocator handle, double deltaX, double deltaY)
     {
         await handle.ScrollIntoViewIfNeededAsync();
         await handle.EvaluateAsync(

@@ -21,8 +21,8 @@ internal sealed class CommandEntry
         return Item.SearchText.Contains(search, StringComparison.OrdinalIgnoreCase);
     }
 
-    public Task FocusAsync()
+    public Task Focus()
     {
-        return Item.FocusAsync();
+        return Item.Focus();
     }
 }

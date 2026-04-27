@@ -23,9 +23,9 @@
         MinWidth ??= Quark.MinWidth.Is0;
         Shrink ??= Quark.Shrink.Is0;
         Grow ??= Quark.Grow.Is0;
-        Padding ??= ParentCarousel?.Orientation != "vertical"
-            ? Quark.Padding.Is4.FromLeft
-            : Quark.Padding.Is4.FromTop;
+        Padding ??= ParentCarousel?.IsVertical == true
+            ? Quark.Padding.Is4.FromTop
+            : Quark.Padding.Is4.FromLeft;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -33,8 +33,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "carousel-item";
-
-        var horizontal = ParentCarousel?.Orientation != "vertical";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

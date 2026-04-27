@@ -44,7 +44,7 @@ public sealed partial class RenderedShadcnParityTests
         sliderThumbClasses.Should().Contain("border-primary");
         sliderThumbClasses.Should().Contain("bg-white");
         sliderThumbClasses.Should().Contain("ring-ring/50");
-        sliderThumbClasses.Should().Contain("transition-[color,box-shadow]");
+        sliderThumbClasses.Should().Contain("transition-[color,shadow]");
         sliderThumbClasses.Should().Contain("select-none");
         sliderThumbClasses.Should().Contain("after:absolute");
         sliderThumbClasses.Should().Contain("after:-inset-2");

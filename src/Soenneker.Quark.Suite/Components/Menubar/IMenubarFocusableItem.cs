@@ -6,5 +6,5 @@ internal interface IMenubarFocusableItem
 {
     bool IsDisabledForNavigation { get; }
 
-    Task FocusAsync();
+    Task Focus();
 }

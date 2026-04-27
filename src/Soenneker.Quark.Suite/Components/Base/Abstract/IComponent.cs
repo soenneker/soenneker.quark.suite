@@ -81,7 +81,7 @@ public interface IComponent : ICoreComponent
     CssValue<RingColorBuilder>? RingColor { get; set; }
     CssValue<RingBuilder>? Ring { get; set; }
     CssValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
-    CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    CssValue<ShadowBuilder>? Shadow { get; set; }
     CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
     CssValue<FilterBuilder>? Filter { get; set; }
     CssValue<ResizeBuilder>? Resize { get; set; }

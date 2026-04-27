@@ -37,7 +37,7 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(overlay).ToHaveAttributeAsync("data-state", "open");
-        (await WaitForDialogTabBoundaryAsync(dialog, first: true)).Should().BeTrue();
+        (await WaitForDialogTabBoundary(dialog, first: true)).Should().BeTrue();
 
         var renderedOutsideMain = await page.EvaluateAsync<bool>(
             "() => {" +
@@ -49,10 +49,10 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         (renderedOutsideMain).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Shift+Tab");
-        (await WaitForDialogTabBoundaryAsync(dialog, first: false)).Should().BeTrue();
+        (await WaitForDialogTabBoundary(dialog, first: false)).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Tab");
-        (await WaitForDialogTabBoundaryAsync(dialog, first: true)).Should().BeTrue();
+        (await WaitForDialogTabBoundary(dialog, first: true)).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Escape");
 
@@ -79,7 +79,7 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(overlay).ToBeVisibleAsync();
 
-        await ClickBackdropAsync(page, dialog);
+        await ClickBackdrop(page, dialog);
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
 
@@ -91,7 +91,7 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
         await Assertions.Expect(guardedOverlay).ToBeVisibleAsync();
 
-        await ClickBackdropAsync(page, guardedDialog);
+        await ClickBackdrop(page, guardedDialog);
 
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
 
@@ -125,8 +125,8 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
 
         var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
-        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
-        await AssertPinchZoomRemainsAllowedAsync(page);
+        await WaitForBodyScrollLock(page, expectedLocked: true);
+        await AssertPinchZoomRemainsAllowed(page);
 
         var selectTrigger = dialog.GetByRole(AriaRole.Combobox, new LocatorGetByRoleOptions { Name = "Theme", Exact = true });
         await selectTrigger.ClickAsync();
@@ -134,26 +134,26 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         var listbox = page.GetByRole(AriaRole.Listbox);
         await Assertions.Expect(selectTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(listbox).ToBeVisibleAsync();
-        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
-        await AssertPinchZoomRemainsAllowedAsync(page);
+        await WaitForBodyScrollLock(page, expectedLocked: true);
+        await AssertPinchZoomRemainsAllowed(page);
 
         var dark = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Dark", Exact = true });
         await dark.ClickAsync();
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(selectTrigger).ToContainTextAsync("Dark");
-        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
+        await WaitForBodyScrollLock(page, expectedLocked: true);
 
         await page.Keyboard.PressAsync("Escape");
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
-        await WaitForBodyScrollLockAsync(page, expectedLocked: false);
+        await WaitForBodyScrollLock(page, expectedLocked: false);
 
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
     }
 
-    private static async Task WaitForBodyScrollLockAsync(IPage page, bool expectedLocked)
+    private static async Task WaitForBodyScrollLock(IPage page, bool expectedLocked)
     {
         var predicate = expectedLocked
             ? "() => document.body.style.overflow === 'hidden'"
@@ -168,22 +168,22 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
             overflow.Should().BeEmpty();
     }
 
-    private static async Task AssertPinchZoomRemainsAllowedAsync(IPage page)
+    private static async Task AssertPinchZoomRemainsAllowed(IPage page)
     {
         var touchAction = await page.EvaluateAsync<string>("() => document.documentElement.style.touchAction || ''");
         touchAction.Should().NotBe("none");
     }
 
-    private static Task<bool> FocusIsWithinAsync(ILocator dialog)
+    private static Task<bool> FocusIsWithin(ILocator dialog)
     {
         return dialog.EvaluateAsync<bool>("element => element.contains(document.activeElement)");
     }
 
-    private static async Task<bool> WaitForFocusWithinAsync(ILocator dialog, int attempts = 10)
+    private static async Task<bool> WaitForFocusWithin(ILocator dialog, int attempts = 10)
     {
         for (var i = 0; i < attempts; i++)
         {
-            if (await FocusIsWithinAsync(dialog))
+            if (await FocusIsWithin(dialog))
                 return true;
 
             await Task.Delay(25);
@@ -192,7 +192,7 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         return false;
     }
 
-    private static Task<bool> ActiveElementMatchesDialogTabBoundaryAsync(ILocator dialog, bool first)
+    private static Task<bool> ActiveElementMatchesDialogTabBoundary(ILocator dialog, bool first)
     {
         return dialog.EvaluateAsync<bool>(
             @"(element, isFirst) => {
@@ -232,11 +232,11 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
             first);
     }
 
-    private static async Task<bool> WaitForDialogTabBoundaryAsync(ILocator dialog, bool first, int attempts = 12)
+    private static async Task<bool> WaitForDialogTabBoundary(ILocator dialog, bool first, int attempts = 12)
     {
         for (var i = 0; i < attempts; i++)
         {
-            if (await ActiveElementMatchesDialogTabBoundaryAsync(dialog, first))
+            if (await ActiveElementMatchesDialogTabBoundary(dialog, first))
                 return true;
 
             await Task.Delay(25);
@@ -245,7 +245,7 @@ public sealed class QuarkDialogPlaywrightTests : QuarkPlaywrightTest
         return false;
     }
 
-    private static async Task<string> ClickBackdropAsync(IPage page, ILocator dialog)
+    private static async Task<string> ClickBackdrop(IPage page, ILocator dialog)
     {
         var rectJson = await dialog.EvaluateAsync<string>(
             "element => {" +

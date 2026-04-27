@@ -6,8 +6,8 @@
 
 <BradixHoverCardPortal>
     <BradixHoverCardContent ForceMount="@ForceMount"
-                            Side="@ResolvedSide"
-                            Align="@ResolvedAlign"
+                            Side="@Side"
+                            Align="@Align"
                             SideOffset="@SideOffset"
                             AlignOffset="@AlignOffset"
                             ArrowPadding="@ArrowPadding"
@@ -36,13 +36,13 @@
     /// Gets or sets side placement: top, right, bottom, or left.
     /// </summary>
     [Parameter]
-    public string Side { get; set; } = "bottom";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     /// <summary>
     /// Gets or sets horizontal alignment: start, center, or end.
     /// </summary>
     [Parameter]
-    public string PlacementAlign { get; set; } = "center";
+    public Alignment Align { get; set; } = Alignment.Center;
 
     /// <summary>
     /// Gets or sets offset in pixels from the trigger.
@@ -78,19 +78,6 @@
     public bool DisableAutoOpen { get; set; }
 
     private bool IsOpen => HoverCard?.CurrentOpen ?? Open;
-    private BradixSide ResolvedSide => Side switch
-    {
-        "top" => BradixSide.Top,
-        "right" => BradixSide.Right,
-        "left" => BradixSide.Left,
-        _ => BradixSide.Bottom
-    };
-    private BradixAlignment ResolvedAlign => PlacementAlign switch
-    {
-        "start" => BradixAlignment.Start,
-        "end" => BradixAlignment.End,
-        _ => BradixAlignment.Center
-    };
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
@@ -120,7 +107,7 @@
         Ring ??= Quark.Ring.One;
         RingColor ??= "ring-foreground/10";
         OutlineStyle ??= "outline-hidden";
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -129,8 +116,8 @@
 
         attributes["data-slot"] = "hover-card-content";
         attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["data-side"] = Side;
-        attributes["data-align"] = PlacementAlign;
+        attributes["data-side"] = Side.Value;
+        attributes["data-align"] = Align.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -145,7 +132,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(IsOpen);
         hc.Add(Side);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);
         hc.Add(ArrowPadding);

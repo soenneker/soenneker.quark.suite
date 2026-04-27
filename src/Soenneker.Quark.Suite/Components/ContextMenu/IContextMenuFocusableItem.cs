@@ -6,5 +6,5 @@ internal interface IContextMenuFocusableItem
 {
     bool IsDisabledForNavigation { get; }
 
-    Task FocusAsync();
+    Task Focus();
 }

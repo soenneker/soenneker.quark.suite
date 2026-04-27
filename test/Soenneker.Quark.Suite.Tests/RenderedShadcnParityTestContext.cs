@@ -313,7 +313,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask<bool> Toggle(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
-        public ValueTask<bool> GetIsDarkAsync(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(false);
+        public ValueTask<bool> GetIsDark(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(false);
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

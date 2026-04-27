@@ -1,9 +1,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
 
 <HoverCardContent ForceMount="@ForceMount"
                   Side="@Side"
-                  PlacementAlign="@PlacementAlign"
+                  Align="@Align"
                   SideOffset="@SideOffset"
                   @attributes="BuildAttributes()">
     @ChildContent
@@ -11,8 +12,8 @@
 
 @code {
     [Parameter] public bool ForceMount { get; set; }
-    [Parameter] public string Side { get; set; } = "top";
-    [Parameter] public string PlacementAlign { get; set; } = "start";
+    [Parameter] public Side Side { get; set; } = Soenneker.Bradix.Side.Top;
+    [Parameter] public Alignment Align { get; set; } = Alignment.Start;
     [Parameter] public int SideOffset { get; set; } = 8;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -26,7 +27,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ForceMount);
         hc.Add(Side);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(SideOffset);
     }
 }

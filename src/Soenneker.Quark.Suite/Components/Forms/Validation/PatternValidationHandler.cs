@@ -20,7 +20,7 @@ internal sealed class PatternValidationHandler : IValidationHandler
             isMatch ? null : new[] { errorMessage });
     }
 
-    public Task<ValidationStatus> ValidateAsync(Validation ctx, object value, CancellationToken cancellationToken)
+    public Task<ValidationStatus> Validate(Validation ctx, object value, CancellationToken cancellationToken)
     {
         Validate(ctx, value);
         return Task.FromResult(ctx.Status);

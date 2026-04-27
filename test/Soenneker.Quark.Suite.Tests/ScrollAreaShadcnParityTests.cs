@@ -28,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
 
         viewportClasses.Should().Contain("size-full");
         viewportClasses.Should().Contain("rounded-[inherit]");
-        viewportClasses.Should().Contain("transition-[color,box-shadow]");
+        viewportClasses.Should().Contain("transition-[color,shadow]");
         viewportClasses.Should().Contain("outline-none");
         viewportClasses.Should().Contain("focus-visible:ring-[3px]");
         viewportClasses.Should().Contain("focus-visible:ring-ring/50");

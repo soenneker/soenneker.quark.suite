@@ -22,7 +22,7 @@ public sealed partial class RenderedShadcnParityTests
         toggleClasses.Should().Contain("text-sm");
         toggleClasses.Should().Contain("font-medium");
         toggleClasses.Should().Contain("whitespace-nowrap");
-        toggleClasses.Should().Contain("transition-[color,box-shadow]");
+        toggleClasses.Should().Contain("transition-[color,shadow]");
         toggleClasses.Should().Contain("outline-none");
         toggleClasses.Should().Contain("hover:bg-muted");
         toggleClasses.Should().Contain("hover:text-muted-foreground");

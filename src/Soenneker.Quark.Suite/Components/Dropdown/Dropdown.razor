@@ -27,10 +27,10 @@
     public bool RightAligned { get; set; }
 
     /// <summary>
-    /// Gets or sets the direction of the dropdown.
+    /// Gets or sets the side of the dropdown.
     /// </summary>
     [Parameter]
-    public Direction Direction { get; set; } = Direction.Default;
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     /// <summary>
     /// Gets or sets whether this is a submenu dropdown.
@@ -60,10 +60,10 @@
 
     private Task HandleOpenChanged(bool open)
     {
-        return SetVisibleAsync(open);
+        return SetVisible(open);
     }
 
-    private async Task SetVisibleAsync(bool visible)
+    private async Task SetVisible(bool visible)
     {
         if (Visible == visible)
             return;
@@ -100,7 +100,7 @@
         hc.Add(Visible);
         hc.Add(RightAligned);
         hc.Add(Disabled);
-        hc.Add(Direction);
+        hc.Add(Side);
         hc.Add(IsSubmenu);
         hc.Add(IsGroup);
         hc.Add(DropdownMenuTargetId);

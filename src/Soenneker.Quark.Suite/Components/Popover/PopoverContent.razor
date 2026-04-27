@@ -5,8 +5,8 @@
 @inherits Soenneker.Quark.Element
 <BradixPopoverPortal>
     <BradixPopoverContent Id="@ResolvedContentId"
-                          Side="@ResolvedSide"
-                          Align="@ResolvedAlign"
+                          Side="@Side"
+                          Align="@Align"
                           SideOffset="@SideOffset"
                           AlignOffset="@AlignOffset"
                           ArrowPadding="@ArrowPadding"
@@ -36,10 +36,10 @@
     public bool CloseOnEscape { get; set; } = true;
 
     [Parameter]
-    public string Side { get; set; } = "bottom";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     [Parameter]
-    public string PlacementAlign { get; set; } = "center";
+    public Alignment Align { get; set; } = Alignment.Center;
 
     [Parameter]
     public string Slot { get; set; } = "popover-content";
@@ -76,23 +76,6 @@
 
     private string? ResolvedContentId => string.IsNullOrWhiteSpace(Id) ? BradixPopover?.ContentId : Id;
 
-    private BradixSide ResolvedSide =>
-        Side.ToLowerInvariant() switch
-        {
-            "top" => BradixSide.Top,
-            "right" => BradixSide.Right,
-            "left" => BradixSide.Left,
-            _ => BradixSide.Bottom
-        };
-
-    private BradixAlignment ResolvedAlign =>
-        PlacementAlign.ToLowerInvariant() switch
-        {
-            "start" => BradixAlignment.Start,
-            "end" => BradixAlignment.End,
-            _ => BradixAlignment.Center
-        };
-
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
@@ -120,7 +103,7 @@
         Border ??= Quark.Border.Default;
         Padding ??= Quark.Padding.Is4;
         OutlineStyle ??= "outline-hidden";
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -128,8 +111,8 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = Slot;
-        attributes["data-side"] = Side;
-        attributes["data-align"] = PlacementAlign;
+        attributes["data-side"] = Side.Value;
+        attributes["data-align"] = Align.Value;
 
         if (Context is not null)
         {
@@ -151,7 +134,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
         hc.Add(Side);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(Slot);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);

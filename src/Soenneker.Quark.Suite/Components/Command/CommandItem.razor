@@ -68,15 +68,15 @@
         if (Disabled || ParentCommand is null)
             return;
 
-        await ParentCommand.SetActiveItemAsync(this);
+        await ParentCommand.SetActiveItem(this);
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (e.Key is "Enter" or " ")
-            await SelectAsync();
+            await Select();
         else if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
-            await ParentCommand.HandleInputNavigationAsync(e.Key);
+            await ParentCommand.HandleInputNavigation(e.Key);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -113,12 +113,12 @@
         hc.Add(SearchValue);
     }
 
-    internal async Task FocusAsync()
+    internal async Task Focus()
     {
         await _elementRef.FocusAsync();
     }
 
-    internal async Task SelectAsync()
+    internal async Task Select()
     {
         if (!Disabled && OnSelect.HasDelegate)
             await OnSelect.InvokeAsync();

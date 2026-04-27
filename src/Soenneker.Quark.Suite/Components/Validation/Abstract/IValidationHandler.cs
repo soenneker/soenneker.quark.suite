@@ -16,5 +16,5 @@ public interface IValidationHandler
     /// <summary>
     /// Asynchronously validates the provided value.
     /// </summary>
-    Task<ValidationStatus> ValidateAsync(Validation ctx, object value, CancellationToken cancellationToken);
+    Task<ValidationStatus> Validate(Validation ctx, object value, CancellationToken cancellationToken);
 }

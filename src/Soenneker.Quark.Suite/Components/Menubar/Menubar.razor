@@ -33,7 +33,7 @@
         _triggers.Remove(trigger);
     }
 
-    internal async Task HandleTriggerNavigationAsync(MenubarTrigger currentTrigger, string key, bool openMenu = false)
+    internal async Task HandleTriggerNavigation(MenubarTrigger currentTrigger, string key, bool openMenu = false)
     {
         var enabledTriggers = _triggers.Where(trigger => !trigger.Disabled).ToList();
         if (enabledTriggers.Count == 0)
@@ -58,19 +58,19 @@
             return;
 
         var targetTrigger = enabledTriggers[nextIndex];
-        await targetTrigger.FocusAsync();
+        await targetTrigger.Focus();
 
         if (openMenu)
-            await targetTrigger.FocusMenuFirstItemAsync();
+            await targetTrigger.FocusMenuFirstItem();
     }
 
-    internal async Task HandleMenuTraversalAsync(MenubarMenu currentMenu, string key)
+    internal async Task HandleMenuTraversal(MenubarMenu currentMenu, string key)
     {
         if (currentMenu.Trigger is not null)
-            await HandleTriggerNavigationAsync(currentMenu.Trigger, key, openMenu: true);
+            await HandleTriggerNavigation(currentMenu.Trigger, key, openMenu: true);
     }
 
-    internal Task CloseCurrentMenuAsync()
+    internal Task CloseCurrentMenu()
     {
         if (_openMenuValue is null)
             return Task.CompletedTask;
@@ -134,7 +134,7 @@
         Border ??= Quark.Border.Default;
         BackgroundColor ??= Quark.BackgroundColor.Background;
         Padding ??= Quark.Padding.Is1;
-        BoxShadow ??= Quark.BoxShadow.Xs;
+        Shadow ??= Quark.Shadow.Xs;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -148,10 +148,6 @@
         attributes["role"] = "menubar";
         attributes["aria-orientation"] = "horizontal";
         attributes["dir"] = GetResolvedDirection();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-        });
     }
 
     private IReadOnlyDictionary<string, object> BuildMenubarAttributes()

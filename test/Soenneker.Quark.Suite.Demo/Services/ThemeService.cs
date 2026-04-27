@@ -10,7 +10,7 @@ public sealed class ThemeService(IThemeInterop themeInterop)
     public bool IsDark { get; private set; }
     public event Action? ThemeChanged;
 
-    public async Task InitializeAsync()
+    public async Task Initialize()
     {
         if (_initialized)
             return;
@@ -20,7 +20,7 @@ public sealed class ThemeService(IThemeInterop themeInterop)
         ThemeChanged?.Invoke();
     }
 
-    public async Task ToggleAsync()
+    public async Task Toggle()
     {
         IsDark = await themeInterop.Toggle();
         ThemeChanged?.Invoke();

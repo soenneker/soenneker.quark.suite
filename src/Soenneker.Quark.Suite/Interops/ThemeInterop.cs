@@ -42,7 +42,7 @@ public sealed class ThemeInterop : IThemeInterop
         }
     }
 
-    public async ValueTask<bool> GetIsDarkAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<bool> GetIsDark(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 

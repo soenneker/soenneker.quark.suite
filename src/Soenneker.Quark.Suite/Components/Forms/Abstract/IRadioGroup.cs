@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
+using Soenneker.Bradix;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -31,7 +33,7 @@ public interface IRadioGroup : IElement
     /// <summary>
     /// Orientation: "horizontal" or "vertical".
     /// </summary>
-    string Orientation { get; set; }
+    Orientation Orientation { get; set; }
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
@@ -41,5 +43,5 @@ public interface IRadioGroup : IElement
     /// <summary>
     /// Called by child Radio when selected. Sets Value and invokes ValueChanged.
     /// </summary>
-    Task SetValueAsync(string? value);
+    Task SetValue(string? value);
 }

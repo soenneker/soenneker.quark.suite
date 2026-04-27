@@ -65,12 +65,12 @@ public interface IValidation : IDisposable
     /// <summary>
     /// Execute validation asynchronously using the last known value.
     /// </summary>
-    Task<ValidationStatus> ValidateAsync();
+    Task<ValidationStatus> ValidateCurrent();
 
     /// <summary>
     /// Execute validation asynchronously using the provided value.
     /// </summary>
-    Task<ValidationStatus> ValidateAsync(object newValidationValue);
+    Task<ValidationStatus> ValidateValue(object newValidationValue);
 
     /// <summary>
     /// Reset this validation to the None status and clear messages.

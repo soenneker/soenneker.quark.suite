@@ -3,7 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixScrollAreaScrollbar Orientation="@ResolvedOrientation"
+<BradixScrollAreaScrollbar Orientation="@Orientation"
                           ForceMount="@ForceMount"
                           AdditionalAttributes="@ScrollbarAttributes">
     <BradixScrollAreaThumb ForceMount="@ForceMount" AdditionalAttributes="@ThumbAttributes" />
@@ -14,16 +14,13 @@
     /// Gets or sets the orientation: vertical or horizontal.
     /// </summary>
     [Parameter]
-    public string Orientation { get; set; } = "vertical";
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Vertical;
 
     /// <summary>
     /// Forces the scrollbar and thumb to remain mounted, matching Radix ScrollAreaScrollbar forceMount.
     /// </summary>
     [Parameter]
     public bool ForceMount { get; set; }
-
-    private BradixOrientation ResolvedOrientation =>
-        Orientation == "horizontal" ? BradixOrientation.Horizontal : BradixOrientation.Vertical;
 
     private IReadOnlyDictionary<string, object> ScrollbarAttributes => BuildScrollbarAttributes();
     private IReadOnlyDictionary<string, object> ThumbAttributes => BuildThumbAttributes();
@@ -43,7 +40,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "scroll-area-scrollbar";
-        attributes["data-orientation"] = Orientation;
+        attributes["data-orientation"] = Orientation.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

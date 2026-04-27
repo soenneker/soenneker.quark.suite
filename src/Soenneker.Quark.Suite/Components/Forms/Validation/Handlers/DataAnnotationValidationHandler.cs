@@ -49,7 +49,7 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
         }
     }
 
-    public Task<ValidationStatus> ValidateAsync(Validation ctx, object value, CancellationToken cancellationToken)
+    public Task<ValidationStatus> Validate(Validation ctx, object value, CancellationToken cancellationToken)
     {
         Validate(ctx, value);
         return Task.FromResult(ctx.Status);

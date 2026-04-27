@@ -61,7 +61,7 @@ public sealed class StepsOptions : ComponentOptions
     /// </summary>
     public string? ContentRounded { get; set; }
     /// <summary>
-    /// Gets or sets the box shadow for step content.
+    /// Gets or sets the shadow for step content.
     /// </summary>
     public string? ContentShadow { get; set; }
     /// <summary>
@@ -182,7 +182,7 @@ public sealed class StepsOptions : ComponentOptions
 
         if (ContentShadow.HasContent())
         {
-            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"box-shadow: {ContentShadow} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"shadow: {ContentShadow} !important"));
         }
 
         if (FocusOutline.HasContent())

@@ -66,7 +66,7 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("rounded-md");
         triggerClasses.Should().Contain("px-4");
         triggerClasses.Should().Contain("py-2");
-        triggerClasses.Should().Contain("transition-[color,box-shadow]");
+        triggerClasses.Should().Contain("transition-[color,shadow]");
         triggerClasses.Should().Contain("hover:bg-accent");
         triggerClasses.Should().Contain("focus-visible:ring-[3px]");
         triggerClasses.Should().Contain("data-popup-open:bg-accent/50");

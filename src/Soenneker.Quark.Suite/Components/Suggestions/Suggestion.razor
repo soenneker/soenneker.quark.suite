@@ -1,6 +1,6 @@
 @namespace Soenneker.Quark
 
-<Button Variant="ButtonVariant.Ghost" Size="@Size" OnClick="@HandleClickAsync" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Ghost" Size="@Size" OnClick="@HandleClick" @attributes="BuildAttributes()">
     @ChildContent
 </Button>
 
@@ -38,10 +38,10 @@
         return attributes;
     }
 
-    private async Task HandleClickAsync(MouseEventArgs args)
+    private async Task HandleClick(MouseEventArgs args)
     {
         await OnClick.InvokeAsync(args);
-        await (ParentSuggestions?.SelectAsync(Value) ?? Task.CompletedTask);
+        await (ParentSuggestions?.Select(Value) ?? Task.CompletedTask);
     }
 
     private string GetVariantClass()

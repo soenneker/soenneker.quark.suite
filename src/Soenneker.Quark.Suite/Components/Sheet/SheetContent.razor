@@ -33,10 +33,10 @@
     private OverlayLabelContext? Context { get; set; }
 
     /// <summary>
-    /// Gets or sets which side the sheet slides from ("top", "right", "bottom", "left").
+    /// Gets or sets which side the sheet slides from.
     /// </summary>
     [Parameter]
-    public string Side { get; set; } = "right";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Right;
 
     /// <summary>
     /// Gets or sets whether a close button should be rendered in the sheet.
@@ -75,20 +75,12 @@
         FlexDirection ??= Quark.FlexDirection.Col;
         Gap ??= Quark.Gap.Is4;
         BackgroundColor ??= Quark.BackgroundColor.Background;
-        BoxShadow ??= Quark.BoxShadow.Lg;
+        Shadow ??= Quark.Shadow.Lg;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        var side = Side.ToLowerInvariant() switch
-        {
-            "left" => "left",
-            "top" => "top",
-            "bottom" => "bottom",
-            _ => "right"
-        };
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -100,7 +92,7 @@
         });
 
         attributes["data-slot"] = "sheet-content";
-        attributes["data-side"] = side;
+        attributes["data-side"] = Side.Value;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()

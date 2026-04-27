@@ -1,3 +1,5 @@
+using Soenneker.Bradix;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -5,6 +7,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISheetContent : IElement
 {
-    string Side { get; set; }
+    Side Side { get; set; }
     bool ShowCloseButton { get; set; }
 }

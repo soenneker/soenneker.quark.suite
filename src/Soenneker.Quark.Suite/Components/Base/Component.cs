@@ -11,7 +11,7 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IComponent"/>
-///<remarks>Do not use the <c>new</c> keyword to BoxShadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
+///<remarks>Do not use the <c>new</c> keyword to Shadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
 public abstract class Component : RenderComponent, IComponent
 {
     [Inject]
@@ -231,7 +231,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
 
     [Parameter]
-    public virtual CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    public virtual CssValue<ShadowBuilder>? Shadow { get; set; }
 
     [Parameter]
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
@@ -346,7 +346,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, RingColor ?? preset?.RingColor);
         AddCss(ref sty, ref cls, Ring ?? preset?.Ring);
         AddCss(ref sty, ref cls, OutlineStyle);
-        AddCss(ref sty, ref cls, BoxShadow ?? preset?.BoxShadow);
+        AddCss(ref sty, ref cls, Shadow ?? preset?.Shadow);
         AddCss(ref sty, ref cls, BackdropFilter ?? preset?.BackdropFilter);
         AddCss(ref sty, ref cls, Filter ?? preset?.Filter);
         AddCss(ref sty, ref cls, Resize ?? preset?.Resize);
@@ -510,7 +510,7 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Ring);
         AddIf(ref hc, Ring);
         AddIf(ref hc, OutlineStyle);
-        AddIf(ref hc, BoxShadow);
+        AddIf(ref hc, Shadow);
         AddIf(ref hc, BackdropFilter);
         AddIf(ref hc, Filter);
         AddIf(ref hc, Resize);

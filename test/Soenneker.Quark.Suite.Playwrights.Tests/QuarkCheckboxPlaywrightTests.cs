@@ -24,8 +24,8 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.Locator("#select-all"),
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#select-all");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#select-all");
 
         var parent = page.Locator("#select-all");
         var read = page.Locator("#item-read");
@@ -62,8 +62,8 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.GetByRole(AriaRole.Checkbox, new PageGetByRoleOptions { Name = "Select all", Exact = true }),
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#select-all");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#select-all");
 
         var selectAll = page.Locator("#select-all");
         var read = page.Locator("#item-read");
@@ -95,8 +95,8 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.Locator("#select-all-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#select-all-checkbox");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#select-all-checkbox");
 
         var header = page.Locator("#select-all-checkbox");
         var row1 = page.Locator("#row-1-checkbox");
@@ -134,8 +134,8 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }).First,
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#recents");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#recents");
 
         var form = page.Locator("form").Filter(new LocatorFilterOptions { Has = page.Locator("#recents") }).First;
         var recents = page.Locator("#recents");
@@ -177,8 +177,8 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.Locator("#terms-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#terms-checkbox");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#terms-checkbox");
 
         var checkbox = page.Locator("#terms-checkbox");
         var disabled = page.Locator("#toggle-checkbox");
@@ -214,9 +214,9 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}checks",
             static p => p.Locator("#terms-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
-        await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#terms-checkbox");
-        await WaitForCheckboxRootAsync(page, "#select-all-checkbox");
+        await WaitForInteractive(page);
+        await WaitForCheckboxRoot(page, "#terms-checkbox");
+        await WaitForCheckboxRoot(page, "#select-all-checkbox");
 
         await page.WaitForFunctionAsync(
             """
@@ -245,13 +245,13 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
             """);
     }
 
-    private static async Task WaitForInteractiveAsync(IPage page)
+    private static async Task WaitForInteractive(IPage page)
     {
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
         await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'");
     }
 
-    private static Task WaitForCheckboxRootAsync(IPage page, string selector)
+    private static Task WaitForCheckboxRoot(IPage page, string selector)
     {
         return page.WaitForFunctionAsync(
             "selector => document.querySelector(selector)?.hasAttribute('data-bradix-checkbox-root') === true",

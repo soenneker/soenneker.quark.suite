@@ -31,10 +31,10 @@
     public bool RightAligned { get; set; }
 
     /// <summary>
-    /// Gets or sets the direction of the dropdown menu.
+    /// Gets or sets the side of the dropdown menu.
     /// </summary>
     [Parameter]
-    public Direction Direction { get; set; } = Direction.Default;
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     [Parameter]
     public double SideOffset { get; set; } = 4;
@@ -68,17 +68,9 @@
 
     private bool ResolvedRightAligned => ParentDropdown?.RightAligned ?? RightAligned;
 
-    private Direction ResolvedDirection => ParentDropdown?.Direction ?? Direction;
+    private Side ResolvedSide => ParentDropdown?.Side ?? Side;
 
-    private BradixSide ResolvedSide => ResolvedDirection?.Value switch
-    {
-        Direction.UpValue => BradixSide.Top,
-        Direction.EndValue => BradixSide.Right,
-        Direction.StartValue => BradixSide.Left,
-        _ => BradixSide.Bottom
-    };
-
-    private BradixAlignment ResolvedAlign => ResolvedRightAligned ? BradixAlignment.End : BradixAlignment.Start;
+    private Alignment ResolvedAlign => ResolvedRightAligned ? Alignment.End : Alignment.Start;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
@@ -99,7 +91,7 @@
         Ring ??= Quark.Ring.One;
         RingColor ??= "ring-foreground/10";
         OutlineStyle ??= Quark.OutlineStyle.None;
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -129,7 +121,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ResolvedRightAligned);
-        hc.Add(ResolvedDirection);
+        hc.Add(ResolvedSide);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);
         hc.Add(ArrowPadding);

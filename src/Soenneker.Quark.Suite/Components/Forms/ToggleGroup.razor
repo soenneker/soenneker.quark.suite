@@ -3,12 +3,12 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <CascadingValue Name="ParentToggleGroup" Value="@this" IsFixed="true">
-    <BradixToggleGroup Type="@ResolvedType"
+    <BradixToggleGroup Type="@Type"
                        Disabled="@Disabled"
                        Value="@Value"
                        Values="@Values"
                        Dir="@ResolvedDirection"
-                       Orientation="@ResolvedOrientation"
+                       Orientation="@Orientation"
                        ValueChanged="HandleSingleValueChanged"
                        ValuesChanged="HandleMultipleValuesChanged"
                        AdditionalAttributes="@GroupAttributes">
@@ -24,7 +24,7 @@
     /// Gets or sets the type of toggle group: single (one at a time) or multiple (allow multiple pressed).
     /// </summary>
     [Parameter]
-    public ToggleGroupType Type { get; set; } = ToggleGroupType.Single;
+    public SelectionMode Type { get; set; } = SelectionMode.Single;
 
     /// <summary>
     /// Gets or sets callback when single value changes.
@@ -60,7 +60,7 @@
     /// Gets or sets the layout direction for toggle group items.
     /// </summary>
     [Parameter]
-    public ToggleGroupOrientation Orientation { get; set; } = ToggleGroupOrientation.Horizontal;
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
 
     /// <summary>
     /// Gets or sets spacing between items (0 = no gap, uses default gap).
@@ -70,14 +70,6 @@
 
     [Parameter]
     public string? Dir { get; set; }
-
-    private BradixSelectionMode ResolvedType => Type == ToggleGroupType.Multiple
-        ? BradixSelectionMode.Multiple
-        : BradixSelectionMode.Single;
-
-    private BradixOrientation ResolvedOrientation => Orientation == ToggleGroupOrientation.Vertical
-        ? BradixOrientation.Vertical
-        : BradixOrientation.Horizontal;
 
     private string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
@@ -98,11 +90,11 @@
             attributes.Remove("aria-orientation");
 
             attributes["data-slot"] = "toggle-group";
-            attributes["data-type"] = Type?.Value ?? ToggleGroupType.Single.Value;
+            attributes["data-type"] = Type?.Value ?? SelectionMode.Single.Value;
             attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
             attributes["data-size"] = GetToggleSizeDataAttribute(Size);
-            attributes["data-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
-            attributes[Orientation == ToggleGroupOrientation.Vertical ? "data-vertical" : "data-horizontal"] = string.Empty;
+            attributes["data-orientation"] = Orientation?.Value ?? Soenneker.Bradix.Orientation.Horizontal.Value;
+            attributes[Orientation == Soenneker.Bradix.Orientation.Vertical ? "data-vertical" : "data-horizontal"] = string.Empty;
             attributes["data-spacing"] = Spacing.ToString();
 
             AppendStyleDeclAttr(attributes, $"--gap:{Spacing}");

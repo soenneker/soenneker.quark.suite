@@ -96,7 +96,7 @@
                                     class="@GetActionButtonClass()"
                                     data-button="true"
                                     data-action="true"
-                                    @onclick="() => HandleActionAsync(toast)">
+                                    @onclick="() => HandleAction(toast)">
                                 @toast.ActionLabel
                             </button>
                         }
@@ -107,7 +107,7 @@
                                     class="@GetCloseButtonClass()"
                                     data-close-button
                                     aria-label="Close toast"
-                                    @onclick="() => HandleDismissAsync(toast.Id)">
+                                    @onclick="() => HandleDismiss(toast.Id)">
                                 <Icon Name="LucideIcon.X" Class="size-3" aria-hidden="true" />
                             </button>
                         }
@@ -366,12 +366,12 @@
         }
     };
 
-    private async Task HandleDismissAsync(string id)
+    private async Task HandleDismiss(string id)
     {
         await SonnerService.Dismiss(id, CancellationToken);
     }
 
-    private async Task HandleActionAsync(SonnerToast toast)
+    private async Task HandleAction(SonnerToast toast)
     {
         if (toast.Action is not null)
             await toast.Action();

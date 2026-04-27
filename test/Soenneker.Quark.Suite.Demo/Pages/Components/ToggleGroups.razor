@@ -1,4 +1,5 @@
 @page "/toggle-groups"
+@using Soenneker.Bradix
 
 <PageTitle>Toggle Group - Quark Suite</PageTitle>
 
@@ -9,7 +10,7 @@
                          Description="Outline toggle group with icon-only formatting controls."
                          Code="@DemoCode"
                          CodeLanguage="razor">
-                <ToggleGroup Type="ToggleGroupType.Multiple"
+                <ToggleGroup Type="SelectionMode.Multiple"
                              Variant="ToggleVariant.Outline"
                              Values="@_demoFormats"
                              ValueChangedMultiple="HandleDemoFormatsChanged">
@@ -31,7 +32,7 @@
                          Description="Single-selection toggle groups keep one formatting control active at a time."
                          Code="@SingleCode"
                          CodeLanguage="razor">
-                <ToggleGroup Type="ToggleGroupType.Single"
+                <ToggleGroup Type="SelectionMode.Single"
                              Value="@_singleFormat"
                              ValueChanged="HandleSingleFormatChanged">
                     <ToggleGroupItem Value="bold" aria-label="Toggle bold">
@@ -52,7 +53,7 @@
                          Description="Use the outline variant for grouped formatting controls."
                          Code="@OutlineCode"
                          CodeLanguage="razor">
-                <ToggleGroup Type="ToggleGroupType.Single"
+                <ToggleGroup Type="SelectionMode.Single"
                              Variant="ToggleVariant.Outline"
                              Value="@_outlineAlignment"
                              ValueChanged="HandleOutlineAlignmentChanged">
@@ -69,7 +70,7 @@
                          Code="@SizeCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Start" Gap="Gap.Is4">
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Size="ToggleSize.Sm"
                                  Value="left">
                         <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
@@ -77,14 +78,14 @@
                         <ToggleGroupItem Value="right" aria-label="Align right">Right</ToggleGroupItem>
                     </ToggleGroup>
 
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Value="center">
                         <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
                         <ToggleGroupItem Value="center" aria-label="Align center">Center</ToggleGroupItem>
                         <ToggleGroupItem Value="right" aria-label="Align right">Right</ToggleGroupItem>
                     </ToggleGroup>
 
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Size="ToggleSize.Lg"
                                  Value="right">
                         <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
@@ -100,7 +101,7 @@
                          Description="Use spacing to separate grouped actions without changing their shared semantics."
                          Code="@SpacingCode"
                          CodeLanguage="razor">
-                <ToggleGroup Type="ToggleGroupType.Multiple"
+                <ToggleGroup Type="SelectionMode.Multiple"
                              Variant="ToggleVariant.Outline"
                              Size="ToggleSize.Sm"
                              Spacing="2"
@@ -133,8 +134,8 @@
                          Description="Use a vertical orientation when grouped actions need to fit into narrow side rails or inspector panels."
                          Code="@VerticalCode"
                          CodeLanguage="razor">
-                <ToggleGroup Type="ToggleGroupType.Single"
-                             Orientation="ToggleGroupOrientation.Vertical"
+                <ToggleGroup Type="SelectionMode.Single"
+                             Orientation="Orientation.Vertical"
                              Variant="ToggleVariant.Outline"
                              Value="@_verticalAlignment"
                              ValueChanged="HandleVerticalAlignmentChanged">
@@ -157,7 +158,7 @@
                          Code="@DisabledCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Start" Gap="Gap.Is4">
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Disabled="true"
                                  Value="left">
                         <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
@@ -165,7 +166,7 @@
                         <ToggleGroupItem Value="right" aria-label="Align right">Right</ToggleGroupItem>
                     </ToggleGroup>
 
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Variant="ToggleVariant.Outline"
                                  Value="center">
                         <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
@@ -182,7 +183,7 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Variant="ToggleVariant.Outline"
                                  Value="@_rtlAlignment"
                                  ValueChanged="HandleRtlAlignmentChanged">
@@ -209,7 +210,7 @@
                 <Field>
                     <FieldLabel>Font weight</FieldLabel>
                     <FieldDescription>Choose how prominent headings should appear inside this panel.</FieldDescription>
-                    <ToggleGroup Type="ToggleGroupType.Single"
+                    <ToggleGroup Type="SelectionMode.Single"
                                  Variant="ToggleVariant.Outline"
                                  Value="@_fontWeight"
                                  ValueChanged="HandleFontWeightChanged"
@@ -234,7 +235,7 @@
     private string? _rtlAlignment = "center";
 
     private const string DemoCode =
-@"<ToggleGroup Type=""ToggleGroupType.Multiple""
+@"<ToggleGroup Type=""SelectionMode.Multiple""
              Variant=""ToggleVariant.Outline""
              Values=""@_demoFormats""
              ValueChangedMultiple=""HandleDemoFormatsChanged"">
@@ -250,7 +251,7 @@
 </ToggleGroup>";
 
     private const string SingleCode =
-@"<ToggleGroup Type=""ToggleGroupType.Single""
+@"<ToggleGroup Type=""SelectionMode.Single""
              Value=""@_singleFormat""
              ValueChanged=""HandleSingleFormatChanged"">
     <ToggleGroupItem Value=""bold"" aria-label=""Toggle bold"">
@@ -265,7 +266,7 @@
 </ToggleGroup>";
 
     private const string OutlineCode =
-@"<ToggleGroup Type=""ToggleGroupType.Single""
+@"<ToggleGroup Type=""SelectionMode.Single""
              Variant=""ToggleVariant.Outline""
              Value=""@_outlineAlignment""
              ValueChanged=""HandleOutlineAlignmentChanged"">
@@ -275,26 +276,26 @@
 </ToggleGroup>";
 
     private const string SizeCode =
-@"<ToggleGroup Type=""ToggleGroupType.Single"" Size=""ToggleSize.Sm"" Value=""left"">
+@"<ToggleGroup Type=""SelectionMode.Single"" Size=""ToggleSize.Sm"" Value=""left"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
 </ToggleGroup>
 
-<ToggleGroup Type=""ToggleGroupType.Single"" Value=""center"">
+<ToggleGroup Type=""SelectionMode.Single"" Value=""center"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
 </ToggleGroup>
 
-<ToggleGroup Type=""ToggleGroupType.Single"" Size=""ToggleSize.Lg"" Value=""right"">
+<ToggleGroup Type=""SelectionMode.Single"" Size=""ToggleSize.Lg"" Value=""right"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
 </ToggleGroup>";
 
     private const string SpacingCode =
-@"<ToggleGroup Type=""ToggleGroupType.Multiple""
+@"<ToggleGroup Type=""SelectionMode.Multiple""
              Variant=""ToggleVariant.Outline""
              Size=""ToggleSize.Sm""
              Spacing=""2""
@@ -321,8 +322,8 @@
 </ToggleGroup>";
 
     private const string VerticalCode =
-@"<ToggleGroup Type=""ToggleGroupType.Single""
-             Orientation=""ToggleGroupOrientation.Vertical""
+@"<ToggleGroup Type=""SelectionMode.Single""
+             Orientation=""Orientation.Vertical""
              Variant=""ToggleVariant.Outline""
              Value=""@_verticalAlignment""
              ValueChanged=""HandleVerticalAlignmentChanged"">
@@ -338,13 +339,13 @@
 </ToggleGroup>";
 
     private const string DisabledCode =
-@"<ToggleGroup Type=""ToggleGroupType.Single"" Disabled=""true"" Value=""left"">
+@"<ToggleGroup Type=""SelectionMode.Single"" Disabled=""true"" Value=""left"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
 </ToggleGroup>
 
-<ToggleGroup Type=""ToggleGroupType.Single"" Variant=""ToggleVariant.Outline"" Value=""center"">
+<ToggleGroup Type=""SelectionMode.Single"" Variant=""ToggleVariant.Outline"" Value=""center"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"" Disabled=""true"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
@@ -354,7 +355,7 @@
 @"<Field>
     <FieldLabel>Font weight</FieldLabel>
     <FieldDescription>Choose how prominent headings should appear inside this panel.</FieldDescription>
-    <ToggleGroup Type=""ToggleGroupType.Single""
+    <ToggleGroup Type=""SelectionMode.Single""
                  Variant=""ToggleVariant.Outline""
                  Value=""@_fontWeight""
                  ValueChanged=""HandleFontWeightChanged""
@@ -367,7 +368,7 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <ToggleGroup Type=""ToggleGroupType.Single""
+    <ToggleGroup Type=""SelectionMode.Single""
                  Variant=""ToggleVariant.Outline""
                  Value=""@_rtlAlignment""
                  ValueChanged=""HandleRtlAlignmentChanged"">

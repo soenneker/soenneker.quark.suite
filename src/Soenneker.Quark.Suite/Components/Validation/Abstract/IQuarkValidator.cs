@@ -21,7 +21,7 @@ public interface IQuarkValidator
     /// <param name="value">The value to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
-    Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default);
+    Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates the value with enhanced context using ValidatorEventArgs.
@@ -36,5 +36,5 @@ public interface IQuarkValidator
     /// <param name="args">The validation event arguments containing the value and validation context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
-    Task<ValidationResult> ValidateAsync(ValidatorEventArgs args, CancellationToken cancellationToken = default);
+    Task<ValidationResult> Validate(ValidatorEventArgs args, CancellationToken cancellationToken = default);
 }

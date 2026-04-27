@@ -1,11 +1,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
 
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
     [Parameter]
-    public string Orientation { get; set; } = "horizontal";
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
 
     protected override void ApplyDefaultParameters()
     {
@@ -25,7 +26,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "animate-in duration-150 fade-in-0");
-            AppendClass(ref cls, string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase)
+            AppendClass(ref cls, Orientation == Soenneker.Bradix.Orientation.Vertical
                 ? "flex-col items-start"
                 : "flex-row flex-wrap items-center justify-center");
         });

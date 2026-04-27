@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @using Soenneker.Quark.Dtos
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
 @if (ShouldRenderMobileSidebar)
@@ -11,7 +12,7 @@
            CloseOnEscape="MobileCloseOnEscape"
            LockScroll="MobileLockScroll"
            TrapFocus="@ResolvedMobileTrapFocus">
-        <SheetContent Side="@ToDataSide(Side)"
+        <SheetContent Side="@ToSheetSide(Side)"
                       ShowCloseButton="MobileShowCloseButton"
                       ContainerClass="@GetMobileContainerClass()"
                       ContainerStyle="@GetMobileContainerStyle()"
@@ -144,6 +145,8 @@ else
     private static bool IsFloatingLikeVariant(SidebarVariant? variant) => ReferenceEquals(variant, SidebarVariant.Floating) || ReferenceEquals(variant, SidebarVariant.Inset);
 
     private static string ToDataSide(SidebarSide? side) => IsRightSide(side) ? "right" : "left";
+
+    private static Side ToSheetSide(SidebarSide? side) => IsRightSide(side) ? Soenneker.Bradix.Side.Right : Soenneker.Bradix.Side.Left;
 
     private static string ToDataVariant(SidebarVariant? variant)
     {

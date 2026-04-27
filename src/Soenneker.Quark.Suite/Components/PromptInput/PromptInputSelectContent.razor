@@ -1,26 +1,27 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
 
 <SelectContent ContentPosition="@ContentPosition"
                Side="@Side"
                SideOffset="@SideOffset"
-               PlacementAlign="@PlacementAlign"
+               Align="@Align"
                @attributes="BuildAttributes()">
     @ChildContent
 </SelectContent>
 
 @code {
     [Parameter]
-    public string ContentPosition { get; set; } = "popper";
+    public SelectPosition ContentPosition { get; set; } = SelectPosition.Popper;
 
     [Parameter]
-    public string Side { get; set; } = "top";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Top;
 
     [Parameter]
     public int SideOffset { get; set; } = 8;
 
     [Parameter]
-    public string PlacementAlign { get; set; } = "start";
+    public Alignment Align { get; set; } = Alignment.Start;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -34,6 +35,6 @@
         hc.Add(ContentPosition);
         hc.Add(Side);
         hc.Add(SideOffset);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
     }
 }

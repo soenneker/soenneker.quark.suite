@@ -241,7 +241,7 @@ else
 
         if (ParentRadioGroup != null)
         {
-            await ParentRadioGroup.SetValueAsync(Value);
+            await ParentRadioGroup.SetValue(Value);
             await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
             if (ParentValidation is not null)
             {
@@ -276,7 +276,7 @@ else
     }
 
     private const string _shadcnRadioItemBase =
-        "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40";
+        "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -341,9 +341,11 @@ else
 
     private Dictionary<string, object> BuildIndicatorAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "radio-group-item";
-        attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "radio-group-item",
+            ["data-state"] = EffectiveChecked ? "checked" : "unchecked"
+        };
 
         if (EffectiveChecked)
             attributes["data-checked"] = "true";
@@ -417,11 +419,6 @@ else
             ["data-slot"] = "radio-group-indicator",
             ["class"] = "relative flex items-center justify-center"
         };
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
     }
 
     private string? GetValidationClass()

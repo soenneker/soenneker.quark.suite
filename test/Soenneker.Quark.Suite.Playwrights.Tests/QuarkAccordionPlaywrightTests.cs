@@ -30,13 +30,13 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var thirdBasicTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What payment methods do you accept?", Exact = true });
 
         await firstBasicTrigger.PressAsync("ArrowDown");
-        await ExpectActiveElementAsync(page, secondBasicTrigger);
+        await ExpectActiveElement(page, secondBasicTrigger);
 
         await secondBasicTrigger.PressAsync("End");
-        await ExpectActiveElementAsync(page, thirdBasicTrigger);
+        await ExpectActiveElement(page, thirdBasicTrigger);
 
         await thirdBasicTrigger.PressAsync("Home");
-        await ExpectActiveElementAsync(page, firstBasicTrigger);
+        await ExpectActiveElement(page, firstBasicTrigger);
 
         var enabledTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Can I access my account history?", Exact = true });
         var disabledTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Premium feature information", Exact = true });
@@ -45,7 +45,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(disabledTrigger).ToBeDisabledAsync();
 
         await enabledTrigger.PressAsync("ArrowDown");
-        await ExpectActiveElementAsync(page, trailingTrigger);
+        await ExpectActiveElement(page, trailingTrigger);
 
         await disabledTrigger.ScrollIntoViewIfNeededAsync();
         await disabledTrigger.EvaluateAsync("element => element.click()");
@@ -182,10 +182,10 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ما هي طرق الدفع التي تقبلونها؟", Exact = true });
 
         await firstTrigger.PressAsync("ArrowDown");
-        await ExpectActiveElementAsync(page, secondTrigger);
+        await ExpectActiveElement(page, secondTrigger);
 
         await secondTrigger.PressAsync("End");
-        await ExpectActiveElementAsync(page, thirdTrigger);
+        await ExpectActiveElement(page, thirdTrigger);
 
         await secondTrigger.ClickAsync();
 
@@ -219,7 +219,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(content).ToHaveAttributeAsync("data-state", "open");
     }
 
-    private static async Task ExpectActiveElementAsync(IPage page, ILocator locator)
+    private static async Task ExpectActiveElement(IPage page, ILocator locator)
     {
         var id = await locator.GetAttributeAsync("id");
         (string.IsNullOrWhiteSpace(id)).Should().BeFalse();

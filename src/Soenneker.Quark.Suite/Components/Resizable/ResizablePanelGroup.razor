@@ -1,6 +1,7 @@
 @using System.Globalization
 @using System.Linq
 @using Microsoft.JSInterop
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -29,10 +30,10 @@
     /// Gets or sets orientation: horizontal or vertical.
     /// </summary>
     [Parameter]
-    public string Orientation { get; set; } = "horizontal";
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
 
-    internal string OrientationValue => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
-    internal bool IsVertical => OrientationValue == "vertical";
+    internal string OrientationValue => Orientation.Value;
+    internal bool IsVertical => Orientation == Soenneker.Bradix.Orientation.Vertical;
     internal ElementReference GroupElementRef => ElementRef;
 
     protected override void ApplyDefaultParameters()
@@ -167,17 +168,17 @@
         return Math.Round(_sizes[handleIndex], 2, MidpointRounding.AwayFromZero);
     }
 
-    internal Task StartHandleDragAsync(int handleIndex, PointerEventArgs e)
+    internal Task StartHandleDrag(int handleIndex, PointerEventArgs e)
     {
-        return StartHandleDragAsync(handleIndex, e.ClientX, e.ClientY, (long)e.PointerId);
+        return StartHandleDrag(handleIndex, e.ClientX, e.ClientY, (long)e.PointerId);
     }
 
-    internal Task StartHandleDragAsync(int handleIndex, MouseEventArgs e)
+    internal Task StartHandleDrag(int handleIndex, MouseEventArgs e)
     {
-        return StartHandleDragAsync(handleIndex, e.ClientX, e.ClientY, 0);
+        return StartHandleDrag(handleIndex, e.ClientX, e.ClientY, 0);
     }
 
-    private async Task StartHandleDragAsync(int handleIndex, double clientX, double clientY, long pointerId)
+    private async Task StartHandleDrag(int handleIndex, double clientX, double clientY, long pointerId)
     {
         if (_isDragging || handleIndex < 0 || handleIndex >= _panels.Count - 1)
             return;
@@ -188,7 +189,7 @@
         await ResizableInterop.StartDrag(ElementRef, pointerId, clientX, clientY, OrientationValue, _dotNetRef, handleIndex);
     }
 
-    internal async Task HandleHandleKeyDownAsync(int handleIndex, KeyboardEventArgs e)
+    internal async Task HandleHandleKeyDown(int handleIndex, KeyboardEventArgs e)
     {
         var delta = e.ShiftKey ? 10d : 5d;
         double signedDelta;

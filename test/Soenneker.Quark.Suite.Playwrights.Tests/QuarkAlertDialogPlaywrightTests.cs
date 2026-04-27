@@ -30,7 +30,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
 
-        await ClickJustOutsideAsync(page, dialog);
+        await ClickJustOutside(page, dialog);
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
     }
@@ -109,7 +109,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-    private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
+    private static async Task ClickJustOutside(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();
         (box).Should().NotBeNull();

@@ -5,11 +5,11 @@
 @inherits Soenneker.Quark.Element
 
 <BradixSelectPortal>
-    <BradixSelectContent Position="@ResolvedPosition"
+    <BradixSelectContent Position="@ContentPosition"
                          ForceMount="@ForceMount"
-                         Side="@ResolvedSide"
+                         Side="@Side"
                          SideOffset="@SideOffset"
-                         Align="@ResolvedAlign"
+                         Align="@Align"
                          AlignOffset="@AlignOffset"
                          ArrowPadding="@ArrowPadding"
                          AvoidCollisions="@AvoidCollisions"
@@ -27,7 +27,7 @@
 
 @code {
     [Parameter]
-    public string Side { get; set; } = "bottom";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     [Parameter]
     public bool ForceMount { get; set; }
@@ -60,37 +60,15 @@
     public bool HideWhenDetached { get; set; }
 
     [Parameter]
-    public string PlacementAlign { get; set; } = "center";
+    public Alignment Align { get; set; } = Alignment.Center;
 
     [Parameter]
-    public string ContentPosition { get; set; } = "item-aligned";
-
-    private string ResolvedPosition =>
-        string.Equals(ContentPosition, "popper", StringComparison.OrdinalIgnoreCase)
-            ? BradixSelectPosition.Popper
-            : BradixSelectPosition.ItemAligned;
-
-    private BradixSide ResolvedSide =>
-        Side.ToLowerInvariant() switch
-        {
-            "top" => BradixSide.Top,
-            "right" => BradixSide.Right,
-            "left" => BradixSide.Left,
-            _ => BradixSide.Bottom
-        };
-
-    private BradixAlignment ResolvedAlign =>
-        PlacementAlign.ToLowerInvariant() switch
-        {
-            "start" => BradixAlignment.Start,
-            "end" => BradixAlignment.End,
-            _ => BradixAlignment.Center
-        };
+    public SelectPosition ContentPosition { get; set; } = SelectPosition.ItemAligned;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     private string ViewportClass =>
-        string.Equals(ResolvedPosition, BradixSelectPosition.Popper, StringComparison.OrdinalIgnoreCase)
+        ContentPosition == SelectPosition.Popper
             ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1 p-1"
             : "p-1";
 
@@ -108,7 +86,7 @@
         Border ??= Quark.Border.Default;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -116,9 +94,9 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "select-content";
-        attributes["data-side"] = Side;
-        attributes["data-align"] = PlacementAlign;
-        attributes["data-position"] = ContentPosition;
+        attributes["data-side"] = Side.Value;
+        attributes["data-align"] = Align.Value;
+        attributes["data-position"] = ContentPosition.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -145,7 +123,7 @@
         }
         hc.Add(Sticky);
         hc.Add(HideWhenDetached);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(ContentPosition);
         hc.Add(ForceMount);
     }

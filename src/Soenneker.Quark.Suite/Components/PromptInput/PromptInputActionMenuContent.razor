@@ -1,9 +1,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
 
 <DropdownMenu Class="@Class"
               RightAligned="@RightAligned"
-              Direction="@Direction"
+              Side="@Side"
               @attributes="BuildAttributes()">
     <CascadingValue Value="@PromptInput" IsFixed="false">
         @ChildContent
@@ -18,7 +19,7 @@
     public bool RightAligned { get; set; }
 
     [Parameter]
-    public Direction Direction { get; set; } = Direction.Default;
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -30,6 +31,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(RightAligned);
-        hc.Add(Direction);
+        hc.Add(Side);
     }
 }

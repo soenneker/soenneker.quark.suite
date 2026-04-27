@@ -28,5 +28,5 @@ public interface IThemeInterop : IAsyncDisposable
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
-    ValueTask<bool> GetIsDarkAsync(CancellationToken cancellationToken = default);
+    ValueTask<bool> GetIsDark(CancellationToken cancellationToken = default);
 }

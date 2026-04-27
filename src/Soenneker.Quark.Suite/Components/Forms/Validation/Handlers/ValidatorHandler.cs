@@ -47,7 +47,7 @@ internal sealed class ValidatorHandler : IValidationHandler
         }
     }
 
-    public async Task<ValidationStatus> ValidateAsync(Validation ctx, object value, CancellationToken cancellationToken)
+    public async Task<ValidationStatus> Validate(Validation ctx, object value, CancellationToken cancellationToken)
     {
         var args = new ValidatorEventArgs(value);
 
@@ -56,7 +56,7 @@ internal sealed class ValidatorHandler : IValidationHandler
         if (ctx.Validator is not null)
         {
             // Use the new ValidationResult API
-            var result = await ctx.Validator.ValidateAsync(args, cancellationToken);
+            var result = await ctx.Validator.Validate(args, cancellationToken);
             
             // ValidatorEventArgs should already be synced by the validator
             // but ensure it's set in case of custom implementations

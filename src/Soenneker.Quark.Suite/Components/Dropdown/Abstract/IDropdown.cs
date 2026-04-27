@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Soenneker.Bradix;
 
 namespace Soenneker.Quark;
 
@@ -28,9 +29,9 @@ public interface IDropdown : IElement
     bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the direction of the dropdown menu (up, down, start, or end).
+    /// Gets or sets the side of the dropdown menu.
     /// </summary>
-    Direction Direction { get; set; }
+    Side Side { get; set; }
 
     /// <summary>
     /// Gets or sets whether this dropdown is a submenu.

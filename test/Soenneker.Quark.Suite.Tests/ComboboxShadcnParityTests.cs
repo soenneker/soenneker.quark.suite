@@ -60,11 +60,11 @@ public sealed partial class RenderedShadcnParityTests
     {
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForCombobox(), "src", "Soenneker.Quark.Suite", "Components", "Combobox", "ComboboxContent.razor"));
 
-        source.Should().Contain("PlacementAlign=\"@PlacementAlign\"");
+        source.Should().Contain("Align=\"@Align\"");
         source.Should().Contain("AlignOffset=\"@AlignOffset\"");
         source.Should().Contain("Slot=\"combobox-content\"");
         source.Should().Contain("[&:has([data-slot=combobox-item]:not([hidden]))>[data-slot=combobox-empty]]:hidden");
-        source.Should().NotContain($"{Environment.NewLine}                Align=\"@PlacementAlign\"");
+        source.Should().NotContain($"{Environment.NewLine}                Align=\"@Align\"");
     }
 
     [Test]

@@ -6,8 +6,8 @@
 
 <BradixTooltipPortal ForceMount="@ForceMount">
     <BradixTooltipContent ForceMount="@ForceMount"
-                          Side="@ResolvedSide"
-                          Align="@ResolvedAlign"
+                          Side="@Side"
+                          Align="@Align"
                           SideOffset="@SideOffset"
                           AlignOffset="@AlignOffset"
                           ArrowPadding="@ArrowPadding"
@@ -40,13 +40,13 @@
     /// Gets or sets side placement: top, right, bottom, or left.
     /// </summary>
     [Parameter]
-    public string Side { get; set; } = "top";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Top;
 
     /// <summary>
     /// Gets or sets alignment along the placement axis: start, center, or end.
     /// </summary>
     [Parameter]
-    public string PlacementAlign { get; set; } = "center";
+    public Alignment Align { get; set; } = Alignment.Center;
 
     /// <summary>
     /// Gets or sets whether hover/focus should auto-open the tooltip.
@@ -91,19 +91,6 @@
     public bool HideWhenDetached { get; set; }
 
     private bool IsOpen => Tooltip?.CurrentOpen ?? Open;
-    private BradixSide ResolvedSide => Side switch
-    {
-        "bottom" => BradixSide.Bottom,
-        "left" => BradixSide.Left,
-        "right" => BradixSide.Right,
-        _ => BradixSide.Top
-    };
-    private BradixAlignment ResolvedAlign => PlacementAlign switch
-    {
-        "start" => BradixAlignment.Start,
-        "end" => BradixAlignment.End,
-        _ => BradixAlignment.Center
-    };
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
@@ -138,7 +125,7 @@
 
         attributes["data-slot"] = "tooltip-content";
         attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["data-side"] = Side;
+        attributes["data-side"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -154,7 +141,7 @@
         hc.Add(IsOpen);
         hc.Add(ForceMount);
         hc.Add(Side);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);
         hc.Add(ArrowPadding);

@@ -113,8 +113,8 @@
                             <TreeView TNode="AsyncDemoNode"
                                       Nodes="@_asyncNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
-                                      GetChildNodesAsync="@GetChildrenAsync"
-                                      HasChildNodesAsync="@HasChildrenAsync"
+                                      GetChildNodesAsync="@GetChildren"
+                                      HasChildNodesAsync="@HasChildren"
                                       SelectionMode="TreeViewSelectionMode.Single"
                                       SelectedNode="@_selectedAsyncNode"
                                       SelectedNodeChanged="@OnSelectedAsyncNodeChanged"
@@ -348,7 +348,7 @@
     private IEnumerable<DemoNode> GetChildren(DemoNode node) => node.Children;
     private bool HasChildren(DemoNode node) => node.Children.Count > 0;
 
-    private async Task<IEnumerable<AsyncDemoNode>> GetChildrenAsync(AsyncDemoNode node)
+    private async Task<IEnumerable<AsyncDemoNode>> GetChildren(AsyncDemoNode node)
     {
         // Simulate async loading
         await Task.Delay(500);
@@ -362,7 +362,7 @@
         return node.Children;
     }
 
-    private async Task<bool> HasChildrenAsync(AsyncDemoNode node)
+    private async Task<bool> HasChildren(AsyncDemoNode node)
     {
         // Simulate async check
         await Task.Delay(100);

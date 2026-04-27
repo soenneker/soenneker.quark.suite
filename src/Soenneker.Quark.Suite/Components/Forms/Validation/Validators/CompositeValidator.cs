@@ -71,9 +71,9 @@ public class CompositeValidator : QuarkValidator
     /// <param name="value">The value to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A <see cref="ValidationResult"/> containing the combined validation outcome.</returns>
-    public override async Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default)
+    public override async Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
-        var tasks = _validators.Select(validator => validator.ValidateAsync(value, cancellationToken));
+        var tasks = _validators.Select(validator => validator.Validate(value, cancellationToken));
         var results = await Task.WhenAll(tasks);
         return ValidationResult.Combine(results);
     }

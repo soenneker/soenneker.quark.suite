@@ -22,7 +22,7 @@
     public bool Multiple { get; set; }
 
     [Parameter]
-    public BradixSelectionMode Type { get; set; } = BradixSelectionMode.Single;
+    public SelectionMode Type { get; set; } = SelectionMode.Single;
 
     [Parameter]
     public bool Collapsible { get; set; }
@@ -33,7 +33,7 @@
 
     /// <summary>Radix/shadcn: <c>vertical</c> (ArrowUp/ArrowDown) or <c>horizontal</c> (ArrowLeft/ArrowRight, mirrored in RTL).</summary>
     [Parameter]
-    public BradixOrientation Orientation { get; set; } = BradixOrientation.Vertical;
+    public Orientation Orientation { get; set; } = Orientation.Vertical;
 
     [Parameter]
     public string? Value { get; set; }
@@ -53,7 +53,7 @@
     [Parameter]
     public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
 
-    private BradixSelectionMode ResolvedType => Multiple ? BradixSelectionMode.Multiple : Type;
+    private SelectionMode ResolvedType => Multiple ? SelectionMode.Multiple : Type;
 
     protected override void ApplyDefaultParameters()
     {
@@ -71,7 +71,7 @@
             Dictionary<string, object> attributes = new(BuildAttributes())
             {
                 ["data-slot"] = "accordion",
-                ["data-multiple"] = ResolvedType == BradixSelectionMode.Multiple ? "true" : "false"
+                ["data-multiple"] = ResolvedType == SelectionMode.Multiple ? "true" : "false"
             };
 
             return attributes;

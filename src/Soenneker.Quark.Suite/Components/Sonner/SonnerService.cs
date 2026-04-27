@@ -321,12 +321,12 @@ public sealed class SonnerService : ISonnerService
         NotifyStateChanged();
 
         if (!isExistingToast)
-            _ = MountAsync(id);
+            _ = Mount(id);
 
         return id;
     }
 
-    private async Task MountAsync(string id)
+    private async Task Mount(string id)
     {
         try
         {

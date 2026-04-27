@@ -1,9 +1,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
 
 <PopoverContent Side="@Side"
                 SideOffset="@SideOffset"
-                PlacementAlign="@PlacementAlign"
+                Align="@Align"
                 AlignOffset="@AlignOffset"
                 Slot="combobox-content"
                 Id="@ResolvedContentId"
@@ -21,13 +22,13 @@
     private Combobox? ParentCombobox { get; set; }
 
     [Parameter]
-    public string Side { get; set; } = "bottom";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     [Parameter]
     public int SideOffset { get; set; } = 6;
 
     [Parameter]
-    public string PlacementAlign { get; set; } = "start";
+    public Alignment Align { get; set; } = Alignment.Start;
 
     [Parameter]
     public int AlignOffset { get; set; }
@@ -77,7 +78,7 @@
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Is0;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
         Ring ??= Quark.Ring.One;
     }
 
@@ -100,7 +101,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Side);
         hc.Add(SideOffset);
-        hc.Add(PlacementAlign);
+        hc.Add(Align);
         hc.Add(AlignOffset);
         hc.Add(ParentCombobox?.Open ?? false);
     }

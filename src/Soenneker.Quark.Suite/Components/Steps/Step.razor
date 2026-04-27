@@ -87,20 +87,22 @@
 
     private Dictionary<string, object> BuildAnchorAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        
-        attributes["data-slot"] = "step-link";
-        attributes["data-active"] = Active ? "true" : "false";
-        attributes["data-completed"] = Completed && !Active ? "true" : "false";
-        attributes["data-disabled"] = Disabled ? "true" : "false";
-        attributes["data-clickable"] = IsClickable ? "true" : "false";
-        attributes["role"] = "tab";
-        attributes["id"] = StepId;
-        attributes["aria-selected"] = Active ? "true" : "false";
-        attributes["aria-disabled"] = Disabled ? "true" : "false";
-        attributes["aria-posinset"] = CalculatedIndex;
-        attributes["aria-setsize"] = ParentSteps?.StepCount ?? 1;
-        attributes["tabindex"] = Active ? 0 : -1;
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "step-link",
+            ["data-active"] = Active ? "true" : "false",
+            ["data-completed"] = Completed && !Active ? "true" : "false",
+            ["data-disabled"] = Disabled ? "true" : "false",
+            ["data-clickable"] = IsClickable ? "true" : "false",
+            ["role"] = "tab",
+            ["id"] = StepId,
+            ["aria-selected"] = Active ? "true" : "false",
+            ["aria-disabled"] = Disabled ? "true" : "false",
+            ["aria-posinset"] = CalculatedIndex,
+            ["aria-setsize"] = ParentSteps?.StepCount ?? 1,
+            ["tabindex"] = Active ? 0 : -1
+        };
+
         if (PanelId is not null)
             attributes["aria-controls"] = PanelId;
         if (Active)

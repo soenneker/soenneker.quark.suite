@@ -51,7 +51,7 @@
             var fragment = GetFragment();
             if (fragment.HasContent() && _stepItems.Contains(fragment) && fragment != _state.SelectedStep)
             {
-                await SetSelectedStepAsync(fragment, notifyChanged: true);
+                await SetSelectedStep(fragment, notifyChanged: true);
             }
 
             // Subscribe to fragment changes
@@ -174,7 +174,7 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SelectStep(string stepName)
     {
-        return SetSelectedStepAsync(stepName, notifyChanged: true);
+        return SetSelectedStep(stepName, notifyChanged: true);
     }
 
     /// <summary>
@@ -187,7 +187,7 @@
         if (!nextStep.HasContent())
             return Task.CompletedTask;
 
-        return SetSelectedStepAsync(nextStep, notifyChanged: true);
+        return SetSelectedStep(nextStep, notifyChanged: true);
     }
 
     /// <summary>
@@ -200,7 +200,7 @@
         if (!previousStep.HasContent())
             return Task.CompletedTask;
 
-        return SetSelectedStepAsync(previousStep, notifyChanged: true);
+        return SetSelectedStep(previousStep, notifyChanged: true);
     }
 
     /// <summary>
@@ -232,7 +232,7 @@
         if (!next.HasContent() || next == _state.SelectedStep)
             return;
 
-        await SetSelectedStepAsync(next, notifyChanged: true);
+        await SetSelectedStep(next, notifyChanged: true);
         await StepsInterop.FocusById(GetStepTabId(next));
     }
 
@@ -276,10 +276,10 @@
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
     {
-        _ = HandleLocationChangedAsync(args);
+        _ = HandleLocationChanged(args);
     }
 
-    private async Task HandleLocationChangedAsync(LocationChangedEventArgs args)
+    private async Task HandleLocationChanged(LocationChangedEventArgs args)
     {
         var fragment = GetFragment(args.Location);
         if (!fragment.HasContent())
@@ -287,7 +287,7 @@
 
         if (_stepItems.Contains(fragment) && fragment != _state.SelectedStep)
         {
-            await SetSelectedStepAsync(fragment, notifyChanged: true);
+            await SetSelectedStep(fragment, notifyChanged: true);
         }
     }
 
@@ -409,7 +409,7 @@
         return true;
     }
 
-    private async Task SetSelectedStepAsync(string value, bool notifyChanged)
+    private async Task SetSelectedStep(string value, bool notifyChanged)
     {
         if (!TryUpdateSelectedStepState(value))
             return;

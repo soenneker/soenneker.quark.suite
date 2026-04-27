@@ -10,7 +10,7 @@ internal interface ISelectFocusableItem
 
     string ItemId { get; }
 
-    Task FocusAsync();
+    Task Focus();
 
     void SetActive(bool active);
 }

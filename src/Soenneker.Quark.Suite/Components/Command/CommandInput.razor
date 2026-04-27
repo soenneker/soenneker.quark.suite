@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
@@ -22,7 +22,7 @@
         Value = e.Value?.ToString() ?? "";
 
         if (ParentCommand is not null)
-            await ParentCommand.SetSearchAsync(Value);
+            await ParentCommand.SetSearch(Value);
 
         await ValueChanged.InvokeAsync(Value);
     }
@@ -30,9 +30,9 @@
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
-            await ParentCommand.HandleInputNavigationAsync(e.Key);
+            await ParentCommand.HandleInputNavigation(e.Key);
         else if (ParentCommand is not null && e.Key == "Enter")
-            await ParentCommand.SelectActiveItemAsync();
+            await ParentCommand.SelectActiveItem();
 
         await base.HandleKeyDown(e);
     }
@@ -66,8 +66,10 @@
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attrs = new Dictionary<string, object>();
-        attrs["data-slot"] = "command-input-wrapper";
+        var attrs = new Dictionary<string, object>
+        {
+            ["data-slot"] = "command-input-wrapper"
+        };
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "p-1 pb-0");
@@ -77,9 +79,11 @@
 
     private Dictionary<string, object> BuildInputGroupAttributes()
     {
-        var attrs = new Dictionary<string, object>();
-        attrs["data-slot"] = "input-group";
-        attrs["role"] = "group";
+        var attrs = new Dictionary<string, object>
+        {
+            ["data-slot"] = "input-group",
+            ["role"] = "group"
+        };
 
         BuildClassAttribute(attrs, (ref cls) =>
         {
@@ -97,10 +101,12 @@
 
     private Dictionary<string, object> BuildAddonAttributes()
     {
-        var attrs = new Dictionary<string, object>();
-        attrs["role"] = "group";
-        attrs["data-slot"] = "input-group-addon";
-        attrs["data-align"] = "inline-start";
+        var attrs = new Dictionary<string, object>
+        {
+            ["role"] = "group",
+            ["data-slot"] = "input-group-addon",
+            ["data-align"] = "inline-start"
+        };
 
         BuildClassAttribute(attrs, (ref cls) =>
         {

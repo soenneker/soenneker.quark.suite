@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using System.Linq
+@using Soenneker.Bradix
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
 <div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
@@ -13,7 +14,7 @@
     /// Gets or sets orientation: horizontal or vertical.
     /// </summary>
     [Parameter]
-    public string Orientation { get; set; } = "horizontal";
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Horizontal;
 
     [Parameter]
     public bool Loop { get; set; }
@@ -29,6 +30,7 @@
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
+    internal bool IsVertical => Orientation == Soenneker.Bradix.Orientation.Vertical;
     internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
     internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
 
@@ -188,7 +190,7 @@
 
     private double GetAxisCoordinate(PointerEventArgs args)
     {
-        return Orientation == "vertical" ? args.ClientY : args.ClientX;
+        return IsVertical ? args.ClientY : args.ClientX;
     }
 
     private bool TryGetTouchAxisCoordinate(TouchEventArgs args, out double coordinate)
@@ -205,7 +207,7 @@
             return false;
         }
 
-        coordinate = Orientation == "vertical" ? point.ClientY : point.ClientX;
+        coordinate = IsVertical ? point.ClientY : point.ClientX;
         return true;
     }
 
@@ -214,7 +216,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "carousel";
-        attributes["data-orientation"] = Orientation;
+        attributes["data-orientation"] = Orientation.Value;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

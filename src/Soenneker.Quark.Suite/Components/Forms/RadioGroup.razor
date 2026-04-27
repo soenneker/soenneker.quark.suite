@@ -30,19 +30,17 @@
     public EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
-    /// Orientation: "horizontal" or "vertical".
+    /// Gets or sets the orientation.
     /// </summary>
     [Parameter]
-    public string Orientation { get; set; } = "vertical";
+    public Orientation Orientation { get; set; } = Soenneker.Bradix.Orientation.Vertical;
 
     [Parameter]
     public string? Dir { get; set; }
 
-    private string OrientationValue => Orientation?.ToLowerInvariantFast() == "horizontal" ? "horizontal" : "vertical";
+    private string OrientationValue => Orientation.Value;
 
-    private BradixOrientation ResolvedOrientation => OrientationValue == "horizontal"
-        ? BradixOrientation.Horizontal
-        : BradixOrientation.Vertical;
+    private Orientation ResolvedOrientation => Orientation;
 
     private string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
@@ -70,7 +68,7 @@
     /// <summary>
     /// Called by child Radio when selected. Sets Value and invokes ValueChanged.
     /// </summary>
-    public async Task SetValueAsync(string? value)
+    public async Task SetValue(string? value)
     {
         if (Value == value) return;
         Value = value;
@@ -110,7 +108,7 @@
 
     private Task HandleValueChanged(string? value)
     {
-        return SetValueAsync(value);
+        return SetValue(value);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

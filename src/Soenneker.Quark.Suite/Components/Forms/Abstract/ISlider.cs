@@ -2,6 +2,8 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
+using Soenneker.Bradix;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -57,5 +59,5 @@ public interface ISlider
     /// <summary>
     /// Gets or sets the slider orientation.
     /// </summary>
-    string Orientation { get; set; }
+    Orientation Orientation { get; set; }
 }

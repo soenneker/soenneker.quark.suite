@@ -2,6 +2,7 @@
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -16,15 +17,15 @@
         </PopoverAnchor>
 
         <PopoverContent Id="@_panelId"
-                        Side="bottom"
-                        PlacementAlign="start"
+                        Side="Soenneker.Bradix.Side.Bottom"
+                        Align="Alignment.Start"
                         MinWidth='Quark.MinWidth.Token("[18rem]")'
                         Rounded="Quark.Rounded.Lg"
                         Border="Quark.Border.Default"
                         BackgroundColor="Quark.BackgroundColor.Popover"
                         Padding="Quark.Padding.Is3"
                         TextColor="Quark.TextColor.PopoverForeground"
-                        BoxShadow="Quark.BoxShadow.Md"
+                        Shadow="Quark.Shadow.Md"
                         @attributes="PanelAttributes">
             <div class="mb-2 flex items-center justify-between">
                 <button type="button" aria-label="Previous month" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-input bg-background text-sm transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="PrevMonth">‹</button>
@@ -45,7 +46,7 @@
             <div class="mt-3 flex items-center gap-2 border-t pt-3">
                 <div class="flex items-center gap-1">
                     <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-input bg-background text-sm transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="DecrementHour">-</button>
-                    <input class="h-8 w-14 rounded-lg border border-input bg-background px-2 text-center text-sm outline-none transition-[color,box-shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    <input class="h-8 w-14 rounded-lg border border-input bg-background px-2 text-center text-sm outline-none transition-[color,shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                            type="number"
                            aria-label="Hour"
                            step="1"
@@ -60,7 +61,7 @@
                 <span class="text-sm text-muted-foreground">:</span>
                 <div class="flex items-center gap-1">
                     <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-input bg-background text-sm transition-all hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="DecrementMinute">-</button>
-                    <input class="h-8 w-14 rounded-lg border border-input bg-background px-2 text-center text-sm outline-none transition-[color,box-shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    <input class="h-8 w-14 rounded-lg border border-input bg-background px-2 text-center text-sm outline-none transition-[color,shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                            type="number"
                            aria-label="Minute"
                            step="@_minuteStep"
@@ -309,8 +310,10 @@
 
     private static Dictionary<string, object> GetContainerAttributes()
     {
-        var attrs = new Dictionary<string, object>(2);
-        attrs["data-slot"] = "date-time-picker";
+        var attrs = new Dictionary<string, object>(2)
+        {
+            ["data-slot"] = "date-time-picker"
+        };
         RenderComponent.BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-date-time-picker relative w-full");

@@ -46,7 +46,7 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("py-2");
         triggerClasses.Should().Contain("px-3");
         triggerClasses.Should().Contain("text-sm");
-        triggerClasses.Should().Contain("transition-[color,box-shadow]");
+        triggerClasses.Should().Contain("transition-[color,shadow]");
         triggerClasses.Should().Contain("outline-none");
         triggerClasses.Should().Contain("select-none");
         triggerClasses.Should().Contain("focus-visible:ring-3");
@@ -112,7 +112,7 @@ public sealed partial class RenderedShadcnParityTests
 
                 builder.OpenComponent<SelectContent>(2);
                 builder.AddAttribute(3, nameof(SelectContent.ForceMount), true);
-                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), "popper");
+                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), SelectPosition.Popper);
                 builder.AddAttribute(5, "ChildContent", (RenderFragment)(contentBuilder => contentBuilder.AddContent(0, "Items")));
                 builder.CloseComponent();
             })));
@@ -158,7 +158,7 @@ public sealed partial class RenderedShadcnParityTests
 
                 builder.OpenComponent<SelectContent>(2);
                 builder.AddAttribute(3, nameof(SelectContent.ForceMount), true);
-                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), "popper");
+                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), SelectPosition.Popper);
                 builder.AddAttribute(5, nameof(SelectContent.CollisionBoundarySelector), "#select-boundary-a");
                 builder.AddAttribute(6, nameof(SelectContent.CollisionBoundarySelectors), new[] { "#select-boundary-b", "#select-boundary-a" });
                 builder.AddAttribute(7, nameof(SelectContent.Sticky), "always");

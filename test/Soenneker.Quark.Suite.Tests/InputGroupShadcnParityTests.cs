@@ -26,7 +26,7 @@ public sealed partial class RenderedShadcnParityTests
         groupClasses.Should().Contain("border");
         groupClasses.Should().Contain("border-input");
         groupClasses.Should().Contain("shadow-xs");
-        groupClasses.Should().Contain("transition-[color,box-shadow]");
+        groupClasses.Should().Contain("transition-[color,shadow]");
         groupClasses.Should().Contain("has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
         groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:border-destructive");
         groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:ring-destructive/20");

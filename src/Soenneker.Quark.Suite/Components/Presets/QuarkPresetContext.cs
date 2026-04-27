@@ -66,7 +66,7 @@ public sealed class QuarkPresetContext
     public CssValue<RoundedBuilder>? Rounded { get; set; }
     public CssValue<RingColorBuilder>? RingColor { get; set; }
     public CssValue<RingBuilder>? Ring { get; set; }
-    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    public CssValue<ShadowBuilder>? Shadow { get; set; }
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
     public CssValue<FilterBuilder>? Filter { get; set; }
     public CssValue<ResizeBuilder>? Resize { get; set; }

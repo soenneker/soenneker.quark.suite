@@ -29,15 +29,7 @@
     private OverlayLabelContext? Context { get; set; }
 
     [Parameter]
-    public string Direction { get; set; } = "bottom";
-
-    private string Side => Direction.ToLowerInvariant() switch
-    {
-        "left" => "left",
-        "top" => "top",
-        "right" => "right",
-        _ => "bottom"
-    };
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     private bool ShouldCloseOnOutsideInteraction =>
         ParentDrawer is not null &&
@@ -67,8 +59,8 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "drawer-content";
-        attributes["data-direction"] = Side;
-        attributes["data-vaul-drawer-direction"] = Side;
+        attributes["data-side"] = Side.Value;
+        attributes["data-vaul-drawer-direction"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -106,7 +98,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Direction);
+        hc.Add(Side);
         hc.Add(ParentDrawer?.Visible ?? false);
         hc.Add(ParentDrawer?.ShowBackdrop ?? true);
         hc.Add(ParentDrawer?.TrapFocus ?? true);

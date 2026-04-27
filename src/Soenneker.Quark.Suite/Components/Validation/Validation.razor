@@ -176,7 +176,7 @@
 
         if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false))
         {
-            await ValidateAsync(input.ValidationValue!);
+            await ValidateValue(input.ValidationValue!);
         }
 
         _initialized = true;
@@ -243,7 +243,7 @@
 
         if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto)
         {
-            return ValidateAsync(newValidationValue!);
+            return ValidateValue(newValidationValue!);
         }
 
         return Task.CompletedTask;
@@ -272,13 +272,13 @@
         return Status;
     }
 
-    public Task<ValidationStatus> ValidateAsync()
+    public Task<ValidationStatus> ValidateCurrent()
     {
         var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
-        return ValidateAsync(value);
+        return ValidateValue(value);
     }
 
-    public async Task<ValidationStatus> ValidateAsync(object newValidationValue)
+    public async Task<ValidationStatus> ValidateValue(object newValidationValue)
     {
         if (_input is not null && !_input.Disabled)
         {
@@ -299,7 +299,7 @@
                 if (handler is not null)
                 {
                     token.ThrowIfCancellationRequested();
-                    await handler.ValidateAsync(this, newValidationValue, token);
+                    await handler.Validate(this, newValidationValue, token);
                 }
             }
             catch (OperationCanceledException)

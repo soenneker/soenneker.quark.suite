@@ -1,3 +1,5 @@
+using Soenneker.Bradix;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -16,7 +18,7 @@ public interface IDropdownMenu : IElement
     bool RightAligned { get; set; }
 
     /// <summary>
-    /// Gets or sets the direction of the dropdown menu (up, down, start, or end).
+    /// Gets or sets the side of the dropdown menu.
     /// </summary>
-    Direction Direction { get; set; }
+    Side Side { get; set; }
 }

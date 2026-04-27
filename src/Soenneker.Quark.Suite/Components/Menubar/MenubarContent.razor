@@ -29,7 +29,7 @@
     public bool ForceMount { get; set; }
 
     [Parameter]
-    public string Side { get; set; } = "bottom";
+    public Side Side { get; set; } = Soenneker.Bradix.Side.Bottom;
 
     [Parameter]
     public bool DisableAutoOpen { get; set; }
@@ -61,7 +61,7 @@
     [Parameter]
     public bool HideWhenDetached { get; set; }
 
-    private BradixAlignment ResolvedAlign => Side == "right" ? BradixAlignment.End : BradixAlignment.Start;
+    private Alignment ResolvedAlign => Side == Soenneker.Bradix.Side.Right ? Alignment.End : Alignment.Start;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
@@ -78,7 +78,7 @@
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Is1;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        BoxShadow ??= Quark.BoxShadow.Md;
+        Shadow ??= Quark.Shadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -87,7 +87,7 @@
 
         attributes["data-slot"] = "menubar-content";
         attributes["data-state"] = Open ? "open" : "closed";
-        attributes["data-side"] = Side;
+        attributes["data-side"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

@@ -54,9 +54,9 @@ public class ComponentOptions
     public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS box-BoxShadow configuration.
+    /// Gets or sets the CSS shadow configuration.
     /// </summary>
-    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    public CssValue<ShadowBuilder>? Shadow { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS margin configuration.
@@ -430,7 +430,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Float, "float");
         AddRules(buffer, baseSelector, VerticalAlign, "vertical-align");
         AddRules(buffer, baseSelector, TextOverflow, "text-overflow");
-        AddRules(buffer, baseSelector, BoxShadow, "box-BoxShadow");
+        AddRules(buffer, baseSelector, Shadow, "shadow");
         AddRules(buffer, baseSelector, Margin, "margin");
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Inset, null);

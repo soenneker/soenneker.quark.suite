@@ -252,7 +252,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         (await highlightedCourgette.CountAsync() > 0).Should().BeTrue();
         await Assertions.Expect(carrot).Not.ToHaveAttributeAsync("data-highlighted", string.Empty);
     }
-    private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
+    private static async Task ClickJustOutside(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();
         (box).Should().NotBeNull();
