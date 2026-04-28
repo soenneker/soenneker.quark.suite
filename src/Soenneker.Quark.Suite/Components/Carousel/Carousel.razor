@@ -4,12 +4,13 @@
 @using Soenneker.Bradix
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
-<div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
-    @ChildContent
-</div>
+    <div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
+        @ChildContent
+    </div>
 </CascadingValue>
 
 @code {
+
     /// <summary>
     /// Gets or sets orientation: horizontal or vertical.
     /// </summary>
@@ -195,11 +196,7 @@
 
     private bool TryGetTouchAxisCoordinate(TouchEventArgs args, out double coordinate)
     {
-        var point = args.ChangedTouches.Length > 0
-            ? args.ChangedTouches[0]
-            : args.Touches.Length > 0
-                ? args.Touches[0]
-                : null;
+        var point = args.ChangedTouches.Length > 0 ? args.ChangedTouches[0] : args.Touches.Length > 0 ? args.Touches[0] : null;
 
         if (point is null)
         {
@@ -227,4 +224,5 @@
         hc.Add(CurrentIndex);
         hc.Add(ItemCount);
     }
+
 }
