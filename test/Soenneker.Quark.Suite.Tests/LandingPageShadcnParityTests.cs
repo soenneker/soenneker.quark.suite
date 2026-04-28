@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public void Main_layout_landing_branch_provides_sidebar_context()
+    public void Main_layout_landing_branch_hides_desktop_sidebar()
     {
         var layout = Render<Demo.MainLayout>(parameters => parameters
             .Add(p => p.Body, (RenderFragment)(builder =>
@@ -20,7 +20,7 @@ public sealed partial class RenderedShadcnParityTests
 
         var root = layout.Find("[data-slot='sidebar-wrapper']");
         root.GetAttribute("class")!.Should().ContainAll("group/sidebar-wrapper", "flex", "min-h-svh", "flex-col", "bg-background");
-        layout.Find("[data-slot='sidebar']");
+        layout.FindAll("[data-slot='sidebar']").Should().BeEmpty();
 
         layout.Find("#layout-body-probe");
     }

@@ -18,16 +18,17 @@ public static class ClassNames
     /// <returns>Combined class string with original token order preserved.</returns>
     public static string Combine(params object?[] inputs)
     {
-        if (inputs == null || inputs.Length == 0) return string.Empty;
+        if (inputs == null || inputs.Length == 0)
+            return string.Empty;
 
         var classes = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var input in inputs)
             ProcessInput(input, classes, seen);
 
-        if (classes.Count == 0) 
+        if (classes.Count == 0)
             return string.Empty;
-        
+
         return string.Join(' ', classes);
     }
 
@@ -39,7 +40,8 @@ public static class ClassNames
 
     private static void ProcessInput(object? input, List<string> classes, HashSet<string> seen)
     {
-        if (input == null) return;
+        if (input == null)
+            return;
         if (input is string str)
         {
             if (!string.IsNullOrWhiteSpace(str))
@@ -51,15 +53,19 @@ public static class ClassNames
                         classes.Add(part);
                 }
             }
+
             return;
         }
-        if (input is bool) return;
+
+        if (input is bool)
+            return;
         if (input is IEnumerable enumerable and not string)
         {
             foreach (var item in enumerable)
                 ProcessInput(item, classes, seen);
             return;
         }
+
         var strValue = input.ToString();
         if (!string.IsNullOrWhiteSpace(strValue) && seen.Add(strValue!))
             classes.Add(strValue!);
