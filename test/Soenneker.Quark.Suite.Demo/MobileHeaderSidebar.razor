@@ -1,0 +1,25 @@
+@if (State?.IsMobile == true)
+{
+    <Sidebar Collapsible="SidebarCollapsible.None"
+             Shell="SidebarShell.Navigation"
+             MobileMode="SidebarMobileMode.FullScreen"
+             MobileShowBackdrop="false"
+             MobileLockScroll="false"
+             MobileShowCloseButton="false"
+             MobileOffsetTop="4.5rem">
+        <MobileContent>
+            <NavigationLinks Items="Items" Mode="NavigationLinksMode.Stack" Title="Menu" IsActive="IsActive" />
+        </MobileContent>
+    </Sidebar>
+}
+
+@code {
+    [CascadingParameter(Name = "SidebarContextState")]
+    public Soenneker.Quark.Dtos.SidebarContextState? State { get; set; }
+
+    [Parameter]
+    public IEnumerable<NavigationItem> Items { get; set; } = [];
+
+    [Parameter]
+    public Func<NavigationItem, bool>? IsActive { get; set; }
+}

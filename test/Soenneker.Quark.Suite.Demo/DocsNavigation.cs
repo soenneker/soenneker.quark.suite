@@ -12,7 +12,6 @@ public static class DocsNavigation
 
     public static IReadOnlyList<NavigationItem> SectionLinks { get; } =
     [
-        new("Introduction", "", ExactMatch: true),
         new("Components", "components"),
         new("Validation", "validation-demo")
     ];
