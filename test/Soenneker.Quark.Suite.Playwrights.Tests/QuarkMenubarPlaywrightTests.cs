@@ -21,7 +21,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
@@ -46,7 +46,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
@@ -69,7 +69,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-rtl-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
@@ -93,7 +93,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']").First,
             expectedTitle: "Menubar - Quark Suite");
 
@@ -133,7 +133,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
@@ -170,7 +170,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Profiles", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
@@ -208,7 +208,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-checkbox-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
@@ -262,7 +262,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}menubar",
+            $"{BaseUrl}menubars",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 

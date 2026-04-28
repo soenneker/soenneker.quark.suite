@@ -29,7 +29,7 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}stepsdemo",
+            $"{BaseUrl}steps",
             static p => p.Locator("#steps-disabled-demo"),
             expectedTitle: "Steps - Quark Suite");
 
@@ -88,11 +88,11 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}stepsdemo#review",
-            static p => p.Locator("#steps-validation-demo"),
+            $"{BaseUrl}steps#review",
+            static p => p.Locator("#steps-validation"),
             expectedTitle: "Steps - Quark Suite");
 
-        var demo = page.Locator("#steps-validation-demo");
+        var demo = page.Locator("#steps-validation");
         var current = demo.Locator("#steps-validation-current");
         var personalTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Personal Information" }).First;
         var contactTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Contact Information" }).First;
@@ -104,11 +104,11 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(reviewTab).ToHaveAttributeAsync("aria-selected", "false");
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}stepsdemo",
-            static p => p.Locator("#steps-validation-demo"),
+            $"{BaseUrl}steps",
+            static p => p.Locator("#steps-validation"),
             expectedTitle: "Steps - Quark Suite");
 
-        demo = page.Locator("#steps-validation-demo");
+        demo = page.Locator("#steps-validation");
         current = demo.Locator("#steps-validation-current");
         personalTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Personal Information" }).First;
         contactTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Contact Information" }).First;

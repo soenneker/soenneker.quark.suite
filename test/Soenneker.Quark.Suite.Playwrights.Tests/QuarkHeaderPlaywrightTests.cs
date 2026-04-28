@@ -29,7 +29,7 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}header",
+            $"{BaseUrl}headers",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First,
             expectedTitle: "Header - Quark Suite");
 
@@ -74,7 +74,7 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}header",
+            $"{BaseUrl}headers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First,
             expectedTitle: "Header - Quark Suite");
 

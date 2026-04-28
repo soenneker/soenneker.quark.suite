@@ -22,7 +22,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
         var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}sidebar",
+            $"{BaseUrl}sidebars",
             static p => p.Locator("#sidebar-mobile-demo"),
             expectedTitle: "Sidebar - Quark Suite");
 
@@ -70,7 +70,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
         var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}sidebar",
+            $"{BaseUrl}sidebars",
             static p => p.Locator("#sidebar-controlled-demo"),
             expectedTitle: "Sidebar - Quark Suite");
 

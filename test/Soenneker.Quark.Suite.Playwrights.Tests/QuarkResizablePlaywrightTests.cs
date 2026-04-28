@@ -24,7 +24,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}resizable",
+            $"{BaseUrl}resizables",
             static p => p.Locator("#resizable-handle-demo"),
             expectedTitle: "Resizable - Quark Suite");
 
@@ -61,7 +61,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}resizable",
+            $"{BaseUrl}resizables",
             static p => p.Locator("#resizable-basic-demo"),
             expectedTitle: "Resizable - Quark Suite");
 
@@ -139,7 +139,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}resizable",
+            $"{BaseUrl}resizables",
             static p => p.Locator("#resizable-handle-demo"),
             expectedTitle: "Resizable - Quark Suite");
 

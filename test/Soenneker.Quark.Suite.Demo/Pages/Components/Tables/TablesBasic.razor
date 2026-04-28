@@ -1,0 +1,566 @@
+@page "/tablesbasic"
+@using Microsoft.Extensions.Logging
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Quark.Suite.Demo.Services
+@using Soenneker.Quark.Suite.Demo.Dtos
+
+@inject ILogger<TablesBasic> Logger
+@inject EmployeeService EmployeeService
+
+<PageTitle>Table - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection
+                         Description="A responsive table component."
+                         Code="@BasicTableCode"
+                         CodeLanguage="razor"
+                         PreviewClass="preview relative flex h-[28rem] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0"
+                         PreviewInnerClass="mx-auto flex w-full max-w-full flex-col items-center justify-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain">
+                <TableElement>
+                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <Thead>
+                        <Tr>
+                            <Th Width='Width.Token("[100px]")'>Invoice</Th>
+                            <Th>Status</Th>
+                            <Th>Method</Th>
+                            <Th TextAlign="TextAlign.End">Amount</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV001</Td>
+                            <Td>Paid</Td>
+                            <Td>Credit Card</Td>
+                            <Td TextAlign="TextAlign.End">$250.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV002</Td>
+                            <Td>Pending</Td>
+                            <Td>PayPal</Td>
+                            <Td TextAlign="TextAlign.End">$150.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV003</Td>
+                            <Td>Unpaid</Td>
+                            <Td>Bank Transfer</Td>
+                            <Td TextAlign="TextAlign.End">$350.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV004</Td>
+                            <Td>Paid</Td>
+                            <Td>Credit Card</Td>
+                            <Td TextAlign="TextAlign.End">$450.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV005</Td>
+                            <Td>Paid</Td>
+                            <Td>PayPal</Td>
+                            <Td TextAlign="TextAlign.End">$550.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV006</Td>
+                            <Td>Pending</Td>
+                            <Td>Bank Transfer</Td>
+                            <Td TextAlign="TextAlign.End">$200.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td FontWeight="FontWeight.Medium">INV007</Td>
+                            <Td>Unpaid</Td>
+                            <Td>Credit Card</Td>
+                            <Td TextAlign="TextAlign.End">$300.00</Td>
+                        </Tr>
+                    </Tbody>
+                    <TableFooter>
+                        <Tr>
+                            <Td Colspan="3">Total</Td>
+                            <Td TextAlign="TextAlign.End">$2,500.00</Td>
+                        </Tr>
+                    </TableFooter>
+                </TableElement>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Footer"
+                         Description="Use the table footer for totals and other summary rows."
+                         Code="@FooterTableCode"
+                         CodeLanguage="razor">
+                <TableElement>
+                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <Thead>
+                        <Tr>
+                            <Th>Invoice</Th>
+                            <Th>Status</Th>
+                            <Th>Method</Th>
+                            <Th TextAlign="TextAlign.End">Amount</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        <Tr>
+                            <Td>INV001</Td>
+                            <Td>Paid</Td>
+                            <Td>Credit Card</Td>
+                            <Td TextAlign="TextAlign.End">$250.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td>INV002</Td>
+                            <Td>Pending</Td>
+                            <Td>PayPal</Td>
+                            <Td TextAlign="TextAlign.End">$150.00</Td>
+                        </Tr>
+                    </Tbody>
+                    <TableFooter>
+                        <Tr>
+                            <Td Colspan="3">Total</Td>
+                            <Td TextAlign="TextAlign.End">$400.00</Td>
+                        </Tr>
+                    </TableFooter>
+                </TableElement>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Actions"
+                         Description="Combine row-level actions with a dropdown menu when tables need lightweight command menus."
+                         Code="@ActionsTableCode"
+                         CodeLanguage="razor">
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th>Project</Th>
+                            <Th>Status</Th>
+                            <Th>Owner</Th>
+                            <Th TextAlign="TextAlign.End">Actions</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        <Tr>
+                            <Td class="font-medium">Design system</Td>
+                            <Td>Active</Td>
+                            <Td>Casey</Td>
+                            <Td TextAlign="TextAlign.End">
+                                <Dropdown RightAligned="true">
+                                    <DropdownToggle>Open</DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem>View details</DropdownItem>
+                                        <DropdownItem>Edit</DropdownItem>
+                                        <DropdownDivider />
+                                        <DropdownItem Variant="destructive">Archive</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </Td>
+                        </Tr>
+                    </Tbody>
+                </TableElement>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Define table columns in one place before rendering the rows."
+                         Code="@ColumnDefinitionsCode"
+                         CodeLanguage="razor">
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th>Key</Th>
+                            <Th>Label</Th>
+                            <Th TextAlign="TextAlign.End">Sortable</Th>
+                            <Th TextAlign="TextAlign.End">Searchable</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        @foreach (var column in ColumnDefinitions)
+                        {
+                            <Tr>
+                                <Td FontWeight="FontWeight.Medium">@column.Key</Td>
+                                <Td>@column.Label</Td>
+                                <Td TextAlign="TextAlign.End">@column.Sortable</Td>
+                                <Td TextAlign="TextAlign.End">@column.Searchable</Td>
+                            </Tr>
+                        }
+                    </Tbody>
+                </TableElement>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Server-side table"
+                         Description="This example combines searching, sorting, pagination, and an empty state in one server-backed table."
+                         Code="@DataTableCode"
+                         CodeLanguage="razor">
+                <Card Overflow="Overflow.Hidden" Border="Border.Is1" Shadow="Shadow.Sm">
+                    <CardHeader Border="Border.Is1.FromBottom" BackgroundColor='BackgroundColor.Token("muted/20")'>
+                        <Div Space="Space.Y.Is1">
+                            <H3><Icon Name="LucideIcon.Users" Margin="Margin.Is2.FromEnd"/>Employee directory</H3>
+                            <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0.FromBottom">
+                                Search, sort, and paginate through employee data without leaving the page.
+                            </Paragraph>
+                        </Div>
+                    </CardHeader>
+                    <CardBody Padding="Padding.Is0">
+                        <Div Padding="Padding.Is6" data-testid="server-table-demo">
+                            <Table @ref="_basicTable"
+                                   OnInteraction="OnInteraction"
+                                   OnOrder="HandleOrder"
+                                   OnInitialize="HandleInitialize"
+                                   Options="_basicTableOptions"
+                                   TotalRecords="@_totalRecords">
+                                <TableSearch Placeholder="Search employees..."></TableSearch>
+
+                                <TableElement>
+                                    <Thead>
+                                        <Tr>
+                                            <Th Data="Name" Sortable="true" Searchable="true">Name</Th>
+                                            <Th Data="Department" Sortable="true" Searchable="true">Department</Th>
+                                            <Th Data="Email" Sortable="true" Searchable="true">Email</Th>
+                                            <Th Data="Salary" Sortable="true" Searchable="true">Salary</Th>
+                                            <Th Data="HireDate" Sortable="true" Searchable="true">Hire Date</Th>
+                                            <Th Data="Status" Sortable="true" Searchable="true">Status</Th>
+                                        </Tr>
+                                    </Thead>
+
+                                    <Tbody>
+                                        @if (_currentEmployees is {Count: > 0})
+                                        {
+                                            @foreach (var employee in _currentEmployees)
+                                            {
+                                                <Tr Key="@employee.Id">
+                                                    <Td>@employee.Name</Td>
+                                                    <Td>@employee.Department</Td>
+                                                    <Td>@employee.Email</Td>
+                                                    <Td>@employee.Salary.ToString("C")</Td>
+                                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                                    <Td>@employee.Status</Td>
+                                                </Tr>
+                                            }
+                                        }
+                                        else if (_basicTable?.HasLoadedOnce == true)
+                                        {
+                                            <TableNoData>
+                                                <Div Display="Display.Grid" Gap="Gap.Is2" Padding='Padding.Token("10").OnY' TextAlign="TextAlign.Center">
+                                                    <H4>No employees found</H4>
+                                                    <Paragraph>Try adjusting your search criteria or clearing the current filters.</Paragraph>
+                                                </Div>
+                                            </TableNoData>
+                                        }
+                                    </Tbody>
+                                </TableElement>
+
+                                <TableBottomBar>
+                                    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is4">
+                                        <TableInfo />
+                                        <TablePageSizeSelector />
+                                    </Div>
+                                    <TablePagination />
+                                </TableBottomBar>
+                            </Table>
+                        </Div>
+                    </CardBody>
+                </Card>
+            </DemoSection>
+
+            <DemoSection Title="What this example covers"
+                         Description="The page covers the same core data-table concerns using Quark's table primitives."
+                         Code="@TableWhatCoversCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Grid" Gap="Gap.Is4" Class="md:grid-cols-2">
+                    <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">Searching and sorting</Paragraph>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            <Code Inline="true">TableSearch</Code> and sortable <Code Inline="true">Th</Code> columns keep the table interactive without extra scaffolding.
+                        </Paragraph>
+                    </Div>
+                    <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">Pagination</Paragraph>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            <Code Inline="true">TableBottomBar</Code>, <Code Inline="true">TableInfo</Code>, and <Code Inline="true">TablePagination</Code> keep paging controls aligned.
+                        </Paragraph>
+                    </Div>
+                    <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">Empty state</Paragraph>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            <Code Inline="true">TableNoData</Code> gives the table a dedicated no-results state instead of collapsing the layout.
+                        </Paragraph>
+                    </Div>
+                    <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">Server-side interactions</Paragraph>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            The demo fetches rows through <Code Inline="true">OnInteraction</Code> so filtering and paging can scale beyond in-memory samples.
+                        </Paragraph>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private const string TableWhatCoversCode =
+@"<!-- This section summarizes patterns shown above: -->
+TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoData, OnInteraction";
+
+    private static readonly ColumnDefinitionRow[] ColumnDefinitions =
+    [
+        new("Name", "Name", true, true),
+        new("Department", "Department", true, true),
+        new("Email", "Email", true, true),
+        new("Salary", "Salary", true, true),
+        new("HireDate", "Hire Date", true, true),
+        new("Status", "Status", true, true)
+    ];
+
+    private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);
+
+    private Table? _basicTable;
+    private List<Employee> _currentEmployees = [];
+
+    private readonly TableOptions _basicTableOptions = new()
+    {
+        DefaultPageSize = 10
+    };
+
+    private int _totalRecords;
+
+    private const string BasicTableCode =
+@"<TableElement>
+    <TableCaption>A list of your recent invoices.</TableCaption>
+    <Thead>
+        <Tr>
+            <Th Width='Width.Token(""[100px]"")'>Invoice</Th>
+            <Th>Status</Th>
+            <Th>Method</Th>
+            <Th TextAlign=""TextAlign.End"">Amount</Th>
+        </Tr>
+    </Thead>
+    <Tbody>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV001</Td>
+            <Td>Paid</Td>
+            <Td>Credit Card</Td>
+            <Td TextAlign=""TextAlign.End"">$250.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV002</Td>
+            <Td>Pending</Td>
+            <Td>PayPal</Td>
+            <Td TextAlign=""TextAlign.End"">$150.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV003</Td>
+            <Td>Unpaid</Td>
+            <Td>Bank Transfer</Td>
+            <Td TextAlign=""TextAlign.End"">$350.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV004</Td>
+            <Td>Paid</Td>
+            <Td>Credit Card</Td>
+            <Td TextAlign=""TextAlign.End"">$450.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV005</Td>
+            <Td>Paid</Td>
+            <Td>PayPal</Td>
+            <Td TextAlign=""TextAlign.End"">$550.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV006</Td>
+            <Td>Pending</Td>
+            <Td>Bank Transfer</Td>
+            <Td TextAlign=""TextAlign.End"">$200.00</Td>
+        </Tr>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">INV007</Td>
+            <Td>Unpaid</Td>
+            <Td>Credit Card</Td>
+            <Td TextAlign=""TextAlign.End"">$300.00</Td>
+        </Tr>
+    </Tbody>
+    <TableFooter>
+        <Tr>
+            <Td Colspan=""3"">Total</Td>
+            <Td TextAlign=""TextAlign.End"">$2,500.00</Td>
+        </Tr>
+    </TableFooter>
+</TableElement>";
+
+    private const string FooterTableCode =
+@"<TableElement>
+    <TableCaption>A list of your recent invoices.</TableCaption>
+    <Thead>
+        <Tr>
+            <Th>Invoice</Th>
+            <Th>Status</Th>
+            <Th>Method</Th>
+            <Th TextAlign=""TextAlign.End"">Amount</Th>
+        </Tr>
+    </Thead>
+    <Tbody>
+        <Tr>
+            <Td>INV001</Td>
+            <Td>Paid</Td>
+            <Td>Credit Card</Td>
+            <Td TextAlign=""TextAlign.End"">$250.00</Td>
+        </Tr>
+    </Tbody>
+    <TableFooter>
+        <Tr>
+            <Td Colspan=""3"">Total</Td>
+            <Td TextAlign=""TextAlign.End"">$400.00</Td>
+        </Tr>
+    </TableFooter>
+</TableElement>";
+
+    private const string ActionsTableCode =
+@"<TableElement>
+    <Thead>
+        <Tr>
+            <Th>Project</Th>
+            <Th>Status</Th>
+            <Th>Owner</Th>
+            <Th TextAlign=""TextAlign.End"">Actions</Th>
+        </Tr>
+    </Thead>
+    <Tbody>
+        <Tr>
+            <Td FontWeight=""FontWeight.Medium"">Design system</Td>
+            <Td>Active</Td>
+            <Td>Casey</Td>
+            <Td TextAlign=""TextAlign.End"">
+                <Dropdown RightAligned=""true"">
+                    <DropdownToggle>Open</DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem>View details</DropdownItem>
+                        <DropdownItem>Edit</DropdownItem>
+                        <DropdownDivider />
+                        <DropdownItem Variant=""destructive"">Archive</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </Td>
+        </Tr>
+    </Tbody>
+</TableElement>";
+
+    private const string ColumnDefinitionsCode =
+@"private static readonly ColumnDefinitionRow[] ColumnDefinitions =
+[
+    new(""Name"", ""Name"", true, true),
+    new(""Department"", ""Department"", true, true),
+    new(""Email"", ""Email"", true, true),
+    new(""Salary"", ""Salary"", true, true),
+    new(""HireDate"", ""Hire Date"", true, true),
+    new(""Status"", ""Status"", true, true)
+];
+
+private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize total records from the service
+        _totalRecords = EmployeeService.GetTotalCount();
+        Logger.LogInformation("TablesBasic: OnInitializedAsync - Initialized with {TotalRecords} total records", _totalRecords);
+
+        // Test the service directly
+        var testEmployees = EmployeeService.GetAllEmployees();
+        Logger.LogInformation("TablesBasic: OnInitializedAsync - EmployeeService.GetAllEmployees() returned {Count} employees", testEmployees.Count);
+    }
+
+    private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
+    {
+        Logger.LogInformation("TablesBasic: OnInteraction called: basicTable is {IsNull}, Request: Start={Start}, Length={Length}", _basicTable == null ? "null" : "not null", serverSideRequest.Start, serverSideRequest.Length);
+        
+        // Log columns information if available
+        if (serverSideRequest.Columns != null && serverSideRequest.Columns.Count > 0)
+        {
+            Logger.LogInformation("TablesBasic: Request includes {ColumnCount} columns:", serverSideRequest.Columns.Count);
+            foreach (var column in serverSideRequest.Columns)
+            {
+                Logger.LogInformation("  Column: Data='{Data}', Name='{Name}', Searchable={Searchable}, Orderable={Orderable}", 
+                    column.Data ?? "null", column.Name ?? "null", column.Searchable, column.Orderable);
+            }
+        }
+        else
+        {
+            Logger.LogInformation("TablesBasic: Request has no columns information");
+        }
+
+        try
+        {
+            // Get filtered employees using the service
+            var employees = await EmployeeService.GetFilteredEmployees(serverSideRequest);
+
+            Logger.LogInformation("TablesBasic: EmployeeService returned {Count} employees", employees.Count);
+
+            // Update the current employees list
+            _currentEmployees = employees;
+
+            _totalRecords = EmployeeService.GetFilteredCount(serverSideRequest);
+
+            // Trigger UI update
+            StateHasChanged();
+
+            Logger.LogInformation("TablesBasic: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "TablesBasic: Error handling manual request: {Message}", ex.Message);
+        }
+    }
+
+    private async Task HandleOrder(TableOrderEventArgs args)
+    {
+        Logger.LogInformation("Column '{Column}' sorted {Direction}", args.Column, args.Direction);
+    }
+
+    private async Task HandleInitialize()
+    {
+        Logger.LogInformation("Basic table initialized");
+    }
+
+    private const string DataTableCode =
+@"<Table @ref=""_basicTable""
+       OnInteraction=""OnInteraction""
+       OnOrder=""HandleOrder""
+       OnInitialize=""HandleInitialize""
+       Options=""_basicTableOptions""
+       TotalRecords=""@_totalRecords"">
+    <TableSearch Placeholder=""Search employees..."" />
+
+    <TableElement>
+        <Thead>
+            <Tr>
+                <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
+                <Th Data=""Department"" Sortable=""true"" Searchable=""true"">Department</Th>
+                <Th Data=""Email"" Sortable=""true"" Searchable=""true"">Email</Th>
+                <Th Data=""Salary"" Sortable=""true"" Searchable=""true"">Salary</Th>
+                <Th Data=""HireDate"" Sortable=""true"" Searchable=""true"">Hire Date</Th>
+                <Th Data=""Status"" Sortable=""true"" Searchable=""true"">Status</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (var employee in _currentEmployees)
+            {
+                <Tr Key=""@employee.Id"">
+                    <Td>@employee.Name</Td>
+                    <Td>@employee.Department</Td>
+                    <Td>@employee.Email</Td>
+                    <Td>@employee.Salary.ToString(""C"")</Td>
+                    <Td>@employee.HireDate.ToString(""MMM dd, yyyy"")</Td>
+                    <Td>@employee.Status</Td>
+                </Tr>
+            }
+        </Tbody>
+    </TableElement>
+
+    <TableBottomBar>
+        <Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"">
+            <TableInfo />
+            <TablePageSizeSelector />
+        </Div>
+        <TablePagination />
+    </TableBottomBar>
+</Table>";
+}

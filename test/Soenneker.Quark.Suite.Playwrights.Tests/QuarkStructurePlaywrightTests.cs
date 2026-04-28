@@ -45,7 +45,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(page.Locator("figure[data-slot='figure'] figcaption[data-slot='figcaption']").First).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}fieldsets-demo",
+            $"{BaseUrl}fieldsets",
             static p => p.Locator("fieldset[data-slot='field-set']").First,
             expectedTitle: "Fieldsets & Legends - Quark Suite");
 
@@ -55,7 +55,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
         (await disabledFieldset.Locator("input").First.IsDisabledAsync()).Should().BeTrue();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}details-demo",
+            $"{BaseUrl}details",
             static p => p.Locator("details[data-slot='details']").First,
             expectedTitle: "Details & Summary - Quark Suite");
 

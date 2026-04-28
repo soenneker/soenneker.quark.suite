@@ -21,7 +21,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -57,7 +57,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -84,7 +84,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         await page.SetViewportSizeAsync(1400, 1000);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -114,7 +114,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -143,7 +143,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -171,7 +171,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -195,7 +195,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "البدء", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
@@ -236,7 +236,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigation-menu",
+            $"{BaseUrl}navigationmenus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 

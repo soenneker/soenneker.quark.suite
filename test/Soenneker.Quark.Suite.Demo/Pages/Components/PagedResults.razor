@@ -1,0 +1,353 @@
+@page "/pagedresults"
+@using System.Threading
+@using Microsoft.Extensions.Logging
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Quark.Suite.Demo.Services
+@using Soenneker.Quark.Suite.Demo.Dtos
+@using Soenneker.Dtos.Results.Paged
+
+@inject ILogger<PagedResults> Logger
+@inject EmployeeService EmployeeService
+
+<PageTitle>PagedResult - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, TableInfo, TablePagination." Code="@(@"<Table @ref=""_quarkTable"" OnInteraction=""OnInteraction"" Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
+    <TableSearch Placeholder=""Search...""/>
+    <TableElement>
+        <Thead><Tr><Th Data=""Name"">Name</Th><Th Data=""Email"">Email</Th></Tr></Thead>
+        <Tbody>@foreach (var item in _items) { <Tr><Td>@item.Name</Td><Td>@item.Email</Td></Tr> }</Tbody>
+    </TableElement>
+    <TableBottomBar><TableInfo/><TablePagination/></TableBottomBar>
+</Table>")"
+CodeLanguage="razor">
+    <Card Class="demo-card">
+        <CardHeader>
+            <Div Class="card-header-content">
+                <H3><Icon Name="LucideIcon.Layers" Margin="Margin.Is2.FromEnd"/>Advanced Employee Directory</H3>
+                <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0.FromBottom">This page shows how Table works with PagedResult and handles continuation tokens internally.</Paragraph>
+            </Div>
+        </CardHeader>
+        <CardBody>
+            <Table @ref="_quarkTable"
+                        OnInteraction="OnInteraction"
+                        OnOrder="HandleOrder"
+                        OnInitialize="HandleInitialize"
+                        Options="_tableOptions"
+                        TotalRecords="@_totalRecords">
+
+                <TableSearch Placeholder="Search employees..."/>
+
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Sortable="true" Searchable="true">Name</Th>
+                            <Th Sortable="true" Searchable="true">Department</Th>
+                            <Th Sortable="true" Searchable="true">Email</Th>
+                            <Th Sortable="true" Searchable="true">Salary</Th>
+                            <Th Sortable="true" Searchable="true">Hire Date</Th>
+                            <Th Sortable="true" Searchable="true">Status</Th>
+                            <Th Sortable="true" Searchable="true">ID</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        @if (_currentEmployees != null)
+                        {
+                            @foreach (var employee in _currentEmployees)
+                            {
+                                <Tr Key="@employee.Id">
+                                    <Td>@employee.Name</Td>
+                                    <Td>@employee.Department</Td>
+                                    <Td>@employee.Email</Td>
+                                    <Td>@employee.Salary.ToString("C")</Td>
+                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                    <Td>@employee.Status</Td>
+                                    <Td>@employee.Id</Td>
+                                </Tr>
+                            }
+                        }
+                    </Tbody>
+                </TableElement>
+
+                <TableBottomBar>
+                    <TableInfo/>
+                    <TablePagination/>
+                </TableBottomBar>
+
+            </Table>
+        </CardBody>
+    </Card>
+    </DemoSection>
+
+    <!-- Debug Information -->
+    @if (_quarkTable != null)
+    {
+        <Card Class="debug-card">
+            <CardHeader>
+                <Div Class="card-header-content">
+                    <H3><Icon Name="LucideIcon.Bug" Margin="Margin.Is2.FromEnd"/>Debug Information</H3>
+                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0.FromBottom">Real-time information about table state and PagedResult handling</Paragraph>
+                </Div>
+            </CardHeader>
+            <CardBody>
+                <Grid Columns="GridCols.Is1.OnMd.Is2" Gap="Gap.Is4">
+                    <Div>
+                        <Div Class="debug-section">
+                            <H4><Icon Name="LucideIcon.Table" Margin="Margin.Is2.FromEnd"/>Table State</H4>
+                            <Div Class="debug-grid">
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Current Page:</Span>
+                                    <Span Class="debug-value">@_quarkTable.CurrentPage</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Page Size:</Span>
+                                    <Span Class="debug-value">@_quarkTable.PageSize</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Total Pages:</Span>
+                                    <Span Class="debug-value">@_quarkTable.TotalPages</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Total Records:</Span>
+                                    <Span Class="debug-value">@_quarkTable.TotalRecordsCount</Span>
+                                </Div>
+                            </Div>
+                        </Div>
+                    </Div>
+                    <Div>
+                        <Div Class="debug-section">
+                            <H4><Icon Name="LucideIcon.Info" Margin="Margin.Is2.FromEnd"/>PagedResult Info</H4>
+                            <Div Class="debug-grid">
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Current Token:</Span>
+                                    <Span Class="debug-value">@(_currentContinuationToken ?? "null")</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Records Loaded:</Span>
+                                    <Span Class="debug-value">@(_currentEmployees?.Count ?? 0)</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Last Request Start:</Span>
+                                    <Span Class="debug-value">@_lastRequestStart</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">Last Request Length:</Span>
+                                    <Span Class="debug-value">@_lastRequestLength</Span>
+                                </Div>
+                                <Div Class="debug-item">
+                                    <Span Class="debug-label">PagedResult TotalCount:</Span>
+                                    <Span Class="debug-value">@(_lastPagedResult?.TotalCount ?? 0)</Span>
+                                </Div>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Grid>
+            </CardBody>
+        </Card>
+    }
+    </Div>
+</Div>
+
+<style>
+    .demo-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .demo-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .demo-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .demo-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #fff, #f8f9fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .demo-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .demo-card,
+    .debug-card {
+        background: white;
+        border-radius: 20px;
+        shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+        margin-bottom: 3rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 2rem;
+    }
+
+    .card-header-content h3 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Debug section styling */
+    .debug-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .debug-section h4 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .debug-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .debug-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .debug-item:last-child {
+        border-bottom: none;
+    }
+
+    .debug-label {
+        font-weight: 500;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .debug-item-value {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    @@media (max-width: 768px) {
+        .demo-title {
+            font-size: 2rem;
+        }
+        
+        .demo-subtitle {
+            font-size: 1rem;
+        }
+        
+        .card-header,
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .debug-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .debug-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+@code {
+    private Table? _quarkTable;
+    private List<Employee> _currentEmployees = [];
+
+    private readonly TableOptions _tableOptions = new()
+    {
+        DefaultPageSize = 5 // Smaller page size to demonstrate paging
+    };
+
+    private string? _currentContinuationToken;
+    private int _lastRequestStart;
+    private int _lastRequestLength;
+    private PagedResult<Employee>? _lastPagedResult;
+    private int _totalRecords;
+
+    private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
+    {
+        Logger.LogInformation("PagedResults: OnInteraction called with Start={Start}, Length={Length}, Token='{Token}'", serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.ContinuationToken ?? "null");
+
+        try
+        {
+            var pagedResult = await EmployeeService.GetEmployeesPaged(serverSideRequest, CancellationToken.None);
+
+            Logger.LogInformation("PagedResults: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
+
+            _currentEmployees = pagedResult.Items;
+            _totalRecords = pagedResult.TotalCount.GetValueOrDefault(_currentEmployees.Count);
+
+            // Update the Table's continuation token paging
+            _quarkTable?.UpdateContinuationTokenPaging(pagedResult.Items.Count, pagedResult.ContinuationToken, serverSideRequest.ContinuationToken);
+
+            // Update debug information
+            _currentContinuationToken = pagedResult.ContinuationToken;
+            _lastRequestStart = serverSideRequest.Start;
+            _lastRequestLength = serverSideRequest.Length;
+            _lastPagedResult = pagedResult;
+
+            // StateHasChanged is not needed here as the Table will handle the UI update
+
+            Logger.LogInformation("PagedResults: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "PagedResults: Error handling manual request: {Message}", ex.Message);
+        }
+    }
+
+    private async Task HandleOrder(TableOrderEventArgs args)
+    {
+        Logger.LogInformation("PagedResults: Column '{Column}' sorted {Direction}", args.Column, args.Direction);
+    }
+
+    private async Task HandleInitialize()
+    {
+        Logger.LogInformation("PagedResults: PagedResult table initialized");
+    }
+
+}

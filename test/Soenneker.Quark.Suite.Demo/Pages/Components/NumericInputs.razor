@@ -1,0 +1,367 @@
+@page "/numericinputs"
+
+<PageTitle>NumericInput - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+    <DemoSection Title="Basic NumericInput" Description="Numeric input with bind-Value." Code="@(@"<Field>
+    <FieldLabel For=""basicNumeric"">Basic Numeric Input</FieldLabel>
+    <FieldBody>
+        <NumericInput Id=""basicNumeric"" Placeholder=""Enter a number..."" @bind-Value=""_basicValue""/>
+    </FieldBody>
+</Field>
+<NumericInput Id=""decimalNumeric"" Placeholder=""Enter a decimal..."" @bind-Value=""_decimalValue""/>")"
+CodeLanguage="razor">
+        <Field>
+            <FieldLabel For="basicNumeric">Basic Numeric Input</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="basicNumeric" Placeholder="Enter a number..." @bind-Value="_basicValue"/>
+                <Small TextColor="TextColor.MutedForeground">Current value: @_basicValue</Small>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For="decimalNumeric">Decimal Input</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="decimalNumeric" Placeholder="Enter a decimal number..." @bind-Value="_decimalValue"/>
+                <Small TextColor="TextColor.MutedForeground">Current value: @_decimalValue</Small>
+            </FieldBody>
+        </Field>
+        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">The NumericInput component creates numeric input fields with built-in validation.</Paragraph>
+    </DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Min/Max" Description="Min and Max constrain the value range." Code="@(@"<NumericInput Id=""minMaxNumeric"" Min=""18"" Max=""100"" Placeholder=""Enter your age..."" @bind-Value=""_ageValue""/>
+<NumericInput Id=""positiveNumeric"" Min=""0"" Placeholder=""Positive only..."" @bind-Value=""_positiveValue""/>")"
+CodeLanguage="razor">
+    <Field>
+        <FieldLabel For="minMaxNumeric">Age (18-100)</FieldLabel>
+        <FieldBody>
+            <NumericInput Id="minMaxNumeric" Min="18" Max="100" Placeholder="Enter your age..." @bind-Value="_ageValue"/>
+            <Small TextColor="TextColor.MutedForeground">Age: @_ageValue (Range: 18-100)</Small>
+        </FieldBody>
+    </Field>
+    <Field>
+        <FieldLabel For="positiveNumeric">Positive Number Only</FieldLabel>
+        <FieldBody>
+            <NumericInput Id="positiveNumeric" Min="0" Placeholder="Enter positive number..." @bind-Value="_positiveValue"/>
+            <Small TextColor="TextColor.MutedForeground">Value: @_positiveValue (Must be positive)</Small>
+        </FieldBody>
+    </Field>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Step" Description="Step for increment/decrement." Code="@(@"<NumericInput Id=""stepNumeric"" Step=""5"" Placeholder=""Increments of 5..."" @bind-Value=""_stepValue""/>
+<NumericInput Id=""decimalStepNumeric"" Step=""0.1m"" Placeholder=""Decimal increments..."" @bind-Value=""_decimalStepValue""/>")"
+CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
+        <Field>
+            <FieldLabel For="stepNumeric">Step by 5</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="stepNumeric" Step="5" Placeholder="Increments of 5..." @bind-Value="_stepValue"/>
+                <Small TextColor="TextColor.MutedForeground">Value: @_stepValue (Step: 5)</Small>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For="decimalStepNumeric">Decimal Step (0.1)</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="decimalStepNumeric" Step="0.1m" Placeholder="Decimal increments..." @bind-Value="_decimalStepValue"/>
+                <Small TextColor="TextColor.MutedForeground">Value: @_decimalStepValue (Step: 0.1)</Small>
+            </FieldBody>
+        </Field>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Validation" Description="Validations and Validation with NumericInput." Code="@(@"<Validations Model=""_validationModel"">
+    <Validation Action=""@ValidateRequired"">
+        <NumericInput Id=""requiredNumeric"" Placeholder=""Required"" @bind-Value=""_validationModel.RequiredNumber""/>
+        <ValidationError/>
+    </Validation>
+</Validations>")"
+CodeLanguage="razor">
+    <Validations Model="_validationModel">
+        <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
+            <Field>
+                <FieldLabel For="requiredNumeric" RequiredIndicator="true">Required Number</FieldLabel>
+                <FieldBody>
+                    <Validation Action="@ValidateRequired">
+                        <NumericInput Id="requiredNumeric" Placeholder="This field is required" @bind-Value="_validationModel.RequiredNumber"/>
+                        <ValidationError/>
+                    </Validation>
+                </FieldBody>
+            </Field>
+            <Field>
+                <FieldLabel For="rangeNumeric">Number in Range (1-100)</FieldLabel>
+                <FieldBody>
+                    <Validation Action="@ValidateRange">
+                        <NumericInput Id="rangeNumeric" Placeholder="Enter 1-100" @bind-Value="_validationModel.RangeNumber"/>
+                        <ValidationError/>
+                    </Validation>
+                </FieldBody>
+            </Field>
+        </Div>
+    </Validations>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Different Sizes" Description="Size and Class for styling." Code="@(@"<NumericInput Id=""smallNumeric"" Class=""form-control-sm"" @bind-Value=""_smallValue""/>
+<NumericInput Id=""largeNumeric"" Class=""form-control-lg"" @bind-Value=""_largeValue""/>")"
+CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
+        <Field>
+            <FieldLabel For="smallNumeric">Small NumericInput</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="smallNumeric" Class="form-control-sm" Placeholder="Small input" @bind-Value="_smallValue"/>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For="normalNumeric">Normal NumericInput</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="normalNumeric" Placeholder="Normal input" @bind-Value="_normalValue"/>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For="largeNumeric">Large NumericInput</FieldLabel>
+            <FieldBody>
+                <NumericInput Id="largeNumeric" Class="form-control-lg" Placeholder="Large input" @bind-Value="_largeValue"/>
+            </FieldBody>
+        </Field>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Custom Styling"
+             Description="Override styles with Style and Class."
+             Code="@NumericCustomStylingCode"
+             CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="customNumeric" Form="true">Custom Styled NumericInput</Label>
+            <NumericInput Id="customNumeric"
+                         Class="custom-numeric"
+                         Style="border: 2px solid #6f42c1; border-radius: 10px; padding: 10px; background-color: #f8f9fa;"
+                         Placeholder="Custom styled numeric input"
+                         @bind-Value="_customValue"/>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="gradientNumeric" Form="true">Gradient Border NumericInput</Label>
+            <NumericInput Id="gradientNumeric"
+                         Class="gradient-numeric"
+                         Style="border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box; border-radius: 8px;"
+                         Placeholder="Gradient border numeric input"
+                         @bind-Value="_gradientValue"/>
+        </Div>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput with Icons and Add-ons"
+             Description="Input groups with icons and add-ons."
+             Code="@NumericIconsAddonsCode"
+             CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="iconNumeric" Form="true">NumericInput with Icon</Label>
+            <Div Class="input-group">
+                <Span Class="input-group-text">
+                    <Icon Name="LucideIcon.Calculator"/>
+                </Span>
+                <NumericInput Id="iconNumeric" Placeholder="Enter number..." @bind-Value="_iconValue"/>
+            </Div>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="currencyNumeric" Form="true">Currency Input</Label>
+            <Div Class="input-group">
+                <Span Class="input-group-text">$</Span>
+                <NumericInput Id="currencyNumeric" Placeholder="0.00" Step="0.01m" @bind-Value="_currencyValue"/>
+                <Span Class="input-group-text">USD</Span>
+            </Div>
+        </Div>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput Events"
+             Description="Input, focus, and blur event handling."
+             Code="@NumericEventsCode"
+             CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="eventNumeric" Form="true">NumericInput with Events</Label>
+            <NumericInput Id="eventNumeric"
+                         Placeholder="Type here to see events"
+                         @bind-Value="_eventValue"
+                         @oninput="HandleInput"
+                         @onfocus="HandleFocus"
+                         @onblur="HandleBlur"/>
+            <Small TextColor="TextColor.MutedForeground">
+                Events: Input(@_inputCount), Focus(@_focusCount), Blur(@_blurCount)
+            </Small>
+        </Div>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="NumericInput Component Properties"
+             Description="Properties inherited from Element base."
+             Code="@NumericComponentPropertiesCode"
+             CodeLanguage="razor">
+    <Div BackgroundColor="BackgroundColor.Muted" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+        <H3>NumericInput Features</H3>
+        <Paragraph>The NumericInput component inherits all properties from the Element base class plus:</Paragraph>
+        <UnorderedList>
+            <UnorderedListItem><Strong>Value:</Strong> Numeric value (decimal, int, long, etc.)</UnorderedListItem>
+            <UnorderedListItem><Strong>Min:</Strong> Minimum allowed value</UnorderedListItem>
+            <UnorderedListItem><Strong>Max:</Strong> Maximum allowed value</UnorderedListItem>
+            <UnorderedListItem><Strong>Step:</Strong> Step increment value</UnorderedListItem>
+            <UnorderedListItem><Strong>Placeholder:</Strong> Placeholder text</UnorderedListItem>
+            <UnorderedListItem><Strong>ReadOnly:</Strong> Read-only state</UnorderedListItem>
+            <UnorderedListItem><Strong>Disabled:</Strong> Disabled state</UnorderedListItem>
+            <UnorderedListItem><Strong>Required:</Strong> Required validation</UnorderedListItem>
+            <UnorderedListItem><Strong>AutoComplete:</Strong> Auto-complete behavior</UnorderedListItem>
+            <UnorderedListItem><Strong>Event Handlers:</Strong> Input, focus, blur, change events</UnorderedListItem>
+        </UnorderedList>
+    </Div>
+</DemoSection>
+
+<Hr/>
+
+<DemoSection Title="Accessibility Features"
+             Description="ARIA attributes for screen readers."
+             Code="@NumericA11yCode"
+             CodeLanguage="razor">
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="accessibleNumeric" Form="true">Accessible NumericInput</Label>
+            <NumericInput Id="accessibleNumeric"
+                         Placeholder="Accessible numeric input field"
+                         AriaLabel="Enter a numeric value"
+                         AriaDescribedBy="numeric-help"
+                         @bind-Value="_accessibleValue"/>
+            <Small Id="numeric-help" Class="form-text" TextColor="TextColor.MutedForeground">This numeric input has proper ARIA attributes for accessibility.</Small>
+        </Div>
+    </Div>
+</DemoSection>
+    </Div>
+</Div>
+
+@code {
+    private const string NumericCustomStylingCode =
+@"<NumericInput Class=""custom-numeric"" Style=""border: 2px solid #6f42c1; ..."" @bind-Value=""_customValue""/>";
+
+    private const string NumericIconsAddonsCode =
+@"<Div Class=""input-group"">
+    <Span Class=""input-group-text""><Icon Name=""LucideIcon.Calculator""/></Span>
+    <NumericInput @bind-Value=""_iconValue""/>
+</Div>";
+
+    private const string NumericEventsCode =
+@"<NumericInput @bind-Value=""_eventValue"" @oninput=""HandleInput"" @onfocus=""HandleFocus"" @onblur=""HandleBlur""/>";
+
+    private const string NumericComponentPropertiesCode =
+@"<NumericInput Min=""0"" Max=""100"" Step=""1"" Placeholder=""..."" ReadOnly=""false"" Disabled=""false"" />";
+
+    private const string NumericA11yCode =
+@"<NumericInput AriaLabel=""Enter a numeric value"" AriaDescribedBy=""numeric-help"" @bind-Value=""_accessibleValue""/>
+<Small Id=""numeric-help"">Helper text</Small>";
+
+    private decimal? _basicValue = null;
+    private decimal? _decimalValue = null;
+    private decimal? _ageValue = null;
+    private decimal? _positiveValue = null;
+    private decimal? _stepValue = null;
+    private decimal? _decimalStepValue = null;
+    private decimal? _smallValue = null;
+    private decimal? _normalValue = null;
+    private decimal? _largeValue = null;
+    private decimal? _customValue = null;
+    private decimal? _gradientValue = null;
+    private decimal? _iconValue = null;
+    private decimal? _currencyValue = null;
+    private decimal? _eventValue = null;
+    private decimal? _accessibleValue = null;
+
+    private int _inputCount = 0;
+    private int _focusCount = 0;
+    private int _blurCount = 0;
+
+    private ValidationModel _validationModel = new();
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        _inputCount++;
+        StateHasChanged();
+    }
+
+    private void HandleFocus(FocusEventArgs e)
+    {
+        _focusCount++;
+        StateHasChanged();
+    }
+
+    private void HandleBlur(FocusEventArgs e)
+    {
+        _blurCount++;
+        StateHasChanged();
+    }
+
+    private void ValidateRequired(ValidatorEventArgs e)
+    {
+        if (e.Value == null || e.Value.ToString() == "0" || string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateRange(ValidatorEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+            return;
+        }
+
+        if (decimal.TryParse(e.Value.ToString(), out var value))
+        {
+            if (value < 1 || value > 100)
+            {
+                e.Status = ValidationStatus.Error;
+                e.ErrorText = "Value must be between 1 and 100.";
+            }
+            else
+            {
+                e.Status = ValidationStatus.Success;
+            }
+        }
+        else
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid number.";
+        }
+    }
+
+    public class ValidationModel
+    {
+        public decimal? RequiredNumber { get; set; } = null;
+        public decimal? RangeNumber { get; set; } = null;
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+
+}

@@ -1,0 +1,69 @@
+@page "/spans"
+
+<PageTitle>Span - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is6">
+        <DemoSection Code="@(@"<Paragraph>Text with <Span>span inline</Span> in paragraph.</Paragraph>
+<Span TextColor=""TextColor.Primary"">Styled span</Span>")"
+CodeLanguage="razor">
+            <Paragraph>Text with <Span>span elements</Span> for inline content.</Paragraph>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is6">
+        <DemoSection Title="Colors & Font Styling" Description="Text, FontWeight, DecorationLine on Span." Code="@(@"<Span TextColor=""TextColor.Primary"">Primary</Span>
+<Span TextColor=""TextColor.Accent"">Success</Span>
+<Span FontWeight=""FontWeight.Bold"">Bold</Span>
+<Span DecorationLine=""DecorationLine.Underline"">Underline</Span>")"
+CodeLanguage="razor">
+            <Div Space="Space.Y.Is2">
+                <Paragraph>Colors: <Span TextColor="TextColor.Primary">Primary</Span> <Span TextColor="TextColor.Accent">Success</Span> <Span TextColor="TextColor.Destructive">Danger</Span></Paragraph>
+                <Paragraph>Weights: <Span FontWeight="FontWeight.Light">Light</Span> <Span FontWeight="FontWeight.Bold">Bold</Span></Paragraph>
+                <Paragraph Margin="Margin.Is0">Decoration: <Span DecorationLine="DecorationLine.Underline">Underline</Span> <Span DecorationLine="DecorationLine.LineThrough">Strikethrough</Span></Paragraph>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is6">
+        <DemoSection Title="Forms & Badges" Description="Span for required indicator, character count, and tags." Code="@(@"<Label Form=""true"">Username <Span TextColor=""TextColor.Destructive"">*</Span></Label>
+<Span Rounded=""Rounded.Default"" BackgroundColor='BackgroundColor.Token(""green-600"")' Padding='Padding.Is2.OnX.Token(""0.5"").OnY' TextColor=""TextColor.White"">Active</Span>
+<Span Rounded=""Rounded.Default"" BackgroundColor='BackgroundColor.Token(""amber-500"")' Padding='Padding.Is2.OnX.Token(""0.5"").OnY' TextColor=""TextColor.White"">Beta</Span>")"
+CodeLanguage="razor">
+        <Div Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is1">
+                <Label Form="true">Username <Span TextColor="TextColor.Destructive">*</Span></Label>
+                <TextInput Id="span-username" Placeholder="Enter username" @bind-Value="_usernameValue" Width="Width.IsFull"/>
+                <Small TextColor="TextColor.MutedForeground">Characters remaining: <Span TextColor="TextColor.Accent">@AvailableChars</Span></Small>
+            </Div>
+            <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
+                <Span Rounded="Rounded.Default" BackgroundColor='BackgroundColor.Token("green-600")' Padding='Padding.Is2.OnX.Token("0.5").OnY' TextColor="TextColor.White">Active</Span>
+                <Span Rounded="Rounded.Default" BackgroundColor='BackgroundColor.Token("amber-500")' Padding='Padding.Is2.OnX.Token("0.5").OnY' TextColor="TextColor.White">Beta</Span>
+                <Span Rounded="Rounded.Default" BackgroundColor="BackgroundColor.Secondary" Padding='Padding.Is2.OnX.Token("0.5").OnY' TextColor="TextColor.White">Tag 1</Span>
+            </Div>
+        </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is6">
+        <DemoSection Title="Interactive" Description="Span with onclick." Code="@(@"<Span TextColor=""TextColor.Primary"" Class=""cursor-pointer hover:underline"" @onclick=""HandleClick"">Click me</Span>")"
+        CodeLanguage="razor">
+            <Paragraph>
+                <Span TextColor="TextColor.Primary" Class="cursor-pointer hover:underline" @onclick="HandleClick" Title="Click me!">Click me</Span>
+                <Span TextColor="TextColor.Accent" Class="ml-4 cursor-pointer hover:underline" @onclick="HandleClick2" Title="Click me too!">Click me too</Span>
+            </Paragraph>
+            <Small TextColor="TextColor.MutedForeground">Clicks: @_clickCount1, @_clickCount2</Small>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private int _clickCount1;
+    private int _clickCount2;
+    private string _usernameValue = string.Empty;
+
+    private int AvailableChars => Math.Max(0, 20 - (_usernameValue?.Length ?? 0));
+
+    private void HandleClick(MouseEventArgs _) { _clickCount1++; StateHasChanged(); }
+    private void HandleClick2(MouseEventArgs _) { _clickCount2++; StateHasChanged(); }
+}

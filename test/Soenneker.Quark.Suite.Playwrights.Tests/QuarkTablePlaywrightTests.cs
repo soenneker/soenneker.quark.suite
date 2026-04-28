@@ -32,7 +32,7 @@ public sealed class QuarkTablePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}tables-basic",
+            $"{BaseUrl}tablesbasic",
             static p => p.Locator("[data-slot='table-container']").First,
             expectedTitle: "Table - Quark Suite");
 
@@ -94,7 +94,7 @@ public sealed class QuarkTablePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}tables-basic",
+            $"{BaseUrl}tablesbasic",
             static p => p.Locator("[data-testid='server-table-demo'] [data-slot='table-search-input']").First,
             expectedTitle: "Table - Quark Suite");
 
@@ -147,7 +147,7 @@ public sealed class QuarkTablePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}loading-demo",
+            $"{BaseUrl}loading",
             static p => p.Locator("[data-slot='table-loader-content']").First,
             expectedTitle: "Loading Demo - Quark Suite");
 

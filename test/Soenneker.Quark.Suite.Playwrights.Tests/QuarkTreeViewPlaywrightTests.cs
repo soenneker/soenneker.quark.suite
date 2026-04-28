@@ -29,7 +29,7 @@ public sealed class QuarkTreeViewPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.Locator("#treeview-async-demo"), expectedTitle: "TreeView - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}treeviews", static p => p.Locator("#treeview-async-demo"), expectedTitle: "TreeView - Quark Suite");
 
         var asyncSection = page.Locator("#treeview-async-demo");
         var server1 = asyncSection.GetByText("Server 1", new LocatorGetByTextOptions { Exact = true });
@@ -66,7 +66,7 @@ public sealed class QuarkTreeViewPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.GetByRole(AriaRole.Tree).First,
+        await page.GotoAndWaitForReady($"{BaseUrl}treeviews", static p => p.GetByRole(AriaRole.Tree).First,
             expectedTitle: "TreeView - Quark Suite");
 
         var tree = page.GetByRole(AriaRole.Tree).First;
@@ -123,7 +123,7 @@ public sealed class QuarkTreeViewPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.GetByText("Basic TreeView", new PageGetByTextOptions { Exact = true }),
+        await page.GotoAndWaitForReady($"{BaseUrl}treeviews", static p => p.GetByText("Basic TreeView", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "TreeView - Quark Suite");
 
         var singleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with single selection mode. Selected node:" }).First;
@@ -149,7 +149,7 @@ public sealed class QuarkTreeViewPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.GetByText("Multiple Selection", new PageGetByTextOptions { Exact = true }),
+        await page.GotoAndWaitForReady($"{BaseUrl}treeviews", static p => p.GetByText("Multiple Selection", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "TreeView - Quark Suite");
 
         var multipleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with multiple selection mode. Selected nodes:" }).First;
