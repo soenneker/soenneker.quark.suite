@@ -6,12 +6,17 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IInput
 
-<input value="@Value"
+<input @ref="_elementRef"
+       value="@Value"
        @oninput="HandleInput"
        @onchange="HandleChange"
        @attributes="BuildAttributes()"/>
 
 @code {
+    private ElementReference _elementRef;
+
+    [CascadingParameter]
+    internal InputGroupContext? InputGroupContext { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.
@@ -90,6 +95,9 @@
     /// <param name="firstRender">True if this is the first render.</param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            InputGroupContext?.RegisterControl(_elementRef);
+
         if (firstRender && ParentValidation is not null)
         {
             await ParentValidation.InitializeInput(this);

@@ -124,7 +124,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Landing_mobile_header_menu_trigger_opens_navigation_sidebar()
+    public async ValueTask Landing_mobile_header_menu_trigger_opens_header_navigation_sidebar()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -141,13 +141,14 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
         await trigger.ClickAsync();
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
 
-        var mobileSidebar = page.Locator("aside[data-sidebar='sidebar'][data-mobile='true'][data-state='expanded']").First;
+        var mobileSidebar = page.Locator("[data-sidebar='sidebar'][data-mobile='true'][data-state='open']").First;
         await Assertions.Expect(mobileSidebar).ToBeVisibleAsync();
+        await Assertions.Expect(mobileSidebar.GetByText("Docs", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(mobileSidebar.GetByText("Components", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
     [Test]
-    public async ValueTask Landing_desktop_uses_navigation_sidebar_with_component_links()
+    public async ValueTask Landing_desktop_uses_header_navigation_without_docs_sidebar()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -155,13 +156,14 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             BaseUrl,
-            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First,
+            static p => p.Locator("header a[data-slot='button']").First,
             expectedTitle: "Quark Suite - Blazor Components");
 
-        var sidebar = page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First;
-        await Assertions.Expect(sidebar).ToBeVisibleAsync();
-        await Assertions.Expect(sidebar.Locator("a[data-sidebar='menu-button'][href='components']").First).ToBeVisibleAsync();
-        await Assertions.Expect(sidebar.Locator("a[data-sidebar='menu-button'][href='buttons']").First).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']")).ToHaveCountAsync(0);
+
+        var componentsLink = page.Locator("header a[href='components']").First;
+        await Assertions.Expect(componentsLink).ToBeVisibleAsync();
+        await Assertions.Expect(componentsLink).ToHaveAttributeAsync("data-slot", "button");
     }
 
     private sealed class NavigationLinkProbe

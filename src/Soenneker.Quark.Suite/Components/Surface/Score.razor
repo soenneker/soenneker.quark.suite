@@ -3,8 +3,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.CancellableElement
 @implements IScore
-@inject IScoreInterop ScoreInterop
 
+<link rel="stylesheet" href="_content/Soenneker.Quark.Suite/css/score.css" />
 <div @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@_normalizedValue" aria-valuemin="0" aria-valuemax="100">
     <div data-slot="score-circle">
         <div data-slot="score-center">
@@ -25,7 +25,6 @@
 {
     private static readonly CultureInfo _inv = CultureInfo.InvariantCulture;
 
-    private bool _initialized;
     private bool _parametersChanged;
 
     private int _normalizedValue;
@@ -54,18 +53,6 @@
         Flex ??= "flex flex-col";
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is2;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_initialized)
-        {
-            await ScoreInterop.Initialize(CancellationToken);
-            _initialized = true;
-        }
-
-        _parametersChanged = false;
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void OnParametersSet()
@@ -107,6 +94,12 @@
     }
 
     protected override bool ShouldRender() => _parametersChanged || base.ShouldRender();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _parametersChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

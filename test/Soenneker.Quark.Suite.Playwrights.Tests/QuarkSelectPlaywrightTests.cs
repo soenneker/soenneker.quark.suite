@@ -228,10 +228,10 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separate options with labels and a separator." }).First,
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separate options with labels and a separator." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First;
         var trigger = section.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
 

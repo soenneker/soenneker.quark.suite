@@ -1,15 +1,12 @@
 @namespace Soenneker.Quark
-@using Microsoft.JSInterop
 @inherits Soenneker.Quark.Element
 @implements IInputGroupAddon
-@inject IJSRuntime JSRuntime
 
-<div @ref="_elementRef" @onclick="HandleAddonClick" @attributes="BuildAttributes()">@ChildContent</div>
+<div @onclick="HandleAddonClick" @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/inputgroupinterop.js";
-    private ElementReference _elementRef;
-    private IJSObjectReference? _module;
+    [CascadingParameter]
+    internal InputGroupContext? InputGroupContext { get; set; }
 
     [Parameter]
     public InputGroupAddonAlign AddonAlign { get; set; } = InputGroupAddonAlign.InlineStart;
@@ -110,15 +107,7 @@
 
     private async Task HandleAddonClick(MouseEventArgs _)
     {
-        _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", _modulePath);
-        await _module.InvokeVoidAsync("focusInputFromAddon", _elementRef);
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        if (_module is not null)
-            await _module.DisposeAsync();
-
-        await base.DisposeAsync();
+        if (InputGroupContext is not null)
+            await InputGroupContext.FocusControl();
     }
 }

@@ -149,7 +149,7 @@ public sealed class QuarkTablePlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady(
             $"{BaseUrl}loading",
             static p => p.Locator("[data-slot='table-loader-content']").First,
-            expectedTitle: "Loading Demo - Quark Suite");
+            expectedTitle: "Loading - Quark Suite");
 
         var loader = page.Locator("[data-slot='table-loader-content']").First;
         await Assertions.Expect(loader).ToBeVisibleAsync();

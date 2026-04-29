@@ -48,7 +48,7 @@ public sealed class QuarkSwitchPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
             expectedTitle: "Switches - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Settings-style rows with descriptions and a submitted value preview." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Settings-style rows with descriptions and a submitted value." }).First;
         var marketing = section.Locator("[role='switch']").Nth(0);
         var security = section.Locator("[role='switch']").Nth(1);
 

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -16,7 +15,7 @@ public static class ScoreRegistrar
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkScoreAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IScoreInterop, ScoreInterop>();
+        services.TryAddScoped<IScoreInterop, ScoreInterop>();
 
         return services;
     }

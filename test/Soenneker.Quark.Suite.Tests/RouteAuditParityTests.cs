@@ -105,6 +105,95 @@ public sealed class RouteAuditParityTests
         "validation"
     };
 
+    private static readonly IReadOnlySet<string> _liveShadcnComponents = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "accordion",
+        "alert",
+        "alert-dialog",
+        "aspect-ratio",
+        "avatar",
+        "badge",
+        "breadcrumb",
+        "button",
+        "button-group",
+        "calendar",
+        "card",
+        "carousel",
+        "chart",
+        "checkbox",
+        "collapsible",
+        "combobox",
+        "command",
+        "context-menu",
+        "data-table",
+        "date-picker",
+        "dialog",
+        "direction",
+        "drawer",
+        "dropdown-menu",
+        "empty",
+        "field",
+        "hover-card",
+        "input",
+        "input-group",
+        "input-otp",
+        "item",
+        "kbd",
+        "label",
+        "menubar",
+        "native-select",
+        "navigation-menu",
+        "pagination",
+        "popover",
+        "progress",
+        "radio-group",
+        "resizable",
+        "scroll-area",
+        "select",
+        "separator",
+        "sheet",
+        "sidebar",
+        "skeleton",
+        "slider",
+        "sonner",
+        "spinner",
+        "switch",
+        "table",
+        "tabs",
+        "textarea",
+        "toast",
+        "toggle",
+        "toggle-group",
+        "tooltip",
+        "typography"
+    };
+
+    private static readonly IReadOnlySet<string> _currentlyUnsupportedShadcnComponents = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "chart",
+        "data-table",
+        "toast"
+    };
+
+    [Test]
+    public void Live_shadcn_components_are_all_supported_or_explicitly_classified()
+    {
+        string[] supportedComponents = _shadcnBackedRoutes.Values
+                                                          .Select(static value => value.Split('/')[3])
+                                                          .Distinct(StringComparer.Ordinal)
+                                                          .OrderBy(static value => value, StringComparer.Ordinal)
+                                                          .ToArray();
+
+        string[] classifiedComponents = supportedComponents
+            .Concat(_currentlyUnsupportedShadcnComponents)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(static value => value, StringComparer.Ordinal)
+            .ToArray();
+
+        _liveShadcnComponents.Except(classifiedComponents, StringComparer.Ordinal).Should().BeEmpty();
+        classifiedComponents.Except(_liveShadcnComponents, StringComparer.Ordinal).Should().BeEmpty();
+    }
+
     [Test]
     public void Public_routes_are_all_explicitly_audited()
     {

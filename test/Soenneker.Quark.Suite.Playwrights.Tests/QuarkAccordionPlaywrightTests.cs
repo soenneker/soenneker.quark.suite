@@ -128,7 +128,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
-        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn accordion demo." }).First;
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Accordion example." }).First;
         var accordion = demoSection.Locator("[data-slot='accordion']").First;
         var accordionContainer = accordion.Locator("xpath=..").First;
         var shippingTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What are your shipping options?", Exact = true });

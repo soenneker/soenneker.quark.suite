@@ -31,7 +31,7 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
         await trigger.HoverAsync();
         await Assertions.Expect(details).ToBeVisibleAsync();
 
-        var sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Change side and alignment to match where the preview should appear." }).First;
+        var sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Change side and alignment to match where the content should appear." }).First;
         var topStartTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top start", Exact = true });
         await topStartTrigger.HoverAsync();
 

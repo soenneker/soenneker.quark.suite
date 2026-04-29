@@ -23,7 +23,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
+        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value." }).First;
         var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
         var form = formSection.Locator("form");
 
@@ -54,7 +54,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
+        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value." }).First;
         var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
 
         await submit.ClickAsync();

@@ -6,12 +6,17 @@
 @implements Soenneker.Quark.IValidationInput
 @implements ITextArea
 
-<textarea @attributes="BuildAttributes()"
+<textarea @ref="_elementRef"
+          @attributes="BuildAttributes()"
           value="@Value"
           @oninput="HandleInput"
           @onchange="HandleChange"></textarea>
 
 @code {
+    private ElementReference _elementRef;
+
+    [CascadingParameter]
+    internal InputGroupContext? InputGroupContext { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the textarea value changes.
@@ -62,6 +67,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            InputGroupContext?.RegisterControl(_elementRef);
+
         if (firstRender && ParentValidation is not null)
         {
             await ParentValidation.InitializeInput(this);

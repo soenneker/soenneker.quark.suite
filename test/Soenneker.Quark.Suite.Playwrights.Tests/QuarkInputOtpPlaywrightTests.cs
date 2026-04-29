@@ -48,8 +48,8 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(firstSlot).ToHaveAttributeAsync("autocomplete", "one-time-code");
         await Assertions.Expect(secondSlot).ToHaveAttributeAsync("autocomplete", "off");
 
-        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().width")).Should().BeApproximately(36, 0.5);
-        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().height")).Should().BeApproximately(36, 0.5);
+        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().width")).Should().BeApproximately(32, 0.5);
+        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().height")).Should().BeApproximately(32, 0.5);
         (await firstSlot.EvaluateAsync<string>("element => getComputedStyle(element).textAlign")).Should().Be("start");
 
         await firstSlot.ClickAsync();

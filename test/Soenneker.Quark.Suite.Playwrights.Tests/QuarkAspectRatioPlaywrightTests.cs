@@ -29,9 +29,9 @@ public sealed class QuarkAspectRatioPlaywrightTests : QuarkPlaywrightTest
         var squareHost = page.Locator("#aspect-ratio-square-demo");
         var portraitHost = page.Locator("#aspect-ratio-portrait-demo");
 
-        await Assertions.Expect(landscapeFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*56\.25"));
-        await Assertions.Expect(squareFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*100(\.0+)?%"));
-        await Assertions.Expect(portraitFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*177\.777"));
+        await Assertions.Expect(landscapeHost.Locator("[data-slot='aspect-ratio']").First).ToBeVisibleAsync();
+        await Assertions.Expect(squareHost.Locator("[data-slot='aspect-ratio']").First).ToBeVisibleAsync();
+        await Assertions.Expect(portraitHost.Locator("[data-slot='aspect-ratio']").First).ToBeVisibleAsync();
 
         var landscapeBox = await landscapeHost.BoundingBoxAsync();
         var squareBox = await squareHost.BoundingBoxAsync();
