@@ -17,64 +17,19 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Persian / Hijri / Jalali Calendar"
-                         Description="Multiple mode lets users toggle several independent dates from the same calendar."
-                         Code="@(@"<Card Class=""mx-auto w-fit p-0"">
-    <CardBody Class=""p-0"">
-        <Calendar Mode=""CalendarSelectionMode.Multiple"" SelectedDates=""_selectedDates"" SelectedDatesChanged=""OnSelectedDatesChanged"" />
-    </CardBody>
-</Card>")"
-                         CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar Mode="CalendarSelectionMode.Multiple"
-                                  SelectedDates="_selectedDates"
-                                  SelectedDatesChanged="OnSelectedDatesChanged" />
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="Week numbers help with scheduling and planning workflows that reference calendar weeks."
-                         Code="@(@"<Card Class=""mx-auto w-fit p-0"">
-    <CardBody Class=""p-0"">
-        <Calendar SelectedDate=""_weekNumberDate"" SelectedDateChanged=""OnWeekNumberDateChanged"" ShowWeekNumber=""true"" />
-    </CardBody>
-</Card>")"
+                         Description="A basic calendar component styled with a rounded border."
+                         Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" Class=""rounded-lg border"" />")"
                          CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar SelectedDate="_weekNumberDate"
-                                  SelectedDateChanged="OnWeekNumberDateChanged"
-                                  ShowWeekNumber="true" />
-                    </CardBody>
-                </Card>
+                <Calendar SelectedDate="_basicDate"
+                          SelectedDateChanged="OnBasicDateChanged"
+                          Class="rounded-lg border" />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Range Calendar"
-                         Description="Use modifiers plus disabled dates to style and block already-booked days."
-                         Code="@BookedDatesCode"
-                         CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar SelectedDate="_bookedDate"
-                                  SelectedDateChanged="OnBookedDateChanged"
-                                  DisplayMonth="_bookedDisplayMonth"
-                                  DisabledDates="_bookedDates"
-                                  Modifiers="@BookedModifiers"
-                                  ModifierClasses="@BookedModifierClasses" />
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Month and Year Selector"
-                         Description="Range mode should match shadcn's two-month selection surface, including disabled out-of-bounds dates."
+                         Description="Use range mode to enable range selection."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
         <Calendar Mode=""CalendarSelectionMode.Range"" DisplayMonth=""_rangeDisplayMonth"" SelectedRange=""_selectedRange"" SelectedRangeChanged=""OnSelectedRangeChanged"" NumberOfMonths=""2"" Min=""_rangeMin"" Max=""_rangeMax"" />
@@ -96,7 +51,128 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Month and Year Selector"
+                         Description="Use month and year dropdowns for direct caption navigation."
+                         Code="@DropdownCaptionCode"
+                         CodeLanguage="razor">
+                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
+                    <CardBody Padding="Padding.Is0">
+                        <Calendar SelectedDate="_dropdownCaptionDate"
+                                  SelectedDateChanged="OnDropdownCaptionDateChanged"
+                                  CaptionLayout="dropdown"
+                                  CultureName="es-ES" />
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Presets"
+                         Description="Preset actions can drive the selected date while keeping the calendar as the source of date selection."
+                         Code="@(@"<Div Class=""flex flex-col gap-3"">
+    <Div Class=""flex gap-2"">
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetToday"">Today</Button>
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetNextWeek"">Next week</Button>
+    </Div>
+    <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" />
+</Div>")"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" Width="Width.IsFit" Margin="Margin.Auto.OnX">
+                    <Div Display="Display.Flex" Gap="Gap.Is2">
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetToday">Today</Button>
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetNextWeek">Next week</Button>
+                    </Div>
+                    <Calendar SelectedDate="_presetDate" SelectedDateChanged="OnPresetDateChanged" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Date and Time Picker"
+                         Description="Use the date-time picker when the calendar selection needs a time value as well."
+                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_calendarDateTime"" />")"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" ItemsAlign="Items.Center">
+                    <DateTimePicker @bind-SelectedDateTime="_calendarDateTime" />
+                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        @_calendarDateTime?.ToString("MMM dd, yyyy HH:mm")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Booked dates"
+                         Description="Use modifiers plus disabled dates to style and block already-booked days."
+                         Code="@BookedDatesCode"
+                         CodeLanguage="razor">
+                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
+                    <CardBody Padding="Padding.Is0">
+                        <Calendar SelectedDate="_bookedDate"
+                                  SelectedDateChanged="OnBookedDateChanged"
+                                  DisplayMonth="_bookedDisplayMonth"
+                                  DisabledDates="_bookedDates"
+                                  Modifiers="@BookedModifiers"
+                                  ModifierClasses="@BookedModifierClasses" />
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Cell Size"
+                         Description="Customize day cells with additional content such as pricing or availability cues."
+                         Code="@CustomDaysCode"
+                         CodeLanguage="razor">
+                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
+                    <CardBody Padding="Padding.Is0">
+                        <Calendar Mode="CalendarSelectionMode.Range"
+                                  SelectedRange="_customDayRange"
+                                  SelectedRangeChanged="OnCustomDayRangeChanged"
+                                  CaptionLayout="dropdown"
+                                  DayContent="@RenderPricingDay" />
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Week Numbers"
+                         Description="Use week numbers for scheduling and planning workflows."
+                         Code="@(@"<Card Class=""mx-auto w-fit p-0"">
+    <CardBody Class=""p-0"">
+        <Calendar SelectedDate=""_weekNumberDate"" SelectedDateChanged=""OnWeekNumberDateChanged"" ShowWeekNumber=""true"" />
+    </CardBody>
+</Card>")"
+                         CodeLanguage="razor">
+                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
+                    <CardBody Padding="Padding.Is0">
+                        <Calendar SelectedDate="_weekNumberDate"
+                                  SelectedDateChanged="OnWeekNumberDateChanged"
+                                  ShowWeekNumber="true" />
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL Support"
+                         Description="Calendar supports right-to-left layouts with locale-aware formatting."
+                         Code="@(@"<DirectionProvider Dir=""rtl"">
+    <Calendar SelectedDate=""_rtlDate"" SelectedDateChanged=""OnRtlDateChanged"" CultureName=""ar-SA"" Class=""rounded-lg border"" />
+</DirectionProvider>")"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Calendar SelectedDate="_rtlDate"
+                              SelectedDateChanged="OnRtlDateChanged"
+                              CultureName="ar-SA"
+                              Class="rounded-lg border" />
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Multiple Months"
                          Description="Increase `NumberOfMonths` to present a broader range-selection surface."
                          Code="@(@"<Card Class=""mx-auto w-fit p-0"">
     <CardBody Class=""p-0"">
@@ -118,74 +194,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date and Time Picker"
-                         Description="Use month and year dropdowns for direct caption navigation."
-                         Code="@DropdownCaptionCode"
-                         CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar SelectedDate="_dropdownCaptionDate"
-                                  SelectedDateChanged="OnDropdownCaptionDateChanged"
-                                  CaptionLayout="dropdown"
-                                  CultureName="es-ES" />
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Booked dates"
-                         Description="Preset actions can drive the selected date while keeping the calendar as the source of date selection."
-                         Code="@(@"<Div Class=""flex flex-col gap-3"">
-    <Div Class=""flex gap-2"">
-        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetToday"">Today</Button>
-        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""SetCalendarPresetNextWeek"">Next week</Button>
-    </Div>
-    <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" />
-</Div>")"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" Width="Width.IsFit" Margin="Margin.Auto.OnX">
-                    <Div Display="Display.Flex" Gap="Gap.Is2">
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetToday">Today</Button>
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetNextWeek">Next week</Button>
-                    </Div>
-                    <Calendar SelectedDate="_presetDate" SelectedDateChanged="OnPresetDateChanged" />
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom Cell Size"
-                         Description="Use the date-time picker when the calendar selection needs a time value as well."
-                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_calendarDateTime"" />")"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" ItemsAlign="Items.Center">
-                    <DateTimePicker @bind-SelectedDateTime="_calendarDateTime" />
-                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        @_calendarDateTime?.ToString("MMM dd, yyyy HH:mm")
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Week Numbers"
-                         Description="Customize day cells with additional content such as pricing or availability cues."
-                         Code="@CustomDaysCode"
-                         CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar Mode="CalendarSelectionMode.Range"
-                                  SelectedRange="_customDayRange"
-                                  SelectedRangeChanged="OnCustomDayRangeChanged"
-                                  CaptionLayout="dropdown"
-                                  DayContent="@RenderPricingDay" />
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-<Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
+            <DemoSection Title="Date Bounds"
                          Description="Bounds work well for birth dates and other historical-only selections."
                          Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")"
                          CodeLanguage="razor">
@@ -249,6 +258,7 @@
     private readonly DateOnly _birthdayMax = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _birthday = new(1992, 4, 12);
     private DateOnly? _focusedMonthDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
+    private DateOnly? _rtlDate = DateOnly.FromDateTime(DateTime.Today);
 
     private Dictionary<string, Func<DateOnly, bool>> BookedModifiers => new()
     {
@@ -336,6 +346,12 @@
     private Task OnFocusedMonthDateChanged(DateOnly? value)
     {
         _focusedMonthDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRtlDateChanged(DateOnly? value)
+    {
+        _rtlDate = value;
         return Task.CompletedTask;
     }
 

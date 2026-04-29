@@ -29,7 +29,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForBreadcrumbEllipsis(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Breadcrumbs.razor"));
         var collapsedStart = source.IndexOf("Title=\"Collapsed\"", StringComparison.Ordinal);
-        var linkComponentStart = source.IndexOf("Title=\"Link Component\"", StringComparison.Ordinal);
+        var linkComponentStart = source.IndexOf("Title=\"Link component\"", StringComparison.Ordinal);
         var collapsedDemo = source[collapsedStart..linkComponentStart];
 
         collapsedDemo.Should().Contain("<Dropdown>");

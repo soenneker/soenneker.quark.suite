@@ -181,6 +181,52 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="RTL Support"
+                     Description="Sidebar supports right-to-left shells by pairing RTL direction with the right side."
+                     Code="@RtlSupportCode"
+                     CodeLanguage="razor">
+            <DirectionProvider Dir="rtl">
+                <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+                    <SidebarProvider DefaultOpen="true" Class="h-[16rem]">
+                        <Sidebar Side="SidebarSide.Right" Collapsible="SidebarCollapsible.None">
+                            <SidebarHeader>
+                                <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">مساحة العمل</Paragraph>
+                            </SidebarHeader>
+                            <SidebarContent>
+                                <SidebarGroup>
+                                    <SidebarGroupLabel>التنقل</SidebarGroupLabel>
+                                    <SidebarGroupContent>
+                                        <SidebarMenu>
+                                            <SidebarMenuItem>
+                                                <SidebarMenuButton Active="true">
+                                                    <Icon Name="LucideIcon.House" BoxSize="Size.Is4" />
+                                                    <Span>الرئيسية</Span>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                            <SidebarMenuItem>
+                                                <SidebarMenuButton>
+                                                    <Icon Name="LucideIcon.Settings" BoxSize="Size.Is4" />
+                                                    <Span>الإعدادات</Span>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        </SidebarMenu>
+                                    </SidebarGroupContent>
+                                </SidebarGroup>
+                            </SidebarContent>
+                        </Sidebar>
+                        <SidebarInset>
+                            <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
+                                <SidebarTrigger />
+                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">واجهة من اليمين إلى اليسار</Paragraph>
+                            </Div>
+                        </SidebarInset>
+                    </SidebarProvider>
+                </Div>
+            </DirectionProvider>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="Collapsible Group Label"
                      Description="`SidebarGroupLabel AsChild` works with `CollapsibleTrigger` for collapsible group labels."
                      Code="@CollapsibleGroupCode"
@@ -524,6 +570,35 @@
             </Sidebar>
             <SidebarInset>...</SidebarInset>
         </SidebarProvider>
+        """;
+
+    private const string RtlSupportCode =
+        """
+        <DirectionProvider Dir="rtl">
+            <SidebarProvider DefaultOpen="true">
+                <Sidebar Side="SidebarSide.Right" Collapsible="SidebarCollapsible.None">
+                    <SidebarHeader>
+                        <Paragraph>مساحة العمل</Paragraph>
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupLabel>التنقل</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton Active="true">
+                                            <Icon Name="LucideIcon.House" />
+                                            <Span>الرئيسية</Span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                </Sidebar>
+                <SidebarInset>...</SidebarInset>
+            </SidebarProvider>
+        </DirectionProvider>
         """;
 
     private const string CollapsibleGroupCode =

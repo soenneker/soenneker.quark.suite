@@ -58,7 +58,7 @@ public sealed partial class RenderedShadcnParityTests
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForHeader(), "test", "Soenneker.Quark.Suite.Demo", "MainLayout.razor"));
 
         source.Should().NotContain("SidebarTriggerText=\"Navigation\"");
-        source.Should().Contain("<Header ShowSidebarTrigger=\"@ShowSidebarTrigger\">");
+        source.Should().Contain("<Header ShowSidebarTrigger=\"@ShowSidebarTrigger\"");
     }
 
     private static string GetSuiteRootForHeader()

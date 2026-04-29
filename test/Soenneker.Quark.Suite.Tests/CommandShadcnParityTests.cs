@@ -160,9 +160,9 @@ public sealed partial class RenderedShadcnParityTests
         var item = ReadCommandSource("CommandItem.razor");
         var dialog = ReadCommandSource("CommandDialog.razor");
 
-        input.Should().Contain("attrs[\"data-slot\"] = \"command-input-wrapper\"");
+        input.Should().Contain("[\"data-slot\"] = \"command-input-wrapper\"");
         input.Should().Contain("LucideIcon.Search");
-        input.Should().Contain("attrs[\"data-slot\"] = \"input-group\"");
+        input.Should().Contain("[\"data-slot\"] = \"input-group\"");
 
         item.Should().Contain("data-selected");
         item.Should().Contain("data-[selected=true]:bg-muted");

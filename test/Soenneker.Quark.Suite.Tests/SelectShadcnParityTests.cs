@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Bradix;
+using System.Linq;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -112,7 +113,7 @@ public sealed partial class RenderedShadcnParityTests
 
                 builder.OpenComponent<SelectContent>(2);
                 builder.AddAttribute(3, nameof(SelectContent.ForceMount), true);
-                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), SelectPosition.Popper);
+                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), (object) SelectPosition.List.First(position => position.Value == "popper"));
                 builder.AddAttribute(5, "ChildContent", (RenderFragment)(contentBuilder => contentBuilder.AddContent(0, "Items")));
                 builder.CloseComponent();
             })));
@@ -158,7 +159,7 @@ public sealed partial class RenderedShadcnParityTests
 
                 builder.OpenComponent<SelectContent>(2);
                 builder.AddAttribute(3, nameof(SelectContent.ForceMount), true);
-                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), SelectPosition.Popper);
+                builder.AddAttribute(4, nameof(SelectContent.ContentPosition), (object) SelectPosition.List.First(position => position.Value == "popper"));
                 builder.AddAttribute(5, nameof(SelectContent.CollisionBoundarySelector), "#select-boundary-a");
                 builder.AddAttribute(6, nameof(SelectContent.CollisionBoundarySelectors), new[] { "#select-boundary-b", "#select-boundary-a" });
                 builder.AddAttribute(7, nameof(SelectContent.Sticky), "always");
@@ -170,7 +171,7 @@ public sealed partial class RenderedShadcnParityTests
 
         var content = cut.FindComponent<BradixSelectContent>().Instance;
 
-        content.Position.Should().Be("popper");
+        content.Position.Value.Should().Be("popper");
         content.CollisionBoundarySelector.Should().Be("#select-boundary-a");
         content.CollisionBoundarySelectors.Should().BeEquivalentTo(["#select-boundary-b", "#select-boundary-a"]);
         content.Sticky.Should().Be("always");
