@@ -76,6 +76,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0");
+
+            if (ParentAlertDialog?.BlurBackdrop == true)
+                AppendClass(ref cls, "backdrop-blur");
         });
 
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
@@ -91,6 +94,7 @@
         hc.Add(Size);
         hc.Add(ParentAlertDialog?.Visible ?? false);
         hc.Add(ParentAlertDialog?.ShowBackdrop ?? true);
+        hc.Add(ParentAlertDialog?.BlurBackdrop ?? false);
         hc.Add(ParentAlertDialog?.TrapFocus ?? true);
         hc.Add(ParentAlertDialog?.CloseOnEscape ?? true);
         hc.Add(ParentAlertDialog?.CloseOnBackdropClick ?? true);

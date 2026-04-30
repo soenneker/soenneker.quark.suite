@@ -11,6 +11,7 @@ public interface ISheet : IElement
     bool Visible { get; set; }
     EventCallback<bool> VisibleChanged { get; set; }
     bool ShowBackdrop { get; set; }
+    bool BlurBackdrop { get; set; }
 
     /// <summary>
     /// When <c>true</c>, Escape and backdrop do not dismiss (same idea as <see cref="Dialog.Static"/>).

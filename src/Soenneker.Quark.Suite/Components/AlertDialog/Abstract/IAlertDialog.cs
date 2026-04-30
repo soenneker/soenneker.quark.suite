@@ -24,6 +24,11 @@ public interface IAlertDialog : IElement
     bool ShowBackdrop { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the backdrop should blur content behind the alert dialog.
+    /// </summary>
+    bool BlurBackdrop { get; set; }
+
+    /// <summary>
     /// Gets or sets whether pressing Escape should close the alert dialog.
     /// </summary>
     bool CloseOnEscape { get; set; }

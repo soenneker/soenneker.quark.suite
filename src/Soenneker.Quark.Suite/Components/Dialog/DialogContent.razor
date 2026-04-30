@@ -112,6 +112,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
+
+            if (ParentDialog?.BlurBackdrop == true)
+                AppendClass(ref cls, "backdrop-blur");
         });
 
         attributes["data-slot"] = "dialog-overlay";
@@ -131,6 +134,7 @@
         hc.Add(Centered);
         hc.Add(ParentDialog?.Visible ?? false);
         hc.Add(ParentDialog?.ShowBackdrop ?? true);
+        hc.Add(ParentDialog?.BlurBackdrop ?? false);
         hc.Add(ParentDialog?.Centered ?? false);
         hc.Add(ParentDialog?.Scrollable ?? false);
         hc.Add(ParentDialog?.DialogSize);

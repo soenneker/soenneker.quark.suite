@@ -88,6 +88,9 @@
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
+
+            if (ParentDrawer?.BlurBackdrop == true)
+                AppendClass(ref cls, "backdrop-blur");
         });
         attrs["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
         attrs["data-slot"] = "drawer-overlay";
@@ -107,6 +110,7 @@
         hc.Add(ResolvedSide);
         hc.Add(ParentDrawer?.Visible ?? false);
         hc.Add(ParentDrawer?.ShowBackdrop ?? true);
+        hc.Add(ParentDrawer?.BlurBackdrop ?? false);
         hc.Add(ParentDrawer?.TrapFocus ?? true);
         hc.Add(ParentDrawer?.CloseOnEscape ?? true);
         hc.Add(ParentDrawer?.CloseOnBackdropClick ?? true);

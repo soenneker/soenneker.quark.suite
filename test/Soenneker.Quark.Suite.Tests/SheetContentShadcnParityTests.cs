@@ -97,4 +97,16 @@ public sealed partial class RenderedShadcnParityTests
         closeClasses.Should().NotContain("focus-visible:ring-3");
         closeClasses.Should().NotContain("transition-all");
     }
+
+    [Test]
+    public void Sheet_blur_backdrop_adds_focus_overlay_blur()
+    {
+        var cut = Render<Sheet>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.BlurBackdrop, true)
+            .AddChildContent<SheetContent>());
+
+        cut.Find("[data-slot='sheet-overlay']").GetAttribute("class")!
+            .Should().Contain("backdrop-blur");
+    }
 }

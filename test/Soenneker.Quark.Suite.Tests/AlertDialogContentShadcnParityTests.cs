@@ -98,6 +98,18 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void AlertDialog_blur_backdrop_adds_focus_overlay_blur()
+    {
+        var cut = Render<AlertDialog>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.BlurBackdrop, true)
+            .AddChildContent<AlertDialogContent>());
+
+        cut.Find("[data-slot='alert-dialog-overlay']").GetAttribute("class")!
+            .Should().Contain("backdrop-blur");
+    }
+
+    [Test]
     public void AlertDialog_demo_examples_match_current_shadcn_docs_examples()
     {
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForAlertDialog(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "AlertDialogs.razor"));

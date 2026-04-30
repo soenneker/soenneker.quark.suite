@@ -24,6 +24,9 @@ public abstract class OverlayElement : InteractiveElement
     public bool ShowBackdrop { get; set; } = true;
 
     [Parameter]
+    public bool BlurBackdrop { get; set; }
+
+    [Parameter]
     public bool CloseOnBackdropClick { get; set; } = true;
 
     [Parameter]
@@ -159,6 +162,7 @@ public abstract class OverlayElement : InteractiveElement
 
         hc.Add(Visible);
         hc.Add(ShowBackdrop);
+        hc.Add(BlurBackdrop);
         hc.Add(CloseOnBackdropClick);
         hc.Add(CloseOnEscape);
         hc.Add(VisibleChanged.HasDelegate);

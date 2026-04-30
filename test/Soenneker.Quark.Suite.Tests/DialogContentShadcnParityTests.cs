@@ -93,4 +93,16 @@ public sealed partial class RenderedShadcnParityTests
         closeClasses.Should().Contain("focus:ring-offset-2");
         closeClasses.Should().Contain("data-[state=open]:bg-accent");
     }
+
+    [Test]
+    public void Dialog_blur_backdrop_adds_focus_overlay_blur()
+    {
+        var cut = Render<Dialog>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.BlurBackdrop, true)
+            .AddChildContent<DialogContent>());
+
+        cut.Find("[data-slot='dialog-overlay']").GetAttribute("class")!
+            .Should().Contain("backdrop-blur");
+    }
 }

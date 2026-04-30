@@ -124,4 +124,16 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("button[data-slot='drawer-close']");
         cut.FindAll("[data-slot='drawer-close-wrapper']").Should().BeEmpty();
     }
+
+    [Test]
+    public void Drawer_blur_backdrop_adds_focus_overlay_blur()
+    {
+        var cut = Render<Drawer>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.BlurBackdrop, true)
+            .AddChildContent<DrawerContent>());
+
+        cut.Find("[data-slot='drawer-overlay']").GetAttribute("class")!
+            .Should().Contain("backdrop-blur");
+    }
 }

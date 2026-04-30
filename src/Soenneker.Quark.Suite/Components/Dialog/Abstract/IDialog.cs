@@ -24,6 +24,11 @@ public interface IDialog : IElement
     bool ShowBackdrop { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the backdrop should blur content behind the dialog.
+    /// </summary>
+    bool BlurBackdrop { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the dialog should be vertically centered.
     /// </summary>
     bool Centered { get; set; }
