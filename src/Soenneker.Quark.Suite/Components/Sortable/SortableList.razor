@@ -17,6 +17,7 @@
     private DotNetObjectReference<SortableList>? _dotNetRef;
     private string? _initializationError;
     private string? _lastInitializationKey;
+    private string? _lastFailedInitializationKey;
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -119,6 +120,7 @@
                 await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ForceFallback, ItemSelector, ResolveHandleSelector(), FilterSelector,
                     Group, _dotNetRef);
                 _lastInitializationKey = initializationKey;
+                _lastFailedInitializationKey = null;
             }
 
             if (_initializationError is not null)
@@ -129,8 +131,16 @@
         }
         catch (Exception ex)
         {
-            _initializationError = ex.GetType().Name;
-            await InvokeAsync(StateHasChanged);
+            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}";
+            var error = ex.GetType().Name;
+
+            if (!string.Equals(_initializationError, error, StringComparison.Ordinal) ||
+                !string.Equals(_lastFailedInitializationKey, initializationKey, StringComparison.Ordinal))
+            {
+                _initializationError = error;
+                _lastFailedInitializationKey = initializationKey;
+                await InvokeAsync(StateHasChanged);
+            }
         }
 
         await base.OnAfterRenderAsync(firstRender);

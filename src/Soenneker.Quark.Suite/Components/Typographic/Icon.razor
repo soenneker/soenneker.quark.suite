@@ -29,7 +29,8 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.InlineBlock;
-        BoxSize ??= Size.Is4;
+        if (!HasExplicitSizeClass())
+            BoxSize ??= Size.Is4;
         Shrink ??= Quark.Shrink.Is0;
         VerticalAlign ??= Quark.VerticalAlign.Middle;
     }
@@ -85,6 +86,46 @@
             return svg;
 
         return SvgProvider?.GetSvg(iconName);
+    }
+
+    private bool HasExplicitSizeClass()
+    {
+        if (ClassHasExplicitSize(Class))
+            return true;
+
+        if (Attributes is null)
+            return false;
+
+        foreach (var attribute in Attributes)
+        {
+            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) &&
+                ClassHasExplicitSize(attribute.Value?.ToString()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool ClassHasExplicitSize(string? className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+            return false;
+
+        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Any(IsExplicitSizeToken);
+    }
+
+    private static bool IsExplicitSizeToken(string token)
+    {
+        var unescaped = token.Replace(@"\:", ":", StringComparison.Ordinal);
+        var separator = unescaped.LastIndexOf(':');
+        var utility = separator >= 0 ? unescaped[(separator + 1)..] : unescaped;
+
+        return utility.StartsWith("size-", StringComparison.Ordinal) ||
+               utility.StartsWith("w-", StringComparison.Ordinal) ||
+               utility.StartsWith("h-", StringComparison.Ordinal);
     }
 
     private static string InjectAttributesIntoSvg(string svg, IReadOnlyDictionary<string, object> attributes)

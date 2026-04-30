@@ -18,6 +18,11 @@ public interface IDropdownMenu : IElement
     bool RightAligned { get; set; }
 
     /// <summary>
+    /// Gets or sets the alignment of the dropdown menu relative to the trigger.
+    /// </summary>
+    Alignment? Align { get; set; }
+
+    /// <summary>
     /// Gets or sets the side of the dropdown menu.
     /// </summary>
     Side Side { get; set; }

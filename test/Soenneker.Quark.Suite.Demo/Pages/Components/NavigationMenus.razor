@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is5xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
+            <DemoSection Title="With Viewport"
                         Description="A collection of links for navigating websites."
                         Code="@BasicCode"
                         PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-96"
@@ -84,7 +84,7 @@
 
                         <NavigationMenuItem>
                             <NavigationMenuLink Href="components" Class="@NavigationMenuTriggerLinkClass">
-                                Docs
+                                Documentation
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                     </NavigationMenuList>
@@ -93,10 +93,90 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Without Viewport"
+                         Description="Render content without the shared viewport container."
+                         Code="@WithoutViewportCode"
+                         PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-96"
+                         CodeLanguage="razor">
+                <NavigationMenu Viewport="false" data-testid="navigation-menu-without-viewport">
+                    <NavigationMenuList>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink AsChild="true" Class="@NavigationMenuTriggerLinkClass">
+                                <Anchor To="components">
+                                    Documentation
+                                </Anchor>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger>List</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <UnorderedList Class="w-72 list-none p-0">
+                                    <UnorderedListItem>
+                                        <NavigationMenuLink Href="#">
+                                            <Div Class="flex flex-col">
+                                                <Div Class="font-medium">Components</Div>
+                                                <Div Class="text-muted-foreground">Browse all components in the library.</Div>
+                                            </Div>
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">
+                                            <Div Class="flex flex-col">
+                                                <Div Class="font-medium">Documentation</Div>
+                                                <Div Class="text-muted-foreground">Learn how to use the library.</Div>
+                                            </Div>
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">
+                                            <Div Class="flex flex-col">
+                                                <Div Class="font-medium">Blog</Div>
+                                                <Div Class="text-muted-foreground">Read our latest blog posts.</Div>
+                                            </Div>
+                                        </NavigationMenuLink>
+                                    </UnorderedListItem>
+                                </UnorderedList>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger>Simple List</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <UnorderedList Class="list-none p-0">
+                                    <UnorderedListItem>
+                                        <NavigationMenuLink Href="#">Components</NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">Documentation</NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">Blocks</NavigationMenuLink>
+                                    </UnorderedListItem>
+                                </UnorderedList>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <UnorderedList Class="grid w-[200px] list-none p-0">
+                                    <UnorderedListItem>
+                                        <NavigationMenuLink Href="#" Class="flex-row items-center gap-2">
+                                            <Icon Name="LucideIcon.CircleAlert" />
+                                            Backlog
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="#" Class="flex-row items-center gap-2">
+                                            <Icon Name="LucideIcon.CircleAlert" />
+                                            To Do
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">
+                                            <Icon Name="LucideIcon.CircleAlert" />
+                                            Done
+                                        </NavigationMenuLink>
+                                    </UnorderedListItem>
+                                </UnorderedList>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Link Component"
-                        Description="Use AsChild to compose a custom Quark link component."
-                        Code="@LinkComponentCode"
-                        CodeLanguage="razor">
+                         Description="Use AsChild to compose a custom Quark link component."
+                         Code="@LinkComponentCode"
+                         CodeLanguage="razor">
                 <Div Class="rounded-xl border border-border p-4">
                     <NavigationMenu Justify="Justify.Start">
                         <NavigationMenuList Justify="Justify.Start" Class="gap-0">
@@ -242,8 +322,53 @@
         </NavigationMenuItem>
         <NavigationMenuItem>
             <NavigationMenuLink Href=""components"" Class=""group inline-flex h-9 w-max flex-row items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"">
-                Docs
+                Documentation
             </NavigationMenuLink>
+        </NavigationMenuItem>
+    </NavigationMenuList>
+</NavigationMenu>";
+
+    private const string WithoutViewportCode =
+@"<NavigationMenu Viewport=""false"">
+    <NavigationMenuList>
+        <NavigationMenuItem>
+            <NavigationMenuLink AsChild=""true"" Class=""group inline-flex h-9 w-max flex-row items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"">
+                <Anchor To=""components"">Documentation</Anchor>
+            </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+            <NavigationMenuTrigger>List</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href=""#"">
+                    <Div Class=""font-medium"">Components</Div>
+                    <Div Class=""text-muted-foreground"">Browse all components in the library.</Div>
+                </NavigationMenuLink>
+                <NavigationMenuLink Href=""#"">
+                    <Div Class=""font-medium"">Documentation</Div>
+                    <Div Class=""text-muted-foreground"">Learn how to use the library.</Div>
+                </NavigationMenuLink>
+                <NavigationMenuLink Href=""#"">
+                    <Div Class=""font-medium"">Blog</Div>
+                    <Div Class=""text-muted-foreground"">Read our latest blog posts.</Div>
+                </NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+            <NavigationMenuTrigger>Simple List</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href=""#"">Components</NavigationMenuLink>
+                <NavigationMenuLink Href=""#"">Documentation</NavigationMenuLink>
+                <NavigationMenuLink Href=""#"">Blocks</NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+            <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href=""#"" Class=""flex-row items-center gap-2"">
+                    <Icon Name=""LucideIcon.CircleAlert"" />
+                    Backlog
+                </NavigationMenuLink>
+            </NavigationMenuContent>
         </NavigationMenuItem>
     </NavigationMenuList>
 </NavigationMenu>";

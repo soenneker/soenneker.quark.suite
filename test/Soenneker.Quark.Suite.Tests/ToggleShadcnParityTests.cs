@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -42,5 +44,36 @@ public sealed partial class RenderedShadcnParityTests
         toggleClasses.Should().NotContain("h-8");
         toggleClasses.Should().NotContain("min-w-8");
         toggleClasses.Should().NotContain("q-toggle");
+    }
+
+    [Test]
+    public void Toggle_demo_matches_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForToggle(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Toggles.razor"));
+        var firstExampleStart = source.IndexOf("Description=\"A two-state button", StringComparison.Ordinal);
+        var outlineStart = source.IndexOf("Title=\"Outline\"", StringComparison.Ordinal);
+        var firstExample = source[firstExampleStart..outlineStart];
+        var sizeStart = source.IndexOf("Title=\"Size\"", StringComparison.Ordinal);
+        var rtlStart = source.IndexOf("Title=\"RTL\"", StringComparison.Ordinal);
+        var sizeExample = source[sizeStart..rtlStart];
+
+        firstExample.Should().Contain("ToggleVariant.Outline");
+        firstExample.Should().Contain("LucideIcon.Bookmark");
+        firstExample.Should().Contain("Bookmark");
+        firstExample.Should().NotContain("LucideIcon.Bold");
+        sizeExample.Should().Contain("Size=\"ToggleSize.Sm\"");
+        sizeExample.Should().Contain("Size=\"ToggleSize.Default\"");
+        sizeExample.Should().Contain("Size=\"ToggleSize.Lg\"");
+        sizeExample.Should().NotContain("Variant=\"ToggleVariant.Outline\"");
+    }
+
+    private static string GetSuiteRootForToggle()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

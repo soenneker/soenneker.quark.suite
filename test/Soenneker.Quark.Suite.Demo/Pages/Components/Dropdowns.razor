@@ -15,16 +15,16 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="The standard shadcn dropdown menu pattern."
+                         Description="A basic dropdown menu with labels and separators."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                @AccountMenu
+                @BasicMenu
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Submenu"
-                         Description="Use a submenu when an item opens a secondary list of actions."
+                         Description="Use `DropdownMenuSub` to nest secondary actions."
                          Code="@SubmenuCode"
                          CodeLanguage="razor">
                 <Dropdown>
@@ -48,7 +48,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Shortcuts"
-                         Description="Keyboard shortcuts sit at the trailing edge of menu items."
+                         Description="Add `DropdownMenuShortcut` to show keyboard hints."
                          Code="@ShortcutsCode"
                          CodeLanguage="razor">
                 <Dropdown>
@@ -75,7 +75,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Icons"
-                         Description="Icons make menu actions faster to scan."
+                         Description="Combine icons with labels for quick scanning."
                          Code="@IconsCode"
                          CodeLanguage="razor">
                 <Dropdown>
@@ -93,7 +93,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Checkboxes"
-                         Description="Checkbox menu items support independent toggles."
+                         Description="Use `DropdownMenuCheckboxItem` for toggles."
                          Code="@CheckboxesCode"
                          CodeLanguage="razor">
                 <Dropdown>
@@ -103,9 +103,9 @@
                     <DropdownMenu>
                         <DropdownLabel>Appearance</DropdownLabel>
                         <DropdownDivider />
-                        <DropdownCheckboxItem Checked="true">Status Bar</DropdownCheckboxItem>
+                        <DropdownCheckboxItem @bind-Checked="_dropdownStatusBar">Status Bar</DropdownCheckboxItem>
                         <DropdownCheckboxItem Checked="false" Disabled="true">Activity Bar</DropdownCheckboxItem>
-                        <DropdownCheckboxItem Checked="true">Panel</DropdownCheckboxItem>
+                        <DropdownCheckboxItem @bind-Checked="_dropdownPanel">Panel</DropdownCheckboxItem>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
@@ -113,16 +113,20 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Checkboxes Icons"
-                         Description="Checkbox menu items can include icons while preserving checked state."
+                         Description="Add icons to checkbox items."
                          Code="@CheckboxesIconsCode"
                          CodeLanguage="razor">
                 <Dropdown>
                     <DropdownToggle AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Open</Button>
+                        <Button Variant="ButtonVariant.Outline">Notifications</Button>
                     </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownCheckboxItem Checked="true"><Icon Name="LucideIcon.PanelLeft" />Sidebar</DropdownCheckboxItem>
-                        <DropdownCheckboxItem Checked="false"><Icon Name="LucideIcon.Bell" />Notifications</DropdownCheckboxItem>
+                    <DropdownMenu Class="w-48">
+                        <DropdownGroup>
+                            <DropdownLabel>Notification Preferences</DropdownLabel>
+                            <DropdownCheckboxItem @bind-Checked="_dropdownEmailNotifications"><Icon Name="LucideIcon.Mail" />Email notifications</DropdownCheckboxItem>
+                            <DropdownCheckboxItem @bind-Checked="_dropdownSmsNotifications"><Icon Name="LucideIcon.MessageSquare" />SMS notifications</DropdownCheckboxItem>
+                            <DropdownCheckboxItem @bind-Checked="_dropdownPushNotifications"><Icon Name="LucideIcon.Bell" />Push notifications</DropdownCheckboxItem>
+                        </DropdownGroup>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
@@ -130,7 +134,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Radio Group"
-                         Description="Radio groups support mutually exclusive choices."
+                         Description="Use `DropdownMenuRadioGroup` for exclusive choices."
                          Code="@RadioGroupCode"
                          CodeLanguage="razor">
                 <Dropdown>
@@ -140,10 +144,10 @@
                     <DropdownMenu>
                         <DropdownLabel>Panel Position</DropdownLabel>
                         <DropdownDivider />
-                        <DropdownRadioGroup>
-                            <DropdownRadioItem Selected="true">Top</DropdownRadioItem>
-                            <DropdownRadioItem>Bottom</DropdownRadioItem>
-                            <DropdownRadioItem>Right</DropdownRadioItem>
+                        <DropdownRadioGroup @bind-Value="_dropdownPanelPosition">
+                            <DropdownRadioItem Value="top">Top</DropdownRadioItem>
+                            <DropdownRadioItem Value="bottom">Bottom</DropdownRadioItem>
+                            <DropdownRadioItem Value="right">Right</DropdownRadioItem>
                         </DropdownRadioGroup>
                     </DropdownMenu>
                 </Dropdown>
@@ -152,19 +156,22 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Radio Icons"
-                         Description="Radio items can pair choices with icons for faster scanning."
+                         Description="Show radio options with icons."
                          Code="@RadioIconsCode"
                          CodeLanguage="razor">
                 <Dropdown>
                     <DropdownToggle AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Open</Button>
+                        <Button Variant="ButtonVariant.Outline">Payment Method</Button>
                     </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownRadioGroup>
-                            <DropdownRadioItem Selected="true"><Icon Name="LucideIcon.ArrowLeft" />Left</DropdownRadioItem>
-                            <DropdownRadioItem><Icon Name="LucideIcon.ArrowUp" />Center</DropdownRadioItem>
-                            <DropdownRadioItem><Icon Name="LucideIcon.ArrowRight" />Right</DropdownRadioItem>
-                        </DropdownRadioGroup>
+                    <DropdownMenu Class="min-w-56">
+                        <DropdownGroup>
+                            <DropdownLabel>Select Payment Method</DropdownLabel>
+                            <DropdownRadioGroup @bind-Value="_dropdownPaymentMethod">
+                                <DropdownRadioItem Value="card"><Icon Name="LucideIcon.CreditCard" />Credit Card</DropdownRadioItem>
+                                <DropdownRadioItem Value="paypal"><Icon Name="LucideIcon.Wallet" />PayPal</DropdownRadioItem>
+                                <DropdownRadioItem Value="bank"><Icon Name="LucideIcon.Building2" />Bank Transfer</DropdownRadioItem>
+                            </DropdownRadioGroup>
+                        </DropdownGroup>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
@@ -172,18 +179,18 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Destructive"
-                         Description="Use the destructive variant for dangerous actions."
+                         Description="Use `variant=&quot;destructive&quot;` for irreversible actions."
                          Code="@DestructiveCode"
                          CodeLanguage="razor">
                 <Dropdown>
                     <DropdownToggle AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Project actions</Button>
+                        <Button Variant="ButtonVariant.Outline">Actions</Button>
                     </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>Rename</DropdownItem>
-                        <DropdownItem>Duplicate</DropdownItem>
+                        <DropdownItem><Icon Name="LucideIcon.Pencil" />Edit project</DropdownItem>
+                        <DropdownItem><Icon Name="LucideIcon.Share" />Share project</DropdownItem>
                         <DropdownDivider />
-                        <DropdownItem Variant="destructive">Delete project</DropdownItem>
+                        <DropdownItem Variant="destructive"><Icon Name="LucideIcon.Trash" />Delete project</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
@@ -193,26 +200,26 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Avatar"
-                         Description="Use an avatar dropdown for account menus."
+                         Description="An account switcher dropdown triggered by an avatar."
                          Code="@AvatarCode"
                          CodeLanguage="razor">
                 <Dropdown>
                     <DropdownToggle AsChild="true">
-                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" aria-label="Open account menu">
-                            <Avatar><AvatarFallback>CN</AvatarFallback></Avatar>
+                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Class="rounded-full">
+                            <Avatar>
+                                <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
+                                <AvatarFallback>LR</AvatarFallback>
+                            </Avatar>
                         </Button>
                     </DropdownToggle>
-                    <DropdownMenu RightAligned="true" Class="w-56">
-                        <DropdownItem>
-                            <Avatar><AvatarFallback>CN</AvatarFallback></Avatar>
-                            <Div Class="grid gap-0.5">
-                                <Span Class="text-sm font-medium">Casey Nguyen</Span>
-                                <Span Class="text-xs text-muted-foreground">casey@example.com</Span>
-                            </Div>
-                        </DropdownItem>
+                    <DropdownMenu Align="Alignment.End">
+                        <DropdownGroup>
+                            <DropdownItem><Icon Name="LucideIcon.BadgeCheck" />Account</DropdownItem>
+                            <DropdownItem><Icon Name="LucideIcon.CreditCard" />Billing</DropdownItem>
+                            <DropdownItem><Icon Name="LucideIcon.Bell" />Notifications</DropdownItem>
+                        </DropdownGroup>
                         <DropdownDivider />
-                        <DropdownItem>Settings</DropdownItem>
-                        <DropdownItem>Log out</DropdownItem>
+                        <DropdownItem><Icon Name="LucideIcon.LogOut" />Sign Out</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
@@ -220,14 +227,16 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Complex"
-                         Description="Combine groups, shortcuts, checkboxes, radio items, submenu, and destructive actions."
+                         Description="A richer example combining groups, icons, and submenus."
                          Code="@ComplexCode"
                          CodeLanguage="razor">
-                @AccountMenu
+                @ComplexMenu
             </DemoSection>
-        </Section><Section Space="Space.Y.Is4">
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Dropdown menus mirror naturally in right-to-left interfaces."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
@@ -254,12 +263,40 @@
 </Div>
 
 @code {
+    private bool _dropdownStatusBar = true;
+    private bool _dropdownPanel;
+    private bool _dropdownEmailNotifications = true;
+    private bool _dropdownSmsNotifications;
+    private bool _dropdownPushNotifications = true;
+    private string? _dropdownPanelPosition = "bottom";
+    private string? _dropdownPaymentMethod = "card";
+    private string? _dropdownTheme = "light";
+
+    private RenderFragment BasicMenu =>
+@<Dropdown>
+    <DropdownToggle AsChild="true">
+        <Button Variant="ButtonVariant.Outline">Open</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownGroup>
+            <DropdownLabel>My Account</DropdownLabel>
+            <DropdownItem>Profile</DropdownItem>
+            <DropdownItem>Billing</DropdownItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownItem>Team</DropdownItem>
+            <DropdownItem>Subscription</DropdownItem>
+        </DropdownGroup>
+    </DropdownMenu>
+</Dropdown>;
+
     private RenderFragment AccountMenu =>
 @<Dropdown>
     <DropdownToggle AsChild="true">
         <Button Variant="ButtonVariant.Outline">Open</Button>
     </DropdownToggle>
-    <DropdownMenu Class="w-40">
+    <DropdownMenu Class="w-56">
         <DropdownLabel>My Account</DropdownLabel>
         <DropdownGroup>
             <DropdownItem>
@@ -273,6 +310,10 @@
             <DropdownItem>
                 Settings
                 <DropdownShortcut>⌘S</DropdownShortcut>
+            </DropdownItem>
+            <DropdownItem>
+                Keyboard shortcuts
+                <DropdownShortcut>⌘K</DropdownShortcut>
             </DropdownItem>
         </DropdownGroup>
         <DropdownDivider />
@@ -304,24 +345,118 @@
     </DropdownMenu>
 </Dropdown>;
 
+    private RenderFragment ComplexMenu =>
+@<Dropdown>
+    <DropdownToggle AsChild="true">
+        <Button Variant="ButtonVariant.Outline">Complex Menu</Button>
+    </DropdownToggle>
+    <DropdownMenu Class="w-44">
+        <DropdownGroup>
+            <DropdownLabel>File</DropdownLabel>
+            <DropdownItem><Icon Name="LucideIcon.File" />New File<DropdownShortcut>⌘N</DropdownShortcut></DropdownItem>
+            <DropdownItem><Icon Name="LucideIcon.Folder" />New Folder<DropdownShortcut>⇧⌘N</DropdownShortcut></DropdownItem>
+            <DropdownSub>
+                <DropdownSubTrigger><Icon Name="LucideIcon.FolderOpen" />Open Recent</DropdownSubTrigger>
+                <DropdownSubContent>
+                    <DropdownGroup>
+                        <DropdownLabel>Recent Projects</DropdownLabel>
+                        <DropdownItem><Icon Name="LucideIcon.FileCode" />Project Alpha</DropdownItem>
+                        <DropdownItem><Icon Name="LucideIcon.FileCode" />Project Beta</DropdownItem>
+                        <DropdownSub>
+                            <DropdownSubTrigger><Icon Name="LucideIcon.Ellipsis" />More Projects</DropdownSubTrigger>
+                            <DropdownSubContent>
+                                <DropdownItem><Icon Name="LucideIcon.FileCode" />Project Gamma</DropdownItem>
+                                <DropdownItem><Icon Name="LucideIcon.FileCode" />Project Delta</DropdownItem>
+                            </DropdownSubContent>
+                        </DropdownSub>
+                    </DropdownGroup>
+                    <DropdownDivider />
+                    <DropdownGroup>
+                        <DropdownItem><Icon Name="LucideIcon.FolderSearch" />Browse...</DropdownItem>
+                    </DropdownGroup>
+                </DropdownSubContent>
+            </DropdownSub>
+            <DropdownDivider />
+            <DropdownItem><Icon Name="LucideIcon.Save" />Save<DropdownShortcut>⌘S</DropdownShortcut></DropdownItem>
+            <DropdownItem><Icon Name="LucideIcon.Download" />Export<DropdownShortcut>⇧⌘E</DropdownShortcut></DropdownItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownLabel>View</DropdownLabel>
+            <DropdownCheckboxItem @bind-Checked="_dropdownEmailNotifications"><Icon Name="LucideIcon.Eye" />Show Sidebar</DropdownCheckboxItem>
+            <DropdownCheckboxItem @bind-Checked="_dropdownSmsNotifications"><Icon Name="LucideIcon.LayoutPanelLeft" />Show Status Bar</DropdownCheckboxItem>
+            <DropdownSub>
+                <DropdownSubTrigger><Icon Name="LucideIcon.Palette" />Theme</DropdownSubTrigger>
+                <DropdownSubContent>
+                    <DropdownGroup>
+                        <DropdownLabel>Appearance</DropdownLabel>
+                        <DropdownRadioGroup @bind-Value="_dropdownTheme">
+                            <DropdownRadioItem Value="light"><Icon Name="LucideIcon.Sun" />Light</DropdownRadioItem>
+                            <DropdownRadioItem Value="dark"><Icon Name="LucideIcon.Moon" />Dark</DropdownRadioItem>
+                            <DropdownRadioItem Value="system"><Icon Name="LucideIcon.Monitor" />System</DropdownRadioItem>
+                        </DropdownRadioGroup>
+                    </DropdownGroup>
+                </DropdownSubContent>
+            </DropdownSub>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownLabel>Account</DropdownLabel>
+            <DropdownItem><Icon Name="LucideIcon.User" />Profile<DropdownShortcut>⇧⌘P</DropdownShortcut></DropdownItem>
+            <DropdownItem><Icon Name="LucideIcon.CreditCard" />Billing</DropdownItem>
+            <DropdownSub>
+                <DropdownSubTrigger><Icon Name="LucideIcon.Settings" />Settings</DropdownSubTrigger>
+                <DropdownSubContent>
+                    <DropdownGroup>
+                        <DropdownLabel>Preferences</DropdownLabel>
+                        <DropdownItem><Icon Name="LucideIcon.Keyboard" />Keyboard Shortcuts</DropdownItem>
+                        <DropdownItem><Icon Name="LucideIcon.Languages" />Language</DropdownItem>
+                        <DropdownSub>
+                            <DropdownSubTrigger><Icon Name="LucideIcon.Bell" />Notifications</DropdownSubTrigger>
+                            <DropdownSubContent>
+                                <DropdownGroup>
+                                    <DropdownLabel>Notification Types</DropdownLabel>
+                                    <DropdownCheckboxItem @bind-Checked="_dropdownPushNotifications"><Icon Name="LucideIcon.Bell" />Push Notifications</DropdownCheckboxItem>
+                                    <DropdownCheckboxItem @bind-Checked="_dropdownEmailNotifications"><Icon Name="LucideIcon.Mail" />Email Notifications</DropdownCheckboxItem>
+                                </DropdownGroup>
+                            </DropdownSubContent>
+                        </DropdownSub>
+                    </DropdownGroup>
+                    <DropdownDivider />
+                    <DropdownGroup>
+                        <DropdownItem><Icon Name="LucideIcon.Shield" />Privacy &amp; Security</DropdownItem>
+                    </DropdownGroup>
+                </DropdownSubContent>
+            </DropdownSub>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownItem><Icon Name="LucideIcon.CircleQuestionMark" />Help &amp; Support</DropdownItem>
+            <DropdownItem><Icon Name="LucideIcon.FileText" />Documentation</DropdownItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownItem Variant="destructive"><Icon Name="LucideIcon.LogOut" />Sign Out<DropdownShortcut>⇧⌘Q</DropdownShortcut></DropdownItem>
+        </DropdownGroup>
+    </DropdownMenu>
+</Dropdown>;
+
     private const string BasicCode =
 @"<Dropdown>
     <DropdownToggle AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Open</Button>
     </DropdownToggle>
-    <DropdownMenu Class=""w-40"">
-        <DropdownLabel>My Account</DropdownLabel>
+    <DropdownMenu>
         <DropdownGroup>
-            <DropdownItem>Profile<DropdownShortcut>⇧⌘P</DropdownShortcut></DropdownItem>
-            <DropdownItem>Billing<DropdownShortcut>⌘B</DropdownShortcut></DropdownItem>
-            <DropdownItem>Settings<DropdownShortcut>⌘S</DropdownShortcut></DropdownItem>
+            <DropdownLabel>My Account</DropdownLabel>
+            <DropdownItem>Profile</DropdownItem>
+            <DropdownItem>Billing</DropdownItem>
         </DropdownGroup>
         <DropdownDivider />
-        <DropdownItem>GitHub</DropdownItem>
-        <DropdownItem>Support</DropdownItem>
-        <DropdownItem Disabled=""true"">API</DropdownItem>
-        <DropdownDivider />
-        <DropdownItem>Log out<DropdownShortcut>⇧⌘Q</DropdownShortcut></DropdownItem>
+        <DropdownGroup>
+            <DropdownItem>Team</DropdownItem>
+            <DropdownItem>Subscription</DropdownItem>
+        </DropdownGroup>
     </DropdownMenu>
 </Dropdown>";
 
@@ -347,35 +482,74 @@
 @"<DropdownCheckboxItem Checked=""true"">Status Bar</DropdownCheckboxItem>";
 
     private const string CheckboxesIconsCode =
-@"<DropdownCheckboxItem Checked=""true"">
-    <Icon Name=""LucideIcon.PanelLeft"" />
-    Sidebar
-</DropdownCheckboxItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Notifications</Button>
+    </DropdownToggle>
+    <DropdownMenu Class=""w-48"">
+        <DropdownGroup>
+            <DropdownLabel>Notification Preferences</DropdownLabel>
+            <DropdownCheckboxItem @bind-Checked=""_dropdownEmailNotifications""><Icon Name=""LucideIcon.Mail"" />Email notifications</DropdownCheckboxItem>
+            <DropdownCheckboxItem @bind-Checked=""_dropdownSmsNotifications""><Icon Name=""LucideIcon.MessageSquare"" />SMS notifications</DropdownCheckboxItem>
+            <DropdownCheckboxItem @bind-Checked=""_dropdownPushNotifications""><Icon Name=""LucideIcon.Bell"" />Push notifications</DropdownCheckboxItem>
+        </DropdownGroup>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string RadioGroupCode =
-@"<DropdownRadioGroup>
-    <DropdownRadioItem Selected=""true"">Top</DropdownRadioItem>
-    <DropdownRadioItem>Bottom</DropdownRadioItem>
+@"<DropdownRadioGroup @bind-Value=""_dropdownPanelPosition"">
+    <DropdownRadioItem Value=""top"">Top</DropdownRadioItem>
+    <DropdownRadioItem Value=""bottom"">Bottom</DropdownRadioItem>
 </DropdownRadioGroup>";
 
     private const string RadioIconsCode =
-@"<DropdownRadioItem Selected=""true"">
-    <Icon Name=""LucideIcon.ArrowLeft"" />
-    Left
-</DropdownRadioItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Payment Method</Button>
+    </DropdownToggle>
+    <DropdownMenu Class=""min-w-56"">
+        <DropdownLabel>Select Payment Method</DropdownLabel>
+        <DropdownRadioGroup @bind-Value=""_dropdownPaymentMethod"">
+            <DropdownRadioItem Value=""card""><Icon Name=""LucideIcon.CreditCard"" />Credit Card</DropdownRadioItem>
+            <DropdownRadioItem Value=""paypal""><Icon Name=""LucideIcon.Wallet"" />PayPal</DropdownRadioItem>
+            <DropdownRadioItem Value=""bank""><Icon Name=""LucideIcon.Building2"" />Bank Transfer</DropdownRadioItem>
+        </DropdownRadioGroup>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string DestructiveCode =
-@"<DropdownItem Variant=""destructive"">Delete project</DropdownItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Actions</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem><Icon Name=""LucideIcon.Pencil"" />Edit project</DropdownItem>
+        <DropdownItem><Icon Name=""LucideIcon.Share"" />Share project</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem Variant=""destructive""><Icon Name=""LucideIcon.Trash"" />Delete project</DropdownItem>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string AvatarCode =
 @"<Dropdown>
     <DropdownToggle AsChild=""true"">
-        <Button Variant=""ButtonVariant.Ghost""><Avatar><AvatarFallback>CN</AvatarFallback></Avatar></Button>
+        <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.Icon"" Class=""rounded-full"">
+            <Avatar>
+                <AvatarImage Src=""https://github.com/shadcn.png"" Alt=""shadcn"" />
+                <AvatarFallback>LR</AvatarFallback>
+            </Avatar>
+        </Button>
     </DropdownToggle>
-    <DropdownMenu>...</DropdownMenu>
+    <DropdownMenu Align=""Alignment.End"">...</DropdownMenu>
 </Dropdown>";
 
-    private const string ComplexCode = BasicCode;
+    private const string ComplexCode =
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Complex Menu</Button>
+    </DropdownToggle>
+    <DropdownMenu Class=""w-44"">...</DropdownMenu>
+</Dropdown>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">

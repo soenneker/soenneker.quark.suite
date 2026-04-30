@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -75,5 +76,77 @@ public sealed partial class RenderedShadcnParityTests
         nextButton.GetAttribute("aria-label")!.Should().Be("Go to the Next Month");
         nextButton.GetAttribute("class")!.Should().Contain("size-(--cell-size)");
         monthOptions[0].TextContent.Should().Be("Jan");
+    }
+
+    [Test]
+    public void Calendar_range_cells_match_shadcn_endpoint_classes()
+    {
+        var cut = Render<Calendar>(parameters => parameters
+            .Add(p => p.Mode, CalendarSelectionMode.Range)
+            .Add(p => p.DisplayMonth, new DateOnly(2026, 3, 1))
+            .Add(p => p.SelectedRange, new CalendarDateRange(new DateOnly(2026, 3, 10), new DateOnly(2026, 3, 15)))
+            .Add(p => p.CultureName, "en-US"));
+
+        var rangeStart = cut.Find("button[data-range-start='true']");
+        var rangeEnd = cut.Find("button[data-range-end='true']");
+        var rangeMiddle = cut.Find("button[data-range-middle='true']");
+        var startCellClasses = rangeStart.ParentElement!.GetAttribute("class")!;
+        var endCellClasses = rangeEnd.ParentElement!.GetAttribute("class")!;
+
+        startCellClasses.Should().Contain("rounded-l-md");
+        startCellClasses.Should().Contain("bg-accent");
+        startCellClasses.Should().NotContain("data-[selected=true]:rounded-none");
+        endCellClasses.Should().Contain("rounded-r-md");
+        endCellClasses.Should().Contain("bg-accent");
+        endCellClasses.Should().NotContain("data-[selected=true]:rounded-none");
+        rangeStart.GetAttribute("class")!.Should().Contain("data-[range-start=true]:bg-primary");
+        rangeEnd.GetAttribute("class")!.Should().Contain("data-[range-end=true]:bg-primary");
+        rangeMiddle.GetAttribute("class")!.Should().Contain("data-[range-middle=true]:bg-accent");
+    }
+
+    [Test]
+    public void Calendar_range_navigation_keeps_user_navigated_month_when_display_month_parameter_is_unchanged()
+    {
+        CalendarDateRange? selectedRange = new(new DateOnly(2026, 3, 10), null);
+
+        var cut = Render<Calendar>(parameters => parameters
+            .Add(p => p.Mode, CalendarSelectionMode.Range)
+            .Add(p => p.DisplayMonth, new DateOnly(2026, 3, 1))
+            .Add(p => p.SelectedRange, selectedRange)
+            .Add(p => p.SelectedRangeChanged, value => selectedRange = value)
+            .Add(p => p.CultureName, "en-US"));
+
+        cut.Find(".rdp-button_next").Click();
+        cut.Find("[role='grid']").GetAttribute("aria-label").Should().Be("April 2026");
+
+        cut.Find("button[aria-label='Wednesday, April 15, 2026']").Click();
+
+        selectedRange.Should().NotBeNull();
+        selectedRange!.From.Should().Be(new DateOnly(2026, 3, 10));
+        selectedRange.To.Should().Be(new DateOnly(2026, 4, 15));
+    }
+
+    [Test]
+    public void Calendar_range_demo_does_not_cap_next_month_selection()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForCalendar(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Calendars.razor"));
+        var rangeStart = source.IndexOf("Title=\"Range Calendar\"", StringComparison.Ordinal);
+        var dropdownStart = source.IndexOf("Title=\"Month and Year Selector\"", StringComparison.Ordinal);
+        var rangeDemo = source[rangeStart..dropdownStart];
+
+        rangeDemo.Should().Contain("Mode=\"CalendarSelectionMode.Range\"");
+        rangeDemo.Should().Contain("NumberOfMonths=\"2\"");
+        rangeDemo.Should().NotContain("Min=\"_rangeMin\"");
+        rangeDemo.Should().NotContain("Max=\"_rangeMax\"");
+    }
+
+    private static string GetSuiteRootForCalendar()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

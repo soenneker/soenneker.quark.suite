@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Components;
 using Soenneker.Extensions.String;
 using Soenneker.Lepton.Suite;
 using Soenneker.Utils.PooledStringBuilders;
@@ -46,6 +47,13 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
     private int _renderVersion;
+
+    /// <summary>
+    /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
+    /// <see cref="LeptonIdentifiableContentElement.AdditionalAttributes"/> parameter.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
 
     /// <summary>
     /// Allows higher-level bases to opt into always-render behavior without coupling the core render pipeline
@@ -128,7 +136,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         _lastRenderKey = key;
     }
 
-    protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
+    protected override Dictionary<string, object> BuildAttributes()
     {
         ApplyDefaultParameters();
 
@@ -137,7 +145,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
-        var attrs = new Dictionary<string, object>(8 + (Attributes?.Count ?? 0));
+        var attrs = new Dictionary<string, object>(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(128);
 
@@ -145,7 +153,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         {
             BuildOwnedAttributes(attrs);
             BuildOwnedClassAndStyle(ref sty, ref cls);
-            MergeAdditionalAttributes(attrs, ref sty, ref cls);
+            MergeAttributes(AdditionalAttributes, attrs, ref sty, ref cls);
+            MergeAttributes(Attributes, attrs, ref sty, ref cls);
 
             if (cls.Length > 0)
             {
@@ -212,7 +221,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         hc.Add(_renderVersion);
         hc.Add(Id);
-        AddAdditionalAttributesToRenderKey(ref hc);
+        AddAttributesToRenderKey(ref hc, AdditionalAttributes);
+        AddAttributesToRenderKey(ref hc, Attributes);
         ComputeRenderKeyCore(ref hc);
 
         return hc.ToHashCode();
@@ -222,24 +232,24 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
     }
 
-    private void AddAdditionalAttributesToRenderKey(ref HashCode hc)
+    private static void AddAttributesToRenderKey(ref HashCode hc, IReadOnlyDictionary<string, object>? attributes)
     {
-        if (Attributes is null || Attributes.Count == 0)
+        if (attributes is null || attributes.Count == 0)
             return;
 
-        foreach (var kv in Attributes)
+        foreach (var kv in attributes)
         {
             hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
             hc.Add(kv.Value);
         }
     }
 
-    private void MergeAdditionalAttributes(Dictionary<string, object> attrs, ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    private static void MergeAttributes(IReadOnlyDictionary<string, object>? attributes, Dictionary<string, object> attrs, ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (Attributes is null)
+        if (attributes is null)
             return;
 
-        foreach (var kv in Attributes)
+        foreach (var kv in attributes)
         {
             var k = kv.Key;
             var v = kv.Value;

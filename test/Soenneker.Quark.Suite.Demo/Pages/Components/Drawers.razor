@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <Paragraph>A drawer component.</Paragraph>
+            <Paragraph>A drawer component for React.</Paragraph>
             <DemoSection
                          Code="@BasicCode"
                          CodeLanguage="razor">
@@ -139,7 +139,7 @@
                     <DrawerTrigger AsChild="true">
                         <Button Variant="ButtonVariant.Outline">Scrollable Content</Button>
                     </DrawerTrigger>
-                    <DrawerContent Side="Side.Right">
+                    <DrawerContent Class="data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=top]:max-h-[50vh]">
                         <DrawerHeader>
                             <DrawerTitle>Move Goal</DrawerTitle>
                             <DrawerDescription>Set your daily activity goal.</DrawerDescription>
@@ -165,19 +165,18 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Sides"
-                         Description="Use the Side parameter to set the side of the drawer. Available options are top, right, bottom, and left."
+                         Description="Use the `direction` prop to set the side of the drawer. Available options are `top`, `right`, `bottom`, and `left`."
                          Code="@SidesCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
                     @foreach (var side in _drawerSides)
                     {
                         <Div>
-                            <Drawer @key="side">
+                            <Drawer @key="side" Direction="@side.Value">
                                 <DrawerTrigger AsChild="true">
                                     <Button Variant="ButtonVariant.Outline" Class="capitalize">@side</Button>
                                 </DrawerTrigger>
-                                <DrawerContent Side="@side"
-                                               Class="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]">
+                                <DrawerContent Class="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]">
                                     <DrawerHeader>
                                         <DrawerTitle>Move Goal</DrawerTitle>
                                         <DrawerDescription>Set your daily activity goal.</DrawerDescription>
@@ -206,16 +205,16 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Drawer chrome and slide direction in RTL layouts."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Div Width="Width.IsFull" TextAlign="TextAlign.End">
-                        <Drawer>
+                        <Drawer Direction="left">
                             <DrawerTrigger AsChild="true">
                                 <Button Variant="ButtonVariant.Outline">افتح الدرج</Button>
                             </DrawerTrigger>
-                            <DrawerContent Side="Side.Left">
+                            <DrawerContent>
                                 <Div class="mx-auto" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
                                     <DrawerHeader>
                                         <DrawerTitle>تعديل الملف الشخصي</DrawerTitle>
@@ -304,7 +303,7 @@
     <DrawerTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Scrollable Content</Button>
     </DrawerTrigger>
-    <DrawerContent Side=""Soenneker.Bradix.Side.Right"">
+    <DrawerContent Class=""data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=top]:max-h-[50vh]"">
         <DrawerHeader>
             <DrawerTitle>Move Goal</DrawerTitle>
             <DrawerDescription>Set your daily activity goal.</DrawerDescription>
@@ -327,11 +326,11 @@
 </Drawer>";
 
     private const string SidesCode =
-@"<Drawer>
+@"<Drawer Direction=""top"">
     <DrawerTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">top</Button>
     </DrawerTrigger>
-    <DrawerContent Side=""Soenneker.Bradix.Side.Top"" Class=""data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"">
+    <DrawerContent Class=""data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"">
         <DrawerHeader>
             <DrawerTitle>Move Goal</DrawerTitle>
             <DrawerDescription>Set your daily activity goal.</DrawerDescription>
@@ -419,11 +418,11 @@
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
     <Div class=""w-full text-right"">
-        <Drawer>
+        <Drawer Direction=""left"">
             <DrawerTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">افتح الدرج</Button>
             </DrawerTrigger>
-            <DrawerContent Side=""Soenneker.Bradix.Side.Left"">
+            <DrawerContent>
                 <Div class=""mx-auto w-full max-w-sm"">
                     <DrawerHeader>
                         <DrawerTitle>تعديل الملف الشخصي</DrawerTitle>

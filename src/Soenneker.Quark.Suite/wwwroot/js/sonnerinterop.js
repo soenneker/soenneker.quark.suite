@@ -3,10 +3,14 @@ const swipeRegistrations = new WeakMap();
 const swipeThreshold = 80;
 const swipeIntentThreshold = 5;
 
+function isElement(value) {
+    return value instanceof Element;
+}
+
 export function measureToastHeights(section) {
     const heights = {};
 
-    if (!section) {
+    if (!isElement(section)) {
         return heights;
     }
 
@@ -34,7 +38,7 @@ export function measureToastHeights(section) {
 }
 
 export function registerHotkey(section, hotkey) {
-    if (!section) {
+    if (!isElement(section)) {
         return;
     }
 
@@ -66,7 +70,7 @@ export function registerHotkey(section, hotkey) {
 }
 
 export function unregisterHotkey(section) {
-    if (!section) {
+    if (!isElement(section)) {
         return;
     }
 
@@ -81,8 +85,8 @@ export function unregisterHotkey(section) {
 }
 
 export function registerSwipeHandlers(section, callbackReference) {
-    if (!section) {
-        return;
+    if (!isElement(section) || !callbackReference || section.__quarkSonnerSwipeRegistered) {
+        return false;
     }
 
     unregisterSwipeHandlers(section);
@@ -199,10 +203,12 @@ export function registerSwipeHandlers(section, callbackReference) {
         pointerEnd,
         pointerCancel
     });
+
+    return true;
 }
 
 export function unregisterSwipeHandlers(section) {
-    if (!section) {
+    if (!isElement(section)) {
         return;
     }
 

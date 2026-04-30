@@ -95,11 +95,18 @@
                          Description="A label, control, and description in the standard field layout."
                          Code="@FieldCode"
                          CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel For="field-email">Email</FieldLabel>
-                    <Input Id="field-email" Type="email" Placeholder="m@example.com" />
-                    <FieldDescription>We will never share your email address.</FieldDescription>
-                </Field>
+                <FieldGroup MaxWidth="MaxWidth.IsSm">
+                    <Field>
+                        <FieldLabel For="field-username">Username</FieldLabel>
+                        <Input Id="field-username" Placeholder="shadcn" />
+                        <FieldDescription>Choose a unique username for your account.</FieldDescription>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="field-password">Password</FieldLabel>
+                        <Input Id="field-password" Type="password" />
+                        <FieldDescription>Must be at least 8 characters long.</FieldDescription>
+                    </Field>
+                </FieldGroup>
             </DemoSection>
         </Section>
 
@@ -126,18 +133,19 @@
                          Code="@SelectCode"
                          CodeLanguage="razor">
                 <Field MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel For="field-role">Role</FieldLabel>
-                    <Select TValue="string" SelectedValue="@("viewer")">
-                        <SelectTrigger Id="field-role">
-                            <SelectValue Placeholder="Select a role" />
+                    <FieldLabel For="field-department">Department</FieldLabel>
+                    <Select TValue="string" SelectedValue="@("")">
+                        <SelectTrigger Id="field-department">
+                            <SelectValue Placeholder="Choose department" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem TValue="string" ItemValue="@("admin")" Text="Admin" />
-                            <SelectItem TValue="string" ItemValue="@("editor")" Text="Editor" />
-                            <SelectItem TValue="string" ItemValue="@("viewer")" Text="Viewer" />
+                            <SelectItem TValue="string" ItemValue="@("engineering")" Text="Engineering" />
+                            <SelectItem TValue="string" ItemValue="@("marketing")" Text="Marketing" />
+                            <SelectItem TValue="string" ItemValue="@("sales")" Text="Sales" />
+                            <SelectItem TValue="string" ItemValue="@("support")" Text="Support" />
                         </SelectContent>
                     </Select>
-                    <FieldDescription>Roles determine what this member can access.</FieldDescription>
+                    <FieldDescription>Select your department or area of work.</FieldDescription>
                 </Field>
             </DemoSection>
         </Section>
@@ -148,9 +156,9 @@
                          Code="@SliderCode"
                          CodeLanguage="razor">
                 <Field MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel>Volume</FieldLabel>
-                    <Slider Min="0" Max="100" Step="1" SliderValue="40" />
-                    <FieldDescription>Set the default playback volume.</FieldDescription>
+                    <FieldLabel For="field-price-range">Price Range</FieldLabel>
+                    <Slider Id="field-price-range" Min="0" Max="1000" Step="50" Values="@([200d, 800d])" />
+                    <FieldDescription>Set your budget range ($200 - 800).</FieldDescription>
                 </Field>
             </DemoSection>
         </Section>
@@ -161,22 +169,23 @@
                          Code="@FieldsetCode"
                          CodeLanguage="razor">
                 <FieldSet MaxWidth="MaxWidth.IsSm">
-                    <FieldLegend>Notification preferences</FieldLegend>
+                    <FieldLegend>Address Information</FieldLegend>
+                    <FieldDescription>We need your address to deliver your order.</FieldDescription>
                     <FieldGroup>
-                        <Field Horizontal="true">
-                            <FieldContent>
-                                <FieldLabel>Email alerts</FieldLabel>
-                                <FieldDescription>Receive build and deploy notifications in your inbox.</FieldDescription>
-                            </FieldContent>
-                            <Switch Label="Enable alerts" />
+                        <Field>
+                            <FieldLabel For="field-street-address">Street Address</FieldLabel>
+                            <Input Id="field-street-address" Placeholder="123 Main St" />
                         </Field>
-                        <Field Horizontal="true">
-                            <FieldContent>
-                                <FieldLabel>SMS alerts</FieldLabel>
-                                <FieldDescription>Use SMS only for urgent production incidents.</FieldDescription>
-                            </FieldContent>
-                            <Switch Label="Enable SMS" />
-                        </Field>
+                        <Div Class="grid grid-cols-2 gap-4">
+                            <Field>
+                                <FieldLabel For="field-city">City</FieldLabel>
+                                <Input Id="field-city" Placeholder="New York" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="field-postal-code">Postal Code</FieldLabel>
+                                <Input Id="field-postal-code" Placeholder="10001" />
+                            </Field>
+                        </Div>
                     </FieldGroup>
                 </FieldSet>
             </DemoSection>
@@ -187,13 +196,36 @@
                          Description="Pair checkbox controls with labels and descriptions in one accessible field."
                          Code="@CheckboxCode"
                          CodeLanguage="razor">
-                <Field Horizontal="true">
-                    <Check Id="field-marketing" />
-                    <FieldContent>
-                        <FieldLabel For="field-marketing">Marketing emails</FieldLabel>
-                        <FieldDescription>Receive emails about new products and features.</FieldDescription>
-                    </FieldContent>
-                </Field>
+                <FieldSet MaxWidth="MaxWidth.IsSm">
+                    <FieldLegend Variant="label">Show these items on the desktop</FieldLegend>
+                    <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
+                    <FieldGroup Slot="checkbox-group">
+                        <Field Horizontal="true">
+                            <Check Id="field-hard-disks" Checked="true" />
+                            <FieldLabel For="field-hard-disks" FontWeight="FontWeight.Normal">Hard disks</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Check Id="field-external-disks" />
+                            <FieldLabel For="field-external-disks" FontWeight="FontWeight.Normal">External disks</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Check Id="field-cds-dvds-ipods" />
+                            <FieldLabel For="field-cds-dvds-ipods" FontWeight="FontWeight.Normal">CDs, DVDs, and iPods</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Check Id="field-connected-servers" />
+                            <FieldLabel For="field-connected-servers" FontWeight="FontWeight.Normal">Connected servers</FieldLabel>
+                        </Field>
+                    </FieldGroup>
+                    <FieldSeparator />
+                    <Field Horizontal="true">
+                        <Check Id="field-sync-desktop" Checked="true" />
+                        <FieldContent>
+                            <FieldLabel For="field-sync-desktop">Sync Desktop & Documents folders</FieldLabel>
+                            <FieldDescription>Your Desktop & Documents folders are being synced with iCloud Drive. You can access them from other devices.</FieldDescription>
+                        </FieldContent>
+                    </Field>
+                </FieldSet>
             </DemoSection>
         </Section>
 
@@ -202,16 +234,24 @@
                          Description="Use field rows to label radio choices."
                          Code="@RadioCode"
                          CodeLanguage="razor">
-                <RadioGroup Name="field-plan" Value="pro" AriaLabel="Plan">
-                    <Field Horizontal="true">
-                        <Radio Id="field-plan-free" Value="free" />
-                        <FieldLabel For="field-plan-free" FontWeight="FontWeight.Normal">Free</FieldLabel>
-                    </Field>
-                    <Field Horizontal="true">
-                        <Radio Id="field-plan-pro" Value="pro" />
-                        <FieldLabel For="field-plan-pro" FontWeight="FontWeight.Normal">Pro</FieldLabel>
-                    </Field>
-                </RadioGroup>
+                <FieldSet MaxWidth="MaxWidth.IsSm">
+                    <FieldLegend Variant="label">Subscription Plan</FieldLegend>
+                    <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
+                    <RadioGroup Name="field-subscription-plan" Value="yearly">
+                        <Field Horizontal="true">
+                            <Radio Id="field-plan-monthly" Value="monthly" />
+                            <FieldLabel For="field-plan-monthly" FontWeight="FontWeight.Normal">Monthly ($9.99/month)</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Radio Id="field-plan-yearly" Value="yearly" />
+                            <FieldLabel For="field-plan-yearly" FontWeight="FontWeight.Normal">Yearly ($99.99/year)</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Radio Id="field-plan-lifetime" Value="lifetime" />
+                            <FieldLabel For="field-plan-lifetime" FontWeight="FontWeight.Normal">Lifetime ($299.99)</FieldLabel>
+                        </Field>
+                    </RadioGroup>
+                </FieldSet>
             </DemoSection>
         </Section>
 
@@ -220,12 +260,9 @@
                          Description="Use a horizontal field when the control belongs at the end of the row."
                          Code="@SwitchCode"
                          CodeLanguage="razor">
-                <Field Horizontal="true">
-                    <FieldContent>
-                        <FieldLabel For="field-sync">Sync across devices</FieldLabel>
-                        <FieldDescription>Keep this setting consistent on signed-in devices.</FieldDescription>
-                    </FieldContent>
-                    <Switch Id="field-sync" />
+                <Field Horizontal="true" MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="field-mfa">Multi-factor authentication</FieldLabel>
+                    <Switch Id="field-mfa" />
                 </Field>
             </DemoSection>
         </Section>
@@ -235,15 +272,30 @@
                          Description="Use card-like fields for larger selectable choices."
                          Code="@ChoiceCardCode"
                          CodeLanguage="razor">
-                <Field Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" MaxWidth="MaxWidth.IsSm">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is4">
-                        <Div Space="Space.Y.Is1">
-                            <FieldLabel>Starter</FieldLabel>
-                            <FieldDescription>Good for smaller teams and prototypes.</FieldDescription>
-                        </Div>
-                        <Radio Name="planChoiceCard" Value="Starter" Checked="true" />
-                    </Div>
-                </Field>
+                <FieldSet MaxWidth="MaxWidth.IsSm">
+                    <FieldLegend Variant="label">Compute Environment</FieldLegend>
+                    <FieldDescription>Select the compute environment for your cluster.</FieldDescription>
+                    <RadioGroup Name="field-compute-environment" Value="kubernetes" Class="grid gap-3">
+                        <FieldLabel For="field-compute-kubernetes">
+                            <Field Horizontal="true" Selectable="true">
+                                <Radio Id="field-compute-kubernetes" Value="kubernetes" />
+                                <FieldContent>
+                                    <FieldTitle>Kubernetes</FieldTitle>
+                                    <FieldDescription>Run GPU workloads on a K8s cluster.</FieldDescription>
+                                </FieldContent>
+                            </Field>
+                        </FieldLabel>
+                        <FieldLabel For="field-compute-vm">
+                            <Field Horizontal="true" Selectable="true">
+                                <Radio Id="field-compute-vm" Value="vm" />
+                                <FieldContent>
+                                    <FieldTitle>Virtual Machine</FieldTitle>
+                                    <FieldDescription>Access a cluster to run GPU workloads.</FieldDescription>
+                                </FieldContent>
+                            </Field>
+                        </FieldLabel>
+                    </RadioGroup>
+                </FieldSet>
             </DemoSection>
         </Section>
 
@@ -254,12 +306,32 @@
                          CodeLanguage="razor">
                 <FieldGroup MaxWidth="MaxWidth.IsSm">
                     <Field>
-                        <FieldLabel For="field-group-name">Name</FieldLabel>
-                        <Input Id="field-group-name" Placeholder="Ada Lovelace" />
+                        <FieldContent>
+                            <FieldTitle>Responses</FieldTitle>
+                            <FieldDescription>Get notified when ChatGPT responds to requests that take time, like research or image generation.</FieldDescription>
+                        </FieldContent>
+                        <Field Horizontal="true" Disabled="true">
+                            <Check Id="field-responses-push" Checked="true" Disabled="true" />
+                            <FieldLabel For="field-responses-push" FontWeight="FontWeight.Normal">Push notifications</FieldLabel>
+                        </Field>
                     </Field>
+                    <FieldSeparator />
                     <Field>
-                        <FieldLabel For="field-group-email">Email</FieldLabel>
-                        <Input Id="field-group-email" Type="email" Placeholder="ada@example.com" />
+                        <FieldContent>
+                            <FieldTitle>Tasks</FieldTitle>
+                            <FieldDescription>
+                                Get notified when tasks you've created have updates.
+                                <Button Type="ButtonType.Link" Variant="ButtonVariant.Link" To="#" Class="h-auto p-0 text-sm">Manage tasks</Button>
+                            </FieldDescription>
+                        </FieldContent>
+                        <Field Horizontal="true">
+                            <Check Id="field-tasks-push" />
+                            <FieldLabel For="field-tasks-push" FontWeight="FontWeight.Normal">Push notifications</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Check Id="field-tasks-email" />
+                            <FieldLabel For="field-tasks-email" FontWeight="FontWeight.Normal">Email notifications</FieldLabel>
+                        </Field>
                     </Field>
                 </FieldGroup>
             </DemoSection>
@@ -271,17 +343,73 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <FieldGroup MaxWidth="MaxWidth.IsSm" dir="rtl">
+                    <FieldSet>
+                        <FieldLegend>طريقة الدفع</FieldLegend>
+                        <FieldDescription>جميع المعاملات آمنة ومشفرة</FieldDescription>
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel For="field-rtl-card-name">الاسم على البطاقة</FieldLabel>
+                                <Input Id="field-rtl-card-name" Placeholder="أرنب شرير" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="field-rtl-card-number">رقم البطاقة</FieldLabel>
+                                <Input Id="field-rtl-card-number" Placeholder="1234 5678 9012 3456" />
+                                <FieldDescription>أدخل رقم البطاقة المكون من 16 رقمًا</FieldDescription>
+                            </Field>
+                            <Div Class="grid grid-cols-3 gap-4">
+                                <Field>
+                                    <FieldLabel For="field-rtl-month">الشهر</FieldLabel>
+                                    <Select TValue="string" SelectedValue="@("")">
+                                        <SelectTrigger Id="field-rtl-month">
+                                            <SelectValue Placeholder="MM" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem TValue="string" ItemValue="@("01")" Text="01" />
+                                            <SelectItem TValue="string" ItemValue="@("02")" Text="02" />
+                                            <SelectItem TValue="string" ItemValue="@("03")" Text="03" />
+                                            <SelectItem TValue="string" ItemValue="@("04")" Text="04" />
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                                <Field>
+                                    <FieldLabel For="field-rtl-year">السنة</FieldLabel>
+                                    <Select TValue="string" SelectedValue="@("")">
+                                        <SelectTrigger Id="field-rtl-year">
+                                            <SelectValue Placeholder="YYYY" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem TValue="string" ItemValue="@("2026")" Text="2026" />
+                                            <SelectItem TValue="string" ItemValue="@("2027")" Text="2027" />
+                                            <SelectItem TValue="string" ItemValue="@("2028")" Text="2028" />
+                                            <SelectItem TValue="string" ItemValue="@("2029")" Text="2029" />
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                                <Field>
+                                    <FieldLabel For="field-rtl-cvv">CVV</FieldLabel>
+                                    <Input Id="field-rtl-cvv" Placeholder="123" />
+                                </Field>
+                            </Div>
+                        </FieldGroup>
+                    </FieldSet>
+                    <FieldSeparator />
+                    <FieldSet>
+                        <FieldLegend>عنوان الفوترة</FieldLegend>
+                        <FieldDescription>عنوان الفوترة المرتبط بطريقة الدفع الخاصة بك</FieldDescription>
+                        <FieldGroup>
+                            <Field Horizontal="true">
+                                <Check Id="field-rtl-same-as-shipping" Checked="true" />
+                                <FieldLabel For="field-rtl-same-as-shipping" FontWeight="FontWeight.Normal">نفس عنوان الشحن</FieldLabel>
+                            </Field>
+                        </FieldGroup>
+                    </FieldSet>
                     <Field>
-                        <FieldLabel For="field-rtl-email">البريد الالكتروني</FieldLabel>
-                        <Input Id="field-rtl-email" Type="email" Placeholder="name@example.com" />
-                        <FieldDescription>سنستخدم هذا البريد للتنبيهات المهمة.</FieldDescription>
+                        <FieldLabel For="field-rtl-comments">تعليقات</FieldLabel>
+                        <TextArea Id="field-rtl-comments" Class="resize-none" />
                     </Field>
                     <Field Horizontal="true">
-                        <Check Id="field-rtl-updates" Checked="true" />
-                        <FieldContent>
-                            <FieldLabel For="field-rtl-updates">تحديثات المنتج</FieldLabel>
-                            <FieldDescription>استلم ملخصا عند توفر ميزات جديدة.</FieldDescription>
-                        </FieldContent>
+                        <Button Type="ButtonType.Submit">إرسال</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">إلغاء</Button>
                     </Field>
                 </FieldGroup>
             </DemoSection>
@@ -292,20 +420,37 @@
                          Description="Fields can switch from stacked to grid layouts at wider breakpoints."
                          Code="@ResponsiveLayoutCode"
                          CodeLanguage="razor">
-                <FieldGroup Class="grid w-full max-w-2xl gap-4 md:grid-cols-2">
-                    <Field>
-                        <FieldLabel For="field-responsive-first">First name</FieldLabel>
-                        <Input Id="field-responsive-first" Placeholder="Ada" />
-                    </Field>
-                    <Field>
-                        <FieldLabel For="field-responsive-last">Last name</FieldLabel>
-                        <Input Id="field-responsive-last" Placeholder="Lovelace" />
-                    </Field>
-                    <Field Class="md:col-span-2">
-                        <FieldLabel For="field-responsive-email">Email</FieldLabel>
-                        <Input Id="field-responsive-email" Type="email" Placeholder="ada@example.com" />
-                    </Field>
-                </FieldGroup>
+                <FieldSet MaxWidth="MaxWidth.Is2xl">
+                    <FieldLegend>Profile</FieldLegend>
+                    <FieldDescription>Fill in your profile information.</FieldDescription>
+                    <FieldGroup Class="@("@container/field-group")">
+                        <Field Orientation="responsive">
+                            <FieldContent>
+                                <FieldLabel For="field-responsive-name">Name</FieldLabel>
+                                <FieldDescription>Provide your full name for identification</FieldDescription>
+                            </FieldContent>
+                            <Input Id="field-responsive-name" Placeholder="Evil Rabbit" />
+                        </Field>
+                        <Field Orientation="responsive">
+                            <FieldContent>
+                                <FieldLabel For="field-responsive-username">Username</FieldLabel>
+                                <FieldDescription>Choose a unique handle</FieldDescription>
+                            </FieldContent>
+                            <Input Id="field-responsive-username" Placeholder="evilrabbit" />
+                        </Field>
+                        <Field Orientation="responsive">
+                            <FieldContent>
+                                <FieldLabel For="field-responsive-newsletter">Newsletter</FieldLabel>
+                                <FieldDescription>Receive product updates</FieldDescription>
+                            </FieldContent>
+                            <Switch Id="field-responsive-newsletter" />
+                        </Field>
+                        <Field Orientation="responsive">
+                            <Button Type="ButtonType.Submit">Submit</Button>
+                            <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">Cancel</Button>
+                        </Field>
+                    </FieldGroup>
+                </FieldSet>
             </DemoSection>
         </Section>
 
@@ -425,11 +570,18 @@
 </Div>";
 
     private const string FieldCode =
-@"<Field>
-    <FieldLabel For=""field-email"">Email</FieldLabel>
-    <Input Id=""field-email"" Type=""email"" Placeholder=""m@example.com"" />
-    <FieldDescription>We will never share your email address.</FieldDescription>
-</Field>";
+@"<FieldGroup>
+    <Field>
+        <FieldLabel For=""field-username"">Username</FieldLabel>
+        <Input Id=""field-username"" Placeholder=""shadcn"" />
+        <FieldDescription>Choose a unique username for your account.</FieldDescription>
+    </Field>
+    <Field>
+        <FieldLabel For=""field-password"">Password</FieldLabel>
+        <Input Id=""field-password"" Type=""password"" />
+        <FieldDescription>Must be at least 8 characters long.</FieldDescription>
+    </Field>
+</FieldGroup>";
 
     private const string TextareaCode =
 @"<FieldSet Class=""w-full max-w-xs"">
@@ -444,76 +596,98 @@
 
     private const string SelectCode =
 @"<Field>
-    <FieldLabel For=""field-role"">Role</FieldLabel>
-    <Select TValue=""string"" SelectedValue=""@(""viewer"")"">
-        <SelectTrigger Id=""field-role"">
-            <SelectValue Placeholder=""Select a role"" />
+    <FieldLabel For=""field-department"">Department</FieldLabel>
+    <Select TValue=""string"" SelectedValue=""@("""")"">
+        <SelectTrigger Id=""field-department"">
+            <SelectValue Placeholder=""Choose department"" />
         </SelectTrigger>
         <SelectContent>
-            <SelectItem TValue=""string"" ItemValue=""@(""admin"")"" Text=""Admin"" />
-            <SelectItem TValue=""string"" ItemValue=""@(""editor"")"" Text=""Editor"" />
-            <SelectItem TValue=""string"" ItemValue=""@(""viewer"")"" Text=""Viewer"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""engineering"")"" Text=""Engineering"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""marketing"")"" Text=""Marketing"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""sales"")"" Text=""Sales"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""support"")"" Text=""Support"" />
         </SelectContent>
     </Select>
-    <FieldDescription>Roles determine what this member can access.</FieldDescription>
+    <FieldDescription>Select your department or area of work.</FieldDescription>
 </Field>";
 
     private const string SliderCode =
 @"<Field>
-    <FieldLabel>Volume</FieldLabel>
-    <Slider Min=""0"" Max=""100"" Step=""1"" SliderValue=""40"" />
-    <FieldDescription>Set the default playback volume.</FieldDescription>
+    <FieldLabel For=""field-price-range"">Price Range</FieldLabel>
+    <Slider Id=""field-price-range"" Min=""0"" Max=""1000"" Step=""50"" Values=""@([200d, 800d])"" />
+    <FieldDescription>Set your budget range ($200 - 800).</FieldDescription>
 </Field>";
 
     private const string FieldsetCode =
 @"<FieldSet>
-    <FieldLegend>Notification preferences</FieldLegend>
+    <FieldLegend>Address Information</FieldLegend>
+    <FieldDescription>We need your address to deliver your order.</FieldDescription>
     <FieldGroup>
-        <Field Horizontal=""true"">
-            <FieldContent>
-                <FieldLabel>Email alerts</FieldLabel>
-                <FieldDescription>Receive build and deploy notifications in your inbox.</FieldDescription>
-            </FieldContent>
-            <Switch Label=""Enable alerts"" />
+        <Field>
+            <FieldLabel For=""field-street-address"">Street Address</FieldLabel>
+            <Input Id=""field-street-address"" Placeholder=""123 Main St"" />
         </Field>
-        <Field Horizontal=""true"">
-            <FieldContent>
-                <FieldLabel>SMS alerts</FieldLabel>
-                <FieldDescription>Use SMS only for urgent production incidents.</FieldDescription>
-            </FieldContent>
-            <Switch Label=""Enable SMS"" />
-        </Field>
+        <Div Class=""grid grid-cols-2 gap-4"">
+            <Field>
+                <FieldLabel For=""field-city"">City</FieldLabel>
+                <Input Id=""field-city"" Placeholder=""New York"" />
+            </Field>
+            <Field>
+                <FieldLabel For=""field-postal-code"">Postal Code</FieldLabel>
+                <Input Id=""field-postal-code"" Placeholder=""10001"" />
+            </Field>
+        </Div>
     </FieldGroup>
 </FieldSet>";
 
     private const string CheckboxCode =
-@"<Field Horizontal=""true"">
-    <Check Id=""field-marketing"" />
-    <FieldContent>
-        <FieldLabel For=""field-marketing"">Marketing emails</FieldLabel>
-        <FieldDescription>Receive emails about new products and features.</FieldDescription>
-    </FieldContent>
-</Field>";
+@"<FieldSet>
+    <FieldLegend Variant=""label"">Show these items on the desktop</FieldLegend>
+    <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
+    <FieldGroup Slot=""checkbox-group"">
+        <Field Horizontal=""true"">
+            <Check Id=""field-hard-disks"" Checked=""true"" />
+            <FieldLabel For=""field-hard-disks"">Hard disks</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Check Id=""field-external-disks"" />
+            <FieldLabel For=""field-external-disks"">External disks</FieldLabel>
+        </Field>
+    </FieldGroup>
+    <FieldSeparator />
+    <Field Horizontal=""true"">
+        <Check Id=""field-sync-desktop"" Checked=""true"" />
+        <FieldContent>
+            <FieldLabel For=""field-sync-desktop"">Sync Desktop & Documents folders</FieldLabel>
+            <FieldDescription>Your Desktop & Documents folders are being synced with iCloud Drive.</FieldDescription>
+        </FieldContent>
+    </Field>
+</FieldSet>";
 
     private const string RadioCode =
-@"<RadioGroup Name=""field-plan"" Value=""pro"" AriaLabel=""Plan"">
-    <Field Horizontal=""true"">
-        <Radio Id=""field-plan-free"" Value=""free"" />
-        <FieldLabel For=""field-plan-free"" FontWeight=""FontWeight.Normal"">Free</FieldLabel>
-    </Field>
-    <Field Horizontal=""true"">
-        <Radio Id=""field-plan-pro"" Value=""pro"" />
-        <FieldLabel For=""field-plan-pro"" FontWeight=""FontWeight.Normal"">Pro</FieldLabel>
-    </Field>
-</RadioGroup>";
+@"<FieldSet>
+    <FieldLegend Variant=""label"">Subscription Plan</FieldLegend>
+    <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
+    <RadioGroup Name=""field-subscription-plan"" Value=""yearly"">
+        <Field Horizontal=""true"">
+            <Radio Id=""field-plan-monthly"" Value=""monthly"" />
+            <FieldLabel For=""field-plan-monthly"">Monthly ($9.99/month)</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Radio Id=""field-plan-yearly"" Value=""yearly"" />
+            <FieldLabel For=""field-plan-yearly"">Yearly ($99.99/year)</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Radio Id=""field-plan-lifetime"" Value=""lifetime"" />
+            <FieldLabel For=""field-plan-lifetime"">Lifetime ($299.99)</FieldLabel>
+        </Field>
+    </RadioGroup>
+</FieldSet>";
 
     private const string SwitchCode =
 @"<Field Horizontal=""true"">
-    <FieldContent>
-        <FieldLabel For=""field-sync"">Sync across devices</FieldLabel>
-        <FieldDescription>Keep this setting consistent on signed-in devices.</FieldDescription>
-    </FieldContent>
-    <Switch Id=""field-sync"" />
+    <FieldLabel For=""field-mfa"">Multi-factor authentication</FieldLabel>
+    <Switch Id=""field-mfa"" />
 </Field>";
 
     private const string FieldErrorCode =
@@ -525,25 +699,44 @@
 </Field>";
 
     private const string ChoiceCardCode =
-@"<Field Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Start"" Justify=""Justify.Between"" Gap=""Gap.Is4"">
-        <Div Space=""Space.Y.Is1"">
-            <FieldLabel>Starter</FieldLabel>
-            <FieldDescription>Good for smaller teams and prototypes.</FieldDescription>
-        </Div>
-        <Radio Name=""planChoiceCard"" Value=""Starter"" Checked=""true"" />
-    </Div>
-</Field>";
+@"<FieldSet>
+    <FieldLegend Variant=""label"">Compute Environment</FieldLegend>
+    <FieldDescription>Select the compute environment for your cluster.</FieldDescription>
+    <RadioGroup Name=""field-compute-environment"" Value=""kubernetes"">
+        <FieldLabel For=""field-compute-kubernetes"">
+            <Field Horizontal=""true"" Selectable=""true"">
+                <Radio Id=""field-compute-kubernetes"" Value=""kubernetes"" />
+                <FieldContent>
+                    <FieldTitle>Kubernetes</FieldTitle>
+                    <FieldDescription>Run GPU workloads on a K8s cluster.</FieldDescription>
+                </FieldContent>
+            </Field>
+        </FieldLabel>
+    </RadioGroup>
+</FieldSet>";
 
     private const string FieldGroupCode =
 @"<FieldGroup>
     <Field>
-        <FieldLabel For=""field-group-name"">Name</FieldLabel>
-        <Input Id=""field-group-name"" Placeholder=""Ada Lovelace"" />
+        <FieldContent>
+            <FieldTitle>Responses</FieldTitle>
+            <FieldDescription>Get notified when ChatGPT responds to requests that take time.</FieldDescription>
+        </FieldContent>
+        <Field Horizontal=""true"" Disabled=""true"">
+            <Check Id=""field-responses-push"" Checked=""true"" Disabled=""true"" />
+            <FieldLabel For=""field-responses-push"">Push notifications</FieldLabel>
+        </Field>
     </Field>
+    <FieldSeparator />
     <Field>
-        <FieldLabel For=""field-group-email"">Email</FieldLabel>
-        <Input Id=""field-group-email"" Type=""email"" Placeholder=""ada@example.com"" />
+        <FieldContent>
+            <FieldTitle>Tasks</FieldTitle>
+            <FieldDescription>Get notified when tasks you've created have updates. Manage tasks</FieldDescription>
+        </FieldContent>
+        <Field Horizontal=""true"">
+            <Check Id=""field-tasks-email"" />
+            <FieldLabel For=""field-tasks-email"">Email notifications</FieldLabel>
+        </Field>
     </Field>
 </FieldGroup>";
 
@@ -564,20 +757,23 @@
 </FieldGroup>";
 
     private const string ResponsiveLayoutCode =
-@"<FieldGroup Class=""grid gap-4 md:grid-cols-2"">
-    <Field>
-        <FieldLabel For=""field-responsive-first"">First name</FieldLabel>
-        <Input Id=""field-responsive-first"" Placeholder=""Ada"" />
-    </Field>
-    <Field>
-        <FieldLabel For=""field-responsive-last"">Last name</FieldLabel>
-        <Input Id=""field-responsive-last"" Placeholder=""Lovelace"" />
-    </Field>
-    <Field Class=""md:col-span-2"">
-        <FieldLabel For=""field-responsive-email"">Email</FieldLabel>
-        <Input Id=""field-responsive-email"" Type=""email"" Placeholder=""ada@example.com"" />
-    </Field>
-</FieldGroup>";
+@"<FieldSet>
+    <FieldLegend>Profile</FieldLegend>
+    <FieldDescription>Fill in your profile information.</FieldDescription>
+    <FieldGroup Class=""@container/field-group"">
+        <Field Orientation=""responsive"">
+            <FieldContent>
+                <FieldLabel For=""field-responsive-name"">Name</FieldLabel>
+                <FieldDescription>Provide your full name for identification</FieldDescription>
+            </FieldContent>
+            <Input Id=""field-responsive-name"" Placeholder=""Evil Rabbit"" />
+        </Field>
+        <Field Orientation=""responsive"">
+            <Button Type=""ButtonType.Submit"">Submit</Button>
+            <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Cancel</Button>
+        </Field>
+    </FieldGroup>
+</FieldSet>";
 
     private const string AccessibilityCode =
 @"<Field>

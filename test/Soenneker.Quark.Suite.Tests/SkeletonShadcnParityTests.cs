@@ -20,4 +20,15 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("bg-muted");
         classes.Should().NotContain("q-skeleton");
     }
+
+    [Test]
+    public void Skeleton_explicit_radius_overrides_default_radius()
+    {
+        var cut = Render<Skeleton>(parameters => parameters.Add(p => p.Class, "h-12 w-12 rounded-full"));
+
+        var classes = cut.Find("[data-slot='skeleton']").GetAttribute("class")!;
+
+        classes.Should().Contain("rounded-full");
+        classes.Should().NotContain("rounded-md");
+    }
 }

@@ -70,6 +70,30 @@ public sealed partial class RenderedShadcnParityTests
         cut.Instance.HideWhenDetached.Should().BeTrue();
     }
 
+    [Test]
+    public void ContextMenu_demo_matches_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForContextMenu(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "ContextMenus.razor"));
+
+        source.Should().Contain("Displays a menu of actions triggered by a right click.");
+        source.Should().Contain("A simple context menu with a few actions.");
+        source.Should().Contain("Use `ContextMenuSub` to nest secondary actions.");
+        source.Should().Contain("Add `ContextMenuShortcut` to show keyboard hints.");
+        source.Should().Contain("Group related actions and separate them with dividers.");
+        source.Should().Contain("Combine icons with labels for quick scanning.");
+        source.Should().Contain("Use `ContextMenuCheckboxItem` for toggles.");
+        source.Should().Contain("Use `ContextMenuRadioItem` for exclusive choices.");
+        source.Should().Contain("Use `variant=&quot;destructive&quot;` to style the menu item as destructive.");
+        source.Should().Contain("To enable RTL support in shadcn/ui, see the RTL configuration guide.");
+        source.Should().Contain("<ContextMenuItem>Profile</ContextMenuItem>");
+        source.Should().Contain("<ContextMenuItem>Subscription</ContextMenuItem>");
+        source.Should().Contain("LucideIcon.Pencil");
+        source.Should().Contain("LucideIcon.Share");
+        source.Should().Contain("LucideIcon.Trash");
+        source.Should().NotContain("Shadcn-aligned Basic example.");
+        source.Should().NotContain("Browser-style context menu with shortcuts");
+    }
+
     private static string ReadContextMenuSource(string fileName)
     {
         return File.ReadAllText(Path.Combine(GetSuiteRootForContextMenu(), "src", "Soenneker.Quark.Suite", "Components", "ContextMenu", fileName));

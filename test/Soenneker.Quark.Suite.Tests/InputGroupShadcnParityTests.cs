@@ -107,6 +107,10 @@ public sealed partial class RenderedShadcnParityTests
         button.GetAttribute("data-size").Should().Be("xs");
         button.GetAttribute("data-variant").Should().Be("ghost");
         button.GetAttribute("type").Should().Be("button");
+        classes.Should().Contain("flex");
+        classes.Should().Contain("items-center");
+        classes.Should().Contain("gap-2");
+        classes.Should().Contain("text-sm");
         classes.Should().Contain("shadow-none");
         classes.Should().Contain("h-6");
         classes.Should().Contain("gap-1");

@@ -67,7 +67,7 @@ public sealed class SonnerInterop : ISonnerInterop
         }
     }
 
-    public async ValueTask RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference, CancellationToken cancellationToken = default)
+    public async ValueTask<bool> RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -75,7 +75,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerSwipeHandlers", linked, section, callbackReference);
+            return await module.InvokeAsync<bool>("registerSwipeHandlers", linked, section, callbackReference);
         }
     }
 

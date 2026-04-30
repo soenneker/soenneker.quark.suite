@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using System;
+using System.IO;
 using Microsoft.AspNetCore.Components;
 
 
@@ -60,5 +62,32 @@ public sealed partial class RenderedShadcnParityTests
         toggleGroupItemClasses.Should().NotContain("data-[spacing=0]:first:rounded-l-lg");
         toggleGroupItemClasses.Should().NotContain("data-[state=on]:bg-muted");
         toggleGroupItemClasses.Should().NotContain("q-toggle-group-item");
+    }
+
+    [Test]
+    public void ToggleGroup_demo_lead_example_matches_current_shadcn_docs()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForToggleGroup(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "ToggleGroups.razor"));
+        var firstExampleStart = source.IndexOf("Description=\"A set of two-state buttons", StringComparison.Ordinal);
+        var outlineStart = source.IndexOf("Title=\"Outline\"", StringComparison.Ordinal);
+        var firstExample = source[firstExampleStart..outlineStart];
+
+        firstExample.Should().Contain("Variant=\"ToggleVariant.Outline\"");
+        firstExample.Should().Contain("Value=\"bold\"");
+        firstExample.Should().Contain("Value=\"italic\"");
+        firstExample.Should().Contain("Value=\"underline\"");
+        firstExample.Should().Contain("LucideIcon.Underline");
+        firstExample.Should().NotContain("Value=\"strikethrough\"");
+        firstExample.Should().NotContain("Toggle strikethrough");
+    }
+
+    private static string GetSuiteRootForToggleGroup()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

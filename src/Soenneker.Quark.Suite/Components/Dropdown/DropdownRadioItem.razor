@@ -11,7 +11,7 @@
                 AdditionalAttributes="@RadioItemAttributes">
     <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"
           data-slot="dropdown-menu-radio-item-indicator">
-        @if (Selected)
+        @if (ResolvedSelected)
         {
             <Icon Name="LucideIcon.Circle" Class="size-2 fill-current" />
         }
@@ -20,6 +20,9 @@
 </BradixMenuItem>
 
 @code {
+    [CascadingParameter]
+    private DropdownRadioGroupContext? RadioGroupContext { get; set; }
+
     [Parameter]
     public bool Selected { get; set; }
 
@@ -34,12 +37,17 @@
 
     private IReadOnlyDictionary<string, object> RadioItemAttributes => BuildRadioItemAttributes();
 
+    private bool ResolvedSelected =>
+        RadioGroupContext?.Value is { } groupValue && Value is not null
+            ? string.Equals(groupValue, Value, StringComparison.Ordinal)
+            : Selected;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-radio-item";
-        attributes["data-state"] = Selected ? "checked" : "unchecked";
-        attributes["aria-checked"] = Selected ? "true" : "false";
+        attributes["data-state"] = ResolvedSelected ? "checked" : "unchecked";
+        attributes["aria-checked"] = ResolvedSelected ? "true" : "false";
 
         if (Indented)
             attributes["data-inset"] = "true";
@@ -76,6 +84,9 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Selected);
+        hc.Add(Value);
+        hc.Add(ResolvedSelected);
+        hc.Add(RadioGroupContext?.Value);
         hc.Add(Disabled);
         hc.Add(AutoClose);
         hc.Add(Indented);
@@ -83,8 +94,14 @@
 
     private async Task HandleSelect()
     {
-        if (Disabled || Selected)
+        if (Disabled || ResolvedSelected)
             return;
+
+        if (RadioGroupContext?.SetValue is not null && Value is not null)
+        {
+            await RadioGroupContext.SetValue(Value);
+            return;
+        }
 
         Selected = true;
         await SelectedChanged.InvokeIfHasDelegate(true);

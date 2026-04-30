@@ -35,7 +35,7 @@
         </DemoSection>
 
         <DemoSection Title="Multiple"
-                     Description="A combobox with multiple selection using chips."
+                     Description="A combobox with multiple selection using `multiple` and `ComboboxChips`."
                      Code="@MultipleCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsLg">
@@ -67,7 +67,7 @@
         </DemoSection>
 
         <DemoSection Title="Clear Button"
-                     Description="Use ShowClear to show a clear button inside the combobox control."
+                     Description="Use the `showClear` prop to show a clear button."
                      Code="@ClearButtonCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -93,7 +93,7 @@
         </DemoSection>
 
         <DemoSection Title="Groups"
-                     Description="Use groups, labels, and separators to organize larger result sets."
+                     Description="Use `ComboboxGroup` and `ComboboxSeparator` to group items."
                      Code="@GroupsCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -130,7 +130,7 @@
         </DemoSection>
 
         <DemoSection Title="Custom Items"
-                     Description="Render richer content inside each combobox item."
+                     Description="You can render a custom component inside `ComboboxItem`."
                      Code="@CustomItemsCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -160,7 +160,7 @@
         </DemoSection>
 
         <DemoSection Title="Invalid"
-                     Description="Use aria-invalid to display the invalid combobox state."
+                     Description="Use the `aria-invalid` prop to make the combobox invalid."
                      Code="@InvalidCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is2">
@@ -188,7 +188,7 @@
         </DemoSection>
 
         <DemoSection Title="Disabled"
-                     Description="Use disabled to prevent changes while preserving the selected value."
+                     Description="Use the `disabled` prop to disable the combobox."
                      Code="@DisabledCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -202,7 +202,7 @@
         </DemoSection>
 
         <DemoSection Title="Auto Highlight"
-                     Description="Use AutoHighlight to highlight the first matching item as the user filters."
+                     Description="Use the `autoHighlight` prop to automatically highlight the first item on filter."
                      Code="@AutoHighlightCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -228,10 +228,15 @@
         </DemoSection>
 
         <DemoSection Title="Popup"
-                     Description="Trigger a command-style combobox from a button."
+                     Description="You can trigger the combobox from a button or any other component by using the `render` prop. Move the `ComboboxInput` inside the `ComboboxContent`."
                      Code="@PopupCode"
                      CodeLanguage="razor">
-            <Popover Open="@_popupOpen" OpenChanged="OnPopupOpenChanged">
+            <Combobox Value="@_popupFramework"
+                      ValueChanged="OnPopupFrameworkChanged"
+                      Search="@_popupSearch"
+                      SearchChanged="OnPopupSearchChanged"
+                      Open="@_popupOpen"
+                      OpenChanged="OnPopupOpenChanged">
                 <PopoverTrigger AsChild="true">
                     <Button Variant="ButtonVariant.Outline"
                             role="combobox"
@@ -241,24 +246,17 @@
                         <Icon Name="LucideIcon.ChevronsUpDown" Class="opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent Class="w-[200px] p-0">
-                    <Command>
-                        <CommandInput Placeholder="Search framework..." Class="h-9" />
-                        <CommandList>
-                            <CommandEmpty>No framework found.</CommandEmpty>
-                            <CommandGroup>
-                                @foreach (var framework in Frameworks)
-                                {
-                                    <CommandItem SearchValue="@framework" OnSelect="@(() => SelectPopupFramework(framework))">
-                                        @framework
-                                        <Icon Name="LucideIcon.Check" Class="@GetPopupCheckClass(framework)" />
-                                    </CommandItem>
-                                }
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
-                </PopoverContent>
-            </Popover>
+                <ComboboxContent Class="w-[200px] p-0">
+                    <ComboboxInput Anchor="false" ShowTrigger="false" Placeholder="Search framework..." />
+                    <ComboboxEmpty>No framework found.</ComboboxEmpty>
+                    <ComboboxList>
+                        @foreach (var framework in FilterFrameworks(_popupSearch))
+                        {
+                            <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                        }
+                    </ComboboxList>
+                </ComboboxContent>
+            </Combobox>
         </DemoSection>
 
         <DemoSection Title="Input Group"
@@ -382,6 +380,7 @@
     private string? _autoSearch;
     private bool _autoOpen;
     private string? _popupFramework;
+    private string? _popupSearch;
     private bool _popupOpen;
     private string? _inputGroupTimezone;
     private string? _inputGroupSearch;
@@ -429,9 +428,9 @@
     private Task OnAutoFrameworkChanged(string? value) { _autoFramework = value; return Task.CompletedTask; }
     private Task OnAutoSearchChanged(string? value) { _autoSearch = value; return Task.CompletedTask; }
     private Task OnAutoOpenChanged(bool value) { _autoOpen = value; return Task.CompletedTask; }
+    private Task OnPopupFrameworkChanged(string? value) { _popupFramework = value; return Task.CompletedTask; }
+    private Task OnPopupSearchChanged(string? value) { _popupSearch = value; return Task.CompletedTask; }
     private Task OnPopupOpenChanged(bool value) { _popupOpen = value; return Task.CompletedTask; }
-    private Task SelectPopupFramework(string framework) { _popupFramework = string.Equals(_popupFramework, framework, StringComparison.Ordinal) ? null : framework; _popupOpen = false; return Task.CompletedTask; }
-    private string GetPopupCheckClass(string framework) => string.Equals(_popupFramework, framework, StringComparison.Ordinal) ? "ml-auto opacity-100" : "ml-auto opacity-0";
     private Task OnInputGroupTimezoneChanged(string? value) { _inputGroupTimezone = value; return Task.CompletedTask; }
     private Task OnInputGroupSearchChanged(string? value) { _inputGroupSearch = value; return Task.CompletedTask; }
     private Task OnInputGroupOpenChanged(bool value) { _inputGroupOpen = value; return Task.CompletedTask; }
@@ -520,20 +519,19 @@
 </Combobox>";
 
     private const string PopupCode =
-@"<Popover>
+@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
     <PopoverTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"" role=""combobox"">
             Select framework
             <Icon Name=""LucideIcon.ChevronsUpDown"" />
         </Button>
     </PopoverTrigger>
-    <PopoverContent Class=""w-[200px] p-0"">
-        <Command>
-            <CommandInput Placeholder=""Search framework..."" />
-            <CommandList>...</CommandList>
-        </Command>
-    </PopoverContent>
-</Popover>";
+    <ComboboxContent Class=""w-[200px] p-0"">
+        <ComboboxInput Anchor=""false"" ShowTrigger=""false"" Placeholder=""Search framework..."" />
+        <ComboboxEmpty>No framework found.</ComboboxEmpty>
+        <ComboboxList>...</ComboboxList>
+    </ComboboxContent>
+</Combobox>";
 
     private const string InputGroupCode =
 @"<Combobox>

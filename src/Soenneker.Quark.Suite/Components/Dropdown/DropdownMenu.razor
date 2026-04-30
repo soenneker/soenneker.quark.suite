@@ -31,6 +31,12 @@
     public bool RightAligned { get; set; }
 
     /// <summary>
+    /// Gets or sets the alignment of the dropdown menu relative to the trigger.
+    /// </summary>
+    [Parameter]
+    public Alignment? Align { get; set; }
+
+    /// <summary>
     /// Gets or sets the side of the dropdown menu.
     /// </summary>
     [Parameter]
@@ -70,7 +76,7 @@
 
     private Side ResolvedSide => ParentDropdown?.Side ?? Side;
 
-    private Alignment ResolvedAlign => ResolvedRightAligned ? Alignment.End : Alignment.Start;
+    private Alignment ResolvedAlign => Align ?? (ResolvedRightAligned ? Alignment.End : Alignment.Start);
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
@@ -112,6 +118,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ResolvedRightAligned);
+        hc.Add(Align);
         hc.Add(ResolvedSide);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);

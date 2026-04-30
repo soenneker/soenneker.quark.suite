@@ -19,6 +19,7 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("aspect-square");
         classes.Should().Contain("size-4");
+        classes.Split(' ', System.StringSplitOptions.RemoveEmptyEntries).Should().ContainSingle(token => token == "size-4");
         classes.Should().Contain("shrink-0");
         classes.Should().Contain("rounded-full");
         classes.Should().Contain("border");
@@ -44,6 +45,7 @@ public sealed partial class RenderedShadcnParityTests
         dotClasses.Should().Contain("absolute");
         dotClasses.Should().Contain("size-2");
         dotClasses.Should().Contain("fill-primary");
+        dotClasses.Should().NotContain("size-4");
         dotClasses.Should().NotContain("bg-primary-foreground");
     }
 }

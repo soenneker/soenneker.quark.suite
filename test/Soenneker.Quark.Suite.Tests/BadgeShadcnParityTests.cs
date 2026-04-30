@@ -36,4 +36,20 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("has-data-[icon=inline-start]:pl-1.5");
         classes.Should().NotContain("q-badge");
     }
+
+    [Test]
+    public void Badge_link_variant_does_not_apply_default_background()
+    {
+        var cut = Render<Badge>(parameters => parameters
+            .Add(p => p.Variant, BadgeVariant.Link)
+            .Add(p => p.ChildContent, "Link"));
+
+        var classes = cut.Find("[data-slot='badge']").GetAttribute("class")!;
+
+        classes.Should().Contain("text-primary");
+        classes.Should().Contain("underline-offset-4");
+        classes.Should().Contain("[a&]:hover:underline");
+        classes.Should().NotContain("bg-primary");
+        classes.Should().NotContain("text-primary-foreground");
+    }
 }

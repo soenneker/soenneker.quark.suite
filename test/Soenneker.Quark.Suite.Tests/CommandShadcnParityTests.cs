@@ -176,6 +176,25 @@ public sealed partial class RenderedShadcnParityTests
         dialog.Should().NotContain("DialogBody Class=\"overflow-hidden p-0\"");
     }
 
+    [Test]
+    public void Command_demo_matches_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForCommand(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Commands.razor"));
+
+        source.Should().Contain("Command menu for search and quick actions.");
+        source.Should().Contain("A simple command menu in a dialog.");
+        source.Should().Contain("A command menu with groups, icons and separators.");
+        source.Should().Contain("Scrollable command menu with multiple items.");
+        source.Should().Contain("To enable RTL support in shadcn/ui, see the RTL configuration guide.");
+        source.Should().Contain("<CommandShortcut>⌘P</CommandShortcut>");
+        source.Should().Contain("<CommandShortcut>⌘B</CommandShortcut>");
+        source.Should().Contain("<CommandShortcut>⌘S</CommandShortcut>");
+        source.Should().Contain("<CommandGroup Heading=\"الإعدادات\">");
+        source.Should().Contain("البحث عن الرموز التعبيرية");
+        source.Should().NotContain("Searchable command surface with grouped actions");
+        source.Should().NotContain("<CommandShortcut>Ctrl+P</CommandShortcut>");
+    }
+
     private static string ReadCommandSource(string fileName)
     {
         return File.ReadAllText(Path.Combine(GetSuiteRootForCommand(), "src", "Soenneker.Quark.Suite", "Components", "Command", fileName));

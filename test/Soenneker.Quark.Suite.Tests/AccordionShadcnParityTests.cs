@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -86,6 +88,38 @@ public sealed partial class RenderedShadcnParityTests
         innerClasses.Should().Contain("pt-0");
         innerClasses.Should().Contain("pb-4");
         innerClasses.Should().NotContain("pb-2.5");
+    }
+
+    [Test]
+    public void Accordion_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForAccordion(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Accordions.razor"));
+
+        source.Should().Contain("What are the key considerations when implementing a comprehensive enterprise-level authentication system?");
+        source.Should().Contain("How does modern distributed system architecture handle eventual consistency and data synchronization across multiple regions?");
+        source.Should().Contain("h-[70rem]");
+        source.Should().Contain("Title=\"With Disabled\"");
+        source.Should().Contain("Class=\"p-1 data-[state=open]:bg-muted/50\"");
+        source.Should().Contain("Title=\"With Borders\"");
+        source.Should().Contain("There are no hidden fees or setup costs.");
+        source.Should().Contain("Our API documentation includes code examples in 10+ programming languages.");
+        source.Should().Contain("Title=\"In Card\"");
+        source.Should().Contain("Can I upgrade or downgrade my plan?");
+        source.Should().Contain("What is your refund policy?");
+        source.Should().Contain("<Button Size=\"ButtonSize.Sm\">");
+        source.Should().Contain("h-[42rem]");
+        source.Should().NotContain("DefaultValues=\"@MultipleDefaultValues\"");
+        source.Should().NotContain("Notification Settings");
+    }
+
+    private static string GetSuiteRootForAccordion()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }
 

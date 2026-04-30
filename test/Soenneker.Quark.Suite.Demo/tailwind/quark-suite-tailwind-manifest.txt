@@ -3,6 +3,8 @@
 **:data-[slot=command-input-wrapper]:h-12
 **:data-[slot=navigation-menu-link]:focus:outline-none
 **:data-[slot=navigation-menu-link]:focus:ring-0
+*:[img:first-child]:rounded-t-xl
+*:[img:last-child]:rounded-b-xl
 *:[span]:last:flex
 *:[span]:last:gap-2
 *:[span]:last:items-center
@@ -71,6 +73,7 @@
 -translate-x-1/2
 -translate-x-px
 -translate-y-1/2
+@container/card-header
 @container/field-group
 @md/field-group:[&>*]:w-auto
 @md/field-group:flex-row
@@ -114,7 +117,6 @@ Enter
 Error
 Escape
 F2
-F8
 Fast
 FieldHorizontal
 First
@@ -237,7 +239,6 @@ New
 Next
 NextMonth
 No
-Notification
 Notifications
 OnHourInput
 OnHourKeyDown
@@ -350,7 +351,6 @@ View
 Week
 Year
 [&+[data-slot=item-content]]:flex-none
-[&+div]:text-xs
 [&::-webkit-inner-spin-button]:appearance-none
 [&::-webkit-outer-spin-button]:appearance-none
 [&::-webkit-scrollbar-thumb]:border-transparent
@@ -438,9 +438,8 @@ Year
 [--cell-size:--spacing(8)]
 [--sidebar-menu-width:--spacing(56)]
 [.border-b]:pb-3
-[.border-b]:pb-6
+[.border-b]:pb-4
 [.border-t]:pt-3
-[.border-t]:pt-6
 [CanvasText]
 [Canvas]
 [[data-side=left][data-collapsible=offcanvas]_&]:-right-2
@@ -592,10 +591,12 @@ attachment-remove
 attachments
 attachments-empty
 attr
+attrSb
 attrs
 audio
 auto
 auto-cols-max
+auto-rows-min
 autocomplete
 autofocus
 autoplay
@@ -631,6 +632,7 @@ bg-linear-to-b
 bg-linear-to-t
 bg-muted
 bg-muted/25
+bg-muted/50
 bg-popover
 bg-primary
 bg-primary/20
@@ -725,12 +727,14 @@ class
 claude-3.5
 claude-opus-4.1
 closed
+cls
 cmdk-group
 cmdk-input-wrapper
 cmdk-item
 cn-calendar-caption
 cn-calendar-caption-label
 cn-calendar-dropdown-root
+cn-font-heading
 cn-toast
 code
 code-chip
@@ -936,10 +940,13 @@ data-[size=default]:h-[1.15rem]
 data-[size=default]:sm:max-w-lg
 data-[size=default]:w-8
 data-[size=lg]:size-10
+data-[size=sm]:gap-3
 data-[size=sm]:h-3.5
 data-[size=sm]:h-8
+data-[size=sm]:has-data-[slot=card-footer]:pb-0
 data-[size=sm]:max-w-xs
 data-[size=sm]:py-1
+data-[size=sm]:py-3
 data-[size=sm]:size-6
 data-[size=sm]:w-6
 data-[slot=checkbox-group]:gap-3
@@ -960,11 +967,9 @@ data-[state=closed]:animate-accordion-up
 data-[state=closed]:animate-out
 data-[state=closed]:duration-300
 data-[state=closed]:fade-out-0
-data-[state=closed]:fade-out-80
 data-[state=closed]:slide-out-to-bottom
 data-[state=closed]:slide-out-to-left
 data-[state=closed]:slide-out-to-right
-data-[state=closed]:slide-out-to-right-full
 data-[state=closed]:slide-out-to-top
 data-[state=closed]:zoom-out-95
 data-[state=hidden]:animate-out
@@ -988,8 +993,6 @@ data-[state=open]:slide-in-from-bottom
 data-[state=open]:slide-in-from-left
 data-[state=open]:slide-in-from-right
 data-[state=open]:slide-in-from-top
-data-[state=open]:slide-in-from-top-full
-data-[state=open]:sm:slide-in-from-bottom-full
 data-[state=open]:text-accent-foreground
 data-[state=open]:text-muted-foreground
 data-[state=open]:zoom-in-90
@@ -999,11 +1002,6 @@ data-[state=unchecked]:bg-input
 data-[state=unchecked]:translate-x-0
 data-[state=visible]:animate-in
 data-[state=visible]:fade-in
-data-[swipe=cancel]:translate-x-0
-data-[swipe=end]:animate-out
-data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)]
-data-[swipe=move]:transition-none
-data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]
 data-[variant=compact]:flex
 data-[variant=compact]:items-center
 data-[variant=compact]:justify-center
@@ -1159,7 +1157,6 @@ determine
 dialog
 dialog-body
 dialog-close
-dialog-close-wrapper
 dialog-content
 dialog-description
 dialog-footer
@@ -1180,7 +1177,6 @@ div
 double
 drawer
 drawer-close
-drawer-close-wrapper
 drawer-content
 drawer-description
 drawer-footer
@@ -1302,10 +1298,7 @@ focus-within:outline-none
 focus-within:ring-[3px]
 focus-within:ring-ring/50
 focus:bg-accent
-focus:opacity-100
 focus:outline-hidden
-focus:outline-none
-focus:ring-1
 focus:ring-2
 focus:ring-offset-2
 focus:ring-ring
@@ -1321,6 +1314,7 @@ font-sans
 font-semibold
 footer
 for
+foreach
 form
 form-description
 form-item
@@ -1365,15 +1359,6 @@ grid-item
 grid-rows-[auto_1fr]
 gridcell
 group
-group-[.destructive]:border-muted/40
-group-[.destructive]:focus:ring-destructive
-group-[.destructive]:focus:ring-offset-red-600
-group-[.destructive]:focus:ring-red-400
-group-[.destructive]:hover:bg-destructive
-group-[.destructive]:hover:border-destructive/30
-group-[.destructive]:hover:text-destructive-foreground
-group-[.destructive]:hover:text-red-50
-group-[.destructive]:text-red-300
 group-action
 group-content
 group-data-[collapsible=icon]:-mt-8
@@ -1433,7 +1418,10 @@ group-data-[size=sm]/alert-dialog-content:grid-cols-2
 group-data-[size=sm]/avatar:[&>svg]:hidden
 group-data-[size=sm]/avatar:size-2
 group-data-[size=sm]/avatar:text-xs
+group-data-[size=sm]/card:[.border-b]:pb-3
+group-data-[size=sm]/card:p-3
 group-data-[size=sm]/card:px-3
+group-data-[size=sm]/card:text-sm
 group-data-[size=sm]/switch:size-3
 group-data-[state=open]:rotate-180
 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm
@@ -1488,6 +1476,8 @@ group/avatar
 group/avatar-group
 group/button
 group/calendar
+group/card
+group/card-header
 group/combobox-content
 group/day
 group/drawer-content
@@ -1575,6 +1565,7 @@ has-[>[role=checkbox]]:gap-3
 has-[>[role=radio]]:gap-3
 has-[>button]:ml-[-0.45rem]
 has-[>button]:mr-[-0.45rem]
+has-[>img:first-child]:pt-0
 has-[>kbd]:ml-[-0.35rem]
 has-[>kbd]:mr-[-0.35rem]
 has-[>svg]:gap-x-3
@@ -1602,6 +1593,8 @@ has-data-[icon=inline-start]:pl-2
 has-data-[slot=alert-dialog-media]:gap-x-6
 has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]
 has-data-[slot=card-action]:grid-cols-[1fr_auto]
+has-data-[slot=card-description]:grid-rows-[auto_auto]
+has-data-[slot=card-footer]:pb-0
 has-data-[slot=combobox-chip-remove]:pr-0
 has-data-[slot=combobox-chip]:px-1.5
 has-data-[state=checked]:bg-primary/5
@@ -1632,7 +1625,6 @@ hover:bg-muted
 hover:bg-muted/50
 hover:bg-primary
 hover:bg-primary/90
-hover:bg-secondary
 hover:bg-secondary/80
 hover:bg-sidebar-accent
 hover:bg-transparent
@@ -1725,7 +1717,9 @@ justify-start
 kbd
 kbd-chip
 kbd-group
+key
 key[0]
+kv
 label
 language
 last
@@ -1787,7 +1781,6 @@ max
 max-h-0
 max-h-40
 max-h-[90vh]
-max-h-screen
 max-height:
 max-w-(--available-width)
 max-w-(--skeleton-width)
@@ -1816,7 +1809,6 @@ md:flex-1
 md:flex-row
 md:gap-1.5
 md:justify-end
-md:max-w-[420px]
 md:opacity-0
 md:p-12
 md:peer-data-[variant=inset]:m-2
@@ -1953,6 +1945,7 @@ null
 number
 numeric
 object-cover
+object>
 of
 off
 offcanvas
@@ -1993,7 +1986,6 @@ opacity-50
 opacity-60
 opacity-70
 opacity-80
-opacity-90
 open
 openFileDialogById
 operations
@@ -2099,7 +2091,6 @@ pr-2
 pr-2.5
 pr-3
 pr-4
-pr-6
 pr-8
 pr-9
 pre-code
@@ -2265,6 +2256,7 @@ rotate-45
 rotate-90
 round
 rounded
+rounded-
 rounded-[24px]
 rounded-[2px]
 rounded-[4px]
@@ -2405,9 +2397,7 @@ slider-track
 sm
 sm/relaxed
 sm:block
-sm:bottom-0
 sm:flex
-sm:flex-col
 sm:flex-row
 sm:gap-2.5
 sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2
@@ -2425,15 +2415,12 @@ sm:max-w-sm
 sm:opacity-0
 sm:pl-2.5
 sm:pr-2.5
-sm:right-0
 sm:text-left
-sm:top-auto
 small
 smooth
 sortable-handle
 sortable-item
 sortable-list
-space-x-2
 space-y-2
 space-y-4
 specialize
@@ -2469,6 +2456,7 @@ suggestion-list
 suggestions
 suitable
 summary
+svgStart
 switch
 switch-thumb
 system
@@ -2509,6 +2497,7 @@ tabs-content
 tabs-list
 tabs-trigger
 tabular-nums
+tagEnd
 target
 tasks
 term:
@@ -2529,7 +2518,6 @@ text-current
 text-destructive
 text-destructive-foreground
 text-foreground
-text-foreground/50
 text-foreground/60
 text-left
 text-lg
@@ -2574,12 +2562,6 @@ to-background/50
 to-muted
 to-transparent
 toast
-toast-action
-toast-close
-toast-description
-toast-provider
-toast-title
-toast-viewport
 toaster
 today?
 toggle
@@ -2656,6 +2638,7 @@ ul
 ulong
 unchecked
 underline-offset-4
+unescaped[(separator
 unordered-list
 unordered-list-item
 unregisterAttachmentsById
@@ -2664,6 +2647,7 @@ updated
 updating
 usemap
 using
+utility
 val
 validation
 validation-errors
@@ -2731,6 +2715,5 @@ z-10
 z-20
 z-40
 z-50
-z-[100]
 z-[1]
 zoom-in-95

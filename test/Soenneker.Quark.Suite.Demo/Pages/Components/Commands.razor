@@ -7,7 +7,7 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="Searchable command surface with grouped actions, icons, disabled items, and shortcuts."
+                         Description="Command menu for search and quick actions."
                          Code="@CommandCode"
                          CodeLanguage="razor">
                 <Div MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Class="shadow-sm">
@@ -24,7 +24,7 @@
                                     <Icon Name="LucideIcon.Smile" />
                                     <Span>Search Emoji</Span>
                                 </CommandItem>
-                                <CommandItem SearchValue="Calculator" Disabled="true">
+                                <CommandItem SearchValue="Calculator" OnSelect="@(() => SelectAction("Calculator"))">
                                     <Icon Name="LucideIcon.Calculator" />
                                     <Span>Calculator</Span>
                                 </CommandItem>
@@ -34,17 +34,17 @@
                                 <CommandItem SearchValue="Profile" OnSelect="@(() => SelectAction("Profile"))">
                                     <Icon Name="LucideIcon.User" />
                                     <Span>Profile</Span>
-                                    <CommandShortcut>Ctrl+P</CommandShortcut>
+                                    <CommandShortcut>⌘P</CommandShortcut>
                                 </CommandItem>
                                 <CommandItem SearchValue="Billing" OnSelect="@(() => SelectAction("Billing"))">
                                     <Icon Name="LucideIcon.CreditCard" />
                                     <Span>Billing</Span>
-                                    <CommandShortcut>Ctrl+B</CommandShortcut>
+                                    <CommandShortcut>⌘B</CommandShortcut>
                                 </CommandItem>
                                 <CommandItem SearchValue="Settings" OnSelect="@(() => SelectAction("Settings"))">
                                     <Icon Name="LucideIcon.Settings" />
                                     <Span>Settings</Span>
-                                    <CommandShortcut>Ctrl+S</CommandShortcut>
+                                    <CommandShortcut>⌘S</CommandShortcut>
                                 </CommandItem>
                             </CommandGroup>
                         </CommandList>
@@ -90,7 +90,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Shortcuts"
-                         Description="Shortcut hints sit at the trailing edge of command items."
+                         Description="Command items can include keyboard shortcut hints."
                          Code="@CommandShortcutsCode"
                          CodeLanguage="razor">
                 <Button Variant="ButtonVariant.Outline" OnClick="@OpenShortcutsCommandDialog">
@@ -116,7 +116,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Groups"
-                         Description="Use CommandGroup and CommandSeparator to structure larger command sets."
+                         Description="A command menu with groups, icons and separators."
                          Code="@CommandGroupsCode"
                          CodeLanguage="razor">
                 <Button Variant="ButtonVariant.Outline" OnClick="@OpenGroupsCommandDialog">
@@ -146,7 +146,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Scrollable"
-                         Description="Long command sets scroll inside the list instead of expanding the surface."
+                         Description="Scrollable command menu with multiple items."
                          Code="@CommandScrollableCode"
                          CodeLanguage="razor">
                 <Button Variant="ButtonVariant.Outline" OnClick="@OpenScrollableCommandDialog">
@@ -170,7 +170,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Command items mirror correctly in right-to-left layouts."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
@@ -181,7 +181,23 @@
                                 <CommandEmpty>لا توجد نتائج.</CommandEmpty>
                                 <CommandGroup Heading="اقتراحات">
                                     <CommandItem SearchValue="التقويم">التقويم</CommandItem>
-                                    <CommandItem SearchValue="الاعدادات">الاعدادات</CommandItem>
+                                    <CommandItem SearchValue="البحث عن الرموز التعبيرية">البحث عن الرموز التعبيرية</CommandItem>
+                                    <CommandItem SearchValue="الآلة الحاسبة">الآلة الحاسبة</CommandItem>
+                                </CommandGroup>
+                                <CommandSeparator />
+                                <CommandGroup Heading="الإعدادات">
+                                    <CommandItem SearchValue="الملف الشخصي">
+                                        <Span>الملف الشخصي</Span>
+                                        <CommandShortcut>⌘P</CommandShortcut>
+                                    </CommandItem>
+                                    <CommandItem SearchValue="الفوترة">
+                                        <Span>الفوترة</Span>
+                                        <CommandShortcut>⌘B</CommandShortcut>
+                                    </CommandItem>
+                                    <CommandItem SearchValue="الإعدادات">
+                                        <Span>الإعدادات</Span>
+                                        <CommandShortcut>⌘S</CommandShortcut>
+                                    </CommandItem>
                                 </CommandGroup>
                             </CommandList>
                         </Command>
@@ -196,11 +212,11 @@
 @code {
     private static readonly CommandAction[] Actions =
     [
-        new("Calendar", "Ctrl+K"),
-        new("Search emoji", "Ctrl+E"),
-        new("Billing", "Ctrl+B"),
-        new("Settings", "Ctrl+,"),
-        new("Invite teammates", "Ctrl+I")
+        new("Profile", "⌘P"),
+        new("Billing", "⌘B"),
+        new("Settings", "⌘S"),
+        new("Calendar", "⌘K"),
+        new("Search emoji", "⌘E")
     ];
 
     private static readonly string[] ScrollableActions =
@@ -307,12 +323,14 @@
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
     <Command>
-        <CommandInput Placeholder=""ابحث عن اجراء..."" />
-        <CommandList>
-            <CommandEmpty>لا توجد نتائج.</CommandEmpty>
-            <CommandGroup Heading=""اقتراحات"">...</CommandGroup>
-        </CommandList>
-    </Command>
+    <CommandInput Placeholder=""ابحث عن اجراء..."" />
+    <CommandList>
+        <CommandEmpty>لا توجد نتائج.</CommandEmpty>
+        <CommandGroup Heading=""اقتراحات"">...</CommandGroup>
+        <CommandSeparator />
+        <CommandGroup Heading=""الإعدادات"">...</CommandGroup>
+    </CommandList>
+</Command>
 </DirectionProvider>";
 
     private const string CommandDialogCode =

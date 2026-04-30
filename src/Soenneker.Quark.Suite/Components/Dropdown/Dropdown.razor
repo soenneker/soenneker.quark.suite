@@ -10,9 +10,16 @@
                     OpenChanged="HandleOpenChanged"
                     ContentIdOverride="@DropdownMenuTargetId">
     <CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
-        <div @attributes="BuildAttributes()">
+        @if (RenderWrapper)
+        {
+            <div @attributes="BuildAttributes()">
+                @ChildContent
+            </div>
+        }
+        else
+        {
             @ChildContent
-        </div>
+        }
     </CascadingValue>
 </BradixDropdownMenu>
 
@@ -43,6 +50,12 @@
     /// </summary>
     [Parameter]
     public bool IsGroup { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether a DOM wrapper should be rendered around the dropdown children. Radix/shadcn roots do not render DOM by default.
+    /// </summary>
+    [Parameter]
+    public bool RenderWrapper { get; set; }
 
     /// <summary>
     /// Gets or sets the target ID for the dropdown menu.
@@ -103,6 +116,7 @@
         hc.Add(Side);
         hc.Add(IsSubmenu);
         hc.Add(IsGroup);
+        hc.Add(RenderWrapper);
         hc.Add(DropdownMenuTargetId);
     }
 }

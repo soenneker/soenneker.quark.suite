@@ -4,9 +4,19 @@
 
 <div @attributes="BuildAttributes()">
     @ChildContent
+    @if (ShowCloseButton)
+    {
+        <DialogClose AsChild="true">
+            <Button Variant="ButtonVariant.Outline">Close</Button>
+        </DialogClose>
+    }
 </div>
 
 @code {
+    /// <inheritdoc />
+    [Parameter]
+    public bool ShowCloseButton { get; set; }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -25,5 +35,11 @@
         {
             AppendClass(ref cls, "sm:flex-row sm:justify-end");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ShowCloseButton);
     }
 }

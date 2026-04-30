@@ -278,7 +278,21 @@
 
 	private Dictionary<string, object> BuildInputAttributes()
 	{
-		var attributes = new Dictionary<string, object>(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+		var attributes = new Dictionary<string, object>((AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
+
+        if (AdditionalAttributes is not null)
+        {
+            foreach (var pair in AdditionalAttributes)
+            {
+                if (pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
+                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[pair.Key] = pair.Value;
+            }
+        }
 
         if (Attributes is not null)
         {

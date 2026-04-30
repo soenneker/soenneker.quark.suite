@@ -6,8 +6,8 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="Collapsed breadcrumb trail with an overflow menu in the middle."
-                         Code="@BasicCode"
+                         Description="Displays the path to the current resource using a hierarchy of links."
+                         Code="@OverviewCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
@@ -49,37 +49,17 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="Shadcn-aligned Basic example."
+                         Description="A basic breadcrumb with a home link and a components link."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Home</Anchor>
-                            </BreadcrumbLink>
+                            <BreadcrumbLink To="#">Home</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <Dropdown>
-                                <DropdownToggle AsChild="true">
-                                    <Button Size="ButtonSize.IconSm" Variant="ButtonVariant.Ghost">
-                                        <BreadcrumbEllipsis />
-                                        <Span ScreenReader="ScreenReader.Only">Toggle menu</Span>
-                                    </Button>
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    <DropdownItem>Documentation</DropdownItem>
-                                    <DropdownItem>Themes</DropdownItem>
-                                    <DropdownItem>GitHub</DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Components</Anchor>
-                            </BreadcrumbLink>
+                            <BreadcrumbLink To="#">Components</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
@@ -92,20 +72,20 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Custom separator"
-                         Description="Breadcrumb separators can render custom content instead of only the default chevron."
+                         Description="Use a custom component as children for BreadcrumbSeparator to create a custom separator."
                          Code="@CustomSeparatorCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Home</Anchor>
+                                <Anchor To="/">Home</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Components</Anchor>
+                                <Anchor To="/components">Components</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
@@ -119,14 +99,14 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Dropdown"
-                         Description="A breadcrumb item can host a dropdown when several sibling paths stay collapsed."
+                         Description="You can compose BreadcrumbItem with a DropdownMenu to create a dropdown in the breadcrumb."
                          Code="@DropdownCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Home</Anchor>
+                                <Anchor To="/">Home</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
@@ -154,14 +134,14 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Collapsed"
-                         Description="Use BreadcrumbEllipsis as a dropdown trigger when a long path should collapse in the middle."
+                         Description="We provide a BreadcrumbEllipsis component to show a collapsed state when the breadcrumb is too long."
                          Code="@CollapsedCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Home</Anchor>
+                                <Anchor To="/">Home</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -183,7 +163,7 @@
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Components</Anchor>
+                                <Anchor To="/docs/components">Components</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -197,20 +177,20 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Link component"
-                         Description="BreadcrumbLink can pass its styling into a child Quark link with AsChild."
+                         Description="To use a custom link component from your routing library, you can use the AsChild prop on BreadcrumbLink."
                          Code="@LinkComponentCode"
                          CodeLanguage="razor">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Home</Anchor>
+                                <Anchor To="/">Home</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
-                                <Anchor To="#">Components</Anchor>
+                                <Anchor To="/components">Components</Anchor>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -256,7 +236,7 @@
 </Div>
 
 @code {
-    private const string BasicCode =
+    private const string OverviewCode =
 @"<Breadcrumb>
     <BreadcrumbList>
         <BreadcrumbItem>
@@ -293,18 +273,35 @@
     </BreadcrumbList>
 </Breadcrumb>";
 
+    private const string BasicCode =
+@"<Breadcrumb>
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink To=""#"">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbLink To=""#"">Components</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
+</Breadcrumb>";
+
     private const string CustomSeparatorCode =
 @"<Breadcrumb>
     <BreadcrumbList>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Home</Anchor>
+                <Anchor To=""/"">Home</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Components</Anchor>
+                <Anchor To=""/components"">Components</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
@@ -319,7 +316,7 @@
     <BreadcrumbList>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Home</Anchor>
+                <Anchor To=""/"">Home</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
@@ -348,7 +345,7 @@
     <BreadcrumbList>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Home</Anchor>
+                <Anchor To=""/"">Home</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -370,7 +367,7 @@
         <BreadcrumbSeparator />
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Components</Anchor>
+                <Anchor To=""/docs/components"">Components</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -385,13 +382,13 @@
     <BreadcrumbList>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Home</Anchor>
+                <Anchor To=""/"">Home</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
-                <Anchor To=""#"">Components</Anchor>
+                <Anchor To=""/components"">Components</Anchor>
             </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />

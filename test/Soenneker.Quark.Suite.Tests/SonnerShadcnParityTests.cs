@@ -27,8 +27,8 @@ public sealed partial class RenderedShadcnParityTests
             section.GetAttribute("aria-label").Should().Be("Notifications alt+T");
 
             toaster.GetAttribute("class").Should().Be("toaster group");
-            toaster.GetAttribute("data-y-position").Should().Be("bottom");
-            toaster.GetAttribute("data-x-position").Should().Be("right");
+            toaster.GetAttribute("data-y-position").Should().Be("top");
+            toaster.GetAttribute("data-x-position").Should().Be("center");
             toaster.GetAttribute("style")!.Should().Contain("--normal-bg: var(--popover)");
             toaster.GetAttribute("style")!.Should().Contain("--normal-text: var(--popover-foreground)");
             toaster.GetAttribute("style")!.Should().Contain("--normal-border: var(--border)");
@@ -47,6 +47,9 @@ public sealed partial class RenderedShadcnParityTests
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForSonner(), "src", "Soenneker.Quark.Suite", "wwwroot", "js", "sonnerinterop.js"));
 
         source.Should().Contain("toast.getBoundingClientRect().height");
+        source.Should().Contain("value instanceof Element");
+        source.Should().Contain("return true;");
+        source.Should().Contain("return false;");
         source.Should().NotContain("heights[id] = toast.offsetHeight");
     }
 
@@ -61,6 +64,15 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("color: var(--muted-foreground)");
         source.Should().NotContain("background: var(--normal-text)");
         source.Should().NotContain("color: var(--normal-bg)");
+    }
+
+    [Test]
+    public void Sonner_demo_mounts_toaster_for_live_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSonner(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Sonner.razor"));
+
+        source.Should().Contain("<Soenneker.Quark.Sonner />");
+        source.IndexOf("<Soenneker.Quark.Sonner />", StringComparison.Ordinal).Should().BeLessThan(source.IndexOf("<Div Space=\"Space.Y.Is8\"", StringComparison.Ordinal));
     }
 
     private static string GetSuiteRootForSonner()

@@ -27,7 +27,15 @@
     [Parameter]
     public bool Static { get; set; }
 
+    /// <summary>
+    /// Gets or sets the drawer edge using the current shadcn/Vaul root API: <c>top</c>, <c>right</c>, <c>bottom</c>, or <c>left</c>.
+    /// </summary>
+    [Parameter]
+    public string? Direction { get; set; }
+
     private readonly OverlayLabelContext _context = new("drawer");
+
+    internal Side? DirectionSide => ParseDirection(Direction);
 
     /// <summary>
     /// Shows the drawer.
@@ -68,6 +76,18 @@
         await RefreshOffThread();
     }
 
+    private static Side? ParseDirection(string? direction)
+    {
+        return direction?.ToLowerInvariant() switch
+        {
+            "top" => Side.Top,
+            "right" => Side.Right,
+            "bottom" => Side.Bottom,
+            "left" => Side.Left,
+            _ => null
+        };
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -81,5 +101,6 @@
         hc.Add(_context.HasDescription);
         hc.Add(_context.TitleId);
         hc.Add(_context.DescriptionId);
+        hc.Add(Direction);
     }
 }

@@ -4,11 +4,16 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IInputGroupTextarea
 
-<textarea @attributes="BuildAttributes()"
+<textarea @ref="_elementRef"
+          @attributes="BuildAttributes()"
           value="@Value"
           @oninput="HandleInput"></textarea>
 
 @code {
+    private ElementReference _elementRef;
+
+    [CascadingParameter]
+    internal InputGroupContext? InputGroupContext { get; set; }
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -35,6 +40,14 @@
         var value = e.Value?.ToString();
         Value = value;
         await ValueChanged.InvokeIfHasDelegate(value);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            InputGroupContext?.RegisterControl(_elementRef);
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

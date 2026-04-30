@@ -5,9 +5,9 @@
 
 @if (AsChild)
 {
-    <span @onclick="HandleWrapperClick" @attributes="BuildWrapperAttributes()">
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
         @ChildContent
-    </span>
+    </CascadingValue>
 }
 else
 {
@@ -42,30 +42,19 @@ else
         attributes["data-slot"] = "drawer-close";
     }
 
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "drawer-close-wrapper"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "contents");
-        });
-
-        return attributes;
-    }
-
-    private Task HandleWrapperClick(MouseEventArgs _)
-    {
-        return HandleClose();
-    }
-
     private async Task HandleDefaultClick(MouseEventArgs e)
     {
         await HandleClose();
         await base.HandleClick(e);
+    }
+
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            DataSlot = "drawer-close",
+            OnClick = HandleClose
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

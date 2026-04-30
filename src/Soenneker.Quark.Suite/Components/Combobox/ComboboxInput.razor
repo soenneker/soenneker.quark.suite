@@ -1,6 +1,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
+@if (Anchor)
+{
 <PopoverAnchor>
     <div @ref="_wrapperRef" @attributes="BuildWrapperAttributes()">
         @if (ChildContent is not null)
@@ -21,22 +23,63 @@
                 <span class="sr-only">Clear</span>
             </button>
         }
-        <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
-            <svg data-slot="combobox-trigger-icon" class="pointer-events-none size-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
+        @if (ShowTrigger)
+        {
+            <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
+                <svg data-slot="combobox-trigger-icon" class="pointer-events-none size-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+        }
     </div>
 </PopoverAnchor>
+}
+else
+{
+    <div @ref="_wrapperRef" @attributes="BuildWrapperAttributes()">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        <input value="@GetDisplayValue()"
+               @oninput="HandleInput"
+               @onfocus="HandleFocus"
+               @onclick="HandleClickOpen"
+               @onkeydown="HandleKeyDown"
+               @onkeydown:preventDefault="_preventDefaultKeys"
+               @attributes="BuildAttributes()" />
+        @if (ParentCombobox?.ShowClear == true && ParentCombobox.HasClearValue)
+        {
+            <button type="button" @onclick="Clear" @onmousedown:preventDefault="true" @attributes="BuildClearButtonAttributes()">
+                <svg data-slot="combobox-clear-icon" class="pointer-events-none size-4" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <span class="sr-only">Clear</span>
+            </button>
+        }
+        @if (ShowTrigger)
+        {
+            <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
+                <svg data-slot="combobox-trigger-icon" class="pointer-events-none size-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+        }
+    </div>
+}
 
 @code {
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
+
+    [Parameter]
+    public bool Anchor { get; set; } = true;
+
+    [Parameter]
+    public bool ShowTrigger { get; set; } = true;
 
     private bool _preventDefaultKeys;
     private ElementReference _wrapperRef;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        ParentCombobox?.SetTriggerElement(_wrapperRef);
+        if (Anchor)
+            ParentCombobox?.SetTriggerElement(_wrapperRef);
+
         return base.OnAfterRenderAsync(firstRender);
     }
 
@@ -134,6 +177,9 @@
             attributes["aria-controls"] = ParentCombobox.ContentId;
         }
 
+        if (ParentCombobox?.Disabled == true)
+            attributes["disabled"] = true;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground");
@@ -195,7 +241,7 @@
             AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50");
+            AppendClass(ref cls, "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50");
             AppendClass(ref cls, "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex items-center gap-2 text-sm shadow-none");
             AppendClass(ref cls, "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent");
             AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
@@ -238,5 +284,7 @@
         hc.Add(ParentCombobox?.Value);
         hc.Add(ParentCombobox?.ShowClear);
         hc.Add(ParentCombobox?.HasClearValue);
+        hc.Add(Anchor);
+        hc.Add(ShowTrigger);
     }
 }

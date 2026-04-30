@@ -109,9 +109,31 @@ public sealed partial class RenderedShadcnParityTests
         contentSource.Should().Contain("@ontouchcancel=\"HandleTouchCancel\"");
         contentSource.Should().Contain("\"overflow-hidden touch-pan-y\"");
         contentSource.Should().Contain("\"overflow-hidden touch-pan-x\"");
+        contentSource.Should().Contain("var offset = index * 100.0;");
+        contentSource.Should().NotContain("100.0 / count");
         carouselSource.Should().Contain("BeginTouchDrag(TouchEventArgs args)");
         carouselSource.Should().Contain("CompleteTouchDrag(TouchEventArgs args)");
         carouselSource.Should().Contain("args.PointerType != \"touch\" && args.Button != 0");
+    }
+
+    [Test]
+    public void Carousel_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForCarousel(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Carousels.razor"));
+
+        source.Should().Contain("A carousel with motion and swipe built using Embla.");
+        source.Should().Contain("To set the size of the items, you can use the basis utility class on CarouselItem.");
+        source.Should().Contain("To set the spacing between the items, we use a padding utility on CarouselItem and a negative margin on CarouselContent.");
+        source.Should().Contain("Use the orientation prop to set the orientation of the carousel.");
+        source.Should().Contain("Use a state and the setApi props to get an instance of the carousel API.");
+        source.Should().Contain("You can pass options to the carousel using the opts prop.");
+        source.Should().Contain("You can listen to events using the api instance from setApi.");
+        source.Should().Contain("You can use the plugins prop to add plugins to the carousel.");
+        source.Should().Contain("To enable RTL support in shadcn/ui, see the RTL configuration guide.");
+        source.Should().Contain("<Carousel Orientation=\"Orientation.Vertical\"");
+        source.Should().Contain("<Carousel Loop=\"true\"");
+        source.Should().Contain("<Carousel Autoplay=\"true\" Loop=\"true\"");
+        source.Should().Contain("<DirectionProvider Dir=\"@CarouselRtlDirection\">");
     }
 
     private static string GetSuiteRootForCarousel()

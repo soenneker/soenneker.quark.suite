@@ -8,11 +8,15 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="A basic email input."
-                         Code="@BasicCode"
+                         Description="A text input component for forms and user data entry with built-in styling and accessibility features."
+                         Code="@ApiKeyCode"
                          PreviewClass="preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 *:max-w-xs"
                          CodeLanguage="razor">
-                <Input Type="email" Placeholder="Email" />
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="input-api-key">API Key</FieldLabel>
+                    <Input Id="input-api-key" Type="password" Placeholder="sk-..." />
+                    <FieldDescription>Your API key is encrypted and stored securely.</FieldDescription>
+                </Field>
             </DemoSection>
         </Section>
 
@@ -54,6 +58,11 @@
                     <Field>
                         <FieldLabel For="fieldgroup-email">Email</FieldLabel>
                         <Input Id="fieldgroup-email" Type="email" Placeholder="name@example.com" />
+                        <FieldDescription>We'll send updates to this address.</FieldDescription>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">Reset</Button>
+                        <Button Type="ButtonType.Submit">Submit</Button>
                     </Field>
                 </FieldGroup>
             </DemoSection>
@@ -142,6 +151,7 @@
                 <Field MaxWidth="MaxWidth.IsXs">
                     <FieldLabel For="input-required" RequiredIndicator="true">Required Field</FieldLabel>
                     <Input Id="input-required" Placeholder="This field is required" Required="true" />
+                    <FieldDescription>This field must be filled out.</FieldDescription>
                 </Field>
             </DemoSection>
         </Section>
@@ -200,25 +210,53 @@
                          Code="@FormCode"
                          PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[32rem]"
                          CodeLanguage="razor">
-                <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="max-w-sm space-y-4">
+                <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="w-full max-w-sm space-y-4">
                     <DataAnnotationsValidator />
 
-                    <Field>
-                        <FieldLabel For="input-form-name">Name</FieldLabel>
-                        <Input Id="input-form-name" Type="text" @bind-Value="_formModel.Name" Placeholder="Evil Rabbit" />
-                        <ValidationMessage For="@(() => _formModel.Name)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
-                    </Field>
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel For="input-form-name">Name</FieldLabel>
+                            <Input Id="input-form-name" Type="text" @bind-Value="_formModel.Name" Placeholder="John Doe" />
+                            <ValidationMessage For="@(() => _formModel.Name)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
+                        </Field>
 
-                    <Field>
-                        <FieldLabel For="input-form-email">Email</FieldLabel>
-                        <Input Id="input-form-email" Type="email" @bind-Value="_formModel.Email" Placeholder="name@example.com" />
-                        <ValidationMessage For="@(() => _formModel.Email)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
-                    </Field>
+                        <Field>
+                            <FieldLabel For="input-form-email">Email</FieldLabel>
+                            <Input Id="input-form-email" Type="email" @bind-Value="_formModel.Email" Placeholder="john@example.com" />
+                            <FieldDescription>We'll never share your email with anyone.</FieldDescription>
+                            <ValidationMessage For="@(() => _formModel.Email)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
+                        </Field>
 
-                    <Div Display="Display.Flex" Gap="Gap.Is4">
-                        <Button Type="ButtonType.Submit">Submit</Button>
-                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
-                    </Div>
+                        <Div Class="grid grid-cols-2 gap-4">
+                            <Field>
+                                <FieldLabel For="input-form-phone">Phone</FieldLabel>
+                                <Input Id="input-form-phone" Type="tel" Placeholder="+1 (555) 123-4567" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="input-form-country">Country</FieldLabel>
+                                <Select TValue="string" SelectedValue="@("us")">
+                                    <SelectTrigger Id="input-form-country">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem TValue="string" ItemValue="@("us")" Text="United States" />
+                                        <SelectItem TValue="string" ItemValue="@("uk")" Text="United Kingdom" />
+                                        <SelectItem TValue="string" ItemValue="@("ca")" Text="Canada" />
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                        </Div>
+
+                        <Field>
+                            <FieldLabel For="input-form-address">Address</FieldLabel>
+                            <Input Id="input-form-address" Type="text" Placeholder="123 Main St" />
+                        </Field>
+
+                        <Field Horizontal="true">
+                            <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Cancel</Button>
+                            <Button Type="ButtonType.Submit">Submit</Button>
+                        </Field>
+                    </FieldGroup>
 
                     @if (!string.IsNullOrEmpty(_formMessage))
                     {
@@ -240,7 +278,7 @@
                     <Field MaxWidth="MaxWidth.IsXs">
                         <FieldLabel For="input-rtl-api-key">مفتاح API</FieldLabel>
                         <Input Id="input-rtl-api-key" Type="password" Placeholder="sk-..." />
-                        <FieldDescription>مفتاح API الخاص بك مشفر ويتم تخزينه بأمان.</FieldDescription>
+                        <FieldDescription>مفتاح API الخاص بك مشفر ومخزن بأمان.</FieldDescription>
                     </Field>
                 </DirectionProvider>
             </DemoSection>
@@ -249,6 +287,13 @@
 </Div>
 
 @code {
+    private const string ApiKeyCode =
+@"<Field>
+    <FieldLabel For=""input-api-key"">API Key</FieldLabel>
+    <Input Id=""input-api-key"" Type=""password"" Placeholder=""sk-..."" />
+    <FieldDescription>Your API key is encrypted and stored securely.</FieldDescription>
+</Field>";
+
     private const string BasicCode =
 @"<Input Type=""email"" Placeholder=""Email"" />";
 
@@ -268,6 +313,11 @@
     <Field>
         <FieldLabel For=""fieldgroup-email"">Email</FieldLabel>
         <Input Id=""fieldgroup-email"" Type=""email"" Placeholder=""name@example.com"" />
+        <FieldDescription>We'll send updates to this address.</FieldDescription>
+    </Field>
+    <Field Horizontal=""true"">
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Reset</Button>
+        <Button Type=""ButtonType.Submit"">Submit</Button>
     </Field>
 </FieldGroup>";
 
@@ -314,6 +364,7 @@
 @"<Field MaxWidth=""MaxWidth.IsXs"">
     <FieldLabel For=""input-required"" RequiredIndicator=""true"">Required Field</FieldLabel>
     <Input Id=""input-required"" Placeholder=""This field is required"" Required=""true"" />
+    <FieldDescription>This field must be filled out.</FieldDescription>
 </Field>";
 
     private const string BadgeCode =
@@ -344,22 +395,44 @@
 </Field>";
 
     private const string FormCode =
-@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""max-w-sm space-y-4"">
+@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""w-full max-w-sm space-y-4"">
     <DataAnnotationsValidator />
-    <Field>
-        <FieldLabel For=""input-form-name"">Name</FieldLabel>
-        <Input Id=""input-form-name"" Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""Evil Rabbit"" />
-        <ValidationMessage For=""@(() => _formModel.Name)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
-    </Field>
-    <Field>
-        <FieldLabel For=""input-form-email"">Email</FieldLabel>
-        <Input Id=""input-form-email"" Type=""email"" @bind-Value=""_formModel.Email"" Placeholder=""name@example.com"" />
-        <ValidationMessage For=""@(() => _formModel.Email)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
-    </Field>
-    <Div Display=""Display.Flex"" Gap=""Gap.Is4"">
-        <Button Type=""ButtonType.Submit"">Submit</Button>
-        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Reset</Button>
-    </Div>
+    <FieldGroup>
+        <Field>
+            <FieldLabel For=""input-form-name"">Name</FieldLabel>
+            <Input Id=""input-form-name"" Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""John Doe"" />
+        </Field>
+        <Field>
+            <FieldLabel For=""input-form-email"">Email</FieldLabel>
+            <Input Id=""input-form-email"" Type=""email"" @bind-Value=""_formModel.Email"" Placeholder=""john@example.com"" />
+            <FieldDescription>We'll never share your email with anyone.</FieldDescription>
+        </Field>
+        <Div Class=""grid grid-cols-2 gap-4"">
+            <Field>
+                <FieldLabel For=""input-form-phone"">Phone</FieldLabel>
+                <Input Id=""input-form-phone"" Type=""tel"" Placeholder=""+1 (555) 123-4567"" />
+            </Field>
+            <Field>
+                <FieldLabel For=""input-form-country"">Country</FieldLabel>
+                <Select TValue=""string"" SelectedValue=""@(""us"")"">
+                    <SelectTrigger Id=""input-form-country""><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem TValue=""string"" ItemValue=""@(""us"")"" Text=""United States"" />
+                        <SelectItem TValue=""string"" ItemValue=""@(""uk"")"" Text=""United Kingdom"" />
+                        <SelectItem TValue=""string"" ItemValue=""@(""ca"")"" Text=""Canada"" />
+                    </SelectContent>
+                </Select>
+            </Field>
+        </Div>
+        <Field>
+            <FieldLabel For=""input-form-address"">Address</FieldLabel>
+            <Input Id=""input-form-address"" Type=""text"" Placeholder=""123 Main St"" />
+        </Field>
+        <Field Horizontal=""true"">
+            <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Cancel</Button>
+            <Button Type=""ButtonType.Submit"">Submit</Button>
+        </Field>
+    </FieldGroup>
 </EditForm>";
 
     private const string RtlCode =
@@ -367,7 +440,7 @@
     <Field MaxWidth=""MaxWidth.IsXs"">
         <FieldLabel For=""input-rtl-api-key"">مفتاح API</FieldLabel>
         <Input Id=""input-rtl-api-key"" Type=""password"" Placeholder=""sk-..."" />
-        <FieldDescription>مفتاح API الخاص بك مشفر ويتم تخزينه بأمان.</FieldDescription>
+        <FieldDescription>مفتاح API الخاص بك مشفر ومخزن بأمان.</FieldDescription>
     </Field>
 </DirectionProvider>";
 

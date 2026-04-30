@@ -5,9 +5,9 @@
 
 @if (AsChild)
 {
-    <span @onclick="HandleWrapperClick" @attributes="BuildWrapperAttributes()">
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
         @ChildContent
-    </span>
+    </CascadingValue>
 }
 else
 {
@@ -45,21 +45,6 @@ else
         attributes["data-slot"] = "dialog-close";
     }
 
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "dialog-close-wrapper"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "contents");
-        });
-
-        return attributes;
-    }
-
     private async Task HandleCloseClick()
     {
         await OnClose.InvokeIfHasDelegate();
@@ -68,14 +53,18 @@ else
             await ParentDialog.Hide();
     }
 
-    private async Task HandleWrapperClick(MouseEventArgs _)
+    private async Task HandleCloseButtonClick(MouseEventArgs _)
     {
         await HandleCloseClick();
     }
 
-    private async Task HandleCloseButtonClick(MouseEventArgs _)
+    private TriggerContext GetTriggerContext()
     {
-        await HandleCloseClick();
+        return new TriggerContext
+        {
+            DataSlot = "dialog-close",
+            OnClick = HandleCloseClick
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

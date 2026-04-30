@@ -19,6 +19,21 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Dropdown_root_does_not_render_wrapper_by_default_like_radix_root()
+    {
+        var cut = Render<Dropdown>(parameters => parameters
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<DropdownToggle>(0);
+                builder.AddAttribute(1, nameof(DropdownToggle.ChildContent), (RenderFragment)(toggleBuilder => toggleBuilder.AddContent(0, "Open")));
+                builder.CloseComponent();
+            })));
+
+        cut.FindAll("[data-slot='dropdown-menu']").Should().BeEmpty();
+        cut.Find("[data-slot='dropdown-menu-trigger']").TextContent.Should().Contain("Open");
+    }
+
+    [Test]
     public void DropdownItem_matches_shadcn_v4_item_classes()
     {
         var item = RenderOpenDropdownWithMenu(builder =>
@@ -131,6 +146,52 @@ public sealed partial class RenderedShadcnParityTests
         indicatorClasses.Should().NotContain("right-2");
         iconClasses.Should().Contain("size-2");
         iconClasses.Should().Contain("fill-current");
+    }
+
+    [Test]
+    public void DropdownRadioGroup_updates_items_from_value_contract()
+    {
+        string? selected = "top";
+
+        var cut = Render<Dropdown>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<DropdownToggle>(0);
+                builder.AddAttribute(1, nameof(DropdownToggle.ChildContent), (RenderFragment)(toggleBuilder => toggleBuilder.AddContent(0, "Open")));
+                builder.CloseComponent();
+
+                builder.OpenComponent<DropdownMenu>(2);
+                builder.AddAttribute(3, nameof(DropdownMenu.ChildContent), (RenderFragment)(menuBuilder =>
+                {
+                    menuBuilder.OpenComponent<DropdownRadioGroup>(4);
+                    menuBuilder.AddAttribute(5, nameof(DropdownRadioGroup.Value), selected);
+                    menuBuilder.AddAttribute(6, nameof(DropdownRadioGroup.ValueChanged), EventCallback.Factory.Create<string?>(this, value => selected = value));
+                    menuBuilder.AddAttribute(7, nameof(DropdownRadioGroup.ChildContent), (RenderFragment)(groupBuilder =>
+                    {
+                        groupBuilder.OpenComponent<DropdownRadioItem>(8);
+                        groupBuilder.AddAttribute(9, nameof(DropdownRadioItem.Value), "top");
+                        groupBuilder.AddAttribute(10, nameof(DropdownRadioItem.ChildContent), (RenderFragment)(itemBuilder => itemBuilder.AddContent(0, "Top")));
+                        groupBuilder.CloseComponent();
+
+                        groupBuilder.OpenComponent<DropdownRadioItem>(11);
+                        groupBuilder.AddAttribute(12, nameof(DropdownRadioItem.Value), "bottom");
+                        groupBuilder.AddAttribute(13, nameof(DropdownRadioItem.ChildContent), (RenderFragment)(itemBuilder => itemBuilder.AddContent(0, "Bottom")));
+                        groupBuilder.CloseComponent();
+                    }));
+                    menuBuilder.CloseComponent();
+                }));
+                builder.CloseComponent();
+            })));
+
+        var items = cut.FindAll("[data-slot='dropdown-menu-radio-item']");
+
+        items[0].GetAttribute("data-state").Should().Be("checked");
+        items[1].GetAttribute("data-state").Should().Be("unchecked");
+
+        items[1].Click();
+
+        selected.Should().Be("bottom");
     }
 
     [Test]

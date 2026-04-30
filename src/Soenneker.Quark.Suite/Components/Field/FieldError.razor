@@ -1,20 +1,48 @@
 @namespace Soenneker.Quark
+@using System.Linq
 @inherits Soenneker.Quark.TypographyElement
 
 @if (HasContent)
 {
     <div @attributes="BuildAttributes()" role="alert">
-        @ChildContent
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (UniqueErrorMessages.Count == 1)
+        {
+            @UniqueErrorMessages[0]
+        }
+        else if (UniqueErrorMessages.Count > 1)
+        {
+            <ul class="ml-4 flex list-disc flex-col gap-1">
+                @foreach (var message in UniqueErrorMessages)
+                {
+                    <li>@message</li>
+                }
+            </ul>
+        }
     </div>
 }
 
 @code {
+    [Parameter]
+    public IReadOnlyList<string?>? Errors { get; set; }
+
     [CascadingParameter]
     private FieldContext? FieldContext { get; set; }
 
     private IDisposable? _registration;
     private FieldContext? _registeredContext;
-    private bool HasContent => ChildContent is not null;
+    private IReadOnlyList<string> UniqueErrorMessages =>
+        Errors?
+            .Where(message => !message.IsNullOrWhiteSpace())
+            .Select(message => message!.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray()
+        ?? [];
+
+    private bool HasContent => ChildContent is not null || UniqueErrorMessages.Count > 0;
 
     protected override void OnParametersSet()
     {
@@ -51,6 +79,11 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(HasContent);
+        if (Errors is not null)
+        {
+            foreach (var error in Errors)
+                hc.Add(error);
+        }
         hc.Add(FieldContext?.ErrorId);
     }
 

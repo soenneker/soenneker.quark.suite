@@ -29,7 +29,9 @@
     private OverlayLabelContext? Context { get; set; }
 
     [Parameter]
-    public Side Side { get; set; } = Side.Bottom;
+    public Side? Side { get; set; }
+
+    private Side ResolvedSide => Side ?? ParentDrawer?.DirectionSide ?? Soenneker.Bradix.Side.Bottom;
 
     private bool ShouldCloseOnOutsideInteraction =>
         ParentDrawer is not null &&
@@ -57,16 +59,26 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "drawer-content";
-        attributes["data-side"] = Side.Value;
-        attributes["data-vaul-drawer-direction"] = Side.Value;
+        attributes["data-side"] = ResolvedSide.Value;
+        attributes["data-vaul-drawer-direction"] = ResolvedSide.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/drawer-content");
+            AppendClass(ref cls, "transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500");
             AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b");
             AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t");
             AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm");
             AppendClass(ref cls, "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm");
+
+            if (ResolvedSide == Soenneker.Bradix.Side.Top)
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top");
+            else if (ResolvedSide == Soenneker.Bradix.Side.Right)
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right");
+            else if (ResolvedSide == Soenneker.Bradix.Side.Left)
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left");
+            else
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom");
         });
     }
 
@@ -92,6 +104,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Side);
+        hc.Add(ResolvedSide);
         hc.Add(ParentDrawer?.Visible ?? false);
         hc.Add(ParentDrawer?.ShowBackdrop ?? true);
         hc.Add(ParentDrawer?.TrapFocus ?? true);

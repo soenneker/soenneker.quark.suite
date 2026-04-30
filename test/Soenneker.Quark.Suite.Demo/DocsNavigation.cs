@@ -83,7 +83,6 @@ public static class DocsNavigation
         new("Textarea", "textareas"),
         new("Thread", "threads", IsNew: true),
         new("Timeline", "timelines"),
-        new("Toast", "toasts"),
         new("Toggle", "toggles"),
         new("Toggle Group", "toggle-groups"),
         new("Tooltip", "tooltips"),

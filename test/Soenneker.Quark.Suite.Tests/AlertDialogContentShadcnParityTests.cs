@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -93,5 +95,44 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().NotContain("ring-1");
         contentClasses.Should().NotContain("ring-foreground/10");
         contentClasses.Should().NotContain("data-open:animate-in");
+    }
+
+    [Test]
+    public void AlertDialog_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForAlertDialog(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "AlertDialogs.razor"));
+
+        source.Should().Contain("A modal dialog that interrupts the user with important content and expects a response.");
+        source.Should().Contain("This action cannot be undone. This will permanently delete your account and remove your data from our servers.");
+        source.Should().Contain("Allow accessory to connect?");
+        source.Should().Contain("Do you want to allow the USB accessory to connect to this device?");
+        source.Should().Contain("<AlertDialogCancel>Don't allow</AlertDialogCancel>");
+        source.Should().Contain("<AlertDialogAction>Allow</AlertDialogAction>");
+        source.Should().Contain("Share Project");
+        source.Should().Contain("Share this project?");
+        source.Should().Contain("Anyone with the link will be able to view and edit this project.");
+        source.Should().Contain("LucideIcon.CircleFadingPlus");
+        source.Should().Contain("LucideIcon.Bluetooth");
+        source.Should().Contain("Delete Chat");
+        source.Should().Contain("Delete chat?");
+        source.Should().Contain("LucideIcon.Trash2");
+        source.Should().Contain("AlertDialogCancel Variant=\"ButtonVariant.Ghost\"");
+        source.Should().Contain("إظهار الحوار");
+        source.Should().Contain("إظهار الحوار (صغير)");
+        source.Should().Contain("السماح للملحق بالاتصال؟");
+        source.Should().Contain("هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟");
+        source.Should().Contain("عدم السماح");
+        source.Should().NotContain("Archive item?");
+        source.Should().NotContain("Delete this project?");
+    }
+
+    private static string GetSuiteRootForAlertDialog()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

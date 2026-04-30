@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -56,5 +58,26 @@ public sealed partial class RenderedShadcnParityTests
         handle.GetAttribute("data-sortable-handle").Should().Be(string.Empty);
         handle.GetAttribute("class")!.Should().Contain("cursor-grab");
         handle.GetAttribute("class")!.Should().Contain("touch-none");
+    }
+
+    [Test]
+    public void Sortable_initialization_failure_is_recorded_once_per_configuration()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSortable(), "src", "Soenneker.Quark.Suite", "Components", "Sortable", "SortableList.razor"));
+
+        source.Should().Contain("_lastFailedInitializationKey");
+        source.Should().Contain("!string.Equals(_lastFailedInitializationKey, initializationKey, StringComparison.Ordinal)");
+        source.Should().Contain("_lastFailedInitializationKey = initializationKey;");
+        source.Should().Contain("_lastFailedInitializationKey = null;");
+    }
+
+    private static string GetSuiteRootForSortable()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

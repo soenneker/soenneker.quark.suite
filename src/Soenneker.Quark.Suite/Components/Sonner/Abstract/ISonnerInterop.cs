@@ -18,7 +18,7 @@ public interface ISonnerInterop : IAsyncDisposable
 
     ValueTask UnregisterHotkey(ElementReference section, CancellationToken cancellationToken = default);
 
-    ValueTask RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference, CancellationToken cancellationToken = default);
+    ValueTask<bool> RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference, CancellationToken cancellationToken = default);
 
     ValueTask UnregisterSwipeHandlers(ElementReference section, CancellationToken cancellationToken = default);
 

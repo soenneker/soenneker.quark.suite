@@ -72,6 +72,66 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Combobox_disabled_state_disables_input_primitives()
+    {
+        var single = Render<Combobox>(parameters => parameters
+            .Add(p => p.Disabled, true)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<ComboboxInput>(0);
+                builder.CloseComponent();
+            })));
+
+        single.Find("[data-combobox-slot='combobox-input']").HasAttribute("disabled").Should().BeTrue();
+
+        var multiple = Render<Combobox>(parameters => parameters
+            .Add(p => p.Disabled, true)
+            .Add(p => p.Multiple, true)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<ComboboxChips>(0);
+                builder.AddAttribute(1, "ChildContent", (RenderFragment)(chips =>
+                {
+                    chips.OpenComponent<ComboboxChipsInput>(0);
+                    chips.CloseComponent();
+                }));
+                builder.CloseComponent();
+            })));
+
+        multiple.Find("[data-combobox-slot='combobox-chip-input']").HasAttribute("disabled").Should().BeTrue();
+    }
+
+    [Test]
+    public void Combobox_trigger_does_not_show_selected_state_when_open()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForCombobox(), "src", "Soenneker.Quark.Suite", "Components", "Combobox", "ComboboxInput.razor"));
+
+        source.Should().Contain("hover:bg-muted hover:text-foreground dark:hover:bg-muted/50");
+        source.Should().NotContain("aria-expanded:bg-muted");
+        source.Should().NotContain("aria-expanded:text-foreground");
+    }
+
+    [Test]
+    public void Combobox_demo_copy_matches_current_shadcn_docs()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForCombobox(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Comboboxes.razor"));
+
+        source.Should().Contain("Autocomplete input with a list of suggestions.");
+        source.Should().Contain("A simple combobox with a list of frameworks.");
+        source.Should().Contain("A combobox with multiple selection using `multiple` and `ComboboxChips`.");
+        source.Should().Contain("Use the `showClear` prop to show a clear button.");
+        source.Should().Contain("Use `ComboboxGroup` and `ComboboxSeparator` to group items.");
+        source.Should().Contain("You can render a custom component inside `ComboboxItem`.");
+        source.Should().Contain("Use the `aria-invalid` prop to make the combobox invalid.");
+        source.Should().Contain("Use the `disabled` prop to disable the combobox.");
+        source.Should().Contain("Use the `autoHighlight` prop to automatically highlight the first item on filter.");
+        source.Should().Contain("You can trigger the combobox from a button or any other component by using the `render` prop. Move the `ComboboxInput` inside the `ComboboxContent`.");
+        source.Should().Contain("<ComboboxInput Anchor=\"false\" ShowTrigger=\"false\" Placeholder=\"Search framework...\" />");
+        source.Should().NotContain("<CommandInput Placeholder=\"Search framework...\"");
+        source.Should().NotContain("Use disabled to prevent changes while preserving the selected value.");
+    }
+
+    [Test]
     public void Combobox_empty_hides_after_items_register()
     {
         var cut = Render<Combobox>(parameters => parameters

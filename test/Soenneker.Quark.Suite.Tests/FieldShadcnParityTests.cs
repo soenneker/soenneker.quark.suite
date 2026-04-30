@@ -126,6 +126,26 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void FieldGroup_supports_shadcn_checkbox_group_slot()
+    {
+        var cut = Render<FieldGroup>(parameters => parameters
+            .Add(p => p.Slot, "checkbox-group")
+            .AddChildContent<Field>(field => field
+                .Add(p => p.Horizontal, true)
+                .AddChildContent<Check>(check => check.Add(p => p.Id, "hard-disks"))
+                .AddChildContent<FieldLabel>(label => label
+                    .Add(p => p.For, "hard-disks")
+                    .AddChildContent("Hard disks"))));
+
+        var group = cut.Find("[data-slot='checkbox-group']");
+        var classes = group.GetAttribute("class")!;
+
+        classes.Should().Contain("group/field-group");
+        classes.Should().Contain("@container/field-group");
+        classes.Should().Contain("data-[slot=checkbox-group]:gap-3");
+    }
+
+    [Test]
     public void FieldLabel_wrapped_horizontal_field_matches_shadcn_checkbox_chip_structure()
     {
         var cut = Render<FieldLabel>(parameters => parameters
@@ -157,5 +177,24 @@ public sealed partial class RenderedShadcnParityTests
         fieldClasses.Should().Contain("py-1.5!");
         fieldClasses.Should().Contain("group-has-data-[state=checked]/field-label:px-2!");
         field.Children[1].GetAttribute("data-slot").Should().Be("field-label");
+    }
+
+    [Test]
+    public void FieldError_supports_shadcn_errors_collection_contract()
+    {
+        var empty = Render<FieldError>();
+        empty.Markup.Should().BeEmpty();
+
+        var single = Render<FieldError>(parameters => parameters
+            .Add(p => p.Errors, ["Required", "Required", null]));
+        single.Markup.Should().Contain("role=\"alert\"");
+        single.Markup.Should().Contain("Required");
+        single.FindAll("li").Should().BeEmpty();
+
+        var multiple = Render<FieldError>(parameters => parameters
+            .Add(p => p.Errors, ["Required", "Must be a valid email", "Required"]));
+        multiple.Find("[data-slot='field-error']").GetAttribute("class")!.Should().Contain("text-destructive");
+        multiple.Find("ul").GetAttribute("class")!.Should().Contain("ml-4");
+        multiple.FindAll("li").Should().HaveCount(2);
     }
 }

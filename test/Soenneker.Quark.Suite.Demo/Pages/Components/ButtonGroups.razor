@@ -6,7 +6,7 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="Toolbar-style groups with outline actions and a split dropdown for overflow."
+                         Description="A container that groups related buttons together with consistent styling."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <ButtonGroup AriaLabel="Message actions">
@@ -22,8 +22,10 @@
                     <ButtonGroup>
                         <Button Variant="ButtonVariant.Outline">Snooze</Button>
                         <Dropdown>
-                            <DropdownToggle IsSplit="true" aria-label="More Options">
-                                <Icon Name="LucideIcon.Ellipsis" />
+                            <DropdownToggle AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
+                                    <Icon Name="LucideIcon.Ellipsis" />
+                                </Button>
                             </DropdownToggle>
                             <DropdownMenu RightAligned="true" Class="w-40">
                                 <DropdownItem>
@@ -61,7 +63,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Orientation"
-                         Description="Vertical orientation stacks grouped actions into a compact control."
+                         Description="Set the orientation prop to change the button group layout."
                          Code="@OrientationCode"
                          CodeLanguage="razor">
                 <ButtonGroup Vertical="true" AriaLabel="Media controls" Class="h-fit">
@@ -77,7 +79,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Size"
-                         Description="Control the size of buttons using the size parameter on individual buttons."
+                         Description="Control the size of buttons using the size prop on individual buttons."
                          Code="@SizeCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Start" Gap='Gap.Token("8")'>
@@ -111,7 +113,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Nested"
-                         Description="Nested groups now keep their own borders while preserving the outer spacing."
+                         Description="Nest ButtonGroup components to create button groups with spacing."
                          Code="@NestedCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -134,7 +136,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Separator"
-                         Description="Separators now switch orientation with the group instead of relying on ad hoc borders."
+                         Description="The ButtonGroupSeparator component visually divides buttons within a group."
                          Code="@SeparatorCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -147,7 +149,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Split"
-                         Description="Split groups use a real separator and retain the shared rounded treatment."
+                         Description="Create a split button group by adding two buttons separated by a ButtonGroupSeparator."
                          Code="@SplitCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -162,7 +164,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Input"
-                         Description="Inputs can sit directly inside the group without breaking the grouped outline."
+                         Description="Wrap an Input component with buttons."
                          Code="@InputCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -176,7 +178,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Input Group"
-                         Description="Input groups can be nested inside button groups for richer composed forms."
+                         Description="Wrap an InputGroup component to create complex input layouts."
                          Code="@InputGroupCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Flex=@("flex-wrap") ItemsAlign="Items.Center" Gap="Gap.Is3">
@@ -194,14 +196,16 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Dropdown Menu"
-                         Description="Use a split action with a real grouped dropdown trigger."
+                         Description="Create a split button group with a DropdownMenu component."
                          Code="@DropdownMenuCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
                     <Button Variant="ButtonVariant.Outline">Follow</Button>
                     <Dropdown>
-                        <DropdownToggle IsSplit="true" Class="pl-2!">
-                            <Icon Name="LucideIcon.ChevronDown" />
+                        <DropdownToggle AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" Class="pl-2!" aria-label="More Options">
+                                <Icon Name="LucideIcon.ChevronDown" />
+                            </Button>
                         </DropdownToggle>
                         <DropdownMenu RightAligned="true" Class="w-44">
                             <DropdownItem>
@@ -241,7 +245,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Select"
-                         Description="Select triggers can now participate in the same grouped surface as inputs and actions."
+                         Description="Pair with a Select component."
                          Code="@SelectCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -269,7 +273,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Popover"
-                         Description="Grouped popover triggers use the same shared border and focus treatment as the rest of the surface."
+                         Description="Use with a Popover component."
                          Code="@PopoverCode"
                          CodeLanguage="razor">
                 <ButtonGroup>
@@ -303,15 +307,27 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Button groups keep their visual grouping when rendered right-to-left."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
-                <ButtonGroup dir="rtl">
-                    <Button Variant="ButtonVariant.Outline">السابق</Button>
-                    <Button Variant="ButtonVariant.Outline">التالي</Button>
-                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More">
-                        <Icon Name="LucideIcon.Ellipsis" />
-                    </Button>
+                <ButtonGroup dir="rtl" AriaLabel="إجراءات الرسالة">
+                    <Button Variant="ButtonVariant.Outline">أرشفة</Button>
+                    <Button Variant="ButtonVariant.Outline">تقرير</Button>
+                    <Button Variant="ButtonVariant.Outline">تأجيل</Button>
+                    <Dropdown>
+                        <DropdownToggle AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
+                                <Icon Name="LucideIcon.Ellipsis" />
+                            </Button>
+                        </DropdownToggle>
+                        <DropdownMenu RightAligned="true" Class="w-40">
+                            <DropdownItem>تمييز كمقروءة</DropdownItem>
+                            <DropdownItem>أرشفة</DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem>تأجيل</DropdownItem>
+                            <DropdownItem Variant="destructive">حذف</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                 </ButtonGroup>
             </DemoSection>
         </Section>
@@ -330,7 +346,11 @@
     </ButtonGroup>
     <ButtonGroup>
         <Button Variant=""ButtonVariant.Outline"">Snooze</Button>
-        <Dropdown>...</Dropdown>
+        <Dropdown>
+            <DropdownToggle AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More Options"">...</Button>
+            </DropdownToggle>
+        </Dropdown>
     </ButtonGroup>
 </ButtonGroup>";
 
@@ -403,7 +423,9 @@
 @"<ButtonGroup>
     <Button Variant=""ButtonVariant.Outline"">Follow</Button>
     <Dropdown>
-        <DropdownToggle IsSplit=""true"" Class=""pl-2!"">...</DropdownToggle>
+        <DropdownToggle AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" Class=""pl-2!"" aria-label=""More Options"">...</Button>
+        </DropdownToggle>
         <DropdownMenu RightAligned=""true"" Class=""w-44"">...</DropdownMenu>
     </Dropdown>
 </ButtonGroup>";
@@ -433,11 +455,17 @@
 </ButtonGroup>";
 
     private const string RtlCode =
-@"<ButtonGroup dir=""rtl"">
-    <Button Variant=""ButtonVariant.Outline"">السابق</Button>
-    <Button Variant=""ButtonVariant.Outline"">التالي</Button>
-    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More"">
-        <Icon Name=""LucideIcon.Ellipsis"" />
-    </Button>
+@"<ButtonGroup dir=""rtl"" AriaLabel=""إجراءات الرسالة"">
+    <Button Variant=""ButtonVariant.Outline"">أرشفة</Button>
+    <Button Variant=""ButtonVariant.Outline"">تقرير</Button>
+    <Button Variant=""ButtonVariant.Outline"">تأجيل</Button>
+    <Dropdown>
+        <DropdownToggle AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More Options"">
+                <Icon Name=""LucideIcon.Ellipsis"" />
+            </Button>
+        </DropdownToggle>
+        <DropdownMenu RightAligned=""true"" Class=""w-40"">...</DropdownMenu>
+    </Dropdown>
 </ButtonGroup>";
 }

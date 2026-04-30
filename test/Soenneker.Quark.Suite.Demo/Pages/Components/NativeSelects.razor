@@ -5,115 +5,122 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Simple"
-                         Description="A styled native HTML select element with consistent design system integration."
-                        Code="@BasicCode"
-CodeLanguage="razor">
-                <NativeSelect>
-                    <NativeSelectOption Value="">Select status</NativeSelectOption>
-                    <NativeSelectOption Value="todo">Todo</NativeSelectOption>
-                    <NativeSelectOption Value="in-progress">In Progress</NativeSelectOption>
-                    <NativeSelectOption Value="done">Done</NativeSelectOption>
-                    <NativeSelectOption Value="cancelled">Cancelled</NativeSelectOption>
-                </NativeSelect>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Groups" Description="Use option groups to organize long lists."
-                        Code="@GroupsCode"
-CodeLanguage="razor">
-                    <NativeSelect @bind-Value="_department">
-                        <NativeSelectOption Value="">Select department</NativeSelectOption>
-                    <NativeSelectOptGroup Label="Engineering">
-                        <NativeSelectOption Value="frontend">Frontend</NativeSelectOption>
-                        <NativeSelectOption Value="backend">Backend</NativeSelectOption>
-                        <NativeSelectOption Value="devops">DevOps</NativeSelectOption>
-                    </NativeSelectOptGroup>
-                    <NativeSelectOptGroup Label="Sales">
-                        <NativeSelectOption Value="sales-rep">Sales Rep</NativeSelectOption>
-                        <NativeSelectOption Value="account-manager">Account Manager</NativeSelectOption>
-                        <NativeSelectOption Value="sales-director">Sales Director</NativeSelectOption>
-                    </NativeSelectOptGroup>
-                    <NativeSelectOptGroup Label="Operations">
-                        <NativeSelectOption Value="support">Customer Support</NativeSelectOption>
-                        <NativeSelectOption Value="product-manager">Product Manager</NativeSelectOption>
-                        <NativeSelectOption Value="ops-manager">Operations Manager</NativeSelectOption>
-                    </NativeSelectOptGroup>
-                </NativeSelect>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Native Select vs Select"
-                         Description="NativeSelect keeps browser-native option behavior; Select provides a fully styled popover list."
-                         Code="@NativeSelectVsSelectCode"
+            <DemoSection Title="Basic"
+                         Description="A styled native HTML select element with browser-native option behavior."
+                         Code="@BasicCode"
                          CodeLanguage="razor">
-                <Div Class="grid w-full max-w-xl gap-4 md:grid-cols-2">
-                    <Field>
-                        <FieldLabel>Native Select</FieldLabel>
-                        <NativeSelect Value="todo">
-                            <NativeSelectOption Value="todo">Todo</NativeSelectOption>
-                            <NativeSelectOption Value="in-progress">In Progress</NativeSelectOption>
-                            <NativeSelectOption Value="done">Done</NativeSelectOption>
-                        </NativeSelect>
-                    </Field>
-                    <Field>
-                        <FieldLabel>Select</FieldLabel>
-                        <Select TValue="string" SelectedValue="@("todo")">
-                            <SelectTrigger>
-                                <SelectValue Placeholder="Todo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem TValue="string" ItemValue="@("todo")" Text="Todo" />
-                                <SelectItem TValue="string" ItemValue="@("in-progress")" Text="In Progress" />
-                                <SelectItem TValue="string" ItemValue="@("done")" Text="Done" />
-                            </SelectContent>
-                        </Select>
-                    </Field>
+                <NativeSelect data-testid="native-select-basic">
+                    <NativeSelectOption Value="">Select a fruit</NativeSelectOption>
+                    <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                    <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                    <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
+                    <NativeSelectOption Value="grapes" Disabled="true">Grapes</NativeSelectOption>
+                    <NativeSelectOption Value="pineapple">Pineapple</NativeSelectOption>
+                </NativeSelect>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="With Groups"
+                         Description="Use native option groups to organize related choices."
+                         Code="@GroupsCode"
+                         CodeLanguage="razor">
+                <NativeSelect @bind-Value="_food" data-testid="native-select-groups">
+                    <NativeSelectOption Value="">Select a food</NativeSelectOption>
+                    <NativeSelectOptGroup Label="Fruits">
+                        <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                        <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                        <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
+                    </NativeSelectOptGroup>
+                    <NativeSelectOptGroup Label="Vegetables">
+                        <NativeSelectOption Value="carrot">Carrot</NativeSelectOption>
+                        <NativeSelectOption Value="broccoli">Broccoli</NativeSelectOption>
+                        <NativeSelectOption Value="spinach">Spinach</NativeSelectOption>
+                    </NativeSelectOptGroup>
+                </NativeSelect>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sizes"
+                         Description="Use the size option for compact or default height controls."
+                         Code="@SizesCode"
+                         CodeLanguage="razor">
+                <Div Class="flex flex-col gap-4">
+                    <NativeSelect Size="NativeSelectSize.Sm" data-testid="native-select-size-sm">
+                        <NativeSelectOption Value="">Select a fruit</NativeSelectOption>
+                        <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                        <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                        <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
+                    </NativeSelect>
+                    <NativeSelect Size="NativeSelectSize.Default" data-testid="native-select-size-default">
+                        <NativeSelectOption Value="">Select a fruit</NativeSelectOption>
+                        <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                        <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                        <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
+                    </NativeSelect>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled" Description="Disabled selects keep the value visible without allowing changes."
-                        Code="@DisabledCode"
-CodeLanguage="razor">
-                <NativeSelect Disabled="true">
-                    <NativeSelectOption Value="">Select priority</NativeSelectOption>
-                    <NativeSelectOption Value="low">Low</NativeSelectOption>
-                    <NativeSelectOption Value="medium">Medium</NativeSelectOption>
-                    <NativeSelectOption Value="high">High</NativeSelectOption>
-                    <NativeSelectOption Value="critical">Critical</NativeSelectOption>
+            <DemoSection Title="With Field"
+                         Description="Compose NativeSelect with Field for labels and descriptions."
+                         Code="@FieldCode"
+                         CodeLanguage="razor">
+                <Field>
+                    <FieldLabel For="native-select-country">Country</FieldLabel>
+                    <NativeSelect Id="native-select-country" data-testid="native-select-country">
+                        <NativeSelectOption Value="">Select a country</NativeSelectOption>
+                        <NativeSelectOption Value="us">United States</NativeSelectOption>
+                        <NativeSelectOption Value="uk">United Kingdom</NativeSelectOption>
+                        <NativeSelectOption Value="ca">Canada</NativeSelectOption>
+                        <NativeSelectOption Value="au">Australia</NativeSelectOption>
+                    </NativeSelect>
+                    <FieldDescription>Select your country of residence.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Description="Disabled selects keep the value visible without allowing changes."
+                         Code="@DisabledCode"
+                         CodeLanguage="razor">
+                <NativeSelect Disabled="true" data-testid="native-select-disabled">
+                    <NativeSelectOption Value="">Disabled</NativeSelectOption>
+                    <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                    <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                    <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
                 </NativeSelect>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid" Description="Use a destructive border and supporting copy when the current selection needs correction."
-                        Code="@InvalidCode"
-CodeLanguage="razor">
-                <NativeSelect aria-invalid="true">
-                    <NativeSelectOption Value="">Select role</NativeSelectOption>
-                    <NativeSelectOption Value="admin">Admin</NativeSelectOption>
-                    <NativeSelectOption Value="editor">Editor</NativeSelectOption>
-                    <NativeSelectOption Value="viewer">Viewer</NativeSelectOption>
-                    <NativeSelectOption Value="guest">Guest</NativeSelectOption>
+            <DemoSection Title="Invalid"
+                         Description="Use the invalid state when the current selection needs correction."
+                         Code="@InvalidCode"
+                         CodeLanguage="razor">
+                <NativeSelect aria-invalid="true" data-testid="native-select-invalid">
+                    <NativeSelectOption Value="">Error state</NativeSelectOption>
+                    <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                    <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                    <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
                 </NativeSelect>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL" Description="Native selects inherit direction from the surrounding container."
-                        Code="@RtlCode"
-CodeLanguage="razor">
+            <DemoSection Title="RTL"
+                         Description="Native selects inherit direction from the surrounding container."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
                 <Div dir="rtl" MaxWidth="MaxWidth.IsSm">
-                    <NativeSelect>
-                        <NativeSelectOption Value="">اختر الحالة</NativeSelectOption>
-                        <NativeSelectOption Value="todo">مهام</NativeSelectOption>
-                        <NativeSelectOption Value="in-progress">قيد التنفيذ</NativeSelectOption>
-                        <NativeSelectOption Value="done">منجز</NativeSelectOption>
-                        <NativeSelectOption Value="cancelled">ملغي</NativeSelectOption>
+                    <NativeSelect data-testid="native-select-rtl">
+                        <NativeSelectOption Value="">اختر الفاكهة</NativeSelectOption>
+                        <NativeSelectOption Value="apple">تفاح</NativeSelectOption>
+                        <NativeSelectOption Value="banana">موز</NativeSelectOption>
+                        <NativeSelectOption Value="blueberry">توت</NativeSelectOption>
                     </NativeSelect>
                 </Div>
             </DemoSection>
@@ -122,74 +129,69 @@ CodeLanguage="razor">
 </Div>
 
 @code {
-    private string? _department;
+    private string? _food;
+
     private const string BasicCode =
 @"<NativeSelect>
-    <NativeSelectOption Value="""">Select status</NativeSelectOption>
-    <NativeSelectOption Value=""todo"">Todo</NativeSelectOption>
-    <NativeSelectOption Value=""in-progress"">In Progress</NativeSelectOption>
-    <NativeSelectOption Value=""done"">Done</NativeSelectOption>
-    <NativeSelectOption Value=""cancelled"">Cancelled</NativeSelectOption>
+    <NativeSelectOption Value="""">Select a fruit</NativeSelectOption>
+    <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+    <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+    <NativeSelectOption Value=""blueberry"">Blueberry</NativeSelectOption>
+    <NativeSelectOption Value=""grapes"" Disabled=""true"">Grapes</NativeSelectOption>
+    <NativeSelectOption Value=""pineapple"">Pineapple</NativeSelectOption>
 </NativeSelect>";
 
     private const string GroupsCode =
-@"<NativeSelect @bind-Value=""_department"">
-    <NativeSelectOption Value="""">Select department</NativeSelectOption>
-    <NativeSelectOptGroup Label=""Engineering"">
-        <NativeSelectOption Value=""frontend"">Frontend</NativeSelectOption>
-        <NativeSelectOption Value=""backend"">Backend</NativeSelectOption>
-        <NativeSelectOption Value=""devops"">DevOps</NativeSelectOption>
+@"<NativeSelect>
+    <NativeSelectOption Value="""">Select a food</NativeSelectOption>
+    <NativeSelectOptGroup Label=""Fruits"">
+        <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+        <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+        <NativeSelectOption Value=""blueberry"">Blueberry</NativeSelectOption>
     </NativeSelectOptGroup>
-    <NativeSelectOptGroup Label=""Sales"">
-        <NativeSelectOption Value=""sales-rep"">Sales Rep</NativeSelectOption>
-        <NativeSelectOption Value=""account-manager"">Account Manager</NativeSelectOption>
-        <NativeSelectOption Value=""sales-director"">Sales Director</NativeSelectOption>
-    </NativeSelectOptGroup>
-    <NativeSelectOptGroup Label=""Operations"">
-        <NativeSelectOption Value=""support"">Customer Support</NativeSelectOption>
-        <NativeSelectOption Value=""product-manager"">Product Manager</NativeSelectOption>
-        <NativeSelectOption Value=""ops-manager"">Operations Manager</NativeSelectOption>
+    <NativeSelectOptGroup Label=""Vegetables"">
+        <NativeSelectOption Value=""carrot"">Carrot</NativeSelectOption>
+        <NativeSelectOption Value=""broccoli"">Broccoli</NativeSelectOption>
+        <NativeSelectOption Value=""spinach"">Spinach</NativeSelectOption>
     </NativeSelectOptGroup>
 </NativeSelect>";
+
+    private const string SizesCode =
+@"<Div Class=""flex flex-col gap-4"">
+    <NativeSelect Size=""NativeSelectSize.Sm"">...</NativeSelect>
+    <NativeSelect Size=""NativeSelectSize.Default"">...</NativeSelect>
+</Div>";
+
+    private const string FieldCode =
+@"<Field>
+    <FieldLabel For=""native-select-country"">Country</FieldLabel>
+    <NativeSelect Id=""native-select-country"">...</NativeSelect>
+    <FieldDescription>Select your country of residence.</FieldDescription>
+</Field>";
 
     private const string DisabledCode =
 @"<NativeSelect Disabled=""true"">
-    <NativeSelectOption Value="""">Select priority</NativeSelectOption>
-    <NativeSelectOption Value=""low"">Low</NativeSelectOption>
-    <NativeSelectOption Value=""medium"">Medium</NativeSelectOption>
-    <NativeSelectOption Value=""high"">High</NativeSelectOption>
-    <NativeSelectOption Value=""critical"">Critical</NativeSelectOption>
+    <NativeSelectOption Value="""">Disabled</NativeSelectOption>
+    <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+    <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+    <NativeSelectOption Value=""blueberry"">Blueberry</NativeSelectOption>
 </NativeSelect>";
 
-private const string InvalidCode =
+    private const string InvalidCode =
 @"<NativeSelect aria-invalid=""true"">
-    <NativeSelectOption Value="""">Select role</NativeSelectOption>
-    <NativeSelectOption Value=""admin"">Admin</NativeSelectOption>
-    <NativeSelectOption Value=""editor"">Editor</NativeSelectOption>
-    <NativeSelectOption Value=""viewer"">Viewer</NativeSelectOption>
-    <NativeSelectOption Value=""guest"">Guest</NativeSelectOption>
+    <NativeSelectOption Value="""">Error state</NativeSelectOption>
+    <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+    <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+    <NativeSelectOption Value=""blueberry"">Blueberry</NativeSelectOption>
 </NativeSelect>";
 
-private const string RtlCode =
+    private const string RtlCode =
 @"<Div dir=""rtl"">
     <NativeSelect>
-        <NativeSelectOption Value="""">اختر الحالة</NativeSelectOption>
-        <NativeSelectOption Value=""todo"">مهام</NativeSelectOption>
-        <NativeSelectOption Value=""in-progress"">قيد التنفيذ</NativeSelectOption>
-        <NativeSelectOption Value=""done"">منجز</NativeSelectOption>
-        <NativeSelectOption Value=""cancelled"">ملغي</NativeSelectOption>
+        <NativeSelectOption Value="""">اختر الفاكهة</NativeSelectOption>
+        <NativeSelectOption Value=""apple"">تفاح</NativeSelectOption>
+        <NativeSelectOption Value=""banana"">موز</NativeSelectOption>
+        <NativeSelectOption Value=""blueberry"">توت</NativeSelectOption>
     </NativeSelect>
-</Div>";
-
-private const string NativeSelectVsSelectCode =
-@"<Div Class=""grid gap-4 md:grid-cols-2"">
-    <Field>
-        <FieldLabel>Native Select</FieldLabel>
-        <NativeSelect Value=""todo"">...</NativeSelect>
-    </Field>
-    <Field>
-        <FieldLabel>Select</FieldLabel>
-        <Select TValue=""string"" SelectedValue=""@(""todo"")"">...</Select>
-    </Field>
 </Div>";
 }

@@ -57,6 +57,7 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().NotContain("text-primary-foreground");
 
         cut.Markup.Should().Contain("bg-foreground fill-foreground");
+        cut.Markup.Should().Contain("width: 10px; height: 10px;");
     }
 
     [Test]
@@ -77,6 +78,8 @@ public sealed partial class RenderedShadcnParityTests
         content.Should().Contain("ForceMount=\"@ForceMount\"");
         content.Should().Contain("public bool ForceMount { get; set; }");
         content.Should().Contain("SideOffset=\"@SideOffset\"");
+        content.Should().Contain("Width=\"10\"");
+        content.Should().Contain("Height=\"10\"");
         content.Should().Contain("CollisionBoundarySelector=\"@CollisionBoundarySelector\"");
         content.Should().Contain("Sticky=\"@Sticky\"");
         content.Should().Contain("z-50");

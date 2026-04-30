@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using System;
+using System.IO;
 using Microsoft.AspNetCore.Components;
 
 
@@ -91,5 +93,39 @@ public sealed partial class RenderedShadcnParityTests
             })));
 
         cut.Find("[data-slot='button-group-separator']").GetAttribute("data-orientation").Should().Be("vertical");
+    }
+
+    [Test]
+    public void ButtonGroup_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForButtonGroup(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "ButtonGroups.razor"));
+
+        source.Should().Contain("A container that groups related buttons together with consistent styling.");
+        source.Should().Contain("Set the orientation prop to change the button group layout.");
+        source.Should().Contain("Control the size of buttons using the size prop on individual buttons.");
+        source.Should().Contain("Nest ButtonGroup components to create button groups with spacing.");
+        source.Should().Contain("The ButtonGroupSeparator component visually divides buttons within a group.");
+        source.Should().Contain("Create a split button group by adding two buttons separated by a ButtonGroupSeparator.");
+        source.Should().Contain("Wrap an Input component with buttons.");
+        source.Should().Contain("Wrap an InputGroup component to create complex input layouts.");
+        source.Should().Contain("Create a split button group with a DropdownMenu component.");
+        source.Should().Contain("Pair with a Select component.");
+        source.Should().Contain("Use with a Popover component.");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">أرشفة</Button>");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">تقرير</Button>");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">تأجيل</Button>");
+        source.Should().Contain("<DropdownToggle AsChild=\"true\">");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\" Size=\"ButtonSize.Icon\" aria-label=\"More Options\">");
+        source.Should().NotContain("<DropdownToggle IsSplit=\"true\" aria-label=\"More Options\">");
+    }
+
+    private static string GetSuiteRootForButtonGroup()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

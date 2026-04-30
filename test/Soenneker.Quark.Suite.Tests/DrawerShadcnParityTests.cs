@@ -59,6 +59,14 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("flex");
         contentClasses.Should().Contain("h-auto");
         contentClasses.Should().Contain("flex-col");
+        contentClasses.Should().Contain("transition");
+        contentClasses.Should().Contain("ease-in-out");
+        contentClasses.Should().Contain("data-[state=open]:animate-in");
+        contentClasses.Should().Contain("data-[state=open]:duration-500");
+        contentClasses.Should().Contain("data-[state=open]:slide-in-from-bottom");
+        contentClasses.Should().Contain("data-[state=closed]:animate-out");
+        contentClasses.Should().Contain("data-[state=closed]:duration-300");
+        contentClasses.Should().Contain("data-[state=closed]:slide-out-to-bottom");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:inset-x-0");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:bottom-0");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:mt-24");
@@ -67,7 +75,6 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:border-t");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=right]:sm:max-w-sm");
         contentClasses.Should().NotContain("rounded-t-xl");
-        contentClasses.Should().NotContain("data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom");
         contentClasses.Should().NotContain("data-[direction=bottom]");
     }
 
@@ -85,5 +92,36 @@ public sealed partial class RenderedShadcnParityTests
 
         cut.Find("button[data-slot='drawer-trigger']");
         cut.FindAll("button[data-slot='button']").Should().BeEmpty();
+    }
+
+    [Test]
+    public void Drawer_direction_root_prop_sets_current_shadcn_side_contract()
+    {
+        var cut = Render<Drawer>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .Add(p => p.Direction, "right")
+            .AddChildContent<DrawerContent>());
+
+        var content = cut.Find("[data-slot='drawer-content']");
+
+        content.GetAttribute("data-vaul-drawer-direction").Should().Be("right");
+        content.GetAttribute("data-side").Should().Be("right");
+    }
+
+    [Test]
+    public void Drawer_close_aschild_preserves_drawer_close_slot_on_child_button()
+    {
+        var cut = Render<Drawer>(parameters => parameters
+            .Add(p => p.Visible, true)
+            .AddChildContent<DrawerContent>(contentParameters => contentParameters
+                .AddChildContent<DrawerFooter>(footerParameters => footerParameters
+                    .AddChildContent<DrawerClose>(closeParameters => closeParameters
+                        .Add(p => p.AsChild, true)
+                        .AddChildContent<Button>(buttonParameters => buttonParameters
+                            .Add(p => p.Variant, ButtonVariant.Outline)
+                            .Add(p => p.ChildContent, "Cancel"))))));
+
+        cut.Find("button[data-slot='drawer-close']");
+        cut.FindAll("[data-slot='drawer-close-wrapper']").Should().BeEmpty();
     }
 }

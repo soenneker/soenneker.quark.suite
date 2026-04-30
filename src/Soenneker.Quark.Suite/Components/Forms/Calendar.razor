@@ -240,6 +240,7 @@
     public RenderFragment<CalendarDayContext>? DayContent { get; set; }
 
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _lastAppliedDisplayMonth;
     private string[] _dayNames = [];
     private bool _initialized;
     private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
@@ -264,10 +265,17 @@
 
         if (DisplayMonth.HasValue)
         {
-            _displayMonth = new DateOnly(DisplayMonth.Value.Year, DisplayMonth.Value.Month, 1);
+            var displayMonth = new DateOnly(DisplayMonth.Value.Year, DisplayMonth.Value.Month, 1);
+
+            if (!_initialized || _lastAppliedDisplayMonth != displayMonth)
+                _displayMonth = displayMonth;
+
+            _lastAppliedDisplayMonth = displayMonth;
             _initialized = true;
             return;
         }
+
+        _lastAppliedDisplayMonth = null;
 
         if (!_initialized)
         {
@@ -529,9 +537,9 @@
         css += " [&:last-child[data-selected=true]_button]:rounded-r-md";
 
         if (dayContext.IsRangeStart)
-            css += " rounded-l-md bg-accent data-[selected=true]:rounded-none";
+            css += " rounded-l-md bg-accent";
         if (dayContext.IsRangeEnd)
-            css += " rounded-r-md bg-accent data-[selected=true]:rounded-none";
+            css += " rounded-r-md bg-accent";
 
         if (!ShowOutsideDays && !day.InMonth)
             css += " invisible";

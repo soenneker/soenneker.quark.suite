@@ -64,4 +64,17 @@ public sealed partial class RenderedShadcnParityTests
 
         cut.Find("[data-slot='timeline-marker']");
     }
+
+    [Test]
+    public void TimelineIcon_centers_custom_icon_content()
+    {
+        var cut = Render<TimelineIcon>(parameters => parameters
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddMarkupContent(0, "<svg></svg>"))));
+
+        var innerClasses = cut.Find("[data-slot='timeline-icon'] > div").GetAttribute("class")!;
+
+        innerClasses.Should().Contain("flex");
+        innerClasses.Should().Contain("items-center");
+        innerClasses.Should().Contain("justify-center");
+    }
 }

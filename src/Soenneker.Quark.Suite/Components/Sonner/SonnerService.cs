@@ -27,7 +27,7 @@ public sealed class SonnerService : ISonnerService
 
     public event Action? StateChanged;
 
-    public SonnerPosition DefaultPosition { get; set; } = SonnerPosition.BottomRight;
+    public SonnerPosition DefaultPosition { get; set; } = SonnerPosition.TopCenter;
 
     public int DefaultDuration { get; set; } = 4000;
 

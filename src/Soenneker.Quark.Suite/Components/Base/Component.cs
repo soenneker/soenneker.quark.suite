@@ -27,12 +27,6 @@ public abstract class Component : RenderComponent, IComponent
     public IReadOnlyList<QuarkPresetToken>? Presets { get; set; }
 
     [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter]
-    public string? Style { get; set; }
-
-    [Parameter]
     public string? Title { get; set; }
 
     [Parameter]

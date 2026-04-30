@@ -1,5 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -87,6 +89,40 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("aria-expanded:bg-muted");
         classes.Should().NotContain("aria-expanded:text-foreground");
         classes.Should().NotContain("size-8");
+    }
+
+    [Test]
+    public void Button_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForButton(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Buttons.razor"));
+
+        source.Should().Contain("Displays a button or a component that looks like a button.");
+        source.Should().Contain("Remember to add the data-icon attribute to the icon for the correct spacing.");
+        source.Should().Contain("<Icon Name=\"LucideIcon.GitBranch\" data-icon=\"inline-start\" />");
+        source.Should().NotContain("LucideIcon.GitFork");
+        source.Should().Contain("Use the rounded-full class to make the button rounded.");
+        source.Should().Contain("<Button Size=\"ButtonSize.Icon\" Rounded=\"Rounded.Full\" aria-label=\"Submit\">");
+        source.Should().Contain("<Spinner data-icon=\"inline-start\" />");
+        source.Should().Contain("<Spinner data-icon=\"inline-end\" />");
+        source.Should().Contain("<ButtonGroup AriaLabel=\"Message actions\">");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">Archive</Button>");
+        source.Should().Contain("<DropdownToggle AsChild=\"true\">");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\" Size=\"ButtonSize.Icon\" aria-label=\"More Options\">");
+        source.Should().NotContain("<DropdownToggle IsSplit=\"true\" aria-label=\"More Options\">");
+        source.Should().Contain("<Anchor To=\"/login\">Login</Anchor>");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Destructive\">حذف</Button>");
+        source.Should().Contain("<Icon Name=\"LucideIcon.ArrowRight\" data-icon=\"inline-end\" />");
+        source.Should().Contain("<Button Disabled=\"true\">");
+    }
+
+    private static string GetSuiteRootForButton()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 
 }

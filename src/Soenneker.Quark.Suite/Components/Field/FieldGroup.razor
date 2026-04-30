@@ -6,6 +6,11 @@
 </div>
 
 @code {
+    [Parameter]
+    public string Slot { get; set; } = "field-group";
+
+    private string ResolvedSlot => Slot.IsNullOrWhiteSpace() ? "field-group" : Slot.Trim();
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -18,11 +23,17 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "field-group";
+        attributes["data-slot"] = ResolvedSlot;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/field-group @container/field-group");
             AppendClass(ref cls, "data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ResolvedSlot);
     }
 }

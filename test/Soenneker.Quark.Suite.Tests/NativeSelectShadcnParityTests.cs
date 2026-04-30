@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -94,5 +96,38 @@ public sealed partial class RenderedShadcnParityTests
         optgroup.GetAttribute("label").Should().Be("Engineering");
         optgroup.GetAttribute("disabled").Should().Be(string.Empty);
         optgroup.GetAttribute("class").Should().ContainAll("bg-[Canvas]", "text-[CanvasText]");
+    }
+
+    [Test]
+    public void NativeSelect_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForNativeSelect(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "NativeSelects.razor"));
+
+        source.Should().Contain("Title=\"Basic\"");
+        source.Should().Contain("Title=\"With Groups\"");
+        source.Should().Contain("Title=\"Sizes\"");
+        source.Should().Contain("Title=\"With Field\"");
+        source.Should().Contain("Title=\"Disabled\"");
+        source.Should().Contain("Title=\"Invalid\"");
+        source.Should().Contain("Select a fruit");
+        source.Should().Contain("Select a food");
+        source.Should().Contain("NativeSelectOptGroup Label=\"Fruits\"");
+        source.Should().Contain("NativeSelectSize.Sm");
+        source.Should().Contain("FieldLabel For=\"native-select-country\"");
+        source.Should().Contain("Select your country of residence.");
+        source.Should().Contain("Error state");
+        source.Should().NotContain("Native Select vs Select");
+        source.Should().NotContain("Select status");
+        source.Should().NotContain("Select department");
+    }
+
+    private static string GetSuiteRootForNativeSelect()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }

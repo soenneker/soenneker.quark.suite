@@ -96,6 +96,33 @@ public sealed partial class RenderedShadcnParityTests
         cut.Instance.HideWhenDetached.Should().BeTrue();
     }
 
+    [Test]
+    public void Menubar_demo_examples_match_current_shadcn_docs_examples()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForMenubar(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components", "Menubars.razor"));
+
+        source.Should().Contain("Title=\"Basic\"");
+        source.Should().Contain("Title=\"With Submenu\"");
+        source.Should().Contain("Title=\"With Checkboxes\"");
+        source.Should().Contain("Title=\"With Radio\"");
+        source.Should().Contain("Title=\"With Icons\"");
+        source.Should().Contain("Title=\"With Shortcuts\"");
+        source.Should().Contain("Title=\"Format\"");
+        source.Should().Contain("Title=\"Insert\"");
+        source.Should().Contain("Title=\"Destructive\"");
+        source.Should().Contain("Title=\"In Dialog\"");
+        source.Should().Contain("Title=\"With Inset\"");
+        source.Should().Contain("<MenubarGroup>");
+        source.Should().Contain("<MenubarContent Class=\"w-64\">");
+        source.Should().Contain("Always Show Bookmarks Bar");
+        source.Should().Contain("Superscript");
+        source.Should().Contain("Value=\"@_selectedTheme\"");
+        source.Should().Contain("Find &amp; Replace");
+        source.Should().Contain("Destructive=\"true\"");
+        source.Should().Contain("Menubar Example");
+        source.Should().Contain("More Options");
+    }
+
     private static string ReadMenubarSource(string fileName)
     {
         return File.ReadAllText(Path.Combine(GetSuiteRootForMenubar(), "src", "Soenneker.Quark.Suite", "Components", "Menubar", fileName));

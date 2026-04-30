@@ -12,12 +12,14 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<global::Soenneker.Quark.Suite.Demo.Pages.Components.Labels>();
 
-        cut.FindAll("[data-slot='preview']")
-            .Select(node => node.FirstElementChild!.GetAttribute("class")!)
-            .Should().Contain(cls => cls.Contains("h-[44rem]"));
-
-        cut.Find("[id='terms']").Should().NotBeNull();
-        cut.Find("label[for='terms']").TextContent.Should().Be("Accept terms and conditions");
+        cut.Find("[id='label-demo-terms']").Should().NotBeNull();
+        cut.Find("label[for='label-demo-terms']").TextContent.Should().Be("Accept terms and conditions");
+        cut.Find("[id='label-demo-username']").Should().NotBeNull();
+        cut.Find("label[for='label-demo-username']").TextContent.Should().Be("Username");
+        cut.Find("[id='label-demo-disabled']").HasAttribute("disabled").Should().BeTrue();
+        cut.Find("label[for='label-demo-disabled']").TextContent.Should().Be("Disabled");
+        cut.Find("[id='label-demo-message']").Should().NotBeNull();
+        cut.Find("label[for='label-demo-message']").TextContent.Should().Be("Message");
 
         var rtlPreview = cut.FindAll("[data-slot='preview']").Single(node => node.GetAttribute("dir") == "rtl");
         rtlPreview.GetAttribute("data-lang").Should().Be("ar");
