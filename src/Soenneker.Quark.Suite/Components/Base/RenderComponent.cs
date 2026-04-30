@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Soenneker.Extensions.String;
+using Soenneker.Lepton.Suite;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -12,7 +13,7 @@ namespace Soenneker.Quark;
 /// Minimal suite-level render base that owns render invalidation, render-key computation,
 /// attribute caching, attribute merging, and helper utilities.
 /// </summary>
-public abstract class RenderComponent : CoreComponent
+public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IDisposable
 {
     private static readonly HashSet<string> _semanticColorTokens = new(StringComparer.Ordinal)
     {
@@ -51,6 +52,31 @@ public abstract class RenderComponent : CoreComponent
     /// to suite-specific services or options.
     /// </summary>
     protected virtual bool AlwaysRender => true;
+
+    protected virtual void OnDispose()
+    {
+    }
+
+    protected virtual ValueTask OnDisposeAsync() => ValueTask.CompletedTask;
+
+    public virtual void Dispose()
+    {
+        if (IsDisposed)
+            return;
+
+        OnDispose();
+        base.DisposeAsync().AsTask().GetAwaiter().GetResult();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (IsDisposed)
+            return;
+
+        await OnDisposeAsync();
+        await base.DisposeAsync();
+        OnDispose();
+    }
 
     public void Refresh()
     {

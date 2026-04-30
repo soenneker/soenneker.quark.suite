@@ -9,9 +9,6 @@ namespace Soenneker.Quark;
 public abstract class Element : Component, IElement
 {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
     public string Tag { get; set; } = "div";
 
     [Parameter]

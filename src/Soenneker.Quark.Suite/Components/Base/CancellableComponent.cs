@@ -12,7 +12,7 @@ public abstract class CancellableComponent : Component, ICancellableComponent
     /// Returns <see cref="CancellationToken.None"/> after disposal.
     /// </summary>
     public CancellationToken CancellationToken =>
-        Disposed.Value ? CancellationToken.None
+        IsDisposed ? CancellationToken.None
             : _cancellationTokenSource.TryGet()
                                       ?.Token ?? CancellationToken.None;
 

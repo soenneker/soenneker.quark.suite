@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Universal component contract for broad styling and universal interaction concerns.
 /// </summary>
-public interface IComponent : ICoreComponent
+public interface IComponent : ILeptonDisposableIdentifiableContentElement
 {
     bool Container { get; set; }
     IReadOnlyList<QuarkPresetToken>? Presets { get; set; }

@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Minimal DOM element contract for renderable HTML-like elements.
 /// </summary>
-public interface IElement : IComponent, ICoreElement
+public interface IElement : IComponent
 {
     string Tag { get; set; }
     int? TabIndex { get; set; }

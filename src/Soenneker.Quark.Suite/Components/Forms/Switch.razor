@@ -45,8 +45,6 @@ else
 }
 
 @code {
-    public override string? Id { get; set; } = BlazorIdGenerator.New("quark-switch");
-
     [Parameter]
     public string? Label { get; set; }
 
@@ -64,6 +62,13 @@ else
     private bool HasInlineLabel => ChildContent != null || Label.HasContent();
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedSwitchValue => Value.HasContent() ? Value! : "on";
+
+    protected override void OnInitialized()
+    {
+        Id ??= BlazorIdGenerator.New("quark-switch");
+
+        base.OnInitialized();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

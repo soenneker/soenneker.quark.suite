@@ -64,8 +64,6 @@ else
 }
 
 @code {
-    public override string? Id { get; set; } = BlazorIdGenerator.New("quark-check");
-
     [Parameter]
     public bool Indeterminate { get; set; }
 
@@ -106,6 +104,13 @@ else
         : Checked
             ? BradixCheckboxCheckedState.Checked
             : BradixCheckboxCheckedState.Unchecked;
+
+    protected override void OnInitialized()
+    {
+        Id ??= BlazorIdGenerator.New("quark-check");
+
+        base.OnInitialized();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
