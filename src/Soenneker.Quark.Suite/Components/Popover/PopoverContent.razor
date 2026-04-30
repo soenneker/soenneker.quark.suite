@@ -80,15 +80,7 @@
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("id");
-        attributes.Remove("aria-hidden");
-        attributes.Remove("data-state");
-        attributes.Remove("data-side");
-        attributes.Remove("data-align");
-        attributes.Remove("onmouseenter");
-        attributes.Remove("onmouseleave");
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void ApplyDefaultParameters()
@@ -98,9 +90,9 @@
         ZIndex ??= "z-50";
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
+        Border ??= Quark.Border.Default;
         Width ??= Quark.Width.Token("72");
         Rounded ??= Quark.Rounded.Md;
-        Border ??= Quark.Border.Default;
         Padding ??= Quark.Padding.Is4;
         OutlineStyle ??= "outline-hidden";
         Shadow ??= Quark.Shadow.Md;
@@ -111,8 +103,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = Slot;
-        attributes["data-side"] = Side.Value;
-        attributes["data-align"] = Align.Value;
 
         if (Context is not null)
         {
@@ -125,7 +115,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-popover-content-transform-origin) data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+            AppendClass(ref cls, "origin-(--radix-popover-content-transform-origin)");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
     }
 

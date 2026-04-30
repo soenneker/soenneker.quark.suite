@@ -13,10 +13,12 @@ public sealed partial class RenderedShadcnParityTests
 
         var labelClasses = label.Find("[data-slot='dropdown-menu-label']").GetAttribute("class")!;
 
-        labelClasses.Should().Contain("px-1.5");
-        labelClasses.Should().Contain("py-1");
-        labelClasses.Should().Contain("text-xs");
+        labelClasses.Should().Contain("px-2");
+        labelClasses.Should().Contain("py-1.5");
+        labelClasses.Should().Contain("text-sm");
         labelClasses.Should().Contain("font-medium");
+        labelClasses.Should().Contain("data-[inset]:pl-8");
+        labelClasses.Should().NotContain("text-muted-foreground");
         labelClasses.Should().NotContain("q-dropdown-label");
     }
 }

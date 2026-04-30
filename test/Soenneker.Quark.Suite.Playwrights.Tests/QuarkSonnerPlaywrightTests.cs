@@ -109,8 +109,8 @@ public sealed class QuarkSonnerPlaywrightTests : QuarkPlaywrightTest
         var toast = page.Locator("[data-sonner-toast]").Filter(new LocatorFilterOptions { HasText = "Event has been created" }).First;
 
         await Assertions.Expect(toaster).ToHaveAttributeAsync("class", "toaster group");
-        await Assertions.Expect(toaster).ToHaveAttributeAsync("data-y-position", "top");
-        await Assertions.Expect(toaster).ToHaveAttributeAsync("data-x-position", "center");
+        await Assertions.Expect(toaster).ToHaveAttributeAsync("data-y-position", "bottom");
+        await Assertions.Expect(toaster).ToHaveAttributeAsync("data-x-position", "right");
         await Assertions.Expect(page.Locator("section[aria-live='polite']").First).ToHaveAttributeAsync("aria-label", "Notifications alt+T");
         await Assertions.Expect(toast).ToBeVisibleAsync();
         (await toast.EvaluateAsync<int>("element => Number(getComputedStyle(element).zIndex) || Number(getComputedStyle(element.parentElement).zIndex) || 0"))

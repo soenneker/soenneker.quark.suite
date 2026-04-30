@@ -17,8 +17,6 @@
 
         FontStyle ??= Quark.FontStyle.Italic;
         Margin ??= Quark.Margin.Token("6").FromTop;
-        Border ??= Quark.Border.Is2.FromLeft;
-        Padding ??= Quark.Padding.Is6.FromLeft;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -28,6 +26,11 @@
 
         if (Cite.HasContent())
             attributes["cite"] = Cite;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "border-s-2 ps-6");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

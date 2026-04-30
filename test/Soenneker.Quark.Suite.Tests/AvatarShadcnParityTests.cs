@@ -19,11 +19,13 @@ public sealed partial class RenderedShadcnParityTests
         avatarClasses.Should().Contain("flex");
         avatarClasses.Should().Contain("size-8");
         avatarClasses.Should().Contain("shrink-0");
+        avatarClasses.Should().Contain("overflow-hidden");
         avatarClasses.Should().Contain("rounded-full");
         avatarClasses.Should().Contain("select-none");
-        avatarClasses.Should().Contain("after:border-border");
         avatarClasses.Should().Contain("data-[size=lg]:size-10");
         avatarClasses.Should().Contain("data-[size=sm]:size-6");
+        avatarClasses.Should().NotContain("after:border-border");
+        avatarClasses.Should().NotContain("after:mix-blend-darken");
         avatarClasses.Should().NotContain("q-avatar");
     }
 }

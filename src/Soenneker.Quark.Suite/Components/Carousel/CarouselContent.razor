@@ -85,7 +85,7 @@
             var horizontal = ParentCarousel?.IsVertical != true;
             AppendClass(ref cls, "flex");
             if (horizontal)
-                AppendClass(ref cls, "-ml-4");
+                AppendClass(ref cls, ParentCarousel?.IsRtl == true ? "-mr-4" : "-ml-4");
             else
                 AppendClass(ref cls, "-mt-4 flex-col");
         });
@@ -97,7 +97,12 @@
             var count = ParentCarousel?.ItemCount ?? 0;
             var axis = horizontal ? "X" : "Y";
             var step = count > 0 ? 100.0 / count : 0;
-            AppendStyleDecl(ref sty, $"transform: translate{axis}(-{index * step}%); transition: transform 300ms ease-in-out");
+            var offset = index * step;
+
+            if (horizontal && ParentCarousel?.IsRtl == true)
+                AppendStyleDecl(ref sty, $"transform: translate{axis}({offset}%); transition: transform 300ms ease-in-out");
+            else
+                AppendStyleDecl(ref sty, $"transform: translate{axis}(-{offset}%); transition: transform 300ms ease-in-out");
         });
     }
 

@@ -15,18 +15,9 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='dialog-trigger']").GetAttribute("class")!;
 
-        classes.Should().Contain("group/button");
-        classes.Should().Contain("inline-flex");
-        classes.Should().Contain("items-center");
-        classes.Should().Contain("justify-center");
-        classes.Should().Contain("rounded-lg");
-        classes.Should().Contain("border");
-        classes.Should().Contain("bg-background");
-        classes.Should().Contain("hover:bg-muted");
-        classes.Should().Contain("aria-expanded:bg-muted");
-        classes.Should().Contain("h-8");
-        classes.Should().Contain("gap-1.5");
-        classes.Should().Contain("px-2.5");
+        classes.Should().BeNullOrEmpty();
+        cut.Find("[data-slot='dialog-trigger']").GetAttribute("aria-haspopup").Should().Be("dialog");
+        cut.Find("[data-slot='dialog-trigger']").GetAttribute("data-state").Should().Be("closed");
     }
 
     [Test]

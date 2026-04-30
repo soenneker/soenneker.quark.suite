@@ -17,6 +17,7 @@ public sealed partial class RenderedShadcnParityTests
         titleClasses.Should().Contain("font-semibold");
         titleClasses.Should().Contain("text-foreground");
         titleClasses.Should().NotContain("cn-font-heading");
+        titleClasses.Should().NotContain("text-base");
         titleClasses.Should().NotContain("font-medium");
     }
 }

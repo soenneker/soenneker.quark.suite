@@ -21,7 +21,8 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("group-data-[size=sm]/alert-dialog-content:grid-cols-2");
         classes.Should().Contain("sm:flex-row");
         classes.Should().Contain("sm:justify-end");
-        classes.Should().Contain("-mx-4");
-        classes.Should().Contain("rounded-b-xl");
+        classes.Should().NotContain("-mx-4");
+        classes.Should().NotContain("rounded-b-xl");
+        classes.Should().NotContain("bg-muted/50");
     }
 }

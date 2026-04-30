@@ -14,9 +14,13 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='sidebar-content']").GetAttribute("class")!;
 
-        classes.Should().Contain("no-scrollbar");
+        classes.Should().Contain("min-h-0");
         classes.Should().Contain("flex-1");
-        classes.Should().Contain("overflow-y-auto");
+        classes.Should().Contain("overflow-auto");
+        classes.Should().Contain("group-data-[collapsible=icon]:overflow-hidden");
+        classes.Should().NotContain("no-scrollbar");
+        classes.Should().NotContain("overflow-y-auto");
+        classes.Should().NotContain("overflow-x-hidden");
         classes.Should().NotContain("q-sidebar-content");
     }
 }

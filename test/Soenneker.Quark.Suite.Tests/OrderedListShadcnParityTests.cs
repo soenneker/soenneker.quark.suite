@@ -20,7 +20,10 @@ public sealed partial class RenderedShadcnParityTests
         var list = cut.Find("ol[data-slot='ordered-list']");
         var item = cut.Find("li[data-slot='ordered-list-item']");
 
-        list.GetAttribute("class").Should().ContainAll("my-6", "ml-6", "list-decimal", "[&>li]:mt-2");
+        var classes = list.GetAttribute("class")!;
+
+        classes.Should().ContainAll("my-6", "ms-6", "list-decimal", "[&>li]:mt-2");
+        classes.Should().NotContain("ml-6");
         item.TextContent.Should().Be("First step");
     }
 
@@ -31,7 +34,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ListStyleType, ListStyleType.LowerAlpha)
             .Add(p => p.ChildContent, "Alpha"));
 
-        lowerAlpha.Find("ol").GetAttribute("class").Should().ContainAll("my-6", "ml-6", "[&>li]:mt-2");
+        lowerAlpha.Find("ol").GetAttribute("class").Should().ContainAll("my-6", "ms-6", "[&>li]:mt-2");
         lowerAlpha.Find("ol").GetAttribute("style").Should().Contain("list-style-type: lower-alpha");
         lowerAlpha.Find("ol").GetAttribute("class").Should().NotContain("list-decimal");
 

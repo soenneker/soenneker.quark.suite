@@ -5,8 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
-                         Description="Used to display textual user input from keyboard."
+            <DemoSection Description="Used to display textual user input from keyboard."
                          Code="@KbdCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-col items-center gap-4">
@@ -16,7 +15,6 @@
                         <Kbd>⌥</Kbd>
                         <Kbd>⌃</Kbd>
                     </KbdGroup>
-
                     <KbdGroup>
                         <Kbd>Ctrl</Kbd>
                         <Span>+</Span>
@@ -28,96 +26,103 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Group"
-                         Description="Shadcn-aligned Group example."
-                         Code="@KbdCode"
+                         Description="Use the KbdGroup component to group keyboard keys together."
+                         Code="@KbdGroupCode"
                          CodeLanguage="razor">
-                <Div Class="flex flex-col items-center gap-4">
-                    <KbdGroup>
-                        <Kbd>⌘</Kbd>
-                        <Kbd>⇧</Kbd>
-                        <Kbd>⌥</Kbd>
-                        <Kbd>⌃</Kbd>
-                    </KbdGroup>
-
-                    <KbdGroup>
-                        <Kbd>Ctrl</Kbd>
-                        <Span>+</Span>
-                        <Kbd>B</Kbd>
-                    </KbdGroup>
-                </Div>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Use <KbdGroup><Kbd>Ctrl</Kbd><Span>+</Span><Kbd>B</Kbd></KbdGroup>
+                    <KbdGroup><Kbd>Ctrl</Kbd><Span>+</Span><Kbd>K</Kbd></KbdGroup>
+                    to open the command palette
+                </Paragraph>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Button"
-                         Description="Keyboard hints can be embedded directly in buttons and helper text."
+                         Description="Use the Kbd component inside a Button component to display a keyboard key inside a button."
                          Code="@KbdButtonCode"
                          CodeLanguage="razor">
-                <Div Class="flex flex-col gap-4 md:flex-row md:items-center">
-                    <Button Variant="ButtonVariant.Outline">
-                        Search docs
-                        <Span Class="ml-2 flex items-center gap-1">
-                            <KbdChip>Ctrl</KbdChip>
-                            <KbdChip>/</KbdChip>
-                        </Span>
-                    </Button>
-
-                    <Div Class="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                        Press <Kbd>Tab</Kbd> to move focus, then <Kbd>Enter</Kbd> to confirm.
-                    </Div>
-                </Div>
+                <Button Variant="ButtonVariant.Outline">
+                    Accept
+                    <Kbd>⏎</Kbd>
+                </Button>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Tooltip"
-                         Description="Tooltips are a natural place to surface keyboard shortcuts without adding permanent chrome."
+                         Description="You can use the Kbd component inside a Tooltip component to display a tooltip with a keyboard key."
                          Code="@KbdTooltipCode"
                          CodeLanguage="razor">
                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <Button Variant="ButtonVariant.Outline">Hover for shortcut</Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <KbdGroup>
-                                <Span>Open palette</Span>
-                                <Kbd>Ctrl</Kbd>
-                                <Kbd>K</Kbd>
-                            </KbdGroup>
-                        </TooltipContent>
-                    </Tooltip>
+                    <Div Class="flex items-center gap-2">
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Save</Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <KbdGroup>
+                                    <Kbd>Ctrl</Kbd>
+                                    <Kbd>S</Kbd>
+                                </KbdGroup>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Print</Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <KbdGroup>
+                                    <Kbd>Ctrl</Kbd>
+                                    <Kbd>P</Kbd>
+                                </KbdGroup>
+                            </TooltipContent>
+                        </Tooltip>
+                    </Div>
                 </TooltipProvider>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Input Group"
-                         Description="Use keyboard hints inside input groups when the action belongs to the field itself."
+                         Description="You can use the Kbd component inside an InputGroupAddon component to display a keyboard key inside an input group."
                          Code="@KbdInputGroupCode"
                          CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsMd">
+                <Div MaxWidth="MaxWidth.IsMd" Width="Width.IsFull">
                     <InputGroup>
-                        <InputGroupInput Placeholder="Search docs..." />
+                        <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineStart">
+                            <Icon Name="LucideIcon.Search" />
+                        </InputGroupAddon>
+                        <InputGroupInput Placeholder="Search..." />
                         <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
                             <KbdGroup>
-                                <KbdChip>Ctrl</KbdChip>
-                                <KbdChip>K</KbdChip>
+                                <Kbd>⌘</Kbd>
+                                <Kbd>K</Kbd>
                             </KbdGroup>
                         </InputGroupAddon>
                     </InputGroup>
                 </Div>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="Keyboard hints keep their spacing and order in right-to-left layouts."
                          Code="@KbdRtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3">
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">افتح لوحة الاوامر</Paragraph>
+                    <Div Class="flex flex-col items-center gap-4">
+                        <KbdGroup>
+                            <Kbd>⌘</Kbd>
+                            <Kbd>⇧</Kbd>
+                            <Kbd>⌥</Kbd>
+                            <Kbd>⌃</Kbd>
+                        </KbdGroup>
                         <KbdGroup>
                             <Kbd>Ctrl</Kbd>
-                            <Kbd>K</Kbd>
+                            <Span>+</Span>
+                            <Kbd>B</Kbd>
                         </KbdGroup>
                     </Div>
                 </DirectionProvider>
@@ -128,39 +133,36 @@
 
 @code {
     private const string KbdCode =
-@"<Div Class=""flex flex-col items-center gap-4"">
-    <KbdGroup>
-        <Kbd>⌘</Kbd>
-        <Kbd>⇧</Kbd>
-        <Kbd>⌥</Kbd>
-        <Kbd>⌃</Kbd>
-    </KbdGroup>
-    <KbdGroup>
-        <Kbd>Ctrl</Kbd>
-        <Span>+</Span>
-        <Kbd>B</Kbd>
-    </KbdGroup>
-</Div>";
+@"<KbdGroup>
+    <Kbd>⌘</Kbd>
+    <Kbd>⇧</Kbd>
+    <Kbd>⌥</Kbd>
+    <Kbd>⌃</Kbd>
+</KbdGroup>";
+
+    private const string KbdGroupCode =
+@"Use <KbdGroup><Kbd>Ctrl</Kbd><Span>+</Span><Kbd>B</Kbd></KbdGroup>
+<KbdGroup><Kbd>Ctrl</Kbd><Span>+</Span><Kbd>K</Kbd></KbdGroup>
+to open the command palette";
 
     private const string KbdButtonCode =
 @"<Button Variant=""ButtonVariant.Outline"">
-    Search docs
-    <KbdChip>Ctrl</KbdChip><KbdChip>/</KbdChip>
+    Accept
+    <Kbd>⏎</Kbd>
 </Button>";
 
     private const string KbdTooltipCode =
 @"<Tooltip>
-    <TooltipTrigger>...</TooltipTrigger>
-    <TooltipContent>
-        <KbdGroup><Kbd>Ctrl</Kbd><Kbd>K</Kbd></KbdGroup>
-    </TooltipContent>
+    <TooltipTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Save</Button></TooltipTrigger>
+    <TooltipContent><KbdGroup><Kbd>Ctrl</Kbd><Kbd>S</Kbd></KbdGroup></TooltipContent>
 </Tooltip>";
 
     private const string KbdInputGroupCode =
 @"<InputGroup>
+    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart""><Icon Name=""LucideIcon.Search"" /></InputGroupAddon>
     <InputGroupInput Placeholder=""Search..."" />
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <KbdGroup><KbdChip>Ctrl</KbdChip><KbdChip>K</KbdChip></KbdGroup>
+        <KbdGroup><Kbd>⌘</Kbd><Kbd>K</Kbd></KbdGroup>
     </InputGroupAddon>
 </InputGroup>";
 
@@ -168,7 +170,8 @@
 @"<DirectionProvider Dir=""rtl"">
     <KbdGroup>
         <Kbd>Ctrl</Kbd>
-        <Kbd>K</Kbd>
+        <Span>+</Span>
+        <Kbd>B</Kbd>
     </KbdGroup>
 </DirectionProvider>";
 }

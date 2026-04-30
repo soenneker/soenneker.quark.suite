@@ -77,21 +77,7 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
-    private bool IsOpen => HoverCard?.CurrentOpen ?? Open;
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildContentAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("id");
-        attributes.Remove("tabindex");
-        attributes.Remove("data-state");
-        attributes.Remove("data-side");
-        attributes.Remove("data-align");
-        attributes.Remove("onmouseenter");
-        attributes.Remove("onmouseleave");
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -99,14 +85,12 @@
 
         ZIndex ??= "z-50";
         Width ??= Quark.Width.Token("64");
-        Rounded ??= Quark.Rounded.Lg;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Default;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Token("2.5");
-        TextSize ??= Quark.TextSize.Sm;
+        Padding ??= Quark.Padding.Is4;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        Ring ??= Quark.Ring.One;
-        RingColor ??= "ring-foreground/10";
-        OutlineStyle ??= "outline-hidden";
+        OutlineStyle ??= Quark.OutlineStyle.None;
         Shadow ??= Quark.Shadow.Md;
     }
 
@@ -115,13 +99,10 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "hover-card-content";
-        attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["data-side"] = Side.Value;
-        attributes["data-align"] = Align.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-hover-card-content-transform-origin) duration-100");
+            AppendClass(ref cls, "origin-(--radix-hover-card-content-transform-origin)");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
@@ -130,7 +111,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(IsOpen);
         hc.Add(Side);
         hc.Add(Align);
         hc.Add(SideOffset);

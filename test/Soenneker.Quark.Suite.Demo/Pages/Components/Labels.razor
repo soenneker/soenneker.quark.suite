@@ -1,15 +1,15 @@
 @page "/labels"
+@using Soenneker.Quark.Forms
 
 <PageTitle>Label - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
-                         Description="Renders an accessible label associated with controls."
+            <DemoSection Description="Renders an accessible label associated with controls."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" ItemsAlign="Items.Center" Class="space-x-2">
+                <Div Class="flex gap-2">
                     <Check Id="terms" />
                     <Label For="terms">Accept terms and conditions</Label>
                 </Div>
@@ -18,84 +18,114 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Label in Field"
-                         Description="Associate the label with the control using FieldLabel and matching ids."
+                         Description="For form fields, use the Field component which includes built-in FieldLabel, FieldDescription, and FieldError components."
                          Code="@LabelInFieldCode"
-                         CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsXs">
-                    <FieldLabel For="label-field-email">Email</FieldLabel>
-                    <Input Id="label-field-email" Type="email" Placeholder="name@example.com" />
-                    <FieldDescription>We will never share your email.</FieldDescription>
-                </Field>
+                         CodeLanguage="razor"
+                         PreviewClass="preview relative flex h-[44rem] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+                <Div Class="w-full max-w-md">
+                    <form>
+                        <FieldGroup>
+                            <FieldSet>
+                                <FieldLegend>Payment Method</FieldLegend>
+                                <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+                                <FieldGroup>
+                                    <Field>
+                                        <FieldLabel For="checkout-7j9-card-name-43j">Name on Card</FieldLabel>
+                                        <Input Id="checkout-7j9-card-name-43j" Placeholder="Evil Rabbit" Required="true" />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel For="checkout-7j9-card-number-uw1">Card Number</FieldLabel>
+                                        <Input Id="checkout-7j9-card-number-uw1" Placeholder="1234 5678 9012 3456" Required="true" />
+                                        <FieldDescription>Enter your 16-digit card number</FieldDescription>
+                                    </Field>
+                                    <Div Class="grid grid-cols-3 gap-4">
+                                        <Field>
+                                            <FieldLabel For="checkout-exp-month-ts6">Month</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="checkout-exp-month-ts6">
+                                                    <SelectValue Placeholder="MM" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem TValue="string" ItemValue="@("01")" Text="01" />
+                                                    <SelectItem TValue="string" ItemValue="@("02")" Text="02" />
+                                                    <SelectItem TValue="string" ItemValue="@("03")" Text="03" />
+                                                    <SelectItem TValue="string" ItemValue="@("04")" Text="04" />
+                                                    <SelectItem TValue="string" ItemValue="@("05")" Text="05" />
+                                                    <SelectItem TValue="string" ItemValue="@("06")" Text="06" />
+                                                    <SelectItem TValue="string" ItemValue="@("07")" Text="07" />
+                                                    <SelectItem TValue="string" ItemValue="@("08")" Text="08" />
+                                                    <SelectItem TValue="string" ItemValue="@("09")" Text="09" />
+                                                    <SelectItem TValue="string" ItemValue="@("10")" Text="10" />
+                                                    <SelectItem TValue="string" ItemValue="@("11")" Text="11" />
+                                                    <SelectItem TValue="string" ItemValue="@("12")" Text="12" />
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="checkout-7j9-exp-year-f59">Year</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="checkout-7j9-exp-year-f59">
+                                                    <SelectValue Placeholder="YYYY" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem TValue="string" ItemValue="@("2024")" Text="2024" />
+                                                    <SelectItem TValue="string" ItemValue="@("2025")" Text="2025" />
+                                                    <SelectItem TValue="string" ItemValue="@("2026")" Text="2026" />
+                                                    <SelectItem TValue="string" ItemValue="@("2027")" Text="2027" />
+                                                    <SelectItem TValue="string" ItemValue="@("2028")" Text="2028" />
+                                                    <SelectItem TValue="string" ItemValue="@("2029")" Text="2029" />
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="checkout-7j9-cvv">CVV</FieldLabel>
+                                            <Input Id="checkout-7j9-cvv" Placeholder="123" Required="true" />
+                                        </Field>
+                                    </Div>
+                                </FieldGroup>
+                            </FieldSet>
+                            <FieldSeparator />
+                            <FieldSet>
+                                <FieldLegend>Billing Address</FieldLegend>
+                                <FieldDescription>The billing address associated with your payment method</FieldDescription>
+                                <FieldGroup>
+                                    <Field Orientation="horizontal">
+                                        <Check Id="checkout-7j9-same-as-shipping-wgm" Checked="true" />
+                                        <FieldLabel For="checkout-7j9-same-as-shipping-wgm" FontWeight="FontWeight.Normal">Same as shipping address</FieldLabel>
+                                    </Field>
+                                </FieldGroup>
+                            </FieldSet>
+                            <FieldSet>
+                                <FieldGroup>
+                                    <Field>
+                                        <FieldLabel For="checkout-7j9-optional-comments">Comments</FieldLabel>
+                                        <TextArea Id="checkout-7j9-optional-comments" Placeholder="Add any additional comments" Class="resize-none" />
+                                    </Field>
+                                </FieldGroup>
+                            </FieldSet>
+                            <Field Orientation="horizontal">
+                                <Button Type="ButtonType.Submit">Submit</Button>
+                                <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">Cancel</Button>
+                            </Field>
+                        </FieldGroup>
+                    </form>
+                </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Two columns of labeled inputs."
-                         Code="@FormControlsCode"
-                         PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[44rem]"
-                         CodeLanguage="razor">
-                <Grid Columns="GridCols.Is1.OnMd.Is2" Gap="Gap.Is4">
-                    <Div Space="Space.Y.Is1">
-                        <Label Form="true" For="label-username">Username</Label>
-                        <Input Id="label-username" Placeholder="Enter username" />
-                    </Div>
-                    <Div Space="Space.Y.Is1">
-                        <Label Form="true" For="label-password">Password</Label>
-                        <Input Id="label-password" Type="password" Placeholder="Enter password" />
-                    </Div>
-                </Grid>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
-                         Description="Official shadcn RTL example."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          PreviewDir="rtl"
                          PreviewLang="ar"
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div Display="Display.Flex" Gap="Gap.Is2">
+                    <Div Class="flex gap-2">
                         <Check Id="terms-rtl" />
                         <Label For="terms-rtl">قبول الشروط والأحكام</Label>
                     </Div>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Checkbox and Radio"
-                         Description="Label as caption for checkbox or radio controls."
-                         Code="@CheckboxRadioCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is4">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                        <Check Id="label-remember-me">Remember me</Check>
-                    </Div>
-                    <Div>
-                        <Label Form="true" Display="Display.Block" Margin="Margin.Is2.FromBottom">Choose an option:</Label>
-                        <Div Display="Display.Flex" Gap="Gap.Is4">
-                            <Radio Name="label-option" Value="option1">Option 1</Radio>
-                            <Radio Name="label-option" Value="option2">Option 2</Radio>
-                        </Div>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Label Features"
-                         Description="Common Label properties in Quark."
-                         Code="@FeaturesCode"
-                         CodeLanguage="razor">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" Padding="Padding.Is6" Class="bg-muted/30">
-                    <UnorderedList ListStyleType="ListStyleType.Disc" Class="list-inside space-y-1 text-sm">
-                        <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
-                        <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
-                        <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
             </DemoSection>
         </Section>
     </Div>
@@ -103,58 +133,65 @@
 
 @code {
     private const string BasicCode =
-@"<Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Class=""space-x-2"">
+@"<Div Class=""flex gap-2"">
     <Check Id=""terms"" />
     <Label For=""terms"">Accept terms and conditions</Label>
 </Div>";
 
     private const string LabelInFieldCode =
-@"<Field MaxWidth=""MaxWidth.IsXs"">
-    <FieldLabel For=""label-field-email"">Email</FieldLabel>
-    <Input Id=""label-field-email"" Type=""email"" Placeholder=""name@example.com"" />
-    <FieldDescription>We will never share your email.</FieldDescription>
-</Field>";
-
-    private const string FormControlsCode =
-@"<Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"">
-    <Div Space=""Space.Y.Is1"">
-        <Label Form=""true"" For=""label-username"">Username</Label>
-        <Input Id=""label-username"" Placeholder=""Enter username"" />
-    </Div>
-    <Div Space=""Space.Y.Is1"">
-        <Label Form=""true"" For=""label-password"">Password</Label>
-        <Input Id=""label-password"" Type=""password"" Placeholder=""Enter password"" />
-    </Div>
-</Grid>";
+@"<Div Class=""w-full max-w-md"">
+    <form>
+        <FieldGroup>
+            <FieldSet>
+                <FieldLegend>Payment Method</FieldLegend>
+                <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+                <FieldGroup>
+                    <Field>
+                        <FieldLabel For=""checkout-7j9-card-name-43j"">Name on Card</FieldLabel>
+                        <Input Id=""checkout-7j9-card-name-43j"" Placeholder=""Evil Rabbit"" Required=""true"" />
+                    </Field>
+                    <Field>
+                        <FieldLabel For=""checkout-7j9-card-number-uw1"">Card Number</FieldLabel>
+                        <Input Id=""checkout-7j9-card-number-uw1"" Placeholder=""1234 5678 9012 3456"" Required=""true"" />
+                        <FieldDescription>Enter your 16-digit card number</FieldDescription>
+                    </Field>
+                    <Div Class=""grid grid-cols-3 gap-4"">
+                        ...
+                    </Div>
+                </FieldGroup>
+            </FieldSet>
+            <FieldSeparator />
+            <FieldSet>
+                <FieldLegend>Billing Address</FieldLegend>
+                <FieldDescription>The billing address associated with your payment method</FieldDescription>
+                <FieldGroup>
+                    <Field Orientation=""horizontal"">
+                        <Check Id=""checkout-7j9-same-as-shipping-wgm"" Checked=""true"" />
+                        <FieldLabel For=""checkout-7j9-same-as-shipping-wgm"" FontWeight=""FontWeight.Normal"">Same as shipping address</FieldLabel>
+                    </Field>
+                </FieldGroup>
+            </FieldSet>
+            <FieldSet>
+                <FieldGroup>
+                    <Field>
+                        <FieldLabel For=""checkout-7j9-optional-comments"">Comments</FieldLabel>
+                        <TextArea Id=""checkout-7j9-optional-comments"" Placeholder=""Add any additional comments"" Class=""resize-none"" />
+                    </Field>
+                </FieldGroup>
+            </FieldSet>
+            <Field Orientation=""horizontal"">
+                <Button Type=""ButtonType.Submit"">Submit</Button>
+                <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Cancel</Button>
+            </Field>
+        </FieldGroup>
+    </form>
+</Div>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div Display=""Display.Flex"" Gap=""Gap.Is2"">
+    <Div Class=""flex gap-2"">
         <Check Id=""terms-rtl"" />
         <Label For=""terms-rtl"">قبول الشروط والأحكام</Label>
     </Div>
 </DirectionProvider>";
-
-    private const string CheckboxRadioCode =
-@"<Div Space=""Space.Y.Is4"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
-        <Check Id=""label-remember-me"">Remember me</Check>
-    </Div>
-    <Div>
-        <Label Form=""true"" Display=""Display.Block"" Margin=""Margin.Is2.FromBottom"">Choose an option:</Label>
-        <Div Display=""Display.Flex"" Gap=""Gap.Is4"">
-            <Radio Name=""label-option"" Value=""option1"">Option 1</Radio>
-            <Radio Name=""label-option"" Value=""option2"">Option 2</Radio>
-        </Div>
-    </Div>
-</Div>";
-
-    private const string FeaturesCode =
-@"<Div Rounded=""Rounded.Xl"" Border=""Border.Is1"" Padding=""Padding.Is6"" Class=""bg-muted/30"">
-    <UnorderedList ListStyleType=""ListStyleType.Disc"" Class=""list-inside space-y-1 text-sm"">
-        <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
-        <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
-        <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
-    </UnorderedList>
-</Div>";
 }

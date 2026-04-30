@@ -25,15 +25,10 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        var selectClasses = triggerCut.Find("[data-slot='select']").GetAttribute("class")!;
         var triggerClasses = triggerCut.Find("[data-slot='select-trigger']").GetAttribute("class")!;
         var valueClasses = triggerCut.Find("[data-slot='select-value']").GetAttribute("class");
 
-        selectClasses.Should().Contain("group/select");
-        selectClasses.Should().Contain("relative");
-        selectClasses.Should().Contain("w-full");
-        selectClasses.Should().Contain("max-w-full");
-        selectClasses.Should().NotContain("q-select");
+        triggerCut.FindAll("[data-slot='select']").Should().BeEmpty("Radix Select.Root is provider-only and does not render a DOM node");
 
         triggerClasses.Should().Contain("flex");
         triggerClasses.Should().Contain("w-fit");
@@ -47,13 +42,13 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("py-2");
         triggerClasses.Should().Contain("px-3");
         triggerClasses.Should().Contain("text-sm");
-        triggerClasses.Should().Contain("transition-[color,shadow]");
+        triggerClasses.Should().Contain("transition-[color,box-shadow]");
         triggerClasses.Should().Contain("outline-none");
-        triggerClasses.Should().Contain("select-none");
-        triggerClasses.Should().Contain("focus-visible:ring-3");
+        triggerClasses.Should().NotContain("select-none");
+        triggerClasses.Should().Contain("focus-visible:ring-[3px]");
         triggerClasses.Should().Contain("data-[size=default]:h-9");
         triggerClasses.Should().Contain("data-[size=sm]:h-8");
-        triggerClasses.Should().Contain("data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
+        triggerClasses.Should().NotContain("data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
         triggerClasses.Should().Contain("*:data-[slot=select-value]:line-clamp-1");
         triggerClasses.Should().Contain("*:data-[slot=select-value]:flex");
         triggerClasses.Should().Contain("*:data-[slot=select-value]:items-center");
@@ -64,6 +59,7 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().NotContain("rounded-lg");
         triggerClasses.Should().Contain("shadow-xs");
         triggerClasses.Should().NotContain("transition-colors");
+        triggerClasses.Should().NotContain("transition-[color,shadow]");
         triggerClasses.Should().NotContain("data-[size=default]:h-8");
         triggerClasses.Should().NotContain("data-[size=sm]:h-7");
         triggerClasses.Should().NotContain("q-select-trigger");
@@ -134,8 +130,12 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("text-popover-foreground");
         contentClasses.Should().Contain("shadow-md");
         contentClasses.Should().Contain("data-[state=open]:animate-in");
-        contentClasses.Should().Contain("data-[position=popper]:data-[side=bottom]:translate-y-1");
+        contentClasses.Should().Contain("data-[side=bottom]:translate-y-1");
+        contentClasses.Should().NotContain("data-[position=popper]:data-[side=bottom]:translate-y-1");
         contentClasses.Should().NotContain("data-open:");
+
+        cut.Find("[data-slot='select-content']").GetAttribute("data-side").Should().Be("bottom");
+        cut.Find("[data-slot='select-content']").GetAttribute("data-align").Should().Be("center");
 
         viewportClasses.Should().Contain("p-1");
         viewportClasses.Should().Contain("h-[var(--radix-select-trigger-height)]");

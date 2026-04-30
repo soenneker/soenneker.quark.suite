@@ -15,18 +15,11 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='alert-dialog-trigger']").GetAttribute("class")!;
 
-        classes.Should().Contain("group/button");
-        classes.Should().Contain("inline-flex");
-        classes.Should().Contain("items-center");
-        classes.Should().Contain("justify-center");
-        classes.Should().Contain("rounded-lg");
-        classes.Should().Contain("border");
-        classes.Should().Contain("bg-background");
-        classes.Should().Contain("hover:bg-muted");
-        classes.Should().Contain("aria-expanded:bg-muted");
-        classes.Should().Contain("h-8");
-        classes.Should().Contain("gap-1.5");
-        classes.Should().Contain("px-2.5");
+        classes.Should().BeNullOrEmpty();
+
+        var trigger = cut.Find("[data-slot='alert-dialog-trigger']");
+        trigger.GetAttribute("data-slot").Should().Be("alert-dialog-trigger");
+        trigger.GetAttribute("class").Should().BeNullOrEmpty("shadcn AlertDialogTrigger is an unstyled Radix trigger; use Button asChild for styling");
     }
 
     [Test]

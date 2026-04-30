@@ -5,7 +5,7 @@
 
 <BradixLabel For="@For"
              OnMouseDown="@OnMouseDown"
-             AdditionalAttributes="@LabelAttributes">
+             AdditionalAttributes="@BuildAttributes()">
     @ChildContent
 </BradixLabel>
 
@@ -21,15 +21,6 @@
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnMouseDown { get; set; }
-
-    private IReadOnlyDictionary<string, object> LabelAttributes => BuildLabelAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildLabelAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("for");
-        return attributes;
-    }
 
     protected override void ApplyDefaultParameters()
     {

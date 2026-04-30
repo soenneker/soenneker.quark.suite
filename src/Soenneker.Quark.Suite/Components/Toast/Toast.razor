@@ -1,0 +1,77 @@
+@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<BradixToast Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+             DefaultOpen="@DefaultOpen"
+             OpenChanged="@OpenChanged"
+             OnOpenChange="@OnOpenChange"
+             ForceMount="@ForceMount"
+             Type="@Type"
+             Duration="@Duration"
+             AdditionalAttributes="@ToastAttributes">
+    @ChildContent
+</BradixToast>
+
+@code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnOpenChange { get; set; }
+
+    [Parameter]
+    public bool ForceMount { get; set; }
+
+    [Parameter]
+    public ToastType Type { get; set; } = ToastType.Foreground;
+
+    [Parameter]
+    public int? Duration { get; set; }
+
+    [Parameter]
+    public ToastVariant Variant { get; set; } = ToastVariant.Default;
+
+    private IReadOnlyDictionary<string, object> ToastAttributes => BuildAttributes();
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all");
+            AppendClass(ref cls, "data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full");
+            AppendClass(ref cls, GetVariantClass(Variant));
+        });
+
+        attributes["data-slot"] = "toast";
+    }
+
+    private static string GetVariantClass(ToastVariant? variant)
+    {
+        if (ReferenceEquals(variant, ToastVariant.Destructive))
+            return "destructive group border-destructive bg-destructive text-destructive-foreground";
+
+        return "border bg-background text-foreground";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Open);
+        hc.Add(DefaultOpen);
+        hc.Add(ForceMount);
+        hc.Add(Type);
+        hc.Add(Duration);
+        hc.Add(Variant);
+    }
+}

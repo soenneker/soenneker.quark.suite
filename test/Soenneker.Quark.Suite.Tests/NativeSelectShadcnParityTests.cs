@@ -34,33 +34,32 @@ public sealed partial class RenderedShadcnParityTests
         nativeSelectClasses.Should().Contain("rounded-md");
         nativeSelectClasses.Should().Contain("border-input");
         nativeSelectClasses.Should().Contain("bg-transparent");
-        nativeSelectClasses.Should().Contain("py-1");
-        nativeSelectClasses.Should().Contain("pr-9");
-        nativeSelectClasses.Should().Contain("px-3");
-        nativeSelectClasses.Should().Contain("transition-[color,shadow]");
-        nativeSelectClasses.Should().NotContain("select-none");
-        nativeSelectClasses.Should().Contain("focus-visible:ring-[3px]");
-        nativeSelectClasses.Should().Contain("data-[size=sm]:h-8");
-        nativeSelectClasses.Should().NotContain("data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
-        nativeSelectClasses.Should().Contain("data-[size=sm]:py-1");
-        nativeSelectClasses.Should().Contain("dark:bg-input/30");
-        nativeSelectClasses.Should().Contain("dark:hover:bg-input/50");
-        nativeSelectClasses.Should().Contain("h-9");
-        nativeSelectClasses.Should().Contain("rounded-md");
         nativeSelectClasses.Should().Contain("px-3");
         nativeSelectClasses.Should().Contain("py-2");
         nativeSelectClasses.Should().Contain("pr-9");
         nativeSelectClasses.Should().Contain("shadow-xs");
-        nativeSelectClasses.Should().Contain("transition-[color,shadow]");
+        nativeSelectClasses.Should().Contain("transition-[color,box-shadow]");
         nativeSelectClasses.Should().Contain("focus-visible:ring-[3px]");
+        nativeSelectClasses.Should().Contain("data-[size=sm]:h-8");
+        nativeSelectClasses.Should().Contain("data-[size=sm]:py-1");
+        nativeSelectClasses.Should().Contain("dark:bg-input/30");
+        nativeSelectClasses.Should().Contain("dark:hover:bg-input/50");
+        nativeSelectClasses.Should().Contain("dark:aria-invalid:ring-destructive/40");
+        nativeSelectClasses.Should().NotContain("h-8 w-full");
+        nativeSelectClasses.Should().NotContain("rounded-lg");
+        nativeSelectClasses.Should().NotContain("pl-2.5");
+        nativeSelectClasses.Should().NotContain("pr-8");
+        nativeSelectClasses.Should().NotContain("data-[size=sm]:h-7");
+        nativeSelectClasses.Should().NotContain("data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
+        nativeSelectClasses.Should().NotContain("transition-[color,shadow]");
         nativeSelectClasses.Should().NotContain("q-native-select");
 
         nativeSelectIconClasses.Should().Contain("right-3.5");
         nativeSelectIconClasses.Should().Contain("size-4");
         nativeSelectIconClasses.Should().Contain("text-muted-foreground");
+        nativeSelectIconClasses.Should().Contain("opacity-50");
         nativeSelectIconClasses.Should().Contain("select-none");
         nativeSelectIconClasses.Should().NotContain("right-2.5");
-        nativeSelectIconClasses.Should().Contain("opacity-50");
     }
 
     [Test]
@@ -76,7 +75,8 @@ public sealed partial class RenderedShadcnParityTests
 
                 builder.OpenComponent<NativeSelectOptGroup>(3);
                 builder.AddAttribute(4, "Label", "Engineering");
-                builder.AddAttribute(5, "ChildContent", (RenderFragment)(child =>
+                builder.AddAttribute(5, "Disabled", true);
+                builder.AddAttribute(6, "ChildContent", (RenderFragment)(child =>
                 {
                     child.OpenComponent<NativeSelectOption>(0);
                     child.AddAttribute(1, "Value", "frontend");
@@ -92,6 +92,7 @@ public sealed partial class RenderedShadcnParityTests
         option.GetAttribute("value").Should().Be(string.Empty);
         option.GetAttribute("class").Should().ContainAll("bg-[Canvas]", "text-[CanvasText]");
         optgroup.GetAttribute("label").Should().Be("Engineering");
+        optgroup.GetAttribute("disabled").Should().Be(string.Empty);
         optgroup.GetAttribute("class").Should().ContainAll("bg-[Canvas]", "text-[CanvasText]");
     }
 }

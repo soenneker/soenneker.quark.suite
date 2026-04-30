@@ -10,10 +10,10 @@
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <ContextMenu>
-                    <ContextMenuTrigger Id="context-menu-demo-trigger"
-                                        data-testid="context-menu-demo-trigger"
+                    <ContextMenuTrigger Id="context-menu-overview-trigger"
+                                        data-testid="context-menu-overview-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click here
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -73,7 +73,7 @@
                     <ContextMenuTrigger Id="context-menu-demo-trigger"
                                         data-testid="context-menu-demo-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click here
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -133,7 +133,7 @@
                     <ContextMenuTrigger Id="context-menu-submenu-trigger"
                                         data-testid="context-menu-submenu-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for more tools
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("56")'>
@@ -177,7 +177,7 @@
                     <ContextMenuTrigger Id="context-menu-shortcuts-trigger"
                                         data-testid="context-menu-shortcuts-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for shortcuts
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -204,7 +204,7 @@
                     <ContextMenuTrigger Id="context-menu-groups-trigger"
                                         data-testid="context-menu-groups-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for groups
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -231,7 +231,7 @@
                     <ContextMenuTrigger Id="context-menu-icons-trigger"
                                         data-testid="context-menu-icons-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for icons
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -253,7 +253,7 @@
                     <ContextMenuTrigger Id="context-menu-checkbox-trigger"
                                         data-testid="context-menu-checkbox-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for view options
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("56")'>
@@ -283,7 +283,7 @@
                     <ContextMenuTrigger Id="context-menu-radio-trigger"
                                         data-testid="context-menu-radio-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for layout choices
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("56")'>
@@ -314,7 +314,7 @@
                     <ContextMenuTrigger Id="context-menu-destructive-trigger"
                                         data-testid="context-menu-destructive-trigger"
                                         Display="Display.Flex" Height='Height.Token("[150px]")' Width='Width.Token("[300px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Rounded="Rounded.Md" Border="Border.Is1" Class="border-dashed" TextSize="TextSize.Sm">
-                        Right click for destructive action
+                        @ContextMenuTriggerText
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Width='Width.Token("52")'>
@@ -412,6 +412,18 @@
     private bool IsCompactSelected => _selectedDensity == "compact";
     private bool IsPedroSelected => _selectedPerson == "pedro";
     private bool IsColmSelected => _selectedPerson == "colm";
+
+    private RenderFragment ContextMenuTriggerText => builder =>
+    {
+        builder.OpenElement(0, "span");
+        builder.AddAttribute(1, "class", "hidden md:inline");
+        builder.AddContent(2, "Right click here");
+        builder.CloseElement();
+        builder.OpenElement(3, "span");
+        builder.AddAttribute(4, "class", "md:hidden");
+        builder.AddContent(5, "Long press here");
+        builder.CloseElement();
+    };
 
     private void OnDensitySelected(string density, bool selected)
     {

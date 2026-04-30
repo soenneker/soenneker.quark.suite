@@ -1,3 +1,4 @@
+using System;
 using AwesomeAssertions;
 using Bunit;
 
@@ -11,15 +12,20 @@ public sealed partial class RenderedShadcnParityTests
     {
         var slider = Render<Slider>(parameters => parameters
             .Add(p => p.SliderValue, 75d)
-            .Add(p => p.AriaLabel, "Volume"));
+            .Add(p => p.AriaLabel, "Volume")
+            .Add(p => p.Class, "w-[60%]"));
 
         var sliderClasses = slider.Find("[data-slot='slider']").GetAttribute("class")!;
         var sliderTrackClasses = slider.Find("[data-slot='slider-track']").GetAttribute("class")!;
         var sliderRangeClasses = slider.Find("[data-slot='slider-range']").GetAttribute("class")!;
         var sliderThumbClasses = slider.Find("[data-slot='slider-thumb']").GetAttribute("class")!;
 
-        sliderClasses.Should().Contain("data-horizontal:w-full");
-        sliderClasses.Should().Contain("data-vertical:h-full");
+        sliderClasses.Should().Contain("w-full");
+        sliderClasses.Should().NotContain("data-[orientation=horizontal]:w-full");
+        sliderClasses.IndexOf("w-full", StringComparison.Ordinal).Should().BeLessThan(sliderClasses.IndexOf("w-[60%]", StringComparison.Ordinal));
+        sliderClasses.Should().Contain("data-[orientation=vertical]:h-full");
+        sliderClasses.Should().NotContain("data-horizontal:w-full");
+        sliderClasses.Should().NotContain("data-vertical:h-full");
         slider.Find("[data-slot='slider']").GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
         sliderClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider']").GetAttribute("aria-label")!.Should().Be("Volume");
@@ -28,13 +34,13 @@ public sealed partial class RenderedShadcnParityTests
         sliderTrackClasses.Should().Contain("grow");
         sliderTrackClasses.Should().Contain("rounded-full");
         sliderTrackClasses.Should().Contain("bg-muted");
-        sliderTrackClasses.Should().Contain("select-none");
-        sliderTrackClasses.Should().Contain("data-horizontal:h-1");
-        sliderTrackClasses.Should().Contain("data-horizontal:w-full");
+        sliderTrackClasses.Should().Contain("data-[orientation=horizontal]:h-1.5");
+        sliderTrackClasses.Should().Contain("data-[orientation=horizontal]:w-full");
+        sliderTrackClasses.Should().NotContain("data-horizontal:h-1");
 
         sliderRangeClasses.Should().Contain("bg-primary");
-        sliderRangeClasses.Should().Contain("select-none");
-        sliderRangeClasses.Should().Contain("data-horizontal:h-full");
+        sliderRangeClasses.Should().Contain("data-[orientation=horizontal]:h-full");
+        sliderRangeClasses.Should().NotContain("data-horizontal:h-full");
 
         sliderThumbClasses.Should().Contain("block");
         sliderThumbClasses.Should().Contain("size-4");
@@ -44,10 +50,11 @@ public sealed partial class RenderedShadcnParityTests
         sliderThumbClasses.Should().Contain("border-primary");
         sliderThumbClasses.Should().Contain("bg-white");
         sliderThumbClasses.Should().Contain("ring-ring/50");
-        sliderThumbClasses.Should().Contain("transition-[color,shadow]");
-        sliderThumbClasses.Should().Contain("select-none");
-        sliderThumbClasses.Should().Contain("after:absolute");
-        sliderThumbClasses.Should().Contain("after:-inset-2");
+        sliderThumbClasses.Should().Contain("transition-[color,box-shadow]");
+        sliderThumbClasses.Should().NotContain("transition-[color,shadow]");
+        sliderThumbClasses.Should().NotContain("select-none");
+        sliderThumbClasses.Should().NotContain("after:absolute");
+        sliderThumbClasses.Should().NotContain("after:-inset-2");
         sliderThumbClasses.Should().Contain("hover:ring-4");
         sliderThumbClasses.Should().Contain("focus-visible:ring-4");
         sliderThumbClasses.Should().Contain("focus-visible:outline-hidden");
@@ -56,6 +63,7 @@ public sealed partial class RenderedShadcnParityTests
         sliderThumbClasses.Should().Contain("shadow-sm");
         sliderThumbClasses.Should().NotContain("hover:ring-3");
         sliderThumbClasses.Should().NotContain("focus-visible:ring-3");
+        sliderThumbClasses.Should().NotContain("active:ring-4");
         sliderThumbClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider-thumb']").HasAttribute("aria-label").Should().BeFalse();
     }

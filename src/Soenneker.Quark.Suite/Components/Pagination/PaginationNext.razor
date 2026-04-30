@@ -3,25 +3,17 @@
 
 <PaginationLink To="@To" OnClick="@OnClick" Disabled="@Disabled" Size="ButtonSize.Default" @attributes="BuildAttributes()" aria-label="Go to next page">
     <span class="hidden sm:block">@Text</span>
-    <Icon Name="LucideIcon.ChevronRight" class="size-4 rtl:rotate-180" />
+    <Icon Name="LucideIcon.ChevronRight" />
 </PaginationLink>
 
 @code {
     [Parameter] public string? To { get; set; }
     [Parameter] public string Text { get; set; } = "Next";
 
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Gap ??= Quark.Gap.Is1;
-        Padding ??= Quark.Padding.Token("2.5").OnX;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "sm:pr-2.5!"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "gap-1 px-2.5 sm:pr-2.5"));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

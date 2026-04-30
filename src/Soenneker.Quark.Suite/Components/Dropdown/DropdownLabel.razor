@@ -17,9 +17,8 @@
     {
         base.ApplyDefaultParameters();
 
-        Padding ??= Quark.Padding.Token("1.5").OnX.Is1.OnY;
-        TextSize ??= Quark.TextSize.Xs;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
     }
 
@@ -27,11 +26,12 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-label";
-        attributes["data-inset"] = Indented ? "true" : "false";
+        if (Indented)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "data-[inset=true]:pl-7 rtl:data-[inset=true]:pl-1.5 rtl:data-[inset=true]:pr-7");
+            AppendClass(ref cls, "data-[inset]:pl-8");
         });
     }
 

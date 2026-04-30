@@ -12,25 +12,17 @@ public sealed partial class RenderedShadcnParityTests
     {
         var root = GetSuiteRootForDatePicker();
         var source = File.ReadAllText(Path.Combine(root, "src", "Soenneker.Quark.Suite", "Components", "Forms", "DatePicker.razor"));
-        var trigger = File.ReadAllText(Path.Combine(root, "src", "Soenneker.Quark.Suite", "Components", "Popover", "PopoverTrigger.razor"));
         var popoverContent = File.ReadAllText(Path.Combine(root, "src", "Soenneker.Quark.Suite", "Components", "Popover", "PopoverContent.razor"));
 
-        trigger.Should().Contain("Display ??= Quark.Display.InlineFlex");
-        trigger.Should().Contain("Shrink ??= Quark.Shrink.Is0");
-        trigger.Should().Contain("ItemsAlign ??= Items.Center");
-        trigger.Should().Contain("Rounded ??= Quark.Rounded.Lg");
-        trigger.Should().Contain("Border ??= Quark.Border.Default");
-        trigger.Should().Contain("TextSize ??= Quark.TextSize.Sm");
-        trigger.Should().Contain("Whitespace ??= Quark.Whitespace.Nowrap");
-        trigger.Should().Contain("Transition ??= Quark.Transition.All");
-        trigger.Should().Contain("OutlineStyle ??= Quark.OutlineStyle.None");
-        trigger.Should().Contain("focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
-        trigger.Should().Contain("dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
-        source.Should().Contain("w-[212px]");
-        source.Should().Contain("justify-between");
+        source.Should().Contain("<PopoverTrigger AsChild=\"true\">");
+        source.Should().Contain("Variant=\"ButtonVariant.Outline\"");
+        source.Should().Contain("w-[280px]");
+        source.Should().Contain("justify-start");
         source.Should().Contain("text-left");
         source.Should().Contain("font-normal");
         source.Should().Contain("data-[empty=true]:text-muted-foreground");
+        source.Should().Contain("LucideIcon.Calendar");
+        source.Should().NotContain("LucideIcon.ChevronDown");
         source.Should().Contain("Pick a date");
         source.Should().Contain("type=\"hidden\"");
         popoverContent.Should().Contain("BackgroundColor ??= Quark.BackgroundColor.Popover");

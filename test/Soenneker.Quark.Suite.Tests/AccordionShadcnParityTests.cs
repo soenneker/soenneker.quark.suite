@@ -35,9 +35,9 @@ public sealed partial class RenderedShadcnParityTests
         var contentClasses = cut.Find("[data-slot='accordion-content']").GetAttribute("class")!;
         var innerClasses = cut.Find("[data-slot='accordion-content-inner']").GetAttribute("class")!;
 
-        accordionClasses.Should().Contain("flex");
-        accordionClasses.Should().Contain("w-full");
-        accordionClasses.Should().Contain("flex-col");
+        accordionClasses.Should().NotContain("flex");
+        accordionClasses.Should().NotContain("w-full");
+        accordionClasses.Should().NotContain("flex-col");
         accordionClasses.Should().NotContain("q-accordion");
 
         itemClasses.Should().Contain("border-b");
@@ -45,15 +45,16 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().NotContain("not-last:border-b");
         itemClasses.Should().NotContain("q-accordion-item");
 
-        triggerClasses.Should().Contain("group/accordion-trigger");
-        triggerClasses.Should().Contain("relative");
+        triggerClasses.Should().NotContain("group/accordion-trigger");
+        triggerClasses.Should().NotContain("relative");
         triggerClasses.Should().Contain("flex");
         triggerClasses.Should().Contain("flex-1");
         triggerClasses.Should().Contain("items-start");
         triggerClasses.Should().Contain("justify-between");
-        triggerClasses.Should().Contain("rounded-lg");
-        triggerClasses.Should().Contain("border-transparent");
-        triggerClasses.Should().Contain("py-2.5");
+        triggerClasses.Should().Contain("gap-4");
+        triggerClasses.Should().Contain("rounded-md");
+        triggerClasses.Should().NotContain("border-transparent");
+        triggerClasses.Should().Contain("py-4");
         triggerClasses.Should().Contain("text-left");
         triggerClasses.Should().Contain("text-sm");
         triggerClasses.Should().Contain("font-medium");
@@ -64,12 +65,13 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("focus-visible:ring-[3px]");
         triggerClasses.Should().Contain("focus-visible:ring-ring/50");
         triggerClasses.Should().NotContain("focus-visible:after:border-ring");
-        triggerClasses.Should().Contain("aria-disabled:pointer-events-none");
-        triggerClasses.Should().Contain("aria-disabled:opacity-50");
+        triggerClasses.Should().NotContain("aria-disabled:pointer-events-none");
+        triggerClasses.Should().NotContain("aria-disabled:opacity-50");
         triggerClasses.Should().NotContain("**:data-[slot=accordion-trigger-icon]:ml-auto");
-        triggerClasses.Should().NotContain("gap-4");
+        triggerClasses.Should().NotContain("py-2.5");
         triggerClasses.Should().NotContain("focus-visible:ring-3");
-        triggerClasses.Should().Contain("[&[data-state=open]>[data-slot=accordion-trigger-icon]]:rotate-180");
+        triggerClasses.Should().Contain("[&[data-state=open]>svg]:rotate-180");
+        triggerClasses.Should().NotContain("[&[data-state=open]>[data-slot=accordion-trigger-icon]]:rotate-180");
         triggerClasses.Should().NotContain("q-accordion-trigger");
         triggerClasses.Should().NotContain("text-start");
 
@@ -82,8 +84,8 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().NotContain("q-accordion-content");
 
         innerClasses.Should().Contain("pt-0");
-        innerClasses.Should().Contain("pb-2.5");
-        innerClasses.Should().NotContain("pb-4");
+        innerClasses.Should().Contain("pb-4");
+        innerClasses.Should().NotContain("pb-2.5");
     }
 }
 

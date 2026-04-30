@@ -24,30 +24,28 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().Contain("duration-100");
         itemClasses.Should().Contain("focus-visible:ring-[3px]");
         itemClasses.Should().Contain("[a]:transition-colors");
-        itemClasses.Should().Contain("[a]:hover:bg-muted");
+        itemClasses.Should().Contain("[a]:hover:bg-accent/50");
         itemClasses.Should().Contain("border-border");
-        itemClasses.Should().Contain("gap-2.5");
-        itemClasses.Should().Contain("px-3");
-        itemClasses.Should().Contain("py-2.5");
+        itemClasses.Should().Contain("gap-4");
+        itemClasses.Should().Contain("p-4");
         itemClasses.Should().Contain("flex");
         itemClasses.Should().Contain("flex-wrap");
         itemClasses.Should().Contain("items-center");
-        itemClasses.Should().Contain("rounded-lg");
+        itemClasses.Should().Contain("rounded-md");
         itemClasses.Should().Contain("border");
         itemClasses.Should().Contain("text-sm");
         itemClasses.Should().Contain("transition-colors");
-        itemClasses.Should().NotContain("[a]:hover:bg-accent/50");
-        itemClasses.Should().NotContain("gap-4");
-        itemClasses.Should().NotContain("p-4");
-        itemClasses.Should().NotContain("rounded-md");
-        itemClasses.Should().Contain("w-full");
+        itemClasses.Should().NotContain("[a]:hover:bg-muted");
+        itemClasses.Should().NotContain("rounded-lg");
+        itemClasses.Should().NotContain("w-full");
         itemClasses.Should().NotContain("border-1");
         itemClasses.Should().NotContain("q-item");
 
-        itemXsClasses.Should().Contain("gap-2");
-        itemXsClasses.Should().Contain("px-2.5");
-        itemXsClasses.Should().Contain("py-2");
-        itemXsClasses.Should().Contain("in-data-[slot=dropdown-menu-content]:p-0");
+        itemXsClasses.Should().Contain("gap-2.5");
+        itemXsClasses.Should().Contain("px-4");
+        itemXsClasses.Should().Contain("py-3");
+        itemXsClasses.Should().NotContain("in-data-[slot=dropdown-menu-content]:p-0");
+        itemXs.Find("[data-slot='item']").GetAttribute("data-size").Should().Be("sm");
         itemXsClasses.Should().Contain("border");
         itemXsClasses.Should().NotContain("border-1");
     }
@@ -67,10 +65,10 @@ public sealed partial class RenderedShadcnParityTests
         item.GetAttribute("data-size").Should().Be("sm");
         classes.Should().Contain("bg-muted/50");
         classes.Should().Contain("gap-2.5");
-        classes.Should().Contain("px-3");
-        classes.Should().Contain("py-2.5");
-        classes.Should().NotContain("px-4");
-        classes.Should().NotContain("py-3");
+        classes.Should().Contain("px-4");
+        classes.Should().Contain("py-3");
+        classes.Should().NotContain("px-3");
+        classes.Should().NotContain("py-2.5");
     }
 
     [Test]
@@ -92,6 +90,11 @@ public sealed partial class RenderedShadcnParityTests
 
         mediaClasses.Should().Contain("flex");
         mediaClasses.Should().Contain("shrink-0");
+        mediaClasses.Should().Contain("items-center");
+        mediaClasses.Should().Contain("justify-center");
+        mediaClasses.Should().Contain("gap-2");
+        mediaClasses.Should().Contain("group-has-[[data-slot=item-description]]/item:translate-y-0.5");
+        mediaClasses.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
         mediaClasses.Should().Contain("size-8");
         mediaClasses.Should().Contain("rounded-sm");
         mediaClasses.Should().Contain("border");

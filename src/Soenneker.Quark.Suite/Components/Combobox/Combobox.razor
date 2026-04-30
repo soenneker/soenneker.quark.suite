@@ -45,6 +45,9 @@
     [Parameter]
     public bool AutoHighlight { get; set; }
 
+    [Parameter]
+    public bool ShowClear { get; set; }
+
     internal string InputId => BlazorIdGenerator.Child(_comboboxId, "input");
 
     internal string ContentId => BlazorIdGenerator.Child(_comboboxId, "listbox");
@@ -56,6 +59,10 @@
     internal bool HasTriggerElement => _hasTriggerElement;
 
     internal ElementReference TriggerElement => _triggerElement;
+
+    internal bool HasClearValue => Multiple
+        ? Values?.Length > 0 || !Search.IsNullOrEmpty()
+        : !Value.IsNullOrEmpty() || !Search.IsNullOrEmpty();
 
     internal IReadOnlyList<string> SelectedValues => Values ?? [];
 
@@ -201,6 +208,29 @@
         Refresh();
     }
 
+    internal async Task Clear()
+    {
+        Search = "";
+
+        if (Multiple)
+        {
+            Values = [];
+            await ValueChangedMultiple.InvokeAsync(Values);
+        }
+        else
+        {
+            Value = null;
+            await ValueChanged.InvokeAsync(null);
+        }
+
+        Open = false;
+        SetActiveValue(null);
+        await SearchChanged.InvokeAsync(Search);
+        await OpenChanged.InvokeAsync(false);
+        InvalidateRender();
+        Refresh();
+    }
+
     private void MoveActiveItem(string key)
     {
         var visibleItems = _items.Where(item => !item.Hidden && !item.Disabled).ToList();
@@ -319,6 +349,7 @@
         hc.Add(Open);
         hc.Add(Disabled);
         hc.Add(AutoHighlight);
+        hc.Add(ShowClear);
         hc.Add(Multiple);
 
         if (Values is not null)

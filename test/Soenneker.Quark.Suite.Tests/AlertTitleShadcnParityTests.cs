@@ -15,13 +15,12 @@ public sealed partial class RenderedShadcnParityTests
         var classes = cut.Find("[data-slot='alert-title']").GetAttribute("class")!;
 
         classes.Should().Contain("font-medium");
-        classes.Should().Contain("group-has-[>svg]/alert:col-start-2");
-        classes.Should().Contain("[&_a]:underline");
-        classes.Should().Contain("[&_a]:underline-offset-3");
-        classes.Should().Contain("[&_a]:hover:text-foreground");
-        classes.Should().NotContain("line-clamp-1");
-        classes.Should().NotContain("min-h-4");
-        classes.Should().NotContain("tracking-tight");
+        classes.Should().Contain("col-start-2");
+        classes.Should().Contain("line-clamp-1");
+        classes.Should().Contain("min-h-4");
+        classes.Should().Contain("tracking-tight");
+        classes.Should().NotContain("group-has-[>svg]/alert:col-start-2");
+        classes.Should().NotContain("[&_a]:underline");
         classes.Should().NotContain("q-alert-title");
     }
 }

@@ -17,7 +17,8 @@ public sealed partial class RenderedShadcnParityTests
 
         list.TagName.Should().Be("UL");
         item.TagName.Should().Be("LI");
-        classes.Should().ContainAll("my-6", "ml-6", "list-disc", "[&>li]:mt-2");
+        classes.Should().ContainAll("my-6", "ms-6", "list-disc", "[&>li]:mt-2");
+        classes.Should().NotContain("ml-6");
         classes.Should().NotContain("q-unordered-list");
     }
 

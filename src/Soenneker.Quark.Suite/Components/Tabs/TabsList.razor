@@ -58,13 +58,12 @@
         attributes["data-slot"] = "tabs-list";
         attributes["data-variant"] = ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Line) ? "line" : "default";
         attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
-        attributes[ParentTabs?.Vertical == true ? "data-vertical" : "data-horizontal"] = string.Empty;
         attributes["tabindex"] = -1;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/tabs-list data-[variant=line]:rounded-none");
-            AppendClass(ref cls, "group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col");
+            AppendClass(ref cls, "group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col");
 
             if (ParentTabs?.Justified == true)
                 AppendClass(ref cls, "[&>[data-slot=tabs-trigger]]:flex-1");

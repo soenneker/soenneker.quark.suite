@@ -53,8 +53,8 @@ public sealed partial class RenderedShadcnParityTests
         handleClasses.Should().Contain("after:-translate-x-1/2");
         handleClasses.Should().Contain("focus-visible:ring-1");
         handleClasses.Should().Contain("focus-visible:ring-ring");
-        handleClasses.Should().Contain("focus-visible:ring-offset-1");
         handleClasses.Should().Contain("focus-visible:outline-hidden");
+        handleClasses.Should().Contain("focus-visible:ring-offset-1");
         handleClasses.Should().Contain("aria-[orientation=horizontal]:h-px");
         handleClasses.Should().Contain("aria-[orientation=horizontal]:w-full");
         handleClasses.Should().Contain("[&[aria-orientation=horizontal]>div]:rotate-90");

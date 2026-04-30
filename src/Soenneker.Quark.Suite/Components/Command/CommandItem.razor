@@ -84,6 +84,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "command-item";
+        attributes["cmdk-item"] = string.Empty;
         attributes["id"] = Id!;
         attributes["tabindex"] = Disabled ? -1 : -1;
         var selected = ParentCommand?.IsItemActive(this) == true;
@@ -96,11 +97,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/command-item");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
-            AppendClass(ref cls, "in-data-[slot=dialog-content]:rounded-lg! data-selected:bg-muted data-selected:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "data-selected:*:[svg]:text-foreground");
+            AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
         });
     }
 

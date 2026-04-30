@@ -1,6 +1,4 @@
 @page "/radiogroups"
-@using Microsoft.AspNetCore.Components.Forms
-
 <PageTitle>Radio Group - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
@@ -29,49 +27,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Description"
-                         Description="Form-style radio group with validation and submitted value."
-                         Code="@FormCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_formModel" OnSubmit="@(_ => HandleFormSubmit())" class="w-2/3 space-y-6">
-                    <Field Space="Space.Y.Is3">
-                        <FieldLabel>Notify me about...</FieldLabel>
-                        <RadioGroup Name="notify-type"
-                                    Value="@_formModel.Type"
-                                    ValueChanged="OnFormTypeChanged"
-                                    AriaLabel="Notification type">
-                            <Field Horizontal="true">
-                                <Radio Id="notify-all" Value="all" />
-                                <FieldLabel For="notify-all" FontWeight="FontWeight.Normal">All new messages</FieldLabel>
-                            </Field>
-                            <Field Horizontal="true">
-                                <Radio Id="notify-mentions" Value="mentions" />
-                                <FieldLabel For="notify-mentions" FontWeight="FontWeight.Normal">Direct messages and mentions</FieldLabel>
-                            </Field>
-                            <Field Horizontal="true">
-                                <Radio Id="notify-none" Value="none" />
-                                <FieldLabel For="notify-none" FontWeight="FontWeight.Normal">Nothing</FieldLabel>
-                            </Field>
-                        </RadioGroup>
-                        @if (_showFormError)
-                        {
-                            <Paragraph Class="text-sm text-destructive" Margin="Margin.Is0">
-                                You need to select a notification type.
-                            </Paragraph>
-                        }
-                    </Field>
-
-                    <Button Type="ButtonType.Submit">Submit</Button>
-
-                    @if (!string.IsNullOrEmpty(_submittedTypeJson))
-                    {
-                        <PreCode Class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_submittedTypeJson</PreCode>
-                    }
-                </EditForm>
-            </DemoSection>
-        </Section>
-<Section Space="Space.Y.Is4">
-            <DemoSection Title="Choice Card"
-                         Description="Pair each radio with a label and supporting description."
+                         Description="Radio group items with a description using the Field component."
                          Code="@DescriptionCode"
                          CodeLanguage="razor">
                 <RadioGroup Name="density-description" Value="@_descriptionValue" ValueChanged="OnDescriptionValueChanged" Width="Width.IsFit" AriaLabel="Density descriptions">
@@ -101,8 +57,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Fieldset"
-                         Description="Use card-style rows when options need titles and subtitles."
+            <DemoSection Title="Choice Card"
+                         Description="Use FieldLabel to wrap the entire Field for a clickable card-style selection."
                          Code="@ChoiceCardCode"
                          CodeLanguage="razor">
                 <RadioGroup Name="plan-choice-card" Value="@_choiceCardValue" ValueChanged="OnChoiceCardValueChanged" MaxWidth="MaxWidth.IsSm" AriaLabel="Subscription plans">
@@ -138,8 +94,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
-                         Description="Group radios with a legend and helper text in a fieldset."
+            <DemoSection Title="Fieldset"
+                         Description="Use FieldSet and FieldLegend to group radio items with a label and description."
                          Code="@FieldsetCode"
                          CodeLanguage="razor">
                 <FieldSet Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
@@ -164,8 +120,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid"
-                         Description="Disable individual radios or the whole field."
+            <DemoSection Title="Disabled"
+                         Description="Use the disabled prop on RadioGroupItem to disable individual items."
                          Code="@DisabledCode"
                          CodeLanguage="razor">
                 <RadioGroup Name="disabled-options" Value="@_disabledValue" ValueChanged="OnDisabledValueChanged" Width="Width.IsFit" AriaLabel="Disabled radio options">
@@ -186,8 +142,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
-                         Description="Mark the field invalid when the selection fails validation."
+            <DemoSection Title="Invalid"
+                         Description="Use aria-invalid on RadioGroupItem and data-invalid on Field to show validation errors."
                          Code="@InvalidCode"
                          CodeLanguage="razor">
                 <FieldSet Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
@@ -239,28 +195,10 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Inline Content"
-                         Description="Standalone radios can render label text inside the component."
-                         Code="@InlineContentCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is4">
-                    <Radio Name="rating-inline" Value="excellent" Checked="@(_inlineRating == "excellent")" OnClick="@(() => _inlineRating = "excellent")" Inline="true">Excellent</Radio>
-                    <Radio Name="rating-inline" Value="good" Checked="@(_inlineRating == "good")" OnClick="@(() => _inlineRating = "good")" Inline="true">Good</Radio>
-                    <Radio Name="rating-inline" Value="fair" Checked="@(_inlineRating == "fair")" OnClick="@(() => _inlineRating = "fair")" Inline="true">Fair</Radio>
-                </Div>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private sealed class RadioFormModel
-    {
-        public string? Type { get; set; }
-    }
-
     private const string DemoCode =
 @"<RadioGroup Name=""density-demo"" Value=""@_demoValue"" ValueChanged=""OnDemoValueChanged"" Width=""Width.IsFit"" AriaLabel=""Density options"">
     <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is3"">
@@ -434,10 +372,6 @@
     private string _choiceCardValue = "plus";
     private string _fieldsetValue = "monthly";
     private string _rtlValue = "comfortable";
-    private string _inlineRating = "good";
-    private readonly RadioFormModel _formModel = new();
-    private bool _showFormError;
-    private string? _submittedTypeJson;
 
     private Task OnDemoValueChanged(string? value)
     {
@@ -481,30 +415,4 @@
         return Task.CompletedTask;
     }
 
-    private Task OnFormTypeChanged(string? value)
-    {
-        _formModel.Type = value;
-        _showFormError = false;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleFormSubmit()
-    {
-        if (string.IsNullOrWhiteSpace(_formModel.Type))
-        {
-            _showFormError = true;
-            _submittedTypeJson = null;
-            return Task.CompletedTask;
-        }
-
-        _showFormError = false;
-        _submittedTypeJson =
-            $$"""
-              {
-                "type": "{{_formModel.Type}}"
-              }
-              """;
-
-        return Task.CompletedTask;
-    }
 }

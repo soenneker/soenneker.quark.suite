@@ -20,10 +20,10 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("flex-col");
         classes.Should().Contain("items-center");
         classes.Should().NotContain("justify-center");
-        classes.Should().Contain("gap-2.5");
+        classes.Should().Contain("gap-4");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-balance");
         classes.Should().NotContain("flex-row");
-        classes.Should().NotContain("gap-4");
+        classes.Should().NotContain("gap-2.5");
     }
 }

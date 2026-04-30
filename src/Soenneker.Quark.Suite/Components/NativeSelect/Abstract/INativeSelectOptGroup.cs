@@ -9,4 +9,9 @@ public interface INativeSelectOptGroup : IElement
     /// Gets or sets the group label.
     /// </summary>
     string? Label { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether this option group is disabled.
+    /// </summary>
+    bool Disabled { get; set; }
 }

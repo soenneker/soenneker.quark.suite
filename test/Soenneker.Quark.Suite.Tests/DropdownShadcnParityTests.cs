@@ -13,9 +13,9 @@ public sealed partial class RenderedShadcnParityTests
     public void Dropdown_leaf_slots_match_shadcn_base_classes()
     {
         var sub = Render<DropdownSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));
-        var subClasses = sub.Find("[data-slot='dropdown-menu-sub']").GetAttribute("class")!;
-        subClasses.Should().Contain("relative");
-        subClasses.Should().NotContain("q-dropdown-sub");
+        sub.Markup.Should().Contain("Sub");
+        sub.FindAll("[data-slot='dropdown-menu-sub']").Should().BeEmpty();
+        sub.Markup.Should().NotContain("q-dropdown-sub");
     }
 
     [Test]
@@ -34,20 +34,21 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("relative");
         classes.Should().Contain("flex");
-        classes.Should().Contain("gap-1.5");
-        classes.Should().Contain("rounded-md");
-        classes.Should().Contain("px-1.5");
-        classes.Should().Contain("py-1");
+        classes.Should().Contain("gap-2");
+        classes.Should().Contain("rounded-sm");
+        classes.Should().Contain("px-2");
+        classes.Should().Contain("py-1.5");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("outline-hidden");
         classes.Should().Contain("focus:bg-accent");
         classes.Should().Contain("data-[disabled]:pointer-events-none");
         classes.Should().Contain("data-[disabled]:opacity-50");
-        classes.Should().Contain("data-[inset]:pl-7");
+        classes.Should().Contain("data-[inset]:pl-8");
         classes.Should().Contain("data-[variant=destructive]:text-destructive");
         classes.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
         classes.Should().NotContain("data-disabled:");
         classes.Should().NotContain("data-inset:pl-7");
+        classes.Should().NotContain("group/dropdown-menu-item");
     }
 
     [Test]
@@ -77,7 +78,7 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("relative");
         classes.Should().Contain("flex");
-        classes.Should().Contain("gap-1.5");
+        classes.Should().Contain("gap-2");
         classes.Should().Contain("rounded-sm");
         classes.Should().Contain("py-1.5");
         classes.Should().Contain("pr-2");
@@ -113,7 +114,7 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("relative");
         classes.Should().Contain("flex");
-        classes.Should().Contain("gap-1.5");
+        classes.Should().Contain("gap-2");
         classes.Should().Contain("rounded-sm");
         classes.Should().Contain("py-1.5");
         classes.Should().Contain("pr-2");

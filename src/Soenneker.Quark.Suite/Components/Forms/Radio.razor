@@ -11,18 +11,18 @@
     @if (HasInlineLabel)
     {
         <label @attributes="BuildLabelAttributes()">
-            <BradixRadioGroupItem Id="@ControlId"
-                                  Value="@ResolvedGroupedValue"
-                                  InputValue="@ResolvedGroupedValue"
-                                  Disabled="@Disabled"
+                <BradixRadioGroupItem Id="@ControlId"
+                                      Value="@ResolvedGroupedValue"
+                                      InputValue="@ResolvedGroupedValue"
+                                      Disabled="@Disabled"
                                   OnClick="HandleGroupedClick"
                                   OnFocus="HandleGroupedFocus"
                                   OnKeyDown="HandleGroupedKeyDown"
-                                  AdditionalAttributes="@BuildGroupedItemAttributes()">
-                <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
-                    <Icon Name="LucideIcon.Circle" Class="absolute top-1/2 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
-                </BradixRadioGroupIndicator>
-            </BradixRadioGroupItem>
+                                      AdditionalAttributes="@BuildGroupedItemAttributes()">
+                    <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
+                    <Icon Name="LucideIcon.Circle" class="@RadioDotClass" />
+                    </BradixRadioGroupIndicator>
+                </BradixRadioGroupItem>
             @if (ChildContent != null)
             {
                 @ChildContent
@@ -40,7 +40,7 @@
                               OnKeyDown="HandleGroupedKeyDown"
                               AdditionalAttributes="@BuildGroupedItemAttributes()">
             <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
-                <Icon Name="LucideIcon.Circle" Class="absolute top-1/2 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+                <Icon Name="LucideIcon.Circle" class="@RadioDotClass" />
             </BradixRadioGroupIndicator>
         </BradixRadioGroupItem>
     }
@@ -62,7 +62,7 @@ else
                     @if (EffectiveChecked)
                     {
                         <span data-slot="radio-group-indicator" class="relative flex items-center justify-center">
-                            <Icon Name="LucideIcon.Circle" Class="absolute top-1/2 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+                            <Icon Name="LucideIcon.Circle" class="@RadioDotClass" />
                         </span>
                     }
                 </span>
@@ -85,7 +85,7 @@ else
                 @if (EffectiveChecked)
                 {
                     <span data-slot="radio-group-indicator" class="relative flex items-center justify-center">
-                        <Icon Name="LucideIcon.Circle" Class="absolute top-1/2 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+                        <Icon Name="LucideIcon.Circle" class="@RadioDotClass" />
                     </span>
                 }
             </span>
@@ -275,7 +275,9 @@ else
     }
 
     private const string _shadcnRadioItemBase =
-        "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40";
+        "aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40";
+
+    private const string RadioDotClass = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -346,11 +348,6 @@ else
             ["data-state"] = EffectiveChecked ? "checked" : "unchecked"
         };
 
-        if (EffectiveChecked)
-            attributes["data-checked"] = "true";
-        else
-            attributes["data-unchecked"] = "true";
-
         if (EffectiveDisabled)
             attributes["data-disabled"] = "true";
 
@@ -358,7 +355,8 @@ else
         {
             AppendClass(ref cls, _shadcnRadioItemBase);
             var sizeClass = GetSizeClass();
-            AppendClass(ref cls, sizeClass ?? "size-4");
+            if (sizeClass.HasContent())
+                AppendClass(ref cls, sizeClass);
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
@@ -378,7 +376,8 @@ else
         {
             AppendClass(ref cls, _shadcnRadioItemBase);
             var sizeClass = GetSizeClass();
-            AppendClass(ref cls, sizeClass ?? "size-4");
+            if (sizeClass.HasContent())
+                AppendClass(ref cls, sizeClass);
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
@@ -423,7 +422,7 @@ else
     private string? GetValidationClass()
     {
         if (ParentValidation?.Status == ValidationStatus.Error)
-            return "border-destructive ring-3 ring-destructive/20 dark:ring-destructive/40";
+            return "border-destructive ring-[3px] ring-destructive/20 dark:ring-destructive/40";
         return null;
     }
 

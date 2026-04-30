@@ -14,14 +14,17 @@ public sealed partial class RenderedShadcnParityTests
 
         var fallbackClasses = fallback.Find("[data-slot='avatar-fallback']").GetAttribute("class")!;
 
-        fallbackClasses.Should().Contain("absolute");
-        fallbackClasses.Should().Contain("inset-0");
+        fallbackClasses.Should().Contain("size-full");
         fallbackClasses.Should().Contain("bg-muted");
         fallbackClasses.Should().Contain("text-muted-foreground");
         fallbackClasses.Should().Contain("flex");
         fallbackClasses.Should().Contain("rounded-full");
+        fallbackClasses.Should().Contain("text-sm");
         fallbackClasses.Should().Contain("items-center");
         fallbackClasses.Should().Contain("justify-center");
+        fallbackClasses.Should().Contain("group-data-[size=sm]/avatar:text-xs");
+        fallbackClasses.Should().NotContain("absolute");
+        fallbackClasses.Should().NotContain("inset-0");
         fallbackClasses.Should().NotContain("q-avatar-fallback");
     }
 }

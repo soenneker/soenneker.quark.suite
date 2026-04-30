@@ -2,16 +2,14 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    <BradixPopover Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
-                   DefaultOpen="@DefaultOpen"
-                   OpenChanged="@OpenChanged"
-                   Modal="@Modal">
-        <CascadingValue Value="_context" IsFixed="true">
-            @ChildContent
-        </CascadingValue>
-    </BradixPopover>
-</div>
+<BradixPopover Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+               DefaultOpen="@DefaultOpen"
+               OpenChanged="@OpenChanged"
+               Modal="@Modal">
+    <CascadingValue Value="_context" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</BradixPopover>
 
 @code {
     [Parameter]
@@ -41,21 +39,6 @@
     {
         _context.Modal = Modal;
         base.OnParametersSet();
-    }
-
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Position ??= Quark.Position.Relative;
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "popover";
-
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

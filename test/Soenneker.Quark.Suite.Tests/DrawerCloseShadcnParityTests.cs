@@ -14,10 +14,8 @@ public sealed partial class RenderedShadcnParityTests
         var buttonClasses = cut.Find("[data-slot='drawer-close']").GetAttribute("class")!;
 
         buttonClasses.Should().NotContain("q-button");
-        buttonClasses.Should().Contain("group/button");
-        buttonClasses.Should().Contain("size-8");
-        buttonClasses.Should().Contain("hover:bg-muted");
-        buttonClasses.Should().Contain("hover:text-foreground");
+        buttonClasses.Should().BeNullOrEmpty();
+        cut.Find("[data-slot='drawer-close']").GetAttribute("type").Should().Be("button");
         buttonClasses.Should().NotContain("size-9");
         buttonClasses.Should().NotContain("hover:bg-accent");
         buttonClasses.Should().NotContain("hover:text-accent-foreground");

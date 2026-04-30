@@ -15,40 +15,35 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='radio-group-item']").GetAttribute("class")!;
         var indicatorClasses = cut.Find("[data-slot='radio-group-indicator']").GetAttribute("class")!;
-        var iconClasses = cut.Find("[data-slot='icon']").GetAttribute("class")!;
+        var dotClasses = cut.Find("[data-slot='radio-group-indicator'] svg").GetAttribute("class")!;
 
-        classes.Should().NotContain("group/radio-group-item");
-        classes.Should().NotContain("peer");
-        classes.Should().NotContain("relative");
-        classes.Should().NotContain("flex");
         classes.Should().Contain("aspect-square");
         classes.Should().Contain("size-4");
         classes.Should().Contain("shrink-0");
         classes.Should().Contain("rounded-full");
         classes.Should().Contain("border");
         classes.Should().Contain("border-input");
+        classes.Should().Contain("text-primary");
+        classes.Should().Contain("shadow-xs");
+        classes.Should().Contain("transition-[color,box-shadow]");
         classes.Should().Contain("outline-none");
-        classes.Should().NotContain("after:absolute");
-        classes.Should().NotContain("after:-inset-x-3");
-        classes.Should().NotContain("after:-inset-y-2");
         classes.Should().Contain("focus-visible:border-ring");
         classes.Should().Contain("focus-visible:ring-[3px]");
         classes.Should().Contain("aria-invalid:ring-destructive/20");
-        classes.Should().NotContain("aria-invalid:aria-checked:border-primary");
         classes.Should().Contain("dark:bg-input/30");
-        classes.Should().NotContain("data-checked:border-primary");
+        classes.Should().Contain("dark:aria-invalid:ring-destructive/40");
+        classes.Should().NotContain("group/radio-group-item");
+        classes.Should().NotContain("after:absolute");
+        classes.Should().NotContain("aria-invalid:aria-checked:border-primary");
         classes.Should().NotContain("data-checked:bg-primary");
-        classes.Should().NotContain("data-checked:text-primary-foreground");
-        classes.Should().Contain("shadow-xs");
-        classes.Should().Contain("transition-[color,shadow]");
 
         indicatorClasses.Should().Contain("relative");
         indicatorClasses.Should().Contain("flex");
         indicatorClasses.Should().Contain("items-center");
         indicatorClasses.Should().Contain("justify-center");
-        iconClasses.Should().Contain("absolute");
-        iconClasses.Should().Contain("h-2");
-        iconClasses.Should().Contain("w-2");
-        iconClasses.Should().Contain("fill-primary");
+        dotClasses.Should().Contain("absolute");
+        dotClasses.Should().Contain("size-2");
+        dotClasses.Should().Contain("fill-primary");
+        dotClasses.Should().NotContain("bg-primary-foreground");
     }
 }

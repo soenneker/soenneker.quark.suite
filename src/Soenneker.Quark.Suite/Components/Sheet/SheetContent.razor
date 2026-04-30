@@ -20,7 +20,10 @@
         @ChildContent
         @if (ShowCloseButton)
         {
-            <SheetClose />
+            <BradixDialogClose AdditionalAttributes="@CloseButtonAttributes">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <span class="sr-only">Close</span>
+            </BradixDialogClose>
         }
     </BradixDialogContent>
 </BradixDialogPortal>
@@ -65,6 +68,8 @@
 
     private IReadOnlyDictionary<string, object> OverlayAttributes => BuildOverlayAttributes();
 
+    private IReadOnlyDictionary<string, object> CloseButtonAttributes => BuildCloseButtonAttributes();
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -85,14 +90,18 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500");
-            AppendClass(ref cls, "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=right]:data-[state=closed]:slide-out-to-right data-[side=right]:data-[state=open]:slide-in-from-right data-[side=right]:sm:max-w-sm");
-            AppendClass(ref cls, "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-[state=closed]:slide-out-to-left data-[side=left]:data-[state=open]:slide-in-from-left data-[side=left]:sm:max-w-sm");
-            AppendClass(ref cls, "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-[state=closed]:slide-out-to-top data-[side=top]:data-[state=open]:slide-in-from-top");
-            AppendClass(ref cls, "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-[state=closed]:slide-out-to-bottom data-[side=bottom]:data-[state=open]:slide-in-from-bottom");
+
+            if (Side == Soenneker.Bradix.Side.Left)
+                AppendClass(ref cls, "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm");
+            else if (Side == Soenneker.Bradix.Side.Top)
+                AppendClass(ref cls, "inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top");
+            else if (Side == Soenneker.Bradix.Side.Bottom)
+                AppendClass(ref cls, "inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom");
+            else
+                AppendClass(ref cls, "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm");
         });
 
         attributes["data-slot"] = "sheet-content";
-        attributes["data-side"] = Side.Value;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -115,6 +124,14 @@
         attributes["aria-hidden"] = "true";
 
         return attributes;
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildCloseButtonAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["class"] = "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary"
+        };
     }
 
     private Task HandleBackdropPointerDownOutside()

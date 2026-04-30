@@ -35,12 +35,16 @@
                          CodeLanguage="razor">
                 <ScrollArea Width='Width.Token("96")' Rounded="Rounded.Md" Border="Border.Default" Whitespace="Whitespace.Nowrap" ShowHorizontalScrollBar="true">
                     <Div Display="Display.Flex" Width="Width.IsMax" Space="Space.X.Is4" Padding="Padding.Is4">
-                        @foreach (var release in _releases)
+                        @foreach (var artwork in _works)
                         {
-                            <Div Width='Width.Token("40")' Shrink="Shrink.Is0" Rounded="Rounded.Lg" Border="Border.Default" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
-                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@release.Title</Paragraph>
-                                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@release.Description</Paragraph>
-                            </Div>
+                            <Figure Shrink="Shrink.Is0">
+                                <Div Overflow="Overflow.Hidden" Rounded="Rounded.Md">
+                                    <Image Source="@artwork.Art" Alt="@($"Photo by {artwork.Artist}")" Width="300" Height="400" Class="aspect-[3/4] h-fit w-fit object-cover" />
+                                </Div>
+                                <Figcaption Class="pt-2 text-xs text-muted-foreground">
+                                    Photo by <Span FontWeight="FontWeight.Semibold" TextColor="TextColor.Foreground">@artwork.Artist</Span>
+                                </Figcaption>
+                            </Figure>
                         }
                     </Div>
                 </ScrollArea>
@@ -82,13 +86,11 @@
         .Select(index => $"v1.2.0-beta.{50 - index + 1}")
         .ToArray();
 
-    private static readonly (string Title, string Description)[] _releases =
+    private static readonly (string Artist, string Art)[] _works =
     [
-        ("v3.2.0", "Sidebar improvements"),
-        ("v3.1.4", "Dialog polish"),
-        ("v3.1.0", "Command menu refresh"),
-        ("v3.0.7", "Input group updates"),
-        ("v3.0.0", "Navigation redesign")
+        ("Ornella Binni", "https://images.unsplash.com/photo-1465869185982-5a1a7522cbcb?auto=format&fit=crop&w=300&q=80"),
+        ("Tom Byrom", "https://images.unsplash.com/photo-1548516173-3cabfa4607e9?auto=format&fit=crop&w=300&q=80"),
+        ("Vladimir Malyavko", "https://images.unsplash.com/photo-1494337480532-3725c85fd2ab?auto=format&fit=crop&w=300&q=80")
     ];
 
     private static readonly (string Title, string Description)[] _arabicNotes =
@@ -115,9 +117,16 @@
     private const string HorizontalCode =
 @"<ScrollArea Width='Width.Token(""96"")' Rounded=""Rounded.Md"" Border=""Border.Default"" Whitespace=""Whitespace.Nowrap"" ShowHorizontalScrollBar=""true"">
     <Div Display=""Display.Flex"" Width=""Width.IsMax"" Space=""Space.X.Is4"" Padding=""Padding.Is4"">
-        @foreach (var release in releases)
+        @foreach (var artwork in works)
         {
-            <Div Width='Width.Token(""40"")' Shrink=""Shrink.Is0"" Rounded=""Rounded.Lg"" Border=""Border.Default"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"">...</Div>
+            <Figure Shrink=""Shrink.Is0"">
+                <Div Overflow=""Overflow.Hidden"" Rounded=""Rounded.Md"">
+                    <Image Source=""@artwork.Art"" Alt=""@($""Photo by {artwork.Artist}"")"" Width=""300"" Height=""400"" Class=""aspect-[3/4] h-fit w-fit object-cover"" />
+                </Div>
+                <Figcaption Class=""pt-2 text-xs text-muted-foreground"">
+                    Photo by <Span FontWeight=""FontWeight.Semibold"" TextColor=""TextColor.Foreground"">@artwork.Artist</Span>
+                </Figcaption>
+            </Figure>
         }
     </Div>
 </ScrollArea>";

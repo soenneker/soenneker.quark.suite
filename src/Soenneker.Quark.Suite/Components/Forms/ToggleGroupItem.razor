@@ -50,19 +50,16 @@
             attributes["data-size"] = GetToggleSizeDataAttribute(size);
             attributes["data-spacing"] = ParentToggleGroup?.Spacing.ToString() ?? "0";
             attributes["data-orientation"] = ParentToggleGroup?.Orientation?.Value ?? Orientation.Horizontal.Value;
-            attributes[ParentToggleGroup?.Orientation == Orientation.Vertical ? "data-vertical" : "data-horizontal"] = string.Empty;
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 AppendClass(ref cls, "focus:z-10 focus-visible:z-10");
                 AppendClass(ref cls, "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md");
-                AppendClass(ref cls, "group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-md group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-md");
-                AppendClass(ref cls, "group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t");
+                AppendClass(ref cls, "data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l");
                 AppendClass(ref cls, "hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
                 AppendClass(ref cls, Toggle.GetToggleVariantClass(variant));
                 AppendClass(ref cls, Toggle.ResolveToggleSizeClass(size, includeShrink: true));
-                AppendClass(ref cls, "data-vertical:w-full");
             });
 
             return attributes;
@@ -85,7 +82,7 @@
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.Token("transition-[color,shadow]");
+        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
         OutlineStyle ??= Quark.OutlineStyle.None;
     }
 

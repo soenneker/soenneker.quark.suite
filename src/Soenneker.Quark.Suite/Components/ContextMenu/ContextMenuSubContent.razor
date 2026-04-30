@@ -51,7 +51,7 @@
     [Parameter]
     public bool HideWhenDetached { get; set; }
 
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -72,7 +72,6 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "context-menu-sub-content";
-        attributes["data-side"] = "right";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "origin-(--radix-context-menu-content-transform-origin)");
@@ -81,4 +80,8 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        return BuildAttributes();
+    }
 }

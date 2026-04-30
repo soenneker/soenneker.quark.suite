@@ -126,6 +126,12 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         delegatedInteractionModule.SetupVoid("registerDelegatedInteraction", _ => true).SetVoidResult();
         delegatedInteractionModule.SetupVoid("unregisterDelegatedInteraction", _ => true).SetVoidResult();
 
+        var toastModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/toast.js");
+        toastModule.SetupVoid("registerToastViewport", _ => true).SetVoidResult();
+        toastModule.SetupVoid("unregisterToastViewport", _ => true).SetVoidResult();
+        toastModule.Setup<bool>("isToastFocused", _ => true).SetResult(false);
+        toastModule.Setup<string[]>("getToastAnnounceText", _ => true).SetResult(["Scheduled: Catch up"]);
+
         var selectModule = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix/select.js");
         selectModule.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
         selectModule.SetupVoid("unregisterSelectBubbleInput", _ => true).SetVoidResult();
@@ -243,6 +249,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ITablesInterop, FakeTablesInterop>();
         Services.AddScoped<ISonnerService, SonnerService>();
         Services.AddScoped<ISonnerInterop, FakeSonnerInterop>();
+        Services.AddScoped<IToastUtil, ToastUtil>();
     }
 
     private sealed class FakeLucideIconSvgProvider : ILucideIconSvgProvider

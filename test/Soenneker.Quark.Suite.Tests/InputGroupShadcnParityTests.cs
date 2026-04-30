@@ -26,12 +26,14 @@ public sealed partial class RenderedShadcnParityTests
         groupClasses.Should().Contain("border");
         groupClasses.Should().Contain("border-input");
         groupClasses.Should().Contain("shadow-xs");
-        groupClasses.Should().Contain("transition-[color,shadow]");
+        groupClasses.Should().Contain("transition-[color,box-shadow]");
         groupClasses.Should().Contain("has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
         groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:border-destructive");
         groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:ring-destructive/20");
+        groupClasses.Should().Contain("has-[>[data-align=inline-start]]:[&>input]:pl-2");
+        groupClasses.Should().Contain("has-[>[data-align=inline-end]]:[&>input]:pr-2");
         groupClasses.Should().NotContain("rounded-lg");
-        groupClasses.Should().NotContain("transition-colors");
+        groupClasses.Should().NotContain("transition-[color,shadow]");
         groupClasses.Should().NotContain("h-8");
         groupClasses.Should().NotContain("has-[[data-slot=input-group-control]:focus-visible]:ring-3");
         groupClasses.Should().NotContain("q-input-group");
@@ -62,6 +64,8 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("bg-transparent");
         classes.Should().Contain("shadow-none");
         classes.Should().Contain("focus-visible:ring-0");
+        classes.Should().Contain("dark:bg-transparent");
+        classes.Should().NotContain("file:h-6");
     }
 
     [Test]
@@ -85,6 +89,9 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("py-3");
         classes.Should().Contain("shadow-none");
         classes.Should().Contain("focus-visible:ring-0");
+        classes.Should().Contain("dark:bg-transparent");
+        classes.Should().NotContain("disabled:bg-transparent");
+        classes.Should().NotContain("aria-invalid:ring-0");
     }
 
     [Test]

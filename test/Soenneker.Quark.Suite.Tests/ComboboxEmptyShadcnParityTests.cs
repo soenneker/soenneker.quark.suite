@@ -15,12 +15,14 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='combobox-empty']").GetAttribute("class")!;
 
+        classes.Should().Contain("hidden");
         classes.Should().Contain("w-full");
         classes.Should().Contain("justify-center");
         classes.Should().Contain("py-2");
         classes.Should().Contain("text-center");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-muted-foreground");
+        classes.Should().Contain("group-data-empty/combobox-content:flex");
         classes.Should().NotContain("q-combobox-empty");
     }
 }

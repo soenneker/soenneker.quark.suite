@@ -184,43 +184,81 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Form"
                          Description="Use InputOtp inside a form for verification flows."
-                         Code="@(@"<form>
-    <Field>
-        <FieldLabel For=""form-otp"">Verification code</FieldLabel>
-        <InputOtp Id=""form-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
-            <InputOtpInput />
-            <InputOtpGroup>
-                <InputOtpSlot Index=""0"" />
-                <InputOtpSlot Index=""1"" />
-                <InputOtpSlot Index=""2"" />
-                <InputOtpSlot Index=""3"" />
-                <InputOtpSlot Index=""4"" />
-                <InputOtpSlot Index=""5"" />
-            </InputOtpGroup>
-        </InputOtp>
-    </Field>
-    <Button Type=""ButtonType.Submit"">Verify</Button>
-</form>")"
+                         Code="@FormCode"
                          CodeLanguage="razor">
                 <form>
-                    <Div Space="Space.Y.Is4">
-                        <Field>
-                            <FieldLabel For="form-otp">Verification code</FieldLabel>
-                            <InputOtp Id="form-otp" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
-                                <InputOtpInput />
-                                <InputOtpGroup>
-                                    <InputOtpSlot Index="0" />
-                                    <InputOtpSlot Index="1" />
-                                    <InputOtpSlot Index="2" />
-                                    <InputOtpSlot Index="3" />
-                                    <InputOtpSlot Index="4" />
-                                    <InputOtpSlot Index="5" />
-                                </InputOtpGroup>
-                            </InputOtp>
-                        </Field>
-                        <Button Type="ButtonType.Submit">Verify</Button>
-                    </Div>
+                    <Card Class="mx-auto max-w-md">
+                        <CardHeader>
+                            <CardTitle>Verify your login</CardTitle>
+                            <CardDescription>
+                                Enter the verification code we sent to your email address:
+                                <Span FontWeight="FontWeight.Medium">m@example.com</Span>.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardBody>
+                            <Field>
+                                <Div Class="flex items-center justify-between">
+                                    <FieldLabel For="otp-verification">Verification code</FieldLabel>
+                                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                                        <Icon Name="LucideIcon.RefreshCw" />
+                                        Resend Code
+                                    </Button>
+                                </Div>
+                                <InputOtp Id="otp-verification" OtpValue="@_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true">
+                                    <InputOtpInput />
+                                    <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+                                        <InputOtpSlot Index="0" />
+                                        <InputOtpSlot Index="1" />
+                                        <InputOtpSlot Index="2" />
+                                    </InputOtpGroup>
+                                    <InputOtpSeparator />
+                                    <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+                                        <InputOtpSlot Index="3" />
+                                        <InputOtpSlot Index="4" />
+                                        <InputOtpSlot Index="5" />
+                                    </InputOtpGroup>
+                                </InputOtp>
+                                <FieldDescription>
+                                    <Anchor To="#">I no longer have access to this email address.</Anchor>
+                                </FieldDescription>
+                            </Field>
+                        </CardBody>
+                        <CardFooter Class="flex-col gap-2">
+                            <Button Type="ButtonType.Submit" Width="Width.IsFull">Verify</Button>
+                            <Paragraph Class="text-center text-sm text-muted-foreground">
+                                Having trouble signing in?
+                                <Anchor To="#" Class="underline underline-offset-4">Contact support</Anchor>
+                            </Paragraph>
+                        </CardFooter>
+                    </Card>
                 </form>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="OTP slots preserve grouping, focus order, and separators in right-to-left layouts."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Field>
+                        <FieldLabel For="rtl-otp">رمز التحقق</FieldLabel>
+                        <InputOtp Id="rtl-otp" OtpValue="@_rtlValue" OtpValueChanged="OnRtlChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                            <InputOtpInput />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="0" />
+                                <InputOtpSlot Index="1" />
+                                <InputOtpSlot Index="2" />
+                            </InputOtpGroup>
+                            <InputOtpSeparator />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="3" />
+                                <InputOtpSlot Index="4" />
+                                <InputOtpSlot Index="5" />
+                            </InputOtpGroup>
+                        </InputOtp>
+                    </Field>
+                </DirectionProvider>
             </DemoSection>
         </Section>
 
@@ -309,6 +347,7 @@
     private string _pinValue = "7";
     private string _invalidValue = "000000";
     private string _controlledValue = "12";
+    private string _rtlValue = "123456";
 
     private Task OnFormOtpChanged(string value)
     {
@@ -355,6 +394,12 @@
     private Task OnControlledChanged(string value)
     {
         _controlledValue = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRtlChanged(string value)
+    {
+        _rtlValue = value;
         return Task.CompletedTask;
     }
 
@@ -587,4 +632,25 @@
 
     <Button Type=""ButtonType.Reset"" Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Reset OTP</Button>
 </form>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field>
+        <FieldLabel For=""rtl-otp"">رمز التحقق</FieldLabel>
+        <InputOtp Id=""rtl-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+            <InputOtpInput />
+            <InputOtpGroup>
+                <InputOtpSlot Index=""0"" />
+                <InputOtpSlot Index=""1"" />
+                <InputOtpSlot Index=""2"" />
+            </InputOtpGroup>
+            <InputOtpSeparator />
+            <InputOtpGroup>
+                <InputOtpSlot Index=""3"" />
+                <InputOtpSlot Index=""4"" />
+                <InputOtpSlot Index=""5"" />
+            </InputOtpGroup>
+        </InputOtp>
+    </Field>
+</DirectionProvider>";
 }

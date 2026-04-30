@@ -25,25 +25,11 @@
         return BuildAttributes();
     }
 
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        Overflow ??= Quark.Overflow.Hidden;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "aspect-ratio";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "[&>img]:object-cover [&>video]:object-cover [&>iframe]:object-cover");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -59,28 +59,32 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="The standard command menu with input, empty state, groups, and separators."
-                         Code="@CommandCode"
+                         Description="A simple command menu in a dialog."
+                         Code="@CommandDialogCode"
                          CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Class="shadow-sm">
-                    <Command>
-                        <CommandInput Placeholder="Type a command or search..." />
-                        <CommandList>
-                            <CommandEmpty>No results found.</CommandEmpty>
-                            <CommandGroup Heading="Suggestions">
-                                <CommandItem SearchValue="Calendar">Calendar</CommandItem>
-                                <CommandItem SearchValue="Search Emoji">Search Emoji</CommandItem>
-                                <CommandItem SearchValue="Calculator" Disabled="true">Calculator</CommandItem>
-                            </CommandGroup>
-                            <CommandSeparator />
-                            <CommandGroup Heading="Settings">
-                                <CommandItem SearchValue="Profile">Profile</CommandItem>
-                                <CommandItem SearchValue="Billing">Billing</CommandItem>
-                                <CommandItem SearchValue="Settings">Settings</CommandItem>
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
-                </Div>
+                <Button Variant="ButtonVariant.Outline" OnClick="@OpenBasicCommandDialog">
+                    Open Menu
+                </Button>
+                <CommandDialog Visible="_basicCommandDialogOpen"
+                               VisibleChanged="OnBasicCommandDialogOpenChanged"
+                               Title="Command Palette"
+                               Description="Search for a command to run...">
+                    <CommandInput Placeholder="Search for a command to run..." />
+                    <CommandList>
+                        <CommandEmpty>No results found.</CommandEmpty>
+                        <CommandGroup Heading="Suggestions">
+                            <CommandItem SearchValue="Calendar" OnSelect="@(() => SelectDialogAction("Calendar"))">Calendar</CommandItem>
+                            <CommandItem SearchValue="Search Emoji" OnSelect="@(() => SelectDialogAction("Search Emoji"))">Search Emoji</CommandItem>
+                            <CommandItem SearchValue="Calculator" Disabled="true">Calculator</CommandItem>
+                        </CommandGroup>
+                        <CommandSeparator />
+                        <CommandGroup Heading="Settings">
+                            <CommandItem SearchValue="Profile" OnSelect="@(() => SelectDialogAction("Profile"))">Profile</CommandItem>
+                            <CommandItem SearchValue="Billing" OnSelect="@(() => SelectDialogAction("Billing"))">Billing</CommandItem>
+                            <CommandItem SearchValue="Settings" OnSelect="@(() => SelectDialogAction("Settings"))">Settings</CommandItem>
+                        </CommandGroup>
+                    </CommandList>
+                </CommandDialog>
             </DemoSection>
         </Section>
 
@@ -89,9 +93,14 @@
                          Description="Shortcut hints sit at the trailing edge of command items."
                          Code="@CommandShortcutsCode"
                          CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Class="shadow-sm">
-                    <Command>
-                        <CommandInput Placeholder="Search keyboard shortcuts..." />
+                <Button Variant="ButtonVariant.Outline" OnClick="@OpenShortcutsCommandDialog">
+                    Open Menu
+                </Button>
+                <CommandDialog Visible="_shortcutsCommandDialogOpen"
+                               VisibleChanged="OnShortcutsCommandDialogOpenChanged"
+                               Title="Command Palette"
+                               Description="Search for a command to run...">
+                    <CommandInput Placeholder="Search for a command to run..." />
                         <CommandList>
                             @foreach (var action in Actions.Take(4))
                             {
@@ -101,8 +110,7 @@
                                 </CommandItem>
                             }
                         </CommandList>
-                    </Command>
-                </Div>
+                </CommandDialog>
             </DemoSection>
         </Section>
 
@@ -111,9 +119,14 @@
                          Description="Use CommandGroup and CommandSeparator to structure larger command sets."
                          Code="@CommandGroupsCode"
                          CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Class="shadow-sm">
-                    <Command>
-                        <CommandInput Placeholder="Search grouped commands..." />
+                <Button Variant="ButtonVariant.Outline" OnClick="@OpenGroupsCommandDialog">
+                    Open Menu
+                </Button>
+                <CommandDialog Visible="_groupsCommandDialogOpen"
+                               VisibleChanged="OnGroupsCommandDialogOpenChanged"
+                               Title="Command Palette"
+                               Description="Search for a command to run...">
+                    <CommandInput Placeholder="Search for a command to run..." />
                         <CommandList>
                             <CommandEmpty>No grouped commands match your search.</CommandEmpty>
                             <CommandGroup Heading="Suggestions">
@@ -127,8 +140,7 @@
                                 <CommandItem SearchValue="Team" OnSelect="@(() => SelectAction("Team"))">Team</CommandItem>
                             </CommandGroup>
                         </CommandList>
-                    </Command>
-                </Div>
+                </CommandDialog>
             </DemoSection>
         </Section>
 
@@ -137,9 +149,14 @@
                          Description="Long command sets scroll inside the list instead of expanding the surface."
                          Code="@CommandScrollableCode"
                          CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Class="shadow-sm">
-                    <Command>
-                        <CommandInput Placeholder="Search long list..." />
+                <Button Variant="ButtonVariant.Outline" OnClick="@OpenScrollableCommandDialog">
+                    Open Menu
+                </Button>
+                <CommandDialog Visible="_scrollableCommandDialogOpen"
+                               VisibleChanged="OnScrollableCommandDialogOpenChanged"
+                               Title="Command Palette"
+                               Description="Search for a command to run...">
+                    <CommandInput Placeholder="Search for a command to run..." />
                         <CommandList MaxHeight='Height.Token("56")' OverflowY="Overflow.Y.Auto">
                             <CommandEmpty>No results found.</CommandEmpty>
                             @foreach (var item in ScrollableActions)
@@ -147,8 +164,7 @@
                                 <CommandItem SearchValue="@item" OnSelect="@(() => SelectAction(item))">@item</CommandItem>
                             }
                         </CommandList>
-                    </Command>
-                </Div>
+                </CommandDialog>
             </DemoSection>
         </Section>
 
@@ -174,34 +190,6 @@
             </DemoSection>
         </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Command Dialog"
-                         Description="Use CommandDialog when the command menu should open as a modal palette."
-                         Code="@CommandDialogCode"
-                         CodeLanguage="razor">
-                <Button Variant="ButtonVariant.Outline" OnClick="@OpenCommandDialog">
-                    Open command palette
-                </Button>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Dialog selection:
-                    <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@_dialogSelection</Span>
-                </Paragraph>
-                <CommandDialog Visible="_commandDialogOpen"
-                               VisibleChanged="OnCommandDialogOpenChanged"
-                               Title="Workspace actions"
-                               Description="Search workspace actions">
-                    <CommandInput Placeholder="Type a command or search..." />
-                    <CommandList>
-                        <CommandEmpty>No results found.</CommandEmpty>
-                        <CommandGroup Heading="Actions">
-                            <CommandItem SearchValue="Profile" OnSelect="@(() => SelectDialogAction("Profile"))">Profile</CommandItem>
-                            <CommandItem SearchValue="Billing" OnSelect="@(() => SelectDialogAction("Billing"))">Billing</CommandItem>
-                            <CommandItem SearchValue="Settings" OnSelect="@(() => SelectDialogAction("Settings"))">Settings</CommandItem>
-                        </CommandGroup>
-                    </CommandList>
-                </CommandDialog>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
@@ -236,7 +224,10 @@
 
     private string _lastAction = "None";
     private string _dialogSelection = "None";
-    private bool _commandDialogOpen;
+    private bool _basicCommandDialogOpen;
+    private bool _shortcutsCommandDialogOpen;
+    private bool _groupsCommandDialogOpen;
+    private bool _scrollableCommandDialogOpen;
 
     private Task SelectAction(string title)
     {
@@ -244,22 +235,32 @@
         return Task.CompletedTask;
     }
 
-    private Task OpenCommandDialog(MouseEventArgs _)
+    private Task OpenBasicCommandDialog(MouseEventArgs _)
     {
-        _commandDialogOpen = true;
+        _basicCommandDialogOpen = true;
         return Task.CompletedTask;
     }
 
-    private Task OnCommandDialogOpenChanged(bool value)
+    private Task OnBasicCommandDialogOpenChanged(bool value)
     {
-        _commandDialogOpen = value;
+        _basicCommandDialogOpen = value;
         return Task.CompletedTask;
     }
+
+    private Task OpenShortcutsCommandDialog(MouseEventArgs _) { _shortcutsCommandDialogOpen = true; return Task.CompletedTask; }
+    private Task OnShortcutsCommandDialogOpenChanged(bool value) { _shortcutsCommandDialogOpen = value; return Task.CompletedTask; }
+    private Task OpenGroupsCommandDialog(MouseEventArgs _) { _groupsCommandDialogOpen = true; return Task.CompletedTask; }
+    private Task OnGroupsCommandDialogOpenChanged(bool value) { _groupsCommandDialogOpen = value; return Task.CompletedTask; }
+    private Task OpenScrollableCommandDialog(MouseEventArgs _) { _scrollableCommandDialogOpen = true; return Task.CompletedTask; }
+    private Task OnScrollableCommandDialogOpenChanged(bool value) { _scrollableCommandDialogOpen = value; return Task.CompletedTask; }
 
     private Task SelectDialogAction(string title)
     {
         _dialogSelection = title;
-        _commandDialogOpen = false;
+        _basicCommandDialogOpen = false;
+        _shortcutsCommandDialogOpen = false;
+        _groupsCommandDialogOpen = false;
+        _scrollableCommandDialogOpen = false;
         return Task.CompletedTask;
     }
 
@@ -277,22 +278,31 @@
 </Command>";
 
     private const string CommandShortcutsCode =
-@"<CommandItem SearchValue=""Calendar"">
-    Calendar
-    <CommandShortcut>Ctrl+K</CommandShortcut>
-</CommandItem>";
+@"<Button OnClick=""OpenShortcutsCommandDialog"">Open Menu</Button>
+<CommandDialog Visible=""_shortcutsCommandDialogOpen"" Title=""Command Palette"">
+    <CommandItem SearchValue=""Calendar"">
+        Calendar
+        <CommandShortcut>Ctrl+K</CommandShortcut>
+    </CommandItem>
+</CommandDialog>";
 
     private const string CommandGroupsCode =
-@"<CommandList>
-    <CommandGroup Heading=""Suggestions"">...</CommandGroup>
-    <CommandSeparator />
-    <CommandGroup Heading=""Settings"">...</CommandGroup>
-</CommandList>";
+@"<Button OnClick=""OpenGroupsCommandDialog"">Open Menu</Button>
+<CommandDialog Visible=""_groupsCommandDialogOpen"" Title=""Command Palette"">
+    <CommandList>
+        <CommandGroup Heading=""Suggestions"">...</CommandGroup>
+        <CommandSeparator />
+        <CommandGroup Heading=""Settings"">...</CommandGroup>
+    </CommandList>
+</CommandDialog>";
 
     private const string CommandScrollableCode =
-@"<CommandList MaxHeight='Height.Token(""56"")' OverflowY=""Overflow.Y.Auto"">
-    ...
-</CommandList>";
+@"<Button OnClick=""OpenScrollableCommandDialog"">Open Menu</Button>
+<CommandDialog Visible=""_scrollableCommandDialogOpen"" Title=""Command Palette"">
+    <CommandList MaxHeight='Height.Token(""56"")' OverflowY=""Overflow.Y.Auto"">
+        ...
+    </CommandList>
+</CommandDialog>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
@@ -306,12 +316,12 @@
 </DirectionProvider>";
 
     private const string CommandDialogCode =
-@"<Button OnClick=""OpenCommandDialog"">Open command palette</Button>
-<CommandDialog Visible=""_commandDialogOpen""
-               VisibleChanged=""OnCommandDialogOpenChanged""
-               Title=""Workspace actions""
-               Description=""Search workspace actions"">
-    <CommandInput Placeholder=""Type a command or search..."" />
+@"<Button OnClick=""OpenBasicCommandDialog"">Open Menu</Button>
+<CommandDialog Visible=""_basicCommandDialogOpen""
+               VisibleChanged=""OnBasicCommandDialogOpenChanged""
+               Title=""Command Palette""
+               Description=""Search for a command to run..."">
+    <CommandInput Placeholder=""Search for a command to run..."" />
     <CommandList>
         <CommandGroup Heading=""Actions"">
             <CommandItem SearchValue=""Billing"" OnSelect=""@(() => SelectDialogAction(""Billing""))"">Billing</CommandItem>

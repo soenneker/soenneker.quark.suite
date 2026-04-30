@@ -17,21 +17,13 @@
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "absolute top-full left-1/2 isolate z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 justify-center md:left-0 md:w-auto md:translate-x-0");
+            AppendClass(ref cls, "absolute top-full left-0 isolate z-50 flex justify-center");
         });
 
         return attributes;
     }
 
-    private IReadOnlyDictionary<string, object> ViewportAttributes => BuildViewportAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("data-state");
-        attributes.Remove("data-orientation");
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> ViewportAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -40,7 +32,6 @@
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
         Position ??= Quark.Position.Relative;
-        Height ??= Quark.Height.Token("[var(--radix-navigation-menu-viewport-height)]");
         Width ??= Quark.Width.IsFull;
         Rounded ??= Quark.Rounded.Md;
         Border ??= Quark.Border.Default;
@@ -57,7 +48,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-top-center data-[state=open]:animate-in data-[state=closed]:animate-out");
+            AppendClass(ref cls, "origin-top-center h-[var(--radix-navigation-menu-viewport-height)] data-[state=open]:animate-in data-[state=closed]:animate-out");
             AppendClass(ref cls, "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90");
             AppendClass(ref cls, "md:w-[var(--radix-navigation-menu-viewport-width)]");
         });

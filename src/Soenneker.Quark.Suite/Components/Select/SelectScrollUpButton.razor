@@ -1,0 +1,32 @@
+@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<BradixSelectScrollUpButton AdditionalAttributes="@ButtonAttributes">
+    <svg class="size-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m18 15-6-6-6 6"></path>
+    </svg>
+</BradixSelectScrollUpButton>
+
+@code {
+    private IReadOnlyDictionary<string, object> ButtonAttributes => BuildAttributes();
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Cursor ??= Quark.Cursor.Default;
+        ItemsAlign ??= Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Padding ??= Quark.Padding.Is1.OnY;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "select-scroll-up-button";
+    }
+}

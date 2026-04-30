@@ -89,21 +89,7 @@
     [Parameter]
     public bool HideWhenDetached { get; set; }
 
-    private bool IsOpen => Tooltip?.CurrentOpen ?? Open;
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildContentAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("id");
-        attributes.Remove("role");
-        attributes.Remove("aria-hidden");
-        attributes.Remove("data-state");
-        attributes.Remove("data-side");
-        attributes.Remove("onmouseenter");
-        attributes.Remove("onmouseleave");
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -123,8 +109,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tooltip-content";
-        attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["data-side"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -137,7 +121,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(IsOpen);
+        hc.Add(Tooltip?.CurrentOpen ?? Open);
         hc.Add(ForceMount);
         hc.Add(Side);
         hc.Add(Align);

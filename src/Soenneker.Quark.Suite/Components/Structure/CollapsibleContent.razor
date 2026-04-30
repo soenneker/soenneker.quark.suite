@@ -18,27 +18,7 @@
     [CascadingParameter]
     private BradixCollapsible? Collapsible { get; set; }
 
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildContentAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-
-        attributes.Remove("id");
-        attributes.Remove("role");
-        attributes.Remove("aria-labelledby");
-        attributes.Remove("hidden");
-        attributes.Remove("data-state");
-
-        return attributes;
-    }
-
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-        Overflow ??= Quark.Overflow.Hidden;
-
-    }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

@@ -71,6 +71,7 @@ public sealed class RouteAuditParityTests
         ["tabs"] = "docs/components/base/tabs/index.html",
         ["textareas"] = "docs/components/base/textarea/index.html",
         ["texts"] = "docs/components/base/typography/index.html",
+        ["toasts"] = "docs/components/base/toast/index.html",
         ["toggles"] = "docs/components/base/toggle/index.html",
         ["toggle-groups"] = "docs/components/base/toggle-group/index.html",
         ["tooltips"] = "docs/components/base/tooltip/index.html",
@@ -171,8 +172,7 @@ public sealed class RouteAuditParityTests
     private static readonly IReadOnlySet<string> _currentlyUnsupportedShadcnComponents = new HashSet<string>(StringComparer.Ordinal)
     {
         "chart",
-        "data-table",
-        "toast"
+        "data-table"
     };
 
     [Test]

@@ -9,100 +9,6 @@
             Autocomplete input with a list of suggestions.
         </Paragraph>
 
-        <DemoSection Title="Simple"
-                     Description="A simple combobox with a list of frameworks."
-                     Code="@BasicCode"
-                     CodeLanguage="razor">
-            <Div MaxWidth="MaxWidth.IsSm">
-                <Combobox Value="@_basicFramework"
-                          ValueChanged="OnBasicFrameworkChanged"
-                          Search="@_basicSearch"
-                          SearchChanged="OnBasicSearchChanged"
-                          Open="@_basicOpen"
-                          OpenChanged="OnBasicOpenChanged">
-                    <ComboboxInput Placeholder="Select a framework" />
-                    <ComboboxContent>
-                        <ComboboxEmpty>No items found.</ComboboxEmpty>
-                        <ComboboxList>
-                            @foreach (var framework in FilterFrameworks(_basicSearch))
-                            {
-                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
-                            }
-                        </ComboboxList>
-                    </ComboboxContent>
-                </Combobox>
-            </Div>
-        </DemoSection>
-
-        <DemoSection Title="With chips"
-                     Description="A combobox with multiple selection using chips."
-                     Code="@MultipleCode"
-                     CodeLanguage="razor">
-            <Div MaxWidth="MaxWidth.IsLg">
-                <Combobox Multiple="true"
-                          Values="@_multipleFrameworks"
-                          ValueChangedMultiple="OnMultipleFrameworksChanged"
-                          Search="@_multipleSearch"
-                          SearchChanged="OnMultipleSearchChanged"
-                          Open="@_multipleOpen"
-                          OpenChanged="OnMultipleOpenChanged">
-                    <ComboboxChips>
-                        @foreach (var framework in _multipleFrameworks)
-                        {
-                            <ComboboxChip Value="@framework">@framework</ComboboxChip>
-                        }
-                        <ComboboxChipsInput Placeholder="Add framework" />
-                    </ComboboxChips>
-                    <ComboboxContent>
-                        <ComboboxEmpty>No items found.</ComboboxEmpty>
-                        <ComboboxList>
-                            @foreach (var framework in FilterFrameworks(_multipleSearch))
-                            {
-                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
-                            }
-                        </ComboboxList>
-                    </ComboboxContent>
-                </Combobox>
-            </Div>
-        </DemoSection>
-
-        <DemoSection Title="With groups and collection"
-                     Description="Use groups, labels, and separators to organize larger result sets."
-                     Code="@GroupsCode"
-                     CodeLanguage="razor">
-            <Div MaxWidth="MaxWidth.IsSm">
-                <Combobox Value="@_timezone"
-                          ValueChanged="OnTimezoneChanged"
-                          Search="@_timezoneSearch"
-                          SearchChanged="OnTimezoneSearchChanged"
-                          Open="@_timezoneOpen"
-                          OpenChanged="OnTimezoneOpenChanged">
-                    <ComboboxInput Placeholder="Select a timezone" />
-                    <ComboboxContent>
-                        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-                        <ComboboxList>
-                            @for (var groupIndex = 0; groupIndex < FilterTimezoneGroups(_timezoneSearch).Count; groupIndex++)
-                            {
-                                var group = FilterTimezoneGroups(_timezoneSearch)[groupIndex];
-                                <ComboboxGroup>
-                                    <ComboboxLabel>@group.Label</ComboboxLabel>
-                                    @foreach (var item in group.Items)
-                                    {
-                                        <ComboboxItem Value="@item">@item</ComboboxItem>
-                                    }
-                                </ComboboxGroup>
-
-                                @if (groupIndex < FilterTimezoneGroups(_timezoneSearch).Count - 1)
-                                {
-                                    <ComboboxSeparator />
-                                }
-                            }
-                        </ComboboxList>
-                    </ComboboxContent>
-                </Combobox>
-            </Div>
-        </DemoSection>
-
         <DemoSection Title="Basic"
                      Description="A simple combobox with a list of frameworks."
                      Code="@BasicCode"
@@ -161,16 +67,17 @@
         </DemoSection>
 
         <DemoSection Title="Clear Button"
-                     Description="Use an adjacent clear action when the current value should be easy to reset."
+                     Description="Use ShowClear to show a clear button inside the combobox control."
                      Code="@ClearButtonCode"
                      CodeLanguage="razor">
-            <Div MaxWidth="MaxWidth.IsSm" Display="Display.Flex" Gap="Gap.Is2" ItemsAlign="Items.Center">
+            <Div MaxWidth="MaxWidth.IsSm">
                 <Combobox Value="@_clearFramework"
                           ValueChanged="OnClearFrameworkChanged"
                           Search="@_clearSearch"
                           SearchChanged="OnClearSearchChanged"
                           Open="@_clearOpen"
-                          OpenChanged="OnClearOpenChanged">
+                          OpenChanged="OnClearOpenChanged"
+                          ShowClear="true">
                     <ComboboxInput Placeholder="Select a framework" />
                     <ComboboxContent>
                         <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -182,10 +89,6 @@
                         </ComboboxList>
                     </ComboboxContent>
                 </Combobox>
-                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="ClearFramework">
-                    <Icon Name="LucideIcon.X" />
-                    <Span Class="sr-only">Clear</Span>
-                </Button>
             </Div>
         </DemoSection>
 
@@ -514,7 +417,6 @@
     private Task OnClearFrameworkChanged(string? value) { _clearFramework = value; return Task.CompletedTask; }
     private Task OnClearSearchChanged(string? value) { _clearSearch = value; return Task.CompletedTask; }
     private Task OnClearOpenChanged(bool value) { _clearOpen = value; return Task.CompletedTask; }
-    private Task ClearFramework(MouseEventArgs _) { _clearFramework = null; _clearSearch = null; return Task.CompletedTask; }
     private Task OnTimezoneChanged(string? value) { _timezone = value; return Task.CompletedTask; }
     private Task OnTimezoneSearchChanged(string? value) { _timezoneSearch = value; return Task.CompletedTask; }
     private Task OnTimezoneOpenChanged(bool value) { _timezoneOpen = value; return Task.CompletedTask; }
@@ -560,15 +462,10 @@
 </Combobox>";
 
     private const string ClearButtonCode =
-@"<Div Class=""flex items-center gap-2"">
-    <Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
-        <ComboboxInput Placeholder=""Select a framework"" />
-        <ComboboxContent>...</ComboboxContent>
-    </Combobox>
-    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" OnClick=""ClearFramework"">
-        <Icon Name=""LucideIcon.X"" />
-    </Button>
-</Div>";
+@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"" ShowClear=""true"">
+    <ComboboxInput Placeholder=""Select a framework"" />
+    <ComboboxContent>...</ComboboxContent>
+</Combobox>";
 
     private const string GroupsCode =
 @"<Combobox>

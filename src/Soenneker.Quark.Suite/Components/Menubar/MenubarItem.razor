@@ -23,7 +23,8 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "menubar-item";
-        attributes["data-inset"] = Indented ? "true" : "false";
+        if (Indented)
+            attributes["data-inset"] = "true";
         attributes["data-variant"] = Destructive ? "destructive" : "default";
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -52,12 +53,7 @@
 
     private IReadOnlyDictionary<string, object> BuildItemAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("role");
-        attributes.Remove("tabindex");
-        attributes.Remove("data-disabled");
-        attributes.Remove("aria-disabled");
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

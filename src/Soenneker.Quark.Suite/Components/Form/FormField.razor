@@ -4,9 +4,7 @@
 <CascadingValue Name="ParentFormField" Value="@this" IsFixed="true">
     <CascadingValue Value="_fieldContext" IsFixed="false">
         <CascadingValue Name="FormHorizontal" Value="Horizontal" IsFixed="true">
-            <div @attributes="BuildAttributes()">
-                @ChildContent
-            </div>
+            @ChildContent
         </CascadingValue>
     </CascadingValue>
 </CascadingValue>
@@ -33,59 +31,6 @@
     {
         _fieldContext.Update(Horizontal, IsInvalid);
         base.OnParametersSet();
-    }
-
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is2;
-        TextColor ??= _fieldContext.IsInvalid ? Quark.TextColor.Destructive : TextColor;
-
-        if (Horizontal)
-        {
-            FlexDirection ??= Quark.FlexDirection.Row;
-            ItemsAlign ??= Items.Center;
-        }
-        else
-        {
-            FlexDirection ??= Quark.FlexDirection.Col;
-        }
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "form-field";
-        attributes.TryAdd("role", "group");
-        attributes["data-orientation"] = Horizontal ? "horizontal" : "vertical";
-
-        if (Disabled)
-        {
-            attributes["data-disabled"] = "true";
-            attributes["aria-disabled"] = "true";
-        }
-
-        if (_fieldContext.IsInvalid)
-            attributes["data-invalid"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/form-item");
-
-            if (Horizontal)
-            {
-                AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
-                AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
-            }
-            else
-            {
-                AppendClass(ref cls, "[&>*]:w-full [&>.sr-only]:w-auto");
-            }
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

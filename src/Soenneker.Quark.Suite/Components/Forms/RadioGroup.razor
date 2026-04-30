@@ -76,33 +76,20 @@
         Refresh();
     }
 
-    private IReadOnlyDictionary<string, object> GroupAttributes
+    private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        get
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "radio-group";
+        ApplyFieldControlAttributes(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
         {
-            Dictionary<string, object> attributes = new(BuildAttributes());
-
-            attributes.Remove("disabled");
-            attributes.Remove("name");
-            attributes.Remove("value");
-            attributes.Remove("readonly");
-            attributes.Remove("placeholder");
-            attributes.Remove("required");
-            attributes.Remove("autofocus");
-            attributes.Remove("role");
-            attributes.Remove("aria-orientation");
-
-            attributes["data-slot"] = "radio-group";
-            ApplyFieldControlAttributes(attributes);
-
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                if (OrientationValue == "horizontal")
-                    AppendClass(ref cls, "grid-flow-col auto-cols-max");
-            });
-
-            return attributes;
-        }
+            if (OrientationValue == "horizontal")
+                AppendClass(ref cls, "grid-flow-col auto-cols-max");
+        });
     }
 
     private Task HandleValueChanged(string? value)

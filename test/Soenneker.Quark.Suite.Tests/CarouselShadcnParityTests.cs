@@ -38,6 +38,7 @@ public sealed partial class RenderedShadcnParityTests
         var previousClasses = cut.Find("[data-slot='carousel-previous']").GetAttribute("class")!;
         var nextClasses = cut.Find("[data-slot='carousel-next']").GetAttribute("class")!;
 
+        cut.Find("[data-slot='carousel']").GetAttribute("data-orientation").Should().BeNull();
         rootClasses.Should().Contain("relative");
         rootClasses.Should().NotContain("q-carousel");
 

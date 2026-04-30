@@ -3,7 +3,7 @@
 @using Soenneker.Bradix
 
 <BradixOneTimePasswordFieldInput Index="@Index"
-                                 AdditionalAttributes="@SlotAttributes" />
+                                 AdditionalAttributes="@BuildAttributes()" />
 
 @code {
     /// <summary>
@@ -12,27 +12,19 @@
     [Parameter]
     public int Index { get; set; }
 
-    private IReadOnlyDictionary<string, object> SlotAttributes => BuildSlotAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("data-index");
-        attributes.Remove("data-active");
-        return attributes;
-    }
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        BoxSize ??= Quark.Size.Token("8");
+        Height ??= Quark.Height.Token("9");
+        Width ??= Quark.Width.Token("9");
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Border ??= Quark.Border.Default.OnY.Default.FromRight;
         BorderColor ??= Quark.BorderColor.Input;
         TextSize ??= Quark.TextSize.Sm;
+        Shadow ??= Quark.Shadow.Xs;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
 
@@ -46,10 +38,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "first:rounded-l-lg first:border-l last:rounded-r-lg");
+            AppendClass(ref cls, "first:rounded-l-md first:border-l last:rounded-r-md");
             AppendClass(ref cls, "aria-invalid:border-destructive");
-            AppendClass(ref cls, "focus:z-10 focus:border-ring focus:ring-3 focus:ring-ring/50 focus:aria-invalid:border-destructive focus:aria-invalid:ring-destructive/20");
-            AppendClass(ref cls, "data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50");
+            AppendClass(ref cls, "data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-[3px] data-[active=true]:ring-ring/50");
             AppendClass(ref cls, "data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20");
             AppendClass(ref cls, "dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40");
         });

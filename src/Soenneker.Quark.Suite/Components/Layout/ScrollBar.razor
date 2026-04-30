@@ -40,20 +40,21 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "scroll-area-scrollbar";
-        attributes["data-orientation"] = Orientation.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "touch-none data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent");
+            AppendClass(ref cls, "touch-none");
+
+            if (Orientation == Orientation.Horizontal)
+                AppendClass(ref cls, "h-2.5 flex-col border-t border-t-transparent");
+            else
+                AppendClass(ref cls, "h-full w-2.5 border-l border-l-transparent");
         });
     }
 
     private IReadOnlyDictionary<string, object> BuildScrollbarAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("data-orientation");
-        attributes.Remove("data-state");
-        return attributes;
+        return BuildAttributes();
     }
 
     private IReadOnlyDictionary<string, object> BuildThumbAttributes()

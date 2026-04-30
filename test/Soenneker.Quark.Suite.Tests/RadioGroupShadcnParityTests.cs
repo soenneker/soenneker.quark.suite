@@ -16,7 +16,6 @@ public sealed partial class RenderedShadcnParityTests
         radioGroupClasses.Should().Contain("grid");
         radioGroupClasses.Should().Contain("gap-3");
         radioGroupClasses.Should().NotContain("gap-2");
-        radioGroupClasses.Should().NotContain("w-fit");
         radioGroupClasses.Should().NotContain("q-radio-group");
     }
 }

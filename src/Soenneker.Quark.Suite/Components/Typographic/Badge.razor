@@ -15,7 +15,7 @@ else
 
 @code {
     private const string _shadcnBadgeBase =
-        "group/badge focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!";
+        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3";
 
     /// <summary>
     /// Gets or sets the visual style variant (shadcn/ui).
@@ -44,19 +44,18 @@ else
     {
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.InlineFlex;
-        Height ??= Quark.Height.Token("5");
         Width ??= Quark.Width.IsFit;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Gap ??= Quark.Gap.Is1;
         Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Token("4xl");
+        Rounded ??= Quark.Rounded.Full;
         Border ??= Quark.Border.Default;
         BorderColor ??= Quark.BorderColor.Transparent;
         Padding ??= Quark.Padding.Is2.OnX.Token("0.5").OnY;
         Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
+        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
         TextSize ??= Quark.TextSize.Xs;
         FontWeight ??= Quark.FontWeight.Medium;
 
@@ -75,8 +74,8 @@ else
 
         if (ReferenceEquals(Variant, BadgeVariant.Destructive))
         {
-            BackgroundColor ??= Quark.BackgroundColor.Token("destructive/10");
-            TextColor ??= Quark.TextColor.Destructive;
+            BackgroundColor ??= Quark.BackgroundColor.Destructive;
+            TextColor ??= Quark.TextColor.White;
             return;
         }
 
@@ -124,17 +123,20 @@ else
     private static string GetBadgeVariantClass(BadgeVariant? variant)
     {
         if (ReferenceEquals(variant, BadgeVariant.Secondary))
-            return "[a]:hover:bg-secondary/80";
+            return "[a&]:hover:bg-secondary/90";
 
         if (ReferenceEquals(variant, BadgeVariant.Destructive))
-            return "focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20";
+            return "focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90";
 
         if (ReferenceEquals(variant, BadgeVariant.Outline))
-            return "[a]:hover:bg-muted [a]:hover:text-muted-foreground";
+            return "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground";
 
         if (ReferenceEquals(variant, BadgeVariant.Ghost))
-            return "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50";
+            return "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground";
 
-        return "[a]:hover:bg-primary/80";
+        if (ReferenceEquals(variant, BadgeVariant.Link))
+            return "text-primary underline-offset-4 [a&]:hover:underline";
+
+        return "[a&]:hover:bg-primary/90";
     }
 }

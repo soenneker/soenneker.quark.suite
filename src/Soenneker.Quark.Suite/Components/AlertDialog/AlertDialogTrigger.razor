@@ -40,23 +40,6 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Display ??= Quark.Display.InlineFlex;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Height ??= Quark.Height.Is8;
-        Gap ??= Quark.Gap.Token("1.5");
-        Padding ??= Quark.Padding.Token("2.5").OnX;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        UserSelect ??= Quark.UserSelect.None;
-
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -74,19 +57,8 @@ else
         if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/button bg-clip-padding");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
-            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "border-border hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
-            AppendClass(ref cls, "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
-
-            if (Disabled)
-                AppendClass(ref cls, "pointer-events-none opacity-50 disabled:pointer-events-none disabled:opacity-50");
-        });
+        if (Disabled)
+            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50"));
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

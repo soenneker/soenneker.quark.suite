@@ -4,7 +4,7 @@
 @implements IAccordionContent
 
 <BradixAccordionContent ForceMount="@ResolvedForceMount" AdditionalAttributes="@OuterAttributes">
-    <Div data-slot="accordion-content-inner" Padding='Quark.Padding.Token("2.5").FromBottom.Is0.FromTop' Class="@InnerClass">
+    <Div data-slot="accordion-content-inner" Padding='Quark.Padding.Is4.FromBottom.Is0.FromTop' Class="@Class">
         @ChildContent
     </Div>
 </BradixAccordionContent>
@@ -18,12 +18,9 @@
 
     private IReadOnlyDictionary<string, object> OuterAttributes => BuildOuterAttributes();
 
-    private string InnerClass => Class.HasContent() ? "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4 " + Class : "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4";
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Height ??= "h-[var(--radix-accordion-content-height)]";
         Overflow ??= Quark.Overflow.Hidden;
         TextSize ??= Quark.TextSize.Sm;
     }

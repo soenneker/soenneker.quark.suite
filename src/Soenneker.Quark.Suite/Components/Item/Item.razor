@@ -29,11 +29,10 @@ else
         Display ??= Quark.Display.Flex;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Lg;
+        Rounded ??= Quark.Rounded.Md;
         Border ??= Quark.Border.Default;
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
-        Width ??= Quark.Width.IsFull;
         OutlineStyle ??= Quark.OutlineStyle.None;
 
         ApplyVariantDefaults();
@@ -57,19 +56,20 @@ else
         }
 
         BorderColor ??= Quark.BorderColor.Transparent;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
     }
 
     private void ApplySizeDefaults()
     {
-        if (ReferenceEquals(Size, ItemSize.ExtraSmall))
+        if (ReferenceEquals(Size, ItemSize.Small) || ReferenceEquals(Size, ItemSize.ExtraSmall))
         {
-            Gap ??= Quark.Gap.Is2;
-            Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
+            Gap ??= Quark.Gap.Token("2.5");
+            Padding ??= Quark.Padding.Token("4").OnX.Is3.OnY;
             return;
         }
 
-        Gap ??= Quark.Gap.Token("2.5");
-        Padding ??= Quark.Padding.Is3.OnX.Token("2.5").OnY;
+        Gap ??= Quark.Gap.Is4;
+        Padding ??= Quark.Padding.Is4;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -82,10 +82,7 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
-
-            if (ReferenceEquals(Size, ItemSize.ExtraSmall))
-                AppendClass(ref cls, "in-data-[slot=dropdown-menu-content]:p-0");
+            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50");
         });
     }
 
@@ -102,10 +99,7 @@ else
 
     private static string GetDataSize(ItemSize? size)
     {
-        if (ReferenceEquals(size, ItemSize.ExtraSmall))
-            return "xs";
-
-        if (ReferenceEquals(size, ItemSize.Small))
+        if (ReferenceEquals(size, ItemSize.Small) || ReferenceEquals(size, ItemSize.ExtraSmall))
             return "sm";
 
         return "default";

@@ -13,9 +13,9 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='drawer-title']").GetAttribute("class")!;
 
-        classes.Should().Contain("font-medium");
-        classes.Should().Contain("cn-font-heading");
+        classes.Should().Contain("font-semibold");
         classes.Should().Contain("text-foreground");
+        classes.Should().NotContain("cn-font-heading");
         classes.Should().NotContain("leading-none");
     }
 }

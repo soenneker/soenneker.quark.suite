@@ -26,12 +26,16 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("flex");
         classes.Should().Contain("w-fit");
-        classes.Should().Contain("*:focus-visible:relative");
-        classes.Should().Contain("*:focus-visible:z-10");
-        classes.Should().Contain("*:data-slot:rounded-r-none");
-        classes.Should().Contain("[&>[data-slot]~[data-slot]]:rounded-l-none");
-        classes.Should().Contain("[&>[data-slot]~[data-slot]]:border-l-0");
-        classes.Should().Contain("[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
+        classes.Should().Contain("items-stretch");
+        classes.Should().Contain("[&>*]:focus-visible:relative");
+        classes.Should().Contain("[&>*]:focus-visible:z-10");
+        classes.Should().Contain("has-[>[data-slot=button-group]]:gap-2");
+        classes.Should().Contain("has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md");
+        classes.Should().Contain("[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit");
+        classes.Should().Contain("[&>input]:flex-1");
+        classes.Should().Contain("[&>*:not(:first-child)]:rounded-l-none");
+        classes.Should().Contain("[&>*:not(:first-child)]:border-l-0");
+        classes.Should().Contain("[&>*:not(:last-child)]:rounded-r-none");
         classes.Should().NotContain("group/button-group");
         classes.Should().NotContain("q-button-group");
     }
@@ -47,14 +51,31 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("flex");
         classes.Should().Contain("items-center");
         classes.Should().Contain("gap-2");
-        classes.Should().Contain("rounded-lg");
+        classes.Should().Contain("rounded-md");
         classes.Should().Contain("border");
         classes.Should().Contain("bg-muted");
-        classes.Should().Contain("px-2.5");
+        classes.Should().Contain("px-4");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("font-medium");
-        classes.Should().NotContain("shadow-xs");
+        classes.Should().Contain("shadow-xs");
         classes.Should().Contain("[&_svg]:pointer-events-none");
         classes.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
+    }
+
+    [Test]
+    public void ButtonGroupSeparator_matches_shadcn_base_classes()
+    {
+        var cut = Render<ButtonGroupSeparator>();
+
+        var separator = cut.Find("[data-slot='button-group-separator']");
+        var classes = separator.GetAttribute("class")!;
+
+        separator.GetAttribute("data-orientation").Should().Be("vertical");
+        classes.Should().Contain("bg-input");
+        classes.Should().Contain("relative");
+        classes.Should().Contain("m-0!");
+        classes.Should().NotContain("!m-0");
+        classes.Should().Contain("self-stretch");
+        classes.Should().Contain("data-[orientation=vertical]:h-auto");
     }
 }

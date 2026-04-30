@@ -19,6 +19,7 @@ public sealed partial class RenderedShadcnParityTests
         item.HasAttribute("role").Should().BeFalse();
         classes.Should().Contain("grid");
         classes.Should().Contain("gap-2");
+        classes.Should().NotContain("group/form-item");
         classes.Should().NotContain("flex w-full gap-2");
     }
 
@@ -31,8 +32,20 @@ public sealed partial class RenderedShadcnParityTests
 
         var control = cut.Find("[data-slot='form-control']");
 
-        control.GetAttribute("class").Should().BeNullOrEmpty();
-        control.QuerySelector("input")!.GetAttribute("placeholder").Should().Be("name@example.com");
+        control.TagName.Should().Be("INPUT");
+        control.GetAttribute("placeholder").Should().Be("name@example.com");
+        control.ParentElement!.GetAttribute("data-slot").Should().NotBe("form-control");
+    }
+
+    [Test]
+    public void FormField_matches_shadcn_provider_contract_without_emitting_dom()
+    {
+        var cut = Render<FormField>(parameters => parameters
+            .AddChildContent<FormItem>(item => item
+                .AddChildContent("Email")));
+
+        cut.FindAll("[data-slot='form-field']").Should().BeEmpty();
+        cut.Find("[data-slot='form-item']").TextContent.Should().Be("Email");
     }
 
     [Test]
@@ -50,6 +63,10 @@ public sealed partial class RenderedShadcnParityTests
         label.GetAttribute("data-error").Should().Be("true");
         label.GetAttribute("for").Should().Be(input.GetAttribute("id"));
         label.GetAttribute("class")!.Should().Contain("data-[error=true]:text-destructive");
+        label.GetAttribute("class")!.Should().Contain("leading-none");
+        label.GetAttribute("class")!.Should().Contain("peer-disabled:cursor-not-allowed");
+        label.GetAttribute("class")!.Should().NotContain("group/form-label");
+        label.GetAttribute("class")!.Should().NotContain("group-data-[invalid=true]/form-item:text-destructive");
 
         input.GetAttribute("aria-invalid").Should().Be("true");
         input.GetAttribute("aria-describedby")!.Split(' ').Should().Contain(description.Id);
@@ -57,6 +74,7 @@ public sealed partial class RenderedShadcnParityTests
 
         description.GetAttribute("class")!.Should().Contain("text-sm");
         description.GetAttribute("class")!.Should().Contain("text-muted-foreground");
+        description.GetAttribute("class")!.Should().NotContain("[&>a]:underline");
         message.TagName.Should().Be("P");
         message.GetAttribute("class")!.Should().Contain("text-sm");
         message.GetAttribute("class")!.Should().Contain("text-destructive");
@@ -70,8 +88,13 @@ public sealed partial class RenderedShadcnParityTests
             builder.AddAttribute(1, nameof(FormLabel.ChildContent), (RenderFragment)(labelBuilder => labelBuilder.AddContent(0, "Email")));
             builder.CloseComponent();
 
-            builder.OpenComponent<Input>(2);
-            builder.AddAttribute(3, nameof(Input.Placeholder), "name@example.com");
+            builder.OpenComponent<FormControl>(2);
+            builder.AddAttribute(3, nameof(FormControl.ChildContent), (RenderFragment)(controlBuilder =>
+            {
+                controlBuilder.OpenComponent<Input>(0);
+                controlBuilder.AddAttribute(1, nameof(Input.Placeholder), "name@example.com");
+                controlBuilder.CloseComponent();
+            }));
             builder.CloseComponent();
 
             builder.OpenComponent<FormDescription>(4);

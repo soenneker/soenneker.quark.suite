@@ -3,14 +3,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    <BradixContextMenuSub Open="@Open"
-                           DefaultOpen="@DefaultOpen"
-                           OpenChanged="@OpenChanged"
-                           OnOpenChange="@OnOpenChange">
-        @ChildContent
-    </BradixContextMenuSub>
-</div>
+<BradixContextMenuSub Open="@Open"
+                      DefaultOpen="@DefaultOpen"
+                      OpenChanged="@OpenChanged"
+                      OnOpenChange="@OnOpenChange"
+                      AdditionalAttributes="@SubAttributes">
+    @ChildContent
+</BradixContextMenuSub>
 
 @code {
     [Parameter]
@@ -25,14 +24,11 @@
     [Parameter]
     public EventCallback<bool> OnOpenChange { get; set; }
 
+    private IReadOnlyDictionary<string, object> SubAttributes => BuildAttributes();
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "context-menu-sub";
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative");
-        });
     }
-
 }

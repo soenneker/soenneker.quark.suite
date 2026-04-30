@@ -28,6 +28,9 @@ public sealed partial class RenderedShadcnParityTests
         var content = cut.Find("[data-slot='tooltip-content']");
         var contentClasses = content.GetAttribute("class")!;
 
+        content.GetAttribute("data-side").Should().Be("top");
+        content.GetAttribute("data-align").Should().Be("center");
+        content.GetAttribute("data-state").Should().Be("instant-open");
         contentClasses.Should().Contain("w-fit");
         contentClasses.Should().Contain("z-50");
         contentClasses.Should().Contain("origin-(--radix-tooltip-content-transform-origin)");
@@ -77,6 +80,8 @@ public sealed partial class RenderedShadcnParityTests
         content.Should().Contain("CollisionBoundarySelector=\"@CollisionBoundarySelector\"");
         content.Should().Contain("Sticky=\"@Sticky\"");
         content.Should().Contain("z-50");
+        content.Should().NotContain("attributes.Remove(\"data-side\")");
+        content.Should().NotContain("attributes.Remove(\"data-state\")");
     }
 
     [Test]

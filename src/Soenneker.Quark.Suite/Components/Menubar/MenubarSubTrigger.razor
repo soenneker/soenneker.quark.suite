@@ -23,7 +23,8 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "menubar-sub-trigger";
-        attributes["data-inset"] = Indented ? "true" : "false";
+        if (Indented)
+            attributes["data-inset"] = "true";
 
         if (Disabled)
             attributes["data-disabled"] = "true";
@@ -41,7 +42,6 @@
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Sm;
         Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
@@ -53,14 +53,7 @@
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("role");
-        attributes.Remove("tabindex");
-        attributes.Remove("data-disabled");
-        attributes.Remove("aria-disabled");
-        attributes.Remove("aria-haspopup");
-        attributes.Remove("aria-expanded");
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

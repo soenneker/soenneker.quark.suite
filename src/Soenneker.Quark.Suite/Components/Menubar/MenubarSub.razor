@@ -3,22 +3,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    <BradixMenubarSub>
-        @ChildContent
-    </BradixMenubarSub>
-</div>
+<BradixMenubarSub AdditionalAttributes="@SubAttributes">
+    @ChildContent
+</BradixMenubarSub>
 
 @code {
+    private IReadOnlyDictionary<string, object> SubAttributes => BuildAttributes();
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
         attributes["data-slot"] = "menubar-sub";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative");
-        });
     }
 }

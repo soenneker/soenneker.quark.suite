@@ -67,7 +67,7 @@
 
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is2;
+        Gap ??= Quark.Gap.Is3;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -92,7 +92,7 @@
             if (ResolvedOrientation == "horizontal")
             {
                 AppendClass(ref cls, "flex-row items-center");
-                AppendClass(ref cls, "*:data-[slot=field-label]:flex-auto");
+                AppendClass(ref cls, "[&>[data-slot=field-label]]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
 
                 if (Selectable)
@@ -106,13 +106,13 @@
             }
             else if (ResolvedOrientation == "responsive")
             {
-                AppendClass(ref cls, "flex-col @md/field-group:flex-row @md/field-group:items-center *:w-full @md/field-group:*:w-auto [&>.sr-only]:w-auto");
-                AppendClass(ref cls, "@md/field-group:*:data-[slot=field-label]:flex-auto");
+                AppendClass(ref cls, "flex-col @md/field-group:flex-row @md/field-group:items-center [&>*]:w-full @md/field-group:[&>*]:w-auto [&>.sr-only]:w-auto");
+                AppendClass(ref cls, "@md/field-group:[&>[data-slot=field-label]]:flex-auto");
                 AppendClass(ref cls, "@md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
             }
             else
             {
-                AppendClass(ref cls, "flex-col *:w-full [&>.sr-only]:w-auto");
+                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
             }
         });
     }

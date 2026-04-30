@@ -15,7 +15,7 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='combobox-list']").GetAttribute("class")!;
 
-        classes.Should().Contain("max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--radix-popper-available-height)---spacing(9)))]");
+        classes.Should().Contain("max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))]");
         classes.Should().Contain("scroll-py-1");
         classes.Should().Contain("overflow-y-auto");
         classes.Should().Contain("p-1");

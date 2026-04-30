@@ -1,0 +1,34 @@
+@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<BradixToastProvider Label="@Label"
+                     Duration="@Duration"
+                     SwipeDirection="@SwipeDirection"
+                     SwipeThreshold="@SwipeThreshold"
+                     AdditionalAttributes="@ProviderAttributes">
+    @ChildContent
+</BradixToastProvider>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Notification";
+
+    [Parameter]
+    public int Duration { get; set; } = 5000;
+
+    [Parameter]
+    public SwipeDirection SwipeDirection { get; set; } = SwipeDirection.Right;
+
+    [Parameter]
+    public double SwipeThreshold { get; set; } = 50;
+
+    private IReadOnlyDictionary<string, object> ProviderAttributes => BuildAttributes();
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "toast-provider";
+    }
+}

@@ -1,7 +1,9 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using System.Linq
+@using System.Threading
 @using Soenneker.Bradix
+@implements IAsyncDisposable
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
@@ -21,17 +23,35 @@
     public bool Loop { get; set; }
 
     [Parameter]
+    public string? Dir { get; set; }
+
+    [Parameter]
+    public bool Autoplay { get; set; }
+
+    [Parameter]
+    public TimeSpan AutoplayDelay { get; set; } = TimeSpan.FromSeconds(4);
+
+    [Parameter]
     public Action<CarouselApi>? SetApi { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedIndexChanged { get; set; }
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
 
     internal event Action? StateChanged;
     private readonly CarouselApi _api = new();
     private Action<CarouselApi>? _lastSetApi;
+    private CancellationTokenSource? _autoplayCancellation;
     private double? _pointerStart;
     private bool _pointerDragStarted;
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
     internal bool IsVertical => Orientation == Orientation.Vertical;
+    internal string? ResolvedDir => string.IsNullOrWhiteSpace(Dir) ? DirectionProviderDir : Dir;
+    internal bool IsRtl => string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
     internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
     internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
 
@@ -48,8 +68,8 @@
         _api.ScrollSnapListAccessor = () => ItemCount <= 0 ? Array.Empty<int>() : Enumerable.Range(0, ItemCount).ToArray();
         _api.CanScrollPreviousAccessor = () => CanScrollPrevious;
         _api.CanScrollNextAccessor = () => CanScrollNext;
-        _api.ScrollPreviousAction = Previous;
-        _api.ScrollNextAction = Next;
+        _api.ScrollPreviousAction = () => _ = Previous();
+        _api.ScrollNextAction = () => _ = Next();
         base.OnInitialized();
     }
 
@@ -62,12 +82,14 @@
             _lastSetApi = SetApi;
             SetApi(_api);
         }
+
+        ConfigureAutoplay();
     }
 
     internal void RegisterItem()
     {
         ItemCount++;
-        NotifyStateChanged();
+        _ = NotifyStateChanged();
     }
 
     internal void UnregisterItem()
@@ -82,17 +104,17 @@
         else if (CurrentIndex >= ItemCount)
             CurrentIndex = ItemCount - 1;
 
-        NotifyStateChanged();
+        _ = NotifyStateChanged();
     }
 
-    internal void Previous()
+    internal Task Previous()
     {
-        GoTo(CurrentIndex - 1);
+        return GoTo(CurrentIndex - 1);
     }
 
-    internal void Next()
+    internal Task Next()
     {
-        GoTo(CurrentIndex + 1);
+        return GoTo(CurrentIndex + 1);
     }
 
     internal void BeginPointerDrag(PointerEventArgs args)
@@ -142,10 +164,15 @@
         if (Math.Abs(delta) < threshold)
             return;
 
-        if (delta < 0)
-            Next();
+        var shouldMoveNext = delta < 0;
+
+        if (!IsVertical && IsRtl)
+            shouldMoveNext = !shouldMoveNext;
+
+        if (shouldMoveNext)
+            _ = Next();
         else
-            Previous();
+            _ = Previous();
     }
 
     internal void CancelPointerDrag()
@@ -154,17 +181,25 @@
         _pointerDragStarted = false;
     }
 
-    private Task HandleKeyDown(KeyboardEventArgs e)
+    private async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "ArrowLeft")
-            Previous();
+        {
+            if (!IsVertical && IsRtl)
+                await Next();
+            else
+                await Previous();
+        }
         else if (e.Key == "ArrowRight")
-            Next();
-
-        return Task.CompletedTask;
+        {
+            if (!IsVertical && IsRtl)
+                await Previous();
+            else
+                await Next();
+        }
     }
 
-    private void GoTo(int index)
+    private async Task GoTo(int index)
     {
         if (ItemCount == 0)
             return;
@@ -180,13 +215,66 @@
             return;
 
         CurrentIndex = nextIndex;
-        NotifyStateChanged();
+        await NotifyStateChanged();
     }
 
-    private void NotifyStateChanged()
+    private async Task NotifyStateChanged()
     {
+        SetApi?.Invoke(_api);
         _api.NotifySelect();
+
+        if (SelectedIndexChanged.HasDelegate)
+            await SelectedIndexChanged.InvokeAsync(CurrentIndex);
+
         StateChanged?.Invoke();
+    }
+
+    private void ConfigureAutoplay()
+    {
+        if (!Autoplay || AutoplayDelay <= TimeSpan.Zero)
+        {
+            StopAutoplay();
+            return;
+        }
+
+        if (_autoplayCancellation is not null)
+            return;
+
+        _autoplayCancellation = new CancellationTokenSource();
+        _ = RunAutoplay(_autoplayCancellation.Token);
+    }
+
+    private async Task RunAutoplay(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(AutoplayDelay);
+
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await InvokeAsync(async () =>
+                {
+                    if (ItemCount <= 1)
+                        return;
+
+                    await Next();
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void StopAutoplay()
+    {
+        if (_autoplayCancellation is null)
+            return;
+
+        _autoplayCancellation.Cancel();
+        _autoplayCancellation.Dispose();
+        _autoplayCancellation = null;
     }
 
     private double GetAxisCoordinate(PointerEventArgs args)
@@ -213,7 +301,9 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "carousel";
-        attributes["data-orientation"] = Orientation.Value;
+
+        if (!string.IsNullOrWhiteSpace(ResolvedDir))
+            attributes["dir"] = ResolvedDir!;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -221,8 +311,19 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Orientation);
         hc.Add(Loop);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
+        hc.Add(Autoplay);
+        hc.Add(AutoplayDelay);
+        hc.Add(SelectedIndexChanged.HasDelegate);
         hc.Add(CurrentIndex);
         hc.Add(ItemCount);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        StopAutoplay();
+        await base.DisposeAsync();
     }
 
 }

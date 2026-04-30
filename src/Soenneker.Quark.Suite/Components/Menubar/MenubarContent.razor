@@ -71,8 +71,7 @@
 
         ZIndex ??= "z-50";
         MinWidth ??= Quark.MinWidth.Token("[12rem]");
-        OverflowX ??= Quark.Overflow.X.Hidden;
-        OverflowY ??= Quark.Overflow.Y.Auto;
+        Overflow ??= Quark.Overflow.Hidden;
         Rounded ??= Quark.Rounded.Md;
         Border ??= Quark.Border.Default;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
@@ -86,8 +85,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "menubar-content";
-        attributes["data-state"] = Open ? "open" : "closed";
-        attributes["data-side"] = Side.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -99,14 +96,7 @@
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("data-state");
-        attributes.Remove("data-side");
-        attributes.Remove("role");
-        attributes.Remove("aria-orientation");
-        attributes.Remove("aria-hidden");
-        attributes.Remove("tabindex");
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

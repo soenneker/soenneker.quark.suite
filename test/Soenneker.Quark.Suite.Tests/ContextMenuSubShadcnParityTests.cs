@@ -12,10 +12,9 @@ public sealed partial class RenderedShadcnParityTests
     {
         var sub = Render<ContextMenuSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));
 
-        var subClasses = sub.Find("[data-slot='context-menu-sub']").GetAttribute("class")!;
-
-        subClasses.Should().Contain("relative");
-        subClasses.Should().NotContain("q-context-menu-sub");
+        sub.Markup.Should().Contain("Sub");
+        sub.FindAll("[data-slot='context-menu-sub']").Should().BeEmpty();
+        sub.Markup.Should().NotContain("q-context-menu-sub");
     }
 
     [Test]

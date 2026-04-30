@@ -17,7 +17,7 @@
                             Required="@Required"
                             SanitizeValue="Sanitize"
                             ValidationType="none"
-                            AdditionalAttributes="@RootAttributes">
+                            AdditionalAttributes="@BuildAttributes()">
     @ChildContent
 </BradixOneTimePasswordField>
 
@@ -67,8 +67,6 @@
 
     internal string? InputId => Id;
 
-    private IReadOnlyDictionary<string, object> RootAttributes => BuildRootAttributes();
-
     private string Sanitize(string? value)
     {
         if (string.IsNullOrEmpty(value))
@@ -105,21 +103,12 @@
         await OtpValueChanged.InvokeAsync(sanitized);
     }
 
-    private IReadOnlyDictionary<string, object> BuildRootAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("id");
-        attributes.Remove("role");
-        attributes.Remove("dir");
-        attributes.Remove("data-orientation");
-        return attributes;
-    }
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Is2;
 
     }
 
@@ -129,15 +118,12 @@
 
         attributes["data-slot"] = "input-otp";
 
-        if (attributes.ContainsKey("id"))
-            attributes.Remove("id");
-
         if (Disabled)
             attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "cn-input-otp has-disabled:opacity-50");
+            AppendClass(ref cls, "has-disabled:opacity-50");
         });
     }
 

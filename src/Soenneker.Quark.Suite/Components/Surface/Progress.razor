@@ -11,9 +11,6 @@
 </BradixProgress>
 
 @code {
-    [CascadingParameter(Name = "DirectionProviderDir")]
-    private string? DirectionProviderDir { get; set; }
-
     /// <summary>
     /// Gets or sets the current progress value (0–100).
     /// </summary>
@@ -52,21 +49,6 @@
         return val;
     }
 
-    private bool IsRtl()
-    {
-        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (Attributes is not null &&
-            Attributes.TryGetValue("dir", out var dirValue) &&
-            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     private string GetIndicatorStyle()
     {
         if (Indeterminate)
@@ -86,9 +68,10 @@
         base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Height ??= Quark.Height.Token("2");
+        Width ??= Quark.Width.IsFull;
         Overflow ??= Quark.Overflow.Hidden;
         Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-primary/20");
+        BackgroundColor ??= "bg-primary/20";
 
     }
 

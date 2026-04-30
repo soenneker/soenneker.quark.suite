@@ -16,7 +16,7 @@
     [Parameter]
     public bool Open { get; set; }
 
-    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -36,9 +36,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        var isOpen = Open;
         attributes["data-slot"] = "context-menu-sub-trigger";
-        attributes["data-state"] = isOpen ? "open" : "closed";
         if (Indented)
             attributes["data-inset"] = "true";
         BuildClassAttribute(attributes, (ref cls) =>
@@ -46,6 +44,11 @@
             AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
         });
+    }
+
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        return BuildAttributes();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

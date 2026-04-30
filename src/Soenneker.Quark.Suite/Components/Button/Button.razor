@@ -152,14 +152,13 @@ else
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Md;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
-        UserSelect ??= Quark.UserSelect.None;
 
         if (Block)
             Width ??= Quark.Width.IsFull;
@@ -209,11 +208,10 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button bg-clip-padding");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
             AppendClass(ref cls, GetButtonFocusClass(Variant));
-            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, GetButtonVariantClass(Variant));
             AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
@@ -462,21 +460,21 @@ else
     internal static string GetButtonVariantClass(ButtonVariant? variant)
     {
         if (ReferenceEquals(variant, ButtonVariant.Destructive))
-            return "border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
+            return "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40";
 
         if (ReferenceEquals(variant, ButtonVariant.Outline))
-            return "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
+            return "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Secondary))
-            return "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
+            return "bg-secondary text-secondary-foreground hover:bg-secondary/80";
 
         if (ReferenceEquals(variant, ButtonVariant.Ghost))
-            return "border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
+            return "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Link))
-            return "border-transparent text-primary underline-offset-4 hover:underline";
+            return "text-primary underline-offset-4 hover:underline";
 
-        return "border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
+        return "bg-primary text-primary-foreground hover:bg-primary/90";
     }
 
     internal static string GetButtonVariantClass(string? variant)
@@ -517,23 +515,23 @@ else
     {
         return size switch
         {
-            "xs" => "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-            "sm" => "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-            "icon" => "size-8",
-            "icon-xs" => "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
-            "icon-sm" => "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
-            "icon-lg" => "size-9",
-            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+            "xs" => "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+            "sm" => "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
+            "lg" => "h-10 rounded-md px-6 has-[>svg]:px-4",
+            "icon" => "size-9",
+            "icon-xs" => "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+            "icon-sm" => "size-8",
+            "icon-lg" => "size-10",
+            _ => "h-9 px-4 py-2 has-[>svg]:px-3"
         };
     }
 
     private static string GetButtonFocusClass(ButtonVariant? variant)
     {
         if (ReferenceEquals(variant, ButtonVariant.Destructive))
-            return "focus-visible:ring-3";
+            return string.Empty;
 
-        return "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+        return string.Empty;
     }
 
     internal static string GetInputGroupButtonSizeClass(string? size)

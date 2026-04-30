@@ -14,18 +14,11 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ChildContent, "Open"));
 
         var trigger = cut.Find("[data-slot='sheet-trigger']");
-        var triggerClasses = trigger.GetAttribute("class")!;
+        var triggerClasses = trigger.GetAttribute("class");
 
-        triggerClasses.Should().Contain("group/button");
-        triggerClasses.Should().Contain("inline-flex");
-        triggerClasses.Should().Contain("rounded-lg");
-        triggerClasses.Should().Contain("border");
-        triggerClasses.Should().Contain("bg-background");
-        triggerClasses.Should().Contain("hover:bg-muted");
-        triggerClasses.Should().Contain("aria-expanded:bg-muted");
-        triggerClasses.Should().Contain("h-8");
-        triggerClasses.Should().Contain("gap-1.5");
-        triggerClasses.Should().Contain("px-2.5");
+        triggerClasses.Should().BeNullOrEmpty();
+        trigger.GetAttribute("data-state").Should().Be("closed");
+        trigger.GetAttribute("aria-haspopup").Should().Be("dialog");
     }
 
     [Test]

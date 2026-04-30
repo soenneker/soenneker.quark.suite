@@ -20,14 +20,9 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseElement();
             })));
 
-        var classes = cut.Find("[data-slot='aspect-ratio']").GetAttribute("class")!;
+        var element = cut.Find("[data-slot='aspect-ratio']");
+        var classes = element.GetAttribute("class");
 
-        classes.Should().Contain("relative");
-        classes.Should().Contain("w-full");
-        classes.Should().Contain("overflow-hidden");
-        classes.Should().Contain("[&>img]:object-cover");
-        classes.Should().Contain("[&>video]:object-cover");
-        classes.Should().Contain("[&>iframe]:object-cover");
-        classes.Should().NotContain("q-aspect-ratio");
+        classes.Should().BeNullOrEmpty();
     }
 }

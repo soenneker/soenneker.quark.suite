@@ -11,16 +11,13 @@
 
 <CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
     <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="true">
-        <div @attributes="BuildAttributes()">
-            <BradixSelect Value="@SelectedValueString"
-                          Name="@Name"
-                          Disabled="@Disabled"
-                          Required="@Required"
-                          ValueChanged="HandleBradixValueChanged"
-                          OpenChanged="HandleBradixOpenChanged">
-                @ChildContent
-            </BradixSelect>
-        </div>
+        <BradixSelect Value="@SelectedValueString"
+                      Name="@Name"
+                      Disabled="@Disabled"
+                      Required="@Required"
+                      ValueChanged="HandleBradixValueChanged">
+            @ChildContent
+        </BradixSelect>
     </CascadingValue>
 </CascadingValue>
 
@@ -75,7 +72,6 @@
     /// </summary>
     public object? ValidationValue => SelectedValue;
     private readonly Dictionary<string, TValue?> _registeredItemValues = new(StringComparer.Ordinal);
-    private bool _open;
     private SelectContext _context = null!;
     private string? SelectedValueString => GetValueString(SelectedValue);
     private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
@@ -150,12 +146,6 @@
         }
     }
 
-    private Task HandleBradixOpenChanged(bool open)
-    {
-        _open = open;
-        return Task.CompletedTask;
-    }
-
     private TValue? ResolveSelectedValue(string? value)
     {
         if (string.IsNullOrEmpty(value))
@@ -213,18 +203,9 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "select";
-        attributes["data-size"] = "default";
-        attributes["data-state"] = _open ? "open" : "closed";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/select relative w-full max-w-full");
-
-            var validationClass = GetValidationClass();
-            if (validationClass != null)
-                AppendClass(ref cls, validationClass);
-        });
+        var validationClass = GetValidationClass();
+        if (validationClass != null)
+            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, validationClass));
     }
 
     public override void Dispose()
@@ -245,6 +226,5 @@
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);
-        hc.Add(_open);
     }
 }

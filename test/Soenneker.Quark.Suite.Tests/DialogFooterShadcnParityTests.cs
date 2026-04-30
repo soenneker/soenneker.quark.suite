@@ -19,7 +19,8 @@ public sealed partial class RenderedShadcnParityTests
         footerClasses.Should().Contain("gap-2");
         footerClasses.Should().Contain("sm:flex-row");
         footerClasses.Should().Contain("sm:justify-end");
-        footerClasses.Should().NotContain("-mx-4");
-        footerClasses.Should().Contain("rounded-b-xl");
+        footerClasses.Should().NotContain("bg-muted");
+        footerClasses.Should().NotContain("rounded-b-xl");
+        footerClasses.Should().NotContain("border-t");
     }
 }

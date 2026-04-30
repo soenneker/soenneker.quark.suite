@@ -1,217 +1,178 @@
 @page "/datepickers"
+@using System.Globalization
 
 <PageTitle>Date Pickers - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
-                         Description="A date picker component with range and presets."
-                         Code="@(@"<Popover>
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
-            @FormatDate(_dateOnly)
-            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
-        </Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"" Align=""Alignment.Start"">
-        <Calendar SelectedDate=""_dateOnly"" SelectedDateChanged=""OnBasicDateChanged"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
-                    <Popover>
-                        <PopoverTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-between text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
-                                @FormatDate(_dateOnly)
-                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                            <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
-                        </PopoverContent>
-                    </Popover>
-                </Div>
+            <DemoSection Description="A date picker component with range and presets."
+                         Code="@BasicDatePickerCode"
+                         CodeLanguage="razor"
+                         PreviewClass="preview relative flex h-[28rem] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+                @DatePickerOverviewExample
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="Shadcn-aligned Basic example."
-                         Code="@(@"<Popover>
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
-            @FormatDate(_dateOnly)
-            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
-        </Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"" Align=""Alignment.Start"">
-        <Calendar SelectedDate=""_dateOnly"" SelectedDateChanged=""OnBasicDateChanged"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
-                    <Popover>
-                        <PopoverTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-between text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
-                                @FormatDate(_dateOnly)
-                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                            <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
-                        </PopoverContent>
-                    </Popover>
-                </Div>
+                         Description="A basic date picker component."
+                         Code="@BasicDatePickerCode"
+                         CodeLanguage="razor">
+                @DatePickerBasicExample
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Range Picker"
-                         Description="Use a range calendar inside the popover when users need a start and end date from the same picker."
-                         Code="@(@"<Popover>
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" Class=""w-[300px] justify-start text-left font-normal"" Id=""date"">
-            @FormatRange(_rangeDate)
-            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
-        </Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"" Align=""Alignment.Start"">
-        <Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_rangeDate"" SelectedRangeChanged=""OnRangeDateChanged"" NumberOfMonths=""2"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap="Gap.Is2" Justify="Justify.Center">
-                    <Popover>
-                        <PopoverTrigger AsChild="true">
-                            <Button Id="date" Variant="ButtonVariant.Outline" Class="@($"w-[300px] justify-between text-left font-normal{(_rangeDate?.From is null ? " text-muted-foreground" : "")}")">
-                                @FormatRange(_rangeDate)
-                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                            <Calendar Mode="CalendarSelectionMode.Range"
-                                      SelectedRange="_rangeDate"
-                                      SelectedRangeChanged="OnRangeDateChanged"
-                                      NumberOfMonths="2" />
-                        </PopoverContent>
-                    </Popover>
+                         Description="A date picker component for selecting a range of dates."
+                         Code="@RangePickerCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Display="Display.Grid" Gap="Gap.Is2">
+                        <FieldLabel For="date-picker-range">Date Picker Range</FieldLabel>
+                        <Popover>
+                            <PopoverTrigger AsChild="true">
+                                <Button Id="date-picker-range"
+                                        Variant="ButtonVariant.Outline"
+                                        Class="@DateRangeButtonClass(_rangeDate?.From is not null)">
+                                    <Icon Name="LucideIcon.Calendar" Class="size-4" />
+                                    @FormatRange(_rangeDate)
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                <Calendar Mode="CalendarSelectionMode.Range"
+                                          SelectedRange="_rangeDate"
+                                          SelectedRangeChanged="OnRangeDateChanged"
+                                          NumberOfMonths="2" />
+                            </PopoverContent>
+                        </Popover>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
-<Section Space="Space.Y.Is4">
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Date of Birth"
-                         Description="Use a supported button trigger styled like an input when you want the field appearance without relying on raw HTML slotting."
-                         Code="@(@"<Popover>
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
-            @FormatDate(_typedDate)
-        </Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"">
-        <Calendar SelectedDate=""_typedDate"" SelectedDateChanged=""OnTypedDateChanged"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[16rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Type a date</Label>
-                    <Popover>
-                        <PopoverTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline"
-                                    Class="@($"w-[240px] justify-start text-left font-normal{(_typedDate is null ? " text-muted-foreground" : "")}")">
-                                @FormatDate(_typedDate)
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0">
-                            <Calendar SelectedDate="_typedDate" SelectedDateChanged="OnTypedDateChanged" />
-                        </PopoverContent>
-                    </Popover>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                        This stays on the supported trigger path while matching an input-like field surface.
-                    </Paragraph>
+                         Description="A date picker component for selecting a date of birth. This component includes a dropdown caption layout for date and month selection."
+                         Code="@DateOfBirthCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Display="Display.Grid" Gap="Gap.Is2">
+                        <FieldLabel For="date-of-birth">Date of birth</FieldLabel>
+                        <Popover Open="_dobOpen" OpenChanged="OnDobOpenChanged">
+                            <PopoverTrigger AsChild="true">
+                                <Button Id="date-of-birth"
+                                        Variant="ButtonVariant.Outline"
+                                        Class="@DatePlainButtonClass(_dobDate is not null, "w-[240px]")">
+                                    @(_dobDate is null ? "Select date" : FormatDate(_dobDate))
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                <Calendar SelectedDate="_dobDate"
+                                          SelectedDateChanged="OnDobDateChanged"
+                                          CaptionLayout="dropdown"
+                                          Min="_dobMinDate"
+                                          Max="_dobMaxDate" />
+                            </PopoverContent>
+                        </Popover>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Input"
-                         Description="Use the calendar caption dropdown layout when users need direct month and year selection."
-                         Code="@(@"<Popover Open=""_dropdownPickerOpen"" OpenChanged=""OnDropdownPickerOpenChanged"">
-    <PopoverTrigger>
-        <Button Variant=""ButtonVariant.Outline"">@FormatDate(_dropdownPickerDate)</Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"">
-        <Calendar SelectedDate=""_dropdownPickerDate"" SelectedDateChanged=""OnDropdownPickerDateChanged"" CaptionLayout=""dropdown"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[16rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Pick a date with dropdowns</Label>
-                    <Popover Open="_dropdownPickerOpen" OpenChanged="OnDropdownPickerOpenChanged">
-                        <PopoverTrigger>
-                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">@FormatDate(_dropdownPickerDate)</Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0">
-                            <Calendar SelectedDate="_dropdownPickerDate"
-                                      SelectedDateChanged="OnDropdownPickerDateChanged"
-                                      CaptionLayout="dropdown" />
-                        </PopoverContent>
-                    </Popover>
+                         Description="A date picker component with an input field for selecting a date."
+                         Code="@InputPickerCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Display="Display.Grid" Gap="Gap.Is2">
+                        <FieldLabel For="subscription-date">Subscription Date</FieldLabel>
+                        <Popover Open="_subscriptionOpen" OpenChanged="OnSubscriptionOpenChanged">
+                            <InputGroup Class="w-[280px]">
+                                <InputGroupInput Id="subscription-date"
+                                                 Placeholder="June 01, 2025"
+                                                 @bind-Value="_subscriptionDateText" />
+                                <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
+                                    <PopoverTrigger AsChild="true">
+                                        <InputGroupButton Size="ButtonSize.IconSm" aria-label="Select date">
+                                            <Icon Name="LucideIcon.Calendar" />
+                                        </InputGroupButton>
+                                    </PopoverTrigger>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                <Calendar SelectedDate="_subscriptionDate" SelectedDateChanged="OnSubscriptionDateChanged" />
+                            </PopoverContent>
+                        </Popover>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Time Picker"
-                         Description="A bounded `Calendar` keeps date-of-birth selection limited to an allowed historical range."
-                         Code="@(@"<Popover Open=""_birthdayCalendarOpen"" OpenChanged=""OnBirthdayCalendarOpenChanged"">
-    <PopoverTrigger>
-        <Button Variant=""ButtonVariant.Outline"">@FormatDate(_deliveryDate)</Button>
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"">
-        <Calendar SelectedDate=""_deliveryDate"" SelectedDateChanged=""OnBirthdayDateChanged"" Min=""_minDate"" Max=""_maxDate"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[16rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Date of birth</Label>
-                    <Popover Open="_birthdayCalendarOpen" OpenChanged="OnBirthdayCalendarOpenChanged">
-                        <PopoverTrigger>
-                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">@FormatDate(_deliveryDate)</Button>
-                        </PopoverTrigger>
-                        <PopoverContent Width="Width.Auto" Padding="Padding.Is0">
-                            <Calendar SelectedDate="_deliveryDate"
-                                      SelectedDateChanged="OnBirthdayDateChanged"
-                                      Min="_minDate"
-                                      Max="_maxDate" />
-                        </PopoverContent>
-                    </Popover>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                        Choose a date between @_minDate.ToString("yyyy-MM-dd") and @_maxDate.ToString("yyyy-MM-dd")
-                    </Paragraph>
+                         Description="A date picker component with a time input field for selecting a time."
+                         Code="@TimePickerCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Display="Display.Flex" Gap="Gap.Is4" AlignItems="AlignItems.End">
+                        <Div Display="Display.Grid" Gap="Gap.Is2">
+                            <FieldLabel For="time-picker-date">Date</FieldLabel>
+                            <Popover Open="_timePickerOpen" OpenChanged="OnTimePickerOpenChanged">
+                                <PopoverTrigger AsChild="true">
+                                    <Button Id="time-picker-date"
+                                            Variant="ButtonVariant.Outline"
+                                            Class="@DateButtonClass(_timePickerDate is not null, "w-[186px]")">
+                                        @(_timePickerDate is null ? "Select date" : FormatDate(_timePickerDate))
+                                        <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                    <Calendar SelectedDate="_timePickerDate" SelectedDateChanged="OnTimePickerDateChanged" />
+                                </PopoverContent>
+                            </Popover>
+                        </Div>
+                        <Div Display="Display.Grid" Gap="Gap.Is2">
+                            <FieldLabel For="time-picker-time">Time</FieldLabel>
+                            <TextInput Id="time-picker-time" Type="time" Step="1" Class="w-[116px]" @bind-Value="_timeText" />
+                        </Div>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Natural Language Picker"
-                         Description="Exercise the reusable `DatePicker` trigger directly, including calendar selection and externally controlled state updates."
-                         Code="@(@"<DatePicker SelectedDate=""_componentDate"" SelectedDateChanged=""OnComponentDateChanged"" />
-<Button OnClick=""SetComponentDateToLaunch"">Set launch date</Button>
-<Button OnClick=""ClearComponentDate"">Clear</Button>")"
+                         Description="This component uses native C# parsing for common relative date phrases."
+                         Code="@NaturalLanguagePickerCode"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[20rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Reusable date picker</Label>
-                    <DatePicker SelectedDate="_componentDate"
-                                SelectedDateChanged="OnComponentDateChanged"
-                                Placeholder="Pick a date"
-                                data-testid="component-date-picker" />
-                    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Justify="Justify.Center" Gap="Gap.Is2">
-                        <Button Variant="ButtonVariant.Outline" OnClick="SetComponentDateToLaunch" data-testid="component-date-launch">Set launch date</Button>
-                        <Button Variant="ButtonVariant.Outline" OnClick="ClearComponentDate" data-testid="component-date-clear">Clear</Button>
-                    </Div>
-                    <Div Class="value-chip" Margin="Margin.Is0">
-                        <Span Class="dot"></Span><Span>Selected: @_componentDate?.ToString("yyyy-MM-dd")</Span>
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Display="Display.Grid" Gap="Gap.Is2" Class="w-[300px]">
+                        <FieldLabel For="schedule-date">Schedule Date</FieldLabel>
+                        <Popover Open="_naturalLanguageOpen" OpenChanged="OnNaturalLanguageOpenChanged">
+                            <InputGroup>
+                                <InputGroupInput Id="schedule-date"
+                                                 Placeholder="Tomorrow or next week"
+                                                 Value="@_naturalLanguageText"
+                                                 ValueChanged="OnNaturalLanguageTextChanged" />
+                                <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
+                                    <PopoverTrigger AsChild="true">
+                                        <InputGroupButton Size="ButtonSize.IconSm" aria-label="Select date">
+                                            <Icon Name="LucideIcon.Calendar" />
+                                        </InputGroupButton>
+                                    </PopoverTrigger>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                <Calendar SelectedDate="NaturalLanguageDate"
+                                          SelectedDateChanged="OnNaturalLanguageDateChanged" />
+                            </PopoverContent>
+                        </Popover>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            Your post will be published on @NaturalLanguageDate.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture).
+                        </Paragraph>
                     </Div>
                 </Div>
             </DemoSection>
@@ -219,106 +180,137 @@ CodeLanguage="razor">
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="DateTimePicker adds time selection when the exact moment matters."
-                         Code="@(@"<Label Form=""true"">Pick a date and time</Label>
-<DateTimePicker @bind-SelectedDateTime=""_dateTime""/>")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[16rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Pick a date and time</Label>
-                    <DateTimePicker @bind-SelectedDateTime="_dateTime"/>
-                    <Div Class="value-chip" Margin="Margin.Is0">
-                        <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
+                         Description="Use the document direction to mirror the date picker trigger and calendar surface."
+                         Code="@RtlDatePickerCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+                    <Div Dir="rtl" Display="Display.Grid" Gap="Gap.Is3" Class="w-[260px]">
+                        <NativeSelect Value="_rtlLocale" ValueChanged="OnRtlLocaleChanged">
+                            <NativeSelectOption Value="ar">Arabic (العربية)</NativeSelectOption>
+                            <NativeSelectOption Value="he">Hebrew (עברית)</NativeSelectOption>
+                        </NativeSelect>
+                        <Button Variant="ButtonVariant.Outline" OnClick="ToggleRtlDate">
+                            Toggle
+                        </Button>
+                        <Popover>
+                            <PopoverTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Class="@DateButtonClass(_rtlDate is not null, "w-full")">
+                                    @FormatRtlDate()
+                                    <Icon Name="LucideIcon.ChevronDown" Class="mr-auto size-4 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                                <Calendar SelectedDate="_rtlDate" SelectedDateChanged="OnRtlDateChanged" />
+                            </PopoverContent>
+                        </Popover>
                     </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Natural Language Picker"
-                         Description="Pair a natural-language input with the date picker surface when users can type common date phrases."
-                         Code="@(@"<Field MaxWidth=""MaxWidth.IsSm"">
-    <FieldLabel For=""natural-language-date"">Schedule</FieldLabel>
-    <Input Id=""natural-language-date"" Placeholder=""Tomorrow morning"" Value=""Next Friday at 10:00"" />
-    <FieldDescription>Resolve the phrase before committing the scheduled date.</FieldDescription>
-</Field>")"
-                         CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel For="natural-language-date">Schedule</FieldLabel>
-                    <Input Id="natural-language-date" Placeholder="Tomorrow morning" Value="Next Friday at 10:00" />
-                    <FieldDescription>Resolve the phrase before committing the scheduled date.</FieldDescription>
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Scheduled window"
-                         Description="Combine date and time with min/max bounds for scheduling flows."
-                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_deploymentWindow"" Min=""_minDateTime"" Max=""_maxDateTime"" />")"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" MinHeight='Height.Token("[16rem]")' Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is4" TextAlign="TextAlign.Center">
-                    <Label Form="true">Deployment window</Label>
-                    <DateTimePicker @bind-SelectedDateTime="_deploymentWindow" Min="_minDateTime" Max="_maxDateTime"/>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                        Available between @_minDateTime.ToString("MMM dd, yyyy HH:mm") and @_maxDateTime.ToString("MMM dd, yyyy HH:mm")
-                    </Paragraph>
                 </Div>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
-@code{
-
+@code {
     private DateOnly? _dateOnly;
-    private readonly DateOnly _minDate = new(1940, 1, 1);
-    private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today);
-    private DateOnly? _deliveryDate = new(1995, 7, 14);
-    private DateOnly? _typedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
-    private DateOnly? _dropdownPickerDate = DateOnly.FromDateTime(DateTime.Today.AddDays(21));
-    private DateOnly? _componentDate = new(2024, 4, 18);
-    private bool _dropdownPickerOpen;
-    private bool _birthdayCalendarOpen;
     private CalendarDateRange? _rangeDate = new(new DateOnly(2026, 1, 20), new DateOnly(2026, 2, 9));
+    private DateOnly? _dobDate;
+    private bool _dobOpen;
+    private readonly DateOnly _dobMinDate = new(1900, 1, 1);
+    private readonly DateOnly _dobMaxDate = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _subscriptionDate = new(2025, 5, 31);
+    private string? _subscriptionDateText = "May 31, 2025";
+    private bool _subscriptionOpen;
+    private DateOnly? _timePickerDate;
+    private bool _timePickerOpen;
+    private string? _timeText = "10:30:00";
+    private DateOnly? _naturalLanguageDate = DateOnly.FromDateTime(DateTime.Today.AddDays(2));
+    private string? _naturalLanguageText = "In 2 days";
+    private bool _naturalLanguageOpen;
+    private DateOnly? _rtlDate;
+    private string? _rtlLocale = "ar";
 
-    private DateTime? _dateTime = DateTime.Now;
-    private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);
-    private readonly DateTime _maxDateTime = DateTime.Today.AddDays(7).AddHours(18);
-    private DateTime? _deploymentWindow = DateTime.Today.AddDays(1).AddHours(14);
+    private RenderFragment DatePickerOverviewExample => @<Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+        <Popover>
+            <PopoverTrigger AsChild="true">
+                <Button Variant="ButtonVariant.Outline"
+                        Class="@DateButtonClass(_dateOnly is not null, "w-[240px]")">
+                    @FormatDate(_dateOnly)
+                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+            </PopoverContent>
+        </Popover>
+    </Div>;
+
+    private RenderFragment DatePickerBasicExample => @<Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
+        <Div Display="Display.Grid" Gap="Gap.Is2">
+            <FieldLabel For="date-picker-basic">Date</FieldLabel>
+            <Popover>
+                <PopoverTrigger AsChild="true">
+                    <Button Id="date-picker-basic"
+                            Variant="ButtonVariant.Outline"
+                            Class="@DateButtonClass(_dateOnly is not null, "w-[240px]")">
+                        @FormatDate(_dateOnly)
+                        <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
+                    <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+                </PopoverContent>
+            </Popover>
+        </Div>
+    </Div>;
+
+    private static string DateButtonClass(bool hasValue, string width)
+    {
+        var muted = hasValue ? string.Empty : " text-muted-foreground";
+        return $"{width} justify-between text-left font-normal{muted}";
+    }
+
+    private static string DatePlainButtonClass(bool hasValue, string width)
+    {
+        var muted = hasValue ? string.Empty : " text-muted-foreground";
+        return $"{width} justify-start text-left font-normal{muted}";
+    }
+
+    private static string DateRangeButtonClass(bool hasValue)
+    {
+        var muted = hasValue ? string.Empty : " text-muted-foreground";
+        return $"w-[300px] justify-start text-left font-normal{muted}";
+    }
 
     private static string FormatDate(DateOnly? value)
     {
-        return value?.ToString("MMM dd, yyyy") ?? "Pick a date";
+        return value?.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture) ?? "Pick a date";
     }
 
-    private Task OnBirthdayCalendarOpenChanged(bool value)
+    private static string FormatRange(CalendarDateRange? value)
     {
-        _birthdayCalendarOpen = value;
-        return Task.CompletedTask;
+        if (value?.From is null)
+            return "Pick a date range";
+
+        if (value.To is null)
+            return value.From.Value.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+
+        return $"{value.From.Value:MMM dd, yyyy} - {value.To.Value:MMM dd, yyyy}";
     }
 
-    private Task OnDropdownPickerOpenChanged(bool value)
+    private DateOnly NaturalLanguageDate => _naturalLanguageDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(2));
+
+    private string FormatRtlDate()
     {
-        _dropdownPickerOpen = value;
-        return Task.CompletedTask;
+        if (_rtlDate is null)
+            return _rtlLocale == "he" ? "בחר תאריך" : "اختر تاريخًا";
+
+        var culture = new CultureInfo(_rtlLocale == "he" ? "he-IL" : "ar-SA");
+        return _rtlDate.Value.ToString("dd MMMM yyyy", culture);
     }
 
     private Task OnBasicDateChanged(DateOnly? value)
     {
         _dateOnly = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnBirthdayDateChanged(DateOnly? value)
-    {
-        _deliveryDate = value;
-        _birthdayCalendarOpen = false;
-        return Task.CompletedTask;
-    }
-
-    private Task OnDropdownPickerDateChanged(DateOnly? value)
-    {
-        _dropdownPickerDate = value;
-        _dropdownPickerOpen = false;
         return Task.CompletedTask;
     }
 
@@ -328,39 +320,219 @@ CodeLanguage="razor">
         return Task.CompletedTask;
     }
 
-    private Task OnTypedDateChanged(DateOnly? value)
+    private Task OnDobOpenChanged(bool value)
     {
-        _typedDate = value;
+        _dobOpen = value;
         return Task.CompletedTask;
     }
 
-    private Task OnComponentDateChanged(DateOnly? value)
+    private Task OnDobDateChanged(DateOnly? value)
     {
-        _componentDate = value;
+        _dobDate = value;
+        _dobOpen = false;
         return Task.CompletedTask;
     }
 
-    private Task SetComponentDateToLaunch()
+    private Task OnSubscriptionOpenChanged(bool value)
     {
-        _componentDate = new DateOnly(2030, 1, 15);
+        _subscriptionOpen = value;
         return Task.CompletedTask;
     }
 
-    private Task ClearComponentDate()
+    private Task OnSubscriptionDateChanged(DateOnly? value)
     {
-        _componentDate = null;
+        _subscriptionDate = value;
+        _subscriptionDateText = value?.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+        _subscriptionOpen = false;
         return Task.CompletedTask;
     }
 
-    private static string FormatRange(CalendarDateRange? value)
+    private Task OnTimePickerOpenChanged(bool value)
     {
-        if (value?.From is null)
-            return "Pick a date range";
-
-        if (value.To is null)
-            return value.From.Value.ToString("MMM dd, yyyy");
-
-        return $"{value.From.Value:MMM dd, yyyy} - {value.To.Value:MMM dd, yyyy}";
+        _timePickerOpen = value;
+        return Task.CompletedTask;
     }
 
+    private Task OnTimePickerDateChanged(DateOnly? value)
+    {
+        _timePickerDate = value;
+        _timePickerOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnNaturalLanguageOpenChanged(bool value)
+    {
+        _naturalLanguageOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnNaturalLanguageTextChanged(string? value)
+    {
+        _naturalLanguageText = value;
+        _naturalLanguageDate = ParseNaturalLanguageDate(value);
+        return Task.CompletedTask;
+    }
+
+    private Task OnNaturalLanguageDateChanged(DateOnly? value)
+    {
+        _naturalLanguageDate = value;
+        _naturalLanguageText = value?.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+        _naturalLanguageOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRtlDateChanged(DateOnly? value)
+    {
+        _rtlDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRtlLocaleChanged(string? value)
+    {
+        _rtlLocale = value;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleRtlDate()
+    {
+        _rtlDate = _rtlDate is null ? DateOnly.FromDateTime(DateTime.Today.AddDays(2)) : null;
+        return Task.CompletedTask;
+    }
+
+    private static DateOnly? ParseNaturalLanguageDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var text = value.Trim().ToLowerInvariant();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        if (text is "today")
+            return today;
+
+        if (text is "tomorrow")
+            return today.AddDays(1);
+
+        if (text is "next week")
+            return today.AddDays(7);
+
+        if (text.StartsWith("in ", StringComparison.Ordinal) && text.EndsWith(" days", StringComparison.Ordinal))
+        {
+            var numberText = text[3..^5].Trim();
+            if (int.TryParse(numberText, CultureInfo.InvariantCulture, out var days))
+                return today.AddDays(days);
+        }
+
+        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+            return parsed;
+
+        return null;
+    }
+
+    private const string BasicDatePickerCode =
+@"<FieldLabel For=""date-picker-basic"">Date</FieldLabel>
+<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Id=""date-picker-basic"" Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
+            @FormatDate(_dateOnly)
+            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+        <Calendar SelectedDate=""_dateOnly"" SelectedDateChanged=""OnBasicDateChanged"" />
+    </PopoverContent>
+</Popover>";
+
+    private const string RangePickerCode =
+@"<FieldLabel For=""date-picker-range"">Date Picker Range</FieldLabel>
+<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Id=""date-picker-range"" Variant=""ButtonVariant.Outline"" Class=""w-[300px] justify-start text-left font-normal"">
+            <Icon Name=""LucideIcon.Calendar"" Class=""size-4"" />
+            @FormatRange(_rangeDate)
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+        <Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_rangeDate"" SelectedRangeChanged=""OnRangeDateChanged"" NumberOfMonths=""2"" />
+    </PopoverContent>
+</Popover>";
+
+    private const string DateOfBirthCode =
+@"<FieldLabel For=""date-of-birth"">Date of birth</FieldLabel>
+<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Id=""date-of-birth"" Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
+            Select date
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+        <Calendar CaptionLayout=""dropdown"" Min=""_dobMinDate"" Max=""_dobMaxDate"" />
+    </PopoverContent>
+</Popover>";
+
+    private const string InputPickerCode =
+@"<FieldLabel For=""subscription-date"">Subscription Date</FieldLabel>
+<Popover>
+    <InputGroup Class=""w-[280px]"">
+        <InputGroupInput Id=""subscription-date"" Placeholder=""June 01, 2025"" @bind-Value=""_subscriptionDateText"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <PopoverTrigger AsChild=""true"">
+                <InputGroupButton Size=""ButtonSize.IconSm"" aria-label=""Select date"">
+                    <Icon Name=""LucideIcon.Calendar"" />
+                </InputGroupButton>
+            </PopoverTrigger>
+        </InputGroupAddon>
+    </InputGroup>
+    <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+        <Calendar SelectedDate=""_subscriptionDate"" SelectedDateChanged=""OnSubscriptionDateChanged"" />
+    </PopoverContent>
+</Popover>";
+
+    private const string TimePickerCode =
+@"<Div Display=""Display.Flex"" Gap=""Gap.Is4"" AlignItems=""AlignItems.End"">
+    <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
+        <FieldLabel For=""time-picker-date"">Date</FieldLabel>
+        <Popover>
+            <PopoverTrigger AsChild=""true"">
+                <Button Id=""time-picker-date"" Variant=""ButtonVariant.Outline"" Class=""w-[186px] justify-between text-left font-normal"">Select date</Button>
+            </PopoverTrigger>
+            <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+                <Calendar SelectedDate=""_timePickerDate"" SelectedDateChanged=""OnTimePickerDateChanged"" />
+            </PopoverContent>
+        </Popover>
+    </Div>
+    <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
+        <FieldLabel For=""time-picker-time"">Time</FieldLabel>
+        <TextInput Id=""time-picker-time"" Type=""time"" Step=""1"" Class=""w-[116px]"" @bind-Value=""_timeText"" />
+    </Div>
+</Div>";
+
+    private const string NaturalLanguagePickerCode =
+@"<FieldLabel For=""schedule-date"">Schedule Date</FieldLabel>
+<InputGroup>
+    <InputGroupInput Id=""schedule-date"" Placeholder=""Tomorrow or next week"" Value=""In 2 days"" />
+    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+        <PopoverTrigger AsChild=""true"">
+            <InputGroupButton Size=""ButtonSize.IconSm"" aria-label=""Select date"">
+                <Icon Name=""LucideIcon.Calendar"" />
+            </InputGroupButton>
+        </PopoverTrigger>
+    </InputGroupAddon>
+</InputGroup>";
+
+    private const string RtlDatePickerCode =
+@"<Div Dir=""rtl"">
+    <NativeSelect Value=""ar"">
+        <NativeSelectOption Value=""ar"">Arabic (العربية)</NativeSelectOption>
+    </NativeSelect>
+    <Button Variant=""ButtonVariant.Outline"">Toggle</Button>
+    <Popover>
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">اختر تاريخًا</Button>
+        </PopoverTrigger>
+        <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"">
+            <Calendar SelectedDate=""_rtlDate"" SelectedDateChanged=""OnRtlDateChanged"" />
+        </PopoverContent>
+    </Popover>
+</Div>";
 }

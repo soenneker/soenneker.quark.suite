@@ -18,16 +18,17 @@
     [Parameter]
     public string? Motion { get; set; }
 
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    private IReadOnlyDictionary<string, object> ContentAttributes
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("data-state");
-        attributes.Remove("aria-hidden");
-        if (Motion.HasContent())
-            attributes["data-motion"] = Motion!;
-        return attributes;
+        get
+        {
+            Dictionary<string, object> attributes = new(BuildAttributes());
+
+            if (Motion.HasContent())
+                attributes["data-motion"] = Motion!;
+
+            return attributes;
+        }
     }
 
     protected override void ApplyDefaultParameters()
@@ -35,7 +36,7 @@
         base.ApplyDefaultParameters();
 
         Width ??= Quark.Width.IsFull;
-        Padding ??= Quark.Padding.Is2.Token("2.5").FromRight;
+        Padding ??= "p-2 pr-2.5";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

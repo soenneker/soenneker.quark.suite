@@ -15,18 +15,16 @@ public sealed partial class RenderedShadcnParityTests
         var classes = cut.Find("[data-slot='alert-description']").GetAttribute("class")!;
 
         classes.Should().Contain("text-sm");
-        classes.Should().Contain("text-balance");
         classes.Should().Contain("text-muted-foreground");
-        classes.Should().Contain("md:text-pretty");
-        classes.Should().Contain("[&_a]:underline");
-        classes.Should().Contain("[&_a]:underline-offset-3");
-        classes.Should().Contain("[&_a]:hover:text-foreground");
-        classes.Should().Contain("[&_p:not(:last-child)]:mb-4");
-        classes.Should().NotContain("col-start-2");
-        classes.Should().NotContain("grid");
-        classes.Should().NotContain("justify-items-start");
-        classes.Should().NotContain("gap-1");
-        classes.Should().NotContain("[&_p]:leading-relaxed");
+        classes.Should().Contain("col-start-2");
+        classes.Should().Contain("grid");
+        classes.Should().Contain("justify-items-start");
+        classes.Should().Contain("gap-1");
+        classes.Should().Contain("[&_p]:leading-relaxed");
+        classes.Should().NotContain("text-balance");
+        classes.Should().NotContain("md:text-pretty");
+        classes.Should().NotContain("[&_a]:underline");
+        classes.Should().NotContain("[&_p:not(:last-child)]:mb-4");
         classes.Should().NotContain("q-alert-description");
     }
 }

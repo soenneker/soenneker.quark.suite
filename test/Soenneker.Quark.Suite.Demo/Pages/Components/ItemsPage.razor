@@ -5,9 +5,9 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Description="A flexible component for displaying content with optional media, actions, and metadata."
-                        Code="@DemoCode"
-                        CodeLanguage="razor">
+            <DemoSection Description="A versatile component for displaying content with media, title, description, and actions."
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
                 <Div Class="flex w-full max-w-md flex-col gap-6">
                     <Item Variant="ItemVariant.Outline">
                         <ItemContent>
@@ -18,6 +18,7 @@
                             <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Action</Button>
                         </ItemActions>
                     </Item>
+
                     <Item Variant="ItemVariant.Outline" Size="ItemSize.Small" AsChild="true">
                         <Anchor To="#">
                             <ItemMedia>
@@ -33,94 +34,113 @@
                     </Item>
                 </Div>
             </DemoSection>
-        </Section><Section Space="Space.Y.Is4">
-            <DemoSection Title="Icon" Description="Use icon media for the most compact item presentation."
-                        Code="@(@"<Item>
-    <ItemMedia Variant=""ItemMediaVariant.Icon"">📄</ItemMedia>
-    <ItemContent>
-        <ItemTitle>Document</ItemTitle>
-        <ItemDescription>Quarterly report draft</ItemDescription>
-    </ItemContent>
-    <ItemActions>
-        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Open</Button>
-    </ItemActions>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline">
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Icon"
+                         Description="Use ItemMedia with variant=&quot;icon&quot; to display an icon."
+                         Code="@IconCode"
+                         CodeLanguage="razor">
+                <Item Variant="ItemVariant.Outline" Class="max-w-md">
                     <ItemMedia Variant="ItemMediaVariant.Icon">
-                        <Span>📄</Span>
+                        <Icon Name="LucideIcon.ShieldAlert" />
                     </ItemMedia>
                     <ItemContent>
-                        <ItemTitle>Document</ItemTitle>
-                        <ItemDescription>Quarterly report draft</ItemDescription>
+                        <ItemTitle>Security Alert</ItemTitle>
+                        <ItemDescription>New login detected from unknown device.</ItemDescription>
                     </ItemContent>
                     <ItemActions>
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Open</Button>
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Review</Button>
                     </ItemActions>
                 </Item>
             </DemoSection>
         </Section>
 
-        
-
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Avatar" Description="Swap icon media for an avatar when the item represents a person or owner."
-                        Code="@(@"<Item Variant=""ItemVariant.Outline"">
-    <ItemMedia Variant=""ItemMediaVariant.Default""><Avatar><AvatarFallback>CN</AvatarFallback></Avatar></ItemMedia>
-    <ItemContent><ItemTitle>Morgan Lee</ItemTitle><ItemDescription>Maintainer</ItemDescription></ItemContent>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline">
-                    <ItemMedia Variant="ItemMediaVariant.Default">
-                        <Avatar><AvatarFallback>CN</AvatarFallback></Avatar>
-                    </ItemMedia>
-                    <ItemContent>
-                        <ItemTitle>Morgan Lee</ItemTitle>
-                        <ItemDescription>Maintainer</ItemDescription>
-                    </ItemContent>
-                </Item>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Image" Description="Use image media for richer content previews."
-                        Code="@(@"<Item Variant=""ItemVariant.Outline"">
-    <ItemMedia Variant=""ItemMediaVariant.Image""><Image Source=""https://picsum.photos/80/80"" Alt=""Summer campaign"" Width=""40"" Height=""40"" Rounded=""Rounded.Md"" Class=""object-cover"" /></ItemMedia>
-    <ItemContent><ItemTitle>Summer campaign</ItemTitle><ItemDescription>Marketing asset</ItemDescription></ItemContent>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline">
-                    <ItemMedia Variant="ItemMediaVariant.Image">
-                        <Image Source="https://picsum.photos/80/80" Alt="Summer campaign" Width="40" Height="40" Rounded="Rounded.Md" Class="object-cover" />
-                    </ItemMedia>
-                    <ItemContent>
-                        <ItemTitle>Summer campaign</ItemTitle>
-                        <ItemDescription>Marketing asset</ItemDescription>
-                    </ItemContent>
-                </Item>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Group" Description="Grouped items with separators."
-                        Code="@(@"<ItemGroup>
-    <Item>...</Item>
-    <ItemSeparator />
-    <Item>...</Item>
-</ItemGroup>")"
-CodeLanguage="razor">
-                <ItemGroup Class="rounded-md border border-border overflow-hidden">
-                    <Item Variant="ItemVariant.Default">
+            <DemoSection Title="Avatar"
+                         Description="You can use ItemMedia with avatar content to display an avatar."
+                         Code="@AvatarCode"
+                         CodeLanguage="razor">
+                <Div Class="flex w-full max-w-md flex-col gap-6">
+                    <Item>
+                        <ItemMedia>
+                            <Avatar>
+                                <AvatarImage Src="https://github.com/evilrabbit.png" Alt="@("@evilrabbit")" />
+                                <AvatarFallback>ER</AvatarFallback>
+                            </Avatar>
+                        </ItemMedia>
                         <ItemContent>
-                            <ItemTitle>Profile</ItemTitle>
-                            <ItemDescription>Manage your account settings</ItemDescription>
+                            <ItemTitle>Evil Rabbit</ItemTitle>
+                            <ItemDescription>Last seen 5 months ago</ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Invite</Button>
+                        </ItemActions>
+                    </Item>
+
+                    <Item Variant="ItemVariant.Outline">
+                        <ItemMedia>
+                            <AvatarGroup>
+                                <Avatar><AvatarImage Src="https://github.com/shadcn.png" Alt="@("@shadcn")" /><AvatarFallback>CN</AvatarFallback></Avatar>
+                                <Avatar><AvatarImage Src="https://github.com/maxleiter.png" Alt="@("@maxleiter")" /><AvatarFallback>LR</AvatarFallback></Avatar>
+                                <Avatar><AvatarImage Src="https://github.com/evilrabbit.png" Alt="@("@evilrabbit")" /><AvatarFallback>ER</AvatarFallback></Avatar>
+                            </AvatarGroup>
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>No Team Members</ItemTitle>
+                            <ItemDescription>Invite your team to collaborate on this project.</ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                                <Icon Name="LucideIcon.Plus" />
+                                Invite
+                            </Button>
+                        </ItemActions>
+                    </Item>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Image"
+                         Description="Use ItemMedia with variant=&quot;image&quot; to display an image."
+                         Code="@ImageCode"
+                         CodeLanguage="razor">
+                <ItemGroup Class="w-full max-w-md">
+                    <Item>
+                        <ItemMedia Variant="ItemMediaVariant.Image">
+                            <Image Source="https://avatar.vercel.sh/Midnight%20City%20Lights" Alt="Midnight City Lights" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>Midnight City Lights - Electric Nights</ItemTitle>
+                            <ItemDescription>Neon Dreams</ItemDescription>
+                        </ItemContent>
+                        <ItemContent Class="flex-none text-right">
+                            <ItemDescription>3:45</ItemDescription>
                         </ItemContent>
                     </Item>
-                    <ItemSeparator />
-                    <Item Variant="ItemVariant.Default">
+                    <Item>
+                        <ItemMedia Variant="ItemMediaVariant.Image">
+                            <Image Source="https://avatar.vercel.sh/Coffee%20Shop%20Conversations" Alt="Coffee Shop Conversations" />
+                        </ItemMedia>
                         <ItemContent>
-                            <ItemTitle>Billing</ItemTitle>
-                            <ItemDescription>Update payment details</ItemDescription>
+                            <ItemTitle>Coffee Shop Conversations - Urban Stories</ItemTitle>
+                            <ItemDescription>The Morning Brew</ItemDescription>
+                        </ItemContent>
+                        <ItemContent Class="flex-none text-right">
+                            <ItemDescription>4:05</ItemDescription>
+                        </ItemContent>
+                    </Item>
+                    <Item>
+                        <ItemMedia Variant="ItemMediaVariant.Image">
+                            <Image Source="https://avatar.vercel.sh/Digital%20Rain" Alt="Digital Rain" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>Digital Rain - Binary Beats</ItemTitle>
+                            <ItemDescription>Cyber Symphony</ItemDescription>
+                        </ItemContent>
+                        <ItemContent Class="flex-none text-right">
+                            <ItemDescription>3:30</ItemDescription>
                         </ItemContent>
                     </Item>
                 </ItemGroup>
@@ -128,78 +148,121 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Header" Description="Use header and footer slots to add metadata around the item body."
-                        Code="@(@"<Item Variant=""ItemVariant.Muted"">
-    <ItemHeader>...</ItemHeader>
-    <ItemContent>...</ItemContent>
-    <ItemFooter>...</ItemFooter>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Muted">
-                    <ItemHeader>
-                        <ItemTitle>Release notes</ItemTitle>
-                        <Badge Variant="BadgeVariant.Secondary">New</Badge>
-                    </ItemHeader>
-                    <ItemContent>
-                        <ItemDescription>Version 4.2 is available with performance improvements.</ItemDescription>
-                    </ItemContent>
-                    <ItemFooter>
-                        <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">Updated 2h ago</Span>
-                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm">View</Button>
-                    </ItemFooter>
-                </Item>
+            <DemoSection Title="Group"
+                         Description="Use ItemGroup to group related items together."
+                         Code="@GroupCode"
+                         CodeLanguage="razor">
+                <ItemGroup Class="w-full max-w-md">
+                    <Item>
+                        <ItemMedia><Avatar><AvatarImage Src="https://github.com/shadcn.png" Alt="@("@shadcn")" /><AvatarFallback>s</AvatarFallback></Avatar></ItemMedia>
+                        <ItemContent><ItemTitle>shadcn</ItemTitle><ItemDescription>shadcn@vercel.com</ItemDescription></ItemContent>
+                        <ItemActions><Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Invite shadcn"><Icon Name="LucideIcon.Plus" /></Button></ItemActions>
+                    </Item>
+                    <ItemSeparator />
+                    <Item>
+                        <ItemMedia><Avatar><AvatarImage Src="https://github.com/maxleiter.png" Alt="@("@maxleiter")" /><AvatarFallback>m</AvatarFallback></Avatar></ItemMedia>
+                        <ItemContent><ItemTitle>maxleiter</ItemTitle><ItemDescription>maxleiter@vercel.com</ItemDescription></ItemContent>
+                        <ItemActions><Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Invite maxleiter"><Icon Name="LucideIcon.Plus" /></Button></ItemActions>
+                    </Item>
+                    <ItemSeparator />
+                    <Item>
+                        <ItemMedia><Avatar><AvatarImage Src="https://github.com/evilrabbit.png" Alt="@("@evilrabbit")" /><AvatarFallback>e</AvatarFallback></Avatar></ItemMedia>
+                        <ItemContent><ItemTitle>evilrabbit</ItemTitle><ItemDescription>evilrabbit@vercel.com</ItemDescription></ItemContent>
+                        <ItemActions><Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Invite evilrabbit"><Icon Name="LucideIcon.Plus" /></Button></ItemActions>
+                    </Item>
+                </ItemGroup>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Link" Description="Render the item as a link when the whole row should be the interactive target."
-                        Code="@(@"<Item Variant=""ItemVariant.Outline"" AsChild=""true"">
-    <Anchor To=""buttons"">
-        <ItemMedia Variant=""ItemMediaVariant.Icon""><Icon Name=""LucideIcon.BookOpen"" /></ItemMedia>
-        <ItemContent>
-            <ItemTitle>API Reference</ItemTitle>
-            <ItemDescription>Open the related docs page.</ItemDescription>
-        </ItemContent>
-    </Anchor>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline" AsChild="true">
-                    <Anchor To="buttons">
-                        <ItemMedia Variant="ItemMediaVariant.Icon">
-                            <Icon Name="LucideIcon.BookOpen" />
-                        </ItemMedia>
-                        <ItemContent>
-                            <ItemTitle>API Reference</ItemTitle>
-                            <ItemDescription>Open the related docs page.</ItemDescription>
-                        </ItemContent>
-                    </Anchor>
-                </Item>
+            <DemoSection Title="Header"
+                         Description="Use ItemHeader to add a header above the item content."
+                         Code="@HeaderCode"
+                         CodeLanguage="razor">
+                <ItemGroup Class="w-full max-w-md">
+                    <Item Variant="ItemVariant.Muted">
+                        <ItemHeader>
+                            <ItemMedia Variant="ItemMediaVariant.Image">
+                                <Image Source="https://images.unsplash.com/photo-1650804068570-7fb2e3dbf888?q=80&amp;w=640&amp;auto=format&amp;fit=crop" Alt="v0-1.5-sm" />
+                            </ItemMedia>
+                            <ItemTitle>v0-1.5-sm</ItemTitle>
+                        </ItemHeader>
+                        <ItemContent><ItemDescription>Everyday tasks and UI generation.</ItemDescription></ItemContent>
+                    </Item>
+                    <Item Variant="ItemVariant.Muted">
+                        <ItemHeader>
+                            <ItemMedia Variant="ItemMediaVariant.Image">
+                                <Image Source="https://images.unsplash.com/photo-1610280777472-54133d004c8c?q=80&amp;w=640&amp;auto=format&amp;fit=crop" Alt="v0-1.5-lg" />
+                            </ItemMedia>
+                            <ItemTitle>v0-1.5-lg</ItemTitle>
+                        </ItemHeader>
+                        <ItemContent><ItemDescription>Advanced thinking or reasoning.</ItemDescription></ItemContent>
+                    </Item>
+                    <Item Variant="ItemVariant.Muted">
+                        <ItemHeader>
+                            <ItemMedia Variant="ItemMediaVariant.Image">
+                                <Image Source="https://images.unsplash.com/photo-1602146057681-08560aee8cde?q=80&amp;w=640&amp;auto=format&amp;fit=crop" Alt="v0-2.0-mini" />
+                            </ItemMedia>
+                            <ItemTitle>v0-2.0-mini</ItemTitle>
+                        </ItemHeader>
+                        <ItemContent><ItemDescription>Open Source model for everyone.</ItemDescription></ItemContent>
+                    </Item>
+                </ItemGroup>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Dropdown" Description="Use a dropdown in the actions area when the row needs secondary actions." 
-                        Code="@(@"<Item Variant=""ItemVariant.Outline"">
-    <ItemContent><ItemTitle>Release notes</ItemTitle></ItemContent>
-    <ItemActions>
-        <Dropdown>
-            <DropdownToggle>Actions</DropdownToggle>
-            <DropdownMenu><DropdownItem>Edit</DropdownItem></DropdownMenu>
-        </Dropdown>
-    </ItemActions>
-</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline">
+            <DemoSection Title="Link"
+                         Description="Use AsChild to render the item as a link."
+                         Code="@LinkCode"
+                         CodeLanguage="razor">
+                <ItemGroup Class="w-full max-w-md">
+                    <Item Variant="ItemVariant.Outline" AsChild="true">
+                        <Anchor To="#">
+                            <ItemMedia Variant="ItemMediaVariant.Icon"><Icon Name="LucideIcon.BookOpen" /></ItemMedia>
+                            <ItemContent>
+                                <ItemTitle>Visit our documentation</ItemTitle>
+                                <ItemDescription>Learn how to get started with our components.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions><Icon Name="LucideIcon.ChevronRight" /></ItemActions>
+                        </Anchor>
+                    </Item>
+                    <Item Variant="ItemVariant.Outline" AsChild="true">
+                        <Anchor To="#">
+                            <ItemMedia Variant="ItemMediaVariant.Icon"><Icon Name="LucideIcon.ExternalLink" /></ItemMedia>
+                            <ItemContent>
+                                <ItemTitle>External resource</ItemTitle>
+                                <ItemDescription>Opens in a new tab with security attributes.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions><Icon Name="LucideIcon.ChevronRight" /></ItemActions>
+                        </Anchor>
+                    </Item>
+                </ItemGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Dropdown"
+                         Description="Place a dropdown in the actions area for secondary choices."
+                         Code="@DropdownCode"
+                         CodeLanguage="razor">
+                <Item Variant="ItemVariant.Outline" Class="max-w-md">
                     <ItemContent>
-                        <ItemTitle>Release notes</ItemTitle>
-                        <ItemDescription>Secondary actions are available from the overflow menu.</ItemDescription>
+                        <ItemTitle>Notification preferences</ItemTitle>
+                        <ItemDescription>Select how you want to receive updates.</ItemDescription>
                     </ItemContent>
                     <ItemActions>
                         <Dropdown>
-                            <DropdownToggle>Actions</DropdownToggle>
+                            <DropdownToggle AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                                    Select
+                                    <Icon Name="LucideIcon.ChevronDown" />
+                                </Button>
+                            </DropdownToggle>
                             <DropdownMenu>
-                                <DropdownItem>Edit</DropdownItem>
-                                <DropdownItem>Duplicate</DropdownItem>
-                                <DropdownDivider />
-                                <DropdownItem>Archive</DropdownItem>
+                                <DropdownItem>Email</DropdownItem>
+                                <DropdownItem>Push</DropdownItem>
+                                <DropdownItem>None</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </ItemActions>
@@ -207,84 +270,54 @@ CodeLanguage="razor">
             </DemoSection>
         </Section>
 
-        
-
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Variant" Description="Use the variant parameter to shift the emphasis level of the row container."
-                        Code="@(@"<Div Class=""space-y-3"">
-    <Item Variant=""ItemVariant.Default"">...</Item>
-    <Item Variant=""ItemVariant.Outline"">...</Item>
-    <Item Variant=""ItemVariant.Muted"">...</Item>
-</Div>")"
-CodeLanguage="razor">
-                <Div Class="w-full max-w-xl space-y-3">
-                    <Item>
-                        <ItemContent>
-                            <ItemTitle>Default item</ItemTitle>
-                            <ItemDescription>Use the default surface when the row already sits inside a structured layout.</ItemDescription>
-                        </ItemContent>
-                    </Item>
-                    <Item Variant="ItemVariant.Outline">
-                        <ItemContent>
-                            <ItemTitle>Outline item</ItemTitle>
-                            <ItemDescription>Use the outline variant to separate rows from surrounding content.</ItemDescription>
-                        </ItemContent>
-                    </Item>
-                    <Item Variant="ItemVariant.Muted">
-                        <ItemContent>
-                            <ItemTitle>Muted item</ItemTitle>
-                            <ItemDescription>Use the muted variant for softer supporting content.</ItemDescription>
-                        </ItemContent>
-                    </Item>
+            <DemoSection Title="Variant"
+                         Description="Use the variant parameter to shift the emphasis level of the row container."
+                         Code="@VariantCode"
+                         CodeLanguage="razor">
+                <Div Class="w-full max-w-md space-y-3">
+                    <Item><ItemContent><ItemTitle>Default item</ItemTitle><ItemDescription>Use the default surface inside structured layouts.</ItemDescription></ItemContent></Item>
+                    <Item Variant="ItemVariant.Outline"><ItemContent><ItemTitle>Outline item</ItemTitle><ItemDescription>Use the outline variant to separate rows.</ItemDescription></ItemContent></Item>
+                    <Item Variant="ItemVariant.Muted"><ItemContent><ItemTitle>Muted item</ItemTitle><ItemDescription>Use the muted variant for softer supporting content.</ItemDescription></ItemContent></Item>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Size" Description="Use the size parameter to make item rows denser without changing their composition."
-                        Code="@(@"<Div Class=""space-y-3"">
-    <Item Size=""ItemSize.ExtraSmall"">...</Item>
-    <Item Size=""ItemSize.Small"">...</Item>
-    <Item>...</Item>
-</Div>")"
-CodeLanguage="razor">
-                <Div Class="w-full max-w-xl space-y-3">
-                    <Item Variant="ItemVariant.Outline" Size="ItemSize.ExtraSmall">
-                        <ItemContent>
-                            <ItemTitle>Extra small item</ItemTitle>
-                            <ItemDescription>Useful for compact inspectors and narrow side rails.</ItemDescription>
-                        </ItemContent>
-                    </Item>
-                    <Item Variant="ItemVariant.Outline" Size="ItemSize.Small">
-                        <ItemContent>
-                            <ItemTitle>Small item</ItemTitle>
-                            <ItemDescription>Balances density with comfortable click targets.</ItemDescription>
-                        </ItemContent>
-                    </Item>
-                    <Item Variant="ItemVariant.Outline">
-                        <ItemContent>
-                            <ItemTitle>Default item</ItemTitle>
-                            <ItemDescription>Use the default size for most list and dashboard GridRows.</ItemDescription>
-                        </ItemContent>
-                    </Item>
+            <DemoSection Title="Size"
+                         Description="Use the size parameter to make item rows denser."
+                         Code="@SizeCode"
+                         CodeLanguage="razor">
+                <Div Class="w-full max-w-md space-y-3">
+                    <Item Variant="ItemVariant.Outline" Size="ItemSize.ExtraSmall"><ItemContent><ItemTitle>Extra small item</ItemTitle><ItemDescription>Useful for compact inspectors.</ItemDescription></ItemContent></Item>
+                    <Item Variant="ItemVariant.Outline" Size="ItemSize.Small"><ItemContent><ItemTitle>Small item</ItemTitle><ItemDescription>Balances density with comfortable click targets.</ItemDescription></ItemContent></Item>
+                    <Item Variant="ItemVariant.Outline"><ItemContent><ItemTitle>Default item</ItemTitle><ItemDescription>Use the default size for most lists.</ItemDescription></ItemContent></Item>
                 </Div>
             </DemoSection>
-        </Section><Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL" Description="Item content, media, and actions align naturally in right-to-left layouts."
-                        Code="@(@"<Item Variant=""ItemVariant.Outline"" dir=""rtl"">...</Item>")"
-CodeLanguage="razor">
-                <Item Variant="ItemVariant.Outline" dir="rtl">
-                    <ItemMedia Variant="ItemMediaVariant.Icon">
-                        <Icon Name="LucideIcon.Bell" />
-                    </ItemMedia>
-                    <ItemContent>
-                        <ItemTitle>تم تفعيل الاشعارات</ItemTitle>
-                        <ItemDescription>ستصلك التنبيهات المهمة على بريدك.</ItemDescription>
-                    </ItemContent>
-                    <ItemActions>
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">ادارة</Button>
-                    </ItemActions>
-                </Item>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Item content, media, and actions align naturally in right-to-left layouts."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Div Class="w-full max-w-md space-y-3">
+                        <Item Variant="ItemVariant.Outline">
+                            <ItemContent>
+                                <ItemTitle>عنصر أساسي</ItemTitle>
+                                <ItemDescription>عنصر بسيط يحتوي على عنوان ووصف.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions><Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">إجراء</Button></ItemActions>
+                        </Item>
+                        <Item Variant="ItemVariant.Outline" Size="ItemSize.Small" AsChild="true">
+                            <Anchor To="#">
+                                <ItemMedia><Icon Name="LucideIcon.BadgeCheck" class="size-5" /></ItemMedia>
+                                <ItemContent><ItemTitle>تم التحقق من ملفك الشخصي.</ItemTitle></ItemContent>
+                            </Anchor>
+                        </Item>
+                    </Div>
+                </DirectionProvider>
             </DemoSection>
         </Section>
     </Div>
@@ -292,28 +325,91 @@ CodeLanguage="razor">
 
 @code {
     private const string DemoCode =
-@"<Div Class=""flex w-full max-w-md flex-col gap-6"">
+@"<Item Variant=""ItemVariant.Outline"">
+    <ItemContent>
+        <ItemTitle>Basic Item</ItemTitle>
+        <ItemDescription>A simple item with title and description.</ItemDescription>
+    </ItemContent>
+    <ItemActions>
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Action</Button>
+    </ItemActions>
+</Item>";
+
+    private const string IconCode =
+@"<Item Variant=""ItemVariant.Outline"">
+    <ItemMedia Variant=""ItemMediaVariant.Icon""><Icon Name=""LucideIcon.ShieldAlert"" /></ItemMedia>
+    <ItemContent>
+        <ItemTitle>Security Alert</ItemTitle>
+        <ItemDescription>New login detected from unknown device.</ItemDescription>
+    </ItemContent>
+    <ItemActions><Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Review</Button></ItemActions>
+</Item>";
+
+    private const string AvatarCode =
+@"<Item>
+    <ItemMedia><Avatar><AvatarImage Src=""https://github.com/evilrabbit.png"" Alt=""@evilrabbit"" /><AvatarFallback>ER</AvatarFallback></Avatar></ItemMedia>
+    <ItemContent><ItemTitle>Evil Rabbit</ItemTitle><ItemDescription>Last seen 5 months ago</ItemDescription></ItemContent>
+    <ItemActions><Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Invite</Button></ItemActions>
+</Item>";
+
+    private const string ImageCode =
+@"<ItemGroup>
+    <Item>
+        <ItemMedia Variant=""ItemMediaVariant.Image""><Image Source=""https://avatar.vercel.sh/Midnight%20City%20Lights"" Alt=""Midnight City Lights"" /></ItemMedia>
+        <ItemContent><ItemTitle>Midnight City Lights - Electric Nights</ItemTitle><ItemDescription>Neon Dreams</ItemDescription></ItemContent>
+    </Item>
+</ItemGroup>";
+
+    private const string GroupCode =
+@"<ItemGroup>
+    <Item>...</Item>
+    <ItemSeparator />
+    <Item>...</Item>
+</ItemGroup>";
+
+    private const string HeaderCode =
+@"<Item Variant=""ItemVariant.Muted"">
+    <ItemHeader>
+        <ItemMedia Variant=""ItemMediaVariant.Image""><Image Source=""..."" Alt=""v0-1.5-sm"" /></ItemMedia>
+        <ItemTitle>v0-1.5-sm</ItemTitle>
+    </ItemHeader>
+    <ItemContent><ItemDescription>Everyday tasks and UI generation.</ItemDescription></ItemContent>
+</Item>";
+
+    private const string LinkCode =
+@"<Item Variant=""ItemVariant.Outline"" AsChild=""true"">
+    <Anchor To=""#"">
+        <ItemMedia Variant=""ItemMediaVariant.Icon""><Icon Name=""LucideIcon.BookOpen"" /></ItemMedia>
+        <ItemContent><ItemTitle>Visit our documentation</ItemTitle><ItemDescription>Learn how to get started with our components.</ItemDescription></ItemContent>
+    </Anchor>
+</Item>";
+
+    private const string DropdownCode =
+@"<Item Variant=""ItemVariant.Outline"">
+    <ItemContent><ItemTitle>Notification preferences</ItemTitle></ItemContent>
+    <ItemActions>
+        <Dropdown>
+            <DropdownToggle AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Select</Button></DropdownToggle>
+            <DropdownMenu><DropdownItem>Email</DropdownItem></DropdownMenu>
+        </Dropdown>
+    </ItemActions>
+</Item>";
+
+    private const string VariantCode =
+@"<Item>...</Item>
+<Item Variant=""ItemVariant.Outline"">...</Item>
+<Item Variant=""ItemVariant.Muted"">...</Item>";
+
+    private const string SizeCode =
+@"<Item Size=""ItemSize.ExtraSmall"">...</Item>
+<Item Size=""ItemSize.Small"">...</Item>
+<Item>...</Item>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
     <Item Variant=""ItemVariant.Outline"">
-        <ItemContent>
-            <ItemTitle>Basic Item</ItemTitle>
-            <ItemDescription>A simple item with title and description.</ItemDescription>
-        </ItemContent>
-        <ItemActions>
-            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Action</Button>
-        </ItemActions>
+        <ItemContent><ItemTitle>عنصر أساسي</ItemTitle><ItemDescription>عنصر بسيط يحتوي على عنوان ووصف.</ItemDescription></ItemContent>
+        <ItemActions><Button Variant=""ButtonVariant.Outline"">إجراء</Button></ItemActions>
     </Item>
-    <Item Variant=""ItemVariant.Outline"" Size=""ItemSize.Small"" AsChild=""true"">
-        <Anchor To=""#"">
-            <ItemMedia>
-                <Icon Name=""LucideIcon.BadgeCheck"" class=""size-5"" />
-            </ItemMedia>
-            <ItemContent>
-                <ItemTitle>Your profile has been verified.</ItemTitle>
-            </ItemContent>
-            <ItemActions>
-                <Icon Name=""LucideIcon.ChevronRight"" class=""size-4"" />
-            </ItemActions>
-        </Anchor>
-    </Item>
-</Div>";
+</DirectionProvider>";
 }

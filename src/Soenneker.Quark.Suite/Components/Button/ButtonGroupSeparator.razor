@@ -23,15 +23,7 @@
         }
     }
 
-    private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("aria-hidden");
-        attributes.Remove("data-orientation");
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -46,17 +38,11 @@
     {
         base.BuildAttributesCore(attributes);
 
-        var effectiveOrientation = Orientation ?? (ButtonGroup?.Vertical == true ? SeparatorOrientation.Horizontal : SeparatorOrientation.Vertical);
-        var orientation = effectiveOrientation == SeparatorOrientation.Horizontal ? "horizontal" : "vertical";
-
         attributes["data-slot"] = "button-group-separator";
-        attributes["data-orientation"] = orientation;
-        attributes[effectiveOrientation == SeparatorOrientation.Horizontal ? "data-horizontal" : "data-vertical"] = string.Empty;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "data-horizontal:mx-px data-horizontal:h-px data-horizontal:w-auto");
-            AppendClass(ref cls, "data-vertical:my-px data-vertical:h-auto data-vertical:w-px data-vertical:self-stretch");
+            AppendClass(ref cls, "relative m-0! self-stretch data-[orientation=vertical]:h-auto");
         });
     }
 

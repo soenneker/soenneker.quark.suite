@@ -424,13 +424,14 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			BuildOwnedClassAndStyle(ref sty, ref cls);
-			AppendClass(ref cls, "relative flex touch-none items-center select-none data-[disabled]:opacity-50 data-horizontal:w-full data-vertical:h-full data-vertical:min-h-44 data-vertical:w-auto data-vertical:flex-col");
+			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
 
 			var sizeClass = GetSizeClass();
 
 			if (sizeClass is not null)
 				AppendClass(ref cls, sizeClass);
+
+			BuildOwnedClassAndStyle(ref sty, ref cls);
 
 			if (!IsVertical)
 				AppendStyleDecl(ref sty, "--radix-slider-thumb-transform: translateX(-50%)");
@@ -487,7 +488,7 @@
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted select-none data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5");
+			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5");
 			AppendClass(ref cls, GetTrackThicknessClass());
 		});
 
@@ -540,7 +541,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full");
+			AppendClass(ref cls, "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
 
 			if (IsVertical)
 			{
@@ -624,7 +625,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "relative block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,shadow] select-none after:absolute after:-inset-2 hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden active:ring-4 disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, "block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50");
 
 			if (isActive)
 				AppendClass(ref cls, "ring-4");

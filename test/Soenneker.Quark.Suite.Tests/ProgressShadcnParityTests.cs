@@ -19,14 +19,20 @@ public sealed partial class RenderedShadcnParityTests
 
         rootClasses.Should().Contain("relative");
         rootClasses.Should().Contain("h-2");
+        rootClasses.Should().Contain("w-full");
         rootClasses.Should().Contain("overflow-hidden");
         rootClasses.Should().Contain("rounded-full");
         rootClasses.Should().Contain("bg-primary/20");
+        rootClasses.Should().NotContain("h-1");
+        rootClasses.Should().NotContain("overflow-x-hidden");
+        rootClasses.Should().NotContain("bg-muted");
 
         root.GetAttribute("data-max").Should().Be("100");
         root.GetAttribute("data-state").Should().Be("indeterminate");
 
         indicatorClasses.Should().Contain("h-full");
+        indicatorClasses.Should().Contain("w-full");
+        indicatorClasses.Should().Contain("flex-1");
         indicatorClasses.Should().Contain("bg-primary");
         indicatorClasses.Should().Contain("transition-all");
     }

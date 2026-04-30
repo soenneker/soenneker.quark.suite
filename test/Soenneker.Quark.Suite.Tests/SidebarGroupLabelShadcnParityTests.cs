@@ -14,9 +14,10 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='sidebar-group-label']").GetAttribute("class")!;
 
-        classes.Should().Contain("text-muted-foreground");
+        classes.Should().Contain("text-sidebar-foreground/70");
         classes.Should().Contain("h-8");
         classes.Should().Contain("text-xs");
+        classes.Should().NotContain("text-muted-foreground");
         classes.Should().NotContain("q-sidebar-group-label");
     }
 }

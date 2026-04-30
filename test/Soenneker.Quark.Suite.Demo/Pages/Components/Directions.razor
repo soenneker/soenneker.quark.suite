@@ -6,6 +6,9 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <Paragraph>
+                A provider component that sets the text direction for your application.
+            </Paragraph>
+            <Paragraph>
                 The <Code>DirectionProvider</Code> component is used to set the text direction (<Code>ltr</Code> or <Code>rtl</Code>) for your application. This is essential for supporting right-to-left languages like Arabic, Hebrew, and Persian.
             </Paragraph>
             <Paragraph>
@@ -31,7 +34,7 @@
                 </Div>
 
                 <Div Class="flex justify-center p-10">
-                    <DirectionProvider Dir="@CurrentDirection">
+                    <DirectionProvider Direction="@CurrentDirection">
                         <Card Class="w-full max-w-sm" dir="@CurrentDirection">
                             <CardHeader>
                                 <CardTitle>@CurrentText.Title</CardTitle>
@@ -75,6 +78,14 @@
         <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Usage</H2>
             <PreCode Text="@UsageCode" />
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">useDirection</H2>
+            <Paragraph>
+                Consume the current direction with a cascading parameter named <Code>DirectionProviderDir</Code>.
+            </Paragraph>
+            <PreCode Text="@UseDirectionCode" />
         </Section>
     </Div>
 </Div>
@@ -130,11 +141,15 @@
     private const string UsageCode =
 @"<html dir=""rtl"">
   <body>
-    <DirectionProvider Dir=""rtl"">
+    <DirectionProvider Direction=""rtl"">
       @* Your app content *@
     </DirectionProvider>
   </body>
 </html>";
+
+    private const string UseDirectionCode =
+@"[CascadingParameter(Name = ""DirectionProviderDir"")]
+public string Direction { get; set; } = ""ltr"";";
 
     private sealed record DirectionText(
         string Direction,

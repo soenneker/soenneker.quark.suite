@@ -22,7 +22,7 @@ public sealed partial class RenderedShadcnParityTests
         toggleClasses.Should().Contain("text-sm");
         toggleClasses.Should().Contain("font-medium");
         toggleClasses.Should().Contain("whitespace-nowrap");
-        toggleClasses.Should().Contain("transition-[color,shadow]");
+        toggleClasses.Should().Contain("transition-[color,box-shadow]");
         toggleClasses.Should().Contain("outline-none");
         toggleClasses.Should().Contain("hover:bg-muted");
         toggleClasses.Should().Contain("hover:text-muted-foreground");
@@ -37,6 +37,7 @@ public sealed partial class RenderedShadcnParityTests
         toggleClasses.Should().NotContain("rounded-lg");
         toggleClasses.Should().NotContain("hover:text-foreground");
         toggleClasses.Should().NotContain("transition-all");
+        toggleClasses.Should().NotContain("transition-[color,shadow]");
         toggleClasses.Should().NotContain("data-[state=on]:bg-muted");
         toggleClasses.Should().NotContain("h-8");
         toggleClasses.Should().NotContain("min-w-8");

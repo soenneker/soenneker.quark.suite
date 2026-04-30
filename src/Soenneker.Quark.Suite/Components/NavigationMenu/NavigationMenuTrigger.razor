@@ -26,23 +26,7 @@
     private NavigationMenuItem? ParentNavigationMenuItem { get; set; }
 
     private bool ResolvedDisabled => Disabled || ParentNavigationMenuItem?.Disabled == true;
-    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("type");
-        attributes.Remove("disabled");
-        attributes.Remove("data-disabled");
-        attributes.Remove("data-state");
-        attributes.Remove("aria-expanded");
-        attributes.Remove("aria-controls");
-        attributes.Remove("tabindex");
-        attributes.Remove("onmouseenter");
-        attributes.Remove("onkeydown");
-        attributes.Remove("onclick");
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -58,7 +42,7 @@
         FontWeight ??= Quark.FontWeight.Medium;
         Height ??= Quark.Height.Token("9");
         Width ??= Quark.Width.IsMax;
-        Transition ??= Quark.Transition.Token("transition-[color,shadow]");
+        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
         OutlineStyle ??= Quark.OutlineStyle.None;
     }
 
@@ -75,7 +59,6 @@
             AppendClass(ref cls, "focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent");
-            AppendClass(ref cls, "data-popup-open:bg-accent/50 data-popup-open:text-accent-foreground data-popup-open:hover:bg-accent data-open:bg-accent/50 data-open:text-accent-foreground data-open:hover:bg-accent data-open:focus:bg-accent");
         });
     }
 

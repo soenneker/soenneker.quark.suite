@@ -71,17 +71,24 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public void DirectionProvider_and_overlay_container_emit_expected_layout_contract()
+    public void DirectionProvider_cascades_direction_without_emitting_a_wrapper()
     {
         var direction = Render<DirectionProvider>(parameters => parameters
             .Add(p => p.Dir, "RTL")
-            .Add(p => p.ChildContent, "RTL"));
+            .AddChildContent<RadioGroup>(group => group
+                .Add(p => p.ChildContent, "RTL")));
+
+        direction.FindAll("[data-slot='direction-provider']").Should().BeEmpty();
+        direction.Find("[data-slot='radio-group']").GetAttribute("dir").Should().Be("rtl");
+    }
+
+    [Test]
+    public void OverlayContainer_emits_expected_layout_contract()
+    {
         var overlay = Render<OverlayContainer>(parameters => parameters.Add(p => p.ChildContent, "Overlay"));
 
-        var directionElement = direction.Find("[data-slot='direction-provider']");
         var overlayClasses = overlay.Find("[data-slot='overlay-container']").GetAttribute("class")!;
 
-        directionElement.GetAttribute("dir").Should().Be("rtl");
         overlayClasses.Should().Contain("relative");
     }
 }

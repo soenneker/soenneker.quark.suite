@@ -10,6 +10,10 @@ public sealed partial class RenderedShadcnParityTests
     public void Blockquote_matches_shadcn_base_classes()
     {
         var blockquote = Render<Blockquote>(parameters => parameters.Add(p => p.ChildContent, "Blockquote"));
-        blockquote.Find("[data-slot='blockquote']").GetAttribute("class")!.Should().ContainAll("mt-6", "border-l-2", "pl-6", "italic");
+        var classes = blockquote.Find("[data-slot='blockquote']").GetAttribute("class")!;
+
+        classes.Should().ContainAll("mt-6", "border-s-2", "ps-6", "italic");
+        classes.Should().NotContain("border-l-2");
+        classes.Should().NotContain("pl-6");
     }
 }

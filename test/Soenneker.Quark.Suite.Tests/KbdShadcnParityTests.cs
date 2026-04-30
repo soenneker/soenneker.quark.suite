@@ -30,9 +30,10 @@ public sealed partial class RenderedShadcnParityTests
         kbdClasses.Should().Contain("text-xs");
         kbdClasses.Should().Contain("text-muted-foreground");
         kbdClasses.Should().Contain("select-none");
-        kbdClasses.Should().Contain("in-data-[slot=tooltip-content]:bg-background/20");
-        kbdClasses.Should().Contain("in-data-[slot=tooltip-content]:text-background");
-        kbdClasses.Should().Contain("dark:in-data-[slot=tooltip-content]:bg-background/10");
+        kbdClasses.Should().Contain("[[data-slot=tooltip-content]_&]:bg-background/20");
+        kbdClasses.Should().Contain("[[data-slot=tooltip-content]_&]:text-background");
+        kbdClasses.Should().Contain("dark:[[data-slot=tooltip-content]_&]:bg-background/10");
+        kbdClasses.Should().NotContain("in-data-[slot=tooltip-content]");
         kbdClasses.Should().Contain("[&_svg:not([class*='size-'])]:size-3");
         kbdClasses.Should().NotContain("q-kbd");
     }

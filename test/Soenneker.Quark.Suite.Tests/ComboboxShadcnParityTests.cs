@@ -63,6 +63,10 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Align=\"@Align\"");
         source.Should().Contain("AlignOffset=\"@AlignOffset\"");
         source.Should().Contain("Slot=\"combobox-content\"");
+        source.Should().Contain("data-[state=open]:animate-in");
+        source.Should().Contain("data-[state=closed]:animate-out");
+        source.Should().NotContain("data-open:");
+        source.Should().NotContain("data-closed:");
         source.Should().Contain("[&:has([data-slot=combobox-item]:not([hidden]))>[data-slot=combobox-empty]]:hidden");
         source.Should().NotContain($"{Environment.NewLine}                Align=\"@Align\"");
     }

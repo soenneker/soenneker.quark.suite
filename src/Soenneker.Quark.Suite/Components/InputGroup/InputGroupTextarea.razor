@@ -4,14 +4,9 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IInputGroupTextarea
 
-<TextArea Value="@Value"
-          ValueChanged="HandleValueChanged"
-          Placeholder="@Placeholder"
-          Disabled="@Disabled"
-          ReadOnly="@ReadOnly"
-          Required="@Required"
-          Rows="@Rows"
-          Attributes="BuildInnerAttributes()" />
+<textarea @attributes="BuildAttributes()"
+          value="@Value"
+          @oninput="HandleInput"></textarea>
 
 @code {
 
@@ -24,6 +19,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        Display ??= Quark.Display.Flex;
         Flex ??= Quark.Flex.Is1;
         Resize ??= Quark.Resize.None;
         Rounded ??= Quark.Rounded.None;
@@ -34,25 +30,33 @@
 
     }
 
-    private async Task HandleValueChanged(string? value)
+    private async Task HandleInput(ChangeEventArgs e)
     {
+        var value = e.Value?.ToString();
         Value = value;
         await ValueChanged.InvokeIfHasDelegate(value);
     }
 
-    private Dictionary<string, object> BuildInnerAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes())
-        {
-            ["data-slot"] = "input-group-control"
-        };
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "input-group-control";
+
+        if (Placeholder is not null)
+            attributes["placeholder"] = Placeholder;
+        if (Disabled)
+            attributes["disabled"] = true;
+        if (ReadOnly)
+            attributes["readonly"] = true;
+        if (Required)
+            attributes["required"] = true;
+        if (Rows.HasValue)
+            attributes["rows"] = Rows.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "focus-visible:ring-0 dark:bg-transparent");
         });
-
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

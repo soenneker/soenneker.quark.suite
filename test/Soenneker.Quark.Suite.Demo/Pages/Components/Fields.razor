@@ -6,7 +6,7 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="Multi-section payment form with field sets, selects, and horizontal actions."
+                         Description="Combine labels, controls, and help text to compose accessible form fields and grouped inputs."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <Div Class="w-full max-w-md">
@@ -308,6 +308,38 @@
                 </FieldGroup>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Validation and Errors"
+                         Description="Invalid fields expose aria-invalid and FieldError content without changing the field structure."
+                         Code="@FieldErrorCode"
+                         CodeLanguage="razor">
+                <Field IsInvalid="true" MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="deploy-branch">Deployment branch</FieldLabel>
+                    <Input Id="deploy-branch" Value="main main" aria-invalid="true" />
+                    <FieldDescription>Use a single git branch name.</FieldDescription>
+                    <FieldError>Branch names cannot contain spaces.</FieldError>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Accessibility"
+                         Description="Field descriptions and errors are associated with their controls for assistive technology."
+                         Code="@AccessibilityCode"
+                         CodeLanguage="razor">
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="accessibility-email">Email</FieldLabel>
+                    <Input Id="accessibility-email"
+                           Type="email"
+                           Placeholder="m@example.com"
+                           aria-describedby="accessibility-email-description" />
+                    <FieldDescription Id="accessibility-email-description">
+                        We will use this address for account notifications.
+                    </FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
 </Div>
 </Div>
 
@@ -546,4 +578,16 @@
         <Input Id=""field-responsive-email"" Type=""email"" Placeholder=""ada@example.com"" />
     </Field>
 </FieldGroup>";
+
+    private const string AccessibilityCode =
+@"<Field>
+    <FieldLabel For=""accessibility-email"">Email</FieldLabel>
+    <Input Id=""accessibility-email""
+           Type=""email""
+           Placeholder=""m@example.com""
+           aria-describedby=""accessibility-email-description"" />
+    <FieldDescription Id=""accessibility-email-description"">
+        We will use this address for account notifications.
+    </FieldDescription>
+</Field>";
 }

@@ -2,9 +2,9 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentFormControl" Value="this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
+    <CascadingValue Name="FormControlSlot" Value="true" IsFixed="true">
         @ChildContent
-    </div>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -13,12 +13,6 @@
 
     [CascadingParameter(Name = "FormHorizontal")]
     protected bool FormHorizontal { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "form-control";
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

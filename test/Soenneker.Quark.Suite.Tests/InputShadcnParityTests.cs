@@ -16,8 +16,10 @@ public sealed partial class RenderedShadcnParityTests
         inputClasses.Should().Contain("h-9");
         inputClasses.Should().Contain("rounded-md");
         inputClasses.Should().Contain("border-input");
+        inputClasses.Should().Contain("transition-[color,box-shadow]");
         inputClasses.Should().Contain("file:h-7");
         inputClasses.Should().Contain("focus-visible:ring-[3px]");
+        inputClasses.Should().NotContain("transition-[color,shadow]");
         inputClasses.Should().NotContain("focus-visible:ring-3");
         inputClasses.Should().NotContain("aria-invalid:ring-3");
         inputClasses.Should().NotContain("q-input");

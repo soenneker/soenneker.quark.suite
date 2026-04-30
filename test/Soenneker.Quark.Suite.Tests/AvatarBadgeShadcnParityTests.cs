@@ -21,11 +21,12 @@ public sealed partial class RenderedShadcnParityTests
         badgeClasses.Should().Contain("items-center");
         badgeClasses.Should().Contain("justify-center");
         badgeClasses.Should().Contain("rounded-full");
+        badgeClasses.Should().Contain("bg-primary");
         badgeClasses.Should().Contain("text-primary-foreground");
-        badgeClasses.Should().Contain("bg-blend-color");
         badgeClasses.Should().Contain("ring-2");
         badgeClasses.Should().Contain("ring-background");
         badgeClasses.Should().Contain("group-data-[size=default]/avatar:size-2.5");
+        badgeClasses.Should().NotContain("bg-blend-color");
         badgeClasses.Should().NotContain("q-avatar-badge");
     }
 }

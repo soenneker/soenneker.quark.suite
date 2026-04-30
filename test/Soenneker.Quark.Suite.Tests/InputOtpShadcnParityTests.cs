@@ -38,42 +38,44 @@ public sealed partial class RenderedShadcnParityTests
         var inputOtpSlotClasses = inputOtp.Find("[data-slot='input-otp-slot']").GetAttribute("class")!;
         var inputOtpSeparatorClasses = inputOtp.Find("[data-slot='input-otp-separator']").GetAttribute("class")!;
 
-        inputOtpClasses.Should().Contain("cn-input-otp");
         inputOtpClasses.Should().Contain("flex");
         inputOtpClasses.Should().Contain("items-center");
-        inputOtpClasses.Should().NotContain("gap-2");
+        inputOtpClasses.Should().Contain("gap-2");
         inputOtpClasses.Should().Contain("has-disabled:opacity-50");
+        inputOtpClasses.Should().NotContain("cn-input-otp");
         inputOtpClasses.Should().NotContain("q-input-otp");
 
         inputOtpGroupClasses.Should().Contain("flex");
         inputOtpGroupClasses.Should().Contain("items-center");
-        inputOtpGroupClasses.Should().Contain("rounded-lg");
-        inputOtpGroupClasses.Should().Contain("has-aria-invalid:border-destructive");
-        inputOtpGroupClasses.Should().Contain("has-aria-invalid:ring-3");
+        inputOtpGroupClasses.Should().NotContain("rounded-lg");
+        inputOtpGroupClasses.Should().NotContain("has-aria-invalid:border-destructive");
+        inputOtpGroupClasses.Should().NotContain("has-aria-invalid:ring-3");
         inputOtpGroupClasses.Should().NotContain("q-input-otp-group");
 
         inputOtpSlotClasses.Should().Contain("relative");
         inputOtpSlotClasses.Should().Contain("flex");
-        inputOtpSlotClasses.Should().Contain("size-8");
+        inputOtpSlotClasses.Should().Contain("h-9");
+        inputOtpSlotClasses.Should().Contain("w-9");
         inputOtpSlotClasses.Should().Contain("items-center");
         inputOtpSlotClasses.Should().Contain("justify-center");
         inputOtpSlotClasses.Should().Contain("border-input");
         inputOtpSlotClasses.Should().Contain("text-sm");
+        inputOtpSlotClasses.Should().Contain("shadow-xs");
         inputOtpSlotClasses.Should().Contain("transition-all");
         inputOtpSlotClasses.Should().Contain("outline-none");
-        inputOtpSlotClasses.Should().Contain("first:rounded-l-lg");
-        inputOtpSlotClasses.Should().Contain("data-[active=true]:ring-3");
-        inputOtpSlotClasses.Should().NotContain("h-9");
-        inputOtpSlotClasses.Should().NotContain("w-9");
+        inputOtpSlotClasses.Should().Contain("first:rounded-l-md");
+        inputOtpSlotClasses.Should().Contain("last:rounded-r-md");
+        inputOtpSlotClasses.Should().Contain("data-[active=true]:ring-[3px]");
+        inputOtpSlotClasses.Should().NotContain("size-8");
         inputOtpSlotClasses.Should().NotContain("text-center");
-        inputOtpSlotClasses.Should().NotContain("shadow-xs");
-        inputOtpSlotClasses.Should().NotContain("first:rounded-l-md");
-        inputOtpSlotClasses.Should().NotContain("data-[active=true]:ring-[3px]");
+        inputOtpSlotClasses.Should().NotContain("first:rounded-l-lg");
+        inputOtpSlotClasses.Should().NotContain("data-[active=true]:ring-3");
+        inputOtpSlotClasses.Should().NotContain("focus:ring-3");
         inputOtpSlotClasses.Should().NotContain("q-input-otp-slot");
 
-        inputOtpSeparatorClasses.Should().Contain("flex");
-        inputOtpSeparatorClasses.Should().Contain("items-center");
-        inputOtpSeparatorClasses.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
+        inputOtpSeparatorClasses.Should().NotContain("flex");
+        inputOtpSeparatorClasses.Should().NotContain("items-center");
+        inputOtpSeparatorClasses.Should().NotContain("[&_svg:not([class*='size-'])]:size-4");
         inputOtpSeparatorClasses.Should().NotContain("q-input-otp-separator");
     }
 }

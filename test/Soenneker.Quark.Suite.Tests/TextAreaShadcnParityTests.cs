@@ -17,8 +17,12 @@ public sealed partial class RenderedShadcnParityTests
         textareaClasses.Should().Contain("rounded-md");
         textareaClasses.Should().Contain("text-base");
         textareaClasses.Should().Contain("md:text-sm");
-        textareaClasses.Should().Contain("aria-invalid:ring-3");
-        textareaClasses.Should().NotContain("aria-invalid:ring-[3px]");
+        textareaClasses.Should().Contain("transition-[color,box-shadow]");
+        textareaClasses.Should().Contain("focus-visible:ring-[3px]");
+        textareaClasses.Should().Contain("aria-invalid:ring-destructive/20");
+        textareaClasses.Should().NotContain("transition-[color,shadow]");
+        textareaClasses.Should().NotContain("focus-visible:ring-3");
+        textareaClasses.Should().NotContain("aria-invalid:ring-3");
         textareaClasses.Should().NotContain("q-textarea");
     }
 }

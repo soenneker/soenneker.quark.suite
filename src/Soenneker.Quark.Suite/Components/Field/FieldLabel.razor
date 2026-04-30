@@ -4,7 +4,7 @@
 @implements IFieldLabel
 
 <BradixLabel For="@ResolvedFor"
-             AdditionalAttributes="@LabelAttributes">
+             AdditionalAttributes="@BuildAttributes()">
     @ChildContent
     @if (RequiredIndicator)
     {
@@ -34,14 +34,6 @@
 
     protected virtual bool IsHorizontal => FieldHorizontal;
     private string? ResolvedFor => For.HasContent() ? For! : FieldContext?.ControlId;
-    private IReadOnlyDictionary<string, object> LabelAttributes => BuildLabelAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildLabelAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("for");
-        return attributes;
-    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -61,13 +53,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "items-center group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50");
-            AppendClass(ref cls, "has-[[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[[data-slot=checkbox][data-state=checked]]:bg-muted");
-            AppendClass(ref cls, "has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[[data-slot=radio-group-item][data-state=checked]]:bg-muted");
-            AppendClass(ref cls, "has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5");
-            AppendClass(ref cls, "dark:has-[[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[[data-slot=checkbox][data-state=checked]]:bg-primary/10");
-            AppendClass(ref cls, "dark:has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[[data-slot=radio-group-item][data-state=checked]]:bg-primary/10");
-            AppendClass(ref cls, "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col");
+            AppendClass(ref cls, "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50");
+            AppendClass(ref cls, "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4");
+            AppendClass(ref cls, "has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/5 dark:has-data-[state=checked]:bg-primary/10");
         });
     }
 

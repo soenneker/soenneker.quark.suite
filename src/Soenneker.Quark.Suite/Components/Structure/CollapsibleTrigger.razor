@@ -46,62 +46,26 @@ else
         };
     }
 
-    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
-
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Between;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Transition ??= Quark.Transition.Colors;
-    }
-
-    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-
-        attributes.Remove("type");
-        attributes.Remove("disabled");
-        attributes.Remove("id");
-        attributes.Remove("aria-expanded");
-        attributes.Remove("aria-controls");
-        attributes.Remove("data-state");
-        attributes.Remove("onclick");
-
-        return attributes;
-    }
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "collapsible-trigger";
-        attributes["data-state"] = Collapsible?.IsOpen == true ? "open" : "closed";
-        attributes["aria-expanded"] = Collapsible?.IsOpen == true ? "true" : "false";
-        if (Collapsible is not null)
+
+        if (AsChild && Collapsible is not null)
         {
+            attributes["data-state"] = Collapsible.IsOpen ? "open" : "closed";
+            attributes["aria-expanded"] = Collapsible.IsOpen ? "true" : "false";
             attributes["id"] = Collapsible.TriggerId;
             attributes["aria-controls"] = Collapsible.ContentId;
         }
 
-        if (Disabled || Collapsible?.Disabled == true)
+        if (AsChild && (Disabled || Collapsible?.Disabled == true))
         {
             attributes["data-disabled"] = "true";
         }
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            if (Disabled || Collapsible?.Disabled == true)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
 
         if (AsChild)
             SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);

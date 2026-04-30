@@ -27,8 +27,11 @@ public sealed partial class RenderedShadcnParityTests
             section.GetAttribute("aria-label").Should().Be("Notifications alt+T");
 
             toaster.GetAttribute("class").Should().Be("toaster group");
-            toaster.GetAttribute("data-y-position").Should().Be("top");
-            toaster.GetAttribute("data-x-position").Should().Be("center");
+            toaster.GetAttribute("data-y-position").Should().Be("bottom");
+            toaster.GetAttribute("data-x-position").Should().Be("right");
+            toaster.GetAttribute("style")!.Should().Contain("--normal-bg: var(--popover)");
+            toaster.GetAttribute("style")!.Should().Contain("--normal-text: var(--popover-foreground)");
+            toaster.GetAttribute("style")!.Should().Contain("--normal-border: var(--border)");
 
             toast.GetAttribute("class").Should().Be("cn-toast");
             toast.GetAttribute("data-type").Should().Be("success");
@@ -45,6 +48,19 @@ public sealed partial class RenderedShadcnParityTests
 
         source.Should().Contain("toast.getBoundingClientRect().height");
         source.Should().NotContain("heights[id] = toast.offsetHeight");
+    }
+
+    [Test]
+    public void Sonner_css_maps_buttons_to_shadcn_toast_options()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSonner(), "src", "Soenneker.Quark.Suite", "wwwroot", "css", "sonner.css"));
+
+        source.Should().Contain("background: var(--primary)");
+        source.Should().Contain("color: var(--primary-foreground)");
+        source.Should().Contain("background: var(--muted)");
+        source.Should().Contain("color: var(--muted-foreground)");
+        source.Should().NotContain("background: var(--normal-text)");
+        source.Should().NotContain("color: var(--normal-bg)");
     }
 
     private static string GetSuiteRootForSonner()

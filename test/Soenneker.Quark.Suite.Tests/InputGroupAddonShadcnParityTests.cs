@@ -24,7 +24,6 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("pl-3");
         classes.Should().Contain("has-[>button]:ml-[-0.45rem]");
         classes.Should().Contain("has-[>kbd]:ml-[-0.35rem]");
-        classes.Should().Contain("pl-3");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("font-medium");
         classes.Should().Contain("text-muted-foreground");

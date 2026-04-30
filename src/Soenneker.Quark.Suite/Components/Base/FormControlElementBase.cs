@@ -15,6 +15,9 @@ public abstract class FormControlElementBase : InteractiveElement
     [CascadingParameter]
     private protected FieldContext? CurrentFieldContext { get; set; }
 
+    [CascadingParameter(Name = "FormControlSlot")]
+    private protected bool IsFormControlSlot { get; set; }
+
     private FieldContext? _subscribedFieldContext;
 
     [Parameter]
@@ -90,6 +93,9 @@ public abstract class FormControlElementBase : InteractiveElement
 
     protected void ApplyFieldControlAttributes(Dictionary<string, object> attrs, bool isInvalid = false)
     {
+        if (IsFormControlSlot)
+            attrs["data-slot"] = "form-control";
+
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;
 
@@ -132,6 +138,7 @@ public abstract class FormControlElementBase : InteractiveElement
         hc.Add(CurrentFieldContext?.DescriptionId);
         hc.Add(CurrentFieldContext?.ErrorId);
         hc.Add(CurrentFieldContext?.IsInvalid);
+        hc.Add(IsFormControlSlot);
     }
 
     public override void Dispose()

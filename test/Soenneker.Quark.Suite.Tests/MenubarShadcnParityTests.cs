@@ -32,18 +32,11 @@ public sealed partial class RenderedShadcnParityTests
         rootSource.Should().Contain("ValueChanged=\"HandleValueChanged\"");
 
         source.Should().Contain("Rounded.Sm");
-        source.Should().Contain("Padding.Is2.OnX.Is1.OnY");
+        source.Should().Contain("Padding ??= Quark.Padding.Is2.OnX.Is1.OnY");
         source.Should().Contain("focus:bg-accent");
         source.Should().Contain("data-[state=open]:bg-accent");
         source.Should().NotContain("hover:bg-muted");
         source.Should().NotContain("aria-expanded:bg-muted");
-
-        var sub = Render<MenubarSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));
-
-        var subClasses = sub.Find("[data-slot='menubar-sub']").GetAttribute("class")!;
-
-        subClasses.Should().Contain("relative");
-        subClasses.Should().NotContain("q-menubar-sub");
     }
 
     [Test]
@@ -62,14 +55,15 @@ public sealed partial class RenderedShadcnParityTests
         content.Should().Contain("MinWidth ??= Quark.MinWidth.Token(\"[12rem]\")");
         content.Should().Contain("Border ??= Quark.Border.Default");
         content.Should().Contain("data-[state=open]:animate-in");
+        content.Should().Contain("data-[state=closed]:fade-out-0");
+        content.Should().NotContain("data-open:animate-in");
         content.Should().NotContain("max-h-(--radix-menubar-content-available-height)");
 
         item.Should().Contain("Rounded.Sm");
         item.Should().Contain("data-[disabled]:pointer-events-none");
         item.Should().Contain("data-[inset]:pl-8");
+        item.Should().NotContain("group/menubar-item");
         item.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
-        item.Should().NotContain("data-disabled:");
-        item.Should().NotContain("data-inset:pl-7");
 
         checkbox.Should().Contain("Rounded.Token(\"xs\")");
         checkbox.Should().Contain("data-slot=\"menubar-checkbox-item-indicator\"");
@@ -77,7 +71,6 @@ public sealed partial class RenderedShadcnParityTests
         checkbox.Should().Contain("Class=\"size-4\"");
         checkbox.Should().Contain("data-[disabled]:opacity-50");
         checkbox.Should().NotContain("left-1.5");
-        checkbox.Should().NotContain("data-disabled:");
 
         radio.Should().Contain("Rounded.Token(\"xs\")");
         radio.Should().Contain("data-slot=\"menubar-radio-item-indicator\"");
@@ -85,7 +78,6 @@ public sealed partial class RenderedShadcnParityTests
         radio.Should().Contain("Class=\"size-2 fill-current\"");
         radio.Should().Contain("data-[disabled]:opacity-50");
         radio.Should().NotContain("LucideIcon.Check");
-        radio.Should().NotContain("data-disabled:");
     }
 
     [Test]

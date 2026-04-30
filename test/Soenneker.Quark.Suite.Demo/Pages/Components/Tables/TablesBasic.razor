@@ -187,7 +187,155 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Server-side table"
+            <DemoSection Title="Data Table"
+                         Description="Combine filtering, sorting, row selection, column visibility, pagination, and row actions."
+                         Code="@PaymentDataTableCode"
+                         CodeLanguage="razor">
+                <Div Space="Space.Y.Is4" Class="w-full max-w-3xl" data-testid="payment-data-table-demo">
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2" Class="py-4">
+                        <TextInput Placeholder="Filter emails..."
+                                   @bind-Value="PaymentEmailFilter"
+                                   Class="max-w-sm" />
+
+                        <Div Class="ml-auto">
+                            <Dropdown RightAligned="true">
+                                <DropdownToggle AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                                        Columns
+                                        <Icon Name="LucideIcon.ChevronDown" Class="ml-2 size-4" />
+                                    </Button>
+                                </DropdownToggle>
+                                <DropdownMenu Class="w-40">
+                                    <DropdownCheckboxItem Checked="@_showPaymentStatus" CheckedChanged="SetPaymentStatusVisible" AutoClose="false">
+                                        Status
+                                    </DropdownCheckboxItem>
+                                    <DropdownCheckboxItem Checked="@_showPaymentEmail" CheckedChanged="SetPaymentEmailVisible" AutoClose="false">
+                                        Email
+                                    </DropdownCheckboxItem>
+                                    <DropdownCheckboxItem Checked="@_showPaymentAmount" CheckedChanged="SetPaymentAmountVisible" AutoClose="false">
+                                        Amount
+                                    </DropdownCheckboxItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </Div>
+                    </Div>
+
+                    <Div Rounded="Rounded.Md" Border="Border.Is1">
+                        <TableElement>
+                            <Thead>
+                                <Tr>
+                                    <Th Class="w-12">
+                                        <Check aria-label="Select all"
+                                               Checked="@PaymentPageSelected"
+                                               Indeterminate="@PaymentPageIndeterminate"
+                                               CheckedChanged="SetPaymentPageSelected" />
+                                    </Th>
+                                    @if (_showPaymentStatus)
+                                    {
+                                        <Th>Status</Th>
+                                    }
+                                    @if (_showPaymentEmail)
+                                    {
+                                        <Th>
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Class="-ml-3"
+                                                    OnClick="TogglePaymentEmailSort">
+                                                Email
+                                                <span class="ml-2">↕</span>
+                                            </Button>
+                                        </Th>
+                                    }
+                                    @if (_showPaymentAmount)
+                                    {
+                                        <Th TextAlign="TextAlign.End">Amount</Th>
+                                    }
+                                    <Th Class="w-12">
+                                        <span class="sr-only">Actions</span>
+                                    </Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                @if (VisiblePayments.Count > 0)
+                                {
+                                    @foreach (var payment in VisiblePayments)
+                                    {
+                                        <Tr Key="@payment.Id" Attributes="@GetPaymentRowAttributes(payment.Id)">
+                                            <Td>
+                                                <Check aria-label="Select row"
+                                                       Checked="@_selectedPaymentIds.Contains(payment.Id)"
+                                                       CheckedChanged="@(selected => SetPaymentSelected(payment.Id, selected))" />
+                                            </Td>
+                                            @if (_showPaymentStatus)
+                                            {
+                                                <Td Class="capitalize">@payment.Status</Td>
+                                            }
+                                            @if (_showPaymentEmail)
+                                            {
+                                                <Td Class="lowercase">@payment.Email</Td>
+                                            }
+                                            @if (_showPaymentAmount)
+                                            {
+                                                <Td TextAlign="TextAlign.End" FontWeight="FontWeight.Medium">@FormatPaymentAmount(payment.Amount)</Td>
+                                            }
+                                            <Td TextAlign="TextAlign.End">
+                                                <Dropdown RightAligned="true">
+                                                    <DropdownToggle AsChild="true">
+                                                        <Button Variant="ButtonVariant.Ghost"
+                                                                Size="ButtonSize.IconSm"
+                                                                aria-label="Open menu">
+                                                            <Icon Name="LucideIcon.Ellipsis" />
+                                                        </Button>
+                                                    </DropdownToggle>
+                                                    <DropdownMenu Class="w-48">
+                                                        <DropdownLabel>Actions</DropdownLabel>
+                                                        <DropdownItem Clicked="@(() => SelectPaymentAction(payment.Id))">
+                                                            Copy payment ID
+                                                        </DropdownItem>
+                                                        <DropdownDivider />
+                                                        <DropdownItem>View customer</DropdownItem>
+                                                        <DropdownItem>View payment details</DropdownItem>
+                                                    </DropdownMenu>
+                                                </Dropdown>
+                                            </Td>
+                                        </Tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <Tr>
+                                        <Td Colspan="@PaymentColumnCount" Class="h-24 text-center">
+                                            No results.
+                                        </Td>
+                                    </Tr>
+                                }
+                            </Tbody>
+                        </TableElement>
+                    </Div>
+
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Class="py-4">
+                        <Div TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                            @SelectedFilteredPaymentCount of @FilteredPayments.Count row(s) selected.
+                        </Div>
+                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                            <Button Variant="ButtonVariant.Outline"
+                                    Size="ButtonSize.Sm"
+                                    Disabled="@(!CanPreviousPaymentPage)"
+                                    OnClick="PreviousPaymentPage">
+                                Previous
+                            </Button>
+                            <Button Variant="ButtonVariant.Outline"
+                                    Size="ButtonSize.Sm"
+                                    Disabled="@(!CanNextPaymentPage)"
+                                    OnClick="NextPaymentPage">
+                                Next
+                            </Button>
+                        </Div>
+                    </Div>
+                </Div>
+            </DemoSection>
+
+            <DemoSection Title="Server-backed Table"
                          Description="This example combines searching, sorting, pagination, and an empty state in one server-backed table."
                          Code="@DataTableCode"
                          CodeLanguage="razor">
@@ -314,8 +462,75 @@ TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoDat
 
     private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);
 
+    private sealed record PaymentRow(string Id, string Status, string Email, decimal Amount);
+
     private Table? _basicTable;
     private List<Employee> _currentEmployees = [];
+
+    private string _paymentEmailFilter = string.Empty;
+    private bool? _paymentSortAscending;
+    private int _paymentPageIndex;
+    private bool _showPaymentStatus = true;
+    private bool _showPaymentEmail = true;
+    private bool _showPaymentAmount = true;
+    private string? _lastPaymentActionId;
+    private readonly HashSet<string> _selectedPaymentIds = [];
+
+    private const int PaymentPageSize = 5;
+
+    private static readonly PaymentRow[] Payments =
+    [
+        new("m5gr84i9", "success", "ken99@example.com", 316),
+        new("3u1reuv4", "success", "abe45@example.com", 242),
+        new("derv1ws0", "processing", "monserrat44@example.com", 837),
+        new("5kma53ae", "success", "silas22@example.com", 874),
+        new("bhqecj4p", "failed", "carmella@example.com", 721),
+        new("bhqecj4q", "processing", "ana@example.com", 432),
+        new("bhqecj4r", "success", "liam@example.com", 601)
+    ];
+
+    private string PaymentEmailFilter
+    {
+        get => _paymentEmailFilter;
+        set
+        {
+            if (_paymentEmailFilter == value)
+                return;
+
+            _paymentEmailFilter = value;
+            _paymentPageIndex = 0;
+        }
+    }
+
+    private IReadOnlyList<PaymentRow> FilteredPayments
+    {
+        get
+        {
+            IEnumerable<PaymentRow> payments = Payments.Where(payment =>
+                payment.Email.Contains(_paymentEmailFilter, StringComparison.OrdinalIgnoreCase));
+
+            if (_paymentSortAscending is null)
+                return payments.ToList();
+
+            payments = _paymentSortAscending.Value
+                ? payments.OrderBy(payment => payment.Email).ThenBy(payment => payment.Id)
+                : payments.OrderByDescending(payment => payment.Email).ThenByDescending(payment => payment.Id);
+
+            return payments.ToList();
+        }
+    }
+
+    private IReadOnlyList<PaymentRow> VisiblePayments => FilteredPayments
+        .Skip(_paymentPageIndex * PaymentPageSize)
+        .Take(PaymentPageSize)
+        .ToList();
+
+    private int SelectedFilteredPaymentCount => FilteredPayments.Count(payment => _selectedPaymentIds.Contains(payment.Id));
+    private bool CanPreviousPaymentPage => _paymentPageIndex > 0;
+    private bool CanNextPaymentPage => (_paymentPageIndex + 1) * PaymentPageSize < FilteredPayments.Count;
+    private bool PaymentPageSelected => VisiblePayments.Count > 0 && VisiblePayments.All(payment => _selectedPaymentIds.Contains(payment.Id));
+    private bool PaymentPageIndeterminate => VisiblePayments.Any(payment => _selectedPaymentIds.Contains(payment.Id)) && !PaymentPageSelected;
+    private int PaymentColumnCount => 2 + (_showPaymentStatus ? 1 : 0) + (_showPaymentEmail ? 1 : 0) + (_showPaymentAmount ? 1 : 0);
 
     private readonly TableOptions _basicTableOptions = new()
     {
@@ -457,6 +672,75 @@ TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoDat
 
 private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortable, bool Searchable);";
 
+    private void TogglePaymentEmailSort()
+    {
+        _paymentSortAscending = _paymentSortAscending is null || !_paymentSortAscending.Value;
+        _paymentPageIndex = 0;
+    }
+
+    private void PreviousPaymentPage()
+    {
+        if (CanPreviousPaymentPage)
+            _paymentPageIndex--;
+    }
+
+    private void NextPaymentPage()
+    {
+        if (CanNextPaymentPage)
+            _paymentPageIndex++;
+    }
+
+    private void SetPaymentStatusVisible(bool visible)
+    {
+        _showPaymentStatus = visible;
+    }
+
+    private void SetPaymentEmailVisible(bool visible)
+    {
+        _showPaymentEmail = visible;
+    }
+
+    private void SetPaymentAmountVisible(bool visible)
+    {
+        _showPaymentAmount = visible;
+    }
+
+    private void SetPaymentSelected(string id, bool selected)
+    {
+        if (selected)
+            _selectedPaymentIds.Add(id);
+        else
+            _selectedPaymentIds.Remove(id);
+    }
+
+    private void SetPaymentPageSelected(bool selected)
+    {
+        foreach (var payment in VisiblePayments)
+        {
+            if (selected)
+                _selectedPaymentIds.Add(payment.Id);
+            else
+                _selectedPaymentIds.Remove(payment.Id);
+        }
+    }
+
+    private Dictionary<string, object>? GetPaymentRowAttributes(string id)
+    {
+        return _selectedPaymentIds.Contains(id)
+            ? new Dictionary<string, object> { ["data-state"] = "selected" }
+            : null;
+    }
+
+    private void SelectPaymentAction(string id)
+    {
+        _lastPaymentActionId = id;
+    }
+
+    private static string FormatPaymentAmount(decimal amount)
+    {
+        return $"${amount:N2}";
+    }
+
     protected override async Task OnInitializedAsync()
     {
         // Initialize total records from the service
@@ -519,6 +803,70 @@ private sealed record ColumnDefinitionRow(string Key, string Label, bool Sortabl
     {
         Logger.LogInformation("Basic table initialized");
     }
+
+    private const string PaymentDataTableCode =
+@"<Div Space=""Space.Y.Is4"">
+    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"" Class=""py-4"">
+        <TextInput Placeholder=""Filter emails..."" @bind-Value=""PaymentEmailFilter"" Class=""max-w-sm"" />
+        <Div Class=""ml-auto"">
+            <Dropdown RightAligned=""true"">
+                <DropdownToggle AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">
+                        Columns <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-2 size-4"" />
+                    </Button>
+                </DropdownToggle>
+                <DropdownMenu Class=""w-40"">
+                    <DropdownCheckboxItem Checked=""@_showPaymentStatus"" CheckedChanged=""SetPaymentStatusVisible"" AutoClose=""false"">Status</DropdownCheckboxItem>
+                    <DropdownCheckboxItem Checked=""@_showPaymentEmail"" CheckedChanged=""SetPaymentEmailVisible"" AutoClose=""false"">Email</DropdownCheckboxItem>
+                    <DropdownCheckboxItem Checked=""@_showPaymentAmount"" CheckedChanged=""SetPaymentAmountVisible"" AutoClose=""false"">Amount</DropdownCheckboxItem>
+                </DropdownMenu>
+            </Dropdown>
+        </Div>
+    </Div>
+
+    <Div Rounded=""Rounded.Md"" Border=""Border.Is1"">
+        <TableElement>
+            <Thead>
+                <Tr>
+                    <Th Class=""w-12""><Check aria-label=""Select all"" Checked=""@PaymentPageSelected"" Indeterminate=""@PaymentPageIndeterminate"" CheckedChanged=""SetPaymentPageSelected"" /></Th>
+                    <Th>Status</Th>
+                    <Th>
+                        <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.Sm"" Class=""-ml-3"" OnClick=""TogglePaymentEmailSort"">Email <span class=""ml-2"">↕</span></Button>
+                    </Th>
+                    <Th TextAlign=""TextAlign.End"">Amount</Th>
+                    <Th Class=""w-12""><span class=""sr-only"">Actions</span></Th>
+                </Tr>
+            </Thead>
+            <Tbody>
+                @foreach (var payment in VisiblePayments)
+                {
+                    <Tr Key=""@payment.Id"" Attributes=""@GetPaymentRowAttributes(payment.Id)"">
+                        <Td><Check aria-label=""Select row"" Checked=""@_selectedPaymentIds.Contains(payment.Id)"" CheckedChanged=""@(selected => SetPaymentSelected(payment.Id, selected))"" /></Td>
+                        <Td Class=""capitalize"">@payment.Status</Td>
+                        <Td Class=""lowercase"">@payment.Email</Td>
+                        <Td TextAlign=""TextAlign.End"" FontWeight=""FontWeight.Medium"">@FormatPaymentAmount(payment.Amount)</Td>
+                        <Td TextAlign=""TextAlign.End"">
+                            <Dropdown RightAligned=""true"">
+                                <DropdownToggle AsChild=""true"">
+                                    <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" aria-label=""Open menu"">
+                                        <Icon Name=""LucideIcon.Ellipsis"" />
+                                    </Button>
+                                </DropdownToggle>
+                                <DropdownMenu Class=""w-48"">
+                                    <DropdownLabel>Actions</DropdownLabel>
+                                    <DropdownItem>Copy payment ID</DropdownItem>
+                                    <DropdownDivider />
+                                    <DropdownItem>View customer</DropdownItem>
+                                    <DropdownItem>View payment details</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </Td>
+                    </Tr>
+                }
+            </Tbody>
+        </TableElement>
+    </Div>
+</Div>";
 
     private const string DataTableCode =
 @"<Table @ref=""_basicTable""

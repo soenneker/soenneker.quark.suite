@@ -49,7 +49,7 @@
     [Parameter]
     public bool HideWhenDetached { get; set; }
 
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     protected override void ApplyDefaultParameters()
     {
@@ -59,6 +59,7 @@
         ZIndex ??= "z-50";
         MinWidth ??= Quark.MinWidth.Token("[8rem]");
         Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Default;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Is1;
         TextColor ??= Quark.TextColor.PopoverForeground;
@@ -69,7 +70,6 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-sub-content";
-        attributes["data-side"] = "right";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "origin-(--radix-dropdown-menu-content-transform-origin)");
@@ -95,6 +95,11 @@
         }
         hc.Add(Sticky);
         hc.Add(HideWhenDetached);
+    }
+
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        return BuildAttributes();
     }
 
 }

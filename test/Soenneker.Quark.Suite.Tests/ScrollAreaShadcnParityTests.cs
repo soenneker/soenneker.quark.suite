@@ -28,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
 
         viewportClasses.Should().Contain("size-full");
         viewportClasses.Should().Contain("rounded-[inherit]");
-        viewportClasses.Should().Contain("transition-[color,shadow]");
+        viewportClasses.Should().Contain("transition-[color,box-shadow]");
         viewportClasses.Should().Contain("outline-none");
         viewportClasses.Should().Contain("focus-visible:ring-[3px]");
         viewportClasses.Should().Contain("focus-visible:ring-ring/50");
@@ -42,9 +42,11 @@ public sealed partial class RenderedShadcnParityTests
         scrollbarClasses.Should().Contain("p-px");
         scrollbarClasses.Should().Contain("transition-colors");
         scrollbarClasses.Should().Contain("select-none");
-        scrollbarClasses.Should().Contain("data-[orientation=vertical]:h-full");
-        scrollbarClasses.Should().Contain("data-[orientation=vertical]:w-2.5");
-        scrollbarClasses.Should().Contain("data-[orientation=vertical]:border-l");
+        scrollbarClasses.Should().Contain("h-full");
+        scrollbarClasses.Should().Contain("w-2.5");
+        scrollbarClasses.Should().Contain("border-l");
+        scrollbarClasses.Should().Contain("border-l-transparent");
+        scrollbarClasses.Should().NotContain("data-[orientation=vertical]:h-full");
 
         thumbClasses.Should().Contain("relative");
         thumbClasses.Should().Contain("flex-1");
@@ -64,9 +66,10 @@ public sealed partial class RenderedShadcnParityTests
                                       .Single(element => element.GetAttribute("data-orientation") == "horizontal");
         var classes = horizontalScrollbar.GetAttribute("class")!;
 
-        classes.Should().Contain("data-[orientation=horizontal]:h-2.5");
-        classes.Should().Contain("data-[orientation=horizontal]:flex-col");
-        classes.Should().Contain("data-[orientation=horizontal]:border-t");
-        classes.Should().Contain("data-[orientation=horizontal]:border-t-transparent");
+        classes.Should().Contain("h-2.5");
+        classes.Should().Contain("flex-col");
+        classes.Should().Contain("border-t");
+        classes.Should().Contain("border-t-transparent");
+        classes.Should().NotContain("data-[orientation=horizontal]:h-2.5");
     }
 }
