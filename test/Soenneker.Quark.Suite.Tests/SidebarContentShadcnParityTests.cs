@@ -23,4 +23,17 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("overflow-x-hidden");
         classes.Should().NotContain("q-sidebar-content");
     }
+
+    [Test]
+    public void SidebarContent_can_hide_native_scrollbar_when_requested()
+    {
+        var cut = Render<SidebarContent>(parameters => parameters
+            .Add(p => p.HideScrollbar, true)
+            .Add(p => p.ChildContent, "Content"));
+
+        var classes = cut.Find("[data-slot='sidebar-content']").GetAttribute("class")!;
+
+        classes.Should().Contain("overflow-auto");
+        classes.Should().Contain("no-scrollbar");
+    }
 }

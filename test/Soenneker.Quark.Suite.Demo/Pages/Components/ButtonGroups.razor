@@ -250,14 +250,23 @@
                          CodeLanguage="razor">
                 <ButtonGroup>
                     <ButtonGroup>
-                        <Select TValue="string" SelectedValue="@("USD")">
+                        <Select TValue="string" @bind-SelectedValue="_buttonGroupCurrency">
                             <SelectTrigger Class="font-mono">
-                                <SelectValue Placeholder="USD" />
+                                @_buttonGroupCurrency
                             </SelectTrigger>
                             <SelectContent Class="min-w-24">
-                                <SelectItem TValue="string" ItemValue="@("USD")" Text="US Dollar" />
-                                <SelectItem TValue="string" ItemValue="@("EUR")" Text="Euro" />
-                                <SelectItem TValue="string" ItemValue="@("GBP")" Text="British Pound" />
+                                <SelectItem TValue="string" ItemValue="@("$")">
+                                    $
+                                    <Span TextColor="TextColor.MutedForeground">US Dollar</Span>
+                                </SelectItem>
+                                <SelectItem TValue="string" ItemValue="@("€")">
+                                    €
+                                    <Span TextColor="TextColor.MutedForeground">Euro</Span>
+                                </SelectItem>
+                                <SelectItem TValue="string" ItemValue="@("£")">
+                                    £
+                                    <Span TextColor="TextColor.MutedForeground">British Pound</Span>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                         <Input Placeholder="10.00" />
@@ -309,25 +318,37 @@
             <DemoSection Title="RTL"
                          Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
+                         PreviewDir="rtl"
+                         PreviewLang="ar"
+                         ShowPreviewToolbar="true"
                          CodeLanguage="razor">
                 <ButtonGroup dir="rtl" AriaLabel="إجراءات الرسالة">
-                    <Button Variant="ButtonVariant.Outline">أرشفة</Button>
-                    <Button Variant="ButtonVariant.Outline">تقرير</Button>
-                    <Button Variant="ButtonVariant.Outline">تأجيل</Button>
-                    <Dropdown>
-                        <DropdownToggle AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
-                                <Icon Name="LucideIcon.Ellipsis" />
-                            </Button>
-                        </DropdownToggle>
-                        <DropdownMenu RightAligned="true" Class="w-40">
-                            <DropdownItem>تمييز كمقروءة</DropdownItem>
-                            <DropdownItem>أرشفة</DropdownItem>
-                            <DropdownDivider />
-                            <DropdownItem>تأجيل</DropdownItem>
-                            <DropdownItem Variant="destructive">حذف</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                    <ButtonGroup Class="hidden sm:flex">
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="الرجوع">
+                            <Icon Name="LucideIcon.ArrowRight" />
+                        </Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">أرشفة</Button>
+                        <Button Variant="ButtonVariant.Outline">تقرير</Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">تأجيل</Button>
+                        <Dropdown>
+                            <DropdownToggle AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
+                                    <Icon Name="LucideIcon.Ellipsis" />
+                                </Button>
+                            </DropdownToggle>
+                            <DropdownMenu RightAligned="true" Class="w-52">
+                                <DropdownItem>تمييز كمقروءة</DropdownItem>
+                                <DropdownItem>أرشفة</DropdownItem>
+                                <DropdownDivider />
+                                <DropdownItem>تأجيل</DropdownItem>
+                                <DropdownItem Variant="destructive">حذف</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </ButtonGroup>
                 </ButtonGroup>
             </DemoSection>
         </Section>
@@ -335,6 +356,8 @@
 </Div>
 
 @code {
+    private string _buttonGroupCurrency = "$";
+
     private const string BasicCode =
 @"<ButtonGroup AriaLabel=""Message actions"">
     <ButtonGroup Class=""hidden sm:flex"">
@@ -432,8 +455,16 @@
 
     private const string SelectCode =
 @"<ButtonGroup>
-    <Select TValue=""string"">...</Select>
-    <Input Placeholder=""10.00"" />
+    <ButtonGroup>
+        <Select TValue=""string"" @bind-SelectedValue=""_currency"">
+            <SelectTrigger Class=""font-mono"">@_currency</SelectTrigger>
+            <SelectContent Class=""min-w-24"">...</SelectContent>
+        </Select>
+        <Input Placeholder=""10.00"" />
+    </ButtonGroup>
+    <ButtonGroup>
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""Send"">...</Button>
+    </ButtonGroup>
 </ButtonGroup>";
 
     private const string PopoverCode =
@@ -456,16 +487,18 @@
 
     private const string RtlCode =
 @"<ButtonGroup dir=""rtl"" AriaLabel=""إجراءات الرسالة"">
-    <Button Variant=""ButtonVariant.Outline"">أرشفة</Button>
-    <Button Variant=""ButtonVariant.Outline"">تقرير</Button>
-    <Button Variant=""ButtonVariant.Outline"">تأجيل</Button>
-    <Dropdown>
-        <DropdownToggle AsChild=""true"">
-            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More Options"">
-                <Icon Name=""LucideIcon.Ellipsis"" />
-            </Button>
-        </DropdownToggle>
-        <DropdownMenu RightAligned=""true"" Class=""w-40"">...</DropdownMenu>
-    </Dropdown>
+    <ButtonGroup Class=""hidden sm:flex"">
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""الرجوع"">
+            <Icon Name=""LucideIcon.ArrowRight"" />
+        </Button>
+    </ButtonGroup>
+    <ButtonGroup>
+        <Button Variant=""ButtonVariant.Outline"">أرشفة</Button>
+        <Button Variant=""ButtonVariant.Outline"">تقرير</Button>
+    </ButtonGroup>
+    <ButtonGroup>
+        <Button Variant=""ButtonVariant.Outline"">تأجيل</Button>
+        <Dropdown>...</Dropdown>
+    </ButtonGroup>
 </ButtonGroup>";
 }

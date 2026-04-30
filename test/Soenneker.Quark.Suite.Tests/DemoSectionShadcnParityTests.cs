@@ -42,4 +42,27 @@ public sealed partial class RenderedShadcnParityTests
         contentInner!.GetAttribute("class")!.Should().Contain("items-center");
         contentInner.GetAttribute("class")!.Should().Contain("justify-center");
     }
+
+    [Test]
+    public void DemoSection_can_render_shadcn_rtl_preview_toolbar()
+    {
+        var cut = Render<Components.DemoSection>(parameters => parameters
+            .Add(p => p.PreviewDir, "rtl")
+            .Add(p => p.PreviewLang, "ar")
+            .Add(p => p.ShowPreviewToolbar, true)
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Preview</div>"))));
+
+        var preview = cut.Find("[data-slot='preview']");
+        var toolbar = cut.Find("[data-slot='preview-toolbar']");
+        var languageSelect = toolbar.QuerySelector("select[aria-label='Language']");
+
+        preview.GetAttribute("dir").Should().Be("rtl");
+        preview.GetAttribute("data-lang").Should().Be("ar");
+        toolbar.GetAttribute("dir").Should().Be("ltr");
+        toolbar.GetAttribute("class")!.Should().Contain("h-14");
+        toolbar.GetAttribute("class")!.Should().Contain("border-b");
+        languageSelect.Should().NotBeNull();
+        languageSelect!.GetAttribute("dir").Should().Be("ltr");
+        languageSelect.TextContent.Should().Contain("Arabic (العربية)");
+    }
 }

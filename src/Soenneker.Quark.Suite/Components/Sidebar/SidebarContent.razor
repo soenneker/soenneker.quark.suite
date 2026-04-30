@@ -6,6 +6,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public bool HideScrollbar { get; set; }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -26,6 +29,15 @@
         {
             AppendClass(ref cls, "min-h-0 flex-col group-data-[collapsible=icon]:overflow-hidden");
             AppendClass(ref cls, "group-data-[shell=navigation]:w-full group-data-[shell=navigation]:px-4 group-data-[shell=navigation]:pb-6 group-data-[shell=navigation]:lg:mx-auto group-data-[shell=navigation]:lg:w-(--sidebar-menu-width) group-data-[shell=navigation]:lg:px-2");
+
+            if (HideScrollbar)
+                AppendClass(ref cls, "no-scrollbar");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HideScrollbar);
     }
 }

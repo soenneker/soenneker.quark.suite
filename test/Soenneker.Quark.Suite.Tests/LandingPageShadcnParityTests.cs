@@ -56,6 +56,14 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Main_layout_docs_sidebar_hides_native_scrollbar()
+    {
+        var source = System.IO.File.ReadAllText(System.IO.Path.Combine(GetSuiteRootForLandingPage(), "test", "Soenneker.Quark.Suite.Demo", "MainLayout.razor"));
+
+        source.Should().Contain("<SidebarContent HideScrollbar=\"true\">");
+    }
+
+    [Test]
     public void Demo_host_uses_local_base_href_and_publish_rewrites_it_for_github_pages()
     {
         var root = GetSuiteRootForLandingPage();

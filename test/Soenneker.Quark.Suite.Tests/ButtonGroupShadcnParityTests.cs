@@ -111,6 +111,17 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Create a split button group with a DropdownMenu component.");
         source.Should().Contain("Pair with a Select component.");
         source.Should().Contain("Use with a Popover component.");
+        source.Should().Contain("PreviewDir=\"rtl\"");
+        source.Should().Contain("PreviewLang=\"ar\"");
+        source.Should().Contain("ShowPreviewToolbar=\"true\"");
+        source.Should().Contain("<Select TValue=\"string\" @bind-SelectedValue=\"_buttonGroupCurrency\">");
+        source.Should().Contain("<SelectTrigger Class=\"font-mono\">");
+        source.Should().Contain("@_buttonGroupCurrency");
+        source.Should().Contain(@"<SelectItem TValue=""string"" ItemValue=""@(""$"")"">");
+        source.Should().Contain("<Span TextColor=\"TextColor.MutedForeground\">US Dollar</Span>");
+        source.Should().Contain("<ButtonGroup Class=\"hidden sm:flex\">");
+        source.Should().Contain("aria-label=\"الرجوع\"");
+        source.Should().Contain("<Icon Name=\"LucideIcon.ArrowRight\" />");
         source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">أرشفة</Button>");
         source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">تقرير</Button>");
         source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">تأجيل</Button>");
