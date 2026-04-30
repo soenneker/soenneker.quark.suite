@@ -78,4 +78,18 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("self-stretch");
         classes.Should().Contain("data-[orientation=vertical]:h-auto");
     }
+
+    [Test]
+    public void ButtonGroupSeparator_default_orientation_does_not_follow_parent_group()
+    {
+        var cut = Render<ButtonGroup>(parameters => parameters
+            .Add(p => p.Vertical, true)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<ButtonGroupSeparator>(0);
+                builder.CloseComponent();
+            })));
+
+        cut.Find("[data-slot='button-group-separator']").GetAttribute("data-orientation").Should().Be("vertical");
+    }
 }

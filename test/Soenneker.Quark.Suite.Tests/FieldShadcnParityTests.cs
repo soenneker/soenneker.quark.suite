@@ -68,12 +68,12 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='field-description']").GetAttribute("class")!;
 
-        classes.Should().Contain("text-left");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("font-normal");
         classes.Should().Contain("leading-normal");
         classes.Should().Contain("text-muted-foreground");
         classes.Should().Contain("group-has-[[data-orientation=horizontal]]/field:text-balance");
+        classes.Should().NotContain("text-left");
         classes.Should().NotContain("text-start");
     }
 

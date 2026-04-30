@@ -8,9 +8,6 @@
                  AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
-    [CascadingParameter]
-    public IButtonGroup? ButtonGroup { get; set; }
-
     [Parameter]
     public SeparatorOrientation? Orientation { get; set; }
 
@@ -18,7 +15,7 @@
     {
         get
         {
-            var effectiveOrientation = Orientation ?? (ButtonGroup?.Vertical == true ? SeparatorOrientation.Horizontal : SeparatorOrientation.Vertical);
+            var effectiveOrientation = Orientation ?? SeparatorOrientation.Vertical;
             return effectiveOrientation == SeparatorOrientation.Horizontal ? Soenneker.Bradix.Orientation.Horizontal : Soenneker.Bradix.Orientation.Vertical;
         }
     }
@@ -49,7 +46,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ButtonGroup?.Vertical);
         hc.Add(Orientation);
     }
 }
