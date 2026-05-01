@@ -66,6 +66,7 @@ public sealed partial class RenderedShadcnParityTests
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForSortable(), "src", "Soenneker.Quark.Suite", "Components", "Sortable", "SortableList.razor"));
 
         source.Should().Contain("_lastFailedInitializationKey");
+        source.Should().Contain("OnReorder.HasDelegate");
         source.Should().Contain("!string.Equals(_lastFailedInitializationKey, initializationKey, StringComparison.Ordinal)");
         source.Should().Contain("_lastFailedInitializationKey = initializationKey;");
         source.Should().Contain("_lastFailedInitializationKey = null;");

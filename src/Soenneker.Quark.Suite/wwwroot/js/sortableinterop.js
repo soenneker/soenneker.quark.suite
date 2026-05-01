@@ -7,7 +7,7 @@ export function ensureAvailable() {
   }
 }
 
-export function initializeList(element, disabled, sort, animation, forceFallback, itemSelector, handleSelector, filterSelector, group, dotNetRef) {
+export function initializeList(element, disabled, sort, animation, forceFallback, itemSelector, handleSelector, filterSelector, group, notifyOnReorder, dotNetRef) {
   if (!element) {
     return;
   }
@@ -15,14 +15,18 @@ export function initializeList(element, disabled, sort, animation, forceFallback
   ensureAvailable();
   destroy(element);
 
-    const options = {
-        animation: animation ?? 150,
-        disabled: !!disabled,
-        sort: sort !== false,
-        forceFallback: forceFallback !== false,
-        draggable: itemSelector || "[data-sortable-item]",
-        onEnd: (evt) => {
-      dotNetRef.invokeMethodAsync("HandleReorder", {
+  const options = {
+    animation: animation ?? 150,
+    disabled: !!disabled,
+    sort: sort !== false,
+    forceFallback: forceFallback !== false,
+    draggable: itemSelector || "[data-sortable-item]",
+    onEnd: (evt) => {
+      if (!notifyOnReorder) {
+        return;
+      }
+
+      const reorderArgs = {
         oldIndex: evt.oldIndex ?? -1,
         newIndex: evt.newIndex ?? -1,
         oldDraggableIndex: evt.oldDraggableIndex ?? -1,
@@ -30,7 +34,9 @@ export function initializeList(element, disabled, sort, animation, forceFallback
         itemId: evt.item?.getAttribute("data-sortable-id"),
         fromListId: evt.from?.getAttribute("data-sortable-list-id"),
         toListId: evt.to?.getAttribute("data-sortable-list-id"),
-      });
+      };
+
+      window.setTimeout(() => dotNetRef.invokeMethodAsync("HandleReorder", reorderArgs), Math.max(0, animation ?? 0));
     },
   };
 
@@ -49,7 +55,7 @@ export function initializeList(element, disabled, sort, animation, forceFallback
   const instance = new window.Sortable(element, options);
   element.__quarkSortable = instance;
   sortableInstances.set(element, instance);
-  registerKeyboardReorder(element, !!disabled, itemSelector || "[data-sortable-item]", handleSelector, dotNetRef);
+  registerKeyboardReorder(element, !!disabled, itemSelector || "[data-sortable-item]", handleSelector, notifyOnReorder, dotNetRef);
 }
 
 export function destroy(element) {
@@ -70,7 +76,7 @@ export function destroy(element) {
   unregisterKeyboardReorder(element);
 }
 
-function registerKeyboardReorder(element, disabled, itemSelector, handleSelector, dotNetRef) {
+function registerKeyboardReorder(element, disabled, itemSelector, handleSelector, notifyOnReorder, dotNetRef) {
   unregisterKeyboardReorder(element);
 
   if (!element || disabled) {
@@ -155,22 +161,24 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
     event.preventDefault();
     event.stopPropagation();
 
-    const reference = newIndex > oldIndex ? items[newIndex].nextSibling : items[newIndex];
-    element.insertBefore(activeItem, reference);
-
     const itemId = activeItem.getAttribute("data-sortable-id");
     const listId = element.getAttribute("data-sortable-list-id");
     liveRegion.textContent = `${itemId || "Item"} moved from position ${oldIndex + 1} to ${newIndex + 1}.`;
 
-    await dotNetRef.invokeMethodAsync("HandleReorder", {
-      oldIndex,
-      newIndex,
-      oldDraggableIndex: oldIndex,
-      newDraggableIndex: newIndex,
-      itemId,
-      fromListId: listId,
-      toListId: listId,
-    });
+    if (notifyOnReorder) {
+      await dotNetRef.invokeMethodAsync("HandleReorder", {
+        oldIndex,
+        newIndex,
+        oldDraggableIndex: oldIndex,
+        newDraggableIndex: newIndex,
+        itemId,
+        fromListId: listId,
+        toListId: listId,
+      });
+    } else {
+      const reference = newIndex > oldIndex ? items[newIndex].nextSibling : items[newIndex];
+      element.insertBefore(activeItem, reference);
+    }
 
     requestAnimationFrame(() => {
       const selector = itemId ? `[data-sortable-id="${cssEscape(itemId)}"]` : itemSelector;

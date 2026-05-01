@@ -113,12 +113,12 @@
             await SortableInterop.Initialize();
 
             _dotNetRef ??= DotNetObjectReference.Create(this);
-            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}";
+            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}|{OnReorder.HasDelegate}";
 
             if (firstRender || !string.Equals(_lastInitializationKey, initializationKey, StringComparison.Ordinal))
             {
                 await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ForceFallback, ItemSelector, ResolveHandleSelector(), FilterSelector,
-                    Group, _dotNetRef);
+                    Group, OnReorder.HasDelegate, _dotNetRef);
                 _lastInitializationKey = initializationKey;
                 _lastFailedInitializationKey = null;
             }
@@ -131,7 +131,7 @@
         }
         catch (Exception ex)
         {
-            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}";
+            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}|{OnReorder.HasDelegate}";
             var error = ex.GetType().Name;
 
             if (!string.Equals(_initializationError, error, StringComparison.Ordinal) ||

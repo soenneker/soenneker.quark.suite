@@ -276,7 +276,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector, string? handleSelector,
-            string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference,
+            string? filterSelector, string? group, bool notifyOnReorder, DotNetObjectReference<SortableList> callbackReference,
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;

@@ -43,13 +43,21 @@ public sealed class QuarkSortablePlaywrightTests : QuarkPlaywrightTest
 
         var auditLog = basicList.Locator("[data-sortable-id='audit-log']").First;
         var usageAnalytics = basicList.Locator("[data-sortable-id='usage-analytics']").First;
+        var billingExport = basicList.Locator("[data-sortable-id='billing-export']").First;
 
-        await DragSortableItemToTarget(page, auditLog, usageAnalytics);
+        await DragSortableItemToTarget(page, usageAnalytics, billingExport);
+        if ((await GetSortableItemOrder(basicList))[1] != "usage-analytics")
+            await DragSortableItemToTarget(page, usageAnalytics, billingExport);
+
+        await Assertions.Expect(basicOrder).ToContainTextAsync("Billing export retry policy -> Usage analytics dashboard -> Empty state polish -> Audit log filters");
+        (await GetSortableItemOrder(basicList)).Should().Equal(["billing-export", "usage-analytics", "empty-state", "audit-log"]);
+
+        await DragSortableItemToTarget(page, auditLog, billingExport);
         if ((await GetSortableItemOrder(basicList))[0] != "audit-log")
-            await DragSortableItemToTarget(page, auditLog, usageAnalytics);
+            await DragSortableItemToTarget(page, auditLog, billingExport);
 
-        await Assertions.Expect(basicOrder).ToContainTextAsync("Audit log filters -> Usage analytics dashboard -> Billing export retry policy -> Empty state polish");
-        (await GetSortableItemOrder(basicList)).Should().Equal(["audit-log", "usage-analytics", "billing-export", "empty-state"]);
+        await Assertions.Expect(basicOrder).ToContainTextAsync("Audit log filters -> Billing export retry policy -> Usage analytics dashboard -> Empty state polish");
+        (await GetSortableItemOrder(basicList)).Should().Equal(["audit-log", "billing-export", "usage-analytics", "empty-state"]);
 
         var handleDemo = page.Locator("#sortable-handle-demo");
         var handleList = handleDemo.Locator("#sortable-handle-list");
@@ -83,6 +91,28 @@ public sealed class QuarkSortablePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(handleState).ToContainTextAsync("announce moved from 3 to 4.");
         await Assertions.Expect(page.Locator("[data-slot='sortable-live-region']").Last).ToContainTextAsync("announce moved from position 3 to 4.");
         (await GetSortableItemOrder(handleList)).Should().Equal(["build", "smoke", "promote", "announce"]);
+
+        var staticDemo = page.Locator("#sortable-static-demo");
+        var staticList = staticDemo.Locator("#sortable-static-list");
+        await WaitForSortableReady(page, staticList);
+
+        (await GetSortableItemOrder(staticList)).Should().Equal(["alpha", "bravo", "charlie"]);
+
+        var charlie = staticList.Locator("[data-sortable-id='charlie']").First;
+        var alpha = staticList.Locator("[data-sortable-id='alpha']").First;
+
+        await DragSortableItemToTarget(page, charlie, alpha);
+        if ((await GetSortableItemOrder(staticList))[0] != "charlie")
+            await DragSortableItemToTarget(page, charlie, alpha);
+
+        (await GetSortableItemOrder(staticList)).Should().Equal(["charlie", "alpha", "bravo"]);
+
+        var movedStaticItem = staticList.Locator("[data-sortable-id='charlie']").First;
+        await movedStaticItem.FocusAsync();
+        await movedStaticItem.PressAsync("ArrowDown");
+
+        (await GetSortableItemOrder(staticList)).Should().Equal(["alpha", "charlie", "bravo"]);
+        await Assertions.Expect(page.Locator("[data-slot='sortable-live-region']").Last).ToContainTextAsync("charlie moved from position 1 to 2.");
 
         var disabledDemo = page.Locator("#sortable-disabled-demo");
         var disabledList = disabledDemo.Locator("#sortable-disabled-list");

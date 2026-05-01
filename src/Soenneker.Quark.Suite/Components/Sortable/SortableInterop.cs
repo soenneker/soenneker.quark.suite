@@ -46,7 +46,7 @@ public sealed class SortableInterop : ISortableInterop
     }
 
     public async ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector,
-        string? handleSelector, string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference,
+        string? handleSelector, string? filterSelector, string? group, bool notifyOnReorder, DotNetObjectReference<SortableList> callbackReference,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -56,7 +56,7 @@ public sealed class SortableInterop : ISortableInterop
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
-                filterSelector, group, callbackReference);
+                filterSelector, group, notifyOnReorder, callbackReference);
         }
     }
 
