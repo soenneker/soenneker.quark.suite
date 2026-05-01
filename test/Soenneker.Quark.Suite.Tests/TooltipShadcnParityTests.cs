@@ -56,7 +56,15 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().NotContain("bg-primary");
         contentClasses.Should().NotContain("text-primary-foreground");
 
+        var arrowClasses = cut.Find("span[aria-hidden='true']").GetAttribute("class")!;
+
         cut.Markup.Should().Contain("bg-foreground fill-foreground");
+        arrowClasses.Should().Contain("pointer-events-none");
+        arrowClasses.Should().Contain("[[data-side=top]_&]:translate-y-1/2");
+        arrowClasses.Should().Contain("[[data-side=bottom]_&]:-translate-y-1/2");
+        arrowClasses.Should().Contain("[[data-side=left]_&]:translate-x-1/2");
+        arrowClasses.Should().Contain("[[data-side=right]_&]:-translate-x-1/2");
+        cut.Markup.Should().NotContain("translate-y-[calc(-50%_-_2px)]");
         cut.Markup.Should().Contain("width: 10px; height: 10px;");
     }
 
