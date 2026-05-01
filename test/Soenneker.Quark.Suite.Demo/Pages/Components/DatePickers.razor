@@ -9,7 +9,7 @@
             <DemoSection Description="A date picker component with range and presets."
                          Code="@BasicDatePickerCode"
                          CodeLanguage="razor"
-                         PreviewClass="preview relative flex h-[28rem] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+                         PreviewClass="preview relative flex min-h-[350px] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
                 @DatePickerOverviewExample
             </DemoSection>
         </Section>
@@ -59,12 +59,12 @@
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
                     <Div Display="Display.Grid" Gap="Gap.Is2">
-                        <FieldLabel For="date-of-birth">Date of birth</FieldLabel>
+                        <FieldLabel For="date">Date of birth</FieldLabel>
                         <Popover Open="_dobOpen" OpenChanged="OnDobOpenChanged">
                             <PopoverTrigger AsChild="true">
-                                <Button Id="date-of-birth"
+                                <Button Id="date"
                                         Variant="ButtonVariant.Outline"
-                                        Class="@DatePlainButtonClass(_dobDate is not null, "w-[240px]")">
+                                        Class="@DatePlainButtonClass(_dobDate is not null, "w-[176px]")">
                                     @(_dobDate is null ? "Select date" : FormatDate(_dobDate))
                                 </Button>
                             </PopoverTrigger>
@@ -88,20 +88,23 @@
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
                     <Div Display="Display.Grid" Gap="Gap.Is2">
-                        <FieldLabel For="subscription-date">Subscription Date</FieldLabel>
+                        <FieldLabel For="date-required">Subscription Date</FieldLabel>
                         <Popover Open="_subscriptionOpen" OpenChanged="OnSubscriptionOpenChanged">
-                            <InputGroup Class="w-[280px]">
-                                <InputGroupInput Id="subscription-date"
-                                                 Placeholder="June 01, 2025"
-                                                 @bind-Value="_subscriptionDateText" />
-                                <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
-                                    <PopoverTrigger AsChild="true">
-                                        <InputGroupButton Size="ButtonSize.IconSm" aria-label="Select date">
-                                            <Icon Name="LucideIcon.Calendar" />
-                                        </InputGroupButton>
-                                    </PopoverTrigger>
-                                </InputGroupAddon>
-                            </InputGroup>
+                            <Div Class="w-[192px]">
+                                <InputGroup>
+                                    <InputGroupInput Id="date-required"
+                                                     Placeholder="June 01, 2025"
+                                                     @bind-Value="_subscriptionDateText" />
+                                    <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
+                                        <PopoverTrigger AsChild="true">
+                                            <InputGroupButton Id="date-picker" Size="ButtonSize.IconXs" aria-label="Select date">
+                                                <Icon Name="LucideIcon.Calendar" />
+                                                <Span Class="sr-only">Select date</Span>
+                                            </InputGroupButton>
+                                        </PopoverTrigger>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Div>
                             <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
                                 <Calendar SelectedDate="_subscriptionDate" SelectedDateChanged="OnSubscriptionDateChanged" />
                             </PopoverContent>
@@ -119,12 +122,12 @@
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
                     <Div Display="Display.Flex" Gap="Gap.Is4" AlignItems="AlignItems.End">
                         <Div Display="Display.Grid" Gap="Gap.Is2">
-                            <FieldLabel For="time-picker-date">Date</FieldLabel>
+                            <FieldLabel For="date-picker-optional">Date</FieldLabel>
                             <Popover Open="_timePickerOpen" OpenChanged="OnTimePickerOpenChanged">
                                 <PopoverTrigger AsChild="true">
-                                    <Button Id="time-picker-date"
+                                    <Button Id="date-picker-optional"
                                             Variant="ButtonVariant.Outline"
-                                            Class="@DateButtonClass(_timePickerDate is not null, "w-[186px]")">
+                                            Class="@DateButtonClass(_timePickerDate is not null, "w-32")">
                                         @(_timePickerDate is null ? "Select date" : FormatDate(_timePickerDate))
                                         <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
                                     </Button>
@@ -135,8 +138,10 @@
                             </Popover>
                         </Div>
                         <Div Display="Display.Grid" Gap="Gap.Is2">
-                            <FieldLabel For="time-picker-time">Time</FieldLabel>
-                            <TextInput Id="time-picker-time" Type="time" Step="1" Class="w-[116px]" @bind-Value="_timeText" />
+                            <FieldLabel For="time-picker-optional">Time</FieldLabel>
+                            <Div Class="w-[116px]">
+                                <TextInput Id="time-picker-optional" Type="time" Step="1" Class="appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none" @bind-Value="_timeText" />
+                            </Div>
                         </Div>
                     </Div>
                 </Div>
@@ -149,18 +154,19 @@
                          Code="@NaturalLanguagePickerCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
-                    <Div Display="Display.Grid" Gap="Gap.Is2" Class="w-[300px]">
-                        <FieldLabel For="schedule-date">Schedule Date</FieldLabel>
+                    <Div Display="Display.Grid" Gap="Gap.Is2" Class="w-[320px]">
+                        <FieldLabel For="date-optional">Schedule Date</FieldLabel>
                         <Popover Open="_naturalLanguageOpen" OpenChanged="OnNaturalLanguageOpenChanged">
                             <InputGroup>
-                                <InputGroupInput Id="schedule-date"
+                                <InputGroupInput Id="date-optional"
                                                  Placeholder="Tomorrow or next week"
                                                  Value="@_naturalLanguageText"
                                                  ValueChanged="OnNaturalLanguageTextChanged" />
                                 <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
                                     <PopoverTrigger AsChild="true">
-                                        <InputGroupButton Size="ButtonSize.IconSm" aria-label="Select date">
+                                        <InputGroupButton Id="date-picker" Size="ButtonSize.IconXs" aria-label="Select date">
                                             <Icon Name="LucideIcon.Calendar" />
+                                            <Span Class="sr-only">Select date</Span>
                                         </InputGroupButton>
                                     </PopoverTrigger>
                                 </InputGroupAddon>
@@ -184,17 +190,27 @@
                          Code="@RtlDatePickerCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
-                    <Div Dir="rtl" Display="Display.Grid" Gap="Gap.Is3" Class="w-[260px]">
-                        <NativeSelect Value="_rtlLocale" ValueChanged="OnRtlLocaleChanged">
-                            <NativeSelectOption Value="ar">Arabic (العربية)</NativeSelectOption>
-                            <NativeSelectOption Value="he">Hebrew (עברית)</NativeSelectOption>
-                        </NativeSelect>
-                        <Button Variant="ButtonVariant.Outline" OnClick="ToggleRtlDate">
-                            Toggle
-                        </Button>
+                    <Div Dir="rtl" Display="Display.Grid" Class="w-fit gap-6">
+                        <Div Display="Display.Flex" AlignItems="AlignItems.Center" Gap="Gap.Is2" dir="ltr">
+                            <Select TValue="string" Size="SelectSizes.Sm" SelectedValue="@_rtlLocale" SelectedValueChanged="OnRtlLocaleChanged">
+                                <SelectTrigger Class="w-36" dir="ltr">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
+                                    <SelectGroup>
+                                        <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                        <SelectItem TValue="string" ItemValue="@("he")" Text="Hebrew (עברית)" />
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm" Class="ml-auto size-7" OnClick="ToggleRtlDate">
+                                <Icon Name="LucideIcon.Languages" />
+                                <Span Class="sr-only">Toggle</Span>
+                            </Button>
+                        </Div>
                         <Popover>
                             <PopoverTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Outline" Class="@DateButtonClass(_rtlDate is not null, "w-full")">
+                                <Button Variant="ButtonVariant.Outline" Class="@DateButtonClass(_rtlDate is not null, "w-[212px]")">
                                     @FormatRtlDate()
                                     <Icon Name="LucideIcon.ChevronDown" Class="mr-auto size-4 opacity-50" />
                                 </Button>
@@ -211,7 +227,8 @@
 </Div>
 
 @code {
-    private DateOnly? _dateOnly;
+    private DateOnly? _overviewDate;
+    private DateOnly? _basicDate;
     private CalendarDateRange? _rangeDate = new(new DateOnly(2026, 1, 20), new DateOnly(2026, 2, 9));
     private DateOnly? _dobDate;
     private bool _dobOpen;
@@ -233,31 +250,31 @@
         <Popover>
             <PopoverTrigger AsChild="true">
                 <Button Variant="ButtonVariant.Outline"
-                        Class="@DateButtonClass(_dateOnly is not null, "w-[240px]")">
-                    @FormatDate(_dateOnly)
+                        Class="@DateButtonClass(_overviewDate is not null, "w-[212px]")">
+                    @FormatDate(_overviewDate)
                     <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+                <Calendar SelectedDate="_overviewDate" SelectedDateChanged="OnOverviewDateChanged" />
             </PopoverContent>
         </Popover>
     </Div>;
 
     private RenderFragment DatePickerBasicExample => @<Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
         <Div Display="Display.Grid" Gap="Gap.Is2">
-            <FieldLabel For="date-picker-basic">Date</FieldLabel>
+            <FieldLabel For="date-picker-simple">Date</FieldLabel>
             <Popover>
                 <PopoverTrigger AsChild="true">
-                    <Button Id="date-picker-basic"
+                    <Button Id="date-picker-simple"
                             Variant="ButtonVariant.Outline"
-                            Class="@DateButtonClass(_dateOnly is not null, "w-[240px]")">
-                        @FormatDate(_dateOnly)
+                            Class="@DatePlainButtonClass(_basicDate is not null, "w-[176px]")">
+                        @FormatDate(_basicDate)
                         <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                    <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+                    <Calendar SelectedDate="_basicDate" SelectedDateChanged="OnBasicDateChanged" />
                 </PopoverContent>
             </Popover>
         </Div>
@@ -278,12 +295,34 @@
     private static string DateRangeButtonClass(bool hasValue)
     {
         var muted = hasValue ? string.Empty : " text-muted-foreground";
-        return $"w-[300px] justify-start text-left font-normal{muted}";
+        return $"w-[240px] justify-start text-left font-normal{muted}";
     }
 
     private static string FormatDate(DateOnly? value)
     {
-        return value?.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture) ?? "Pick a date";
+        if (value is null)
+            return "Pick a date";
+
+        var day = value.Value.Day;
+
+        return value.Value.ToString("MMM ", CultureInfo.InvariantCulture) + day.ToString(CultureInfo.InvariantCulture) + GetOrdinalSuffix(day) + value.Value.ToString(", yyyy", CultureInfo.InvariantCulture);
+    }
+
+    private static string GetOrdinalSuffix(int day)
+    {
+        var lastTwo = day % 100;
+        if (lastTwo >= 11 && lastTwo <= 13)
+            return "th";
+
+        var last = day % 10;
+        if (last == 1)
+            return "st";
+        if (last == 2)
+            return "nd";
+        if (last == 3)
+            return "rd";
+
+        return "th";
     }
 
     private static string FormatRange(CalendarDateRange? value)
@@ -308,9 +347,15 @@
         return _rtlDate.Value.ToString("dd MMMM yyyy", culture);
     }
 
+    private Task OnOverviewDateChanged(DateOnly? value)
+    {
+        _overviewDate = value;
+        return Task.CompletedTask;
+    }
+
     private Task OnBasicDateChanged(DateOnly? value)
     {
-        _dateOnly = value;
+        _basicDate = value;
         return Task.CompletedTask;
     }
 
@@ -430,10 +475,10 @@
     }
 
     private const string BasicDatePickerCode =
-@"<FieldLabel For=""date-picker-basic"">Date</FieldLabel>
+@"<FieldLabel For=""date-picker-simple"">Date</FieldLabel>
 <Popover>
     <PopoverTrigger AsChild=""true"">
-        <Button Id=""date-picker-basic"" Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
+        <Button Id=""date-picker-simple"" Variant=""ButtonVariant.Outline"" Class=""w-[176px] justify-start text-left font-normal"">
             @FormatDate(_dateOnly)
             <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
         </Button>
@@ -447,7 +492,7 @@
 @"<FieldLabel For=""date-picker-range"">Date Picker Range</FieldLabel>
 <Popover>
     <PopoverTrigger AsChild=""true"">
-        <Button Id=""date-picker-range"" Variant=""ButtonVariant.Outline"" Class=""w-[300px] justify-start text-left font-normal"">
+        <Button Id=""date-picker-range"" Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
             <Icon Name=""LucideIcon.Calendar"" Class=""size-4"" />
             @FormatRange(_rangeDate)
         </Button>
@@ -458,10 +503,10 @@
 </Popover>";
 
     private const string DateOfBirthCode =
-@"<FieldLabel For=""date-of-birth"">Date of birth</FieldLabel>
+@"<FieldLabel For=""date"">Date of birth</FieldLabel>
 <Popover>
     <PopoverTrigger AsChild=""true"">
-        <Button Id=""date-of-birth"" Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
+        <Button Id=""date"" Variant=""ButtonVariant.Outline"" Class=""w-[176px] justify-start text-left font-normal"">
             Select date
         </Button>
     </PopoverTrigger>
@@ -471,18 +516,21 @@
 </Popover>";
 
     private const string InputPickerCode =
-@"<FieldLabel For=""subscription-date"">Subscription Date</FieldLabel>
+@"<FieldLabel For=""date-required"">Subscription Date</FieldLabel>
 <Popover>
-    <InputGroup Class=""w-[280px]"">
-        <InputGroupInput Id=""subscription-date"" Placeholder=""June 01, 2025"" @bind-Value=""_subscriptionDateText"" />
-        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-            <PopoverTrigger AsChild=""true"">
-                <InputGroupButton Size=""ButtonSize.IconSm"" aria-label=""Select date"">
-                    <Icon Name=""LucideIcon.Calendar"" />
-                </InputGroupButton>
-            </PopoverTrigger>
-        </InputGroupAddon>
-    </InputGroup>
+    <Div Class=""w-[192px]"">
+        <InputGroup>
+            <InputGroupInput Id=""date-required"" Placeholder=""June 01, 2025"" @bind-Value=""_subscriptionDateText"" />
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+                <PopoverTrigger AsChild=""true"">
+                    <InputGroupButton Id=""date-picker"" Size=""ButtonSize.IconXs"" aria-label=""Select date"">
+                        <Icon Name=""LucideIcon.Calendar"" />
+                        <Span Class=""sr-only"">Select date</Span>
+                    </InputGroupButton>
+                </PopoverTrigger>
+            </InputGroupAddon>
+        </InputGroup>
+    </Div>
     <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
         <Calendar SelectedDate=""_subscriptionDate"" SelectedDateChanged=""OnSubscriptionDateChanged"" />
     </PopoverContent>
@@ -491,10 +539,10 @@
     private const string TimePickerCode =
 @"<Div Display=""Display.Flex"" Gap=""Gap.Is4"" AlignItems=""AlignItems.End"">
     <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
-        <FieldLabel For=""time-picker-date"">Date</FieldLabel>
+        <FieldLabel For=""date-picker-optional"">Date</FieldLabel>
         <Popover>
             <PopoverTrigger AsChild=""true"">
-                <Button Id=""time-picker-date"" Variant=""ButtonVariant.Outline"" Class=""w-[186px] justify-between text-left font-normal"">Select date</Button>
+                <Button Id=""date-picker-optional"" Variant=""ButtonVariant.Outline"" Class=""w-32 justify-between text-left font-normal"">Select date</Button>
             </PopoverTrigger>
             <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
                 <Calendar SelectedDate=""_timePickerDate"" SelectedDateChanged=""OnTimePickerDateChanged"" />
@@ -502,19 +550,22 @@
         </Popover>
     </Div>
     <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
-        <FieldLabel For=""time-picker-time"">Time</FieldLabel>
-        <TextInput Id=""time-picker-time"" Type=""time"" Step=""1"" Class=""w-[116px]"" @bind-Value=""_timeText"" />
+        <FieldLabel For=""time-picker-optional"">Time</FieldLabel>
+        <Div Class=""w-[116px]"">
+            <TextInput Id=""time-picker-optional"" Type=""time"" Step=""1"" Class=""appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"" @bind-Value=""_timeText"" />
+        </Div>
     </Div>
 </Div>";
 
     private const string NaturalLanguagePickerCode =
-@"<FieldLabel For=""schedule-date"">Schedule Date</FieldLabel>
+@"<FieldLabel For=""date-optional"">Schedule Date</FieldLabel>
 <InputGroup>
-    <InputGroupInput Id=""schedule-date"" Placeholder=""Tomorrow or next week"" Value=""In 2 days"" />
+    <InputGroupInput Id=""date-optional"" Placeholder=""Tomorrow or next week"" Value=""In 2 days"" />
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
         <PopoverTrigger AsChild=""true"">
-            <InputGroupButton Size=""ButtonSize.IconSm"" aria-label=""Select date"">
+            <InputGroupButton Id=""date-picker"" Size=""ButtonSize.IconXs"" aria-label=""Select date"">
                 <Icon Name=""LucideIcon.Calendar"" />
+                <Span Class=""sr-only"">Select date</Span>
             </InputGroupButton>
         </PopoverTrigger>
     </InputGroupAddon>
@@ -522,10 +573,11 @@
 
     private const string RtlDatePickerCode =
 @"<Div Dir=""rtl"">
-    <NativeSelect Value=""ar"">
-        <NativeSelectOption Value=""ar"">Arabic (العربية)</NativeSelectOption>
-    </NativeSelect>
-    <Button Variant=""ButtonVariant.Outline"">Toggle</Button>
+    <Select TValue=""string"" Size=""SelectSizes.Sm"" SelectedValue=""ar"">
+        <SelectTrigger Class=""w-36"" dir=""ltr""><SelectValue /></SelectTrigger>
+        <SelectContent dir=""ltr""><SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" /></SelectContent>
+    </Select>
+    <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Class=""ml-auto size-7""><Icon Name=""LucideIcon.Languages"" /><Span Class=""sr-only"">Toggle</Span></Button>
     <Popover>
         <PopoverTrigger AsChild=""true"">
             <Button Variant=""ButtonVariant.Outline"">اختر تاريخًا</Button>

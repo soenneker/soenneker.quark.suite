@@ -6,32 +6,35 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
-                         Description="Order summary with status row and expandable shipping and line items."
+                         Description="An interactive component which expands/collapses a panel."
                          Code="@OrderCode"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" Justify="Justify.Center">
-                    <Collapsible Open="_orderOpen" OpenChanged="OnOrderOpenChanged" Display="Display.Flex" Width='Width.Token("[350px]")' FlexDirection="FlexDirection.Col" Gap="Gap.Is2">
+                <Div Class="flex w-full justify-center">
+                    <Collapsible Open="_orderOpen" OpenChanged="OnOrderOpenChanged" Class="flex w-[350px] max-w-full flex-col gap-2">
                         <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is4" Padding="Padding.Is4.OnX">
-                            <Div TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">@@peduarte starred 3 repositories</Div>
+                            <div class="m-0 whitespace-nowrap text-sm font-semibold">Order #4189</div>
                             <CollapsibleTrigger AsChild="true">
                                 <Button Variant="ButtonVariant.Ghost"
                                         Size="ButtonSize.IconSm"
                                         Class="group"
                                         BoxSize="Size.Is8">
                                     <Icon Name="LucideIcon.ChevronsUpDown" Class="transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                                    <Span ScreenReader="ScreenReader.Only">Toggle</Span>
+                                    <Span ScreenReader="ScreenReader.Only">Toggle details</Span>
                                 </Button>
                             </CollapsibleTrigger>
                         </Div>
-                        <Div Rounded="Rounded.Md" Border="Border.Is1" Padding="Padding.Is4.OnX.Is2.OnY" FontFamily="FontFamily.Mono" TextSize="TextSize.Sm">
-                            @@radix-ui/primitives
+                        <Div Class="flex items-center justify-between rounded-md border px-4 py-2 text-sm">
+                            <Span TextColor="TextColor.MutedForeground">Status</Span>
+                            <Span FontWeight="FontWeight.Medium">Shipped</Span>
                         </Div>
                         <CollapsibleContent Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is2">
-                            <Div Class="rounded-md border px-4 py-2 font-mono text-sm">
-                                @@radix-ui/colors
+                            <Div Class="rounded-md border px-4 py-2 text-sm">
+                                <Div Class="text-muted-foreground">Shipping address</Div>
+                                <Div Class="font-medium">100 Market St, San Francisco</Div>
                             </Div>
-                            <Div Class="rounded-md border px-4 py-2 font-mono text-sm">
-                                @@stitches/react
+                            <Div Class="rounded-md border px-4 py-2 text-sm">
+                                <Div Class="text-muted-foreground">Items</Div>
+                                <Div Class="font-medium">2x Studio Headphones</Div>
                             </Div>
                         </CollapsibleContent>
                     </Collapsible>
@@ -41,7 +44,6 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
-                         Description="Product details inside a compact card."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <Card Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
@@ -70,7 +72,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Settings Panel"
-                         Description="Expandable fields for corner radius, with a compact toggle trigger."
+                         Description="Use a trigger button to reveal additional settings."
                          Code="@SettingsCode"
                          CodeLanguage="razor">
                 <Card Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
@@ -86,11 +88,11 @@
                                      Display="Display.Flex" ItemsAlign="Items.Start" Gap="Gap.Is2">
                             <FieldGroup Class="grid w-full grid-cols-2 gap-2">
                                 <Field>
-                                    <FieldLabel For="radius-top-left" ScreenReader="ScreenReader.Only">Radius top left</FieldLabel>
+                                    <FieldLabel For="radius-top-left" ScreenReader="ScreenReader.Only">Radius X</FieldLabel>
                                     <Input Id="radius-top-left" Placeholder="0" Value="4" />
                                 </Field>
                                 <Field>
-                                    <FieldLabel For="radius-top-right" ScreenReader="ScreenReader.Only">Radius top right</FieldLabel>
+                                    <FieldLabel For="radius-top-right" ScreenReader="ScreenReader.Only">Radius Y</FieldLabel>
                                     <Input Id="radius-top-right" Placeholder="0" Value="4" />
                                 </Field>
                                 <CollapsibleContent Class="col-span-full grid grid-cols-subgrid gap-2">
@@ -124,7 +126,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="File Tree"
-                         Description="Nested folders and files using stacked collapsibles inside a small explorer card."
+                         Description="Use nested collapsibles to build a file tree."
                          Code="@FileTreeCode"
                          CodeLanguage="razor">
                 <Card Class="mx-auto w-full max-w-[16rem] gap-2">
@@ -204,9 +206,90 @@
                                             </Div>
                                         </CollapsibleContent>
                                     </Collapsible>
+                                    <Collapsible Open="_hooksOpen" OpenChanged="OnHooksOpenChanged">
+                                        <CollapsibleTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Width="Width.IsFull" Justify="Justify.Start" Class="group transition-none hover:bg-accent hover:text-accent-foreground">
+                                                <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                <Icon Name="LucideIcon.Folder" />
+                                                hooks
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent Class="mt-1 ml-5">
+                                            <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is1">
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    use-mobile.ts
+                                                </Button>
+                                            </Div>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                    <Collapsible Open="_typesOpen" OpenChanged="OnTypesOpenChanged">
+                                        <CollapsibleTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Width="Width.IsFull" Justify="Justify.Start" Class="group transition-none hover:bg-accent hover:text-accent-foreground">
+                                                <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                <Icon Name="LucideIcon.Folder" />
+                                                types
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent Class="mt-1 ml-5">
+                                            <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is1">
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    index.ts
+                                                </Button>
+                                            </Div>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                    <Collapsible Open="_publicOpen" OpenChanged="OnPublicOpenChanged">
+                                        <CollapsibleTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Width="Width.IsFull" Justify="Justify.Start" Class="group transition-none hover:bg-accent hover:text-accent-foreground">
+                                                <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                <Icon Name="LucideIcon.Folder" />
+                                                public
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent Class="mt-1 ml-5">
+                                            <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is1">
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    favicon.ico
+                                                </Button>
+                                            </Div>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        app.tsx
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        layout.tsx
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        globals.css
+                                    </Button>
                                     <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
                                         <Icon Name="LucideIcon.File" />
                                         package.json
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        tsconfig.json
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        README.md
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Width="Width.IsFull" Justify="Justify.Start" Gap="Gap.Is2" TextColor="TextColor.Foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        .gitignore
                                     </Button>
                                 </Div>
                             </Tab>
@@ -227,7 +310,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Order-style layout with inherited RTL direction."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
@@ -241,7 +324,7 @@
                                             Class="group"
                                             BoxSize="Size.Is8">
                                         <Icon Name="LucideIcon.ChevronsUpDown" Class="transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                                        <Span ScreenReader="ScreenReader.Only">تبديل التفاصيل</Span>
+                                        <Span ScreenReader="ScreenReader.Only">Toggle details</Span>
                                     </Button>
                                 </CollapsibleTrigger>
                             </Div>
@@ -273,28 +356,34 @@
     private bool _componentsOpen;
     private bool _uiOpen;
     private bool _libOpen;
+    private bool _hooksOpen;
+    private bool _typesOpen;
+    private bool _publicOpen;
 
     private const string OrderCode =
-@"<Div Class=""flex justify-center"">
-    <Collapsible Open=""_orderOpen"" OpenChanged=""OnOrderOpenChanged"" Class=""flex w-[350px] flex-col gap-2"">
+@"<Div Class=""flex w-full justify-center"">
+    <Collapsible Open=""_orderOpen"" OpenChanged=""OnOrderOpenChanged"" Class=""flex w-[350px] max-w-full flex-col gap-2"">
         <Div class=""flex items-center justify-between gap-4 px-4"">
-            <Div class=""text-sm font-semibold"">@@peduarte starred 3 repositories</Div>
+            <H4 class=""m-0 whitespace-nowrap text-sm font-semibold"">Order #4189</H4>
             <CollapsibleTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Class=""group size-8"">
                     <Icon Name=""LucideIcon.ChevronsUpDown"" Class=""transition-transform duration-200 group-data-[state=open]:rotate-180"" />
-                    <Span class=""sr-only"">Toggle</Span>
+                    <Span class=""sr-only"">Toggle details</Span>
                 </Button>
             </CollapsibleTrigger>
         </Div>
-        <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
-            @@radix-ui/primitives
+        <Div class=""flex items-center justify-between rounded-md border px-4 py-2 text-sm"">
+            <Span TextColor=""TextColor.MutedForeground"">Status</Span>
+            <Span FontWeight=""FontWeight.Medium"">Shipped</Span>
         </Div>
         <CollapsibleContent Class=""flex flex-col gap-2"">
-            <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
-                @@radix-ui/colors
+            <Div class=""rounded-md border px-4 py-2 text-sm"">
+                <Div class=""text-muted-foreground"">Shipping address</Div>
+                <Div class=""font-medium"">100 Market St, San Francisco</Div>
             </Div>
-            <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
-                @@stitches/react
+            <Div class=""rounded-md border px-4 py-2 text-sm"">
+                <Div class=""text-muted-foreground"">Items</Div>
+                <Div class=""font-medium"">2x Studio Headphones</Div>
             </Div>
         </CollapsibleContent>
     </Collapsible>
@@ -332,11 +421,11 @@
         <Collapsible Open=""_settingsOpen"" OpenChanged=""OnSettingsOpenChanged"" Class=""flex items-start gap-2"">
             <FieldGroup Class=""grid w-full grid-cols-2 gap-2"">
                 <Field>
-                    <FieldLabel For=""radius-top-left"" Class=""sr-only"">Radius top left</FieldLabel>
+                    <FieldLabel For=""radius-top-left"" Class=""sr-only"">Radius X</FieldLabel>
                     <Input Id=""radius-top-left"" Placeholder=""0"" Value=""4"" />
                 </Field>
                 <Field>
-                    <FieldLabel For=""radius-top-right"" Class=""sr-only"">Radius top right</FieldLabel>
+                    <FieldLabel For=""radius-top-right"" Class=""sr-only"">Radius Y</FieldLabel>
                     <Input Id=""radius-top-right"" Placeholder=""0"" Value=""4"" />
                 </Field>
                 <CollapsibleContent Class=""col-span-full grid grid-cols-subgrid gap-2"">
@@ -384,6 +473,38 @@
                             ...
                         </CollapsibleContent>
                     </Collapsible>
+                    <Collapsible Open=""_libOpen"" OpenChanged=""OnLibOpenChanged"">...</Collapsible>
+                    <Collapsible Open=""_hooksOpen"" OpenChanged=""OnHooksOpenChanged"">...</Collapsible>
+                    <Collapsible Open=""_typesOpen"" OpenChanged=""OnTypesOpenChanged"">...</Collapsible>
+                    <Collapsible Open=""_publicOpen"" OpenChanged=""OnPublicOpenChanged"">...</Collapsible>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        app.tsx
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        layout.tsx
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        globals.css
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        package.json
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        tsconfig.json
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        README.md
+                    </Button>
+                    <Button Variant=""ButtonVariant.Link"" Size=""ButtonSize.Sm"" Class=""w-full justify-start gap-2 text-foreground"">
+                        <Icon Name=""LucideIcon.File"" />
+                        .gitignore
+                    </Button>
                 </Div>
             </Tab>
             <Tab Name=""outline"" Title=""Outline"">
@@ -407,7 +528,7 @@
             <CollapsibleTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Class=""group size-8"">
                     <Icon Name=""LucideIcon.ChevronsUpDown"" Class=""transition-transform duration-200 group-data-[state=open]:rotate-180"" />
-                    <Span class=""sr-only"">تبديل التفاصيل</Span>
+                    <Span class=""sr-only"">Toggle details</Span>
                 </Button>
             </CollapsibleTrigger>
         </Div>
@@ -463,6 +584,24 @@
     private Task OnLibOpenChanged(bool value)
     {
         _libOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnHooksOpenChanged(bool value)
+    {
+        _hooksOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnTypesOpenChanged(bool value)
+    {
+        _typesOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPublicOpenChanged(bool value)
+    {
+        _publicOpen = value;
         return Task.CompletedTask;
     }
 

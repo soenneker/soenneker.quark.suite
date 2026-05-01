@@ -3,17 +3,25 @@
 @implements IButtonGroup
 
 <CascadingValue Value="this">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
+    <CascadingValue Name="DirectionProviderDir" Value="@EffectiveDirection">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     [Parameter]
     public CssValue<ButtonSizeBuilder>? Size { get; set; } = "default";
 
     [Parameter]
     public bool Vertical { get; set; }
+
+    [Parameter]
+    public string? Dir { get; set; }
 
     protected override void ApplyDefaultParameters()
     {
@@ -36,6 +44,9 @@
         if (Vertical)
             attributes["data-orientation"] = "vertical";
 
+        if (Dir.HasContent())
+            attributes["dir"] = Dir!;
+
         if (!attributes.ContainsKey("role"))
             attributes["role"] = Role ?? "group";
 
@@ -44,19 +55,61 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "[&>*]:focus-visible:relative [&>*]:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
-            AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md");
+            AppendClass(ref cls, "group/button-group [&>*]:focus-visible:relative [&>*]:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
+            AppendClass(ref cls, IsRtl()
+                ? "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-e-lg"
+                : "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
             AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
 
             if (Vertical)
             {
                 AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
+                AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
+            }
+            else if (IsRtl())
+            {
+                AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-s-none [&>*:not(:first-child)]:border-s-0 [&>*:not(:last-child)]:rounded-e-none");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:first-child)>[data-slot]]:rounded-s-none [&>[data-bradix-dismissable-layer-branch]:not(:first-child)>[data-slot]]:border-s-0 [&>[data-bradix-dismissable-layer-branch]:not(:last-child)>[data-slot]]:rounded-e-none");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:first-child)>*>[data-slot]]:rounded-s-none [&>[data-bradix-dismissable-layer-branch]:not(:first-child)>*>[data-slot]]:border-s-0 [&>[data-bradix-dismissable-layer-branch]:not(:last-child)>*>[data-slot]]:rounded-e-none");
+                AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-e-lg!");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:has(~[data-slot]))>[data-slot]]:rounded-e-lg! [&>[data-bradix-dismissable-layer-branch]:not(:has(~[data-slot]))>*>[data-slot]]:rounded-e-lg!");
             }
             else
             {
                 AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:first-child)>[data-slot]]:rounded-l-none [&>[data-bradix-dismissable-layer-branch]:not(:first-child)>[data-slot]]:border-l-0 [&>[data-bradix-dismissable-layer-branch]:not(:last-child)>[data-slot]]:rounded-r-none");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:first-child)>*>[data-slot]]:rounded-l-none [&>[data-bradix-dismissable-layer-branch]:not(:first-child)>*>[data-slot]]:border-l-0 [&>[data-bradix-dismissable-layer-branch]:not(:last-child)>*>[data-slot]]:rounded-r-none");
+                AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
+                AppendClass(ref cls, "[&>[data-bradix-dismissable-layer-branch]:not(:has(~[data-slot]))>[data-slot]]:rounded-r-lg! [&>[data-bradix-dismissable-layer-branch]:not(:has(~[data-slot]))>*>[data-slot]]:rounded-r-lg!");
             }
         });
+    }
+
+    private bool IsRtl()
+    {
+        if (string.Equals(EffectiveDirection, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private string? EffectiveDirection => GetOwnDirection() ?? DirectionProviderDir;
+
+    private string? GetOwnDirection()
+    {
+        if (string.Equals(Dir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return "rtl";
+
+        if (string.Equals(Dir, "ltr", StringComparison.OrdinalIgnoreCase))
+            return "ltr";
+
+        if (Attributes is not null && Attributes.TryGetValue("dir", out var dir) && string.Equals(dir?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+            return "rtl";
+
+        if (Attributes is not null && Attributes.TryGetValue("dir", out dir) && string.Equals(dir?.ToString(), "ltr", StringComparison.OrdinalIgnoreCase))
+            return "ltr";
+
+        return null;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -64,7 +117,9 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Size);
         hc.Add(Vertical);
+        hc.Add(Dir);
         hc.Add(Role);
         hc.Add(AriaLabel);
+        hc.Add(EffectiveDirection);
     }
 }

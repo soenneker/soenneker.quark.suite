@@ -194,9 +194,23 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL" Description="Empty states also support right-to-left copy and action flow."
+            <DemoSection Title="RTL" Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                         Code="@RtlCode"
                         CodeLanguage="razor">
+                <Div Display="Display.Flex" Height="Height.Is16" ItemsAlign="Items.Center" Border="Border.Is1.FromBottom" Padding="Padding.Is4.OnX">
+                    <Select TValue="string" Size="SelectSizes.Sm" SelectedValue="@_rtlLanguage">
+                        <SelectTrigger Class="w-36">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                        </SelectContent>
+                    </Select>
+                    <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm" Margin="Margin.Auto.FromStart" aria-label="Toggle">
+                        <Icon Name="LucideIcon.SunMoon" />
+                        <Span Class="sr-only">Toggle</Span>
+                    </Button>
+                </Div>
                 <DirectionProvider Dir="rtl">
                     <Div Width="Width.IsFull">
                         <Empty>
@@ -223,6 +237,8 @@
 </Div>
 
 @code {
+    private string _rtlLanguage = "ar";
+
     private const string BasicCode =
 @"<Empty>
     <EmptyHeader>
@@ -242,7 +258,21 @@
 </Empty>";
 
     private const string RtlCode =
-@"<DirectionProvider Dir=""rtl"">
+@"<Div Display=""Display.Flex"" Height=""Height.Is16"" ItemsAlign=""Items.Center"" Border=""Border.Is1.FromBottom"" Padding=""Padding.Is4.OnX"">
+    <Select TValue=""string"" Size=""SelectSizes.Sm"" SelectedValue=""@_rtlLanguage"">
+        <SelectTrigger Class=""w-36"">
+            <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+        </SelectContent>
+    </Select>
+    <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Margin=""Margin.Auto.FromStart"" aria-label=""Toggle"">
+        <Icon Name=""LucideIcon.SunMoon"" />
+        <Span Class=""sr-only"">Toggle</Span>
+    </Button>
+</Div>
+<DirectionProvider Dir=""rtl"">
     <Empty>
         <EmptyHeader>
             <EmptyMedia Variant=""EmptyMediaVariant.Icon"">

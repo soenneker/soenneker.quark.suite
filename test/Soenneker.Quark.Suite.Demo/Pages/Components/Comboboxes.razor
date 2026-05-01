@@ -9,6 +9,29 @@
             Autocomplete input with a list of suggestions.
         </Paragraph>
 
+        <DemoSection Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Div MaxWidth="MaxWidth.IsSm">
+                <Combobox Value="@_heroFramework"
+                          ValueChanged="OnHeroFrameworkChanged"
+                          Search="@_heroSearch"
+                          SearchChanged="OnHeroSearchChanged"
+                          Open="@_heroOpen"
+                          OpenChanged="OnHeroOpenChanged">
+                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                            @foreach (var framework in FilterFrameworks(_heroSearch))
+                            {
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            }
+                        </ComboboxList>
+                    </ComboboxContent>
+                </Combobox>
+            </Div>
+        </DemoSection>
+
         <DemoSection Title="Basic"
                      Description="A simple combobox with a list of frameworks."
                      Code="@BasicCode"
@@ -35,7 +58,7 @@
         </DemoSection>
 
         <DemoSection Title="Multiple"
-                     Description="A combobox with multiple selection using `multiple` and `ComboboxChips`."
+                     Description="A combobox with multiple selection using multiple and ComboboxChips."
                      Code="@MultipleCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsLg">
@@ -67,7 +90,7 @@
         </DemoSection>
 
         <DemoSection Title="Clear Button"
-                     Description="Use the `showClear` prop to show a clear button."
+                     Description="Use the showClear prop to show a clear button."
                      Code="@ClearButtonCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -93,7 +116,7 @@
         </DemoSection>
 
         <DemoSection Title="Groups"
-                     Description="Use `ComboboxGroup` and `ComboboxSeparator` to group items."
+                     Description="Use ComboboxGroup and ComboboxSeparator to group items."
                      Code="@GroupsCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -130,26 +153,26 @@
         </DemoSection>
 
         <DemoSection Title="Custom Items"
-                     Description="You can render a custom component inside `ComboboxItem`."
+                     Description="You can render a custom component inside ComboboxItem."
                      Code="@CustomItemsCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
-                <Combobox Value="@_customFramework"
-                          ValueChanged="OnCustomFrameworkChanged"
+                <Combobox Value="@_customCountry"
+                          ValueChanged="OnCustomCountryChanged"
                           Search="@_customSearch"
                           SearchChanged="OnCustomSearchChanged"
                           Open="@_customOpen"
                           OpenChanged="OnCustomOpenChanged">
-                    <ComboboxInput Placeholder="Select a framework" />
+                    <ComboboxInput Placeholder="Search countries..." />
                     <ComboboxContent>
                         <ComboboxEmpty>No items found.</ComboboxEmpty>
                         <ComboboxList>
-                            @foreach (var framework in FrameworkOptions.Where(option => Matches(option.Label, _customSearch)))
+                            @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _customSearch) || Matches(option.Description, _customSearch)))
                             {
-                                <ComboboxItem Value="@framework.Label">
+                                <ComboboxItem Value="@country.Name">
                                     <Div Display="Display.Flex" FlexDirection="FlexDirection.Col">
-                                        <Span FontWeight="FontWeight.Medium">@framework.Label</Span>
-                                        <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">@framework.Description</Span>
+                                        <Span FontWeight="FontWeight.Medium">@country.Name</Span>
+                                        <Paragraph TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@country.Description</Paragraph>
                                     </Div>
                                 </ComboboxItem>
                             }
@@ -160,7 +183,7 @@
         </DemoSection>
 
         <DemoSection Title="Invalid"
-                     Description="Use the `aria-invalid` prop to make the combobox invalid."
+                     Description="Use the aria-invalid prop to make the combobox invalid."
                      Code="@InvalidCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is2">
@@ -188,7 +211,7 @@
         </DemoSection>
 
         <DemoSection Title="Disabled"
-                     Description="Use the `disabled` prop to disable the combobox."
+                     Description="Use the disabled prop to disable the combobox."
                      Code="@DisabledCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -202,7 +225,7 @@
         </DemoSection>
 
         <DemoSection Title="Auto Highlight"
-                     Description="Use the `autoHighlight` prop to automatically highlight the first item on filter."
+                     Description="Use the autoHighlight prop to automatically highlight the first item on filter."
                      Code="@AutoHighlightCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -228,11 +251,11 @@
         </DemoSection>
 
         <DemoSection Title="Popup"
-                     Description="You can trigger the combobox from a button or any other component by using the `render` prop. Move the `ComboboxInput` inside the `ComboboxContent`."
+                     Description="You can trigger the combobox from a button or any other component by using the render prop. Move the ComboboxInput inside the ComboboxContent."
                      Code="@PopupCode"
                      CodeLanguage="razor">
-            <Combobox Value="@_popupFramework"
-                      ValueChanged="OnPopupFrameworkChanged"
+            <Combobox Value="@_popupCountry"
+                      ValueChanged="OnPopupCountryChanged"
                       Search="@_popupSearch"
                       SearchChanged="OnPopupSearchChanged"
                       Open="@_popupOpen"
@@ -242,17 +265,17 @@
                             role="combobox"
                             aria-expanded="@_popupOpen"
                             Class="w-[200px] justify-between">
-                        @(string.IsNullOrWhiteSpace(_popupFramework) ? "Select framework" : _popupFramework)
+                        @(string.IsNullOrWhiteSpace(_popupCountry) ? "Select country" : _popupCountry)
                         <Icon Name="LucideIcon.ChevronsUpDown" Class="opacity-50" />
                     </Button>
                 </PopoverTrigger>
                 <ComboboxContent Class="w-[200px] p-0">
-                    <ComboboxInput Anchor="false" ShowTrigger="false" Placeholder="Search framework..." />
-                    <ComboboxEmpty>No framework found.</ComboboxEmpty>
+                    <ComboboxInput Anchor="false" ShowTrigger="false" Placeholder="Search countries..." />
+                    <ComboboxEmpty>No country found.</ComboboxEmpty>
                     <ComboboxList>
-                        @foreach (var framework in FilterFrameworks(_popupSearch))
+                        @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _popupSearch)))
                         {
-                            <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            <ComboboxItem Value="@country.Name">@country.Name</ComboboxItem>
                         }
                     </ComboboxList>
                 </ComboboxContent>
@@ -260,7 +283,7 @@
         </DemoSection>
 
         <DemoSection Title="Input Group"
-                     Description="Add an addon inside the combobox input."
+                     Description="You can add an addon to the combobox by using the InputGroupAddon component inside the ComboboxInput."
                      Code="@InputGroupCode"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
@@ -295,17 +318,25 @@
         </DemoSection>
 
         <DemoSection Title="RTL"
-                     Description="Comboboxes inherit right-to-left direction from the surrounding document or container."
+                     Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                      Code="@RtlCode"
                      CodeLanguage="razor">
-            <Div dir="rtl" MaxWidth="MaxWidth.IsSm">
-                <Combobox Value="@_rtlCategory"
-                          ValueChanged="OnRtlCategoryChanged"
+            <Div dir="rtl" MaxWidth="MaxWidth.IsSm" Space="Space.Y.Is2">
+                <Label>الفئات</Label>
+                <Combobox Multiple="true"
+                          Values="@_rtlCategories"
+                          ValueChangedMultiple="OnRtlCategoriesChanged"
                           Search="@_rtlSearch"
                           SearchChanged="OnRtlSearchChanged"
                           Open="@_rtlOpen"
                           OpenChanged="OnRtlOpenChanged">
-                    <ComboboxInput Placeholder="الفئات" />
+                    <ComboboxChips>
+                        @foreach (var category in _rtlCategories)
+                        {
+                            <ComboboxChip Value="@category">@category</ComboboxChip>
+                        }
+                        <ComboboxChipsInput Placeholder="أضف فئات" />
+                    </ComboboxChips>
                     <ComboboxContent>
                         <ComboboxEmpty>لا توجد نتائج.</ComboboxEmpty>
                         <ComboboxList>
@@ -322,7 +353,7 @@
 </Div>
 
 @code {
-    private sealed record FrameworkOption(string Label, string Description);
+    private sealed record CountryOption(string Name, string Description);
     private sealed record TimezoneGroup(string Label, string[] Items);
 
     private static readonly string[] Frameworks =
@@ -334,13 +365,27 @@
         "Astro"
     ];
 
-    private static readonly FrameworkOption[] FrameworkOptions =
+    private static readonly CountryOption[] CountryOptions =
     [
-        new("Next.js", "React framework for production"),
-        new("SvelteKit", "Application framework for Svelte"),
-        new("Nuxt.js", "The intuitive Vue framework"),
-        new("Remix", "Full stack web framework"),
-        new("Astro", "Content-driven site framework")
+        new("Argentina", "South America (ar)"),
+        new("Australia", "Oceania (au)"),
+        new("Brazil", "South America (br)"),
+        new("Canada", "North America (ca)"),
+        new("China", "Asia (cn)"),
+        new("Colombia", "South America (co)"),
+        new("Egypt", "Africa (eg)"),
+        new("France", "Europe (fr)"),
+        new("Germany", "Europe (de)"),
+        new("Italy", "Europe (it)"),
+        new("Japan", "Asia (jp)"),
+        new("Kenya", "Africa (ke)"),
+        new("Mexico", "North America (mx)"),
+        new("New Zealand", "Oceania (nz)"),
+        new("Nigeria", "Africa (ng)"),
+        new("South Africa", "Africa (za)"),
+        new("South Korea", "Asia (kr)"),
+        new("United Kingdom", "Europe (gb)"),
+        new("United States", "North America (us)")
     ];
 
     private static readonly TimezoneGroup[] TimezoneGroups =
@@ -358,6 +403,9 @@
         "التسويق"
     ];
 
+    private string? _heroFramework;
+    private string? _heroSearch;
+    private bool _heroOpen;
     private string? _basicFramework;
     private string? _basicSearch;
     private bool _basicOpen;
@@ -370,7 +418,7 @@
     private string? _timezone;
     private string? _timezoneSearch;
     private bool _timezoneOpen;
-    private string? _customFramework;
+    private string? _customCountry;
     private string? _customSearch;
     private bool _customOpen;
     private string? _invalidFramework;
@@ -379,13 +427,13 @@
     private string? _autoFramework;
     private string? _autoSearch;
     private bool _autoOpen;
-    private string? _popupFramework;
+    private string? _popupCountry;
     private string? _popupSearch;
     private bool _popupOpen;
     private string? _inputGroupTimezone;
     private string? _inputGroupSearch;
     private bool _inputGroupOpen;
-    private string? _rtlCategory;
+    private string[] _rtlCategories = ["التكنولوجيا"];
     private string? _rtlSearch;
     private bool _rtlOpen;
 
@@ -407,6 +455,9 @@
         return string.IsNullOrWhiteSpace(search) || value.Contains(search, StringComparison.OrdinalIgnoreCase);
     }
 
+    private Task OnHeroFrameworkChanged(string? value) { _heroFramework = value; return Task.CompletedTask; }
+    private Task OnHeroSearchChanged(string? value) { _heroSearch = value; return Task.CompletedTask; }
+    private Task OnHeroOpenChanged(bool value) { _heroOpen = value; return Task.CompletedTask; }
     private Task OnBasicFrameworkChanged(string? value) { _basicFramework = value; return Task.CompletedTask; }
     private Task OnBasicSearchChanged(string? value) { _basicSearch = value; return Task.CompletedTask; }
     private Task OnBasicOpenChanged(bool value) { _basicOpen = value; return Task.CompletedTask; }
@@ -419,7 +470,7 @@
     private Task OnTimezoneChanged(string? value) { _timezone = value; return Task.CompletedTask; }
     private Task OnTimezoneSearchChanged(string? value) { _timezoneSearch = value; return Task.CompletedTask; }
     private Task OnTimezoneOpenChanged(bool value) { _timezoneOpen = value; return Task.CompletedTask; }
-    private Task OnCustomFrameworkChanged(string? value) { _customFramework = value; return Task.CompletedTask; }
+    private Task OnCustomCountryChanged(string? value) { _customCountry = value; return Task.CompletedTask; }
     private Task OnCustomSearchChanged(string? value) { _customSearch = value; return Task.CompletedTask; }
     private Task OnCustomOpenChanged(bool value) { _customOpen = value; return Task.CompletedTask; }
     private Task OnInvalidFrameworkChanged(string? value) { _invalidFramework = value; return Task.CompletedTask; }
@@ -428,13 +479,13 @@
     private Task OnAutoFrameworkChanged(string? value) { _autoFramework = value; return Task.CompletedTask; }
     private Task OnAutoSearchChanged(string? value) { _autoSearch = value; return Task.CompletedTask; }
     private Task OnAutoOpenChanged(bool value) { _autoOpen = value; return Task.CompletedTask; }
-    private Task OnPopupFrameworkChanged(string? value) { _popupFramework = value; return Task.CompletedTask; }
+    private Task OnPopupCountryChanged(string? value) { _popupCountry = value; return Task.CompletedTask; }
     private Task OnPopupSearchChanged(string? value) { _popupSearch = value; return Task.CompletedTask; }
     private Task OnPopupOpenChanged(bool value) { _popupOpen = value; return Task.CompletedTask; }
     private Task OnInputGroupTimezoneChanged(string? value) { _inputGroupTimezone = value; return Task.CompletedTask; }
     private Task OnInputGroupSearchChanged(string? value) { _inputGroupSearch = value; return Task.CompletedTask; }
     private Task OnInputGroupOpenChanged(bool value) { _inputGroupOpen = value; return Task.CompletedTask; }
-    private Task OnRtlCategoryChanged(string? value) { _rtlCategory = value; return Task.CompletedTask; }
+    private Task OnRtlCategoriesChanged(string[] values) { _rtlCategories = values; return Task.CompletedTask; }
     private Task OnRtlSearchChanged(string? value) { _rtlSearch = value; return Task.CompletedTask; }
     private Task OnRtlOpenChanged(bool value) { _rtlOpen = value; return Task.CompletedTask; }
 
@@ -487,13 +538,13 @@
 
     private const string CustomItemsCode =
 @"<Combobox>
-    <ComboboxInput Placeholder=""Select a framework"" />
+    <ComboboxInput Placeholder=""Search countries..."" />
     <ComboboxContent>
         <ComboboxList>
-            <ComboboxItem Value=""Next.js"">
+            <ComboboxItem Value=""Argentina"">
                 <Div Class=""flex flex-col"">
-                    <Span Class=""font-medium"">Next.js</Span>
-                    <Span Class=""text-xs text-muted-foreground"">React framework for production</Span>
+                    <Span Class=""font-medium"">Argentina</Span>
+                    <Paragraph Class=""m-0 text-xs text-muted-foreground"">South America (ar)</Paragraph>
                 </Div>
             </ComboboxItem>
         </ComboboxList>
@@ -519,16 +570,16 @@
 </Combobox>";
 
     private const string PopupCode =
-@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
+@"<Combobox Value=""@country"" ValueChanged=""OnCountryChanged"">
     <PopoverTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"" role=""combobox"">
-            Select framework
+            Select country
             <Icon Name=""LucideIcon.ChevronsUpDown"" />
         </Button>
     </PopoverTrigger>
     <ComboboxContent Class=""w-[200px] p-0"">
-        <ComboboxInput Anchor=""false"" ShowTrigger=""false"" Placeholder=""Search framework..."" />
-        <ComboboxEmpty>No framework found.</ComboboxEmpty>
+        <ComboboxInput Anchor=""false"" ShowTrigger=""false"" Placeholder=""Search countries..."" />
+        <ComboboxEmpty>No country found.</ComboboxEmpty>
         <ComboboxList>...</ComboboxList>
     </ComboboxContent>
 </Combobox>";
@@ -545,8 +596,12 @@
 
     private const string RtlCode =
 @"<Div dir=""rtl"">
-    <Combobox>
-        <ComboboxInput Placeholder=""الفئات"" />
+    <Label>الفئات</Label>
+    <Combobox Multiple=""true"">
+        <ComboboxChips>
+            <ComboboxChip Value=""التكنولوجيا"">التكنولوجيا</ComboboxChip>
+            <ComboboxChipsInput Placeholder=""أضف فئات"" />
+        </ComboboxChips>
         <ComboboxContent>...</ComboboxContent>
     </Combobox>
 </Div>";

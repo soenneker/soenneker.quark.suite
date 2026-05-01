@@ -22,7 +22,7 @@
                         <FieldContent>
                             <FieldLabel For="terms-checkbox-2">Accept terms and conditions</FieldLabel>
                             <FieldDescription>
-                                By clicking this checkbox, you agree to the terms and conditions.
+                                By clicking this checkbox, you agree to the terms.
                             </FieldDescription>
                         </FieldContent>
                     </Field>
@@ -43,6 +43,20 @@
                             </FieldContent>
                         </Field>
                     </FieldLabel>
+                </FieldGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid State"
+                         Description="Set aria-invalid on the checkbox and data-invalid on the field wrapper to show the invalid styles."
+                         Code="@InvalidCode"
+                         CodeLanguage="razor">
+                <FieldGroup Margin="Margin.Auto.OnX" Width='Width.Token("56")'>
+                    <Field Horizontal="true" IsInvalid="true">
+                        <Check Id="terms-checkbox-invalid" aria-invalid="true" />
+                        <FieldLabel For="terms-checkbox-invalid">Accept terms and conditions</FieldLabel>
+                    </Field>
                 </FieldGroup>
             </DemoSection>
         </Section>
@@ -69,7 +83,7 @@
     <Check Id=""checkbox-description"" Checked=""true"" />
     <FieldContent>
         <FieldLabel For=""checkbox-description"">Accept terms and conditions</FieldLabel>
-        <FieldDescription>By clicking this checkbox, you agree to the terms and conditions.</FieldDescription>
+        <FieldDescription>By clicking this checkbox, you agree to the terms.</FieldDescription>
     </FieldContent>
 </Field>")"
                          CodeLanguage="razor">
@@ -97,110 +111,6 @@
                 </Field>
             </DemoSection>
         </Section>
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form Multiple"
-                         Description="Multiple checkbox binding with validation feedback and a submitted value."
-                         Code="@FormMultipleCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_multipleForm" OnSubmit="@(_ => HandleMultipleSubmit())" class="space-y-8">
-                    <Field>
-                        <Div Class="mb-4">
-                            <FieldLabel Class="text-base">Sidebar</FieldLabel>
-                            <FieldDescription>
-                                Select the items you want to display in the sidebar.
-                            </FieldDescription>
-                        </Div>
-
-                        <FieldGroup Class="gap-3">
-                            @foreach (var item in _sidebarItems)
-                            {
-                                <Field Horizontal="true" Class="items-center gap-2">
-                                    <Check Id="@item.Id"
-                                           Checked="@_multipleForm.Items.Contains(item.Id)"
-                                           CheckedChanged="@(checkedValue => HandleSidebarItemChanged(item.Id, checkedValue))" />
-                                    <FieldLabel For="@item.Id" Class="text-sm font-normal">@item.Label</FieldLabel>
-                                </Field>
-                            }
-                        </FieldGroup>
-
-                        @if (_showMultipleError)
-                        {
-                            <Paragraph Class="mt-3 text-sm text-destructive" Margin="Margin.Is0">
-                                You have to select at least one item.
-                            </Paragraph>
-                        }
-                    </Field>
-
-                    <Button Type="ButtonType.Submit">Submit</Button>
-
-                    @if (!string.IsNullOrEmpty(_multipleSubmitJson))
-                    {
-                        <PreCode Class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_multipleSubmitJson</PreCode>
-                    }
-                </EditForm>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid State"
-                         Description="Set aria-invalid on the checkbox and data-invalid on the field wrapper to show the invalid styles."
-                         Code="@InvalidCode"
-                         CodeLanguage="razor">
-                <FieldGroup Margin="Margin.Auto.OnX" Width='Width.Token("56")'>
-                    <Field Horizontal="true" IsInvalid="true">
-                        <Check Id="terms-checkbox-invalid" Name="terms-checkbox-invalid" aria-invalid="true" />
-                        <FieldLabel For="terms-checkbox-invalid">Accept terms and conditions</FieldLabel>
-                    </Field>
-                </FieldGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form"
-                         Description="Single checkbox in a bordered form row with a submitted value."
-                         Code="@FormSingleCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_singleForm" OnSubmit="@(_ => HandleSingleSubmit())" class="flex max-w-md flex-col items-start gap-4">
-                    <Field Horizontal="true" Class="items-start gap-2 rounded-md border p-4 shadow-sm">
-                        <Check Id="mobile"
-                               Checked="@_singleForm.Mobile"
-                               CheckedChanged="HandleMobileChanged" />
-                        <Div Space="Space.Y.Is1" Leading="Leading.None">
-                            <FieldLabel For="mobile">Use different settings for my mobile devices</FieldLabel>
-                            <FieldDescription>
-                                You can manage your mobile notifications in the mobile settings page.
-                            </FieldDescription>
-                        </Div>
-                    </Field>
-
-                    <Button Type="ButtonType.Submit">Submit</Button>
-
-                    @if (!string.IsNullOrEmpty(_singleSubmitJson))
-                    {
-                        <PreCode Class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_singleSubmitJson</PreCode>
-                    }
-                </EditForm>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Indeterminate"
-                         Description="Use an indeterminate parent checkbox to reflect a partial selection state."
-                         Code="@IndeterminateCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is3">
-                    <Check Checked="@_selectAllChecked" CheckedChanged="HandleSelectAllChanged" Indeterminate="@_selectAllIndeterminate" Id="select-all">
-                        Select all
-                    </Check>
-                    <Div class="ml-6" Space="Space.Y.Is3">
-                        <Check Checked="@_itemRead" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemRead), v))" Id="item-read">Read</Check>
-                        <Check Checked="@_itemWrite" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemWrite), v))" Id="item-write">Write</Check>
-                        <Check Checked="@_itemExecute" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemExecute), v))" Id="item-execute">Execute</Check>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Group"
                          Description="Use multiple fields to create a checkbox list."
@@ -349,7 +259,7 @@
     private readonly MultipleCheckboxForm _multipleForm = new();
 
     private bool _tableSelectAll;
-    private bool _tableSelectIndeterminate = true;
+    private bool _tableSelectIndeterminate;
     private bool _selectAllChecked;
     private bool _selectAllIndeterminate;
     private bool _itemRead = true;
@@ -370,7 +280,7 @@
         <FieldContent>
             <FieldLabel For=""terms-checkbox-2"">Accept terms and conditions</FieldLabel>
             <FieldDescription>
-                By clicking this checkbox, you agree to the terms and conditions.
+                By clicking this checkbox, you agree to the terms.
             </FieldDescription>
         </FieldContent>
     </Field>
@@ -657,8 +567,7 @@
     private void UpdateTableSelectAll()
     {
         var all = _selectedTableRows.Count == _tablePeople.Length;
-        var none = _selectedTableRows.Count == 0;
         _tableSelectAll = all;
-        _tableSelectIndeterminate = !all && !none;
+        _tableSelectIndeterminate = false;
     }
 }

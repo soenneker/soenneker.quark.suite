@@ -13,6 +13,7 @@
                 Rounded="Quark.Rounded.Md"
                 Border="Quark.Border.Is0"
                 Padding="Quark.Padding.Is0"
+                OnOpenAutoFocusDetailed="HandleOpenAutoFocus"
                 @attributes="ContentAttributes">
     @ChildContent
 </PopoverContent>
@@ -34,6 +35,12 @@
     public int AlignOffset { get; set; }
 
     private string? ResolvedContentId => ParentCombobox?.ContentId;
+
+    private static Task HandleOpenAutoFocus(BradixAutoFocusEventArgs args)
+    {
+        args.PreventDefault();
+        return Task.CompletedTask;
+    }
 
     private IReadOnlyDictionary<string, object> ContentAttributes
     {

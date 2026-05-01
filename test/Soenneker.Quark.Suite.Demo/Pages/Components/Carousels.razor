@@ -9,8 +9,8 @@
                      Description="A carousel with motion and swipe built using Embla."
                      Code="@BasicCode"
                      CodeLanguage="razor">
-            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12">
-                <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+            <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs">
+                <Carousel Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs">
                     <CarouselContent>
                         @for (var index = 1; index <= 5; index++)
                         {
@@ -19,7 +19,7 @@
                             <CarouselItem>
                                 <Div class="p-1">
                                     <Card>
-                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span Class="text-4xl font-semibold">@slideNumber</Span>
                                         </CardBody>
                                     </Card>
@@ -39,17 +39,17 @@
                      Description="To set the size of the items, you can use the basis utility class on CarouselItem."
                      Code="@SizesCode"
                      CodeLanguage="razor">
-            <Div Class="mx-auto w-full max-w-sm px-12">
-                <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs md:max-w-sm">
+                <Carousel Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs md:max-w-sm">
                     <CarouselContent>
                         @for (var index = 1; index <= 5; index++)
                         {
                             var slideNumber = index;
 
-                            <CarouselItem Class="md:basis-1/2 lg:basis-1/3">
+                            <CarouselItem Class="basis-1/2 lg:basis-1/3">
                                 <Div class="p-1">
                                     <Card>
-                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
                                         </CardBody>
                                     </Card>
@@ -69,17 +69,17 @@
                      Description="To set the spacing between the items, we use a padding utility on CarouselItem and a negative margin on CarouselContent."
                      Code="@SpacingCode"
                      CodeLanguage="razor">
-            <Div Class="mx-auto w-full max-w-sm px-12">
-                <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs md:max-w-sm">
+                <Carousel Align="center" Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs md:max-w-sm">
                     <CarouselContent Class="-ml-1">
                         @for (var index = 1; index <= 5; index++)
                         {
                             var slideNumber = index;
 
-                            <CarouselItem Class="pl-1 md:basis-1/2 lg:basis-1/3">
+                            <CarouselItem Class="basis-1/2 pl-1 lg:basis-1/3">
                                 <Div class="p-1">
                                     <Card>
-                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span TextSize="TextSize.TwoXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
                                         </CardBody>
                                     </Card>
@@ -99,14 +99,14 @@
                      Description="Use the orientation prop to set the orientation of the carousel."
                      Code="@OrientationCode"
                      CodeLanguage="razor">
-            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12">
+            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
                 <Carousel Orientation="Orientation.Vertical" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
-                    <CarouselContent Class="-mt-1 h-[200px]">
+                    <CarouselContent Class="-mt-1 h-[270px]">
                         @for (var index = 1; index <= 5; index++)
                         {
                             var slideNumber = index;
 
-                            <CarouselItem Class="pt-1 md:basis-1/2">
+                            <CarouselItem Class="pt-1 basis-1/2">
                                 <Div class="p-1">
                                     <Card>
                                         <CardBody Class="flex items-center justify-center p-6">
@@ -129,48 +129,17 @@
                      Description="Use a state and the setApi props to get an instance of the carousel API."
                      Code="@ApiCode"
                      CodeLanguage="razor">
-            <Div Class="mx-auto max-w-xs">
-                <Carousel SetApi="HandleCarouselApi" SelectedIndexChanged="HandleCarouselSelectedIndexChanged" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+            <Div Class="mx-auto max-w-[10rem] sm:max-w-xs">
+                <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" SelectedIndexChanged="HandleCarouselApiIndexChanged">
                     <CarouselContent>
                         @for (var index = 1; index <= 5; index++)
                         {
                             var slideNumber = index;
 
                             <CarouselItem>
-                                <Card>
-                                    <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
-                                        <Span Class="text-4xl font-semibold">@slideNumber</Span>
-                                    </CardBody>
-                                </Card>
-                            </CarouselItem>
-                        }
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
-                <Div class="py-2 text-center text-sm text-muted-foreground">
-                    Slide @_carouselCurrent of @_carouselCount
-                </Div>
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Options"
-                     Description="You can pass options to the carousel using the opts prop."
-                     Code="@OptionsCode"
-                     CodeLanguage="razor">
-            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12">
-                <Carousel Loop="true" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
-                    <CarouselContent>
-                        @for (var index = 1; index <= 4; index++)
-                        {
-                            var slideNumber = index;
-
-                            <CarouselItem>
                                 <Div class="p-1">
                                     <Card>
-                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
                                         </CardBody>
                                     </Card>
@@ -181,36 +150,8 @@
                     <CarouselPrevious />
                     <CarouselNext />
                 </Carousel>
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Events"
-                     Description="You can listen to events using the api instance from setApi."
-                     Code="@EventsCode"
-                     CodeLanguage="razor">
-            <Div Class="mx-auto max-w-xs">
-                <Carousel SetApi="HandleEventsCarouselApi" SelectedIndexChanged="HandleEventsCarouselSelectedIndexChanged" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
-                    <CarouselContent>
-                        @for (var index = 1; index <= 5; index++)
-                        {
-                            var slideNumber = index;
-
-                            <CarouselItem>
-                                <Card>
-                                    <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
-                                        <Span Class="text-4xl font-semibold">@slideNumber</Span>
-                                    </CardBody>
-                                </Card>
-                            </CarouselItem>
-                        }
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
-                <Div class="py-2 text-center text-sm text-muted-foreground">
-                    Selected slide event: @_eventsCarouselCurrent
+                <Div Class="py-2 text-center text-sm text-muted-foreground">
+                    Slide @_carouselApiCurrent of 5
                 </Div>
             </Div>
         </DemoSection>
@@ -221,8 +162,8 @@
                      Description="You can use the plugins prop to add plugins to the carousel."
                      Code="@PluginsCode"
                      CodeLanguage="razor">
-            <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12">
-                <Carousel Autoplay="true" Loop="true" AutoplayDelay="TimeSpan.FromSeconds(2)" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+            <Div Class="mx-auto w-full max-w-[10rem] sm:max-w-xs">
+                <Carousel Autoplay="true" Loop="true" AutoplayDelay="TimeSpan.FromSeconds(2)" Width="Width.IsFull" Class="max-w-[10rem] sm:max-w-xs">
                     <CarouselContent>
                         @for (var index = 1; index <= 5; index++)
                         {
@@ -231,7 +172,7 @@
                             <CarouselItem>
                                 <Div class="p-1">
                                     <Card>
-                                        <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
                                         </CardBody>
                                     </Card>
@@ -265,15 +206,15 @@
                 </Select>
 
                 <DirectionProvider Dir="@CarouselRtlDirection">
-                    <Div Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" Class="px-12">
-                        <Carousel Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+                    <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs">
+                        <Carousel Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs">
                             <CarouselContent>
                                 @foreach (var slideNumber in CarouselRtlSlides)
                                 {
                                     <CarouselItem>
                                         <Div class="p-1">
                                             <Card>
-                                                <CardBody Display="Display.Flex" AspectRatio="AspectRatio.R1X1" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                                <CardBody Class="flex aspect-square items-center justify-center p-6">
                                                     <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
                                                 </CardBody>
                                             </Card>
@@ -310,7 +251,10 @@
     </CarouselContent>
     <CarouselPrevious />
     <CarouselNext />
-</Carousel>";
+</Carousel>
+<div class=""py-2 text-center text-sm text-muted-foreground"">
+    Slide @current of 5
+</div>";
 
     private const string SizesCode =
 @"<Carousel Class=""w-full max-w-sm"">
@@ -330,7 +274,10 @@
     </CarouselContent>
     <CarouselPrevious />
     <CarouselNext />
-</Carousel>";
+</Carousel>
+<div class=""py-2 text-center text-sm text-muted-foreground"">
+    Slide @current of 5
+</div>";
 
     private const string SpacingCode =
 @"<Carousel Class=""w-full max-w-sm"">
@@ -372,33 +319,11 @@
     <CarouselNext />
 </Carousel>";
 
-    private const string OptionsCode =
-@"<Carousel Loop=""true"" Class=""w-full max-w-xs"">
-    <CarouselContent>
-        <CarouselItem>...</CarouselItem>
-        <CarouselItem>...</CarouselItem>
-        <CarouselItem>...</CarouselItem>
-        <CarouselItem>...</CarouselItem>
-    </CarouselContent>
-    <CarouselPrevious />
-    <CarouselNext />
-</Carousel>";
-
     private const string ApiCode =
-@"<Carousel SetApi=""HandleCarouselApi"" SelectedIndexChanged=""HandleCarouselSelectedIndexChanged"" Class=""w-full max-w-xs"">
+@"<Carousel SelectedIndexChanged=""HandleSelectedIndexChanged"" Class=""w-full max-w-xs"">
     <CarouselContent>
-        @for (var index = 1; index <= 5; index++)
-        {
-            <CarouselItem>...</CarouselItem>
-        }
-    </CarouselContent>
-    <CarouselPrevious />
-    <CarouselNext />
-</Carousel>";
-
-    private const string EventsCode =
-@"<Carousel SetApi=""HandleEventsCarouselApi"" SelectedIndexChanged=""HandleEventsCarouselSelectedIndexChanged"" Class=""w-full max-w-xs"">
-    <CarouselContent>
+        <CarouselItem>...</CarouselItem>
+        <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
@@ -406,11 +331,9 @@
     <CarouselPrevious />
     <CarouselNext />
 </Carousel>
-
-private void HandleEventsCarouselApi(CarouselApi api)
-{
-    api.Select += OnEventsCarouselSelect;
-}";
+<div class=""py-2 text-center text-sm text-muted-foreground"">
+    Slide @current of 5
+</div>";
 
     private const string PluginsCode =
 @"<Carousel Autoplay=""true"" Loop=""true"" AutoplayDelay=""TimeSpan.FromSeconds(2)"" Class=""w-full max-w-xs"">
@@ -436,12 +359,8 @@ private void HandleEventsCarouselApi(CarouselApi api)
     </Carousel>
 </DirectionProvider>";
 
-    private CarouselApi? _carouselApi;
-    private int _carouselCurrent = 1;
-    private int _carouselCount = 5;
-    private CarouselApi? _eventsCarouselApi;
-    private int _eventsCarouselCurrent = 1;
     private string _carouselRtlLanguage = "ar";
+    private int _carouselApiCurrent = 1;
 
     private string CarouselRtlDirection => _carouselRtlLanguage == "ar" ? "rtl" : "ltr";
 
@@ -449,86 +368,15 @@ private void HandleEventsCarouselApi(CarouselApi api)
         ? ["١", "٢", "٣", "٤", "٥"]
         : ["1", "2", "3", "4", "5"];
 
-    private void HandleCarouselApi(CarouselApi api)
-    {
-        if (!ReferenceEquals(_carouselApi, api))
-        {
-            if (_carouselApi is not null)
-                _carouselApi.Select -= OnCarouselSelect;
-
-            _carouselApi = api;
-            _carouselApi.Select += OnCarouselSelect;
-        }
-
-        var previousCurrent = _carouselCurrent;
-        var previousCount = _carouselCount;
-        UpdateCarouselState();
-
-        if (_carouselCurrent != previousCurrent || _carouselCount != previousCount)
-            _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void OnCarouselSelect()
-    {
-        UpdateCarouselState();
-        _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void HandleCarouselSelectedIndexChanged(int selectedIndex)
-    {
-        _carouselCurrent = selectedIndex + 1;
-    }
-
-    private void UpdateCarouselState()
-    {
-        if (_carouselApi is null)
-            return;
-
-        _carouselCount = _carouselApi.ScrollSnapList().Count;
-        _carouselCurrent = _carouselCount == 0 ? 0 : _carouselApi.SelectedScrollSnap() + 1;
-    }
-
-    private void HandleEventsCarouselApi(CarouselApi api)
-    {
-        if (!ReferenceEquals(_eventsCarouselApi, api))
-        {
-            if (_eventsCarouselApi is not null)
-                _eventsCarouselApi.Select -= OnEventsCarouselSelect;
-
-            _eventsCarouselApi = api;
-            _eventsCarouselApi.Select += OnEventsCarouselSelect;
-        }
-
-        var previousCurrent = _eventsCarouselCurrent;
-        UpdateEventsCarouselState();
-
-        if (_eventsCarouselCurrent != previousCurrent)
-            _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void OnEventsCarouselSelect()
-    {
-        UpdateEventsCarouselState();
-        _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void HandleEventsCarouselSelectedIndexChanged(int selectedIndex)
-    {
-        _eventsCarouselCurrent = selectedIndex + 1;
-    }
-
-    private void UpdateEventsCarouselState()
-    {
-        if (_eventsCarouselApi is null)
-            return;
-
-        var count = _eventsCarouselApi.ScrollSnapList().Count;
-        _eventsCarouselCurrent = count == 0 ? 0 : _eventsCarouselApi.SelectedScrollSnap() + 1;
-    }
-
     private Task HandleCarouselRtlLanguageChanged(string? value)
     {
         _carouselRtlLanguage = string.IsNullOrWhiteSpace(value) ? "ar" : value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleCarouselApiIndexChanged(int index)
+    {
+        _carouselApiCurrent = index + 1;
         return Task.CompletedTask;
     }
 }

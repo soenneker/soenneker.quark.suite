@@ -14,95 +14,12 @@
 
 @code {
     private readonly string _menubarId = BlazorIdGenerator.New("quark-menubar");
-    private readonly List<MenubarTrigger> _triggers = [];
     private string? _openMenuValue;
     private IReadOnlyDictionary<string, object> MenubarAttributes => BuildMenubarAttributes();
 
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
-
-    internal void RegisterTrigger(MenubarTrigger trigger)
-    {
-        if (!_triggers.Contains(trigger))
-            _triggers.Add(trigger);
-    }
-
-    internal void UnregisterTrigger(MenubarTrigger trigger)
-    {
-        _triggers.Remove(trigger);
-    }
-
-    internal async Task HandleTriggerNavigation(MenubarTrigger currentTrigger, string key, bool openMenu = false)
-    {
-        var enabledTriggers = _triggers.Where(trigger => !trigger.Disabled).ToList();
-        if (enabledTriggers.Count == 0)
-            return;
-
-        var currentIndex = enabledTriggers.FindIndex(trigger => ReferenceEquals(trigger, currentTrigger));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledTriggers.Count - 1,
-            "ArrowRight" when IsHorizontalRtl() => (currentIndex - 1 + enabledTriggers.Count) % enabledTriggers.Count,
-            "ArrowLeft" when IsHorizontalRtl() => (currentIndex + 1) % enabledTriggers.Count,
-            "ArrowRight" => (currentIndex + 1) % enabledTriggers.Count,
-            "ArrowLeft" => (currentIndex - 1 + enabledTriggers.Count) % enabledTriggers.Count,
-            _ => -1
-        };
-
-        if (nextIndex < 0)
-            return;
-
-        var targetTrigger = enabledTriggers[nextIndex];
-        await targetTrigger.Focus();
-
-        if (openMenu)
-            await targetTrigger.FocusMenuFirstItem();
-    }
-
-    internal async Task HandleMenuTraversal(MenubarMenu currentMenu, string key)
-    {
-        if (currentMenu.Trigger is not null)
-            await HandleTriggerNavigation(currentMenu.Trigger, key, openMenu: true);
-    }
-
-    internal Task CloseCurrentMenu()
-    {
-        if (_openMenuValue is null)
-            return Task.CompletedTask;
-
-        _openMenuValue = null;
-        return InvokeAsync(StateHasChanged);
-    }
-
-    internal bool IsSubmenuOpenKey(string key)
-    {
-        return IsHorizontalRtl() ? key == "ArrowLeft" : key == "ArrowRight";
-    }
-
-    internal bool IsSubmenuCloseKey(string key)
-    {
-        return IsHorizontalRtl() ? key == "ArrowRight" : key == "ArrowLeft";
-    }
-
-    private bool IsHorizontalRtl()
-    {
-        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (Attributes is not null &&
-            Attributes.TryGetValue("dir", out var dirValue) &&
-            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
-    }
 
     private string GetResolvedDirection()
     {
@@ -127,14 +44,12 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Token("9");
+        Height ??= Quark.Height.Token("8");
         ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Md;
+        Gap ??= Quark.Gap.Token("0.5");
+        Rounded ??= Quark.Rounded.Lg;
         Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
-        Padding ??= Quark.Padding.Is1;
-        Shadow ??= Quark.Shadow.Xs;
+        Padding ??= Quark.Padding.Token("[3px]");
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

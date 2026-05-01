@@ -45,7 +45,27 @@
                     Italic
                 </Toggle>
             </DemoSection>
-        </Section><Section Space="Space.Y.Is4">
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Size"
+                         Code="@SizeCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                    <Toggle Variant="ToggleVariant.Outline" aria-label="Toggle small" Size="ToggleSize.Sm">
+                        Small
+                    </Toggle>
+                    <Toggle Variant="ToggleVariant.Outline" aria-label="Toggle default" Size="ToggleSize.Default">
+                        Default
+                    </Toggle>
+                    <Toggle Variant="ToggleVariant.Outline" aria-label="Toggle large" Size="ToggleSize.Lg">
+                        Large
+                    </Toggle>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Code="@DisabledCode"
                          CodeLanguage="razor">
@@ -60,26 +80,6 @@
             </DemoSection>
         </Section>
 
-        
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Size"
-                         Code="@SizeCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                    <Toggle aria-label="Toggle small" Size="ToggleSize.Sm">
-                        Small
-                    </Toggle>
-                    <Toggle aria-label="Toggle default" Size="ToggleSize.Default">
-                        Default
-                    </Toggle>
-                    <Toggle aria-label="Toggle large" Size="ToggleSize.Lg">
-                        Large
-                    </Toggle>
-                </Div>
-            </DemoSection>
-        </Section>
-
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Code="@RtlCode"
@@ -88,59 +88,16 @@
                     <Toggle aria-label="Toggle bookmark"
                             Size="ToggleSize.Sm"
                             Variant="ToggleVariant.Outline">
-                        <Icon Name="LucideIcon.Bookmark" />
+                        <Span data-icon="inline-start"><Icon Name="LucideIcon.Bookmark" /></Span>
                         إشارة مرجعية
                     </Toggle>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled Bookmark"
-                         Description="A bound toggle can update its visible state while keeping the same pressed value."
-                         Code="@ControlledBookmarkCode"
-                         CodeLanguage="razor">
-                <Toggle @bind-Pressed="_bookmarkPressed"
-                        aria-label="Toggle bookmark"
-                        Size="ToggleSize.Sm"
-                        Variant="ToggleVariant.Outline"
-                        Class="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500">
-                    <Span data-icon="inline-start"><Icon Name="LucideIcon.Bookmark" /></Span>
-                    @(_bookmarkPressed ? "Saved" : "Bookmark")
-                </Toggle>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled state"
-                         Description="External controls can drive the same pressed state without drifting out of sync."
-                         Code="@ControlledCode"
-                         CodeLanguage="razor">
-                <Div data-testid="toggle-controlled-demo" Space="Space.Y.Is3">
-                    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
-                        <Button Id="toggle-controlled-on" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => _controlledPressed = true)">Set on</Button>
-                        <Button Id="toggle-controlled-off" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => _controlledPressed = false)">Set off</Button>
-                    </Div>
-                    <Toggle @bind-Pressed="_controlledPressed"
-                            Id="toggle-controlled"
-                            aria-label="Toggle notifications"
-                            Variant="ToggleVariant.Outline">
-                        <Span data-icon="inline-start"><Icon Name="LucideIcon.Bell" /></Span>
-                        Notifications
-                    </Toggle>
-                    <Paragraph Id="toggle-controlled-state" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Pressed: @_controlledPressed.ToString().ToLowerInvariant()
-                    </Paragraph>
-                </Div>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
 @code {
-    private bool _bookmarkPressed;
-    private bool _controlledPressed = true;
-
     private const string BasicCode =
 @"<Toggle Variant=""ToggleVariant.Outline""
         Size=""ToggleSize.Sm""
@@ -170,13 +127,13 @@
 
     private const string SizeCode =
 @"<Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
-    <Toggle aria-label=""Toggle small"" Size=""ToggleSize.Sm"">
+    <Toggle Variant=""ToggleVariant.Outline"" aria-label=""Toggle small"" Size=""ToggleSize.Sm"">
         Small
     </Toggle>
-    <Toggle aria-label=""Toggle default"" Size=""ToggleSize.Default"">
+    <Toggle Variant=""ToggleVariant.Outline"" aria-label=""Toggle default"" Size=""ToggleSize.Default"">
         Default
     </Toggle>
-    <Toggle aria-label=""Toggle large"" Size=""ToggleSize.Lg"">
+    <Toggle Variant=""ToggleVariant.Outline"" aria-label=""Toggle large"" Size=""ToggleSize.Lg"">
         Large
     </Toggle>
 </Div>";
@@ -200,30 +157,4 @@
         إشارة مرجعية
     </Toggle>
 </DirectionProvider>";
-
-    private const string ControlledBookmarkCode =
-@"<Toggle @bind-Pressed=""_bookmarkPressed""
-        aria-label=""Toggle bookmark""
-        Size=""ToggleSize.Sm""
-        Variant=""ToggleVariant.Outline"">
-    <Span data-icon=""inline-start""><Icon Name=""LucideIcon.Bookmark"" /></Span>
-    @(_bookmarkPressed ? ""Saved"" : ""Bookmark"")
-</Toggle>";
-
-    private const string ControlledCode =
-@"<Div Space=""Space.Y.Is3"">
-    <Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" Gap=""Gap.Is2"">
-        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""@(() => _controlledPressed = true)"">Set on</Button>
-        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" OnClick=""@(() => _controlledPressed = false)"">Set off</Button>
-    </Div>
-    <Toggle @bind-Pressed=""_controlledPressed""
-            aria-label=""Toggle notifications""
-            Variant=""ToggleVariant.Outline"">
-        <Span data-icon=""inline-start""><Icon Name=""LucideIcon.Bell"" /></Span>
-        Notifications
-    </Toggle>
-    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">
-        Pressed: @_controlledPressed.ToString().ToLowerInvariant()
-    </Paragraph>
-</Div>";
 }

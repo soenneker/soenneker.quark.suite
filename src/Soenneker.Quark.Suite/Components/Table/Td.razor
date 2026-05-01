@@ -1,16 +1,19 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<td colspan="@Colspan" @attributes="BuildAttributes()">
+<td @attributes="BuildAttributes()">
     @ChildContent
 </td>
 
 @code {
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     /// <summary>
     /// Gets or sets the colspan attribute value.
     /// </summary>
     [Parameter]
-    public int Colspan { get; set; } = 1;
+    public int? Colspan { get; set; }
 
     protected override void ApplyDefaultParameters()
     {
@@ -26,10 +29,12 @@
         base.BuildAttributesCore(attributes);
 		attributes["data-slot"] = "table-cell";
 
+        if (Colspan is > 1)
+            attributes["colspan"] = Colspan.Value;
+
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "[&:has([role=checkbox])]:pr-0");
-			AppendClass(ref cls, "[&>[role=checkbox]]:translate-y-[2px]");
+			AppendClass(ref cls, IsRtl ? "[&:has([role=checkbox])]:pe-0" : "[&:has([role=checkbox])]:pr-0");
 		});
 	}
 
@@ -37,5 +42,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Colspan);
+        hc.Add(DirectionProviderDir);
     }
+
+    private bool IsRtl => string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
 } 

@@ -40,9 +40,9 @@
                 </Sheet>
             </DemoSection>
         </Section>
-<Section Space="Space.Y.Is4">
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Side"
-                         Description="Sheets can slide in from top, right, bottom, or left via `Side`."
+                         Description="Use the side prop on SheetContent to set the edge of the screen where the sheet appears. Values are top, right, bottom, or left."
                          Code="@SidesCode"
                          CodeLanguage="razor">
                 <Div Class="grid grid-cols-2 gap-2">
@@ -87,12 +87,12 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="No Close Button"
-                         Description="Hide the sheet corner close control when dismissal uses footer actions only."
+                         Description="Use showCloseButton={false} on SheetContent to hide the close button."
                          Code="@NoCloseCode"
                          CodeLanguage="razor">
                 <Sheet>
                     <SheetTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">No Close Button</Button>
+                        <Button Variant="ButtonVariant.Outline">Open Sheet</Button>
                     </SheetTrigger>
                     <SheetContent ShowCloseButton="false">
                         <SheetHeader>
@@ -113,84 +113,63 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Sheet chrome and content in a right-to-left context."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
-                <DirectionProvider Dir="rtl">
-                    <Div Width="Width.IsFull" TextAlign="TextAlign.End">
-                        <Sheet>
-                            <SheetTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Outline">افتح اللوحة</Button>
-                            </SheetTrigger>
-                            <SheetContent Side="Side.Left">
-                                <SheetHeader>
-                                    <SheetTitle>تعديل الملف الشخصي</SheetTitle>
-                                    <SheetDescription>
-                                        حدّث معلوماتك هنا ثم احفظ التغييرات.
-                                    </SheetDescription>
-                                </SheetHeader>
-                                <Div class="grid flex-1 auto-rows-min gap-6 px-4">
-                                    <Div Display="Display.Grid" Gap="Gap.Is3">
-                                        <Label For="sheet-rtl-name">الاسم</Label>
-                                        <Input Id="sheet-rtl-name" Value="Pedro Duarte" />
-                                    </Div>
-                                    <Div Display="Display.Grid" Gap="Gap.Is3">
-                                        <Label For="sheet-rtl-username">اسم المستخدم</Label>
-                                        <Input Id="sheet-rtl-username" Value="@("@peduarte")" />
-                                    </Div>
-                                </Div>
-                                <SheetFooter>
-                                    <Button>حفظ</Button>
-                                    <SheetClose AsChild="true">
-                                        <Button Variant="ButtonVariant.Outline">إغلاق</Button>
-                                    </SheetClose>
-                                </SheetFooter>
-                            </SheetContent>
-                        </Sheet>
+                <Div Space="Space.Y.Is8" Width="Width.IsFull">
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Width="Width.IsFull">
+                        <Select TValue="string" SelectedValue="@("ar")">
+                            <SelectTrigger Class="w-44">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
+                            </SelectContent>
+                        </Select>
+                        <Icon Name="LucideIcon.Info" Class="size-4" TextColor="TextColor.MutedForeground" />
                     </Div>
-                </DirectionProvider>
+                    <DirectionProvider Dir="rtl">
+                        <Div Width="Width.IsFull" Display="Display.Flex" Justify="Justify.Center">
+                            <Sheet>
+                                <SheetTrigger AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">فتح</Button>
+                                </SheetTrigger>
+                                <SheetContent Side="Side.Left">
+                                    <SheetHeader>
+                                        <SheetTitle>تعديل الملف الشخصي</SheetTitle>
+                                        <SheetDescription>
+                                            حدّث معلوماتك هنا ثم احفظ التغييرات.
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                    <Div class="grid flex-1 auto-rows-min gap-6 px-4">
+                                        <Div Display="Display.Grid" Gap="Gap.Is3">
+                                            <Label For="sheet-rtl-name">الاسم</Label>
+                                            <Input Id="sheet-rtl-name" Value="Pedro Duarte" />
+                                        </Div>
+                                        <Div Display="Display.Grid" Gap="Gap.Is3">
+                                            <Label For="sheet-rtl-username">اسم المستخدم</Label>
+                                            <Input Id="sheet-rtl-username" Value="@("@peduarte")" />
+                                        </Div>
+                                    </Div>
+                                    <SheetFooter>
+                                        <Button>حفظ</Button>
+                                        <SheetClose AsChild="true">
+                                            <Button Variant="ButtonVariant.Outline">إغلاق</Button>
+                                        </SheetClose>
+                                    </SheetFooter>
+                                </SheetContent>
+                            </Sheet>
+                        </Div>
+                    </DirectionProvider>
+                </Div>
             </DemoSection>
         </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Scrollable Content"
-                         Description="Programmatically open a wide activity drawer with `Visible` binding."
-                         Code="@ScrollableCode"
-                         CodeLanguage="razor">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = true)">Open activity drawer</Button>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
-<Sheet @bind-Visible="_showScrollable">
-    <SheetContent Side="Side.Right">
-        <SheetHeader>
-            <SheetTitle>Recent activity</SheetTitle>
-            <SheetDescription>
-                Review a longer stream of events without leaving the current page.
-            </SheetDescription>
-        </SheetHeader>
-        <Div Class="grid flex-1 gap-4 px-4">
-            @for (var i = 1; i <= 12; i++)
-            {
-                <Div Class="rounded-lg border p-4">
-                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">Deployment @i</Paragraph>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                        Completed successfully and promoted to production.
-                    </Paragraph>
-                </Div>
-            }
-        </Div>
-        <SheetFooter>
-            <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = false)">Dismiss</Button>
-            <Button OnClick="@(() => _showScrollable = false)">Review details</Button>
-        </SheetFooter>
-    </SheetContent>
-</Sheet>
-
 @code {
-    private bool _showScrollable;
     private readonly Side[] _sheetSides =
     [
         Side.Top,
@@ -268,11 +247,24 @@
 </Div>";
 
     private const string RtlCode =
-@"<DirectionProvider Dir=""rtl"">
-    <Div class=""w-full text-right"">
+@"<Div Space=""Space.Y.Is8"" Width=""Width.IsFull"">
+    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Width=""Width.IsFull"">
+        <Select TValue=""string"" SelectedValue=""@(""ar"")"">
+            <SelectTrigger Class=""w-44"">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
+            </SelectContent>
+        </Select>
+        <Icon Name=""LucideIcon.Info"" Class=""size-4"" />
+    </Div>
+    <DirectionProvider Dir=""rtl"">
+        <Div Width=""Width.IsFull"" Display=""Display.Flex"" Justify=""Justify.Center"">
         <Sheet>
             <SheetTrigger AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"">افتح اللوحة</Button>
+                <Button Variant=""ButtonVariant.Outline"">فتح</Button>
             </SheetTrigger>
             <SheetContent Side=""Soenneker.Bradix.Side.Left"">
                 <SheetHeader>
@@ -299,13 +291,14 @@
                 </SheetFooter>
             </SheetContent>
         </Sheet>
-    </Div>
-</DirectionProvider>";
+        </Div>
+    </DirectionProvider>
+</Div>";
 
     private const string NoCloseCode =
 @"<Sheet>
     <SheetTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">No Close Button</Button>
+        <Button Variant=""ButtonVariant.Outline"">Open Sheet</Button>
     </SheetTrigger>
     <SheetContent ShowCloseButton=""false"">
         <SheetHeader>
@@ -318,31 +311,6 @@
             <SheetClose AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">Close</Button>
             </SheetClose>
-        </SheetFooter>
-    </SheetContent>
-</Sheet>";
-
-    private const string ScrollableCode =
-@"<Sheet @bind-Visible=""showActivity"">
-    <SheetContent Side=""Soenneker.Bradix.Side.Right"">
-        <SheetHeader>
-            <SheetTitle>Recent activity</SheetTitle>
-            <SheetDescription>Review a longer stream of events.</SheetDescription>
-        </SheetHeader>
-        <Div Class=""grid flex-1 gap-4 px-4"">
-            @for (var i = 1; i <= 12; i++)
-            {
-                <Div Class=""rounded-lg border p-4"">
-                    <Paragraph TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Margin=""Margin.Is0"">Deployment @i</Paragraph>
-                    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
-                        Completed successfully and promoted to production.
-                    </Paragraph>
-                </Div>
-            }
-        </Div>
-        <SheetFooter>
-            <Button Variant=""ButtonVariant.Outline"">Dismiss</Button>
-            <Button>Review details</Button>
         </SheetFooter>
     </SheetContent>
 </Sheet>";

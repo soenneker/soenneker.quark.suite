@@ -10,7 +10,7 @@ public interface IButton : IElement
     /// <summary>
     /// Gets or sets the type of button (button, submit, reset, or link).
     /// </summary>
-    ButtonType Type { get; set; }
+    ButtonType? Type { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button is disabled.

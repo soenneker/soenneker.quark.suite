@@ -7,22 +7,42 @@
         <Section Space="Space.Y.Is4">
             <DemoSection
                          Description="Single-date calendar with the month and year dropdown caption used in shadcn's calendar examples."
-                         Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" CaptionLayout=""dropdown"" Class=""rounded-lg border"" />")"
+                         Code="@(@"<Calendar SelectedDate=""_overviewDate"" SelectedDateChanged=""OnOverviewDateChanged"" CaptionLayout=""dropdown"" Class=""rounded-lg border"" />")"
                          CodeLanguage="razor">
-                <Calendar SelectedDate="_basicDate"
-                          SelectedDateChanged="OnBasicDateChanged"
+                <Calendar SelectedDate="_overviewDate"
+                          SelectedDateChanged="OnOverviewDateChanged"
                           CaptionLayout="dropdown"
                           Class="rounded-lg border" />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Persian / Hijri / Jalali Calendar"
+                         Description="Calendar supports right-to-left Persian date formatting."
+                         Code="@(@"<DirectionProvider Dir=""rtl"">
+    <Calendar SelectedDate=""_persianDate"" SelectedDateChanged=""OnPersianDateChanged"" DisplayMonth=""_persianDisplayMonth"" CultureName=""fa-IR"" Class=""rounded-lg border p-3 [--cell-size:--spacing(8)]"" />
+</DirectionProvider>")"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Calendar SelectedDate="_persianDate"
+                              SelectedDateChanged="OnPersianDateChanged"
+                              DisplayMonth="_persianDisplayMonth"
+                              CultureName="fa-IR"
+                              UseCultureCalendar="true"
+                              FixedWeeks="true"
+                              Class="rounded-lg border p-3 [--cell-size:--spacing(8)]" />
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
                          Description="A basic calendar component styled with a rounded border."
-                         Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" Class=""rounded-lg border"" />")"
+                         Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" DisplayMonth=""_aprilDisplayMonth"" Class=""rounded-lg border"" />")"
                          CodeLanguage="razor">
                 <Calendar SelectedDate="_basicDate"
                           SelectedDateChanged="OnBasicDateChanged"
+                          DisplayMonth="_aprilDisplayMonth"
                           Class="rounded-lg border" />
             </DemoSection>
         </Section>
@@ -53,14 +73,11 @@
                          Description="Use month and year dropdowns for direct caption navigation."
                          Code="@DropdownCaptionCode"
                          CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar SelectedDate="_dropdownCaptionDate"
-                                  SelectedDateChanged="OnDropdownCaptionDateChanged"
-                                  CaptionLayout="dropdown"
-                                  CultureName="es-ES" />
-                    </CardBody>
-                </Card>
+                <Calendar SelectedDate="_dropdownCaptionDate"
+                          SelectedDateChanged="OnDropdownCaptionDateChanged"
+                          CaptionLayout="dropdown"
+                          DisplayMonth="_aprilDisplayMonth"
+                          Class="rounded-lg border" />
             </DemoSection>
         </Section>
 
@@ -75,13 +92,15 @@
     <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" />
 </Div>")"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" Width="Width.IsFit" Margin="Margin.Auto.OnX">
-                    <Div Display="Display.Flex" Gap="Gap.Is2">
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetToday">Today</Button>
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SetCalendarPresetNextWeek">Next week</Button>
-                    </Div>
-                    <Calendar SelectedDate="_presetDate" SelectedDateChanged="OnPresetDateChanged" />
-                </Div>
+                <Card Size="CardSize.Sm" Margin="Margin.Auto.OnX" Width="Width.IsFit" MaxWidth='MaxWidth.Token("[300px]")'>
+                    <CardBody>
+                        <Calendar SelectedDate="_presetDate"
+                                  SelectedDateChanged="OnPresetDateChanged"
+                                  DisplayMonth="_aprilDisplayMonth"
+                                  FixedWeeks="true"
+                                  Class="p-0 [--cell-size:--spacing(9.5)]" />
+                    </CardBody>
+                </Card>
             </DemoSection>
         </Section>
 
@@ -90,12 +109,26 @@
                          Description="Use the date-time picker when the calendar selection needs a time value as well."
                          Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_calendarDateTime"" />")"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is3" ItemsAlign="Items.Center">
-                    <DateTimePicker @bind-SelectedDateTime="_calendarDateTime" />
-                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        @_calendarDateTime?.ToString("MMM dd, yyyy HH:mm")
-                    </Paragraph>
-                </Div>
+                <Card Size="CardSize.Sm" Margin="Margin.Auto.OnX" Width="Width.IsFit">
+                    <CardBody>
+                        <Calendar SelectedDate="_calendarDate"
+                                  SelectedDateChanged="OnCalendarDateChanged"
+                                  DisplayMonth="_aprilDisplayMonth"
+                                  Class="p-0" />
+                    </CardBody>
+                    <CardFooter Class="flex flex-col gap-3 border-t px-3! py-3!">
+                        <Div Display="Display.Grid" Class="grid-cols-2 gap-3">
+                            <Div Class="grid gap-1">
+                                <Label for="time-from">Start Time</Label>
+                                <Input Type="time" Id="time-from" Value="09:00:00" />
+                            </Div>
+                            <Div Class="grid gap-1">
+                                <Label for="time-to">End Time</Label>
+                                <Input Type="time" Id="time-to" Value="12:30:00" />
+                            </Div>
+                        </Div>
+                    </CardFooter>
+                </Card>
             </DemoSection>
         </Section>
 
@@ -125,9 +158,12 @@
                 <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
                     <CardBody Padding="Padding.Is0">
                         <Calendar Mode="CalendarSelectionMode.Range"
+                                  DisplayMonth="_customDayDisplayMonth"
                                   SelectedRange="_customDayRange"
                                   SelectedRangeChanged="OnCustomDayRangeChanged"
                                   CaptionLayout="dropdown"
+                                  UseFullMonthNames="true"
+                                  Class="[--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
                                   DayContent="@RenderPricingDay" />
                     </CardBody>
                 </Card>
@@ -147,6 +183,7 @@
                     <CardBody Padding="Padding.Is0">
                         <Calendar SelectedDate="_weekNumberDate"
                                   SelectedDateChanged="OnWeekNumberDateChanged"
+                                  DisplayMonth="_februaryDisplayMonth"
                                   ShowWeekNumber="true" />
                     </CardBody>
                 </Card>
@@ -157,104 +194,63 @@
             <DemoSection Title="RTL"
                          Description="Calendar supports right-to-left layouts with locale-aware formatting."
                          Code="@(@"<DirectionProvider Dir=""rtl"">
-    <Calendar SelectedDate=""_rtlDate"" SelectedDateChanged=""OnRtlDateChanged"" CultureName=""ar-SA"" Class=""rounded-lg border"" />
+    <Calendar SelectedDate=""_rtlDate"" SelectedDateChanged=""OnRtlDateChanged"" CaptionLayout=""dropdown"" CultureName=""ar-EG"" Class=""rounded-lg border [--cell-size:--spacing(9)]"" />
 </DirectionProvider>")"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Calendar SelectedDate="_rtlDate"
                               SelectedDateChanged="OnRtlDateChanged"
-                              CultureName="ar-SA"
-                              Class="rounded-lg border" />
+                              DisplayMonth="_aprilDisplayMonth"
+                              CaptionLayout="dropdown"
+                              CultureName="ar-EG"
+                              Class="rounded-lg border [--cell-size:--spacing(9)]" />
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple Months"
-                         Description="Increase `NumberOfMonths` to present a broader range-selection surface."
-                         Code="@(@"<Card Class=""mx-auto w-fit p-0"">
-    <CardBody Class=""p-0"">
-        <Calendar Mode=""CalendarSelectionMode.Range"" DisplayMonth=""_multiMonthDisplayMonth"" SelectedRange=""_multiMonthRange"" SelectedRangeChanged=""OnMultiMonthRangeChanged"" NumberOfMonths=""3"" CultureName=""es-ES"" />
-    </CardBody>
-</Card>")"
-                         CodeLanguage="razor">
-                <Card Margin="Margin.Auto.OnX" Width="Width.IsFit" Padding="Padding.Is0">
-                    <CardBody Padding="Padding.Is0">
-                        <Calendar Mode="CalendarSelectionMode.Range"
-                                  DisplayMonth="_multiMonthDisplayMonth"
-                                  SelectedRange="_multiMonthRange"
-                                  SelectedRangeChanged="OnMultiMonthRangeChanged"
-                                  NumberOfMonths="3"
-                                  CultureName="es-ES" />
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date Bounds"
-                         Description="Bounds work well for birth dates and other historical-only selections."
-                         Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-col") ItemsAlign="Items.Start" Gap="Gap.Is4">
-                    <Calendar SelectedDate="_birthday"
-                              SelectedDateChanged="OnBirthdayChanged"
-                              Min="_birthdayMin"
-                              Max="_birthdayMax" />
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Choose a date between @_birthdayMin.ToString("yyyy-MM-dd") and @_birthdayMax.ToString("yyyy-MM-dd")
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Hide Outside Days"
-                         Description="Disable outside days when the current month should stay visually focused."
-                         Code="@(@"<Calendar SelectedDate=""_focusedMonthDate"" SelectedDateChanged=""OnFocusedMonthDateChanged"" ShowOutsideDays=""false"" />")"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-col") ItemsAlign="Items.Start" Gap="Gap.Is4">
-                    <Calendar SelectedDate="_focusedMonthDate"
-                              SelectedDateChanged="OnFocusedMonthDateChanged"
-                              ShowOutsideDays="false" />
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Outside days are hidden while the month grid stays aligned.
-                    </Paragraph>
-                </Div>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
 @code {
-    private DateOnly? _basicDate = DateOnly.FromDateTime(DateTime.Today);
-    private CalendarDateRange? _selectedRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(-30)), DateOnly.FromDateTime(DateTime.Today.AddDays(-10)));
+    private readonly DateOnly _aprilDisplayMonth = new(2026, 4, 1);
+    private readonly DateOnly _februaryDisplayMonth = new(2026, 2, 1);
+    private readonly DateOnly _customDayDisplayMonth = new(2026, 12, 1);
+    private readonly DateOnly _persianDisplayMonth = new(2025, 6, 1);
+    private DateOnly? _overviewDate = new(2026, 4, 30);
+    private DateOnly? _persianDate = new(2025, 6, 12);
+    private DateOnly? _basicDate;
+    private CalendarDateRange? _selectedRange = new(new DateOnly(2026, 1, 12), new DateOnly(2026, 2, 11));
     private DateOnly[] _selectedDates =
     [
         DateOnly.FromDateTime(DateTime.Today),
         DateOnly.FromDateTime(DateTime.Today.AddDays(2)),
         DateOnly.FromDateTime(DateTime.Today.AddDays(5))
     ];
-    private DateOnly? _weekNumberDate = DateOnly.FromDateTime(DateTime.Today.AddDays(10));
-    private CalendarDateRange? _multiMonthRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(12)), DateOnly.FromDateTime(DateTime.Today.AddDays(42)));
-    private DateOnly? _dropdownCaptionDate = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
-    private DateOnly? _presetDate = DateOnly.FromDateTime(DateTime.Today);
-    private DateTime? _calendarDateTime = DateTime.Today.AddHours(9);
-    private readonly DateOnly _bookedDisplayMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateOnly? _weekNumberDate = new(2026, 2, 3);
+    private DateOnly? _dropdownCaptionDate;
+    private DateOnly? _presetDate;
+    private DateOnly? _calendarDate = new(2026, 4, 12);
+    private readonly DateOnly _bookedDisplayMonth = new(2026, 2, 1);
     private DateOnly[] _bookedDates =
     [
-        DateOnly.FromDateTime(DateTime.Today.AddDays(3)),
-        DateOnly.FromDateTime(DateTime.Today.AddDays(4)),
-        DateOnly.FromDateTime(DateTime.Today.AddDays(8)),
-        DateOnly.FromDateTime(DateTime.Today.AddDays(9))
+        new(2026, 2, 12),
+        new(2026, 2, 13),
+        new(2026, 2, 14),
+        new(2026, 2, 15),
+        new(2026, 2, 16),
+        new(2026, 2, 17),
+        new(2026, 2, 18),
+        new(2026, 2, 19),
+        new(2026, 2, 20),
+        new(2026, 2, 21),
+        new(2026, 2, 22),
+        new(2026, 2, 23),
+        new(2026, 2, 24),
+        new(2026, 2, 25),
+        new(2026, 2, 26)
     ];
-    private DateOnly? _bookedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(12));
-    private CalendarDateRange? _customDayRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(20)), DateOnly.FromDateTime(DateTime.Today.AddDays(27)));
-    private readonly DateOnly _birthdayMin = new(1940, 1, 1);
-    private readonly DateOnly _birthdayMax = DateOnly.FromDateTime(DateTime.Today);
-    private DateOnly? _birthday = new(1992, 4, 12);
-    private DateOnly? _focusedMonthDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
-    private DateOnly? _rtlDate = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _bookedDate = new(2026, 2, 3);
+    private CalendarDateRange? _customDayRange = new(new DateOnly(2026, 12, 8), new DateOnly(2026, 12, 18));
+    private DateOnly? _rtlDate = new(2026, 4, 30);
 
     private Dictionary<string, Func<DateOnly, bool>> BookedModifiers => new()
     {
@@ -267,17 +263,22 @@
     };
 
     private DateOnly? _rangeDisplayMonth => _selectedRange?.From;
-    private DateOnly? _multiMonthDisplayMonth => _multiMonthRange?.From;
+
+    private Task OnOverviewDateChanged(DateOnly? value)
+    {
+        _overviewDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPersianDateChanged(DateOnly? value)
+    {
+        _persianDate = value;
+        return Task.CompletedTask;
+    }
 
     private Task OnBasicDateChanged(DateOnly? value)
     {
         _basicDate = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnBirthdayChanged(DateOnly? value)
-    {
-        _birthday = value;
         return Task.CompletedTask;
     }
 
@@ -301,12 +302,12 @@
 
     private void SetCalendarPresetToday()
     {
-        _presetDate = DateOnly.FromDateTime(DateTime.Today);
+        _presetDate = new DateOnly(2026, 4, 30);
     }
 
     private void SetCalendarPresetNextWeek()
     {
-        _presetDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+        _presetDate = new DateOnly(2026, 5, 7);
     }
 
     private Task OnWeekNumberDateChanged(DateOnly? value)
@@ -315,15 +316,15 @@
         return Task.CompletedTask;
     }
 
-    private Task OnMultiMonthRangeChanged(CalendarDateRange? value)
-    {
-        _multiMonthRange = value;
-        return Task.CompletedTask;
-    }
-
     private Task OnDropdownCaptionDateChanged(DateOnly? value)
     {
         _dropdownCaptionDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnCalendarDateChanged(DateOnly? value)
+    {
+        _calendarDate = value;
         return Task.CompletedTask;
     }
 
@@ -336,12 +337,6 @@
     private Task OnCustomDayRangeChanged(CalendarDateRange? value)
     {
         _customDayRange = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnFocusedMonthDateChanged(DateOnly? value)
-    {
-        _focusedMonthDate = value;
         return Task.CompletedTask;
     }
 

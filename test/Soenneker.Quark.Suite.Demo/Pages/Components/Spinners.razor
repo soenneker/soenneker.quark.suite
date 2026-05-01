@@ -25,25 +25,23 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Customization" Description="Use color and size classes to adapt spinner emphasis."
+            <DemoSection Title="Customization" Description="You can replace the default spinner icon with any other icon by editing the Spinner component."
                         Code="@CustomizationCode"
                         CodeLanguage="razor">
-                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4">
-                    <Spinner Class="size-4 text-muted-foreground" />
-                    <Spinner Class="size-5 text-primary" />
-                    <Spinner Class="size-6 text-destructive" />
-                </Div>
+                <Spinner Name="LucideIcon.Loader" />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Size" Description="Use Tailwind classes to scale the spinner."
+            <DemoSection Title="Size" Description="Use the size-* utility class to change the size of the spinner."
                         CodeLanguage="razor"
-                        Code="@(@"<Spinner Class=""size-4"" />
+                        Code="@(@"<Spinner Class=""size-3"" />
+<Spinner Class=""size-4"" />
 <Spinner Class=""size-6"" />
 <Spinner Class=""size-8"" />")">
                 <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4">
-                    <Spinner BoxSize="Size.Is4" />
+                    <Spinner Class="size-3" />
+                    <Spinner Class="size-4" />
                     <Spinner BoxSize="Size.Is6" />
                     <Spinner Class="size-8" />
                 </Div>
@@ -51,62 +49,84 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Button" Description="Common loading state inside actions."
+            <DemoSection Title="Button" Description="Add a spinner to a button to indicate a loading state."
                         CodeLanguage="razor"
                         Code="@(@"<Button Variant=""ButtonVariant.Default"">
-    <Spinner Class=""mr-2 size-4"" />
-    Saving...
+    <Spinner data-icon=""inline-start"" />
+    Loading...
 </Button>")">
-                <Button Variant="ButtonVariant.Default">
-                    <Spinner Class="mr-2 size-4" />
-                    Saving...
-                </Button>
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2" ItemsAlign="Items.Center">
+                    <Button Variant="ButtonVariant.Default"><Spinner data-icon="inline-start" />Loading...</Button>
+                    <Button Variant="ButtonVariant.Outline"><Spinner data-icon="inline-start" />Please wait</Button>
+                    <Button Variant="ButtonVariant.Secondary">Processing<Spinner data-icon="inline-end" /></Button>
+                </Div>
             </DemoSection>
         </Section>
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Badge" Description="Embed a spinner in a badge when the compact status itself is loading."
+            <DemoSection Title="Badge" Description="Add a spinner to a badge to indicate a loading state."
                         CodeLanguage="razor"
-                        Code="@(@"<Badge Variant=""BadgeVariant.Outline"" Class=""inline-flex items-center gap-1.5""><Spinner Class=""size-3"" />Syncing</Badge>")">
-                <Badge Variant="BadgeVariant.Outline" Display="Display.InlineFlex" ItemsAlign="Items.Center" Gap='Gap.Token("1.5")'><Spinner BoxSize="Size.Is3" />Syncing</Badge>
+                        Code="@(@"<Badge Variant=""BadgeVariant.Outline""><Spinner data-icon=""inline-start"" />Syncing</Badge>")">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2" ItemsAlign="Items.Center">
+                    <Badge Variant="BadgeVariant.Outline"><Spinner data-icon="inline-start" />Syncing</Badge>
+                    <Badge Variant="BadgeVariant.Secondary">Updating<Spinner data-icon="inline-end" /></Badge>
+                    <Badge Variant="BadgeVariant.Default"><Spinner data-icon="inline-start" />Processing</Badge>
+                </Div>
             </DemoSection>
         </Section>
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Input Group" Description="Small spinners work well as trailing status indicators in inputs."
+            <DemoSection Title="Input Group" Description="Use spinners with input groups for inline validation states."
                         CodeLanguage="razor"
                         Code="@(@"<InputGroup>
-    <InputGroupInput Placeholder=""Search..."" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd""><Spinner Class=""size-3"" /></InputGroupAddon>
+    <InputGroupInput Placeholder=""Validating..."" />
+    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd""><Spinner /></InputGroupAddon>
+    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd""><InputGroupButton>Send</InputGroupButton></InputGroupAddon>
 </InputGroup>")">
-                <InputGroup>
-                    <InputGroupInput Placeholder="Search..." />
-                    <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd"><Spinner BoxSize="Size.Is3" /></InputGroupAddon>
+                <InputGroup Class="max-w-sm">
+                    <InputGroupInput Placeholder="Validating..." />
+                    <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd"><Spinner /></InputGroupAddon>
+                    <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd"><InputGroupButton>Send</InputGroupButton></InputGroupAddon>
                 </InputGroup>
             </DemoSection>
         </Section>
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Empty" Description="Use a larger spinner inside an empty state while the first dataset is loading."
+            <DemoSection Title="Empty" Description="Use a spinner in an empty state while a request is processing."
                         CodeLanguage="razor"
-                        Code="@(@"<Div Class=""flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border border-dashed"">
-    <Spinner Class=""size-8"" />
-    <Span class=""text-sm text-muted-foreground"">Loading results...</Span>
-</Div>")">
-                <Div Display="Display.Flex" MinHeight='Height.Token("40")' FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is3" Rounded="Rounded.Xl" Border="Border.Is1" BorderStyle="BorderStyle.Dashed">
-                    <Spinner Class="size-8" />
-                    <Span TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Loading results...</Span>
-                </Div>
+                        Code="@(@"<Empty>
+    <EmptyHeader>
+        <EmptyMedia Variant=""EmptyMediaVariant.Icon""><Spinner /></EmptyMedia>
+        <EmptyTitle>Processing your request</EmptyTitle>
+        <EmptyDescription>Please wait while we process your request. Do not refresh the page.</EmptyDescription>
+    </EmptyHeader>
+    <EmptyContent><Button Variant=""ButtonVariant.Outline"">Cancel</Button></EmptyContent>
+</Empty>")">
+                <Empty>
+                    <EmptyHeader>
+                        <EmptyMedia Variant="EmptyMediaVariant.Icon"><Spinner /></EmptyMedia>
+                        <EmptyTitle>Processing your request</EmptyTitle>
+                        <EmptyDescription>Please wait while we process your request. Do not refresh the page.</EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent><Button Variant="ButtonVariant.Outline">Cancel</Button></EmptyContent>
+                </Empty>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL" Description="Spinner placements still read correctly in right-to-left layouts."
+            <DemoSection Title="RTL" Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                         Code="@RtlCode"
                         CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4">
-                        <Button Variant="ButtonVariant.Default">
-                            جار الحفظ...
-                            <Spinner Class="ml-2 size-4" />
-                        </Button>
+                    <Div Class="flex w-full max-w-xs flex-col gap-4 [--radius:1rem]">
+                        <Item Variant="ItemVariant.Muted">
+                            <ItemMedia>
+                                <Spinner />
+                            </ItemMedia>
+                            <ItemContent>
+                                <ItemTitle Class="line-clamp-1">جاري معالجة الدفع...</ItemTitle>
+                            </ItemContent>
+                            <ItemContent Class="flex-none justify-end">
+                                <Span TextSize="TextSize.Sm" Class="tabular-nums">١٠٠.٠٠ دولار</Span>
+                            </ItemContent>
+                        </Item>
                     </Div>
                 </DirectionProvider>
             </DemoSection>
@@ -131,17 +151,14 @@
 </Div>";
 
     private const string CustomizationCode =
-@"<Div Class=""flex items-center gap-4"">
-    <Spinner Class=""size-4 text-muted-foreground"" />
-    <Spinner Class=""size-5 text-primary"" />
-    <Spinner Class=""size-6 text-destructive"" />
-</Div>";
+@"<Spinner Name=""LucideIcon.Loader"" />";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Button Variant=""ButtonVariant.Default"">
-        جار الحفظ...
-        <Spinner Class=""ml-2 size-4"" />
-    </Button>
+    <Item Variant=""ItemVariant.Muted"">
+        <ItemMedia><Spinner /></ItemMedia>
+        <ItemContent><ItemTitle>جاري معالجة الدفع...</ItemTitle></ItemContent>
+        <ItemContent Class=""flex-none justify-end""><Span>١٠٠.٠٠ دولار</Span></ItemContent>
+    </Item>
 </DirectionProvider>";
 }

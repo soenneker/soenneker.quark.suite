@@ -12,7 +12,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @attributes="BuildAttributes()">
+    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" BoxSize="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -29,7 +29,7 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" BoxSize="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -55,6 +55,7 @@ else
 
     private ElementReference _elementRef;
     private bool _triggerElementRegistered;
+    private bool _ignoreNextKeyboardClick;
     private string? _registeredTriggerId;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
@@ -101,7 +102,7 @@ else
     /// Gets or sets the type of the button (button, submit, reset, or link).
     /// </summary>
     [Parameter]
-    public ButtonType Type { get; set; } = ButtonType.Button;
+    public ButtonType? Type { get; set; }
 
     /// <summary>
     /// Gets or sets the template to display When the button is in a loading state.
@@ -151,9 +152,8 @@ else
         Display ??= Quark.Display.InlineFlex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
+        if (!HasTailwindUtility(Class, "justify-"))
+            Justify ??= Quark.Justify.Center;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
@@ -185,12 +185,20 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes.Remove("onclick");
+        attributes.Remove("onkeydown");
+        attributes.Remove("onkeyup");
 
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || attributes.ContainsKey("disabled");
 
-        if (!attributes.ContainsKey("data-slot"))
-            attributes["data-slot"] = TriggerContext?.DataSlot ?? "button";
+        var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal)
+            ? "button"
+            : TriggerContext?.DataSlot;
+
+        if (triggerDataSlot is not null)
+            attributes["data-slot"] = triggerDataSlot;
+        else if (!attributes.ContainsKey("data-slot"))
+            attributes["data-slot"] = "button";
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
@@ -208,13 +216,18 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+            AppendClass(ref cls, "group/button bg-clip-padding select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px");
+            
+            if (Rounded is null && !HasSizeSpecificRadius(effectiveSize))
+                AppendClass(ref cls, "rounded-lg");
+
             AppendClass(ref cls, GetButtonFocusClass(Variant));
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, GetButtonVariantClass(Variant));
-            AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
+            if (!IsInputGroupButton())
+                AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
 
             if (isLink && isDisabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
@@ -228,7 +241,7 @@ else
 
         if (TriggerContext is not null)
         {
-            if (TriggerContext.TriggerId is not null)
+            if (TriggerContext.TriggerId is not null && !attributes.ContainsKey("id"))
                 attributes["id"] = TriggerContext.TriggerId;
 
             if (TriggerContext.DataState is not null)
@@ -250,8 +263,8 @@ else
                 attributes["data-disabled"] = "true";
         }
 
-        if (!isLink)
-            attributes["type"] = Type?.Value ?? "button";
+        if (!isLink && Type is not null)
+            attributes["type"] = Type.Value;
 
         if (isLink)
         {
@@ -303,8 +316,6 @@ else
         if (TriggerContext?.OnFocusOut is not null)
             attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
 
-        if (TriggerContext?.OnKeyDown is not null)
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleTriggerKeyDown);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
@@ -335,6 +346,12 @@ else
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
+
+        if (_ignoreNextKeyboardClick)
+        {
+            _ignoreNextKeyboardClick = false;
+            return;
+        }
 
         if (TriggerContext?.OnClick is not null)
             await TriggerContext.OnClick();
@@ -427,7 +444,20 @@ else
         return TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
     }
 
-    private Task HandleTriggerKeyDown(KeyboardEventArgs args)
+    protected override async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        await base.HandleKeyDown(args);
+
+        if (TriggerContext?.OnKeyDown is not null)
+        {
+            if (args.Key is "ArrowDown" or "Enter" or " " or "Space" or "Spacebar")
+                _ignoreNextKeyboardClick = true;
+
+            await TriggerContext.OnKeyDown(args);
+        }
+    }
+
+    private Task HandleKeyUp(KeyboardEventArgs args)
     {
         return TriggerContext?.OnKeyDown?.Invoke(args) ?? Task.CompletedTask;
     }
@@ -460,21 +490,21 @@ else
     internal static string GetButtonVariantClass(ButtonVariant? variant)
     {
         if (ReferenceEquals(variant, ButtonVariant.Destructive))
-            return "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40";
+            return "border border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
 
         if (ReferenceEquals(variant, ButtonVariant.Outline))
-            return "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
+            return "border border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Secondary))
-            return "bg-secondary text-secondary-foreground hover:bg-secondary/80";
+            return "border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
 
         if (ReferenceEquals(variant, ButtonVariant.Ghost))
-            return "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50";
+            return "border border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Link))
-            return "text-primary underline-offset-4 hover:underline";
+            return "border border-transparent text-primary underline-offset-4 hover:underline";
 
-        return "bg-primary text-primary-foreground hover:bg-primary/90";
+        return "border border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
     }
 
     internal static string GetButtonVariantClass(string? variant)
@@ -515,15 +545,33 @@ else
     {
         return size switch
         {
-            "xs" => "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-            "sm" => "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-            "lg" => "h-10 rounded-md px-6 has-[>svg]:px-4",
-            "icon" => "size-9",
-            "icon-xs" => "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-            "icon-sm" => "size-8",
-            "icon-lg" => "size-10",
-            _ => "h-9 px-4 py-2 has-[>svg]:px-3"
+            "xs" => "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3",
+            "sm" => "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+            "icon" => "size-8",
+            "icon-xs" => "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+            "icon-sm" => "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+            "icon-lg" => "size-9",
+            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
         };
+    }
+
+    private static bool HasTailwindUtility(string? className, string utilityPrefix)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+            return false;
+
+        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Any(token =>
+            {
+                var utility = token;
+                var modifierIndex = utility.LastIndexOf(':');
+
+                if (modifierIndex >= 0)
+                    utility = utility[(modifierIndex + 1)..];
+
+                return utility.StartsWith(utilityPrefix, StringComparison.Ordinal);
+            });
     }
 
     private static string GetButtonFocusClass(ButtonVariant? variant)
@@ -539,7 +587,7 @@ else
         return size switch
         {
             "sm" => "h-8 gap-1.5 rounded-md px-2.5 has-[>svg]:px-2.5",
-            "icon-xs" => "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
+            "icon-xs" => "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 [&_svg:not([class*='size-'])]:size-4",
             "icon-sm" => "size-8 p-0 has-[>svg]:p-0",
             _ => "h-6 gap-1 rounded-[calc(var(--radius)-5px)] px-2 has-[>svg]:px-2 [&>svg:not([class*='size-'])]:size-3.5"
         };
@@ -556,6 +604,12 @@ else
             return ResolveButtonSizeDataAttribute(raw);
 
         return ResolveButtonSizeDataAttribute(ButtonSize.Default.Value);
+    }
+
+    private static bool HasSizeSpecificRadius(CssValue<ButtonSizeBuilder>? size)
+    {
+        var value = GetButtonSizeDataAttribute(size);
+        return value is "xs" or "sm" or "icon-xs" or "icon-sm";
     }
 
     internal static string ResolveButtonSizeDataAttribute(string? size)

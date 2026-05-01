@@ -39,22 +39,30 @@
     [Parameter]
     public CssValue<ToggleSizeBuilder>? Size { get; set; } = "default";
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML direction for the toggle; falls back to <see cref="DirectionProvider"/>.
+    /// </summary>
+    [Parameter]
+    public string? Dir { get; set; }
+
+    private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        TextSize ??= Quark.TextSize.Sm;
+        Gap ??= Quark.Gap.Is1;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
+        Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
 
         ApplyVariantDefaults();
-        ApplySizeDefaults();
 
     }
 
@@ -65,35 +73,10 @@
             Border ??= Quark.Border.Default;
             BorderColor ??= Quark.BorderColor.Input;
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
-            Shadow ??= Quark.Shadow.Xs;
         }
         else
         {
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        }
-    }
-
-    private void ApplySizeDefaults()
-    {
-        var size = Size?.TryGetThemeToken(out var token) == true ? token : Size?.ToString();
-
-        switch (size)
-        {
-            case "sm":
-                Height ??= Quark.Height.Is8;
-                MinWidth ??= Quark.MinWidth.Token("8");
-                Padding ??= Quark.Padding.Token("1.5").OnX;
-                break;
-            case "lg":
-                Height ??= Quark.Height.Token("10");
-                MinWidth ??= Quark.MinWidth.Token("10");
-                Padding ??= Quark.Padding.Token("2.5").OnX;
-                break;
-            default:
-                Height ??= Quark.Height.Token("9");
-                MinWidth ??= Quark.MinWidth.Token("9");
-                Padding ??= Quark.Padding.Is2.OnX;
-                break;
         }
     }
 
@@ -112,16 +95,18 @@
             attributes.Remove("onkeydown");
 
             attributes["data-slot"] = "toggle";
-            attributes["data-variant"] = ReferenceEquals(Variant, ToggleVariant.Outline) ? "outline" : "default";
+
+            if (!string.IsNullOrWhiteSpace(ResolvedDir))
+                attributes["dir"] = ResolvedDir;
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-                AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground dark:aria-invalid:ring-destructive/40");
-                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-
-                if (ReferenceEquals(Variant, ToggleVariant.Outline))
-                    AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
+                var isRtl = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
+                AppendClass(ref cls, "group/toggle hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+                AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
+                AppendClass(ref cls, GetToggleVariantClass(Variant));
+                AppendClass(ref cls, ResolveToggleSizeClass(Size, includeShrink: false, isRtl));
             });
 
             return attributes;
@@ -145,14 +130,16 @@
         hc.Add(Disabled);
         hc.Add(Variant);
         hc.Add(Size);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
     }
 
     internal static string GetToggleVariantClass(ToggleVariant? variant)
     {
         if (ReferenceEquals(variant, ToggleVariant.Outline))
-            return "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground";
+            return "border border-input bg-transparent hover:bg-muted";
 
-        return "bg-transparent";
+        return "bg-transparent hover:bg-muted";
     }
 
     internal static string GetToggleGroupVariantClass(ToggleVariant? variant)
@@ -160,26 +147,32 @@
         return string.Empty;
     }
 
-    internal static string ResolveToggleSizeClass(CssValue<ToggleSizeBuilder>? size, bool includeShrink)
+    internal static string ResolveToggleSizeClass(CssValue<ToggleSizeBuilder>? size, bool includeShrink, bool isRtl = false)
     {
         if (size?.TryGetThemeToken(out var token) == true && token is not null)
-            return ResolveToggleTokenSizeClass(token, includeShrink);
+            return ResolveToggleTokenSizeClass(token, includeShrink, isRtl);
 
         var value = size?.ToString();
         return value is "default" or "sm" or "lg"
-            ? ResolveToggleTokenSizeClass(value, includeShrink)
-            : value ?? ResolveToggleTokenSizeClass(ToggleSize.Default.Value, includeShrink);
+            ? ResolveToggleTokenSizeClass(value, includeShrink, isRtl)
+            : value ?? ResolveToggleTokenSizeClass(ToggleSize.Default.Value, includeShrink, isRtl);
     }
 
-    internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink)
+    internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl = false)
     {
         var prefix = includeShrink ? "shrink-0 " : string.Empty;
+        var iconPadding = isRtl
+            ? "has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
+            : "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2";
+        var iconPaddingSm = isRtl
+            ? "has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5"
+            : "has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5";
 
         return size switch
         {
-            "sm" => $"{prefix}h-8 min-w-8 px-1.5",
-            "lg" => $"{prefix}h-10 min-w-10 px-2.5",
-            _ => $"{prefix}h-9 min-w-9 px-2"
+            "sm" => $"{prefix}h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] {iconPaddingSm} [&_svg:not([class*='size-'])]:size-3.5",
+            "lg" => $"{prefix}{(includeShrink ? string.Empty : "h-9 ")}min-w-9 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4",
+            _ => $"{prefix}h-8 min-w-8 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4"
         };
     }
 }

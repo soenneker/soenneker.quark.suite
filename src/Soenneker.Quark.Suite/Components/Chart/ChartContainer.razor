@@ -1,0 +1,76 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyDictionary<string, string>? Colors { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Id ??= $"chart-{Guid.NewGuid():N}";
+
+        base.OnInitialized();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Justify ??= Quark.Justify.Center;
+        TextSize ??= Quark.TextSize.Xs;
+        Width ??= Quark.Width.IsFull;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "chart";
+        attributes["data-chart"] = Id!;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground");
+            AppendClass(ref cls, "[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50");
+            AppendClass(ref cls, "[&_.recharts-curve.recharts-tooltip-cursor]:stroke-border");
+            AppendClass(ref cls, "[&_.recharts-dot[stroke='#fff']]:stroke-transparent");
+            AppendClass(ref cls, "[&_.recharts-layer]:outline-hidden [&_.recharts-surface]:outline-hidden");
+            AppendClass(ref cls, "[&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted");
+            AppendClass(ref cls, "[&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent");
+        });
+
+        string? colorStyle = BuildColorStyle();
+        if (colorStyle.HasContent())
+        {
+            string? existingStyle = attributes.TryGetValue("style", out object? style) ? style?.ToString() : null;
+            attributes["style"] = existingStyle.HasContent() ? $"{colorStyle} {existingStyle}" : colorStyle;
+        }
+    }
+
+    private string? BuildColorStyle()
+    {
+        if (Colors is null || Colors.Count == 0)
+            return null;
+
+        return string.Join(" ", Colors.Select(static item => $"--color-{item.Key}: {item.Value};"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+
+        if (Colors is not null)
+        {
+            foreach (var color in Colors)
+            {
+                hc.Add(color.Key);
+                hc.Add(color.Value);
+            }
+        }
+    }
+}

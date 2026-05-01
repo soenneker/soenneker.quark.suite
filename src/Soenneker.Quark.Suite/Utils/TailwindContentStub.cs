@@ -24,4 +24,7 @@ internal static class TailwindContentStub
     // State variants that are difficult for the build-time scanner to discover reliably.
     private const string StateVariants = "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary has-[[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[[data-slot=checkbox][data-state=checked]]:bg-muted has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[[data-slot=radio-group-item][data-state=checked]]:bg-muted dark:has-[[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[[data-slot=checkbox][data-state=checked]]:bg-primary/10 dark:has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[[data-slot=radio-group-item][data-state=checked]]:bg-primary/10";
 
+    // Calendar variable utilities used by DayPicker-style markup.
+    private const string Calendar = "min-w-(--cell-size) rounded-(--cell-radius) rounded-l-(--cell-radius) rounded-r-(--cell-radius)";
+
 }

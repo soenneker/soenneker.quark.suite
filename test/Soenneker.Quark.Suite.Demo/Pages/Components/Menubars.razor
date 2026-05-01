@@ -2,41 +2,64 @@
 
 <PageTitle>Menubar - Quark Suite</PageTitle>
 
-<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is5xl">
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands."
-                         Code="@BasicCode"
+            <DemoSection Description="A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands."
+                         Code="@MenubarCode"
                          CodeLanguage="razor">
-                <Menubar data-testid="quark-menubar-main-demo">
+                <Menubar Class="w-72">
                     <MenubarMenu>
                         <MenubarTrigger>File</MenubarTrigger>
                         <MenubarContent>
-                            <MenubarGroup>
-                                <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
-                                <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-                                <MenubarItem Disabled="true">New Incognito Window</MenubarItem>
-                            </MenubarGroup>
+                            <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
+                            <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+                            <MenubarItem Disabled="true">New Incognito Window</MenubarItem>
                             <MenubarSeparator />
-                            <MenubarGroup>
-                                <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
-                            </MenubarGroup>
+                            <MenubarSub>
+                                <MenubarSubTrigger>Share</MenubarSubTrigger>
+                                <MenubarSubContent>
+                                    <MenubarItem>Email link</MenubarItem>
+                                    <MenubarItem>Messages</MenubarItem>
+                                    <MenubarItem>Notes</MenubarItem>
+                                </MenubarSubContent>
+                            </MenubarSub>
+                            <MenubarSeparator />
+                            <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                     <MenubarMenu>
                         <MenubarTrigger>Edit</MenubarTrigger>
                         <MenubarContent>
-                            <MenubarGroup>
-                                <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-                                <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
-                            </MenubarGroup>
+                            <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
+                            <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
                             <MenubarSeparator />
-                            <MenubarGroup>
-                                <MenubarItem>Cut</MenubarItem>
-                                <MenubarItem>Copy</MenubarItem>
-                                <MenubarItem>Paste</MenubarItem>
-                            </MenubarGroup>
+                            <MenubarItem>Cut</MenubarItem>
+                            <MenubarItem>Copy</MenubarItem>
+                            <MenubarItem>Paste</MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>View</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarCheckboxItem Checked="true">Always Show Bookmarks Bar</MenubarCheckboxItem>
+                            <MenubarCheckboxItem>Always Show Full URLs</MenubarCheckboxItem>
+                            <MenubarSeparator />
+                            <MenubarItem Indented="true">Reload <MenubarShortcut>⌘R</MenubarShortcut></MenubarItem>
+                            <MenubarItem Disabled="true" Indented="true">Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut></MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>Profiles</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarRadioGroup Value="@_profile">
+                                <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
+                                <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
+                                <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
+                            </MenubarRadioGroup>
+                            <MenubarSeparator />
+                            <MenubarItem Indented="true">Edit...</MenubarItem>
+                            <MenubarItem Indented="true">Add Profile...</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                 </Menubar>
@@ -44,438 +67,169 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Radio"
-                         Description="Use radio groups for mutually exclusive choices."
-                         Code="@RadioCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-radio-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger data-testid="menubar-radio-trigger">Profiles</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarRadioGroup Value="@_selectedProfile" ValueChanged="HandleProfileChanged">
-                                    <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
-                                    <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
-                                    <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
-                                </MenubarRadioGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Indented="true">Edit...</MenubarItem>
-                                    <MenubarItem Indented="true">Add Profile...</MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>Theme</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarRadioGroup Value="@_selectedTheme" ValueChanged="HandleThemeChanged">
-                                    <MenubarRadioItem Value="light">Light</MenubarRadioItem>
-                                    <MenubarRadioItem Value="dark">Dark</MenubarRadioItem>
-                                    <MenubarRadioItem Value="system">System</MenubarRadioItem>
-                                </MenubarRadioGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                    <Div data-testid="menubar-radio-value" hidden>@_selectedProfile</Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Checkboxes"
-                         Description="Use checkbox items for toggleable menubar settings."
+            <DemoSection Title="Checkbox"
                          Code="@CheckboxCode"
                          CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-checkbox-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger data-testid="menubar-checkbox-trigger">View</MenubarTrigger>
-                            <MenubarContent Class="w-64">
-                                <MenubarGroup>
-                                <MenubarCheckboxItem @bind-Checked="_showBookmarksBar">Always Show Bookmarks Bar</MenubarCheckboxItem>
-                                <MenubarCheckboxItem @bind-Checked="_showFullUrls">Always Show Full URLs</MenubarCheckboxItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Indented="true">Reload <MenubarShortcut>⌘R</MenubarShortcut></MenubarItem>
-                                    <MenubarItem Disabled="true" Indented="true">Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>Format</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarCheckboxItem Checked="true">Strikethrough</MenubarCheckboxItem>
-                                <MenubarCheckboxItem>Code</MenubarCheckboxItem>
-                                <MenubarCheckboxItem>Superscript</MenubarCheckboxItem>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                    <Div data-testid="menubar-checkbox-bookmarks" hidden="@(!_showBookmarksBar)">@_showBookmarksBar.ToString().ToLowerInvariant()</Div>
-                    <Div data-testid="menubar-checkbox-urls" hidden="@(!_showFullUrls)">@_showFullUrls.ToString().ToLowerInvariant()</Div>
-                </Div>
+                <Menubar Class="w-72">
+                    <MenubarMenu>
+                        <MenubarTrigger>View</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarCheckboxItem @bind-Checked="_showBookmarksBar">Always Show Bookmarks Bar</MenubarCheckboxItem>
+                            <MenubarCheckboxItem @bind-Checked="_showFullUrls">Always Show Full URLs</MenubarCheckboxItem>
+                            <MenubarSeparator />
+                            <MenubarItem Indented="true">Reload <MenubarShortcut>⌘R</MenubarShortcut></MenubarItem>
+                            <MenubarItem Disabled="true" Indented="true">Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut></MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>Format</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarCheckboxItem Checked="true">Strikethrough</MenubarCheckboxItem>
+                            <MenubarCheckboxItem>Code</MenubarCheckboxItem>
+                            <MenubarCheckboxItem>Superscript</MenubarCheckboxItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                </Menubar>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Submenu"
-                         Description="Use nested content for secondary actions."
+            <DemoSection Title="Radio"
+                         Code="@RadioCode"
+                         CodeLanguage="razor">
+                <Menubar Class="w-72">
+                    <MenubarMenu>
+                        <MenubarTrigger>Profiles</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarRadioGroup Value="@_radioProfile" ValueChanged="HandleProfileChanged">
+                                <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
+                                <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
+                                <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
+                            </MenubarRadioGroup>
+                            <MenubarSeparator />
+                            <MenubarItem Indented="true">Edit...</MenubarItem>
+                            <MenubarItem Indented="true">Add Profile...</MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>Theme</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarRadioGroup Value="@_theme" ValueChanged="HandleThemeChanged">
+                                <MenubarRadioItem Value="light">Light</MenubarRadioItem>
+                                <MenubarRadioItem Value="dark">Dark</MenubarRadioItem>
+                                <MenubarRadioItem Value="system">System</MenubarRadioItem>
+                            </MenubarRadioGroup>
+                        </MenubarContent>
+                    </MenubarMenu>
+                </Menubar>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Submenu"
                          Code="@SubmenuCode"
                          CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-submenu-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>File</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarItem>
-                                    New Tab
-                                    <MenubarShortcut>Ctrl+T</MenubarShortcut>
-                                </MenubarItem>
-                                <MenubarSeparator />
-                                <MenubarSub>
-                                    <MenubarSubTrigger>Share</MenubarSubTrigger>
-                                    <MenubarSubContent>
-                                        <MenubarItem>Email link</MenubarItem>
-                                        <MenubarItem>Messages</MenubarItem>
-                                        <MenubarItem>Notes</MenubarItem>
-                                    </MenubarSubContent>
-                                </MenubarSub>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
+                <Menubar Class="w-72">
+                    <MenubarMenu>
+                        <MenubarTrigger>File</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
+                            <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+                            <MenubarSeparator />
+                            <MenubarSub>
+                                <MenubarSubTrigger>Share</MenubarSubTrigger>
+                                <MenubarSubContent>
+                                    <MenubarItem>Email link</MenubarItem>
+                                    <MenubarItem>Messages</MenubarItem>
+                                    <MenubarItem>Notes</MenubarItem>
+                                </MenubarSubContent>
+                            </MenubarSub>
+                            <MenubarSeparator />
+                            <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>Edit</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
+                            <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                </Menubar>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="With Icons"
-                         Description="Icons can be embedded to add stronger visual hierarchy."
                          Code="@IconsCode"
                          CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>Workspace</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarItem>
-                                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                                        <Icon Name="LucideIcon.FolderOpen" />
-                                        Open project
-                                    </Div>
-                                </MenubarItem>
-                                <MenubarItem>
-                                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                                        <Icon Name="LucideIcon.Users" />
-                                        Invite teammates
-                                    </Div>
-                                </MenubarItem>
-                                <MenubarItem>
-                                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                                        <Icon Name="LucideIcon.Settings" />
-                                        Settings
-                                    </Div>
-                                </MenubarItem>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Shortcuts"
-                         Description="Shortcut hints align to the trailing edge of each menu item."
-                         Code="@ShortcutsCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-shortcuts-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>File</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarGroup>
-                                    <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
-                                    <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-                                    <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>Edit</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarGroup>
-                                    <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-                                    <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem>Cut <MenubarShortcut>⌘X</MenubarShortcut></MenubarItem>
-                                    <MenubarItem>Copy <MenubarShortcut>⌘C</MenubarShortcut></MenubarItem>
-                                    <MenubarItem>Paste <MenubarShortcut>⌘V</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Format"
-                         Description="Combine icons, shortcuts, and checkbox items in formatting menus."
-                         Code="@FormatCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-format-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>Format</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarGroup>
-                                    <MenubarItem><Icon Name="LucideIcon.Bold" />Bold <MenubarShortcut>⌘B</MenubarShortcut></MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Italic" />Italic <MenubarShortcut>⌘I</MenubarShortcut></MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Underline" />Underline <MenubarShortcut>⌘U</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarCheckboxItem Checked="true">Strikethrough</MenubarCheckboxItem>
-                                    <MenubarCheckboxItem>Code</MenubarCheckboxItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>View</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarCheckboxItem>Show Ruler</MenubarCheckboxItem>
-                                <MenubarCheckboxItem Checked="true">Show Grid</MenubarCheckboxItem>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Indented="true">Zoom In</MenubarItem>
-                                    <MenubarItem Indented="true">Zoom Out</MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Insert"
-                         Description="Nested menu content handles insertion workflows."
-                         Code="@InsertCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-insert-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>Insert</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarSub>
-                                    <MenubarSubTrigger><Icon Name="LucideIcon.Image" />Media</MenubarSubTrigger>
-                                    <MenubarSubContent>
-                                        <MenubarGroup>
-                                            <MenubarItem>Image</MenubarItem>
-                                            <MenubarItem>Video</MenubarItem>
-                                            <MenubarItem>Audio</MenubarItem>
-                                        </MenubarGroup>
-                                    </MenubarSubContent>
-                                </MenubarSub>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem><Icon Name="LucideIcon.Link" />Link <MenubarShortcut>⌘K</MenubarShortcut></MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Table" />Table</MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>Tools</MenubarTrigger>
-                            <MenubarContent Class="w-44">
-                                <MenubarGroup>
-                                    <MenubarItem><Icon Name="LucideIcon.Search" />Find &amp; Replace <MenubarShortcut>⌘F</MenubarShortcut></MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Check" />Spell Check</MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Destructive"
-                         Description="Destructive variants are styled consistently across menu items."
-                         Code="@DestructiveCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-destructive-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>File</MenubarTrigger>
-                            <MenubarContent Class="w-40">
-                                <MenubarGroup>
-                                    <MenubarItem><Icon Name="LucideIcon.File" />New File <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Folder" />Open Folder</MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Destructive="true"><Icon Name="LucideIcon.Trash" />Delete File <MenubarShortcut>⌘⌫</MenubarShortcut></MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                        <MenubarMenu>
-                            <MenubarTrigger>Account</MenubarTrigger>
-                            <MenubarContent>
-                                <MenubarGroup>
-                                    <MenubarItem><Icon Name="LucideIcon.User" />Profile</MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Settings" />Settings</MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Destructive="true"><Icon Name="LucideIcon.LogOut" />Sign out</MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarItem Destructive="true"><Icon Name="LucideIcon.Trash" />Delete</MenubarItem>
-                                </MenubarGroup>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="In Dialog"
-                         Description="Menubars remain usable inside dialog portals."
-                         Code="@InDialogCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-48" data-testid="quark-menubar-dialog-demo">
-                    <Dialog>
-                        <DialogTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline">Open Dialog</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Menubar Example</DialogTitle>
-                                <DialogDescription>Use the menubar below to see the menu options.</DialogDescription>
-                            </DialogHeader>
-                            <Menubar>
-                                <MenubarMenu>
-                                    <MenubarTrigger>File</MenubarTrigger>
-                                    <MenubarContent>
-                                        <MenubarGroup>
-                                            <MenubarItem><Icon Name="LucideIcon.Copy" />Copy</MenubarItem>
-                                            <MenubarItem><Icon Name="LucideIcon.Scissors" />Cut</MenubarItem>
-                                            <MenubarItem><Icon Name="LucideIcon.Clipboard" />Paste</MenubarItem>
-                                        </MenubarGroup>
-                                        <MenubarSeparator />
-                                        <MenubarSub>
-                                            <MenubarSubTrigger>More Options</MenubarSubTrigger>
-                                            <MenubarSubContent>
-                                                <MenubarGroup>
-                                                    <MenubarItem>Save Page...</MenubarItem>
-                                                    <MenubarItem>Create Shortcut...</MenubarItem>
-                                                    <MenubarItem>Name Window...</MenubarItem>
-                                                </MenubarGroup>
-                                            </MenubarSubContent>
-                                        </MenubarSub>
-                                        <MenubarSeparator />
-                                        <MenubarGroup>
-                                            <MenubarItem Destructive="true"><Icon Name="LucideIcon.Trash" />Delete</MenubarItem>
-                                        </MenubarGroup>
-                                    </MenubarContent>
-                                </MenubarMenu>
-                                <MenubarMenu>
-                                    <MenubarTrigger>Edit</MenubarTrigger>
-                                    <MenubarContent>
-                                        <MenubarGroup>
-                                            <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-                                            <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
-                                        </MenubarGroup>
-                                    </MenubarContent>
-                                </MenubarMenu>
-                            </Menubar>
-                        </DialogContent>
-                    </Dialog>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Inset"
-                         Description="Inset items align labels, checkmarks, radio indicators, and nested triggers."
-                         Code="@InsetCode"
-                         CodeLanguage="razor">
-                <Div Class="rounded-xl border border-border p-4 overflow-x-auto min-h-56" data-testid="quark-menubar-inset-demo">
-                    <Menubar Width="Width.IsMax">
-                        <MenubarMenu>
-                            <MenubarTrigger>View</MenubarTrigger>
-                            <MenubarContent Class="w-44">
-                                <MenubarGroup>
-                                    <MenubarLabel>Actions</MenubarLabel>
-                                    <MenubarItem><Icon Name="LucideIcon.Copy" />Copy</MenubarItem>
-                                    <MenubarItem><Icon Name="LucideIcon.Scissors" />Cut</MenubarItem>
-                                    <MenubarItem Indented="true">Paste</MenubarItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarLabel Indented="true">Appearance</MenubarLabel>
-                                    <MenubarCheckboxItem @bind-Checked="_insetShowBookmarks">Bookmarks</MenubarCheckboxItem>
-                                    <MenubarCheckboxItem @bind-Checked="_insetShowUrls">Full URLs</MenubarCheckboxItem>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarGroup>
-                                    <MenubarLabel Indented="true">Theme</MenubarLabel>
-                                    <MenubarRadioGroup Value="@_insetTheme" ValueChanged="HandleInsetThemeChanged">
-                                        <MenubarRadioItem Indented="true" Value="light">Light</MenubarRadioItem>
-                                        <MenubarRadioItem Indented="true" Value="dark">Dark</MenubarRadioItem>
-                                        <MenubarRadioItem Indented="true" Value="system">System</MenubarRadioItem>
-                                    </MenubarRadioGroup>
-                                </MenubarGroup>
-                                <MenubarSeparator />
-                                <MenubarSub>
-                                    <MenubarSubTrigger Indented="true">More Options</MenubarSubTrigger>
-                                    <MenubarSubContent>
-                                        <MenubarGroup>
-                                            <MenubarItem>Save Page...</MenubarItem>
-                                            <MenubarItem>Create Shortcut...</MenubarItem>
-                                        </MenubarGroup>
-                                    </MenubarSubContent>
-                                </MenubarSub>
-                            </MenubarContent>
-                        </MenubarMenu>
-                    </Menubar>
-                </Div>
+                <Menubar Class="w-72">
+                    <MenubarMenu>
+                        <MenubarTrigger>File</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarItem><Icon Name="LucideIcon.File" />New File <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+                            <MenubarItem><Icon Name="LucideIcon.Folder" />Open Folder</MenubarItem>
+                            <MenubarSeparator />
+                            <MenubarItem Destructive="true"><Icon Name="LucideIcon.Trash" />Delete File <MenubarShortcut>⌘⌫</MenubarShortcut></MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                        <MenubarTrigger>More</MenubarTrigger>
+                        <MenubarContent>
+                            <MenubarItem><Icon Name="LucideIcon.User" />Profile</MenubarItem>
+                            <MenubarItem><Icon Name="LucideIcon.Settings" />Settings</MenubarItem>
+                            <MenubarSeparator />
+                            <MenubarItem><Icon Name="LucideIcon.LogOut" />Sign out</MenubarItem>
+                        </MenubarContent>
+                    </MenubarMenu>
+                </Menubar>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Menus and nested content anchor correctly in right-to-left layouts."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         ShowPreviewToolbar="true"
+                         PreviewLang="ar"
+                         PreviewDir="rtl">
                 <DirectionProvider Dir="rtl">
-                    <Div class="rounded-xl border border-border p-4 overflow-x-auto text-right" data-testid="quark-menubar-rtl-demo">
-                        <Menubar Width="Width.IsMax">
-                            <MenubarMenu>
-                                <MenubarTrigger>ملف</MenubarTrigger>
-                                <MenubarContent>
-                                    <MenubarItem>علامة تبويب جديدة</MenubarItem>
-                                    <MenubarSeparator />
-                                    <MenubarSub>
-                                        <MenubarSubTrigger>مشاركة</MenubarSubTrigger>
-                                        <MenubarSubContent>
-                                            <MenubarItem>رابط بالبريد</MenubarItem>
-                                            <MenubarItem>رسائل</MenubarItem>
-                                        </MenubarSubContent>
-                                    </MenubarSub>
-                                </MenubarContent>
-                            </MenubarMenu>
-                            <MenubarMenu>
-                                <MenubarTrigger>عرض</MenubarTrigger>
-                                <MenubarContent>
-                                    <MenubarItem>إظهار الشريط الجانبي</MenubarItem>
-                                </MenubarContent>
-                            </MenubarMenu>
-                        </Menubar>
-                    </Div>
+                    <Menubar Class="w-72">
+                        <MenubarMenu>
+                            <MenubarTrigger>ملف</MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarItem>علامة تبويب جديدة</MenubarItem>
+                                <MenubarItem>نافذة جديدة</MenubarItem>
+                                <MenubarSeparator />
+                                <MenubarItem>طباعة...</MenubarItem>
+                            </MenubarContent>
+                        </MenubarMenu>
+                        <MenubarMenu>
+                            <MenubarTrigger>تعديل</MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarItem>تراجع</MenubarItem>
+                                <MenubarItem>إعادة</MenubarItem>
+                            </MenubarContent>
+                        </MenubarMenu>
+                        <MenubarMenu>
+                            <MenubarTrigger>عرض</MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarCheckboxItem Checked="true">إظهار شريط الإشارات</MenubarCheckboxItem>
+                                <MenubarCheckboxItem>إظهار عناوين URL كاملة</MenubarCheckboxItem>
+                            </MenubarContent>
+                        </MenubarMenu>
+                        <MenubarMenu>
+                            <MenubarTrigger>الملفات الشخصية</MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarRadioGroup Value="@_profile">
+                                    <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
+                                    <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
+                                    <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
+                                </MenubarRadioGroup>
+                            </MenubarContent>
+                        </MenubarMenu>
+                    </Menubar>
                 </DirectionProvider>
             </DemoSection>
         </Section>
@@ -483,68 +237,43 @@
 </Div>
 
 @code {
-    private string _mainSelectedProfile = "benoit";
-    private string _selectedProfile = "benoit";
-    private string _selectedTheme = "system";
-    private string _insetTheme = "system";
-    private bool _showBookmarksBar;
-    private bool _showFullUrls = true;
-    private bool _insetShowBookmarks = true;
-    private bool _insetShowUrls;
+    private string _profile = "benoit";
+    private string _radioProfile = "benoit";
+    private string _theme = "system";
+    private bool _showBookmarksBar = true;
+    private bool _showFullUrls;
 
-    private Task HandleMainProfileChanged(string? profile)
+    private Task HandleProfileChanged(string? value)
     {
-        _mainSelectedProfile = profile ?? _mainSelectedProfile;
+        _radioProfile = value ?? _radioProfile;
         return Task.CompletedTask;
     }
 
-    private Task HandleProfileChanged(string? profile)
+    private Task HandleThemeChanged(string? value)
     {
-        _selectedProfile = profile ?? _selectedProfile;
+        _theme = value ?? _theme;
         return Task.CompletedTask;
     }
 
-    private Task HandleThemeChanged(string? theme)
-    {
-        _selectedTheme = theme ?? _selectedTheme;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleInsetThemeChanged(string? theme)
-    {
-        _insetTheme = theme ?? _insetTheme;
-        return Task.CompletedTask;
-    }
-
-    private const string BasicCode =
+    private const string MenubarCode =
 @"<Menubar>
     <MenubarMenu>
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>
-            <MenubarGroup>
-                <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
-                <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-                <MenubarItem Disabled=""true"">New Incognito Window</MenubarItem>
-            </MenubarGroup>
-            <MenubarSeparator />
-            <MenubarGroup>
-                <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
-            </MenubarGroup>
+            <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
+            <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+            <MenubarItem Disabled=""true"">New Incognito Window</MenubarItem>
         </MenubarContent>
     </MenubarMenu>
+</Menubar>";
+
+    private const string CheckboxCode =
+@"<Menubar>
     <MenubarMenu>
-        <MenubarTrigger>Edit</MenubarTrigger>
+        <MenubarTrigger>View</MenubarTrigger>
         <MenubarContent>
-            <MenubarGroup>
-                <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-                <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
-            </MenubarGroup>
-            <MenubarSeparator />
-            <MenubarGroup>
-                <MenubarItem>Cut</MenubarItem>
-                <MenubarItem>Copy</MenubarItem>
-                <MenubarItem>Paste</MenubarItem>
-            </MenubarGroup>
+            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
+            <MenubarCheckboxItem>Always Show Full URLs</MenubarCheckboxItem>
         </MenubarContent>
     </MenubarMenu>
 </Menubar>";
@@ -563,29 +292,11 @@
     </MenubarMenu>
 </Menubar>";
 
-    private const string CheckboxCode =
-@"<Menubar>
-    <MenubarMenu>
-        <MenubarTrigger>View</MenubarTrigger>
-        <MenubarContent>
-            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-            <MenubarCheckboxItem Checked=""true"">Always Show Full URLs</MenubarCheckboxItem>
-            <MenubarSeparator />
-            <MenubarItem Indented=""true"">Reload</MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
     private const string SubmenuCode =
 @"<Menubar>
     <MenubarMenu>
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>
-            <MenubarItem>
-                New Tab
-                <MenubarShortcut>Ctrl+T</MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
             <MenubarSub>
                 <MenubarSubTrigger>Share</MenubarSubTrigger>
                 <MenubarSubContent>
@@ -601,137 +312,11 @@
     private const string IconsCode =
 @"<Menubar>
     <MenubarMenu>
-        <MenubarTrigger>Workspace</MenubarTrigger>
-        <MenubarContent>
-            <MenubarItem>
-                <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
-                    <Icon Name=""LucideIcon.FolderOpen"" />
-                    Open project
-                </Div>
-            </MenubarItem>
-            <MenubarItem>
-                <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
-                    <Icon Name=""LucideIcon.Users"" />
-                    Invite teammates
-                </Div>
-            </MenubarItem>
-            <MenubarItem>
-                <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
-                    <Icon Name=""LucideIcon.Settings"" />
-                    Settings
-                </Div>
-            </MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
-    private const string ShortcutsCode =
-@"<Menubar>
-    <MenubarMenu>
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>
-            <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
-            <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-            <MenubarItem>Print... <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-    <MenubarMenu>
-        <MenubarTrigger>Edit</MenubarTrigger>
-        <MenubarContent>
-            <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-            <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem>Cut <MenubarShortcut>⌘X</MenubarShortcut></MenubarItem>
-            <MenubarItem>Copy <MenubarShortcut>⌘C</MenubarShortcut></MenubarItem>
-            <MenubarItem>Paste <MenubarShortcut>⌘V</MenubarShortcut></MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
-    private const string FormatCode =
-@"<Menubar>
-    <MenubarMenu>
-        <MenubarTrigger>Format</MenubarTrigger>
-        <MenubarContent>
-            <MenubarItem><Icon Name=""LucideIcon.Bold"" />Bold <MenubarShortcut>⌘B</MenubarShortcut></MenubarItem>
-            <MenubarItem><Icon Name=""LucideIcon.Italic"" />Italic <MenubarShortcut>⌘I</MenubarShortcut></MenubarItem>
-            <MenubarItem><Icon Name=""LucideIcon.Underline"" />Underline <MenubarShortcut>⌘U</MenubarShortcut></MenubarItem>
-            <MenubarSeparator />
-            <MenubarCheckboxItem Checked=""true"">Strikethrough</MenubarCheckboxItem>
-            <MenubarCheckboxItem>Code</MenubarCheckboxItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
-    private const string InsertCode =
-@"<Menubar>
-    <MenubarMenu>
-        <MenubarTrigger>Insert</MenubarTrigger>
-        <MenubarContent>
-            <MenubarSub>
-                <MenubarSubTrigger><Icon Name=""LucideIcon.Image"" />Media</MenubarSubTrigger>
-                <MenubarSubContent>
-                    <MenubarItem>Image</MenubarItem>
-                    <MenubarItem>Video</MenubarItem>
-                    <MenubarItem>Audio</MenubarItem>
-                </MenubarSubContent>
-            </MenubarSub>
-            <MenubarSeparator />
-            <MenubarItem><Icon Name=""LucideIcon.Link"" />Link <MenubarShortcut>⌘K</MenubarShortcut></MenubarItem>
-            <MenubarItem><Icon Name=""LucideIcon.Table"" />Table</MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
-    private const string DestructiveCode =
-@"<Menubar>
-    <MenubarMenu>
-        <MenubarTrigger>File</MenubarTrigger>
-        <MenubarContent>
-            <MenubarItem><Icon Name=""LucideIcon.File"" />New File <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+            <MenubarItem><Icon Name=""LucideIcon.File"" />New File</MenubarItem>
             <MenubarItem><Icon Name=""LucideIcon.Folder"" />Open Folder</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem Destructive=""true""><Icon Name=""LucideIcon.Trash"" />Delete File <MenubarShortcut>⌘⌫</MenubarShortcut></MenubarItem>
-        </MenubarContent>
-    </MenubarMenu>
-</Menubar>";
-
-    private const string InDialogCode =
-@"<Dialog>
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Open Dialog</Button>
-    </DialogTrigger>
-    <DialogContent>
-        <DialogHeader>
-            <DialogTitle>Menubar Example</DialogTitle>
-            <DialogDescription>Use the menubar below to see the menu options.</DialogDescription>
-        </DialogHeader>
-        <Menubar>
-            <MenubarMenu>
-                <MenubarTrigger>File</MenubarTrigger>
-                <MenubarContent>
-                    <MenubarItem><Icon Name=""LucideIcon.Copy"" />Copy</MenubarItem>
-                    <MenubarItem><Icon Name=""LucideIcon.Scissors"" />Cut</MenubarItem>
-                    <MenubarItem><Icon Name=""LucideIcon.Clipboard"" />Paste</MenubarItem>
-                </MenubarContent>
-            </MenubarMenu>
-        </Menubar>
-    </DialogContent>
-</Dialog>";
-
-    private const string InsetCode =
-@"<Menubar>
-    <MenubarMenu>
-        <MenubarTrigger>View</MenubarTrigger>
-        <MenubarContent Class=""w-44"">
-            <MenubarLabel>Actions</MenubarLabel>
-            <MenubarItem><Icon Name=""LucideIcon.Copy"" />Copy</MenubarItem>
-            <MenubarItem><Icon Name=""LucideIcon.Scissors"" />Cut</MenubarItem>
-            <MenubarItem Indented=""true"">Paste</MenubarItem>
-            <MenubarSeparator />
-            <MenubarLabel Indented=""true"">Theme</MenubarLabel>
-            <MenubarRadioItem Indented=""true"" Value=""system"">System</MenubarRadioItem>
-            <MenubarSubTrigger Indented=""true"">More Options</MenubarSubTrigger>
+            <MenubarItem Destructive=""true""><Icon Name=""LucideIcon.Trash"" />Delete File</MenubarItem>
         </MenubarContent>
     </MenubarMenu>
 </Menubar>";
@@ -743,14 +328,6 @@
             <MenubarTrigger>ملف</MenubarTrigger>
             <MenubarContent>
                 <MenubarItem>علامة تبويب جديدة</MenubarItem>
-                <MenubarSeparator />
-                <MenubarSub>
-                    <MenubarSubTrigger>مشاركة</MenubarSubTrigger>
-                    <MenubarSubContent>
-                        <MenubarItem>رابط بالبريد</MenubarItem>
-                        <MenubarItem>رسائل</MenubarItem>
-                    </MenubarSubContent>
-                </MenubarSub>
             </MenubarContent>
         </MenubarMenu>
     </Menubar>

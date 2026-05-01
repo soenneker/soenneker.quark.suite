@@ -23,9 +23,10 @@ public sealed partial class RenderedShadcnParityTests
         sliderClasses.Should().Contain("w-full");
         sliderClasses.Should().NotContain("data-[orientation=horizontal]:w-full");
         sliderClasses.IndexOf("w-full", StringComparison.Ordinal).Should().BeLessThan(sliderClasses.IndexOf("w-[60%]", StringComparison.Ordinal));
-        sliderClasses.Should().Contain("data-[orientation=vertical]:h-full");
-        sliderClasses.Should().NotContain("data-horizontal:w-full");
-        sliderClasses.Should().NotContain("data-vertical:h-full");
+        sliderClasses.Should().Contain("data-vertical:h-full");
+        sliderClasses.Should().Contain("data-vertical:min-h-40");
+        sliderClasses.Should().NotContain("data-[orientation=vertical]:h-full");
+        sliderClasses.Should().NotContain("data-vertical:min-h-44");
         slider.Find("[data-slot='slider']").GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
         sliderClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider']").GetAttribute("aria-label")!.Should().Be("Volume");
@@ -34,35 +35,38 @@ public sealed partial class RenderedShadcnParityTests
         sliderTrackClasses.Should().Contain("grow");
         sliderTrackClasses.Should().Contain("rounded-full");
         sliderTrackClasses.Should().Contain("bg-muted");
-        sliderTrackClasses.Should().Contain("data-[orientation=horizontal]:h-1.5");
-        sliderTrackClasses.Should().Contain("data-[orientation=horizontal]:w-full");
-        sliderTrackClasses.Should().NotContain("data-horizontal:h-1");
+        sliderTrackClasses.Should().Contain("data-horizontal:h-1");
+        sliderTrackClasses.Should().Contain("data-horizontal:w-full");
+        sliderTrackClasses.Should().NotContain("data-[orientation=horizontal]:h-1.5");
 
         sliderRangeClasses.Should().Contain("bg-primary");
-        sliderRangeClasses.Should().Contain("data-[orientation=horizontal]:h-full");
-        sliderRangeClasses.Should().NotContain("data-horizontal:h-full");
+        sliderRangeClasses.Should().Contain("select-none");
+        sliderRangeClasses.Should().Contain("data-horizontal:h-full");
+        sliderRangeClasses.Should().NotContain("data-[orientation=horizontal]:h-full");
 
+        sliderThumbClasses.Should().Contain("relative");
         sliderThumbClasses.Should().Contain("block");
-        sliderThumbClasses.Should().Contain("size-4");
+        sliderThumbClasses.Should().Contain("size-3");
         sliderThumbClasses.Should().Contain("shrink-0");
         sliderThumbClasses.Should().Contain("rounded-full");
         sliderThumbClasses.Should().Contain("border");
-        sliderThumbClasses.Should().Contain("border-primary");
+        sliderThumbClasses.Should().Contain("border-ring");
         sliderThumbClasses.Should().Contain("bg-white");
         sliderThumbClasses.Should().Contain("ring-ring/50");
         sliderThumbClasses.Should().Contain("transition-[color,box-shadow]");
         sliderThumbClasses.Should().NotContain("transition-[color,shadow]");
-        sliderThumbClasses.Should().NotContain("select-none");
-        sliderThumbClasses.Should().NotContain("after:absolute");
-        sliderThumbClasses.Should().NotContain("after:-inset-2");
-        sliderThumbClasses.Should().Contain("hover:ring-4");
-        sliderThumbClasses.Should().Contain("focus-visible:ring-4");
+        sliderThumbClasses.Should().Contain("select-none");
+        sliderThumbClasses.Should().Contain("after:absolute");
+        sliderThumbClasses.Should().Contain("after:-inset-2");
+        sliderThumbClasses.Should().Contain("hover:ring-3");
+        sliderThumbClasses.Should().Contain("focus-visible:ring-3");
         sliderThumbClasses.Should().Contain("focus-visible:outline-hidden");
-        sliderThumbClasses.Should().NotContain("size-3");
-        sliderThumbClasses.Should().NotContain("border-ring");
-        sliderThumbClasses.Should().Contain("shadow-sm");
-        sliderThumbClasses.Should().NotContain("hover:ring-3");
-        sliderThumbClasses.Should().NotContain("focus-visible:ring-3");
+        sliderThumbClasses.Should().Contain("active:ring-3");
+        sliderThumbClasses.Should().NotContain("size-4");
+        sliderThumbClasses.Should().NotContain("border-primary");
+        sliderThumbClasses.Should().NotContain("shadow-sm");
+        sliderThumbClasses.Should().NotContain("hover:ring-4");
+        sliderThumbClasses.Should().NotContain("focus-visible:ring-4");
         sliderThumbClasses.Should().NotContain("active:ring-4");
         sliderThumbClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider-thumb']").HasAttribute("aria-label").Should().BeFalse();
@@ -84,11 +88,11 @@ public sealed partial class RenderedShadcnParityTests
         minimumWrapper.Should().NotBeNull();
         minimumWrapper!.TagName.Should().Be("SPAN");
         minimumWrapper.GetAttribute("style").Should().Contain("position: absolute");
-        minimumWrapper.GetAttribute("style").Should().Contain("left: calc(20.00% + 4.8px)");
+        minimumWrapper.GetAttribute("style").Should().Contain("left: calc(20.00% + 3.6px)");
         minimumWrapper.GetAttribute("style").Should().Contain("transform: var(--radix-slider-thumb-transform)");
 
         maximumWrapper.Should().NotBeNull();
-        maximumWrapper!.GetAttribute("style").Should().Contain("left: calc(80.00% - 4.8px)");
+        maximumWrapper!.GetAttribute("style").Should().Contain("left: calc(80.00% - 3.6px)");
         maximumWrapper.GetAttribute("style").Should().Contain("transform: var(--radix-slider-thumb-transform)");
 
         thumbs[0].GetAttribute("style").Should().BeNull();
@@ -126,8 +130,8 @@ public sealed partial class RenderedShadcnParityTests
 
         root.GetAttribute("dir")!.Should().Be("ltr");
         root.GetAttribute("aria-disabled")!.Should().Be("false");
-        root.HasAttribute("data-horizontal").Should().BeTrue();
-        range.HasAttribute("data-horizontal").Should().BeTrue();
+        root.HasAttribute("data-horizontal").Should().BeFalse();
+        range.HasAttribute("data-horizontal").Should().BeFalse();
         root.GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
         root.GetAttribute("data-js-ready")!.Should().Be("true");
 

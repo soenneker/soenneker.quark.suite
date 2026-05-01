@@ -71,7 +71,7 @@
     [Parameter]
     public string? Dir { get; set; }
 
-    private string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
+    internal string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
     private IReadOnlyDictionary<string, object> GroupAttributes
     {
@@ -90,9 +90,13 @@
             attributes.Remove("aria-orientation");
 
             attributes["data-slot"] = "toggle-group";
-            attributes["data-type"] = Type?.Value ?? SelectionMode.Single.Value;
-            attributes["data-variant"] = ReferenceEquals(Variant, ToggleVariant.Outline) ? "outline" : "default";
-            attributes["data-size"] = GetToggleSizeDataAttribute(Size);
+            if (ReferenceEquals(Variant, ToggleVariant.Outline))
+                attributes["data-variant"] = "outline";
+
+            var sizeDataAttribute = GetToggleSizeDataAttribute(Size);
+            if (!string.Equals(sizeDataAttribute, ToggleSize.Default.Value, StringComparison.Ordinal))
+                attributes["data-size"] = sizeDataAttribute;
+
             attributes["data-orientation"] = Orientation?.Value ?? Orientation.Horizontal.Value;
             attributes["data-spacing"] = Spacing.ToString();
 
@@ -100,7 +104,7 @@
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs");
+                AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch");
                 AppendClass(ref cls, Toggle.GetToggleGroupVariantClass(Variant));
             });
 

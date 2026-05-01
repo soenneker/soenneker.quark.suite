@@ -2,10 +2,12 @@
 @inherits Soenneker.Quark.Element
 @using Soenneker.Bradix
 
-<BradixOneTimePasswordFieldInput Index="@Index"
-                                 AdditionalAttributes="@BuildAttributes()" />
+<div @attributes="BuildAttributes()">@(InputOtpContext?.GetCharacter(Index))</div>
 
 @code {
+    [CascadingParameter]
+    private InputOtpContext? InputOtpContext { get; set; }
+
     /// <summary>
     /// Gets or sets the slot index (0-based).
     /// </summary>
@@ -17,14 +19,13 @@
         base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Token("9");
-        Width ??= Quark.Width.Token("9");
+        Height ??= Quark.Height.Token("8");
+        Width ??= Quark.Width.Token("8");
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Border ??= Quark.Border.Default.OnY.Default.FromRight;
         BorderColor ??= Quark.BorderColor.Input;
         TextSize ??= Quark.TextSize.Sm;
-        Shadow ??= Quark.Shadow.Xs;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
 
@@ -35,12 +36,13 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "input-otp-slot";
+        attributes["data-active"] = InputOtpContext?.IsActive(Index) == true ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "first:rounded-l-md first:border-l last:rounded-r-md");
+            AppendClass(ref cls, "first:rounded-l-lg first:border-l last:rounded-r-lg");
             AppendClass(ref cls, "aria-invalid:border-destructive");
-            AppendClass(ref cls, "data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-[3px] data-[active=true]:ring-ring/50");
+            AppendClass(ref cls, "data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50");
             AppendClass(ref cls, "data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20");
             AppendClass(ref cls, "dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40");
         });
@@ -50,5 +52,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Index);
+        hc.Add(InputOtpContext?.Value);
+        hc.Add(InputOtpContext?.Focused);
+        hc.Add(InputOtpContext?.ActiveIndex);
     }
 }

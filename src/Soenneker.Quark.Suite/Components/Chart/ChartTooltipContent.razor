@@ -1,0 +1,56 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (Label.HasContent())
+    {
+        <div class="font-medium">@Label</div>
+    }
+    <div class="flex items-center gap-2">
+        @if (Color.HasContent())
+        {
+            <span class="size-2.5 shrink-0 rounded-[2px]" style="@($"background: {Color};")"></span>
+        }
+        <span class="text-muted-foreground">@Name</span>
+        <span class="ml-auto font-mono font-medium tabular-nums text-foreground">@Value</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public string? Color { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        ZIndex ??= "z-50";
+        MinWidth ??= Quark.MinWidth.Token("[8rem]");
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Padding ??= Quark.Padding.Is2;
+        TextColor ??= Quark.TextColor.Foreground;
+        Shadow ??= Quark.Shadow.Xs;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "chart-tooltip-content";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "grid gap-1.5 text-xs");
+        });
+    }
+}

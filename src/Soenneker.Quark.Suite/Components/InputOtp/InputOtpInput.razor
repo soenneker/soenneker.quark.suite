@@ -2,42 +2,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @using Soenneker.Bradix
 
-<BradixOneTimePasswordFieldHiddenInput Id="@ResolvedInputId"
-                                       AdditionalAttributes="@HiddenInputAttributes" />
+@* The live input-otp package renders the real input from the root component. *@
 
 @code {
-    private string? ResolvedInputId => Id ?? CurrentFieldContext?.ControlId;
-    private IReadOnlyDictionary<string, object> HiddenInputAttributes => BuildHiddenInputAttributes();
-
-    private IReadOnlyDictionary<string, object> BuildHiddenInputAttributes()
-    {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("id");
-        attributes.Remove("type");
-        attributes.Remove("value");
-        attributes.Remove("name");
-        attributes.Remove("disabled");
-        attributes.Remove("readonly");
-        attributes.Remove("required");
-        attributes.Remove("autocomplete");
-        attributes.Remove("inputmode");
-        attributes.Remove("pattern");
-        attributes.Remove("maxlength");
-        attributes.Remove("placeholder");
-        attributes.Remove("autofocus");
-        ApplyFieldControlAttributes(attributes);
-        return attributes;
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "input-otp-input";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "sr-only disabled:cursor-not-allowed");
-        });
-    }
 }

@@ -23,9 +23,9 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        TextSize ??= Quark.TextSize.Lg;
+        TextSize ??= Quark.TextSize.Base;
         Leading ??= Quark.Leading.None;
-        FontWeight ??= Quark.FontWeight.Semibold;
+        FontWeight ??= Quark.FontWeight.Medium;
 
     }
 
@@ -34,6 +34,10 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dialog-title";
 
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "cn-font-heading");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

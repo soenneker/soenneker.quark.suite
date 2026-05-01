@@ -23,5 +23,10 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("size-8");
         classes.Should().NotContain("hover:bg-muted");
         classes.Should().NotContain("q-sidebar-trigger");
+
+        cut.Find("[data-slot='sidebar-trigger'] svg")
+            .GetAttribute("class")!
+            .Should()
+            .Contain("rtl:rotate-180");
     }
 }

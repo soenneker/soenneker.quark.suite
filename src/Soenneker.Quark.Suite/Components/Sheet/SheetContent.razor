@@ -79,7 +79,9 @@
         Display ??= Quark.Display.Flex;
         FlexDirection ??= Quark.FlexDirection.Col;
         Gap ??= Quark.Gap.Is4;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        TextColor ??= Quark.TextColor.PopoverForeground;
+        TextSize ??= Quark.TextSize.Sm;
         Shadow ??= Quark.Shadow.Lg;
     }
 
@@ -89,19 +91,26 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500");
-
-            if (Side == Soenneker.Bradix.Side.Left)
-                AppendClass(ref cls, "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm");
-            else if (Side == Soenneker.Bradix.Side.Top)
-                AppendClass(ref cls, "inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top");
-            else if (Side == Soenneker.Bradix.Side.Bottom)
-                AppendClass(ref cls, "inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom");
-            else
-                AppendClass(ref cls, "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm");
+            AppendClass(ref cls, "bg-clip-padding transition duration-200 ease-in-out");
+            AppendClass(ref cls, "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t");
+            AppendClass(ref cls, "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r");
+            AppendClass(ref cls, "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l");
+            AppendClass(ref cls, "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b");
+            AppendClass(ref cls, "data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm");
+            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10");
+            AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10");
         });
 
-        attributes["data-slot"] = "sheet-content";
+        if (!attributes.ContainsKey("data-slot"))
+            attributes["data-slot"] = "sheet-content";
+
+        if (!attributes.ContainsKey("data-side"))
+            attributes["data-side"] = Side.ToString().ToLowerInvariant();
+
+        if (ParentSheet?.Visible == true)
+            attributes["data-open"] = string.Empty;
+        else
+            attributes["data-closed"] = string.Empty;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -110,7 +119,7 @@
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0");
+            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
 
             if (ParentSheet?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
@@ -126,6 +135,11 @@
         attributes["data-slot"] = "sheet-overlay";
         attributes["aria-hidden"] = "true";
 
+        if (ParentSheet?.Visible == true)
+            attributes["data-open"] = string.Empty;
+        else
+            attributes["data-closed"] = string.Empty;
+
         return attributes;
     }
 
@@ -133,7 +147,8 @@
     {
         return new Dictionary<string, object>
         {
-            ["class"] = "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary"
+            ["data-slot"] = "sheet-close",
+            ["class"] = "group/button inline-flex shrink-0 items-center justify-center border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50 size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg absolute top-3 right-3"
         };
     }
 

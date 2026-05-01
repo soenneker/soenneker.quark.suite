@@ -86,6 +86,12 @@ else
     public SidebarMobileMode MobileMode { get; set; } = SidebarMobileMode.Auto;
 
     [Parameter]
+    public string? Dir { get; set; }
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    public string? DirectionProviderDir { get; set; }
+
+    [Parameter]
     public bool MobileCloseOnBackdropClick { get; set; } = true;
 
     [Parameter]
@@ -188,6 +194,8 @@ else
 
     private bool IsCollapsed => State is not null && !State.Open;
 
+    private string? ResolvedDir => Dir.HasContent() ? Dir : DirectionProviderDir;
+
     private SidebarMobileMode ResolvedMobileMode
     {
         get
@@ -219,6 +227,9 @@ else
         attributes["data-state"] = IsCollapsed ? "collapsed" : "expanded";
         attributes["data-collapsible"] = IsCollapsed ? ToDataCollapsible(Collapsible) : "";
 
+        if (ResolvedDir.HasContent())
+            attributes["dir"] = ResolvedDir!;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group peer hidden text-sidebar-foreground md:block");
@@ -235,6 +246,9 @@ else
         attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = State?.State ?? "expanded";
         attributes["data-collapsible"] = "none";
+
+        if (ResolvedDir.HasContent())
+            attributes["dir"] = ResolvedDir!;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -258,6 +272,9 @@ else
         attributes["data-variant"] = ToDataVariant(Variant);
         attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = State?.OpenMobile == true ? "expanded" : "collapsed";
+
+        if (ResolvedDir.HasContent())
+            attributes["dir"] = ResolvedDir!;
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
@@ -367,17 +384,13 @@ else
     {
         var attributes = new Dictionary<string, object>(10)
         {
-            ["data-slot"] = "sidebar-container"
+            ["data-slot"] = "sidebar-container",
+            ["data-side"] = ToDataSide(Side)
         };
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex");
-
-            if (!IsRightSide(Side))
-                AppendClass(ref cls, "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]");
-            else
-                AppendClass(ref cls, "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
+            AppendClass(ref cls, "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex");
 
             if (IsFloatingLikeVariant(Variant))
                 AppendClass(ref cls, "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
@@ -398,7 +411,7 @@ else
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm");
+            AppendClass(ref cls, "flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border");
         });
 
         return attributes;
@@ -463,6 +476,8 @@ else
         hc.Add(Shell);
         hc.Add(Collapsible);
         hc.Add(MobileMode);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
         hc.Add(MobileCloseOnBackdropClick);
         hc.Add(MobileShowBackdrop);
         hc.Add(MobileCloseOnEscape);

@@ -7,8 +7,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
-                         Description="Displays an indicator showing the completion progress of a task, typically displayed as a progress bar."
+            <DemoSection Description="Displays an indicator showing the completion progress of a task, typically displayed as a progress bar."
                          Code="@DemoCode"
                          CodeLanguage="razor">
                 <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
@@ -17,22 +16,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Label"
-                         Description="Determinate values from empty through complete."
-                         Code="@ProgressBarCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" FlexDirection="FlexDirection.Col" Gap="Gap.Is4">
-                    <Progress ProgressValue="0" />
-                    <Progress ProgressValue="25" Width="Width.IsFull" />
-                    <Progress ProgressValue="50" />
-                    <Progress ProgressValue="75" />
-                    <Progress ProgressValue="100" />
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled"
-                         Description="Associate the bar with a label using matching id and for values."
+                         Description="Use a Field component to add a label to the progress bar."
                          Code="@LabelCode"
                          CodeLanguage="razor">
                 <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
@@ -46,35 +30,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
-                         Description="Compact rows with a fixed-width bar and status text."
-                         Code="@FileUploadListCode"
-                         CodeLanguage="razor">
-                <ItemGroup Class="w-full max-w-xl">
-                    @foreach (var file in _uploadFiles)
-                    {
-                        <Item Size="ItemSize.ExtraSmall" Class="px-0">
-                            <ItemMedia Variant="ItemMediaVariant.Icon">
-                                <Icon Name="LucideIcon.File" BoxSize="Size.Is5" />
-                            </ItemMedia>
-                            <ItemContent Class="inline-block min-w-0 max-w-full truncate">
-                                <ItemTitle Class="inline">@file.Name</ItemTitle>
-                            </ItemContent>
-                            <ItemContent>
-                                <Progress ProgressValue="@file.Progress" Width='Width.Token("32")' />
-                            </ItemContent>
-                            <ItemActions Class="w-16 justify-end">
-                                <Span TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">@file.TimeRemaining</Span>
-                            </ItemActions>
-                        </Item>
-                    }
-                </ItemGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
-                         Description="@($"Use a slider to drive the bar. Current: {GetControlledPercent()}%.")"
+                         Description="A progress bar that can be controlled by a slider."
                          Code="@ControlledCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" FlexDirection="FlexDirection.Col" Gap="Gap.Is4">
@@ -98,26 +55,11 @@
                     <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
                         <FieldLabel For="progress-upload-rtl" Width="Width.IsFull" Display="Display.Flex" FlexDirection="FlexDirection.Row" ItemsAlign="Items.Center">
                             <Span>تقدم الرفع</Span>
-                            <Span Class="ml-auto text-muted-foreground">66%</Span>
+                            <Span Class="mr-auto text-muted-foreground">٦٦%</Span>
                         </FieldLabel>
-                        <Progress Id="progress-upload-rtl" ProgressValue="66" Width="Width.IsFull" />
+                        <Progress Id="progress-upload-rtl" ProgressValue="66" Width="Width.IsFull" Class="rtl:rotate-180" />
                     </Field>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Indeterminate"
-                         Description="Shows activity without a specific percentage."
-                         Code="@IndeterminateCode"
-                         CodeLanguage="razor">
-                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Space="Space.Y.Is2">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" TextSize="TextSize.Sm">
-                        <Span>Preparing assets</Span>
-                        <Span TextColor="TextColor.MutedForeground">Loading</Span>
-                    </Div>
-                    <Progress Indeterminate="true" AriaValueText="Preparing assets" Width="Width.IsFull" />
-                </Div>
             </DemoSection>
         </Section>
     </Div>
@@ -128,60 +70,11 @@
     private int _demoProgress = 13;
     private double _controlledValue = 50;
 
-    private static readonly UploadFileRow[] _uploadFiles =
-    [
-        new("1", "document.pdf", 45, "2m 30s"),
-        new("2", "presentation.pptx", 78, "45s"),
-        new("3", "spreadsheet.xlsx", 12, "5m 12s"),
-        new("4", "image.jpg", 100, "Complete"),
-    ];
-
-    private sealed record UploadFileRow(string Id, string Name, int Progress, string TimeRemaining);
-
     private const string DemoCode =
 @"@using System.Threading
 @implements IAsyncDisposable
 
-<Progress ProgressValue=""@_demoProgress"" Class=""w-[60%]"" />
-
-@code {
-    private CancellationTokenSource? _demoCts;
-    private int _demoProgress = 13;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
-
-        _demoCts = new CancellationTokenSource();
-
-        try
-        {
-            await Task.Delay(500, _demoCts.Token);
-            _demoProgress = 66;
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        _demoCts?.Cancel();
-        _demoCts?.Dispose();
-        return ValueTask.CompletedTask;
-    }
-}";
-
-    private const string ProgressBarCode =
-@"<Div Class=""flex w-full max-w-md flex-col gap-4"">
-    <Progress ProgressValue=""0"" />
-    <Progress ProgressValue=""25"" Class=""w-full"" />
-    <Progress ProgressValue=""50"" />
-    <Progress ProgressValue=""75"" />
-    <Progress ProgressValue=""100"" />
-</Div>";
+<Progress ProgressValue=""@_demoProgress"" Class=""w-[60%]"" />";
 
     private const string LabelCode =
 @"<Field Class=""w-full max-w-sm"">
@@ -195,108 +88,19 @@
     private const string ControlledCode =
 @"<Div Class=""flex w-full max-w-md flex-col gap-4"">
     <Progress ProgressValue=""@GetControlledPercent()"" Class=""w-full"" />
-    <Slider Min=""0""
-            Max=""100""
-            Step=""1""
-            SliderValue=""@_controlledValue""
-            SliderValueChanged=""HandleControlledValueChanged""
-            Class=""w-full"" />
-</Div>
-
-@code {
-    private double _controlledValue = 50;
-
-    private int GetControlledPercent()
-    {
-        return (int)Math.Round(_controlledValue, MidpointRounding.AwayFromZero);
-    }
-
-    private Task HandleControlledValueChanged(double value)
-    {
-        _controlledValue = value;
-        return Task.CompletedTask;
-    }
-}";
-
-    private const string FileUploadListCode =
-@"<ItemGroup Class=""w-full max-w-xl"">
-    <Item Size=""ItemSize.ExtraSmall"" Class=""px-0"">
-        <ItemMedia Variant=""ItemMediaVariant.Icon"">
-            <Icon Name=""LucideIcon.File"" Class=""size-5"" />
-        </ItemMedia>
-        <ItemContent Class=""inline-block min-w-0 max-w-full truncate"">
-            <ItemTitle Class=""inline"">document.pdf</ItemTitle>
-        </ItemContent>
-        <ItemContent>
-            <Progress ProgressValue=""45"" Class=""w-32"" />
-        </ItemContent>
-        <ItemActions Class=""w-16 justify-end"">
-            <Span Class=""text-sm text-muted-foreground"">2m 30s</Span>
-        </ItemActions>
-    </Item>
-    <Item Size=""ItemSize.ExtraSmall"" Class=""px-0"">
-        <ItemMedia Variant=""ItemMediaVariant.Icon"">
-            <Icon Name=""LucideIcon.File"" Class=""size-5"" />
-        </ItemMedia>
-        <ItemContent Class=""inline-block min-w-0 max-w-full truncate"">
-            <ItemTitle Class=""inline"">presentation.pptx</ItemTitle>
-        </ItemContent>
-        <ItemContent>
-            <Progress ProgressValue=""78"" Class=""w-32"" />
-        </ItemContent>
-        <ItemActions Class=""w-16 justify-end"">
-            <Span Class=""text-sm text-muted-foreground"">45s</Span>
-        </ItemActions>
-    </Item>
-    <Item Size=""ItemSize.ExtraSmall"" Class=""px-0"">
-        <ItemMedia Variant=""ItemMediaVariant.Icon"">
-            <Icon Name=""LucideIcon.File"" Class=""size-5"" />
-        </ItemMedia>
-        <ItemContent Class=""inline-block min-w-0 max-w-full truncate"">
-            <ItemTitle Class=""inline"">spreadsheet.xlsx</ItemTitle>
-        </ItemContent>
-        <ItemContent>
-            <Progress ProgressValue=""12"" Class=""w-32"" />
-        </ItemContent>
-        <ItemActions Class=""w-16 justify-end"">
-            <Span Class=""text-sm text-muted-foreground"">5m 12s</Span>
-        </ItemActions>
-    </Item>
-    <Item Size=""ItemSize.ExtraSmall"" Class=""px-0"">
-        <ItemMedia Variant=""ItemMediaVariant.Icon"">
-            <Icon Name=""LucideIcon.File"" Class=""size-5"" />
-        </ItemMedia>
-        <ItemContent Class=""inline-block min-w-0 max-w-full truncate"">
-            <ItemTitle Class=""inline"">image.jpg</ItemTitle>
-        </ItemContent>
-        <ItemContent>
-            <Progress ProgressValue=""100"" Class=""w-32"" />
-        </ItemContent>
-        <ItemActions Class=""w-16 justify-end"">
-            <Span Class=""text-sm text-muted-foreground"">Complete</Span>
-        </ItemActions>
-    </Item>
-</ItemGroup>";
+    <Slider Min=""0"" Max=""100"" Step=""1"" SliderValue=""@_controlledValue"" SliderValueChanged=""HandleControlledValueChanged"" Class=""w-full"" />
+</Div>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
     <Field Class=""w-full max-w-sm"">
         <FieldLabel For=""progress-upload-rtl"" Class=""w-full flex flex-row items-center"">
             <Span>تقدم الرفع</Span>
-            <Span Class=""ml-auto text-muted-foreground"">66%</Span>
+            <Span Class=""mr-auto text-muted-foreground"">٦٦%</Span>
         </FieldLabel>
-        <Progress Id=""progress-upload-rtl"" ProgressValue=""66"" Class=""w-full"" />
+        <Progress Id=""progress-upload-rtl"" ProgressValue=""66"" Class=""w-full rtl:rotate-180"" />
     </Field>
 </DirectionProvider>";
-
-    private const string IndeterminateCode =
-@"<Div Class=""w-full max-w-md space-y-2"">
-    <Div Class=""flex items-center justify-between text-sm"">
-        <Span>Preparing assets</Span>
-        <Span Class=""text-muted-foreground"">Loading</Span>
-    </Div>
-    <Progress Indeterminate=""true"" AriaValueText=""Preparing assets"" Class=""w-full"" />
-</Div>";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

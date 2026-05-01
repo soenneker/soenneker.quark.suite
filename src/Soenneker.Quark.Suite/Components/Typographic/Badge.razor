@@ -15,7 +15,10 @@ else
 
 @code {
     private const string _shadcnBadgeBase =
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3";
+        "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!";
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
 
     /// <summary>
     /// Gets or sets the visual style variant (shadcn/ui).
@@ -36,6 +39,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, _shadcnBadgeBase);
+            AppendClass(ref cls, GetIconPaddingClass());
             AppendClass(ref cls, GetBadgeVariantClass(Variant));
         });
     }
@@ -43,57 +47,6 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Display ??= Quark.Display.InlineFlex;
-        Width ??= Quark.Width.IsFit;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is1;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Full;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Transparent;
-        Padding ??= Quark.Padding.Is2.OnX.Token("0.5").OnY;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
-        TextSize ??= Quark.TextSize.Xs;
-        FontWeight ??= Quark.FontWeight.Medium;
-
-        ApplyVariantDefaults();
-
-    }
-
-    private void ApplyVariantDefaults()
-    {
-        if (ReferenceEquals(Variant, BadgeVariant.Secondary))
-        {
-            BackgroundColor ??= Quark.BackgroundColor.Secondary;
-            TextColor ??= Quark.TextColor.SecondaryForeground;
-            return;
-        }
-
-        if (ReferenceEquals(Variant, BadgeVariant.Destructive))
-        {
-            BackgroundColor ??= Quark.BackgroundColor.Destructive;
-            TextColor ??= Quark.TextColor.White;
-            return;
-        }
-
-        if (ReferenceEquals(Variant, BadgeVariant.Outline))
-        {
-            BorderColor ??= Quark.BorderColor.Border;
-            TextColor ??= Quark.TextColor.Foreground;
-            return;
-        }
-
-        if (ReferenceEquals(Variant, BadgeVariant.Ghost))
-            return;
-
-        if (ReferenceEquals(Variant, BadgeVariant.Link))
-            return;
-
-        BackgroundColor ??= Quark.BackgroundColor.Primary;
-        TextColor ??= Quark.TextColor.PrimaryForeground;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -101,6 +54,14 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
         hc.Add(AsChild);
+        hc.Add(DirectionProviderDir);
+    }
+
+    private string GetIconPaddingClass()
+    {
+        return string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase)
+            ? "has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5"
+            : "has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5";
     }
 
     private static string GetDataVariant(BadgeVariant? variant)
@@ -123,23 +84,53 @@ else
         return "default";
     }
 
-    private static string GetBadgeVariantClass(BadgeVariant? variant)
+    private string GetBadgeVariantClass(BadgeVariant? variant)
     {
         if (ReferenceEquals(variant, BadgeVariant.Secondary))
-            return "[a&]:hover:bg-secondary/90";
+            return "border-transparent bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80";
 
         if (ReferenceEquals(variant, BadgeVariant.Destructive))
-            return "focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90";
+            return "border-transparent bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20";
 
         if (ReferenceEquals(variant, BadgeVariant.Outline))
-            return "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground";
+            return "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground";
 
         if (ReferenceEquals(variant, BadgeVariant.Ghost))
-            return "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground";
+            return "border-transparent hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50";
 
         if (ReferenceEquals(variant, BadgeVariant.Link))
-            return "text-primary underline-offset-4 [a&]:hover:underline";
+            return "border-transparent text-primary underline-offset-4 [a]:hover:underline";
 
-        return "[a&]:hover:bg-primary/90";
+        return HasBackgroundClass() || HasTextColorClass()
+            ? "border-transparent [a]:hover:bg-primary/80"
+            : "border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
+    }
+
+    private bool HasBackgroundClass() => HasUtilityClass("bg-");
+
+    private bool HasTextColorClass() => HasUtilityClass("text-");
+
+    private bool HasUtilityClass(string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(Class))
+            return false;
+
+        string[] tokens = Class.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (string token in tokens)
+        {
+            string candidate = token;
+            int variantIndex = candidate.LastIndexOf(':');
+
+            if (variantIndex >= 0 && variantIndex < candidate.Length - 1)
+                candidate = candidate[(variantIndex + 1)..];
+
+            candidate = candidate.TrimStart('!');
+
+            if (candidate.StartsWith(prefix, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 }

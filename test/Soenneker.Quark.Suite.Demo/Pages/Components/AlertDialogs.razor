@@ -16,7 +16,7 @@
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                            This action cannot be undone. This will permanently delete your account from our servers.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -29,7 +29,7 @@
 
         <DemoSection Title="Basic"
                      Description="A basic alert dialog with a title, description, and cancel and continue buttons."
-                     Code="@DefaultCode"
+                     Code="@BasicCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showBasicAlert" CloseOnBackdropClick="false">
                 <AlertDialogTrigger AsChild="true">
@@ -52,10 +52,12 @@
 
         <DemoSection Title="Small"
                      Description="Use the size='sm' prop to make the alert dialog smaller."
-                     Code="@SmallCode"
+            Code="@SmallCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showSmallAlert" CloseOnBackdropClick="false">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallAlert = true)">Show Dialog</Button>
+                <AlertDialogTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Outline">Show Dialog</Button>
+                </AlertDialogTrigger>
                 <AlertDialogContent Size="sm">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
@@ -73,10 +75,12 @@
 
         <DemoSection Title="Media"
                      Description="Use the AlertDialogMedia component to add a media element such as an icon or image to the alert dialog."
-                     Code="@MediaCode"
+            Code="@MediaCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showMediaAlert" CloseOnBackdropClick="false">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showMediaAlert = true)">Share Project</Button>
+                <AlertDialogTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Outline">Share Project</Button>
+                </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogMedia>
@@ -97,10 +101,12 @@
 
         <DemoSection Title="Small with Media"
                      Description="Use the size='sm' prop to make the alert dialog smaller and the AlertDialogMedia component to add a media element such as an icon or image to the alert dialog."
-                     Code="@SmallMediaCode"
+            Code="@SmallMediaCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showSmallMediaAlert" CloseOnBackdropClick="false">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallMediaAlert = true)">Show Dialog</Button>
+                <AlertDialogTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Outline">Show Dialog</Button>
+                </AlertDialogTrigger>
                 <AlertDialogContent Size="sm">
                     <AlertDialogHeader>
                         <AlertDialogMedia>
@@ -121,10 +127,12 @@
 
         <DemoSection Title="Destructive"
                      Description="Use the AlertDialogAction component to add a destructive action button to the alert dialog."
-                     Code="@DestructiveCode"
+            Code="@DestructiveCode"
                      CodeLanguage="razor">
             <AlertDialog @bind-Visible="_showDestructiveAlert" CloseOnBackdropClick="false">
-                <Button Variant="ButtonVariant.Destructive" OnClick="@(() => _showDestructiveAlert = true)">Delete Chat</Button>
+                <AlertDialogTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Destructive">Delete Chat</Button>
+                </AlertDialogTrigger>
                 <AlertDialogContent Size="sm">
                     <AlertDialogHeader>
                         <AlertDialogMedia Class="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
@@ -136,7 +144,7 @@
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel Variant="ButtonVariant.Ghost">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction Variant="ButtonVariant.Destructive" OnAction="HandleDelete">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -155,9 +163,9 @@
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
-                                <AlertDialogTitle>السماح للملحق بالاتصال؟</AlertDialogTitle>
+                                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟
+                                    لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا من خوادمنا.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -173,6 +181,9 @@
                         </AlertDialogTrigger>
                         <AlertDialogContent Size="sm">
                             <AlertDialogHeader>
+                                <AlertDialogMedia>
+                                    <Icon Name="LucideIcon.Bluetooth" />
+                                </AlertDialogMedia>
                                 <AlertDialogTitle>السماح للملحق بالاتصال؟</AlertDialogTitle>
                                 <AlertDialogDescription>
                                     هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟
@@ -212,6 +223,25 @@
         <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your account from our servers.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
+
+    private const string BasicCode =
+@"<AlertDialog @bind-Visible=""show"" CloseOnBackdropClick=""false"">
+    <AlertDialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete your account and remove your data from our servers.
             </AlertDialogDescription>
         </AlertDialogHeader>
@@ -224,7 +254,9 @@
 
     private const string SmallCode =
 @"<AlertDialog @bind-Visible=""showSmall"" CloseOnBackdropClick=""false"">
-    <Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => showSmall = true)"">Show Dialog</Button>
+    <AlertDialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
+    </AlertDialogTrigger>
     <AlertDialogContent Size=""sm"">
         <AlertDialogHeader>
             <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
@@ -239,7 +271,9 @@
 
     private const string MediaCode =
 @"<AlertDialog>
-    <Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => showMedia = true)"">Share Project</Button>
+    <AlertDialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Share Project</Button>
+    </AlertDialogTrigger>
     <AlertDialogContent>
         <AlertDialogHeader>
             <AlertDialogMedia><Icon Name=""LucideIcon.CircleFadingPlus"" /></AlertDialogMedia>
@@ -254,21 +288,28 @@
 </AlertDialog>";
 
     private const string SmallMediaCode =
-@"<AlertDialogContent Size=""sm"">
-    <AlertDialogHeader>
-        <AlertDialogMedia><Icon Name=""LucideIcon.Bluetooth"" /></AlertDialogMedia>
-        <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
-        <AlertDialogDescription>Do you want to allow the USB accessory to connect to this device?</AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-        <AlertDialogCancel>Don't allow</AlertDialogCancel>
-        <AlertDialogAction>Allow</AlertDialogAction>
-    </AlertDialogFooter>
-</AlertDialogContent>";
+@"<AlertDialog>
+    <AlertDialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent Size=""sm"">
+        <AlertDialogHeader>
+            <AlertDialogMedia><Icon Name=""LucideIcon.Bluetooth"" /></AlertDialogMedia>
+            <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
+            <AlertDialogDescription>Do you want to allow the USB accessory to connect to this device?</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Don't allow</AlertDialogCancel>
+            <AlertDialogAction>Allow</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
 
     private const string DestructiveCode =
 @"<AlertDialog @bind-Visible=""showDelete"" CloseOnBackdropClick=""false"">
-    <Button Variant=""ButtonVariant.Destructive"" OnClick=""@(() => showDelete = true)"">Delete Chat</Button>
+    <AlertDialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Destructive"">Delete Chat</Button>
+    </AlertDialogTrigger>
     <AlertDialogContent Size=""sm"">
         <AlertDialogHeader>
             <AlertDialogMedia Class=""bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive"">
@@ -278,7 +319,7 @@
             <AlertDialogDescription>This will permanently delete this chat conversation. View <a href=""#"">Settings</a> delete any memories saved during this chat.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-            <AlertDialogCancel Variant=""ButtonVariant.Ghost"">Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction Variant=""ButtonVariant.Destructive"">Delete</AlertDialogAction>
         </AlertDialogFooter>
     </AlertDialogContent>
@@ -293,8 +334,8 @@
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>السماح للملحق بالاتصال؟</AlertDialogTitle>
-                    <AlertDialogDescription>هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟</AlertDialogDescription>
+                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                <AlertDialogDescription>لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا من خوادمنا.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>عدم السماح</AlertDialogCancel>
@@ -309,6 +350,7 @@
             </AlertDialogTrigger>
             <AlertDialogContent Size=""sm"">
                 <AlertDialogHeader>
+                    <AlertDialogMedia><Icon Name=""LucideIcon.Bluetooth"" /></AlertDialogMedia>
                     <AlertDialogTitle>السماح للملحق بالاتصال؟</AlertDialogTitle>
                     <AlertDialogDescription>هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟</AlertDialogDescription>
                 </AlertDialogHeader>

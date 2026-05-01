@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="HandlePreviousClick" Disabled="@(!(ParentCarousel?.CanScrollPrevious ?? false))" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" OnClick="HandlePreviousClick" Disabled="@(!(ParentCarousel?.CanScrollPrevious ?? false))" @attributes="BuildAttributes()">
     <Svg BoxSize="Quark.Size.Is4" Class="rtl:rotate-180" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Token("current")' StrokeWidth="Quark.StrokeWidth.Is2"><path d="m15 18-6-6 6-6"/></Svg>
     <Span ScreenReader="Quark.ScreenReader.Only">Previous slide</Span>
 </Button>
@@ -17,7 +17,6 @@
         base.ApplyDefaultParameters();
 
         Position ??= Quark.Position.Absolute;
-        BoxSize ??= Size.Is8;
         Rounded ??= Quark.Rounded.Full;
     }
 
@@ -56,9 +55,11 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             if (horizontal)
-                AppendClass(ref cls, "top-1/2 -left-12 -translate-y-1/2");
+                AppendClass(ref cls, ParentCarousel?.IsRtl == true
+                    ? "touch-manipulation -start-12 top-1/2 -translate-y-1/2"
+                    : "touch-manipulation top-1/2 -left-12 -translate-y-1/2");
             else
-                AppendClass(ref cls, "-top-12 left-1/2 -translate-x-1/2 rotate-90");
+                AppendClass(ref cls, "touch-manipulation -top-12 left-1/2 -translate-x-1/2 rotate-90");
         });
     }
 

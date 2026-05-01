@@ -4,16 +4,17 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IInputGroupInput
 
-<Input Value="@Value"
-       ValueChanged="HandleValueChanged"
-       Type="@Type"
-       Placeholder="@Placeholder"
-       Disabled="@Disabled"
-       ReadOnly="@ReadOnly"
-       Required="@Required"
-       Attributes="BuildInnerAttributes()" />
+<input @ref="_elementRef"
+       value="@Value"
+       @oninput="HandleInput"
+       @onchange="HandleChange"
+       @attributes="BuildAttributes()" />
 
 @code {
+    private ElementReference _elementRef;
+
+    [CascadingParameter]
+    internal InputGroupContext? InputGroupContext { get; set; }
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -24,6 +25,14 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        Height ??= Quark.Height.Token("8");
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        BorderColor ??= Quark.BorderColor.Input;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is1.OnY;
+        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        Transition ??= Quark.Transition.Token("transition-colors");
+        OutlineStyle ??= Quark.OutlineStyle.None;
         Flex ??= Quark.Flex.Is1;
         Rounded ??= Quark.Rounded.None;
         Border ??= Quark.Border.Is0;
@@ -33,25 +42,54 @@
 
     }
 
-    private async Task HandleValueChanged(string? value)
+    private async Task HandleInput(ChangeEventArgs e)
     {
+        var value = e.Value?.ToString();
         Value = value;
         await ValueChanged.InvokeIfHasDelegate(value);
     }
 
-    private Dictionary<string, object> BuildInnerAttributes()
+    private async Task HandleChange(ChangeEventArgs e)
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes())
-        {
-            ["data-slot"] = "input-group-control"
-        };
+        var value = e.Value?.ToString();
+        Value = value;
+        await ValueChanged.InvokeIfHasDelegate(value);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            InputGroupContext?.RegisterControl(_elementRef);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        var inputType = Type;
+        if (!string.IsNullOrWhiteSpace(inputType) && !string.Equals(inputType, "text", StringComparison.OrdinalIgnoreCase))
+            attributes["type"] = inputType;
+
+        attributes["data-slot"] = "input-group-control";
+        if (Placeholder is not null)
+            attributes["placeholder"] = Placeholder;
+        if (Disabled)
+            attributes["disabled"] = true;
+        if (ReadOnly)
+            attributes["readonly"] = true;
+        if (Required)
+            attributes["required"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground");
+            AppendClass(ref cls, "placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50");
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-transparent dark:disabled:bg-transparent");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-0 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "focus-visible:ring-0 dark:bg-transparent");
         });
-
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

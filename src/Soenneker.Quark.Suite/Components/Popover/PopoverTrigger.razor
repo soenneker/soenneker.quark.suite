@@ -6,20 +6,9 @@
 @if (AsChild)
 {
     <BradixDismissableLayerBranch>
-        @if (BradixPopover?.HasCustomAnchor == true)
-        {
-            <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-                @ChildContent
-            </CascadingValue>
-        }
-        else
-        {
-            <BradixPopperAnchor>
-                <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-                    @ChildContent
-                </CascadingValue>
-            </BradixPopperAnchor>
-        }
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </BradixDismissableLayerBranch>
 }
 else
@@ -80,7 +69,13 @@ else
             Close = BradixPopover is null ? null : () => BradixPopover.SetOpen(false),
             RegisterElement = BradixPopover is null
                 ? null
-                : elementReference => BradixPopover.RegisterTrigger(elementReference, BradixPopover.DefaultTriggerId)
+                : elementReference =>
+                {
+                    BradixPopover.RegisterTrigger(elementReference, BradixPopover.DefaultTriggerId);
+
+                    if (BradixPopover.HasCustomAnchor != true)
+                        BradixPopover.RegisterAnchor(elementReference);
+                }
         };
     }
 

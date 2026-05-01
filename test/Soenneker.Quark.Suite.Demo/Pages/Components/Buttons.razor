@@ -113,7 +113,7 @@
                          Description="Icon buttons keep the same sizing and accessibility hooks as the rest of the button set."
                          Code="@IconCode"
                          CodeLanguage="razor">
-                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Submit">
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon">
                     <Icon Name="LucideIcon.CircleArrowUp" />
                 </Button>
             </DemoSection>
@@ -125,8 +125,8 @@
                          Code="@WithIconCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Gap="Gap.Is2">
-                    <Button Variant="ButtonVariant.Outline">
-                        <Icon Name="LucideIcon.GitBranch" data-icon="inline-start" />
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                        <Icon Name="LucideIcon.GitBranch" />
                         New Branch
                     </Button>
                 </Div>
@@ -138,7 +138,7 @@
                          Description="Use the rounded-full class to make the button rounded."
                          Code="@RoundedCode"
                          CodeLanguage="razor">
-                <Button Size="ButtonSize.Icon" Rounded="Rounded.Full" aria-label="Submit">
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" Rounded="Rounded.Full">
                     <Icon Name="LucideIcon.ArrowUp" />
                 </Button>
             </DemoSection>
@@ -150,13 +150,13 @@
                          Code="@SpinnerCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-wrap items-center gap-2">
-                    <Button Disabled="true">
+                    <Button Variant="ButtonVariant.Outline" Disabled="true">
                         <Spinner data-icon="inline-start" />
                         Generating
                     </Button>
-                    <Button Disabled="true">
+                    <Button Variant="ButtonVariant.Secondary" Disabled="true">
+                        <Spinner data-icon="inline-start" />
                         Downloading
-                        <Spinner data-icon="inline-end" />
                     </Button>
                 </Div>
             </DemoSection>
@@ -167,27 +167,36 @@
                          Description="To create a button group, use the ButtonGroup component."
                          Code="@ButtonGroupCode"
                          CodeLanguage="razor">
-                <ButtonGroup AriaLabel="Message actions">
-                    <Button Variant="ButtonVariant.Outline">Archive</Button>
-                    <Button Variant="ButtonVariant.Outline">Report</Button>
-                    <Button Variant="ButtonVariant.Outline">Snooze</Button>
-                    <Dropdown>
-                        <DropdownToggle AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
-                                <Icon Name="LucideIcon.Ellipsis" />
-                            </Button>
-                        </DropdownToggle>
-                        <DropdownMenu RightAligned="true" Class="w-40">
-                            <DropdownItem>Mark as Read</DropdownItem>
-                            <DropdownItem>Archive</DropdownItem>
-                            <DropdownDivider />
-                            <DropdownItem>Snooze</DropdownItem>
-                            <DropdownItem>Add to Calendar</DropdownItem>
-                            <DropdownItem>Add to List</DropdownItem>
-                            <DropdownDivider />
-                            <DropdownItem Variant="destructive">Trash</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                <ButtonGroup>
+                    <ButtonGroup Class="hidden sm:flex">
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Go Back">
+                            <Icon Name="LucideIcon.ArrowLeft" />
+                        </Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">Archive</Button>
+                        <Button Variant="ButtonVariant.Outline">Report</Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">Snooze</Button>
+                        <Dropdown>
+                            <DropdownToggle AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More Options">
+                                    <Icon Name="LucideIcon.Ellipsis" />
+                                </Button>
+                            </DropdownToggle>
+                            <DropdownMenu RightAligned="true" Class="w-40">
+                                <DropdownItem>Mark as Read</DropdownItem>
+                                <DropdownItem>Archive</DropdownItem>
+                                <DropdownDivider />
+                                <DropdownItem>Snooze</DropdownItem>
+                                <DropdownItem>Add to Calendar</DropdownItem>
+                                <DropdownItem>Add to List</DropdownItem>
+                                <DropdownDivider />
+                                <DropdownItem Variant="destructive">Trash</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </ButtonGroup>
                 </ButtonGroup>
             </DemoSection>
         </Section>
@@ -207,16 +216,16 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-wrap items-center gap-2" dir="rtl">
-                    <Button>زر</Button>
+                    <Button Variant="ButtonVariant.Outline">زر</Button>
                     <Button Variant="ButtonVariant.Destructive">حذف</Button>
-                    <Button>
+                    <Button Variant="ButtonVariant.Outline">
                         إرسال
                         <Icon Name="LucideIcon.ArrowRight" data-icon="inline-end" />
                     </Button>
-                    <Button Size="ButtonSize.Icon" aria-label="Add">
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Add">
                         <Icon Name="LucideIcon.Plus" />
                     </Button>
-                    <Button Disabled="true">
+                    <Button Variant="ButtonVariant.Secondary" Disabled="true">
                         <Spinner data-icon="inline-start" />
                         جاري التحميل
                     </Button>
@@ -276,57 +285,66 @@
     private const string LinkCode = @"<Button Variant=""ButtonVariant.Link"">Link</Button>";
 
     private const string IconCode =
-@"<Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""Submit"">
+@"<Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"">
     <Icon Name=""LucideIcon.CircleArrowUp"" />
 </Button>";
 
     private const string WithIconCode =
 @"<Div Display=""Display.Flex"" Gap=""Gap.Is2"">
-    <Button Variant=""ButtonVariant.Outline"">
-        <Icon Name=""LucideIcon.GitBranch"" data-icon=""inline-start"" />
+    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">
+        <Icon Name=""LucideIcon.GitBranch"" />
         New Branch
     </Button>
 </Div>";
 
     private const string RoundedCode =
-@"<Button Size=""ButtonSize.Icon"" Rounded=""Rounded.Full"" aria-label=""Submit"">
+@"<Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" Rounded=""Rounded.Full"">
     <Icon Name=""LucideIcon.ArrowUp"" />
 </Button>";
 
     private const string SpinnerCode =
 @"<Div Class=""flex flex-wrap items-center gap-2"">
-    <Button Disabled=""true"">
+    <Button Variant=""ButtonVariant.Outline"" Disabled=""true"">
         <Spinner data-icon=""inline-start"" />
         Generating
     </Button>
-    <Button Disabled=""true"">
+    <Button Variant=""ButtonVariant.Secondary"" Disabled=""true"">
+        <Spinner data-icon=""inline-start"" />
         Downloading
-        <Spinner data-icon=""inline-end"" />
     </Button>
 </Div>";
 
     private const string ButtonGroupCode =
-@"<ButtonGroup AriaLabel=""Message actions"">
-    <Button Variant=""ButtonVariant.Outline"">Archive</Button>
-    <Button Variant=""ButtonVariant.Outline"">Report</Button>
-    <Button Variant=""ButtonVariant.Outline"">Snooze</Button>
-    <Dropdown>
-        <DropdownToggle AsChild=""true"">
-            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More Options"">
-                <Icon Name=""LucideIcon.Ellipsis"" />
-            </Button>
-        </DropdownToggle>
-        <DropdownMenu RightAligned=""true"" Class=""w-40"">
-            <DropdownItem>Mark as Read</DropdownItem>
-            <DropdownItem>Archive</DropdownItem>
-            <DropdownDivider />
-            <DropdownItem>Snooze</DropdownItem>
-            <DropdownItem>Add to Calendar</DropdownItem>
-            <DropdownItem>Add to List</DropdownItem>
-            <DropdownDivider />
-            <DropdownItem Variant=""destructive"">Trash</DropdownItem>
-        </DropdownMenu>
-    </Dropdown>
+@"<ButtonGroup>
+    <ButtonGroup Class=""hidden sm:flex"">
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""Go Back"">
+            <Icon Name=""LucideIcon.ArrowLeft"" />
+        </Button>
+    </ButtonGroup>
+    <ButtonGroup>
+        <Button Variant=""ButtonVariant.Outline"">Archive</Button>
+        <Button Variant=""ButtonVariant.Outline"">Report</Button>
+    </ButtonGroup>
+    <ButtonGroup>
+        <Button Variant=""ButtonVariant.Outline"">Snooze</Button>
+        <Dropdown>
+            <DropdownToggle AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""More Options"">
+                    <Icon Name=""LucideIcon.Ellipsis"" />
+                </Button>
+            </DropdownToggle>
+            <DropdownMenu RightAligned=""true"" Class=""w-40"">
+                <DropdownItem>Mark as Read</DropdownItem>
+                <DropdownItem>Archive</DropdownItem>
+                <DropdownDivider />
+                <DropdownItem>Snooze</DropdownItem>
+                <DropdownItem>Add to Calendar</DropdownItem>
+                <DropdownItem>Add to List</DropdownItem>
+                <DropdownDivider />
+                <DropdownItem Variant=""destructive"">Trash</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
+    </ButtonGroup>
 </ButtonGroup>";
 
     private const string AsChildCode =
@@ -336,16 +354,16 @@
 
     private const string RtlCode =
 @"<Div Class=""flex flex-wrap items-center gap-2"" dir=""rtl"">
-    <Button>زر</Button>
+    <Button Variant=""ButtonVariant.Outline"">زر</Button>
     <Button Variant=""ButtonVariant.Destructive"">حذف</Button>
-    <Button>
+    <Button Variant=""ButtonVariant.Outline"">
         إرسال
         <Icon Name=""LucideIcon.ArrowRight"" data-icon=""inline-end"" />
     </Button>
-    <Button Size=""ButtonSize.Icon"" aria-label=""Add"">
+    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""Add"">
         <Icon Name=""LucideIcon.Plus"" />
     </Button>
-    <Button Disabled=""true"">
+    <Button Variant=""ButtonVariant.Secondary"" Disabled=""true"">
         <Spinner data-icon=""inline-start"" />
         جاري التحميل
     </Button>

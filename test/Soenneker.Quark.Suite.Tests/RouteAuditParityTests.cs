@@ -26,12 +26,14 @@ public sealed class RouteAuditParityTests
         ["calendars"] = "docs/components/base/calendar/index.html",
         ["cards"] = "docs/components/base/card/index.html",
         ["carousels"] = "docs/components/base/carousel/index.html",
+        ["chart"] = "docs/components/base/chart/index.html",
         ["checks"] = "docs/components/base/checkbox/index.html",
         ["codes"] = "docs/components/base/typography/index.html",
         ["collapsibles"] = "docs/components/base/collapsible/index.html",
         ["comboboxes"] = "docs/components/base/combobox/index.html",
         ["commands"] = "docs/components/base/command/index.html",
         ["context-menus"] = "docs/components/base/context-menu/index.html",
+        ["data-table"] = "docs/components/base/data-table/index.html",
         ["datepickers"] = "docs/components/base/date-picker/index.html",
         ["dialogs"] = "docs/components/base/dialog/index.html",
         ["directions"] = "docs/components/base/direction/index.html",
@@ -70,6 +72,7 @@ public sealed class RouteAuditParityTests
         ["tablesbasic"] = "docs/components/base/table/index.html",
         ["tabs"] = "docs/components/base/tabs/index.html",
         ["textareas"] = "docs/components/base/textarea/index.html",
+        ["toast"] = "docs/components/base/toast/index.html",
         ["texts"] = "docs/components/base/typography/index.html",
         ["toggles"] = "docs/components/base/toggle/index.html",
         ["toggle-groups"] = "docs/components/base/toggle-group/index.html",
@@ -168,12 +171,7 @@ public sealed class RouteAuditParityTests
         "typography"
     };
 
-    private static readonly IReadOnlySet<string> _currentlyUnsupportedShadcnComponents = new HashSet<string>(StringComparer.Ordinal)
-    {
-        "chart",
-        "data-table",
-        "toast"
-    };
+    private static readonly IReadOnlySet<string> _currentlyUnsupportedShadcnComponents = new HashSet<string>(StringComparer.Ordinal);
 
     [Test]
     public void Live_shadcn_components_are_all_supported_or_explicitly_classified()

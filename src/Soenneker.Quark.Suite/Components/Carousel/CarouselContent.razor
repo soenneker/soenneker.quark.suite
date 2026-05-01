@@ -42,7 +42,7 @@
         return new Dictionary<string, object>
         {
             ["data-slot"] = "carousel-content",
-            ["class"] = horizontal ? "overflow-hidden touch-pan-y" : "overflow-hidden touch-pan-x"
+            ["class"] = "overflow-hidden"
         };
     }
 
@@ -85,23 +85,38 @@
             var horizontal = ParentCarousel?.IsVertical != true;
             AppendClass(ref cls, "flex");
             if (horizontal)
-                AppendClass(ref cls, ParentCarousel?.IsRtl == true ? "-mr-4" : "-ml-4");
+            {
+                if (!HasClassToken("-ml-") && !HasClassToken("-ms-"))
+                    AppendClass(ref cls, ParentCarousel?.IsRtl == true ? "-ms-4" : "-ml-4");
+            }
             else
-                AppendClass(ref cls, "-mt-4 flex-col");
+            {
+                if (!HasClassToken("-mt-"))
+                    AppendClass(ref cls, "-mt-4");
+
+                AppendClass(ref cls, "flex-col");
+            }
         });
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
             var horizontal = ParentCarousel?.IsVertical != true;
-            var index = ParentCarousel?.CurrentIndex ?? 0;
-            var axis = horizontal ? "X" : "Y";
-            var offset = index * 100.0;
+            var offset = ParentCarousel?.ScrollOffsetPixels ?? 0;
+
+            var formattedOffset = offset < 0.5 ? "0" : offset.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 
             if (horizontal && ParentCarousel?.IsRtl == true)
-                AppendStyleDecl(ref sty, $"transform: translate{axis}({offset}%); transition: transform 300ms ease-in-out");
+                AppendStyleDecl(ref sty, $"transform: translate3d({formattedOffset}px, 0px, 0px)");
+            else if (horizontal)
+                AppendStyleDecl(ref sty, $"transform: translate3d(-{formattedOffset}px, 0px, 0px)");
             else
-                AppendStyleDecl(ref sty, $"transform: translate{axis}(-{offset}%); transition: transform 300ms ease-in-out");
+                AppendStyleDecl(ref sty, $"transform: translate3d(0px, -{formattedOffset}px, 0px)");
         });
+    }
+
+    private bool HasClassToken(string tokenPart)
+    {
+        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
     }
 
     private void OnCarouselStateChanged()

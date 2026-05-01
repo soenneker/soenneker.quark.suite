@@ -1,6 +1,4 @@
 @page "/switches"
-@using Microsoft.AspNetCore.Components.Forms
-
 <PageTitle>Switches - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
@@ -105,53 +103,6 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form"
-                         Description="Settings-style rows with descriptions and a submitted value."
-                         Code="@FormCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_formModel" OnSubmit="@(_ => HandleFormSubmit())" class="w-full max-w-xl space-y-6">
-                    <Div>
-                        <H3 Margin="Margin.Is4.FromBottom" TextSize="TextSize.Lg" FontWeight="FontWeight.Medium">Email Notifications</H3>
-                        <Div Space="Space.Y.Is4">
-                            <Field Horizontal="true" ItemsAlign="Items.Center" Justify="Justify.Between" Rounded="Rounded.Lg" Border="Border.Is1" Padding="Padding.Is3" Shadow="Shadow.Small">
-                                <FieldContent>
-                                    <FieldLabel For="marketing-emails">Marketing emails</FieldLabel>
-                                    <FieldDescription>
-                                        Receive emails about new products, features, and more.
-                                    </FieldDescription>
-                                </FieldContent>
-                                <Switch Id="marketing-emails"
-                                        Checked="@_formModel.MarketingEmails"
-                                        CheckedChanged="HandleMarketingEmailsChanged" />
-                            </Field>
-
-                            <Field Horizontal="true" ItemsAlign="Items.Center" Justify="Justify.Between" Rounded="Rounded.Lg" Border="Border.Is1" Padding="Padding.Is3" Shadow="Shadow.Small">
-                                <FieldContent>
-                                    <FieldLabel For="security-emails">Security emails</FieldLabel>
-                                    <FieldDescription>
-                                        Receive emails about your account security.
-                                    </FieldDescription>
-                                </FieldContent>
-                                <Switch Id="security-emails"
-                                        Checked="@_formModel.SecurityEmails"
-                                        CheckedChanged="HandleSecurityEmailsChanged"
-                                        Disabled="true"
-                                        aria-readonly="true" />
-                            </Field>
-                        </Div>
-                    </Div>
-
-                    <Button Type="ButtonType.Submit">Submit</Button>
-
-                    @if (!string.IsNullOrEmpty(_submittedSwitchJson))
-                    {
-                        <PreCode Rounded="Rounded.Lg" BackgroundColor='BackgroundColor.Token("neutral-950")' Padding="Padding.Is4" TextSize="TextSize.Sm" TextColor="TextColor.White">@_submittedSwitchJson</PreCode>
-                    }
-                </EditForm>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="Switch and field content respect DirectionProvider."
                          Code="@RtlCode"
@@ -167,69 +118,15 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Inline Content"
-                         Description="Switches can render label content as child content or via the Label parameter."
-                         Code="@InlineContentCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is3">
-                    <Switch @bind-Checked="_inlineContentChecked">
-                        Enable notifications
-                    </Switch>
-                    <Switch @bind-Checked="_legacyLabelChecked" Label="Dark mode" />
-                </Div>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private sealed class SwitchFormModel
-    {
-        public bool MarketingEmails { get; set; }
-        public bool SecurityEmails { get; set; } = true;
-    }
-
     private const string BasicCode =
 @"<Div Class=""flex items-center space-x-2"">
     <Switch Id=""airplane-mode"" />
     <Label For=""airplane-mode"">Airplane Mode</Label>
 </Div>";
-
-    private const string FormCode =
-@"<EditForm Model=""_formModel"" OnSubmit=""@(_ => HandleFormSubmit())"" class=""w-full max-w-xl space-y-6"">
-    <Div>
-        <H3 Margin=""Margin.Is4.FromBottom"" TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Medium"">Email Notifications</H3>
-        <Div Space=""Space.Y.Is4"">
-            <Field Horizontal=""true"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Rounded=""Rounded.Lg"" Border=""Border.Is1"" Padding=""Padding.Is3"" Shadow=""Shadow.Small"">
-                <FieldContent>
-                    <FieldLabel For=""marketing-emails"">Marketing emails</FieldLabel>
-                    <FieldDescription>
-                        Receive emails about new products, features, and more.
-                    </FieldDescription>
-                </FieldContent>
-                <Switch Id=""marketing-emails""
-                        Checked=""@_formModel.MarketingEmails""
-                        CheckedChanged=""HandleMarketingEmailsChanged"" />
-            </Field>
-            <Field Horizontal=""true"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Rounded=""Rounded.Lg"" Border=""Border.Is1"" Padding=""Padding.Is3"" Shadow=""Shadow.Small"">
-                <FieldContent>
-                    <FieldLabel For=""security-emails"">Security emails</FieldLabel>
-                    <FieldDescription>
-                        Receive emails about your account security.
-                    </FieldDescription>
-                </FieldContent>
-                <Switch Id=""security-emails""
-                        Checked=""@_formModel.SecurityEmails""
-                        CheckedChanged=""HandleSecurityEmailsChanged""
-                        Disabled=""true""
-                        aria-readonly=""true"" />
-            </Field>
-        </Div>
-    </Div>
-    <Button Type=""ButtonType.Submit"">Submit</Button>
-</EditForm>";
 
     private const string DescriptionCode =
 @"<Field Horizontal=""true"" MaxWidth=""MaxWidth.IsSm"">
@@ -300,31 +197,7 @@
     </Field>
 </DirectionProvider>";
 
-    private const string InlineContentCode =
-@"<Div Space=""Space.Y.Is3"">
-    <Switch @bind-Checked=""_inlineContentChecked"">
-        Enable notifications
-    </Switch>
-    <Switch @bind-Checked=""_legacyLabelChecked"" Label=""Dark mode"" />
-</Div>";
-
-    private readonly SwitchFormModel _formModel = new();
-    private string? _submittedSwitchJson;
-    private bool _inlineContentChecked;
-    private bool _legacyLabelChecked;
-    private bool _rtlSwitchChecked = true;
-
-    private Task HandleMarketingEmailsChanged(bool value)
-    {
-        _formModel.MarketingEmails = value;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleSecurityEmailsChanged(bool value)
-    {
-        _formModel.SecurityEmails = value;
-        return Task.CompletedTask;
-    }
+    private bool _rtlSwitchChecked;
 
     private Task HandleRtlSwitchChanged(bool value)
     {
@@ -332,16 +205,4 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleFormSubmit()
-    {
-        _submittedSwitchJson =
-            $$"""
-              {
-                "marketing_emails": {{_formModel.MarketingEmails.ToString().ToLowerInvariant()}},
-                "security_emails": {{_formModel.SecurityEmails.ToString().ToLowerInvariant()}}
-              }
-              """;
-
-        return Task.CompletedTask;
-    }
 }

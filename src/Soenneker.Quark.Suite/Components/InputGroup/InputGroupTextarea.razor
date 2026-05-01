@@ -25,13 +25,19 @@
     {
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        BorderColor ??= Quark.BorderColor.Input;
         Flex ??= Quark.Flex.Is1;
         Resize ??= Quark.Resize.None;
         Rounded ??= Quark.Rounded.None;
         Border ??= Quark.Border.Is0;
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.Is3.OnY;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
         Shadow ??= Quark.Shadow.None;
+        Ring ??= Quark.Ring.None;
+        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        Transition ??= Quark.Transition.Token("transition-colors");
+        OutlineStyle ??= Quark.OutlineStyle.None;
 
     }
 
@@ -68,6 +74,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            AppendClass(ref cls, "field-sizing-content min-h-16 placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50");
+            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-transparent dark:disabled:bg-transparent");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-0 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "focus-visible:ring-0 dark:bg-transparent");
         });
     }

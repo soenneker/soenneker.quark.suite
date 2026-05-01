@@ -3,30 +3,37 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
+@inject IControlsInterop ControlsInterop
 
 <BradixDialogPortal>
-    @if (ParentDrawer?.ShowBackdrop == true)
+    @if (ParentDrawer?.ShowBackdrop == true && ParentDrawer.Visible)
     {
-        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
+        <div @onclick="HandleOverlayClick" @attributes="OverlayAttributes"></div>
     }
 
     <BradixDialogContent Id="@Context?.ContentId"
                          CloseOnEscapeKeyDown="@(ParentDrawer?.CloseOnEscape ?? true)"
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
+                         OnOpenAutoFocusDetailed="HandleOpenAutoFocus"
                          OnPointerDownOutside="HandleBackdropPointerDownOutside"
                          AdditionalAttributes="@ContentAttributes">
-        <div class="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block"></div>
+        <div class="mx-auto mt-4 hidden h-1 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block"></div>
         @ChildContent
     </BradixDialogContent>
 </BradixDialogPortal>
 
 @code {
+    private bool _triggerRefocusedForOpen;
+
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
+
+    [CascadingParameter]
+    private BradixDialog? BradixDialog { get; set; }
 
     [Parameter]
     public Side? Side { get; set; }
@@ -51,7 +58,7 @@
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Auto;
         FlexDirection ??= Quark.FlexDirection.Col;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -64,12 +71,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/drawer-content");
-            AppendClass(ref cls, "transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm");
+            AppendClass(ref cls, "group/drawer-content text-sm text-popover-foreground");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b");
 
             if (ResolvedSide == Soenneker.Bradix.Side.Top)
                 AppendClass(ref cls, "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top");
@@ -87,7 +93,7 @@
         var attrs = new Dictionary<string, object>();
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
+            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
 
             if (ParentDrawer?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
@@ -103,6 +109,41 @@
         return ParentDrawer?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
     }
 
+    private async Task HandleOverlayClick()
+    {
+        if (!ShouldCloseOnOutsideInteraction || ParentDrawer is null)
+            return;
+
+        await ParentDrawer.OnBackdropClick.InvokeIfHasDelegate();
+        await ParentDrawer.Hide();
+    }
+
+    private async Task HandleOpenAutoFocus(BradixAutoFocusEventArgs args)
+    {
+        args.PreventDefault();
+
+        if (BradixDialog is not null)
+            await BradixDialog.FocusTrigger();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (ParentDrawer?.Visible != true)
+        {
+            _triggerRefocusedForOpen = false;
+            return;
+        }
+
+        if (_triggerRefocusedForOpen || BradixDialog is null || string.IsNullOrWhiteSpace(BradixDialog.ResolvedTriggerId))
+            return;
+
+        _triggerRefocusedForOpen = true;
+        await Task.Delay(150);
+        await ControlsInterop.FocusElementById(BradixDialog.ResolvedTriggerId);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -116,5 +157,7 @@
         hc.Add(ParentDrawer?.CloseOnBackdropClick ?? true);
         hc.Add(ParentDrawer?.Static ?? false);
         hc.Add(Context?.ContentId);
+        hc.Add(BradixDialog?.ResolvedTriggerId);
+        hc.Add(_triggerRefocusedForOpen);
     }
 }

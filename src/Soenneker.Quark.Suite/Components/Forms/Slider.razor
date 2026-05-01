@@ -139,8 +139,8 @@
 		return sizeValue?.ToLowerInvariant() switch
 		{
 			"default" => null,
-			"sm" => "h-5",
-			"lg" => "h-8",
+			"sm" => null,
+			"lg" => null,
 			_ => null
 		};
 	}
@@ -253,8 +253,13 @@
 	{
 		return new ChangeEventArgs
 		{
-			Value = value.ToString(CultureInfo.InvariantCulture)
+			Value = FormatSliderNumber(value)
 		};
+	}
+
+	private static string FormatSliderNumber(double value)
+	{
+		return value.ToString("G15", CultureInfo.InvariantCulture);
 	}
 
 	private double GetKeyboardStep(bool isLargeStep)
@@ -363,16 +368,16 @@
 		Refresh();
 	}
 
-	private string GetTrackThicknessClass()
+	private string? GetTrackThicknessClass()
 	{
 		var sizeValue = Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			null or "" or "default" => IsVertical ? "w-1.5" : "h-1.5",
-			"sm" => IsVertical ? "w-1" : "h-1",
-			"lg" => IsVertical ? "w-2" : "h-2",
-			_ => IsVertical ? "w-1.5" : "h-1.5"
+			null or "" or "default" => null,
+			"sm" => null,
+			"lg" => null,
+			_ => null
 		};
 	}
 
@@ -382,10 +387,10 @@
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			null or "" or "default" => "size-4",
+			null or "" or "default" => "size-3",
 			"sm" => "size-3",
-			"lg" => "size-5",
-			_ => "size-4"
+			"lg" => "size-3",
+			_ => "size-3"
 		};
 	}
 
@@ -396,8 +401,8 @@
 		return sizeValue?.ToLowerInvariant() switch
 		{
 			"sm" => 12d,
-			"lg" => 20d,
-			_ => 16d
+			"lg" => 12d,
+			_ => 12d
 		};
 	}
 
@@ -424,7 +429,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
+			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col");
 
 			var sizeClass = GetSizeClass();
 
@@ -440,9 +445,10 @@
 		attributes["data-slot"] = "slider";
 		attributes["data-orientation"] = OrientationValue;
 		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
-		attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
+		if (!IsVertical)
+			attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
+
 		attributes["aria-disabled"] = Disabled ? "true" : "false";
-		AppendOrientationDataAttributes(attributes);
 
 		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
 			attributes["id"] = CurrentFieldContext.ControlId;
@@ -467,7 +473,7 @@
 
 		if (Disabled)
 		{
-			attributes["data-disabled"] = "true";
+			attributes["data-disabled"] = string.Empty;
 			attributes["aria-disabled"] = "true";
 		}
 
@@ -484,12 +490,14 @@
 			["data-slot"] = "slider-track",
 			["data-orientation"] = OrientationValue
 		};
-		AppendOrientationDataAttributes(attributes);
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5");
-			AppendClass(ref cls, GetTrackThicknessClass());
+			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1");
+			var trackThicknessClass = GetTrackThicknessClass();
+
+			if (trackThicknessClass is not null)
+				AppendClass(ref cls, trackThicknessClass);
 		});
 
 		return attributes;
@@ -537,11 +545,10 @@
 			["data-slot"] = "slider-range",
 			["data-orientation"] = OrientationValue
 		};
-		AppendOrientationDataAttributes(attributes);
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
+			AppendClass(ref cls, "absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full");
 
 			if (IsVertical)
 			{
@@ -576,21 +583,22 @@
 			["data-slot"] = "slider-thumb",
 			["data-orientation"] = OrientationValue,
 			["role"] = "slider",
-			["tabindex"] = Disabled ? -1 : 0,
-			["aria-valuemin"] = Min.ToString(CultureInfo.InvariantCulture),
-			["aria-valuemax"] = Max.ToString(CultureInfo.InvariantCulture),
-			["aria-valuenow"] = value.ToString(CultureInfo.InvariantCulture),
+			["aria-valuemin"] = FormatSliderNumber(Min),
+			["aria-valuemax"] = FormatSliderNumber(Max),
+			["aria-valuenow"] = FormatSliderNumber(value),
 			["aria-orientation"] = OrientationValue,
 			["data-radix-collection-item"] = ""
 		};
-		AppendOrientationDataAttributes(attributes);
+
+		if (!Disabled)
+			attributes["tabindex"] = 0;
 
 		if (thumbLabel is not null)
 			attributes["aria-label"] = thumbLabel;
 
 		if (Disabled)
 		{
-			attributes["disabled"] = true;
+			attributes["data-disabled"] = string.Empty;
 			attributes["aria-disabled"] = "true";
 		}
 
@@ -625,21 +633,15 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, "relative block");
+			AppendClass(ref cls, GetThumbSizeClass());
+			AppendClass(ref cls, "shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50");
 
 			if (isActive)
-				AppendClass(ref cls, "ring-4");
+				AppendClass(ref cls, "ring-3");
 		});
 
 		return attributes;
-	}
-
-	private void AppendOrientationDataAttributes(IDictionary<string, object> attributes)
-	{
-		if (IsVertical)
-			attributes["data-vertical"] = string.Empty;
-		else
-			attributes["data-horizontal"] = string.Empty;
 	}
 
 	private string? ResolveThumbLabel(int index, int totalValues)
@@ -670,7 +672,7 @@
 		{
 			["type"] = "hidden",
 			["class"] = _hiddenInputClass,
-			["value"] = value.ToString(CultureInfo.InvariantCulture)
+			["value"] = FormatSliderNumber(value)
 		};
 
 		if (!string.IsNullOrWhiteSpace(Name))

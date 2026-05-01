@@ -4,24 +4,26 @@
 @using System.Text
 @using System.Text.RegularExpressions
 
-<BradixOneTimePasswordField Value="@OtpValue"
-                            DefaultValue="@DefaultOtpValue"
-                            ValueChanged="HandleValueChanged"
-                            AutoComplete="@AutoComplete"
-                            AutoFocus="@AutoFocus"
-                            Disabled="@Disabled"
-                            InputMode="@InputMode"
-                            Name="@Name"
-                            Pattern="@Pattern"
-                            ReadOnly="@ReadOnly"
-                            Required="@Required"
-                            SanitizeValue="Sanitize"
-                            ValidationType="none"
-                            AdditionalAttributes="@BuildAttributes()">
-    @ChildContent
-</BradixOneTimePasswordField>
+<CascadingValue Value="_context" IsFixed="false">
+    <div role="group" class="relative flex items-center gap-2 has-disabled:opacity-50">
+        <div style="position:absolute;inset:0;pointer-events:auto;z-index:10">
+            <input @ref="_inputRef"
+                   value="@CurrentValue"
+                   @oninput="HandleInput"
+                   @onfocus="HandleOtpFocus"
+                   @onblur="HandleOtpBlur"
+                   @attributes="BuildAttributes()" />
+        </div>
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
+    private InputOtpContext _context = new();
+    private ElementReference _inputRef;
+    private string _uncontrolledValue = string.Empty;
+
+    private string CurrentValue => OtpValue ?? _uncontrolledValue;
 
     /// <summary>
     /// Gets or sets the OTP value.
@@ -86,30 +88,50 @@
         return builder.ToString();
     }
 
-    private async Task HandleValueChanged(string value)
+    protected override void OnInitialized()
+    {
+        _uncontrolledValue = Sanitize(DefaultOtpValue ?? string.Empty);
+        SyncContext();
+    }
+
+    protected override void OnParametersSet()
+    {
+        SyncContext();
+        base.OnParametersSet();
+    }
+
+    private Task HandleInput(ChangeEventArgs args)
+    {
+        return SetValue(args.Value?.ToString() ?? string.Empty);
+    }
+
+    private async Task SetValue(string value)
     {
         var sanitized = Sanitize(value);
 
         if (sanitized.Length > Length)
             sanitized = sanitized[..Length];
 
-        if (OtpValue is not null)
-        {
-            OtpValue = sanitized;
-            InvalidateRender();
-            Refresh();
-        }
+        if (OtpValue is null)
+            _uncontrolledValue = sanitized;
 
+        _context = CreateContext(sanitized, focused: true);
         await OtpValueChanged.InvokeAsync(sanitized);
+    }
+
+    private void HandleOtpFocus(FocusEventArgs _)
+    {
+        _context = CreateContext(CurrentValue, focused: true);
+    }
+
+    private void HandleOtpBlur(FocusEventArgs _)
+    {
+        _context = CreateContext(CurrentValue, focused: false);
     }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -117,14 +139,53 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "input-otp";
+        attributes["data-input-otp"] = "true";
+        attributes["type"] = "text";
+        attributes["autocomplete"] = AutoComplete;
+        attributes["spellcheck"] = "false";
+        attributes["maxlength"] = Length;
+
+        if (!string.IsNullOrWhiteSpace(InputMode))
+            attributes["inputmode"] = InputMode;
+
+        if (!string.IsNullOrWhiteSpace(Name))
+            attributes["name"] = Name;
 
         if (Disabled)
+        {
             attributes["data-disabled"] = "true";
+            attributes["disabled"] = true;
+        }
+
+        if (ReadOnly)
+            attributes["readonly"] = true;
+
+        if (Required)
+            attributes["required"] = true;
+
+        attributes["style"] =
+            "position:absolute;inset:0;width:100%;height:100%;display:flex;text-align:left;opacity:1;color:transparent;pointer-events:all;background:transparent;caret-color:transparent;border:0 solid transparent;outline:0 solid transparent;box-shadow:none;line-height:1;letter-spacing:-.5em;font-size:var(--root-height);font-family:monospace;font-variant-numeric:tabular-nums";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "has-disabled:opacity-50");
+            AppendClass(ref cls, "disabled:cursor-not-allowed");
         });
+    }
+
+    private void SyncContext()
+    {
+        _context = CreateContext(CurrentValue, _context.Focused);
+    }
+
+    private InputOtpContext CreateContext(string value, bool focused)
+    {
+        return new InputOtpContext
+        {
+            Value = value,
+            Length = Length,
+            Focused = focused,
+            ActiveIndex = Math.Clamp(value.Length, 0, Math.Max(0, Length - 1))
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

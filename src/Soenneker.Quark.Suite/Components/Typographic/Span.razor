@@ -10,7 +10,11 @@
       @onfocusin="HandleFocusIn"
       @onfocusout="HandleFocusOut"
       @onkeydown="HandleKeyDown"
-      @attributes="BuildAttributes()">@ChildContent</span>
+      @attributes="BuildAttributes()">
+    <CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</span>
 
 @code {
     [CascadingParameter(Name = "TriggerContext")]
@@ -18,10 +22,14 @@
 
     private bool _triggerElementRegistered;
     private string? _registeredTriggerId;
+    private static readonly TriggerContext? NoChildTriggerContext = null;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        if (TriggerContext?.DataSlot is not null)
+            attributes["data-slot"] = TriggerContext.DataSlot;
 
         if (TriggerContext?.TriggerId is not null)
             attributes["id"] = TriggerContext.TriggerId;
@@ -57,6 +65,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(TriggerContext?.DataSlot);
         hc.Add(TriggerContext?.TriggerId);
         hc.Add(TriggerContext?.DataState);
         hc.Add(TriggerContext?.AriaHasPopup);

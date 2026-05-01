@@ -1,12 +1,11 @@
 @page "/paginations"
 
-<PageTitle>Paginations - Quark Suite</PageTitle>
+<PageTitle>Pagination - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection
-                         Description="Pagination with page navigation, next and previous links."
+            <DemoSection Description="Pagination with page navigation, next and previous links."
                          Code="@DemoCode"
                          CodeLanguage="razor">
                 <Pagination>
@@ -33,27 +32,28 @@
                 </Pagination>
             </DemoSection>
         </Section>
-<Section Space="Space.Y.Is4">
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Simple"
-                         Description="Use only page-number links when adjacent UI already provides the pagination context."
+                         Description="A simple pagination with only page numbers."
                          Code="@SimpleCode"
                          CodeLanguage="razor">
                 <Pagination>
                     <PaginationContent>
                         <PaginationItem>
-                            <PaginationLink>1</PaginationLink>
+                            <PaginationLink To="#">1</PaginationLink>
                         </PaginationItem>
                         <PaginationItem>
-                            <PaginationLink Active="true">2</PaginationLink>
+                            <PaginationLink To="#" Active="true">2</PaginationLink>
                         </PaginationItem>
                         <PaginationItem>
-                            <PaginationLink>3</PaginationLink>
+                            <PaginationLink To="#">3</PaginationLink>
                         </PaginationItem>
                         <PaginationItem>
-                            <PaginationLink>4</PaginationLink>
+                            <PaginationLink To="#">4</PaginationLink>
                         </PaginationItem>
                         <PaginationItem>
-                            <PaginationLink>5</PaginationLink>
+                            <PaginationLink To="#">5</PaginationLink>
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
@@ -62,7 +62,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Icons Only"
-                         Description="Use only previous and next controls when a table or page-size selector provides the rest of the context."
+                         Description="Use just the previous and next buttons without page numbers. This is useful for data tables with a rows per page selector."
                          Code="@IconsOnlyCode"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is4">
@@ -83,41 +83,14 @@
                     <Pagination Margin="Margin.Is0.OnX" Width="Width.Auto">
                         <PaginationContent>
                             <PaginationItem>
-                                <PaginationPrevious />
+                                <PaginationPrevious To="#" />
                             </PaginationItem>
                             <PaginationItem>
-                                <PaginationNext />
+                                <PaginationNext To="#" />
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
                 </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Next.js"
-                         Description="Use link targets to integrate pagination with route-based frameworks."
-                         Code="@NextJsCode"
-                         CodeLanguage="razor">
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious To="?page=1" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink To="?page=1">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink To="?page=2" Active="true">2</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink To="?page=3">3</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext To="?page=3" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
             </DemoSection>
         </Section>
 
@@ -131,57 +104,27 @@
                         <Pagination>
                             <PaginationContent>
                                 <PaginationItem>
-                                    <PaginationPrevious Text="السابق" />
+                                    <PaginationPrevious To="#" />
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink>١</PaginationLink>
+                                    <PaginationLink To="#">١</PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink Active="true">٢</PaginationLink>
+                                    <PaginationLink To="#" Active="true">٢</PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink>٣</PaginationLink>
+                                    <PaginationLink To="#">٣</PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationNext Text="التالي" />
+                                    <PaginationEllipsis />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext To="#" />
                                 </PaginationItem>
                             </PaginationContent>
                         </Pagination>
                     </Div>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Interactive"
-                         Description="@($"Click to change page; current page {_currentPage} of 5.")"
-                         Code="@InteractiveCode"
-                         CodeLanguage="razor">
-                <Div Id="pagination-interactive-demo">
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious Id="pagination-interactive-previous" Disabled="@(_currentPage == 1)" OnClick="@(() => GoToPage(_currentPage - 1))" />
-                            </PaginationItem>
-                            @for (var i = 1; i <= 5; i++)
-                            {
-                                var pageNumber = i;
-                                <PaginationItem>
-                                    <PaginationLink Id="@($"pagination-interactive-page-{pageNumber}")" Active="@(_currentPage == pageNumber)" OnClick="@(() => GoToPage(pageNumber))">@pageNumber</PaginationLink>
-                                </PaginationItem>
-                            }
-                            <PaginationItem>
-                                <PaginationNext Id="pagination-interactive-next" Disabled="@(_currentPage == 5)" OnClick="@(() => GoToPage(_currentPage + 1))" />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                    <Div Margin="Margin.Is4.FromTop" Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                        <Paragraph Id="pagination-interactive-state" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
-                        <Button Id="pagination-interactive-first" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(1))">Go to First</Button>
-                        <Button Id="pagination-interactive-last" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(5))">Go to Last</Button>
-                        <Button Id="pagination-interactive-random" Variant="ButtonVariant.Secondary" Size="ButtonSize.Sm" OnClick="@GoToRandomPage">Random Page</Button>
-                    </Div>
-                </Div>
             </DemoSection>
         </Section>
     </Div>
@@ -216,19 +159,19 @@
 @"<Pagination>
     <PaginationContent>
         <PaginationItem>
-            <PaginationLink>1</PaginationLink>
+            <PaginationLink To=""#"">1</PaginationLink>
         </PaginationItem>
         <PaginationItem>
-            <PaginationLink Active=""true"">2</PaginationLink>
+            <PaginationLink To=""#"" Active=""true"">2</PaginationLink>
         </PaginationItem>
         <PaginationItem>
-            <PaginationLink>3</PaginationLink>
+            <PaginationLink To=""#"">3</PaginationLink>
         </PaginationItem>
         <PaginationItem>
-            <PaginationLink>4</PaginationLink>
+            <PaginationLink To=""#"">4</PaginationLink>
         </PaginationItem>
         <PaginationItem>
-            <PaginationLink>5</PaginationLink>
+            <PaginationLink To=""#"">5</PaginationLink>
         </PaginationItem>
     </PaginationContent>
 </Pagination>";
@@ -252,10 +195,10 @@
     <Pagination Margin=""Margin.Is0.OnX"" Width=""Width.Auto"">
         <PaginationContent>
             <PaginationItem>
-                <PaginationPrevious />
+                <PaginationPrevious To=""#"" />
             </PaginationItem>
             <PaginationItem>
-                <PaginationNext />
+                <PaginationNext To=""#"" />
             </PaginationItem>
         </PaginationContent>
     </Pagination>
@@ -267,79 +210,25 @@
         <Pagination>
             <PaginationContent>
                 <PaginationItem>
-                    <PaginationPrevious Text=""السابق"" />
+                    <PaginationPrevious To=""#"" />
                 </PaginationItem>
                 <PaginationItem>
-                    <PaginationLink>١</PaginationLink>
+                    <PaginationLink To=""#"">١</PaginationLink>
                 </PaginationItem>
                 <PaginationItem>
-                    <PaginationLink Active=""true"">٢</PaginationLink>
+                    <PaginationLink To=""#"" Active=""true"">٢</PaginationLink>
                 </PaginationItem>
                 <PaginationItem>
-                    <PaginationLink>٣</PaginationLink>
+                    <PaginationLink To=""#"">٣</PaginationLink>
                 </PaginationItem>
                 <PaginationItem>
-                    <PaginationNext Text=""التالي"" />
+                    <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem>
+                    <PaginationNext To=""#"" />
                 </PaginationItem>
             </PaginationContent>
         </Pagination>
     </Div>
 </DirectionProvider>";
-
-    private const string NextJsCode =
-@"<Pagination>
-    <PaginationContent>
-        <PaginationItem>
-            <PaginationPrevious To=""?page=1"" />
-        </PaginationItem>
-        <PaginationItem>
-            <PaginationLink To=""?page=1"">1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-            <PaginationLink To=""?page=2"" Active=""true"">2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-            <PaginationLink To=""?page=3"">3</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-            <PaginationNext To=""?page=3"" />
-        </PaginationItem>
-    </PaginationContent>
-</Pagination>";
-
-    private const string InteractiveCode =
-@"<Pagination>
-    <PaginationContent>
-        <PaginationItem>
-            <PaginationPrevious Disabled=""@(_currentPage == 1)"" OnClick=""@(() => GoToPage(_currentPage - 1))"" />
-        </PaginationItem>
-        @for (var i = 1; i <= 5; i++)
-        {
-            <PaginationItem>
-                <PaginationLink Active=""@(_currentPage == i)"" OnClick=""@(() => GoToPage(i))"">@i</PaginationLink>
-            </PaginationItem>
-        }
-        <PaginationItem>
-            <PaginationNext Disabled=""@(_currentPage == 5)"" OnClick=""@(() => GoToPage(_currentPage + 1))"" />
-        </PaginationItem>
-    </PaginationContent>
-</Pagination>";
-
-    private int _currentPage = 1;
-
-    private void GoToPage(int page)
-    {
-        if (page >= 1 && page <= 5)
-        {
-            _currentPage = page;
-            StateHasChanged();
-        }
-    }
-
-    private void GoToRandomPage()
-    {
-        var random = new Random();
-        _currentPage = random.Next(1, 6);
-        StateHasChanged();
-    }
 }

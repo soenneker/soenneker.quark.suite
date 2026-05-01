@@ -29,6 +29,9 @@
     [CascadingParameter]
     private BradixTooltip? Tooltip { get; set; }
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -96,7 +99,11 @@
         base.ApplyDefaultParameters();
 
         ZIndex ??= "z-50";
+        Display ??= Quark.Display.InlineFlex;
         Width ??= Quark.Width.IsFit;
+        MaxWidth ??= Quark.MaxWidth.IsXs;
+        ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
         BackgroundColor ??= Quark.BackgroundColor.Utility("bg-foreground");
         Padding ??= Quark.Padding.Token("3").OnX.Token("1.5").OnY;
@@ -112,9 +119,14 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-tooltip-content-transform-origin) animate-in text-balance fade-in-0 zoom-in-95");
+            var kbdPaddingClass = string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase)
+                ? "has-data-[slot=kbd]:pe-1.5"
+                : "has-data-[slot=kbd]:pr-1.5";
+
+            AppendClass(ref cls, $"origin-(--radix-tooltip-content-transform-origin) {kbdPaddingClass}");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
+            AppendClass(ref cls, "**:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm");
+            AppendClass(ref cls, "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
         });
     }
 
@@ -140,6 +152,7 @@
         hc.Add(HideWhenDetached);
         hc.Add(DisableAutoOpen);
         hc.Add(ShowArrow);
+        hc.Add(DirectionProviderDir);
     }
 
 }

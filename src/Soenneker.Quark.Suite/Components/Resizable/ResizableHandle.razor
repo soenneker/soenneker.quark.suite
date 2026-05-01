@@ -20,6 +20,9 @@
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     private ResizablePanelGroup? _registeredParentPanelGroup;
     private int _index;
 
@@ -31,6 +34,7 @@
 
     private bool IsVertical => ParentPanelGroup?.IsVertical == true;
     private string SeparatorOrientation => ParentPanelGroup?.GetSeparatorOrientation() ?? "vertical";
+    private bool IsRtl => string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
 
     protected override void ApplyDefaultParameters()
     {
@@ -111,9 +115,10 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-hidden");
-            AppendClass(ref cls, "aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full");
-            AppendClass(ref cls, "aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2");
+            AppendClass(ref cls, "ring-offset-background");
+            AppendClass(ref cls, IsRtl
+                ? "after:absolute after:inset-y-0 after:start-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 rtl:after:translate-x-1/2 rtl:aria-[orientation=horizontal]:after:-translate-x-0"
+                : "after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2");
             AppendClass(ref cls, "[&[aria-orientation=horizontal]>div]:rotate-90");
         });
 
@@ -130,6 +135,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(WithHandle);
         hc.Add(IsVertical);
+        hc.Add(IsRtl);
         hc.Add(_index);
         hc.Add(SeparatorOrientation);
         hc.Add(ParentPanelGroup?.GetHandleValue(_index));

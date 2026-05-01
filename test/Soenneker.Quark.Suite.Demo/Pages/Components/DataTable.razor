@@ -1,0 +1,239 @@
+@page "/data-table"
+
+<PageTitle>Data Table - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+            Powerful table and datagrids built using TanStack Table.
+        </Paragraph>
+
+        <Div Display="Display.Flex" Class="gap-6 border-b">
+            <Span Class="border-b-2 border-foreground pb-2 font-medium">Radix UI</Span>
+            <Span Class="pb-2 text-muted-foreground">Base UI</Span>
+        </Div>
+
+        <DemoSection Code="@DataTableCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex min-h-[36rem] w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+            <Div Class="w-full max-w-xl space-y-4">
+                <Div Class="flex items-center justify-between gap-2">
+                    <Input Placeholder="Filter emails..." @bind-Value="_emailFilter" Class="max-w-sm" aria-label="Filter emails" />
+
+                    <Dropdown RightAligned="true">
+                        <DropdownToggle AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Class="ml-auto">
+                                Columns
+                                <Icon Name="LucideIcon.ChevronDown" data-icon="inline-end" />
+                            </Button>
+                        </DropdownToggle>
+                        <DropdownMenu Class="w-36">
+                            <DropdownCheckboxItem @bind-Checked="_showStatus">Status</DropdownCheckboxItem>
+                            <DropdownCheckboxItem @bind-Checked="_showEmail">Email</DropdownCheckboxItem>
+                            <DropdownCheckboxItem @bind-Checked="_showAmount">Amount</DropdownCheckboxItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </Div>
+
+                <Div Rounded="Rounded.Md" Border="Border.Default">
+                    <TableElement>
+                        <Thead>
+                            <Tr>
+                                <Th Class="w-10">
+                                    <Check Id="data-table-select-all"
+                                           Name="data-table-select-all"
+                                           Checked="@AllVisibleRowsSelected"
+                                           Indeterminate="@SomeVisibleRowsSelected"
+                                           CheckedChanged="HandleSelectAllChanged"
+                                           AriaLabel="Select all" />
+                                </Th>
+                                @if (_showStatus)
+                                {
+                                    <Th>Status</Th>
+                                }
+                                @if (_showEmail)
+                                {
+                                    <Th>
+                                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm" Class="-ml-3 h-8 px-2" OnClick="ToggleEmailSort">
+                                            Email
+                                            <Icon Name="LucideIcon.ArrowUpDown" data-icon="inline-end" />
+                                        </Button>
+                                    </Th>
+                                }
+                                @if (_showAmount)
+                                {
+                                    <Th TextAlign='TextAlign.Token("right")'>Amount</Th>
+                                }
+                                <Th Class="w-10">
+                                    <Span Class="sr-only">Actions</Span>
+                                </Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            @foreach (PaymentRow row in FilteredRows)
+                            {
+                                <Tr Key="@row.Id" Attributes="@GetRowAttributes(row.Id)">
+                                    <Td>
+                                        <Check Id="@($"data-table-row-{row.Id}")"
+                                               Name="@($"data-table-row-{row.Id}")"
+                                               Checked="@_selectedRowIds.Contains(row.Id)"
+                                               CheckedChanged="@((bool selected) => HandleRowSelected(row.Id, selected))"
+                                               AriaLabel="Select row" />
+                                    </Td>
+                                    @if (_showStatus)
+                                    {
+                                        <Td Class="capitalize">@row.Status</Td>
+                                    }
+                                    @if (_showEmail)
+                                    {
+                                        <Td Class="lowercase">@row.Email</Td>
+                                    }
+                                    @if (_showAmount)
+                                    {
+                                        <Td TextAlign='TextAlign.Token("right")' FontWeight="FontWeight.Medium">@row.Amount</Td>
+                                    }
+                                    <Td TextAlign='TextAlign.Token("right")'>
+                                        <Dropdown RightAligned="true">
+                                            <DropdownToggle AsChild="true">
+                                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs">
+                                                    <Icon Name="LucideIcon.Ellipsis" />
+                                                    <Span Class="sr-only">Open menu</Span>
+                                                </Button>
+                                            </DropdownToggle>
+                                            <DropdownMenu Class="w-40">
+                                                <DropdownLabel>Actions</DropdownLabel>
+                                                <DropdownItem>Copy payment ID</DropdownItem>
+                                                <DropdownDivider />
+                                                <DropdownItem>View customer</DropdownItem>
+                                                <DropdownItem>View payment details</DropdownItem>
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    </Td>
+                                </Tr>
+                            }
+                        </Tbody>
+                    </TableElement>
+                </Div>
+
+                <Div Class="flex items-center justify-between gap-4">
+                    <Paragraph Margin="Margin.Is0" Class="text-sm text-muted-foreground">
+                        @SelectedVisibleRowsCount of @FilteredRows.Count row(s) selected.
+                    </Paragraph>
+                    <Div Class="flex items-center space-x-2">
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" Disabled="true">Previous</Button>
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Next</Button>
+                    </Div>
+                </Div>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private readonly List<PaymentRow> _rows =
+    [
+        new("m5gr84i9", "success", "ken99@example.com", "$316.00"),
+        new("3u1reuv4", "success", "Abe45@example.com", "$242.00"),
+        new("derv1ws0", "processing", "Monserrat44@example.com", "$837.00"),
+        new("5kma53ae", "success", "Silas22@example.com", "$874.00"),
+        new("bhqecj4p", "failed", "carmella@example.com", "$721.00")
+    ];
+
+    private readonly HashSet<string> _selectedRowIds = [];
+    private string? _emailFilter;
+    private bool _showStatus = true;
+    private bool _showEmail = true;
+    private bool _showAmount = true;
+    private bool? _emailSortDescending;
+
+    private List<PaymentRow> FilteredRows
+    {
+        get
+        {
+            IEnumerable<PaymentRow> rows = _rows;
+
+            if (!string.IsNullOrWhiteSpace(_emailFilter))
+                rows = rows.Where(row => row.Email.Contains(_emailFilter, StringComparison.OrdinalIgnoreCase));
+
+            if (_emailSortDescending is not null)
+            {
+                rows = _emailSortDescending.Value
+                    ? rows.OrderByDescending(row => row.Email)
+                    : rows.OrderBy(row => row.Email);
+            }
+
+            return rows.ToList();
+        }
+    }
+
+    private int SelectedVisibleRowsCount => FilteredRows.Count(row => _selectedRowIds.Contains(row.Id));
+    private bool AllVisibleRowsSelected => FilteredRows.Count > 0 && SelectedVisibleRowsCount == FilteredRows.Count;
+    private bool SomeVisibleRowsSelected => SelectedVisibleRowsCount > 0 && !AllVisibleRowsSelected;
+
+    private void ToggleEmailSort()
+    {
+        _emailSortDescending = _emailSortDescending is null ? false : !_emailSortDescending.Value;
+    }
+
+    private void HandleSelectAllChanged(bool selected)
+    {
+        foreach (PaymentRow row in FilteredRows)
+        {
+            if (selected)
+                _selectedRowIds.Add(row.Id);
+            else
+                _selectedRowIds.Remove(row.Id);
+        }
+    }
+
+    private void HandleRowSelected(string rowId, bool selected)
+    {
+        if (selected)
+            _selectedRowIds.Add(rowId);
+        else
+            _selectedRowIds.Remove(rowId);
+    }
+
+    private IReadOnlyDictionary<string, object> GetRowAttributes(string rowId)
+    {
+        return _selectedRowIds.Contains(rowId)
+            ? new Dictionary<string, object> { ["data-state"] = "selected" }
+            : new Dictionary<string, object>();
+    }
+
+    private sealed record PaymentRow(string Id, string Status, string Email, string Amount);
+
+    private const string DataTableCode =
+@"<Div Class=""w-full max-w-xl space-y-4"">
+    <Div Class=""flex items-center justify-between gap-2"">
+        <Input Placeholder=""Filter emails..."" @bind-Value=""_emailFilter"" Class=""max-w-sm"" />
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Columns</Button>
+    </Div>
+
+    <Div Rounded=""Rounded.Md"" Border=""Border.Default"">
+        <TableElement>
+            <Thead>
+                <Tr>
+                    <Th><Check aria-label=""Select all"" /></Th>
+                    <Th>Status</Th>
+                    <Th>Email</Th>
+                    <Th TextAlign='TextAlign.Token(""right"")'>Amount</Th>
+                    <Th><Span Class=""sr-only"">Actions</Span></Th>
+                </Tr>
+            </Thead>
+            <Tbody>
+                @foreach (PaymentRow row in FilteredRows)
+                {
+                    <Tr>
+                        <Td><Check aria-label=""Select row"" /></Td>
+                        <Td>@row.Status</Td>
+                        <Td>@row.Email</Td>
+                        <Td TextAlign='TextAlign.Token(""right"")'>@row.Amount</Td>
+                        <Td><Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.Icon"">...</Button></Td>
+                    </Tr>
+                }
+            </Tbody>
+        </TableElement>
+    </Div>
+</Div>";
+}

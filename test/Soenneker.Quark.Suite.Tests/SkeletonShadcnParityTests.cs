@@ -16,8 +16,8 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("animate-pulse");
         classes.Should().Contain("rounded-md");
-        classes.Should().Contain("bg-accent");
-        classes.Should().NotContain("bg-muted");
+        classes.Should().Contain("bg-muted");
+        classes.Should().NotContain("bg-accent");
         classes.Should().NotContain("q-skeleton");
     }
 

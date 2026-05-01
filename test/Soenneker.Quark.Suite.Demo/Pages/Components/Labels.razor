@@ -6,50 +6,109 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Checkbox"
-                         Description="Renders an accessible label associated with a checkbox."
-                         Code="@BasicCode"
+            <DemoSection Description="Renders an accessible label associated with controls."
+                         Code="@LabelCode"
                          CodeLanguage="razor">
-                <Field Orientation="horizontal">
-                    <Check Id="label-demo-terms" />
-                    <Label For="label-demo-terms">Accept terms and conditions</Label>
-                </Field>
+                <Div Class="flex items-center gap-3">
+                    <Check Id="terms" />
+                    <Label For="terms">Accept terms and conditions</Label>
+                </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Input"
-                         Description="Associate a label with an input by matching For and Id."
-                         Code="@InputCode"
+            <DemoSection Title="Label in Field"
+                         Description="For form fields, use the Field component which includes built-in FieldLabel, FieldDescription, and FieldError components."
+                         Code="@LabelInFieldCode"
                          CodeLanguage="razor">
-                <Field>
-                    <Label For="label-demo-username">Username</Label>
-                    <Input Id="label-demo-username" Placeholder="Username" />
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
-                         Description="Disabled fields dim labels through the shared data-disabled contract."
-                         Code="@DisabledCode"
-                         CodeLanguage="razor">
-                <Field Disabled="true">
-                    <Label For="label-demo-disabled">Disabled</Label>
-                    <Input Id="label-demo-disabled" Placeholder="Disabled" Disabled="true" />
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With Textarea"
-                         Description="Labels use the same primitive when paired with textarea controls."
-                         Code="@TextareaCode"
-                         CodeLanguage="razor">
-                <Field>
-                    <Label For="label-demo-message">Message</Label>
-                    <TextArea Id="label-demo-message" Placeholder="Message" />
-                </Field>
+                <Div Class="w-full max-w-md">
+                    <form>
+                        <FieldGroup>
+                            <FieldSet>
+                                <FieldLegend>Payment Method</FieldLegend>
+                                <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+                                <FieldGroup>
+                                    <Field>
+                                        <FieldLabel For="checkout-card-name">Name on Card</FieldLabel>
+                                        <Input Id="checkout-card-name" Placeholder="Evil Rabbit" Required="true" />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel For="checkout-card-number">Card Number</FieldLabel>
+                                        <Input Id="checkout-card-number" Placeholder="1234 5678 9012 3456" Required="true" />
+                                        <FieldDescription>Enter your 16-digit card number</FieldDescription>
+                                    </Field>
+                                    <Div Class="grid grid-cols-3 gap-4">
+                                        <Field>
+                                            <FieldLabel For="checkout-exp-month">Month</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="checkout-exp-month">
+                                                    <SelectValue Placeholder="MM" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem TValue="string" ItemValue="@("01")" Text="01" />
+                                                    <SelectItem TValue="string" ItemValue="@("02")" Text="02" />
+                                                    <SelectItem TValue="string" ItemValue="@("03")" Text="03" />
+                                                    <SelectItem TValue="string" ItemValue="@("04")" Text="04" />
+                                                    <SelectItem TValue="string" ItemValue="@("05")" Text="05" />
+                                                    <SelectItem TValue="string" ItemValue="@("06")" Text="06" />
+                                                    <SelectItem TValue="string" ItemValue="@("07")" Text="07" />
+                                                    <SelectItem TValue="string" ItemValue="@("08")" Text="08" />
+                                                    <SelectItem TValue="string" ItemValue="@("09")" Text="09" />
+                                                    <SelectItem TValue="string" ItemValue="@("10")" Text="10" />
+                                                    <SelectItem TValue="string" ItemValue="@("11")" Text="11" />
+                                                    <SelectItem TValue="string" ItemValue="@("12")" Text="12" />
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="checkout-exp-year">Year</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="checkout-exp-year">
+                                                    <SelectValue Placeholder="YYYY" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem TValue="string" ItemValue="@("2024")" Text="2024" />
+                                                    <SelectItem TValue="string" ItemValue="@("2025")" Text="2025" />
+                                                    <SelectItem TValue="string" ItemValue="@("2026")" Text="2026" />
+                                                    <SelectItem TValue="string" ItemValue="@("2027")" Text="2027" />
+                                                    <SelectItem TValue="string" ItemValue="@("2028")" Text="2028" />
+                                                    <SelectItem TValue="string" ItemValue="@("2029")" Text="2029" />
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="checkout-cvv">CVV</FieldLabel>
+                                            <Input Id="checkout-cvv" Placeholder="123" Required="true" />
+                                        </Field>
+                                    </Div>
+                                </FieldGroup>
+                            </FieldSet>
+                            <FieldSeparator />
+                            <FieldSet>
+                                <FieldLegend>Billing Address</FieldLegend>
+                                <FieldDescription>The billing address associated with your payment method</FieldDescription>
+                                <FieldGroup>
+                                    <Field Horizontal="true">
+                                        <Check Id="checkout-same-as-shipping" Checked="true" />
+                                        <FieldLabel For="checkout-same-as-shipping" FontWeight="FontWeight.Normal">Same as shipping address</FieldLabel>
+                                    </Field>
+                                </FieldGroup>
+                            </FieldSet>
+                            <FieldSet>
+                                <FieldGroup>
+                                    <Field>
+                                        <FieldLabel For="checkout-comments">Comments</FieldLabel>
+                                        <TextArea Id="checkout-comments" Placeholder="Add any additional comments" Class="resize-none" />
+                                    </Field>
+                                </FieldGroup>
+                            </FieldSet>
+                            <Field Horizontal="true">
+                                <Button Type="ButtonType.Submit">Submit</Button>
+                                <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">Cancel</Button>
+                            </Field>
+                        </FieldGroup>
+                    </form>
+                </Div>
             </DemoSection>
         </Section>
 
@@ -61,7 +120,7 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div Class="flex gap-2">
+                    <Div Class="flex items-center gap-3">
                         <Check Id="terms-rtl" />
                         <Label For="terms-rtl">قبول الشروط والأحكام</Label>
                     </Div>
@@ -72,33 +131,34 @@
 </Div>
 
 @code {
-    private const string BasicCode =
-@"<Field Orientation=""horizontal"">
-    <Check Id=""label-demo-terms"" />
-    <Label For=""label-demo-terms"">Accept terms and conditions</Label>
-</Field>";
+    private const string LabelCode =
+@"<Div Class=""flex items-center gap-3"">
+    <Check Id=""terms"" />
+    <Label For=""terms"">Accept terms and conditions</Label>
+</Div>";
 
-    private const string InputCode =
-@"<Field>
-    <Label For=""label-demo-username"">Username</Label>
-    <Input Id=""label-demo-username"" Placeholder=""Username"" />
-</Field>";
-
-    private const string DisabledCode =
-@"<Field Disabled=""true"">
-    <Label For=""label-demo-disabled"">Disabled</Label>
-    <Input Id=""label-demo-disabled"" Placeholder=""Disabled"" Disabled=""true"" />
-</Field>";
-
-    private const string TextareaCode =
-@"<Field>
-    <Label For=""label-demo-message"">Message</Label>
-    <TextArea Id=""label-demo-message"" Placeholder=""Message"" />
-</Field>";
+    private const string LabelInFieldCode =
+@"<FieldGroup>
+    <FieldSet>
+        <FieldLegend>Payment Method</FieldLegend>
+        <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+        <FieldGroup>
+            <Field>
+                <FieldLabel For=""checkout-card-name"">Name on Card</FieldLabel>
+                <Input Id=""checkout-card-name"" Placeholder=""Evil Rabbit"" Required=""true"" />
+            </Field>
+            <Field>
+                <FieldLabel For=""checkout-card-number"">Card Number</FieldLabel>
+                <Input Id=""checkout-card-number"" Placeholder=""1234 5678 9012 3456"" Required=""true"" />
+                <FieldDescription>Enter your 16-digit card number</FieldDescription>
+            </Field>
+        </FieldGroup>
+    </FieldSet>
+</FieldGroup>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div Class=""flex gap-2"">
+    <Div Class=""flex items-center gap-3"">
         <Check Id=""terms-rtl"" />
         <Label For=""terms-rtl"">قبول الشروط والأحكام</Label>
     </Div>

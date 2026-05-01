@@ -11,13 +11,9 @@
 
 @code {
     private ElementReference _elementRef;
-    private bool _registered;
 
     [Parameter]
     public bool Open { get; set; }
-
-    [CascadingParameter(Name = "ParentMenubar")]
-    private Menubar? ParentMenubar { get; set; }
 
     [CascadingParameter(Name = "ParentMenubarMenu")]
     private MenubarMenu? ParentMenubarMenu { get; set; }
@@ -30,7 +26,7 @@
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.Is2.OnX.Is1.OnY;
+        Padding ??= Quark.Padding.Token("1.5").OnX.Token("[2px]").OnY;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         OutlineStyle ??= "outline-hidden";
@@ -42,12 +38,7 @@
     {
         _elementRef = elementReference;
 
-        if (!_registered)
-        {
-            ParentMenubarMenu?.RegisterTrigger(this);
-            ParentMenubar?.RegisterTrigger(this);
-            _registered = true;
-        }
+        ParentMenubarMenu?.RegisterTrigger(this);
 
         return Task.CompletedTask;
     }
@@ -60,7 +51,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
+            AppendClass(ref cls, "hover:bg-muted aria-expanded:bg-muted");
         });
     }
 
@@ -81,15 +72,5 @@
         await _elementRef.FocusAsync();
     }
 
-    internal async Task FocusMenuFirstItem()
-    {
-        if (ParentMenubarMenu is not null)
-            await ParentMenubarMenu.FocusFirstItem();
-    }
-
-    public override void Dispose()
-    {
-        ParentMenubar?.UnregisterTrigger(this);
-        base.Dispose();
-    }
+    public override void Dispose() => base.Dispose();
 }

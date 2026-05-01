@@ -85,7 +85,8 @@ public sealed partial class RenderedShadcnParityTests
 
         var sidebarClasses = sidebar.Find("[data-slot='sidebar']").GetAttribute("class")!;
         var gapClasses = sidebar.Find("[data-slot='sidebar-gap']").GetAttribute("class")!;
-        var containerClasses = sidebar.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+        var container = sidebar.Find("[data-slot='sidebar-container']");
+        var containerClasses = container.GetAttribute("class")!;
         var innerClasses = sidebar.Find("[data-slot='sidebar-inner']").GetAttribute("class")!;
 
         sidebarClasses.Should().Contain("group");
@@ -101,11 +102,13 @@ public sealed partial class RenderedShadcnParityTests
 
         containerClasses.Should().Contain("fixed");
         containerClasses.Should().Contain("inset-y-0");
+        container.GetAttribute("data-side").Should().Be("left");
+        containerClasses.Should().Contain("data-[side=left]:left-0");
+        containerClasses.Should().Contain("data-[side=right]:right-0");
         containerClasses.Should().Contain("md:flex");
 
         innerClasses.Should().Contain("flex");
-        innerClasses.Should().Contain("h-full");
-        innerClasses.Should().Contain("w-full");
+        innerClasses.Should().Contain("size-full");
         innerClasses.Should().Contain("bg-sidebar");
     }
 
@@ -117,12 +120,14 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Right"))));
 
         var rightRoot = right.Find("[data-slot='sidebar']");
-        var rightContainerClasses = right.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+        var rightContainer = right.Find("[data-slot='sidebar-container']");
+        var rightContainerClasses = rightContainer.GetAttribute("class")!;
 
         rightRoot.GetAttribute("data-side").Should().Be("right");
-        rightContainerClasses.Should().Contain("right-0");
-        rightContainerClasses.Should().Contain("group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
-        rightContainerClasses.Should().NotContain("left-0");
+        rightContainer.GetAttribute("data-side").Should().Be("right");
+        rightContainerClasses.Should().Contain("data-[side=right]:right-0");
+        rightContainerClasses.Should().Contain("data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
+        rightContainerClasses.Should().Contain("data-[side=left]:left-0");
 
         var floating = Render<Sidebar>(parameters => parameters
             .Add(p => p.Variant, SidebarVariant.Floating)
@@ -139,7 +144,8 @@ public sealed partial class RenderedShadcnParityTests
         floatingContainerClasses.Should().Contain("p-2");
         floatingContainerClasses.Should().Contain("group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
         floatingInnerClasses.Should().Contain("group-data-[variant=floating]:rounded-lg");
-        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:border");
+        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:ring-1");
+        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:ring-sidebar-border");
         floatingInnerClasses.Should().Contain("group-data-[variant=floating]:shadow-sm");
 
         var inset = Render<Sidebar>(parameters => parameters

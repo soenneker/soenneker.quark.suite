@@ -9,6 +9,9 @@
 	[CascadingParameter(Name = nameof(Table))]
 	private ITable? Table { get; set; }
 
+	[CascadingParameter(Name = "DirectionProviderDir")]
+	private string? DirectionProviderDir { get; set; }
+
 	/// <summary>
 	/// Gets or sets whether the column is sortable.
 	/// </summary>
@@ -105,12 +108,10 @@
 		base.BuildAttributesCore(attributes);
 
 		attributes["data-slot"] = "table-head";
-		attributes["scope"] = "col";
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "[&:has([role=checkbox])]:pr-0");
-			AppendClass(ref cls, "[&>[role=checkbox]]:translate-y-[2px]");
+			AppendClass(ref cls, IsRtl ? "[&:has([role=checkbox])]:pe-0" : "[&:has([role=checkbox])]:pr-0");
 			if (Sortable)
 			{
 				var sortClass = GetSortClass();
@@ -142,5 +143,8 @@
 		hc.Add(Data);
 		hc.Add(Name);
 		hc.Add(_columnIndex);
+		hc.Add(DirectionProviderDir);
 	}
+
+	private bool IsRtl => string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
 }

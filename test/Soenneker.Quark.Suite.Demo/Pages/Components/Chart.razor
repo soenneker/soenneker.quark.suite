@@ -1,0 +1,166 @@
+@page "/chart"
+
+<PageTitle>Chart - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+            Beautiful charts. Built using Recharts. Copy and paste into your apps.
+        </Paragraph>
+
+        <Div Display="Display.Flex" Class="gap-6 border-b">
+            <Span Class="border-b-2 border-foreground pb-2 font-medium">Radix UI</Span>
+            <Span Class="pb-2 text-muted-foreground">Base UI</Span>
+        </Div>
+
+        <Div Class="rounded-xl bg-muted/50 px-4 py-3 text-sm">
+            <Strong>Updated:</Strong>
+            The <Code>chart</Code> component now uses Recharts v3. If you're upgrading existing chart code, see
+            <Anchor To="https://ui.shadcn.com/docs/components/chart#updating-to-recharts-v3">Updating to Recharts v3</Anchor>.
+        </Div>
+
+        <Card Class="w-full max-w-2xl gap-0 overflow-hidden py-0">
+            <Div Class="grid grid-cols-2 border-b sm:grid-cols-[1fr_auto_auto]">
+                <Div Class="col-span-2 px-6 py-5 sm:col-span-1">
+                    <CardTitle>Bar Chart - Interactive</CardTitle>
+                    <CardDescription>Showing total visitors for the last 3 months</CardDescription>
+                </Div>
+                <button class="flex flex-col justify-center gap-1 border-t px-6 py-3 text-left sm:border-l sm:border-t-0" type="button">
+                    <span class="text-muted-foreground text-xs">Desktop</span>
+                    <span class="text-2xl font-bold leading-none sm:text-3xl">@DesktopTotal.ToString("N0")</span>
+                </button>
+                <button class="flex flex-col justify-center gap-1 border-t px-6 py-3 text-left sm:border-l sm:border-t-0" type="button">
+                    <span class="text-muted-foreground text-xs">Mobile</span>
+                    <span class="text-2xl font-bold leading-none sm:text-3xl">@MobileTotal.ToString("N0")</span>
+                </button>
+            </Div>
+
+            <div data-slot="card-content" class="px-2 py-6 sm:px-6">
+                <ChartContainer Class="relative aspect-auto h-[250px] w-full" Colors="@ChartColors">
+                    <svg class="recharts-surface h-full w-full overflow-visible" role="application" tabindex="0" viewBox="0 0 590 250" preserveAspectRatio="none">
+                        <g class="recharts-cartesian-grid">
+                            @foreach (int y in GridLines)
+                            {
+                                <line class="recharts-cartesian-grid-line" x1="36" x2="570" y1="@y" y2="@y" stroke="#ccc" stroke-width="1" />
+                            }
+                        </g>
+
+                        @foreach (var point in ChartData.Select((point, index) => new { point, index }))
+                        {
+                            double x = 36 + point.index * BarStep;
+                            double height = point.point.Desktop / MaxDesktop * 166;
+                            double y = 200 - height;
+                            bool active = ReferenceEquals(_activePoint, point.point);
+
+                            <rect class="transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                  x="@x.ToString("0.##")"
+                                  y="@y.ToString("0.##")"
+                                  width="15"
+                                  height="@height.ToString("0.##")"
+                                  rx="0"
+                                  fill="var(--color-desktop)"
+                                  opacity="@(active ? "0.85" : "1")"
+                                  @onmouseenter="@(() => _activePoint = point.point)"
+                                  @onmouseleave="@(() => _activePoint = null)" />
+                        }
+
+                        @foreach (var tick in AxisTicks)
+                        {
+                            <svg:text class="recharts-cartesian-axis-tick" x="@tick.X" y="226" text-anchor="middle" fill="var(--muted-foreground)" font-size="12">@tick.Label</svg:text>
+                        }
+                    </svg>
+
+                    @if (_activePoint is not null)
+                    {
+                        <Div Class="pointer-events-none absolute top-4 w-36 -translate-x-1/2" Style="@($"left: {GetTooltipLeft(_activePoint)}%;")">
+                            <ChartTooltipContent Label="@_activePoint.Day"
+                                                 Name="Desktop"
+                                                 Value="@_activePoint.Desktop.ToString("N0")"
+                                                 Color="var(--color-desktop)" />
+                        </Div>
+                    }
+                </ChartContainer>
+            </div>
+        </Card>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <Paragraph>
+            Introducing <Strong>Charts</Strong>. A collection of chart components that you can copy and paste into your apps.
+        </Paragraph>
+        <Paragraph>
+            Charts are designed to look great out of the box. They work well with the other components and are fully customizable to fit your project.
+        </Paragraph>
+        <Paragraph>
+            <Anchor To="https://ui.shadcn.com/charts">Browse the Charts Library</Anchor>.
+        </Paragraph>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <h2 class="text-2xl font-semibold tracking-tight">Component</h2>
+        <Paragraph>
+            We use the chart container as the composition layer for chart colors, tooltip content, legend content, and responsive chart styling.
+        </Paragraph>
+    </Section>
+</Div>
+
+@code {
+    private static readonly IReadOnlyDictionary<string, string> ChartColors = new Dictionary<string, string>
+    {
+        ["desktop"] = "var(--chart-2)",
+        ["mobile"] = "var(--chart-1)"
+    };
+
+    private readonly List<ChartPoint> ChartData =
+    [
+        new("Apr 1", 222, 150),
+        new("Apr 2", 97, 180),
+        new("Apr 3", 167, 120),
+        new("Apr 4", 242, 260),
+        new("Apr 5", 373, 290),
+        new("Apr 6", 301, 340),
+        new("Apr 7", 245, 180),
+        new("Apr 8", 409, 320),
+        new("Apr 9", 59, 110),
+        new("Apr 10", 261, 190),
+        new("Apr 11", 327, 350),
+        new("Apr 12", 292, 210),
+        new("Apr 13", 342, 380),
+        new("Apr 14", 137, 220),
+        new("Apr 15", 120, 170),
+        new("Apr 16", 138, 190),
+        new("Apr 17", 446, 360),
+        new("Apr 18", 364, 410),
+        new("Apr 19", 243, 180),
+        new("Apr 20", 89, 150),
+        new("Apr 21", 137, 200),
+        new("Apr 22", 224, 170),
+        new("Apr 23", 138, 230),
+        new("Apr 24", 389, 290),
+        new("Apr 25", 215, 250),
+        new("Apr 26", 75, 130),
+        new("Apr 27", 383, 420),
+        new("Apr 28", 122, 180),
+        new("Apr 29", 315, 240),
+        new("Apr 30", 452, 380)
+    ];
+
+    private readonly IReadOnlyList<int> GridLines = [40, 85, 130, 175];
+    private readonly IReadOnlyList<AxisTick> AxisTicks = [new(55, "Apr 1"), new(216, "Apr 10"), new(397, "Apr 19"), new(556, "Apr 29")];
+    private ChartPoint? _activePoint;
+
+    private int DesktopTotal => ChartData.Sum(static point => point.Desktop);
+    private int MobileTotal => ChartData.Sum(static point => point.Mobile);
+    private double MaxDesktop => ChartData.Max(static point => point.Desktop);
+    private double BarStep => 18.3;
+
+    private double GetTooltipLeft(ChartPoint point)
+    {
+        int index = ChartData.IndexOf(point);
+        return Math.Clamp(8 + index * 3.1, 12, 88);
+    }
+
+    private sealed record ChartPoint(string Day, int Desktop, int Mobile);
+
+    private sealed record AxisTick(int X, string Label);
+}

@@ -63,7 +63,17 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    /// <summary>
+    /// Gets or sets the textarea text direction.
+    /// </summary>
+    [Parameter]
+    public string? Dir { get; set; }
+
     public object? ValidationValue => Value;
+    private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -149,14 +159,13 @@
         Display ??= Quark.Display.Flex;
         MinHeight ??= Quark.Height.Token("16");
         Width ??= Quark.Width.IsFull;
-        Rounded ??= Quark.Rounded.Md;
+        Rounded ??= Quark.Rounded.Lg;
         Border ??= Quark.Border.Default;
         BorderColor ??= Quark.BorderColor.Input;
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.Is3.OnX.Is2.OnY;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
         TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        Shadow ??= Quark.Shadow.Xs;
-        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
+        Transition ??= Quark.Transition.Token("transition-colors");
         OutlineStyle ??= Quark.OutlineStyle.None;
     }
 
@@ -164,7 +173,13 @@
     {
         base.BuildAttributesCore(attributes);
         attributes.TryAdd("data-slot", "textarea");
+        var hadExplicitDescription = attributes.ContainsKey("aria-describedby");
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
+        if (!hadExplicitDescription)
+            attributes.Remove("aria-describedby");
+
+        if (!string.IsNullOrWhiteSpace(ResolvedDir))
+            attributes["dir"] = ResolvedDir!;
 
         if (MinLength.HasValue)
             attributes["minlength"] = MinLength.Value;
@@ -176,8 +191,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "field-sizing-content");
-            AppendClass(ref cls, "placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
+            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20");
+            AppendClass(ref cls, "dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
         });
     }
 
@@ -192,6 +208,8 @@
         hc.Add(MinLength);
         hc.Add(MaxLength);
         hc.Add(Rows);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
     }
 
     public override void Dispose()

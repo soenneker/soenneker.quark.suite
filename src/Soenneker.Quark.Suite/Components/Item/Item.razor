@@ -27,9 +27,10 @@ else
     {
         base.ApplyDefaultParameters();
         Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Md;
+        Rounded ??= Quark.Rounded.Lg;
         Border ??= Quark.Border.Default;
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
@@ -61,15 +62,8 @@ else
 
     private void ApplySizeDefaults()
     {
-        if (ReferenceEquals(Size, ItemSize.Small) || ReferenceEquals(Size, ItemSize.ExtraSmall))
-        {
-            Gap ??= Quark.Gap.Token("2.5");
-            Padding ??= Quark.Padding.Token("4").OnX.Is3.OnY;
-            return;
-        }
-
-        Gap ??= Quark.Gap.Is4;
-        Padding ??= Quark.Padding.Is4;
+        Gap = null;
+        Padding = null;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -82,7 +76,12 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50");
+            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
+
+            if (ReferenceEquals(Size, ItemSize.ExtraSmall))
+                AppendClass(ref cls, "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0");
+            else
+                AppendClass(ref cls, "gap-2.5 px-3 py-2.5");
         });
     }
 

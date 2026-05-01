@@ -1,0 +1,30 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Token("4");
+        TextSize ??= Quark.TextSize.Xs;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "chart-legend-content";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "text-muted-foreground");
+        });
+    }
+}

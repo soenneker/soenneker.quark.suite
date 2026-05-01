@@ -42,6 +42,22 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public async Task Sonner_omits_data_type_for_default_toasts_like_shadcn()
+    {
+        var cut = Render<Sonner>();
+        var service = Services.GetRequiredService<ISonnerService>();
+
+        await service.Toast("Event has been created");
+
+        cut.WaitForAssertion(() =>
+        {
+            var toast = cut.Find("li[data-sonner-toast]");
+
+            toast.HasAttribute("data-type").Should().BeFalse();
+        });
+    }
+
+    [Test]
     public void Sonner_interop_uses_dom_rect_height_like_upstream_sonner()
     {
         var source = File.ReadAllText(Path.Combine(GetSuiteRootForSonner(), "src", "Soenneker.Quark.Suite", "wwwroot", "js", "sonnerinterop.js"));

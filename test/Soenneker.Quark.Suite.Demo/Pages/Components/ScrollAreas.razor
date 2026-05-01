@@ -30,7 +30,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Horizontal"
-                         Description="Horizontal scroll areas help showcase collections without forcing every item into a narrow grid."
+                         Description="Use ScrollBar with orientation=&quot;horizontal&quot; for horizontal scrolling."
                          Code="@HorizontalCode"
                          CodeLanguage="razor">
                 <ScrollArea Width='Width.Token("96")' Rounded="Rounded.Md" Border="Border.Default" Whitespace="Whitespace.Nowrap" ShowHorizontalScrollBar="true">
@@ -53,24 +53,22 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Scroll areas can also present content naturally in right-to-left layouts."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <ScrollArea Height='Height.Token("72")' Width='Width.Token("48")' Rounded="Rounded.Md" Border="Border.Default" TextAlign="TextAlign.End" ForceMountScrollBars="true">
+                    <ScrollArea Height='Height.Token("72")' Width='Width.Token("48")' Rounded="Rounded.Md" Border="Border.Default">
                         <Div Padding="Padding.Is4">
-                            @for (var i = 0; i < _arabicNotes.Length; i++)
+                            <H4 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is4.FromBottom" Leading="Leading.None">العلامات</H4>
+                            @for (var i = 0; i < _tags.Length; i++)
                             {
                                 var index = i;
 
-                                <Div Space="Space.Y.Is1">
-                                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@_arabicNotes[index].Title</Paragraph>
-                                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_arabicNotes[index].Description</Paragraph>
-                                </Div>
+                                <Div TextSize="TextSize.Sm">@_tags[index]</Div>
 
-                                @if (index < _arabicNotes.Length - 1)
+                                @if (index < _tags.Length - 1)
                                 {
-                                    <Separator Margin="Margin.Is4.OnY" />
+                                    <Separator Margin="Margin.Is2.OnY" />
                                 }
                             }
                         </Div>
@@ -91,15 +89,6 @@
         ("Ornella Binni", "https://images.unsplash.com/photo-1465869185982-5a1a7522cbcb?auto=format&fit=crop&w=300&q=80"),
         ("Tom Byrom", "https://images.unsplash.com/photo-1548516173-3cabfa4607e9?auto=format&fit=crop&w=300&q=80"),
         ("Vladimir Malyavko", "https://images.unsplash.com/photo-1494337480532-3725c85fd2ab?auto=format&fit=crop&w=300&q=80")
-    ];
-
-    private static readonly (string Title, string Description)[] _arabicNotes =
-    [
-        ("المصادقة", "تمت إضافة حماية إعادة تشغيل الجلسة وتدوير السر الافتراضي للكوكيز."),
-        ("الفوترة", "تم تحسين تذكيرات الفواتير وآليات إعادة المحاولة للبطاقات المنتهية."),
-        ("عمليات النشر", "تم تبسيط الموافقات وإضافة ملخص إنتاج أكثر هدوءًا."),
-        ("المراقبة", "تم توسيع تصفية السجلات لتقليل ضوضاء الوظائف الخلفية."),
-        ("المحرر", "تم تقليل تكلفة العرض الأولي للجداول الكبيرة وقوائم الأوامر.")
     ];
 
     private const string VerticalCode =
@@ -133,12 +122,13 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <ScrollArea Height='Height.Token(""72"")' Width='Width.Token(""48"")' Rounded=""Rounded.Md"" Border=""Border.Default"" TextAlign=""TextAlign.End"" ForceMountScrollBars=""true"">
+    <ScrollArea Height='Height.Token(""72"")' Width='Width.Token(""48"")' Rounded=""Rounded.Md"" Border=""Border.Default"">
         <Div Padding=""Padding.Is4"">
-            @foreach (var note in arabicNotes)
+            <H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Margin=""Margin.Is4.FromBottom"" Leading=""Leading.None"">العلامات</H4>
+            @foreach (var tag in tags)
             {
-                <Div Class=""space-y-1"">...</Div>
-                <Separator Margin=""Margin.Is4.OnY"" />
+                <Div TextSize=""TextSize.Sm"">@tag</Div>
+                <Separator Margin=""Margin.Is2.OnY"" />
             }
         </Div>
     </ScrollArea>

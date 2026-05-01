@@ -23,11 +23,11 @@
                         </DialogHeader>
                         <FieldGroup Class="gap-5">
                             <Field>
-                                <FieldLabel For="dialog-name">Name</FieldLabel>
+                                <Label For="dialog-name">Name</Label>
                                 <Input Id="dialog-name" Value="Pedro Duarte" />
                             </Field>
                             <Field>
-                                <FieldLabel For="dialog-username">Username</FieldLabel>
+                                <Label For="dialog-username">Username</Label>
                                 <Input Id="dialog-username" Value="@("@peduarte")" />
                             </Field>
                         </FieldGroup>
@@ -49,20 +49,21 @@
                          CodeLanguage="razor">
                 <Dialog>
                     <DialogTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Custom close button</Button>
+                        <Button Variant="ButtonVariant.Outline">Share</Button>
                     </DialogTrigger>
-                    <DialogContent ShowCloseButton="false">
-                        <DialogClose AsChild="true">
-                            <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm" Class="absolute top-4 right-4" aria-label="Close">
-                                <Icon Name="LucideIcon.X" />
-                            </Button>
-                        </DialogClose>
+                    <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Custom close button</DialogTitle>
+                            <DialogTitle>Share link</DialogTitle>
                             <DialogDescription>
-                                This dialog owns the visible close control instead of using the default one.
+                                Anyone who has this link will be able to view this.
                             </DialogDescription>
                         </DialogHeader>
+                        <Input Value="https://ui.shadcn.com/docs/installation" />
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Type="ButtonType.Button">Close</Button>
+                            </DialogClose>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </DemoSection>
@@ -81,14 +82,9 @@
                         <DialogHeader>
                             <DialogTitle>No Close Button</DialogTitle>
                             <DialogDescription>
-                                This dialog does not have a close button in the top-right corner.
+                                This dialog doesn't have a close button in the top-right corner.
                             </DialogDescription>
                         </DialogHeader>
-                        <DialogFooter>
-                            <DialogClose AsChild="true">
-                                <Button Variant="ButtonVariant.Outline">Close</Button>
-                            </DialogClose>
-                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </DemoSection>
@@ -105,19 +101,19 @@
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Scrollable Content</DialogTitle>
+                            <DialogTitle>Sticky Footer</DialogTitle>
                             <DialogDescription>
-                                This is a dialog with scrollable content.
+                                This dialog has a sticky footer that stays visible while the content scrolls.
                             </DialogDescription>
                         </DialogHeader>
-                        <DialogBody Class="max-h-[70vh] overflow-y-auto -mx-4 px-4">
+                        <div class="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
                             @for (var i = 0; i < 10; i++)
                             {
                                 <Paragraph class="mb-4 leading-normal">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                                 </Paragraph>
                             }
-                        </DialogBody>
+                        </div>
                         <DialogFooter>
                             <DialogClose AsChild="true">
                                 <Button Variant="ButtonVariant.Outline">Close</Button>
@@ -144,100 +140,14 @@
                                 This is a dialog with scrollable content.
                             </DialogDescription>
                         </DialogHeader>
-                        <DialogBody Class="max-h-[70vh] overflow-y-auto -mx-4 px-4">
+                        <div class="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
                             @for (var i = 0; i < 10; i++)
                             {
                                 <Paragraph class="mb-4 leading-normal">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                                 </Paragraph>
                             }
-                        </DialogBody>
-                    </DialogContent>
-                </Dialog>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Chat Settings"
-                         Description="Larger dialog with tabbed settings for more advanced configuration flows."
-                         Code="@ChatSettingsCode"
-                         CodeLanguage="razor">
-                <Dialog DialogSize="DialogSize.Large">
-                    <DialogTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Chat Settings</Button>
-                    </DialogTrigger>
-                    <DialogContent Class="min-w-md">
-                        <DialogHeader>
-                            <DialogTitle>Chat Settings</DialogTitle>
-                            <DialogDescription>
-                                Customize your chat settings: theme, accent color, notifications, and security preferences.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogBody>
-                            <Tabs SelectedTab="@_dialogTab"
-                                  OnSelectedTabChanged="HandleDialogTabChanged"
-                                  Justified="true"
-                                  Width="Width.IsFull">
-                                <Tab Name="general" Title="General">
-                                    <Div class="mt-4 rounded-lg border p-4">
-                                        <FieldGroup>
-                                            <Field Orientation="Orientation.Horizontal">
-                                                <FieldLabel For="theme">Theme</FieldLabel>
-                                                <Select TValue="string" SelectedValue="@_dialogTheme" SelectedValueChanged="HandleDialogThemeChanged">
-                                                    <SelectTrigger Id="theme">
-                                                        <SelectValue Placeholder="Select" />
-                                                    </SelectTrigger>
-                                                    <SelectContent Align="Alignment.End">
-                                                        <SelectGroup>
-                                                            <SelectItem TValue="string" ItemValue="@("light")" Text="Light" />
-                                                            <SelectItem TValue="string" ItemValue="@("dark")" Text="Dark" />
-                                                            <SelectItem TValue="string" ItemValue="@("system")" Text="System" />
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                            </Field>
-                                            <Field Orientation="Orientation.Horizontal">
-                                                <FieldLabel For="nickname">Nickname</FieldLabel>
-                                                <Input Id="nickname" Value="Broski" />
-                                            </Field>
-                                        </FieldGroup>
-                                    </Div>
-                                </Tab>
-                                <Tab Name="notifications" Title="Notifications">
-                                    <Div class="mt-4 rounded-lg border p-4">
-                                        <FieldGroup>
-                                            <Field Orientation="Orientation.Horizontal">
-                                                <Check Id="push-notifications" @bind-Checked="_dialogPushNotifications" />
-                                                <FieldLabel For="push-notifications" FontWeight="FontWeight.Normal">Push notifications</FieldLabel>
-                                            </Field>
-                                            <Field Orientation="Orientation.Horizontal">
-                                                <Check Id="email-notifications" @bind-Checked="_dialogEmailNotifications" />
-                                                <FieldLabel For="email-notifications" FontWeight="FontWeight.Normal">Email notifications</FieldLabel>
-                                            </Field>
-                                        </FieldGroup>
-                                    </Div>
-                                </Tab>
-                                <Tab Name="security" Title="Security">
-                                    <Div class="mt-4 rounded-lg border p-4">
-                                        <FieldGroup>
-                                            <Field Orientation="Orientation.Horizontal">
-                                                <FieldContent>
-                                                    <FieldLabel For="dialog-2fa">Multi-factor authentication</FieldLabel>
-                                                    <FieldDescription>Enable multi-factor authentication to secure your account.</FieldDescription>
-                                                </FieldContent>
-                                                <Switch Id="dialog-2fa" Checked="@_dialogTwoFactorEnabled" CheckedChanged="HandleDialogTwoFactorChanged" />
-                                            </Field>
-                                        </FieldGroup>
-                                    </Div>
-                                </Tab>
-                            </Tabs>
-                        </DialogBody>
-                        <DialogFooter>
-                            <DialogClose AsChild="true">
-                                <Button Variant="ButtonVariant.Outline">Close</Button>
-                            </DialogClose>
-                            <Button>Save preferences</Button>
-                        </DialogFooter>
+                        </div>
                     </DialogContent>
                 </Dialog>
             </DemoSection>
@@ -283,105 +193,10 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Static"
-                         Description="Use footer actions to drive dismissal when you do not want the dialog to close from the backdrop."
-                         Code="@StaticCode"
-                         CodeLanguage="razor">
-                <Dialog Static="true">
-                    <DialogTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">Open guarded dialog</Button>
-                    </DialogTrigger>
-                    <DialogContent ShowCloseButton="false">
-                        <DialogHeader>
-                            <DialogTitle>Delete environment</DialogTitle>
-                            <DialogDescription>
-                                This dialog ignores backdrop clicks so the user must choose explicitly.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogBody>
-                            <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                                Type the environment name in a follow-up step before the destructive action is enabled.
-                            </Paragraph>
-                        </DialogBody>
-                        <DialogFooter>
-                            <DialogClose AsChild="true">
-                                <Button Variant="ButtonVariant.Secondary">Keep environment</Button>
-                            </DialogClose>
-                            <DialogClose AsChild="true">
-                                <Button Variant="ButtonVariant.Destructive">Delete</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </DemoSection>
-
-            <DemoSection Title="Size And Position"
-                         Description="Scale the dialog up or center it vertically when the content deserves more focus."
-                         Code="@SizeAndPositionCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
-                    <Dialog DialogSize="DialogSize.Large">
-                        <DialogTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline">Large dialog</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Invite collaborators</DialogTitle>
-                                <DialogDescription>
-                                    Use a wider dialog when the flow needs richer context or multi-column content.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <DialogBody>
-                                <Div Display="Display.Grid" Gap="Gap.Is4" Class="md:grid-cols-2">
-                                    <Div>
-                                        <H5>Workspace access</H5>
-                                        <Paragraph Margin="Margin.Is0">Choose whether invited users can edit settings, deploy changes, or manage billing.</Paragraph>
-                                    </Div>
-                                    <Div>
-                                        <H5>Invite message</H5>
-                                        <Paragraph Margin="Margin.Is0">Add context so collaborators know which project, branch, or milestone they are joining.</Paragraph>
-                                    </Div>
-                                </Div>
-                            </DialogBody>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Dialog Centered="true">
-                        <DialogTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline">Centered dialog</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Publish release</DialogTitle>
-                                <DialogDescription>
-                                    Centered dialogs work well for short, high-importance confirmation steps.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                                <DialogClose AsChild="true">
-                                    <Button Variant="ButtonVariant.Secondary">Not yet</Button>
-                                </DialogClose>
-                                <DialogClose AsChild="true">
-                                    <Button>Publish now</Button>
-                                </DialogClose>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </Div>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private string _dialogTab = "general";
-    private string _dialogTheme = "system";
-    private bool _dialogPushNotifications;
-    private bool _dialogEmailNotifications = true;
-    private bool _dialogTwoFactorEnabled;
-
     private const string BasicCode =
 @"<Dialog>
     <DialogTrigger AsChild=""true"">
@@ -396,11 +211,11 @@
         </DialogHeader>
         <FieldGroup Class=""gap-5"">
             <Field>
-                <FieldLabel For=""dialog-name"">Name</FieldLabel>
+                <Label For=""dialog-name"">Name</Label>
                 <Input Id=""dialog-name"" Value=""Pedro Duarte"" />
             </Field>
             <Field>
-                <FieldLabel For=""dialog-username"">Username</FieldLabel>
+                <Label For=""dialog-username"">Username</Label>
                 <Input Id=""dialog-username"" Value=""@peduarte"" />
             </Field>
         </FieldGroup>
@@ -416,20 +231,21 @@
     private const string CustomCloseButtonCode =
 @"<Dialog>
     <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Custom close button</Button>
+        <Button Variant=""ButtonVariant.Outline"">Share</Button>
     </DialogTrigger>
-    <DialogContent ShowCloseButton=""false"">
-        <DialogClose AsChild=""true"">
-            <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Class=""absolute top-4 right-4"" aria-label=""Close"">
-                <Icon Name=""LucideIcon.X"" />
-            </Button>
-        </DialogClose>
+    <DialogContent>
         <DialogHeader>
-            <DialogTitle>Custom close button</DialogTitle>
+            <DialogTitle>Share link</DialogTitle>
             <DialogDescription>
-                This dialog owns the visible close control instead of using the default one.
+                Anyone who has this link will be able to view this.
             </DialogDescription>
         </DialogHeader>
+        <Input Value=""https://ui.shadcn.com/docs/installation"" />
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Type=""ButtonType.Button"">Close</Button>
+            </DialogClose>
+        </DialogFooter>
     </DialogContent>
 </Dialog>";
 
@@ -443,14 +259,14 @@
             <DialogTitle>Scrollable Content</DialogTitle>
             <DialogDescription>This is a dialog with scrollable content.</DialogDescription>
         </DialogHeader>
-        <DialogBody Class=""max-h-[70vh] overflow-y-auto -mx-4 px-4"">
+        <div class=""-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4"">
             @for (var i = 0; i < 10; i++)
             {
                 <Paragraph Class=""mb-4 leading-normal"">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                 </Paragraph>
             }
-        </DialogBody>
+        </div>
     </DialogContent>
 </Dialog>";
 
@@ -461,17 +277,17 @@
     </DialogTrigger>
     <DialogContent>
         <DialogHeader>
-            <DialogTitle>Scrollable Content</DialogTitle>
-            <DialogDescription>This is a dialog with scrollable content.</DialogDescription>
+            <DialogTitle>Sticky Footer</DialogTitle>
+            <DialogDescription>This dialog has a sticky footer that stays visible while the content scrolls.</DialogDescription>
         </DialogHeader>
-        <DialogBody Class=""max-h-[70vh] overflow-y-auto -mx-4 px-4"">
+        <div class=""-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4"">
             @for (var i = 0; i < 10; i++)
             {
                 <Paragraph Class=""mb-4 leading-normal"">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                 </Paragraph>
             }
-        </DialogBody>
+        </div>
         <DialogFooter>
             <DialogClose AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">Close</Button>
@@ -489,91 +305,9 @@
         <DialogHeader>
             <DialogTitle>No Close Button</DialogTitle>
             <DialogDescription>
-                This dialog does not have a close button in the top-right corner.
+                This dialog doesn't have a close button in the top-right corner.
             </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-            <DialogClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"">Close</Button>
-            </DialogClose>
-        </DialogFooter>
-    </DialogContent>
-</Dialog>";
-
-    private const string ChatSettingsCode =
-@"<Dialog DialogSize=""DialogSize.Large"">
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Chat Settings</Button>
-    </DialogTrigger>
-    <DialogContent Class=""min-w-md"">
-        <DialogHeader>
-            <DialogTitle>Chat Settings</DialogTitle>
-            <DialogDescription>
-                Customize your chat settings: theme, accent color, notifications, and security preferences.
-            </DialogDescription>
-        </DialogHeader>
-        <DialogBody>
-            <Tabs SelectedTab=""@_dialogTab"" OnSelectedTabChanged=""HandleDialogTabChanged"" Justified=""true"" Class=""w-full"">
-                <Tab Name=""general"" Title=""General"">
-                    <Div class=""mt-4 rounded-lg border p-4"">
-                        <FieldGroup>
-                            <Field Orientation=""Orientation.Horizontal"">
-                                <FieldLabel For=""theme"">Theme</FieldLabel>
-                                <Select TValue=""string"" SelectedValue=""@_dialogTheme"" SelectedValueChanged=""HandleDialogThemeChanged"">
-                                    <SelectTrigger Id=""theme"">
-                                        <SelectValue Placeholder=""Select"" />
-                                    </SelectTrigger>
-                                    <SelectContent Align=""Alignment.End"">
-                                        <SelectGroup>
-                                            <SelectItem TValue=""string"" ItemValue=""@(""light"")"" Text=""Light"" />
-                                            <SelectItem TValue=""string"" ItemValue=""@(""dark"")"" Text=""Dark"" />
-                                            <SelectItem TValue=""string"" ItemValue=""@(""system"")"" Text=""System"" />
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                            <Field Orientation=""Orientation.Horizontal"">
-                                <FieldLabel For=""nickname"">Nickname</FieldLabel>
-                                <Input Id=""nickname"" Value=""Broski"" />
-                            </Field>
-                        </FieldGroup>
-                    </Div>
-                </Tab>
-                <Tab Name=""notifications"" Title=""Notifications"">
-                    <Div class=""mt-4 rounded-lg border p-4"">
-                        <FieldGroup>
-                            <Field Orientation=""Orientation.Horizontal"">
-                                <Check Id=""push-notifications"" @bind-Checked=""_dialogPushNotifications"" />
-                                <FieldLabel For=""push-notifications"" Class=""font-normal"">Push notifications</FieldLabel>
-                            </Field>
-                            <Field Orientation=""Orientation.Horizontal"">
-                                <Check Id=""email-notifications"" @bind-Checked=""_dialogEmailNotifications"" />
-                                <FieldLabel For=""email-notifications"" Class=""font-normal"">Email notifications</FieldLabel>
-                            </Field>
-                        </FieldGroup>
-                    </Div>
-                </Tab>
-                <Tab Name=""security"" Title=""Security"">
-                    <Div class=""mt-4 rounded-lg border p-4"">
-                        <FieldGroup>
-                            <Field Orientation=""Orientation.Horizontal"">
-                                <FieldContent>
-                                    <FieldLabel For=""dialog-2fa"">Multi-factor authentication</FieldLabel>
-                                    <FieldDescription>Enable multi-factor authentication to secure your account.</FieldDescription>
-                                </FieldContent>
-                                <Switch Id=""dialog-2fa"" Checked=""@_dialogTwoFactorEnabled"" CheckedChanged=""HandleDialogTwoFactorChanged"" />
-                            </Field>
-                        </FieldGroup>
-                    </Div>
-                </Tab>
-            </Tabs>
-        </DialogBody>
-        <DialogFooter>
-            <DialogClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"">Close</Button>
-            </DialogClose>
-            <Button>Save preferences</Button>
-        </DialogFooter>
     </DialogContent>
 </Dialog>";
 
@@ -612,92 +346,4 @@
     </Dialog>
 </DirectionProvider>";
 
-    private const string StaticCode =
-@"<Dialog Static=""true"">
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Open guarded dialog</Button>
-    </DialogTrigger>
-    <DialogContent ShowCloseButton=""false"">
-        <DialogHeader>
-            <DialogTitle>Delete environment</DialogTitle>
-            <DialogDescription>
-                This dialog ignores backdrop clicks so the user must choose explicitly.
-            </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-            <DialogClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Secondary"">Keep environment</Button>
-            </DialogClose>
-            <DialogClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Destructive"">Delete</Button>
-            </DialogClose>
-        </DialogFooter>
-    </DialogContent>
-</Dialog>";
-
-    private const string SizeAndPositionCode =
-@"<Dialog DialogSize=""DialogSize.Large"">
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Large dialog</Button>
-    </DialogTrigger>
-    <DialogContent>
-        <DialogHeader>
-            <DialogTitle>Invite collaborators</DialogTitle>
-            <DialogDescription>
-                Use a wider dialog when the flow needs richer context or multi-column content.
-            </DialogDescription>
-        </DialogHeader>
-        <DialogBody>
-            <Div Class=""grid gap-4 md:grid-cols-2"">
-                <Div>
-                    <H5>Workspace access</H5>
-                    <Paragraph Margin=""Margin.Is0"">Choose whether invited users can edit settings, deploy changes, or manage billing.</Paragraph>
-                </Div>
-                <Div>
-                    <H5>Invite message</H5>
-                    <Paragraph Margin=""Margin.Is0"">Add context so collaborators know which project, branch, or milestone they are joining.</Paragraph>
-                </Div>
-            </Div>
-        </DialogBody>
-    </DialogContent>
-</Dialog>
-<Dialog Centered=""true"">
-    <DialogTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Centered dialog</Button>
-    </DialogTrigger>
-    <DialogContent>
-        <DialogHeader>
-            <DialogTitle>Publish release</DialogTitle>
-            <DialogDescription>
-                Centered dialogs work well for short, high-importance confirmation steps.
-            </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-            <DialogClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Secondary"">Not yet</Button>
-            </DialogClose>
-            <DialogClose AsChild=""true"">
-                <Button>Publish now</Button>
-            </DialogClose>
-        </DialogFooter>
-    </DialogContent>
-</Dialog>";
-
-    private Task HandleDialogTabChanged(string? value)
-    {
-        _dialogTab = value ?? "general";
-        return Task.CompletedTask;
-    }
-
-    private Task HandleDialogThemeChanged(string? value)
-    {
-        _dialogTheme = value ?? "system";
-        return Task.CompletedTask;
-    }
-
-    private Task HandleDialogTwoFactorChanged(bool value)
-    {
-        _dialogTwoFactorEnabled = value;
-        return Task.CompletedTask;
-    }
 }

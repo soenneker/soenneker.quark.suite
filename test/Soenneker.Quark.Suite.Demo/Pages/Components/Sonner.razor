@@ -3,13 +3,10 @@
 
 <PageTitle>Sonner - Quark Suite</PageTitle>
 
-<Soenneker.Quark.Sonner />
-
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Description="An opinionated toast component for React." Code="@(@"@inject ISonnerUtil Toasts
-<Sonner />
 
 await Toasts.Toast(""Event has been created"", options =>
 {
@@ -24,13 +21,18 @@ CodeLanguage="razor">
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Types" Description="Default and typed Sonner notifications." Code="@(@"@inject ISonnerUtil Toasts
-<Sonner />
 
 await Toasts.Toast(""Event has been created"");
-await Toasts.Success(""Saved successfully"");
+await Toasts.Success(""Event has been created"");
 await Toasts.Info(""Be at the area 10 minutes before the event time"");
 await Toasts.Warning(""Event start time cannot be earlier than 8am"");
-await Toasts.Error(""Event has not been created"");")"
+await Toasts.Error(""Event has not been created"");
+await Toasts.Promise(SimulateRequest(), new SonnerPromiseOptions
+{
+    Loading = ""Loading..."",
+    Success = ""Event has been created"",
+    Error = ""Event has not been created""
+});")"
 CodeLanguage="razor">
                 <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     <Button Variant="ButtonVariant.Outline" @onclick="ShowBasic">Default</Button>
@@ -42,38 +44,19 @@ CodeLanguage="razor">
                 </Div>
             </DemoSection>
         </Section>
-<Section Space="Space.Y.Is4">
-            <DemoSection Title="Description" Description="Toast content can include supporting text and an action." Code="@(@"await Toasts.Toast(""Your message has been sent"", options =>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Description" Description="Toast content can include supporting text and an action." Code="@(@"await Toasts.Toast(""Event has been created"", options =>
 {
-    options.Description = ""Friday, March 20 at 2:30 PM"";
-    options.ActionLabel = ""Undo"";
-    options.Action = () => ValueTask.CompletedTask;
+    options.Description = ""Monday, January 3rd at 6:00pm"";
 });")"
 CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowWithDescription">With description</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowWithAction">With action</Button>
-                </Div>
+                <Button Variant="ButtonVariant.Outline" @onclick="ShowWithDescription">Show Toast</Button>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Position" Description="Loading state that resolves to success or error." Code="@(@"await Toasts.Promise(SimulateRequest(), new SonnerPromiseOptions
-{
-    Loading = ""Saving changes..."",
-    Success = ""Changes saved"",
-    Error = ""Save failed""
-});")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowPromiseSuccess">Promise success</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowPromiseFailure">Promise failure</Button>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Position" Description="Top, center, bottom, left, and right placements." Code="@(@"await Toasts.Info(""Deployment started"", options =>
+            <DemoSection Title="Position" Description="Top, center, bottom, left, and right placements." Code="@(@"await Toasts.Toast(""Event has been created"", options =>
 {
     options.Position = SonnerPosition.TopRight;
 });")"
@@ -86,47 +69,6 @@ CodeLanguage="razor">
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.BottomCenter))" Size="ButtonSize.Sm">Bottom Center</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.BottomRight))" Size="ButtonSize.Sm">Bottom Right</Button>
                 </Grid>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Rich content" Description="Custom render fragments are supported." Code="@(@"await Toasts.Custom(builder =>
-{
-    // custom content
-}, options => options.Duration = 0);")"
-CodeLanguage="razor">
-                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowCustomContent">Custom content</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" @onclick="DismissAll">Dismiss all</Button>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Duration" Description="Auto-dismiss timers pause while the toast is hovered or focused." Code="@(@"await Toasts.Toast(""Paused timer"", options =>
-{
-    options.Description = ""Hovering keeps this toast open."";
-    options.Duration = 800;
-});")"
-CodeLanguage="razor">
-                <Button BackgroundColor="BackgroundColor.Primary"
-                        TextColor="TextColor.PrimaryForeground"
-                        @onclick="ShowShortDuration">
-                    Short duration
-                </Button>
-            </DemoSection>
-
-            <DemoSection Title="Swipe" Description="Dismiss a toast by dragging it horizontally." Code="@(@"await Toasts.Toast(""Swipe me away"", options =>
-{
-    options.Description = ""Drag this toast horizontally to dismiss it."";
-    options.Duration = 10000;
-});")"
-CodeLanguage="razor">
-                <Button BackgroundColor="BackgroundColor.Primary"
-                        TextColor="TextColor.PrimaryForeground"
-                        @onclick="ShowSwipeToast">
-                    Swipe toast
-                </Button>
             </DemoSection>
         </Section>
     </Div>
@@ -150,7 +92,7 @@ CodeLanguage="razor">
 
     private async Task ShowSuccess()
     {
-        _ = await Toasts.Success("Saved successfully");
+        _ = await Toasts.Success("Event has been created");
     }
 
     private async Task ShowInfo()
@@ -160,121 +102,42 @@ CodeLanguage="razor">
 
     private async Task ShowWarning()
     {
-        _ = await Toasts.Warning("Review this change");
+        _ = await Toasts.Warning("Event start time cannot be earlier than 8am");
     }
 
     private async Task ShowError()
     {
-        _ = await Toasts.Error("Unable to continue");
+        _ = await Toasts.Error("Event has not been created");
     }
 
     private async Task ShowWithDescription()
     {
-        _ = await Toasts.Toast("Your message has been sent", options =>
+        _ = await Toasts.Toast("Event has been created", options =>
         {
-            options.Description = "Friday, March 20 at 2:30 PM";
-        });
-    }
-
-    private async Task ShowWithAction()
-    {
-        _ = await Toasts.Toast("Message archived", options =>
-        {
-            options.Description = "You can undo this action from the toast.";
-            options.ActionLabel = "Undo";
-            options.Action = async () =>
-            {
-                _ = await Toasts.Info("Archive undone");
-            };
+            options.Description = "Monday, January 3rd at 6:00pm";
         });
     }
 
     private async Task ShowPromiseSuccess()
     {
-        _ = await Toasts.Promise(SimulateRequest(false), new SonnerPromiseOptions
+        _ = await Toasts.Promise(SimulateRequest(), new SonnerPromiseOptions
         {
-            Loading = "Saving changes...",
-            Success = "Changes saved",
-            Error = "Save failed",
-            Description = "This mirrors Sonner's loading to result flow."
-        });
-    }
-
-    private async Task ShowPromiseFailure()
-    {
-        _ = await Toasts.Promise(SimulateRequest(true), new SonnerPromiseOptions
-        {
-            Loading = "Publishing post...",
-            Success = "Post published",
-            Error = "Publish failed",
-            Description = "This request intentionally throws."
+            Loading = "Loading...",
+            Success = "Event has been created",
+            Error = "Event has not been created"
         });
     }
 
     private async Task ShowPosition(SonnerPosition position)
     {
-        _ = await Toasts.Info($"Toast at {position}", options =>
+        _ = await Toasts.Toast("Event has been created", options =>
         {
             options.Position = position;
-            options.Description = "Position can be overridden per toast.";
         });
     }
 
-    private async Task ShowCustomContent()
-    {
-        _ = await Toasts.Custom(builder =>
-        {
-            builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "class", "grid gap-1");
-            builder.OpenElement(2, "div");
-            builder.AddAttribute(3, "class", "text-sm font-medium");
-            builder.AddContent(4, "Deployment complete");
-            builder.CloseElement();
-            builder.OpenElement(5, "div");
-            builder.AddAttribute(6, "class", "text-sm text-muted-foreground");
-            builder.AddContent(7, "Production is now serving the latest release.");
-            builder.CloseElement();
-            builder.CloseElement();
-        }, options =>
-        {
-            options.Position = SonnerPosition.TopRight;
-            options.Duration = 0;
-            options.ActionLabel = "Dismiss";
-            options.Action = async () =>
-            {
-                await Toasts.Dismiss();
-            };
-        });
-    }
-
-    private async Task ShowShortDuration()
-    {
-        _ = await Toasts.Toast("Paused timer", options =>
-        {
-            options.Description = "Hovering keeps this toast open.";
-            options.Duration = 800;
-        });
-    }
-
-    private async Task ShowSwipeToast()
-    {
-        _ = await Toasts.Toast("Swipe me away", options =>
-        {
-            options.Description = "Drag this toast horizontally to dismiss it.";
-            options.Duration = 10000;
-        });
-    }
-
-    private async Task DismissAll()
-    {
-        await Toasts.Dismiss();
-    }
-
-    private static async ValueTask SimulateRequest(bool shouldFail)
+    private static async ValueTask SimulateRequest()
     {
         await Task.Delay(1500);
-
-        if (shouldFail)
-            throw new InvalidOperationException("This request failed.");
     }
 }

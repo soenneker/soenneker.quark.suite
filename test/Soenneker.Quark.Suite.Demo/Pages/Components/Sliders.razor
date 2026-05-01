@@ -12,44 +12,20 @@
                          Description="An input where the user selects a value from within a given range."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                <Div data-testid="slider-demo-primary" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+                <Div data-testid="slider-demo-primary" Width="Width.IsFull">
                     <Slider Min="0"
                             Max="100"
                             Step="1"
                             SliderValue="@_demoValue"
                             SliderValueChanged="HandleDemoValueChanged"
-                            Class="w-[60%]" />
+                            Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" />
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Range"
-                         Description="@PriceRangeDescription"
-                         Code="@FieldCode"
-                         CodeLanguage="razor">
-                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd">
-                    <Field>
-                        <FieldTitle>Price Range</FieldTitle>
-                        <FieldDescription>
-                            Set your budget range ($<Span FontWeight="FontWeight.Medium" FontVariantNumeric="FontVariantNumeric.TabularNums">@PriceRangeMin</Span> - <Span FontWeight="FontWeight.Medium" FontVariantNumeric="FontVariantNumeric.TabularNums">@PriceRangeMax</Span>).
-                        </FieldDescription>
-                        <Slider Values="@_fieldValues"
-                                ValuesChanged="HandleFieldValuesChanged"
-                                Min="0"
-                                Max="1000"
-                                Step="10"
-                                AriaLabel="Price Range"
-                                Margin="Margin.Is2.FromTop"
-                                Width="Width.IsFull" />
-                    </Field>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple Thumbs"
-                         Description="@($"Two-thumb range. Current: {RangeMin} – {RangeMax}.")"
+                         Description="@($"Two-thumb range. Current: {RangeMin} - {RangeMax}.")"
                          Code="@RangeCode"
                          CodeLanguage="razor">
                 <Slider Min="0"
@@ -62,7 +38,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Vertical"
+            <DemoSection Title="Multiple Thumbs"
                          Description="@($"Several thumbs on one track. Values: {string.Join(", ", _multipleValues.Select(v => v.ToString(CultureInfo.InvariantCulture)))}.")"
                          Code="@MultipleCode"
                          CodeLanguage="razor">
@@ -76,7 +52,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled"
+            <DemoSection Title="Vertical"
                          Description="@($"Vertical sliders. Left: {_verticalLeft}, right: {_verticalRight}.")"
                          Code="@VerticalCode"
                          CodeLanguage="razor">
@@ -100,7 +76,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
+            <DemoSection Title="Controlled"
                          Description="@TemperatureDescription"
                          Code="@ControlledCode"
                          CodeLanguage="razor">
@@ -121,7 +97,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
+            <DemoSection Title="Disabled"
                          Description="Set Disabled to prevent interaction."
                          Code="@DisabledCode"
                          CodeLanguage="razor">
@@ -152,70 +128,20 @@
             </DemoSection>
         </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Step"
-                         Description="@($"Step 5; current value: {_stepValue}.")"
-                         Code="@StepCode"
-                         CodeLanguage="razor">
-                <Div data-testid="slider-demo-step" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
-                    <Slider Min="0"
-                            Max="100"
-                            Step="5"
-                            SliderValue="@_stepValue"
-                            SliderValueChanged="HandleStepValueChanged"
-                            Margin="Margin.Auto.OnX" Width="Width.IsFull" MaxWidth="MaxWidth.IsXs" />
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Sizes"
-                         Description="Small, default, and large sizing options."
-                         Code="@SizesCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is4">
-                    <Slider Min="0"
-                            Max="100"
-                            SliderValue="@_smallValue"
-                            Size="SliderSizes.Sm"
-                            SliderValueChanged="HandleSmallValueChanged"
-                            Width="Width.IsFull" />
-                    <Slider Min="0"
-                            Max="100"
-                            SliderValue="@_defaultValue"
-                            Size="SliderSizes.Default"
-                            SliderValueChanged="HandleDefaultValueChanged"
-                            Width="Width.IsFull" />
-                    <Slider Min="0"
-                            Max="100"
-                            SliderValue="@_largeValue"
-                            Size="SliderSizes.Lg"
-                            SliderValueChanged="HandleLargeValueChanged"
-                            Width="Width.IsFull" />
-                </Div>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private double _demoValue = 50;
+    private double _demoValue = 75;
     private double[] _rangeValues = [25, 50];
-    private double[] _fieldValues = [200, 800];
     private double[] _multipleValues = [10, 20, 70];
     private double _verticalLeft = 50;
     private double _verticalRight = 25;
     private double[] _temperatureValues = [0.3, 0.7];
     private double _rtlValue = 75;
-    private double _stepValue = 30;
-    private double _smallValue = 35;
-    private double _defaultValue = 60;
-    private double _largeValue = 80;
 
     private double RangeMin => _rangeValues.Length > 0 ? _rangeValues[0] : 0;
     private double RangeMax => _rangeValues.Length > 1 ? _rangeValues[^1] : RangeMin;
-    private double PriceRangeMin => _fieldValues.Length > 0 ? _fieldValues[0] : 0;
-    private double PriceRangeMax => _fieldValues.Length > 1 ? _fieldValues[^1] : PriceRangeMin;
 
     private string TemperatureText =>
         string.Join(", ", _temperatureValues.Select(v => v.ToString("0.0", CultureInfo.InvariantCulture)));
@@ -223,33 +149,14 @@
     private string TemperatureDescription =>
         $"Label + live readout. Values: {TemperatureText}.";
 
-    private string PriceRangeDescription =>
-        $"Set your budget range (${PriceRangeMin:0} - {PriceRangeMax:0}).";
-
     private const string BasicCode = @"<Slider Min=""0""
         Max=""100""
         Step=""1""
         SliderValue=""@_demoValue""
         SliderValueChanged=""HandleDemoValueChanged""
-        Class=""w-[60%]"" />";
-
-    private const string FieldCode =
-@"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsMd"">
-    <Field>
-        <FieldTitle>Price Range</FieldTitle>
-        <FieldDescription>
-            Set your budget range ($<Span FontWeight=""FontWeight.Medium"" FontVariantNumeric=""FontVariantNumeric.TabularNums"">@PriceRangeMin</Span> - <Span FontWeight=""FontWeight.Medium"" FontVariantNumeric=""FontVariantNumeric.TabularNums"">@PriceRangeMax</Span>).
-        </FieldDescription>
-        <Slider Values=""@_fieldValues""
-                ValuesChanged=""HandleFieldValuesChanged""
-                Min=""0""
-                Max=""1000""
-                Step=""10""
-                AriaLabel=""Price Range""
-                Margin=""Margin.Is2.FromTop""
-                Width=""Width.IsFull"" />
-    </Field>
-</Div>";
+        Margin=""Margin.Auto.OnX""
+        Width=""Width.IsFull""
+        MaxWidth=""MaxWidth.IsXs"" />";
 
     private const string RangeCode =
 @"<Slider Min=""0""
@@ -326,21 +233,6 @@
     </Div>
 </DirectionProvider>";
 
-    private const string StepCode =
-@"<Slider Min=""0""
-        Max=""100""
-        Step=""5""
-        SliderValue=""@_stepValue""
-        SliderValueChanged=""HandleStepValueChanged""
-        Margin=""Margin.Auto.OnX""
-        Width=""Width.IsFull""
-        MaxWidth=""MaxWidth.IsXs"" />";
-
-    private const string SizesCode =
-@"<Slider Min=""0"" Max=""100"" SliderValue=""@_smallValue"" Size=""SliderSizes.Sm"" SliderValueChanged=""HandleSmallValueChanged"" Width=""Width.IsFull"" />
-<Slider Min=""0"" Max=""100"" SliderValue=""@_defaultValue"" Size=""SliderSizes.Default"" SliderValueChanged=""HandleDefaultValueChanged"" Width=""Width.IsFull"" />
-<Slider Min=""0"" Max=""100"" SliderValue=""@_largeValue"" Size=""SliderSizes.Lg"" SliderValueChanged=""HandleLargeValueChanged"" Width=""Width.IsFull"" />";
-
     private Task HandleDemoValueChanged(double value)
     {
         _demoValue = value;
@@ -350,12 +242,6 @@
     private Task HandleRangeValuesChanged(double[] values)
     {
         _rangeValues = values;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleFieldValuesChanged(double[] values)
-    {
-        _fieldValues = values;
         return Task.CompletedTask;
     }
 
@@ -389,27 +275,4 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleStepValueChanged(double value)
-    {
-        _stepValue = value;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleSmallValueChanged(double value)
-    {
-        _smallValue = value;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleDefaultValueChanged(double value)
-    {
-        _defaultValue = value;
-        return Task.CompletedTask;
-    }
-
-    private Task HandleLargeValueChanged(double value)
-    {
-        _largeValue = value;
-        return Task.CompletedTask;
-    }
 }

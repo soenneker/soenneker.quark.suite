@@ -23,11 +23,20 @@
         MinWidth ??= Quark.MinWidth.Is0;
         Shrink ??= Quark.Shrink.Is0;
         Grow ??= Quark.Grow.Is0;
-        Padding ??= ParentCarousel?.IsVertical == true
-            ? Quark.Padding.Is4.FromTop
-            : ParentCarousel?.IsRtl == true
-                ? Quark.Padding.Is4.FromRight
-                : Quark.Padding.Is4.FromLeft;
+        if (ParentCarousel?.IsVertical == true)
+        {
+            if (!HasClassToken("pt-"))
+                Padding ??= Quark.Padding.Is4.FromTop;
+        }
+        else if (ParentCarousel?.IsRtl == true)
+        {
+            if (!HasClassToken("ps-"))
+                Padding ??= Quark.Padding.Is4.FromStart;
+        }
+        else if (!HasClassToken("pl-"))
+        {
+            Padding ??= Quark.Padding.Is4.FromLeft;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -38,8 +47,14 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "basis-full");
+            if (!HasClassToken("basis-"))
+                AppendClass(ref cls, "basis-full");
         });
+    }
+
+    private bool HasClassToken(string tokenPart)
+    {
+        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
     }
 
     public override void Dispose()

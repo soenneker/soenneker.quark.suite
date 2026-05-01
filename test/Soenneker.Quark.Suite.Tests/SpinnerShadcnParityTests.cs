@@ -14,8 +14,10 @@ public sealed partial class RenderedShadcnParityTests
         var spinner = cut.Find("svg[role='status']");
         var classes = spinner.GetAttribute("class")!;
 
-        spinner.GetAttribute("data-slot").Should().Be("spinner");
+        spinner.HasAttribute("data-slot").Should().BeFalse();
         spinner.GetAttribute("aria-label").Should().Be("Loading");
+        classes.Should().Contain("lucide");
+        classes.Should().Contain("lucide-loader-circle");
         classes.Should().Contain("size-4");
         classes.Should().Contain("animate-spin");
     }

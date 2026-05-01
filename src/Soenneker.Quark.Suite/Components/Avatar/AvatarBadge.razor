@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Extensions.String
 
 <span @attributes="BuildAttributes()">
     @ChildContent
@@ -13,7 +14,6 @@
         Position ??= Quark.Position.Absolute;
         Display ??= Quark.Display.InlineFlex;
         Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Primary;
         TextColor ??= Quark.TextColor.PrimaryForeground;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
@@ -29,11 +29,69 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "right-0 bottom-0 z-10");
+            if (BackgroundColor is null && !HasBackgroundClass())
+                AppendClass(ref cls, "bg-primary");
+
+            AppendClass(ref cls, HasHorizontalPositionClass() ? "bottom-0 z-10" : "right-0 bottom-0 z-10");
             AppendClass(ref cls, "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden");
             AppendClass(ref cls, "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2");
             AppendClass(ref cls, "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2");
         });
+    }
+
+    private bool HasBackgroundClass()
+    {
+        if (Class.IsNullOrWhiteSpace())
+            return false;
+
+        var tokens = Class.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        for (var i = 0; i < tokens.Length; i++)
+        {
+            var token = tokens[i];
+            var importantIndex = token.LastIndexOf('!');
+
+            if (importantIndex >= 0)
+                token = token[(importantIndex + 1)..];
+
+            var prefixIndex = token.LastIndexOf(':');
+
+            if (prefixIndex >= 0)
+                token = token[(prefixIndex + 1)..];
+
+            if (token.StartsWith("bg-", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasHorizontalPositionClass()
+    {
+        if (Class.IsNullOrWhiteSpace())
+            return false;
+
+        var tokens = Class.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        for (var i = 0; i < tokens.Length; i++)
+        {
+            var token = tokens[i];
+            var importantIndex = token.LastIndexOf('!');
+
+            if (importantIndex >= 0)
+                token = token[(importantIndex + 1)..];
+
+            var prefixIndex = token.LastIndexOf(':');
+
+            if (prefixIndex >= 0)
+                token = token[(prefixIndex + 1)..];
+
+            if (token.StartsWith("right-", StringComparison.Ordinal) || token.StartsWith("left-", StringComparison.Ordinal) ||
+                token.StartsWith("end-", StringComparison.Ordinal) || token.StartsWith("start-", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 
 }

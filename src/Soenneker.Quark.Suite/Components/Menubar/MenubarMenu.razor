@@ -5,8 +5,7 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubarMenu" Value="@this" IsFixed="true">
-    <BradixMenubarMenu Value="@_menuValue"
-                       AdditionalAttributes="@MenuAttributes">
+    <BradixMenubarMenu Value="@_menuValue">
         @ChildContent
     </BradixMenubarMenu>
 </CascadingValue>
@@ -15,8 +14,6 @@
     private readonly string _menuValue = BlazorIdGenerator.New("quark-menubar-menu");
     private readonly List<IMenubarFocusableItem> _items = [];
     private MenubarTrigger? _trigger;
-
-    private IReadOnlyDictionary<string, object> MenuAttributes => BuildAttributes();
 
     internal void RegisterItem(IMenubarFocusableItem item)
     {
@@ -79,15 +76,4 @@
             await _trigger.Focus();
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "menubar-menu";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative");
-        });
-    }
 }

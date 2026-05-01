@@ -45,9 +45,19 @@
     [Parameter]
     public bool Selectable { get; set; }
 
+    /// <summary>
+    /// Gets or sets the text direction for the field.
+    /// </summary>
+    [Parameter]
+    public string? Dir { get; set; }
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     private readonly FieldContext _fieldContext = new();
     private string ResolvedOrientation => ResolveOrientation();
     private bool IsHorizontalResolved => ResolvedOrientation == "horizontal";
+    private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
 
     protected override void OnInitialized()
     {
@@ -67,7 +77,7 @@
 
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is3;
+        Gap ??= Quark.Gap.Is2;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -77,6 +87,9 @@
         attributes["data-slot"] = "field";
         attributes.TryAdd("role", "group");
         attributes["data-orientation"] = ResolvedOrientation;
+        if (!string.IsNullOrWhiteSpace(ResolvedDir))
+            attributes["dir"] = ResolvedDir!;
+
         if (Disabled)
         {
             attributes["data-disabled"] = "true";
@@ -92,7 +105,7 @@
             if (ResolvedOrientation == "horizontal")
             {
                 AppendClass(ref cls, "flex-row items-center");
-                AppendClass(ref cls, "[&>[data-slot=field-label]]:flex-auto");
+                AppendClass(ref cls, "*:data-[slot=field-label]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
 
                 if (Selectable)
@@ -106,13 +119,13 @@
             }
             else if (ResolvedOrientation == "responsive")
             {
-                AppendClass(ref cls, "flex-col @md/field-group:flex-row @md/field-group:items-center [&>*]:w-full @md/field-group:[&>*]:w-auto [&>.sr-only]:w-auto");
-                AppendClass(ref cls, "@md/field-group:[&>[data-slot=field-label]]:flex-auto");
+                AppendClass(ref cls, "flex-col @md/field-group:flex-row @md/field-group:items-center *:w-full @md/field-group:*:w-auto [&>.sr-only]:w-auto");
+                AppendClass(ref cls, "@md/field-group:*:data-[slot=field-label]:flex-auto");
                 AppendClass(ref cls, "@md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
             }
             else
             {
-                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
+                AppendClass(ref cls, "flex-col *:w-full [&>.sr-only]:w-auto");
             }
         });
     }
@@ -138,6 +151,8 @@
         hc.Add(Disabled);
         hc.Add(IsInvalid);
         hc.Add(Selectable);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
         hc.Add(_fieldContext.IsInvalid);
     }
 

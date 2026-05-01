@@ -1,6 +1,4 @@
 @page "/selects"
-@using Microsoft.AspNetCore.Components.Forms
-
 <PageTitle>Select Component - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
@@ -30,32 +28,30 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Align Item With Trigger"
-                         Description="Use item-aligned or popper positioning to control how the content aligns with the trigger."
+                         Description="Use the position prop on SelectContent to control alignment. When position=&quot;item-aligned&quot; (default), the popup positions so the selected item appears over the trigger. When position=&quot;popper&quot;, the popup aligns to the trigger edge."
                          Code="@AlignItemCode"
                          CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap="Gap.Is4" class="md:grid-cols-2">
+                <Div Space="Space.Y.Is4" Width='Width.Token("[180px]")'>
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is4">
+                        <Div Space="Space.Y.Is1">
+                            <Label TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" for="select-align-item">Align Item</Label>
+                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                                Toggle to align the item with the trigger.
+                            </Paragraph>
+                        </Div>
+                        <Switch Id="select-align-item" @bind-Checked="_alignItemWithTrigger" />
+                    </Div>
                     <Select TValue="string" @bind-SelectedValue="_selectedAlignedFruit">
                         <SelectTrigger Width="Width.IsFull">
-                            <SelectValue Placeholder="Item aligned" />
+                            <SelectValue Placeholder="Select a fruit" />
                         </SelectTrigger>
-                        <SelectContent ContentPosition="SelectPosition.ItemAligned">
+                        <SelectContent ContentPosition="@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)">
                             <SelectGroup>
                                 <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
                                 <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
                                 <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-
-                    <Select TValue="string" @bind-SelectedValue="_selectedPopperFruit">
-                        <SelectTrigger Width="Width.IsFull">
-                            <SelectValue Placeholder="Popper" />
-                        </SelectTrigger>
-                        <SelectContent ContentPosition="SelectPosition.Popper">
-                            <SelectGroup>
-                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
-                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
-                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                                <SelectItem TValue="string" ItemValue="@("grapes")" Text="Grapes" />
+                                <SelectItem TValue="string" ItemValue="@("pineapple")" Text="Pineapple" />
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -70,7 +66,7 @@
                          CodeLanguage="razor">
                 <Select TValue="string" @bind-SelectedValue="_selectedProduce">
                     <SelectTrigger Class="w-full max-w-48">
-                        <SelectValue Placeholder="Select produce" />
+                        <SelectValue Placeholder="Select a fruit" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
@@ -172,7 +168,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Invalid"
-                         Description="Mark the field invalid when validation fails."
+                         Description="Add the data-invalid attribute to the Field component and the aria-invalid attribute to the SelectTrigger component to show an error state."
                          Code="@InvalidCode"
                          CodeLanguage="razor">
                 <Field IsInvalid="true" Class="w-full max-w-48">
@@ -195,102 +191,25 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Native Form"
-                         Description="Required select participates in native form submission through the hidden select bridge."
-                         Code="@NativeFormCode"
-                         CodeLanguage="razor">
-                <form class="w-2/3 space-y-6" data-testid="select-native-form" @onsubmit="HandleNativeFormSubmit" @onsubmit:preventDefault="true">
-                    <Field>
-                        <FieldLabel>Framework</FieldLabel>
-                        <Select TValue="string"
-                                Name="framework"
-                                Required="true"
-                                @bind-SelectedValue="_nativeFormValue">
-                            <SelectTrigger>
-                                <SelectValue Placeholder="Select a framework" />
-                            </SelectTrigger>
-                            <SelectContent ContentPosition="SelectPosition.Popper">
-                                <SelectItem TValue="string" ItemValue="@("astro")" Text="Astro" />
-                                <SelectItem TValue="string" ItemValue="@("next")" Text="Next.js" />
-                                <SelectItem TValue="string" ItemValue="@("sveltekit")" Text="SvelteKit" />
-                            </SelectContent>
-                        </Select>
-                    </Field>
-                    <Button Type="ButtonType.Submit">Submit native form</Button>
-                    <PreCode Class="rounded-lg bg-neutral-950 p-4 text-sm text-white" data-testid="select-native-form-result">@_nativeFormSubmission</PreCode>
-                </form>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Field Form"
-                         Description="Field-backed select with helper text and submitted value."
-                         Code="@FormCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_formModel" OnSubmit="@(_ => HandleSubmit())" class="w-2/3 space-y-6">
-                    <Field>
-                        <FieldLabel>Email</FieldLabel>
-                        <Select TValue="string" @bind-SelectedValue="_formModel.Email">
-                            <SelectTrigger>
-                                <SelectValue Placeholder="Select a verified email to display" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem TValue="string" ItemValue="@("m@example.com")" Text="m@example.com" />
-                                <SelectItem TValue="string" ItemValue="@("m@google.com")" Text="m@google.com" />
-                                <SelectItem TValue="string" ItemValue="@("m@support.com")" Text="m@support.com" />
-                            </SelectContent>
-                        </Select>
-                        <FieldDescription>
-                            You can manage email addresses in your email settings.
-                        </FieldDescription>
-                        @if (_showFormError)
-                        {
-                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive" Margin="Margin.Is0">
-                                Please select an email to display.
-                            </Paragraph>
-                        }
-                    </Field>
-                    <Button Type="ButtonType.Submit">Submit</Button>
-                    @if (!string.IsNullOrEmpty(_formMessage))
-                    {
-                        <PreCode Class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_formMessage</PreCode>
-                    }
-                </EditForm>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Field"
-                         Description="Select inside Field with label and description."
-                         Code="@FieldCode"
-                         CodeLanguage="razor">
-                <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
-                    <FieldLabel>Department</FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_selectedDepartment">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Choose department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem TValue="string" ItemValue="@("engineering")" Text="Engineering" />
-                                <SelectItem TValue="string" ItemValue="@("design")" Text="Design" />
-                                <SelectItem TValue="string" ItemValue="@("marketing")" Text="Marketing" />
-                                <SelectItem TValue="string" ItemValue="@("sales")" Text="Sales" />
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                    <FieldDescription>Select your department or area of work.</FieldDescription>
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Select also supports right-to-left layouts."
+                         Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
                          CodeLanguage="razor">
-                <DirectionProvider Dir="rtl">
-                    <Div Width="Width.IsFull" TextAlign="TextAlign.End">
+                <Div Space="Space.Y.Is8" Width="Width.IsFull">
+                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Width="Width.IsFull">
+                        <Select TValue="string" SelectedValue="@("ar")">
+                            <SelectTrigger Class="w-44">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
+                            </SelectContent>
+                        </Select>
+                        <Icon Name="LucideIcon.Info" Class="size-4" TextColor="TextColor.MutedForeground" />
+                    </Div>
+                    <DirectionProvider Dir="rtl">
+                        <Div Width="Width.IsFull" Display="Display.Flex" Justify="Justify.Center">
                         <Select TValue="string" @bind-SelectedValue="_selectedRtlFruit">
                             <SelectTrigger Class="w-full max-w-48">
                                 <SelectValue Placeholder="اختر فاكهة" />
@@ -303,31 +222,21 @@
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
-                    </Div>
-                </DirectionProvider>
+                        </Div>
+                    </DirectionProvider>
+                </Div>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
 @code {
-    private sealed class SelectFormModel
-    {
-        public string? Email { get; set; }
-    }
-
     private string? _selectedFruit;
-    private string? _selectedAlignedFruit;
-    private string? _selectedPopperFruit;
+    private string? _selectedAlignedFruit = "banana";
     private string? _selectedProduce;
     private string? _selectedTimezone;
     private string? _selectedRtlFruit;
-    private string? _selectedDepartment;
-    private string? _nativeFormValue;
-    private readonly SelectFormModel _formModel = new();
-    private bool _showFormError;
-    private string? _formMessage;
-    private string _nativeFormSubmission = "No submission yet.";
+    private bool _alignItemWithTrigger = true;
 
     private const string DemoCode =
 @"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"">
@@ -413,28 +322,25 @@
 </form>";
 
     private const string AlignItemCode =
-@"<Div class=""grid gap-4 md:grid-cols-2"">
+@"<Div Space=""Space.Y.Is4"" Width='Width.Token(""[180px]"")'>
+    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Gap=""Gap.Is4"">
+        <Div Space=""Space.Y.Is1"">
+            <Label for=""select-align-item"">Align Item</Label>
+            <Paragraph>Toggle to align the item with the trigger.</Paragraph>
+        </Div>
+        <Switch Id=""select-align-item"" @bind-Checked=""_alignItemWithTrigger"" />
+    </Div>
     <Select TValue=""string"" @bind-SelectedValue=""_selectedAlignedFruit"">
         <SelectTrigger Class=""w-full"">
-            <SelectValue Placeholder=""Item aligned"" />
+            <SelectValue Placeholder=""Select a fruit"" />
         </SelectTrigger>
-        <SelectContent ContentPosition=""SelectPosition.ItemAligned"">
+        <SelectContent ContentPosition=""@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)"">
             <SelectGroup>
                 <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
                 <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
                 <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
-            </SelectGroup>
-        </SelectContent>
-    </Select>
-    <Select TValue=""string"" @bind-SelectedValue=""_selectedPopperFruit"">
-        <SelectTrigger Class=""w-full"">
-            <SelectValue Placeholder=""Popper"" />
-        </SelectTrigger>
-        <SelectContent ContentPosition=""SelectPosition.Popper"">
-            <SelectGroup>
-                <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
             </SelectGroup>
         </SelectContent>
     </Select>
@@ -443,7 +349,7 @@
     private const string GroupsCode =
 @"<Select TValue=""string"" @bind-SelectedValue=""_selectedProduce"">
     <SelectTrigger Class=""w-full max-w-48"">
-        <SelectValue Placeholder=""Select produce"" />
+        <SelectValue Placeholder=""Select a fruit"" />
     </SelectTrigger>
     <SelectContent>
         <SelectGroup>
@@ -497,28 +403,22 @@
     <FieldError>Please select a fruit.</FieldError>
 </Field>";
 
-    private const string FieldCode =
-@"<Field Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXs"">
-    <FieldLabel>Department</FieldLabel>
-    <Select TValue=""string"" @bind-SelectedValue=""_selectedDepartment"">
-        <SelectTrigger>
-            <SelectValue Placeholder=""Choose department"" />
-        </SelectTrigger>
-        <SelectContent>
-            <SelectGroup>
-                <SelectItem TValue=""string"" ItemValue=""@(""engineering"")"" Text=""Engineering"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""design"")"" Text=""Design"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""marketing"")"" Text=""Marketing"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""sales"")"" Text=""Sales"" />
-            </SelectGroup>
-        </SelectContent>
-    </Select>
-    <FieldDescription>Select your department or area of work.</FieldDescription>
-</Field>";
-
     private const string RtlCode =
-@"<DirectionProvider Dir=""rtl"">
-    <Div class=""w-full text-right"">
+@"<Div Space=""Space.Y.Is8"" Width=""Width.IsFull"">
+    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Width=""Width.IsFull"">
+        <Select TValue=""string"" SelectedValue=""@(""ar"")"">
+            <SelectTrigger Class=""w-44"">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
+            </SelectContent>
+        </Select>
+        <Icon Name=""LucideIcon.Info"" Class=""size-4"" />
+    </Div>
+    <DirectionProvider Dir=""rtl"">
+        <Div Width=""Width.IsFull"" Display=""Display.Flex"" Justify=""Justify.Center"">
         <Select TValue=""string"" @bind-SelectedValue=""_selectedRtlFruit"">
             <SelectTrigger Class=""w-full max-w-48"">
                 <SelectValue Placeholder=""اختر فاكهة"" />
@@ -531,28 +431,7 @@
                 </SelectGroup>
             </SelectContent>
         </Select>
-    </Div>
-</DirectionProvider>";
-
-    private void HandleSubmit()
-    {
-        if (string.IsNullOrWhiteSpace(_formModel.Email))
-        {
-            _showFormError = true;
-            _formMessage = null;
-            return;
-        }
-
-        _showFormError = false;
-        _formMessage = $$"""
-                        {
-                          "email": "{{_formModel.Email}}"
-                        }
-                        """;
-    }
-
-    private void HandleNativeFormSubmit()
-    {
-        _nativeFormSubmission = $"framework={_nativeFormValue}";
-    }
+        </Div>
+    </DirectionProvider>
+</Div>";
 }

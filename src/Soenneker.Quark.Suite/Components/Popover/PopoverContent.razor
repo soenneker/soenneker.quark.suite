@@ -17,6 +17,8 @@
                           Sticky="@Sticky"
                           HideWhenDetached="@HideWhenDetached"
                           CloseOnEscapeKeyDown="@CloseOnEscape"
+                          OnOpenAutoFocus="@OnOpenAutoFocus"
+                          OnOpenAutoFocusDetailed="@OnOpenAutoFocusDetailed"
                           AdditionalAttributes="@ContentAttributes">
         @ChildContent
     </BradixPopoverContent>
@@ -34,6 +36,12 @@
 
     [Parameter]
     public bool CloseOnEscape { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnOpenAutoFocus { get; set; }
+
+    [Parameter]
+    public EventCallback<BradixAutoFocusEventArgs> OnOpenAutoFocusDetailed { get; set; }
 
     [Parameter]
     public Side Side { get; set; } = Side.Bottom;
@@ -88,14 +96,19 @@
         base.ApplyDefaultParameters();
 
         ZIndex ??= "z-50";
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Gap ??= Quark.Gap.Token("2.5");
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
-        Border ??= Quark.Border.Default;
         Width ??= Quark.Width.Token("72");
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is4;
+        Rounded ??= Quark.Rounded.Lg;
+        Padding ??= Quark.Padding.Token("2.5");
+        TextSize ??= Quark.TextSize.Sm;
         OutlineStyle ??= "outline-hidden";
         Shadow ??= Quark.Shadow.Md;
+        Ring ??= Quark.Ring.One;
+        RingColor ??= "ring-foreground/10";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -116,8 +129,10 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "origin-(--radix-popover-content-transform-origin)");
+            AppendClass(ref cls, "duration-100");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
         });
     }
 
