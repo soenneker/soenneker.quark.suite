@@ -1,15 +1,21 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    <div class="h-full bg-foreground transition-[width] duration-200 dark:bg-primary" style="width:@ClampedValue%"></div>
-</div>
+<Div @attributes="BuildAttributes()">
+    <Div Height="Quark.Height.IsFull"
+         BackgroundColor='Quark.BackgroundColor.Utility("foreground")'
+         Transition='Quark.Transition.Token("transition-[width]")'
+         Duration="Quark.Duration.Is200"
+         Class="dark:bg-primary"
+         Style="@ProgressStyle"></Div>
+</Div>
 
 @code {
     [Parameter]
     public int Value { get; set; }
 
     private int ClampedValue => Math.Clamp(Value, 0, 100);
+    private string ProgressStyle => $"width:{ClampedValue}%";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

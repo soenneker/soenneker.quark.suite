@@ -130,4 +130,36 @@ public sealed partial class RenderedShadcnParityTests
         iframe.HasAttribute("allowpaymentrequest").Should().BeTrue();
         iframe.GetAttribute("srcdoc").Should().Be("<p>Hello</p>");
     }
+
+    [Test]
+    public void Svg_preserves_native_svg_attributes_and_quark_media_classes()
+    {
+        var cut = Render<Svg>(parameters => parameters
+            .Add(p => p.ViewBox, "0 0 32 32")
+            .Add(p => p.NativeWidth, "32")
+            .Add(p => p.NativeHeight, "32")
+            .Add(p => p.PreserveAspectRatio, "xMidYMid meet")
+            .Add(p => p.Focusable, false)
+            .Add(p => p.BoxSize, Size.Is4)
+            .Add(p => p.Stroke, Stroke.Token("current"))
+            .Add(p => p.StrokeWidth, StrokeWidth.Is2)
+            .Add(p => p.Fill, Fill.None)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenElement(0, "path");
+                builder.AddAttribute(1, "d", "M4 16h24");
+                builder.CloseElement();
+            })));
+
+        var svg = cut.Find("svg[data-slot='svg']");
+
+        svg.GetAttribute("xmlns").Should().Be("http://www.w3.org/2000/svg");
+        svg.GetAttribute("viewBox").Should().Be("0 0 32 32");
+        svg.GetAttribute("width").Should().Be("32");
+        svg.GetAttribute("height").Should().Be("32");
+        svg.GetAttribute("preserveAspectRatio").Should().Be("xMidYMid meet");
+        svg.GetAttribute("focusable").Should().Be("false");
+        svg.GetAttribute("class").Should().ContainAll("size-4", "stroke-current", "stroke-2", "fill-none");
+        svg.QuerySelector("path")!.GetAttribute("d").Should().Be("M4 16h24");
+    }
 }

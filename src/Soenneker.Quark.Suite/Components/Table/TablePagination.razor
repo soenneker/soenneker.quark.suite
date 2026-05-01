@@ -5,40 +5,40 @@
 {
     <nav @attributes="BuildAttributes()">
         <ul @attributes="BuildControlsAttributes()">
-            <li data-slot="pagination-item" class="list-none">
+            <PaginationItem Class="list-none">
                 <PaginationLink OnClick="@(_ => HandleFirstPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to first page" Class="@PaginationButtonClass">«</PaginationLink>
-            </li>
-            <li data-slot="pagination-item" class="list-none">
+            </PaginationItem>
+            <PaginationItem Class="list-none">
                 <PaginationLink OnClick="@(_ => HandlePreviousPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to previous page" Class="@PaginationButtonClass">‹</PaginationLink>
-            </li>
+            </PaginationItem>
 
             @if (ComputedTotalPages <= 1)
             {
-                <li data-slot="pagination-item" class="list-none">
+                <PaginationItem Class="list-none">
                     <PaginationLink Active="true" Disabled="true" Class="@ActivePaginationButtonClass">1</PaginationLink>
-                </li>
+                </PaginationItem>
             }
             else
             {
                 @for (var p = StartPage; p <= EndPage; p++)
                 {
                     var pageNumber = p;
-                    <li data-slot="pagination-item" class="list-none">
+                    <PaginationItem Class="list-none">
                         <PaginationLink Active="@(pageNumber == ComputedCurrentPage)"
                                         OnClick="@(_ => HandleGoToPage(pageNumber))"
                                         Class="@(pageNumber == ComputedCurrentPage ? ActivePaginationButtonClass : PaginationButtonClass)">
                             @pageNumber
                         </PaginationLink>
-                    </li>
+                    </PaginationItem>
                 }
             }
 
-            <li data-slot="pagination-item" class="list-none">
+            <PaginationItem Class="list-none">
                 <PaginationLink OnClick="@(_ => HandleNextPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to next page" Class="@PaginationButtonClass">›</PaginationLink>
-            </li>
-            <li data-slot="pagination-item" class="list-none">
+            </PaginationItem>
+            <PaginationItem Class="list-none">
                 <PaginationLink OnClick="@(_ => HandleLastPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to last page" Class="@PaginationButtonClass">»</PaginationLink>
-            </li>
+            </PaginationItem>
         </ul>
     </nav>
 }

@@ -75,10 +75,11 @@ public sealed partial class RenderedShadcnParityTests
         firstExample.Should().Contain("Variant=\"ToggleVariant.Outline\"");
         firstExample.Should().Contain("Value=\"bold\"");
         firstExample.Should().Contain("Value=\"italic\"");
-        firstExample.Should().Contain("Value=\"underline\"");
+        firstExample.Should().Contain("Value=\"strikethrough\"");
         firstExample.Should().Contain("LucideIcon.Underline");
-        firstExample.Should().NotContain("Value=\"strikethrough\"");
-        firstExample.Should().NotContain("Toggle strikethrough");
+        firstExample.Should().Contain("Toggle strikethrough");
+        firstExample.Should().NotContain("Value=\"underline\"");
+        firstExample.Should().NotContain("Toggle underline");
     }
 
     private static string GetSuiteRootForToggleGroup()

@@ -58,6 +58,10 @@ public sealed partial class RenderedShadcnParityTests
         var sizeExample = source[sizeStart..rtlStart];
 
         firstExample.Should().Contain("ToggleVariant.Outline");
+        firstExample.Should().Contain("Size=\"ToggleSize.Sm\"");
+        firstExample.Should().Contain("data-[state=on]:bg-transparent");
+        firstExample.Should().Contain("data-[state=on]:*:[svg]:fill-blue-500");
+        firstExample.Should().Contain("data-[state=on]:*:[svg]:stroke-blue-500");
         firstExample.Should().Contain("LucideIcon.Bookmark");
         firstExample.Should().Contain("Bookmark");
         firstExample.Should().NotContain("LucideIcon.Bold");

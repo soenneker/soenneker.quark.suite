@@ -32,7 +32,12 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Padding.Is2.FromRight.Token(\"8\").FromLeft.Token(\"1.5\").OnY");
         source.Should().Contain("data-[disabled]:pointer-events-none");
         source.Should().Contain("data-slot=\"context-menu-checkbox-item-indicator\"");
-        source.Should().Contain("absolute left-2 flex size-3.5 items-center justify-center");
+        source.Should().Contain("Position=\"Quark.Position.Absolute\"");
+        source.Should().Contain("Class=\"left-2\"");
+        source.Should().Contain("Display=\"Quark.Display.Flex\"");
+        source.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        source.Should().Contain("ItemsAlign=\"Items.Center\"");
+        source.Should().Contain("Justify=\"Quark.Justify.Center\"");
         source.Should().Contain("Class=\"size-4\"");
         source.Should().NotContain("right-2");
         source.Should().NotContain("data-disabled:");
@@ -47,7 +52,12 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Padding.Is2.FromRight.Token(\"8\").FromLeft.Token(\"1.5\").OnY");
         source.Should().Contain("data-[disabled]:pointer-events-none");
         source.Should().Contain("data-slot=\"context-menu-radio-item-indicator\"");
-        source.Should().Contain("absolute left-2 flex size-3.5 items-center justify-center");
+        source.Should().Contain("Position=\"Quark.Position.Absolute\"");
+        source.Should().Contain("Class=\"left-2\"");
+        source.Should().Contain("Display=\"Quark.Display.Flex\"");
+        source.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        source.Should().Contain("ItemsAlign=\"Items.Center\"");
+        source.Should().Contain("Justify=\"Quark.Justify.Center\"");
         source.Should().Contain("LucideIcon.Circle");
         source.Should().Contain("Class=\"size-2 fill-current\"");
         source.Should().NotContain("right-2");

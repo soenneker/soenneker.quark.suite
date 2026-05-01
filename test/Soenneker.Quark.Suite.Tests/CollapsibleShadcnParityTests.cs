@@ -73,13 +73,18 @@ public sealed partial class RenderedShadcnParityTests
         var basicStart = source.IndexOf("Title=\"Basic\"", StringComparison.Ordinal);
         var orderDemo = source[orderStart..basicStart];
 
-        orderDemo.Should().Contain("Class=\"flex min-h-[220px] justify-center\"");
-        orderDemo.Should().Contain("Class=\"w-full max-w-[350px] space-y-2\"");
-        orderDemo.Should().Contain("class=\"flex items-center justify-between space-x-4 px-4\"");
-        orderDemo.Should().Contain("class=\"flex items-center justify-between rounded-md border px-4 py-2 text-sm\"");
-        orderDemo.Should().Contain("<CollapsibleContent Class=\"space-y-2\">");
-        orderDemo.Should().Contain("Class=\"rounded-md border px-4 py-2 text-sm\"");
-        orderDemo.Should().NotContain("flex w-[350px] flex-col gap-2");
+        orderDemo.Should().Contain("Display=\"Display.Flex\" Justify=\"Justify.Center\"");
+        orderDemo.Should().Contain("Display=\"Display.Flex\" Width='Width.Token(\"[350px]\")' FlexDirection=\"FlexDirection.Col\" Gap=\"Gap.Is2\"");
+        orderDemo.Should().Contain("Display=\"Display.Flex\" ItemsAlign=\"Items.Center\" Justify=\"Justify.Between\" Gap=\"Gap.Is4\" Padding=\"Padding.Is4.OnX\"");
+        orderDemo.Should().Contain("@@peduarte starred 3 repositories");
+        orderDemo.Should().Contain("Rounded=\"Rounded.Md\" Border=\"Border.Is1\" Padding=\"Padding.Is4.OnX.Is2.OnY\" FontFamily=\"FontFamily.Mono\" TextSize=\"TextSize.Sm\"");
+        orderDemo.Should().Contain("<CollapsibleContent Display=\"Display.Flex\" FlexDirection=\"FlexDirection.Col\" Gap=\"Gap.Is2\">");
+        orderDemo.Should().Contain("@@radix-ui/primitives");
+        orderDemo.Should().Contain("@@radix-ui/colors");
+        orderDemo.Should().Contain("@@stitches/react");
+        orderDemo.Should().NotContain("Order #4189");
+        orderDemo.Should().NotContain("min-h-[220px]");
+        orderDemo.Should().NotContain("space-y-2");
     }
 
     private static string GetSuiteRootForCollapsible()

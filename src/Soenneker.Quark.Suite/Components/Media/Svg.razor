@@ -1,0 +1,82 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.MediaElement
+@implements ISvg
+
+<svg @attributes="BuildAttributes()">
+    @ChildContent
+</svg>
+
+@code {
+    /// <summary>
+    /// Gets or sets the SVG namespace attribute.
+    /// </summary>
+    [Parameter]
+    public string? Xmlns { get; set; } = "http://www.w3.org/2000/svg";
+
+    /// <summary>
+    /// Gets or sets the SVG viewBox attribute.
+    /// </summary>
+    [Parameter]
+    public string? ViewBox { get; set; } = "0 0 24 24";
+
+    /// <summary>
+    /// Gets or sets the native SVG width attribute. Use the inherited <see cref="Component.Width" /> parameter for Quark/Tailwind width utilities.
+    /// </summary>
+    [Parameter]
+    public string? NativeWidth { get; set; }
+
+    /// <summary>
+    /// Gets or sets the native SVG height attribute. Use the inherited <see cref="Component.Height" /> parameter for Quark/Tailwind height utilities.
+    /// </summary>
+    [Parameter]
+    public string? NativeHeight { get; set; }
+
+    /// <summary>
+    /// Gets or sets the preserveAspectRatio attribute.
+    /// </summary>
+    [Parameter]
+    public string? PreserveAspectRatio { get; set; }
+
+    /// <summary>
+    /// Gets or sets the focusable attribute.
+    /// </summary>
+    [Parameter]
+    public bool? Focusable { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        if (!attributes.ContainsKey("data-slot"))
+            attributes["data-slot"] = "svg";
+
+        if (Xmlns.HasContent())
+            attributes["xmlns"] = Xmlns!;
+
+        if (ViewBox.HasContent())
+            attributes["viewBox"] = ViewBox!;
+
+        if (NativeWidth.HasContent())
+            attributes["width"] = NativeWidth!;
+
+        if (NativeHeight.HasContent())
+            attributes["height"] = NativeHeight!;
+
+        if (PreserveAspectRatio.HasContent())
+            attributes["preserveAspectRatio"] = PreserveAspectRatio!;
+
+        if (Focusable.HasValue)
+            attributes["focusable"] = Focusable.Value ? "true" : "false";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Xmlns);
+        hc.Add(ViewBox);
+        hc.Add(NativeWidth);
+        hc.Add(NativeHeight);
+        hc.Add(PreserveAspectRatio);
+        hc.Add(Focusable);
+    }
+}

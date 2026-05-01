@@ -48,4 +48,21 @@ public sealed partial class RenderedShadcnParityTests
         dotClasses.Should().NotContain("size-4");
         dotClasses.Should().NotContain("bg-primary-foreground");
     }
+
+    [Test]
+    public void Radio_inline_label_matches_shadcn_demo_spacing()
+    {
+        var cut = Render<Radio>(parameters => parameters
+            .Add(p => p.Checked, true)
+            .Add(p => p.Value, "comfortable")
+            .AddChildContent("Comfortable"));
+
+        var labelClasses = cut.Find("label").GetAttribute("class")!;
+
+        labelClasses.Should().Contain("gap-3");
+        labelClasses.Should().NotContain("gap-2");
+        labelClasses.Should().Contain("text-sm");
+        labelClasses.Should().Contain("font-medium");
+        labelClasses.Should().Contain("leading-none");
+    }
 }

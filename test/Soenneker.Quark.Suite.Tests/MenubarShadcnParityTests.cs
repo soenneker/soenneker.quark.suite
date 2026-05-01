@@ -67,7 +67,12 @@ public sealed partial class RenderedShadcnParityTests
 
         checkbox.Should().Contain("Rounded.Token(\"xs\")");
         checkbox.Should().Contain("data-slot=\"menubar-checkbox-item-indicator\"");
-        checkbox.Should().Contain("absolute left-2 flex size-3.5 items-center justify-center");
+        checkbox.Should().Contain("Position=\"Quark.Position.Absolute\"");
+        checkbox.Should().Contain("Class=\"left-2\"");
+        checkbox.Should().Contain("Display=\"Quark.Display.Flex\"");
+        checkbox.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        checkbox.Should().Contain("ItemsAlign=\"Items.Center\"");
+        checkbox.Should().Contain("Justify=\"Quark.Justify.Center\"");
         checkbox.Should().Contain("Class=\"size-4\"");
         checkbox.Should().Contain("data-[disabled]:opacity-50");
         checkbox.Should().NotContain("left-1.5");
