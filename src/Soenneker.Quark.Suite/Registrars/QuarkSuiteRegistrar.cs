@@ -36,7 +36,8 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkThreadsAsScoped()
                 .AddQuarkStepsAsScoped()
                 .AddQuarkCodeEditorAsScoped()
-                .AddQuarkScoreAsScoped();
+                .AddQuarkScoreAsScoped()
+                .AddQuarkOnThisPageAsScoped();
 
         return services;
     }

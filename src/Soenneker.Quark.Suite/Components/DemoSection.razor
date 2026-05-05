@@ -1,10 +1,11 @@
 @using Microsoft.JSInterop
+@using System.Text
 
 <Div Width="Quark.Width.IsFull" Space="Quark.Space.Y.Is4">
     <Div Space="Quark.Space.Y.Is2">
         @if (Title != null)
         {
-            <H3 TextSize="Quark.TextSize.Xl" FontWeight="Quark.FontWeight.Semibold" Tracking="Quark.Tracking.Tight" Margin="Quark.Margin.Is0">@Title</H3>
+            <H3 Id="@ResolvedTitleId" TextSize="Quark.TextSize.Xl" FontWeight="Quark.FontWeight.Semibold" Tracking="Quark.Tracking.Tight" Margin="Quark.Margin.Is0">@Title</H3>
         }
         @if (DescriptionContent != null)
         {
@@ -150,6 +151,9 @@
     public string? Title { get; set; }
 
     [Parameter]
+    public string? TitleId { get; set; }
+
+    [Parameter]
     public string? Description { get; set; }
 
     /// <summary>Optional rich description (e.g. inline Badge). When set, Description is ignored.</summary>
@@ -194,6 +198,7 @@
 
     private bool _showCode;
     private string _copyButtonLabel = "Copy";
+    private string? ResolvedTitleId => TitleId ?? CreateTitleId(Title);
     private string _showCodeCss => ShouldShowCollapsedCodeOverlay ? "false" : "true";
     private string _previewChromeless => PreviewChromeless ? "true" : "false";
     private string? ResolvedPreviewLanguageLabel => !string.IsNullOrWhiteSpace(PreviewLanguageLabel)
@@ -257,5 +262,34 @@
         }
     }
 
+    private static string? CreateTitleId(string? title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return null;
+
+        var builder = new StringBuilder(title.Length);
+        var lastWasSeparator = false;
+
+        foreach (var character in title.Trim())
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                builder.Append(char.ToLowerInvariant(character));
+                lastWasSeparator = false;
+                continue;
+            }
+
+            if (!lastWasSeparator && builder.Length > 0)
+            {
+                builder.Append('-');
+                lastWasSeparator = true;
+            }
+        }
+
+        if (builder.Length > 0 && builder[^1] == '-')
+            builder.Length--;
+
+        return builder.Length == 0 ? null : builder.ToString();
+    }
 
 }

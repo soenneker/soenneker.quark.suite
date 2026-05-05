@@ -6,7 +6,7 @@
 @implements IDisposable
 
 <CascadingValue Value="ThemeService">
-    <SidebarProvider Class="h-svh min-h-svh flex flex-col overflow-hidden bg-background text-foreground" SidebarWidth="calc(var(--spacing) * 72)" SidebarWidthMobile="100vw" style="--header-height: 4.5rem;">
+    <SidebarProvider Class="@ShellClass" SidebarWidth="calc(var(--spacing) * 72)" SidebarWidthMobile="100vw" style="--header-height: 4.5rem;">
         @if (IsLandingPage)
         {
             <Header ShowSidebarTrigger="@ShowSidebarTrigger" ContainerPresets="@HeaderContainerPresets" ContainerClass="@HeaderContainerClass">
@@ -113,14 +113,20 @@
             </Header>
         }
 
-        <Div Flex=@("grow") Overflow="Overflow.Hidden" Padding="Padding.Is2.OnX" Presets="@NavigationShellContainerPresets" Class="min-h-0">
-            <Div Display="Display.Flex" Height="Height.IsFull" Class="min-h-0">
-                @if (IsLandingPage)
-                {
-                    <MobileHeaderSidebar Items="_headerLinks" IsActive="IsHeaderNavActive"/>
-                }
-                else
-                {
+        @if (IsLandingPage)
+        {
+            <Div Flex=@("grow") Padding="Padding.Is2.OnX" Presets="@NavigationShellContainerPresets">
+                <MobileHeaderSidebar Items="_headerLinks" IsActive="IsHeaderNavActive"/>
+
+                <Main Margin="Margin.Auto.OnX" MinWidth="MinWidth.Is0" Width="Width.IsFull" Flex=@("grow") Class="@MainClass">
+                    @Body
+                </Main>
+            </Div>
+        }
+        else
+        {
+            <Div Flex=@("grow") Padding="Padding.Is2.OnX" Presets="@NavigationShellContainerPresets">
+                <Div Display="Display.Flex">
                     <Sidebar Collapsible="SidebarCollapsible.None" Shell="SidebarShell.Navigation" MobileMode="SidebarMobileMode.FullScreen" MobileShowBackdrop="false" MobileLockScroll="false" MobileShowCloseButton="false" MobileOffsetTop="4.5rem">
                         <MobileContent>
                             <NavigationLinks Items="DocsNavigation.TopLinks" Mode="NavigationLinksMode.Stack" Title="Menu" IsActive="IsTopNavActive"/>
@@ -136,28 +142,39 @@
                             </SidebarContent>
                         </ChildContent>
                     </Sidebar>
-                }
 
-                <div @ref="_scrollContainerRef" class="no-scrollbar h-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-                    <Main Margin="Margin.Auto.OnX" MinWidth="MinWidth.Is0" Width="Width.IsFull" Flex=@("grow") Class="@MainClass">
-                        @if (ShouldRenderLayoutPageTitle && CurrentPageTitle is not null)
-                        {
-                            <Div Margin="Margin.Is8.FromBottom" Gap="Gap.Is2" Display="Display.Flex" Flex=@("flex flex-col")>
-                                <H1 ScrollMargin="ScrollMargin.Is24.FromTop" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight">@CurrentPageTitle</H1>
-                            </Div>
-                        }
-                        @Body
-                    </Main>
-                </div>
+                    <div class="min-w-0 flex-1 overflow-x-clip">
+                        <Main Margin="Margin.Auto.OnX" MinWidth="MinWidth.Is0" Width="Width.IsFull" Flex=@("grow") Class="@MainClass">
+                            @if (ShouldRenderOnThisPage)
+                            {
+                                <div class="grid min-w-0 grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_220px]">
+                                    <article data-docs-content class="min-w-0">
+                                        @if (ShouldRenderLayoutPageTitle && CurrentPageTitle is not null)
+                                        {
+                                            <Div Margin="Margin.Is8.FromBottom" Gap="Gap.Is2" Display="Display.Flex" Flex=@("flex flex-col")>
+                                                <H1 ScrollMargin="ScrollMargin.Is24.FromTop" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight">@CurrentPageTitle</H1>
+                                            </Div>
+                                        }
+                                        @Body
+                                    </article>
+                                    <OnThisPage />
+                                </div>
+                            }
+                            else
+                            {
+                                @Body
+                            }
+                        </Main>
+                    </div>
+                </Div>
             </Div>
-        </Div>
+        }
     </SidebarProvider>
 
     <Sonner Theme="@(ThemeService.IsDark ? "dark" : "light")"/>
 </CascadingValue>
 
 @code {
-    private ElementReference _scrollContainerRef;
     private string? _lastScrolledPath;
     private bool _docsLayoutExpanded;
 
@@ -191,10 +208,14 @@
 
     private bool IsDocsPage => CurrentPath != "/";
     private bool IsComponentsIndexPage => CurrentPath == "/components";
+    private bool ShouldRenderOnThisPage => IsComponentsIndexPage || IsDocumentedComponentPage;
     private bool ShouldRenderLayoutPageTitle => !IsComponentsIndexPage;
     private bool IsLandingPage => CurrentPath == "/";
     private bool ShowSidebarTrigger => true;
     private bool IsHeaderNavActive(NavigationItem item) => false;
+
+    private string ShellClass => "min-h-svh flex flex-col bg-background text-foreground";
+    private bool IsDocumentedComponentPage => DocsNavigation.ComponentLinks.Any(IsCurrentPath) || DocsNavigation.PrimitiveLinks.Any(IsCurrentPath) || DocsNavigation.SectionLinks.Any(IsCurrentPath);
 
     private string? CurrentPageTitle
     {
@@ -292,7 +313,7 @@
         if (_lastScrolledPath != CurrentPath)
         {
             _lastScrolledPath = CurrentPath;
-            await JSRuntime.InvokeVoidAsync("quarkDemo.scrollElementToTop", _scrollContainerRef);
+            await JSRuntime.InvokeVoidAsync("quarkDemo.scrollPageToTop");
         }
     }
 

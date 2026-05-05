@@ -1,0 +1,199 @@
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject NavigationManager Navigation
+@inject IOnThisPageInterop OnThisPageInterop
+@namespace Soenneker.Quark
+
+@if (!ShouldHide)
+{
+    <aside class="@OuterClass" data-slot="docs-on-this-page">
+        <div class="@ResolvedContainerClass">
+            <p class="@TitleClass">@Title</p>
+            <nav class="@ResolvedNavClass" aria-label="@Title">
+                @foreach (var item in _items)
+                {
+                    <a @key="item.Id"
+                       href="@GetLinkHref(item.Id)"
+                       class="@GetLinkClass(item)"
+                       aria-current="@(item.Id == _activeId ? "location" : null)">
+                        @item.Title
+                    </a>
+                }
+            </nav>
+        </div>
+    </aside>
+}
+
+@code {
+    private const string DefaultOuterClass = "sticky top-[calc(var(--header-height)+1rem)] hidden self-start xl:block";
+    private const string DefaultContainerClass = "max-h-[calc(100vh-var(--header-height)-2rem)] overflow-y-auto py-1";
+    private const string DefaultTitleClass = "mb-4 text-[0.8rem] font-medium text-muted-foreground";
+    private const string DefaultNavClass = "flex flex-col gap-2 text-[0.8rem]";
+    private const string DefaultLinkClass = "block leading-6 text-muted-foreground transition-colors hover:text-foreground";
+    private const string DefaultActiveLinkClass = "text-foreground";
+
+    private DotNetObjectReference<OnThisPage>? _dotNetRef;
+    private CancellationTokenSource? _refreshCts;
+    private IReadOnlyList<OnThisPageTocItem> _items = [];
+    private string? _activeId;
+    private string? _observerId;
+    private bool _disposed;
+
+    [Parameter] public string RootSelector { get; set; } = "[data-docs-content]";
+    [Parameter] public string HeadingSelector { get; set; } = "h2[id], h3[id]";
+    [Parameter] public string IgnoreSelector { get; set; } = "[data-docs-ignore-toc]";
+    [Parameter] public string Title { get; set; } = "On This Page";
+    [Parameter] public bool TrackActiveHeading { get; set; } = true;
+    [Parameter] public bool HideWhenEmpty { get; set; } = true;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? ContainerClass { get; set; }
+    [Parameter] public string? NavClass { get; set; }
+    [Parameter] public string? LinkClass { get; set; }
+    [Parameter] public string? ActiveLinkClass { get; set; }
+
+    private bool ShouldHide => HideWhenEmpty && _items.Count == 0;
+    private string OuterClass => ClassNames.Combine(DefaultOuterClass, Class);
+    private string ResolvedContainerClass => ClassNames.Combine(DefaultContainerClass, ContainerClass);
+    private string TitleClass => DefaultTitleClass;
+    private string ResolvedNavClass => ClassNames.Combine(DefaultNavClass, NavClass);
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await ScheduleRefresh();
+    }
+
+    /// <summary>
+    /// Re-scans the configured docs article root and recreates active heading tracking.
+    /// </summary>
+    public async ValueTask Refresh()
+    {
+        if (_disposed)
+            return;
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+
+        var options = BuildOptions();
+        var items = await OnThisPageInterop.GetItems(options);
+
+        if (_observerId is not null)
+        {
+            await OnThisPageInterop.DisposeObserver(_observerId);
+            _observerId = null;
+        }
+
+        _items = items;
+
+        if (_items.Count == 0)
+            _activeId = null;
+        else if (_activeId is not null && !_items.Any(item => item.Id == _activeId))
+            _activeId = null;
+
+        if (TrackActiveHeading && _items.Count > 0)
+            _observerId = await OnThisPageInterop.CreateActiveObserver(options, _dotNetRef);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public Task SetActiveId(string? id)
+    {
+        if (string.Equals(_activeId, id, StringComparison.Ordinal))
+            return Task.CompletedTask;
+
+        _activeId = id;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private object BuildOptions()
+    {
+        return new
+        {
+            rootSelector = RootSelector,
+            headingSelector = HeadingSelector,
+            ignoreSelector = IgnoreSelector,
+            rootMargin = "-80px 0px -70% 0px"
+        };
+    }
+
+    private string GetLinkClass(OnThisPageTocItem item)
+    {
+        return ClassNames.Combine(
+            DefaultLinkClass,
+            LinkClass,
+            item.Level switch
+            {
+                3 => "pl-4",
+                >= 4 => "pl-6",
+                _ => null
+            },
+            item.Id == _activeId ? ClassNames.Combine(DefaultActiveLinkClass, ActiveLinkClass) : null);
+    }
+
+    private string GetLinkHref(string id)
+    {
+        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var hashIndex = relativePath.IndexOf('#');
+
+        if (hashIndex >= 0)
+            relativePath = relativePath[..hashIndex];
+
+        return $"{(string.IsNullOrWhiteSpace(relativePath) ? string.Empty : relativePath)}#{id}";
+    }
+
+    private async ValueTask ScheduleRefresh()
+    {
+        if (_disposed)
+            return;
+
+        _refreshCts?.Cancel();
+        _refreshCts?.Dispose();
+        _refreshCts = new CancellationTokenSource();
+        var token = _refreshCts.Token;
+
+        try
+        {
+            await Task.Delay(75, token);
+
+            if (!token.IsCancellationRequested)
+                await Refresh();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(async () => await ScheduleRefresh());
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        Navigation.LocationChanged -= OnLocationChanged;
+        _refreshCts?.Cancel();
+        _refreshCts?.Dispose();
+
+        try
+        {
+            if (_observerId is not null)
+                await OnThisPageInterop.DisposeObserver(_observerId);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
+        {
+        }
+
+        _dotNetRef?.Dispose();
+    }
+}

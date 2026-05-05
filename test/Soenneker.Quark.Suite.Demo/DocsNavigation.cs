@@ -88,6 +88,7 @@ public static class DocsNavigation
         new("Timeline", "timelines"),
         new("Toggle", "toggles"),
         new("Toggle Group", "toggle-groups"),
+        new("On This Page", "docs-on-this-page", IsNew: true),
         new("Tooltip", "tooltips"),
         new("Typography", "typography")
     ];
