@@ -16,6 +16,9 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
 
@@ -72,8 +75,14 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(OnClick.HasDelegate);
         hc.Add(Value);
         hc.Add(Disabled);
         hc.Add(ParentTabs?.Loop);
+    }
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
     }
 }

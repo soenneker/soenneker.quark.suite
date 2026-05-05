@@ -258,9 +258,6 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<TransitionBuilder>? Transition { get; set; }
 
     [Parameter]
-    public EventCallback<MouseEventArgs> OnClick { get; set; }
-
-    [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
 
     protected ElementReference ElementRef { get; set; }
@@ -380,11 +377,6 @@ public abstract class Component : RenderComponent, IComponent
             _ = OnElementRefReady.InvokeIfHasDelegate(ElementRef);
 
         return Task.CompletedTask;
-    }
-
-    protected virtual Task HandleClick(MouseEventArgs e)
-    {
-        return OnClick.InvokeIfHasDelegate(e);
     }
 
     private QuarkPresetContext? BuildPresetContext()

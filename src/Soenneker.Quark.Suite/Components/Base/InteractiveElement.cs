@@ -17,6 +17,9 @@ public abstract class InteractiveElement : Element
     public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
 
     [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
     public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
     [Parameter]
@@ -64,6 +67,7 @@ public abstract class InteractiveElement : Element
             attrs["onblur"] = OnBlur;
     }
 
+    protected virtual Task HandleClick(MouseEventArgs e) => OnClick.InvokeIfHasDelegate(e);
     protected virtual Task HandleDoubleClick(MouseEventArgs e) => OnDoubleClick.InvokeIfHasDelegate(e);
     protected virtual Task HandleMouseOver(MouseEventArgs e) => OnMouseOver.InvokeIfHasDelegate(e);
     protected virtual Task HandleMouseOut(MouseEventArgs e) => OnMouseOut.InvokeIfHasDelegate(e);
@@ -75,6 +79,7 @@ public abstract class InteractiveElement : Element
     {
         base.ComputeRenderKeyCore(ref hc);
 
+        hc.Add(OnClick.HasDelegate);
         AddIf(ref hc, RingOffset);
         hc.Add(OnDoubleClick.HasDelegate);
         hc.Add(OnMouseOver.HasDelegate);

@@ -64,6 +64,9 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -205,7 +208,8 @@ else
         if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
             await SidebarProvider.SetOpenMobile(false);
 
-        await base.HandleClick(args);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

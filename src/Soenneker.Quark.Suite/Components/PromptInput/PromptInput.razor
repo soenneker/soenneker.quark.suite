@@ -18,6 +18,9 @@
     public EventCallback<string?> OnSubmit { get; set; }
 
     [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
     public EventCallback<PromptInputMessage> OnSubmitMessage { get; set; }
 
     [Parameter]
@@ -33,6 +36,11 @@
     public bool GlobalDrop { get; set; }
 
     internal IReadOnlyList<PromptInputAttachmentInfo> Attachments => _attachments;
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
+    }
 
     internal void SetValue(string? value)
     {

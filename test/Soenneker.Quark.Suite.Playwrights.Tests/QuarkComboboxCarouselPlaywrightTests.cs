@@ -30,6 +30,38 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Combobox_demo_selects_clicked_option()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}comboboxes",
+            static p => p.GetByPlaceholder("Select a framework").First,
+            expectedTitle: "Combobox - Quark Suite");
+
+        var input = page.GetByPlaceholder("Select a framework").First;
+
+        await input.ClickAsync();
+        await page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Next.js", Exact = true }).First.ClickAsync();
+
+        await Assertions.Expect(input).ToHaveValueAsync("Next.js");
+        await Assertions.Expect(page.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
+
+        await input.ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Option)).ToHaveCountAsync(FrameworkOptions.Length);
+    }
+
+    private static readonly string[] FrameworkOptions =
+    [
+        "Next.js",
+        "SvelteKit",
+        "Nuxt.js",
+        "Remix",
+        "Astro"
+    ];
+
+    [Test]
     public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds()
     {
         await using var session = await CreateSession();

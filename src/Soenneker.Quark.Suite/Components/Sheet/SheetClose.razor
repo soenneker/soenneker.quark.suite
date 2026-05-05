@@ -36,6 +36,9 @@ else
     public bool AutoClose { get; set; } = true;
 
     [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
     public EventCallback OnClose { get; set; }
 
     protected override void ApplyDefaultParameters()
@@ -81,7 +84,8 @@ else
     private async Task HandleDefaultClick(MouseEventArgs e)
     {
         await HandleClose();
-        await base.HandleClick(e);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -89,5 +93,6 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(AutoClose);
+        hc.Add(OnClick.HasDelegate);
     }
 }

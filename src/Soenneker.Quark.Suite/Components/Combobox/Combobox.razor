@@ -66,10 +66,26 @@
 
     internal IReadOnlyList<string> SelectedValues => Values ?? [];
 
-    private Task HandlePopoverOpenChanged(bool open)
+    private async Task HandlePopoverOpenChanged(bool open)
     {
         Open = open;
-        return OpenChanged.InvokeAsync(open);
+        var searchChanged = false;
+        if (Open)
+        {
+            searchChanged = ClearSelectedSearchForSingle();
+            EnsureActiveItem();
+        }
+        else
+        {
+            SetActiveValue(null);
+        }
+
+        if (searchChanged)
+            await SearchChanged.InvokeAsync(Search);
+
+        await OpenChanged.InvokeAsync(open);
+        InvalidateRender();
+        Refresh();
     }
 
     internal void SetTriggerElement(ElementReference elementReference)
@@ -87,7 +103,7 @@
         }
 
         Value = v;
-        Search = v ?? "";
+        Search = "";
         Open = false;
         SetActiveValue(v);
         await ValueChanged.InvokeAsync(v);
@@ -111,11 +127,21 @@
     internal async Task SetOpen(bool open)
     {
         Open = open;
+        var searchChanged = false;
         if (open)
+        {
+            searchChanged = ClearSelectedSearchForSingle();
             EnsureActiveItem();
+        }
         else
+        {
             SetActiveValue(null);
+        }
+
         await OpenChanged.InvokeAsync(open);
+        if (searchChanged)
+            await SearchChanged.InvokeAsync(Search);
+
         InvalidateRender();
         Refresh();
     }
@@ -310,6 +336,17 @@
         await OpenChanged.InvokeAsync(Open);
         InvalidateRender();
         Refresh();
+    }
+
+    private bool ClearSelectedSearchForSingle()
+    {
+        if (!Multiple && Value is not null && string.Equals(Search, Value, StringComparison.Ordinal))
+        {
+            Search = "";
+            return true;
+        }
+
+        return false;
     }
 
     private async Task RemoveLastValue()

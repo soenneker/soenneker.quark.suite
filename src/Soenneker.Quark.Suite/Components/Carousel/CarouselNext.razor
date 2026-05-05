@@ -15,6 +15,9 @@
 
     private Carousel? _subscribedCarousel;
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -28,7 +31,8 @@
         if (ParentCarousel is not null)
             await ParentCarousel.Next();
 
-        await base.HandleClick(e);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
     }
 
     protected override void OnParametersSet()

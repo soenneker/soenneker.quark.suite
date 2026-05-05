@@ -52,6 +52,9 @@
     [Parameter]
     public RenderFragment? ClosedContent { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -81,7 +84,8 @@
         if (SidebarProvider is not null)
             await SidebarProvider.ToggleSidebar();
 
-        await base.HandleClick(args);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(args);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

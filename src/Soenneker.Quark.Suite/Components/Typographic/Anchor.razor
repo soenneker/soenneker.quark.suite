@@ -12,6 +12,9 @@
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     /// <summary>
     /// Gets or sets the URL to navigate to.
     /// </summary>
@@ -50,6 +53,12 @@
         hc.Add(To);
         hc.Add(Target);
         hc.Add(PreventDefault);
+        hc.Add(OnClick.HasDelegate);
         hc.Add(SlotAttributeOverrides?.Count ?? 0);
+    }
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
     }
 }

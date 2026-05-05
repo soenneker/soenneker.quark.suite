@@ -92,7 +92,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     CssValue<AnimationBuilder>? Animation { get; set; }
     CssValue<TransitionBuilder>? Transition { get; set; }
 
-    EventCallback<MouseEventArgs> OnClick { get; set; }
     EventCallback<ElementReference> OnElementRefReady { get; set; }
 
     void Refresh();

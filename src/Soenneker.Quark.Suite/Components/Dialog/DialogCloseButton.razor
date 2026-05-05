@@ -40,6 +40,9 @@ else
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
@@ -70,9 +73,10 @@ else
 
     }
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    private async Task HandleClick(MouseEventArgs e)
     {
-        await base.HandleClick(e);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
 
         if (AutoClose && ParentDialog != null)
         {
@@ -82,13 +86,14 @@ else
 
     private Task HandleCloseClick(MouseEventArgs e)
     {
-        return base.HandleClick(e);
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(e) : Task.CompletedTask;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AutoClose);
+        hc.Add(OnClick.HasDelegate);
         hc.Add(BradixDialog?.CurrentOpen);
     }
 }

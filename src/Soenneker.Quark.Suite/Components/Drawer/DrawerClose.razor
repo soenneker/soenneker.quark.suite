@@ -27,6 +27,9 @@ else
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     private IReadOnlyDictionary<string, object> CloseAttributes => BuildAttributes();
 
     private async Task HandleClose()
@@ -45,7 +48,8 @@ else
     private async Task HandleDefaultClick(MouseEventArgs e)
     {
         await HandleClose();
-        await base.HandleClick(e);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
     }
 
     private TriggerContext GetTriggerContext()
@@ -62,6 +66,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(AutoClose);
+        hc.Add(OnClick.HasDelegate);
     }
 
 }

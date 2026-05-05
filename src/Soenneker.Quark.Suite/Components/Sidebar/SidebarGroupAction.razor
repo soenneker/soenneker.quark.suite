@@ -18,6 +18,14 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
+    }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

@@ -24,12 +24,12 @@
 }
 
 @code {
-    private const string DefaultOuterClass = "sticky top-[calc(var(--header-height)+1rem)] hidden self-start xl:block";
-    private const string DefaultContainerClass = "max-h-[calc(100vh-var(--header-height)-2rem)] overflow-y-auto py-1";
-    private const string DefaultTitleClass = "mb-4 text-[0.8rem] font-medium text-muted-foreground";
-    private const string DefaultNavClass = "flex flex-col gap-2 text-[0.8rem]";
-    private const string DefaultLinkClass = "block leading-6 text-muted-foreground transition-colors hover:text-foreground";
-    private const string DefaultActiveLinkClass = "font-medium !text-black dark:!text-white";
+    private const string _defaultOuterClass = "sticky top-[calc(var(--header-height)+1rem)] hidden self-start xl:block";
+    private const string _defaultContainerClass = "max-h-[calc(100vh-var(--header-height)-2rem)] overflow-y-auto py-1";
+    private const string _defaultTitleClass = "mb-4 text-[0.8rem] font-medium text-muted-foreground";
+    private const string _defaultNavClass = "flex flex-col gap-2 text-[0.8rem]";
+    private const string _defaultLinkClass = "block leading-6 text-muted-foreground transition-colors hover:text-foreground";
+    private const string _defaultActiveLinkClass = "font-medium !text-black dark:!text-white";
 
     private DotNetObjectReference<OnThisPage>? _dotNetRef;
     private CancellationTokenSource? _refreshCts;
@@ -72,10 +72,10 @@
     public string? ActiveLinkClass { get; set; }
 
     private bool ShouldHide => HideWhenEmpty && _items.Count == 0;
-    private string OuterClass => CombineClasses(DefaultOuterClass, Class);
-    private string ResolvedContainerClass => CombineClasses(DefaultContainerClass, ContainerClass);
-    private string TitleClass => DefaultTitleClass;
-    private string ResolvedNavClass => CombineClasses(DefaultNavClass, NavClass);
+    private string OuterClass => CombineClasses(_defaultOuterClass, Class);
+    private string ResolvedContainerClass => CombineClasses(_defaultContainerClass, ContainerClass);
+    private string TitleClass => _defaultTitleClass;
+    private string ResolvedNavClass => CombineClasses(_defaultNavClass, NavClass);
 
     protected override void OnInitialized()
     {
@@ -145,7 +145,7 @@
     {
         var builder = new PooledStringBuilder(128);
 
-        AppendClass(ref builder, DefaultLinkClass);
+        AppendClass(ref builder, _defaultLinkClass);
         AppendClass(ref builder, LinkClass);
 
         AppendClass(ref builder, item.Level switch
@@ -157,7 +157,7 @@
 
         if (item.Id == _activeId)
         {
-            AppendClass(ref builder, DefaultActiveLinkClass);
+            AppendClass(ref builder, _defaultActiveLinkClass);
             AppendClass(ref builder, ActiveLinkClass);
         }
 

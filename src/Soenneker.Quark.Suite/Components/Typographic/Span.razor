@@ -24,6 +24,9 @@
     private string? _registeredTriggerId;
     private static readonly TriggerContext? NoChildTriggerContext = null;
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -72,6 +75,7 @@
         hc.Add(TriggerContext?.AriaControls);
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
+        hc.Add(OnClick.HasDelegate);
     }
 
     private Task HandleMouseEnter(MouseEventArgs e) => TriggerContext?.OnMouseEnter?.Invoke() ?? Task.CompletedTask;
@@ -81,9 +85,10 @@
     private Task HandleFocusOut(FocusEventArgs e) => TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
     private Task HandleKeyDown(KeyboardEventArgs e) => TriggerContext?.OnKeyDown?.Invoke(e) ?? Task.CompletedTask;
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    private async Task HandleClick(MouseEventArgs e)
     {
-        await base.HandleClick(e);
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
 
         if (TriggerContext?.OnClick is not null)
             await TriggerContext.OnClick();

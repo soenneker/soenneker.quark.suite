@@ -24,6 +24,9 @@ else
     [Parameter]
     public bool Disabled { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
     [CascadingParameter]
     private BradixCollapsible? Collapsible { get; set; }
 
@@ -76,6 +79,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
         hc.Add(AsChild);
+        hc.Add(OnClick.HasDelegate);
         hc.Add(Collapsible?.IsOpen == true);
         hc.Add(Collapsible?.Disabled == true);
         hc.Add(Collapsible?.TriggerId);
