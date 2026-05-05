@@ -14,10 +14,7 @@
             <nav class="@ResolvedNavClass" aria-label="@Title">
                 @foreach (var item in _items)
                 {
-                    <a @key="item.Id"
-                       href="@GetLinkHref(item.Id)"
-                       class="@GetLinkClass(item)"
-                       aria-current="@(item.Id == _activeId ? "location" : null)">
+                    <a @key="item.Id" href="@GetLinkHref(item.Id)" class="@GetLinkClass(item)" aria-current="@(item.Id == _activeId ? "location" : null)">
                         @item.Title
                     </a>
                 }
@@ -41,23 +38,44 @@
     private string? _observerId;
     private bool _disposed;
 
-    [Parameter] public string RootSelector { get; set; } = "[data-docs-content]";
-    [Parameter] public string HeadingSelector { get; set; } = "h2[id], h3[id]";
-    [Parameter] public string IgnoreSelector { get; set; } = "[data-docs-ignore-toc]";
-    [Parameter] public string Title { get; set; } = "On This Page";
-    [Parameter] public bool TrackActiveHeading { get; set; } = true;
-    [Parameter] public bool HideWhenEmpty { get; set; } = true;
-    [Parameter] public string? Class { get; set; }
-    [Parameter] public string? ContainerClass { get; set; }
-    [Parameter] public string? NavClass { get; set; }
-    [Parameter] public string? LinkClass { get; set; }
-    [Parameter] public string? ActiveLinkClass { get; set; }
+    [Parameter]
+    public string RootSelector { get; set; } = "[data-docs-content]";
+
+    [Parameter]
+    public string HeadingSelector { get; set; } = "h2[id], h3[id]";
+
+    [Parameter]
+    public string IgnoreSelector { get; set; } = "[data-docs-ignore-toc]";
+
+    [Parameter]
+    public string Title { get; set; } = "On This Page";
+
+    [Parameter]
+    public bool TrackActiveHeading { get; set; } = true;
+
+    [Parameter]
+    public bool HideWhenEmpty { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? ContainerClass { get; set; }
+
+    [Parameter]
+    public string? NavClass { get; set; }
+
+    [Parameter]
+    public string? LinkClass { get; set; }
+
+    [Parameter]
+    public string? ActiveLinkClass { get; set; }
 
     private bool ShouldHide => HideWhenEmpty && _items.Count == 0;
-    private string OuterClass => ClassNames.Combine(DefaultOuterClass, Class);
-    private string ResolvedContainerClass => ClassNames.Combine(DefaultContainerClass, ContainerClass);
+    private string OuterClass => CombineClasses(DefaultOuterClass, Class);
+    private string ResolvedContainerClass => CombineClasses(DefaultContainerClass, ContainerClass);
     private string TitleClass => DefaultTitleClass;
-    private string ResolvedNavClass => ClassNames.Combine(DefaultNavClass, NavClass);
+    private string ResolvedNavClass => CombineClasses(DefaultNavClass, NavClass);
 
     protected override void OnInitialized()
     {
@@ -125,16 +143,25 @@
 
     private string GetLinkClass(OnThisPageTocItem item)
     {
-        return ClassNames.Combine(
-            DefaultLinkClass,
-            LinkClass,
-            item.Level switch
-            {
-                3 => "pl-4",
-                >= 4 => "pl-6",
-                _ => null
-            },
-            item.Id == _activeId ? ClassNames.Combine(DefaultActiveLinkClass, ActiveLinkClass) : null);
+        var builder = new PooledStringBuilder(128);
+
+        AppendClass(ref builder, DefaultLinkClass);
+        AppendClass(ref builder, LinkClass);
+
+        AppendClass(ref builder, item.Level switch
+        {
+            3 => "pl-4",
+            >= 4 => "pl-6",
+            _ => null
+        });
+
+        if (item.Id == _activeId)
+        {
+            AppendClass(ref builder, DefaultActiveLinkClass);
+            AppendClass(ref builder, ActiveLinkClass);
+        }
+
+        return builder.ToStringAndDispose();
     }
 
     private string GetLinkHref(string id)
@@ -145,7 +172,36 @@
         if (hashIndex >= 0)
             relativePath = relativePath[..hashIndex];
 
-        return $"{(string.IsNullOrWhiteSpace(relativePath) ? string.Empty : relativePath)}#{id}";
+        var builder = new PooledStringBuilder(relativePath.Length + id.Length + 1);
+
+        if (!string.IsNullOrWhiteSpace(relativePath))
+            builder.Append(relativePath);
+
+        builder.Append('#');
+        builder.Append(id);
+
+        return builder.ToStringAndDispose();
+    }
+
+    private static string CombineClasses(string defaultClass, string? className)
+    {
+        var builder = new PooledStringBuilder(defaultClass.Length + (className?.Length ?? 0) + 1);
+
+        AppendClass(ref builder, defaultClass);
+        AppendClass(ref builder, className);
+
+        return builder.ToStringAndDispose();
+    }
+
+    private static void AppendClass(ref PooledStringBuilder builder, string? className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+            return;
+
+        if (builder.Length > 0)
+            builder.Append(' ');
+
+        builder.Append(className);
     }
 
     private async ValueTask ScheduleRefresh()
@@ -153,8 +209,12 @@
         if (_disposed)
             return;
 
-        _refreshCts?.Cancel();
-        _refreshCts?.Dispose();
+        if (_refreshCts != null)
+        {
+            await _refreshCts.CancelAsync();
+            _refreshCts.Dispose();
+        }
+
         _refreshCts = new CancellationTokenSource();
         var token = _refreshCts.Token;
 
@@ -182,8 +242,12 @@
 
         _disposed = true;
         Navigation.LocationChanged -= OnLocationChanged;
-        _refreshCts?.Cancel();
-        _refreshCts?.Dispose();
+
+        if (_refreshCts != null)
+        {
+            await _refreshCts.CancelAsync();
+            _refreshCts.Dispose();
+        }
 
         try
         {
@@ -196,4 +260,5 @@
 
         _dotNetRef?.Dispose();
     }
+
 }
