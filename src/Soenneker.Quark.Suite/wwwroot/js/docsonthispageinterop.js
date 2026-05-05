@@ -30,13 +30,13 @@ export function createActiveObserver(options, dotNetRef) {
 
   const id = `docs-on-this-page-${++nextObserverId}`;
 
-  if (!headings.length || !("IntersectionObserver" in window)) {
+  if (!headings.length) {
     observers.set(id, { dispose: () => {} });
     return id;
   }
 
-  const visible = new Map();
   let activeId = null;
+  let frame = 0;
 
   const setActive = (nextId) => {
     if (activeId === nextId) {
@@ -47,48 +47,55 @@ export function createActiveObserver(options, dotNetRef) {
     dotNetRef.invokeMethodAsync("SetActiveId", nextId);
   };
 
-  const findNearestHeading = () => {
-    const sorted = headings
-      .map((heading) => ({
-        id: heading.id,
-        top: heading.getBoundingClientRect().top
-      }))
-      .sort((a, b) => a.top - b.top);
+  const getOffset = () => {
+    const headerHeight = getComputedStyle(document.documentElement).getPropertyValue("--header-height");
+    const parsedHeaderHeight = Number.parseFloat(headerHeight);
 
-    const above = sorted.filter((item) => item.top <= 96).pop();
-    return above?.id || sorted[0]?.id || null;
+    return (Number.isFinite(parsedHeaderHeight) ? parsedHeaderHeight : 72) + 24;
   };
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          visible.set(entry.target.id, entry.boundingClientRect.top);
-        } else {
-          visible.delete(entry.target.id);
-        }
-      }
+  const findActiveHeading = () => {
+    const offset = getOffset();
+    let active = headings[0]?.id || null;
 
-      if (visible.size) {
-        const nextId = Array.from(visible.entries()).sort((a, b) => a[1] - b[1])[0][0];
-        setActive(nextId);
-        return;
+    for (const heading of headings) {
+      if (heading.getBoundingClientRect().top <= offset) {
+        active = heading.id;
+      } else {
+        break;
       }
-
-      setActive(findNearestHeading());
-    },
-    {
-      root: null,
-      rootMargin: options?.rootMargin || "-80px 0px -70% 0px",
-      threshold: [0, 1]
     }
-  );
 
-  headings.forEach((heading) => observer.observe(heading));
-  setActive(findNearestHeading());
+    return active;
+  };
+
+  const updateActiveHeading = () => {
+    frame = 0;
+    setActive(findActiveHeading());
+  };
+
+  const scheduleUpdate = () => {
+    if (frame) {
+      return;
+    }
+
+    frame = window.requestAnimationFrame(updateActiveHeading);
+  };
+
+  window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  window.addEventListener("resize", scheduleUpdate);
+
+  updateActiveHeading();
 
   observers.set(id, {
-    dispose: () => observer.disconnect()
+    dispose: () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    }
   });
 
   return id;
