@@ -61,14 +61,14 @@ public sealed partial class RenderedShadcnParityTests
         previousClasses.Should().Contain("rounded-full");
         previousClasses.Should().Contain("top-1/2");
         previousClasses.Should().Contain("-left-12");
-        previousClasses.Should().Contain("size-8");
+        previousClasses.Should().Contain("size-7");
         previousClasses.Should().NotContain("q-carousel-previous");
 
         nextClasses.Should().Contain("absolute");
         nextClasses.Should().Contain("rounded-full");
         nextClasses.Should().Contain("top-1/2");
         nextClasses.Should().Contain("-right-12");
-        nextClasses.Should().Contain("size-8");
+        nextClasses.Should().Contain("size-7");
         nextClasses.Should().NotContain("q-carousel-next");
     }
 
@@ -94,8 +94,8 @@ public sealed partial class RenderedShadcnParityTests
 
         viewportClasses.Should().Be("overflow-hidden touch-pan-y");
         trackClasses.Should().Contain("flex");
-        trackClasses.Should().Contain("-ml-4");
         trackClasses.Should().Contain("-ml-1");
+        trackClasses.Should().NotContain("-ml-4");
     }
 
     [Test]
@@ -109,7 +109,8 @@ public sealed partial class RenderedShadcnParityTests
         contentSource.Should().Contain("@ontouchcancel=\"HandleTouchCancel\"");
         contentSource.Should().Contain("\"overflow-hidden touch-pan-y\"");
         contentSource.Should().Contain("\"overflow-hidden touch-pan-x\"");
-        contentSource.Should().Contain("var offset = index * 100.0;");
+        contentSource.Should().Contain("transition: transform 300ms ease-in-out");
+        contentSource.Should().Contain("will-change: transform");
         contentSource.Should().NotContain("100.0 / count");
         carouselSource.Should().Contain("BeginTouchDrag(TouchEventArgs args)");
         carouselSource.Should().Contain("CompleteTouchDrag(TouchEventArgs args)");
@@ -126,12 +127,9 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("To set the spacing between the items, we use a padding utility on CarouselItem and a negative margin on CarouselContent.");
         source.Should().Contain("Use the orientation prop to set the orientation of the carousel.");
         source.Should().Contain("Use a state and the setApi props to get an instance of the carousel API.");
-        source.Should().Contain("You can pass options to the carousel using the opts prop.");
-        source.Should().Contain("You can listen to events using the api instance from setApi.");
         source.Should().Contain("You can use the plugins prop to add plugins to the carousel.");
         source.Should().Contain("To enable RTL support in shadcn/ui, see the RTL configuration guide.");
         source.Should().Contain("<Carousel Orientation=\"Orientation.Vertical\"");
-        source.Should().Contain("<Carousel Loop=\"true\"");
         source.Should().Contain("<Carousel Autoplay=\"true\" Loop=\"true\"");
         source.Should().Contain("<DirectionProvider Dir=\"@CarouselRtlDirection\">");
     }

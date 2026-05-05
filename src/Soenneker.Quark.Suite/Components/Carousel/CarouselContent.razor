@@ -42,7 +42,7 @@
         return new Dictionary<string, object>
         {
             ["data-slot"] = "carousel-content",
-            ["class"] = "overflow-hidden"
+            ["class"] = horizontal ? "overflow-hidden touch-pan-y" : "overflow-hidden touch-pan-x"
         };
     }
 
@@ -108,9 +108,12 @@
             if (horizontal && ParentCarousel?.IsRtl == true)
                 AppendStyleDecl(ref sty, $"transform: translate3d({formattedOffset}px, 0px, 0px)");
             else if (horizontal)
-                AppendStyleDecl(ref sty, $"transform: translate3d(-{formattedOffset}px, 0px, 0px)");
+                AppendStyleDecl(ref sty, $"transform: translate3d({(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px, 0px)");
             else
-                AppendStyleDecl(ref sty, $"transform: translate3d(0px, -{formattedOffset}px, 0px)");
+                AppendStyleDecl(ref sty, $"transform: translate3d(0px, {(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px)");
+
+            AppendStyleDecl(ref sty, "transition: transform 300ms ease-in-out");
+            AppendStyleDecl(ref sty, "will-change: transform");
         });
     }
 

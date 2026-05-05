@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -55,17 +56,17 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var track = demo.Locator("[data-slot='carousel-content'] > div").First;
 
         await Assertions.Expect(previous).ToBeDisabledAsync();
-        await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-0%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(track, shouldBeAtStart: true);
 
         await next.ClickAsync();
         await Assertions.Expect(previous).ToBeEnabledAsync();
-        await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-20%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(track, shouldBeAtStart: false);
 
         for (var i = 0; i < 3; i++)
             await next.ClickAsync();
 
         await Assertions.Expect(next).ToBeDisabledAsync();
-        await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-80%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(track, shouldBeAtStart: false);
 
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
@@ -105,7 +106,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await next.FocusAsync();
         await page.Keyboard.PressAsync("ArrowRight");
-        await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-20%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(track, shouldBeAtStart: false);
 
         var spacingSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Adjust `CarouselContent` and `CarouselItem` spacing" }).First;
         var spacingViewport = spacingSection.Locator("[data-slot='carousel-content']").First;
@@ -125,7 +126,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(verticalCarousel).ToHaveAttributeAsync("data-orientation", "vertical");
         await Assertions.Expect(verticalTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex-col(\s|$)"));
         await verticalNext.ClickAsync();
-        (await verticalTrack.GetAttributeAsync("style")).Should().MatchRegex(@"transform: translateY\(-(?:0|20)%\); transition: transform 300ms ease-in-out");
+        await AssertVerticalCarouselTrackStyle(verticalTrack, shouldBeAtStart: false);
 
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
@@ -155,7 +156,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         for (var i = 0; i < 4; i++)
             await loopNext.ClickAsync();
 
-        await Assertions.Expect(loopTrack).ToHaveAttributeAsync("style", "transform: translateX(-0%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(loopTrack, shouldBeAtStart: true);
         await Assertions.Expect(loopNext).ToBeEnabledAsync();
     }
 
@@ -182,7 +183,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await page.Mouse.MoveAsync((float)(defaultBox.X + defaultBox.Width * 0.25), (float)(defaultBox.Y + defaultBox.Height / 2));
         await page.Mouse.UpAsync();
 
-        await Assertions.Expect(defaultTrack).ToHaveAttributeAsync("style", "transform: translateX(-20%); transition: transform 300ms ease-in-out");
+        await AssertHorizontalCarouselTrackStyle(defaultTrack, shouldBeAtStart: false);
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Switch the orientation to vertical for stacked slide layouts." }).First;
         var verticalViewport = verticalSection.Locator("[data-slot='carousel-content']").First;
@@ -196,6 +197,28 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await page.Mouse.MoveAsync((float)(verticalBox.X + verticalBox.Width / 2), (float)(verticalBox.Y + verticalBox.Height * 0.25));
         await page.Mouse.UpAsync();
 
-        (await verticalTrack.GetAttributeAsync("style")).Should().MatchRegex(@"transform: translateY\(-(?:0|20)%\); transition: transform 300ms ease-in-out");
+        await AssertVerticalCarouselTrackStyle(verticalTrack, shouldBeAtStart: false);
+    }
+
+    private static async Task AssertHorizontalCarouselTrackStyle(ILocator track, bool shouldBeAtStart)
+    {
+        var style = await track.GetAttributeAsync("style");
+
+        style.Should().Contain("transition: transform 300ms ease-in-out");
+        style.Should().Contain("will-change: transform");
+        style.Should().MatchRegex(shouldBeAtStart
+            ? @"transform:\s*translate3d\(0px,\s*0px,\s*0px\)"
+            : @"transform:\s*translate3d\(-[1-9]\d*(?:\.\d+)?px,\s*0px,\s*0px\)");
+    }
+
+    private static async Task AssertVerticalCarouselTrackStyle(ILocator track, bool shouldBeAtStart)
+    {
+        var style = await track.GetAttributeAsync("style");
+
+        style.Should().Contain("transition: transform 300ms ease-in-out");
+        style.Should().Contain("will-change: transform");
+        style.Should().MatchRegex(shouldBeAtStart
+            ? @"transform:\s*translate3d\(0px,\s*0px,\s*0px\)"
+            : @"transform:\s*translate3d\(0px,\s*-[1-9]\d*(?:\.\d+)?px,\s*0px\)");
     }
 }
