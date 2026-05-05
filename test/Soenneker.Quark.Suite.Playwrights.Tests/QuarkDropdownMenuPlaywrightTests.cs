@@ -183,6 +183,6 @@ public sealed class QuarkDropdownMenuPlaywrightTests : QuarkPlaywrightTest
 
     private static async Task WaitForFloatingUi(IPage page)
     {
-        await page.WaitForFunctionAsync("() => !!window.FloatingUIDOM", new PageWaitForFunctionOptions { Timeout = 5000 });
+        await page.WaitForFunctionAsync("() => !!window.FloatingUIDOM", new PageWaitForFunctionOptions { Timeout = 1_000 });
     }
 }

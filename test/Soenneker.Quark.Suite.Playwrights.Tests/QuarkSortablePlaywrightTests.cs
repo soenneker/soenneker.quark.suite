@@ -227,7 +227,7 @@ public sealed class QuarkSortablePlaywrightTests : QuarkPlaywrightTest
             await list.ElementHandleAsync(),
             new PageWaitForFunctionOptions
             {
-                Timeout = 5000
+                Timeout = 1_000
             });
 
         var initializationError = await list.GetAttributeAsync("data-sortable-init-error");

@@ -14,6 +14,8 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 [NotInParallel]
 public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywrightTest
 {
+    private const int FastTimeoutMs = 1_000;
+
     public QuarkDemoRouteSmokePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
@@ -28,11 +30,11 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
         await page.GotoAsync(BaseUrl, new PageGotoOptions
         {
             WaitUntil = WaitUntilState.DOMContentLoaded,
-            Timeout = 5000
+            Timeout = FastTimeoutMs
         });
 
-        await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
-        var landingBodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+        await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = FastTimeoutMs });
+        var landingBodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = FastTimeoutMs });
         landingBodyText.Should().NotBeNullOrWhiteSpace();
 
         page.Console += (_, message) =>
@@ -54,10 +56,10 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 await page.GotoAsync($"{BaseUrl}{route.TrimStart('/')}", new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Timeout = 5000
+                    Timeout = FastTimeoutMs
                 });
 
-                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
+                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = FastTimeoutMs });
 
                 var hasVisibleBlazorError = await page.EvaluateAsync<bool>(
                     @"() => {
@@ -71,7 +73,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 if (hasVisibleBlazorError)
                     failures.Add($"{route}: visible Blazor error UI");
 
-                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = FastTimeoutMs });
 
                 if (string.IsNullOrWhiteSpace(bodyText))
                     failures.Add($"{route}: empty page body");
@@ -116,10 +118,10 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 await page.GotoAsync($"{BaseUrl}{route.TrimStart('/')}", new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Timeout = 5000
+                    Timeout = FastTimeoutMs
                 });
 
-                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = 5000 });
+                await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'", new PageWaitForFunctionOptions { Timeout = FastTimeoutMs });
 
                 var hasVisibleBlazorError = await page.EvaluateAsync<bool>(
                     @"() => {
@@ -133,7 +135,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
                 if (hasVisibleBlazorError)
                     failures.Add($"{route}: visible Blazor error UI");
 
-                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5000 });
+                var bodyText = await page.Locator("body").InnerTextAsync(new LocatorInnerTextOptions { Timeout = FastTimeoutMs });
 
                 if (string.IsNullOrWhiteSpace(bodyText))
                     failures.Add($"{route}: empty page body");

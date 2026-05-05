@@ -8,12 +8,12 @@ public interface ICardImg : IElement
     /// <summary>
     /// Gets or sets whether the image should be positioned at the top of the card.
     /// </summary>
-    bool Top { get; set; }
+    bool AtTop { get; set; }
 
     /// <summary>
     /// Gets or sets whether the image should be positioned at the bottom of the card.
     /// </summary>
-    bool Bottom { get; set; }
+    bool AtBottom { get; set; }
 
     /// <summary>
     /// Gets or sets the source URL of the image.

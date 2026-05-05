@@ -47,7 +47,7 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
         await input.FillAsync("Summarize this page");
         await input.PressAsync("Enter");
         await Assertions.Expect(input).ToBeDisabledAsync();
-        await Assertions.Expect(input).ToHaveValueAsync(string.Empty, new LocatorAssertionsToHaveValueOptions { Timeout = 7000 });
+        await Assertions.Expect(input).ToHaveValueAsync(string.Empty, new LocatorAssertionsToHaveValueOptions { Timeout = 1_000 });
 
         await input.FillAsync("Line one");
         await input.PressAsync("Shift+Enter");

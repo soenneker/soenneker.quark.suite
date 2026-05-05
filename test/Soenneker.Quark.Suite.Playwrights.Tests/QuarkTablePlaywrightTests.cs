@@ -158,7 +158,7 @@ public sealed class QuarkTablePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(loader).ToHaveAttributeAsync("aria-label", "Loading table data");
         await Assertions.Expect(loader).ToHaveCSSAsync("position", "static");
 
-        await Assertions.Expect(loader).ToBeHiddenAsync(new LocatorAssertionsToBeHiddenOptions { Timeout = 5000 });
+        await Assertions.Expect(loader).ToBeHiddenAsync(new LocatorAssertionsToBeHiddenOptions { Timeout = 1_000 });
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();

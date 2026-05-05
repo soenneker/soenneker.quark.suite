@@ -107,26 +107,44 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Date and Time Picker"
                          Description="Use the date-time picker when the calendar selection needs a time value as well."
-                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_calendarDateTime"" />")"
+                         Code="@DateTimePickerCode"
                          CodeLanguage="razor">
                 <Card CardSize="CardSize.Sm" Margin="Margin.Auto.OnX" Width="Width.IsFit">
                     <CardBody>
                         <Calendar SelectedDate="_calendarDate"
                                   SelectedDateChanged="OnCalendarDateChanged"
                                   DisplayMonth="_aprilDisplayMonth"
-                                  Class="p-0" />
+                                  Class="p-0 [--cell-size:--spacing(9.5)]" />
                     </CardBody>
-                    <CardFooter Class="flex flex-col gap-3 border-t px-3! py-3!">
-                        <Div Display="Display.Grid" Class="grid-cols-2 gap-3">
-                            <Div Class="grid gap-1">
-                                <Label for="time-from">Start Time</Label>
-                                <Input Type="time" Id="time-from" Value="09:00:00" />
-                            </Div>
-                            <Div Class="grid gap-1">
-                                <Label for="time-to">End Time</Label>
-                                <Input Type="time" Id="time-to" Value="12:30:00" />
-                            </Div>
-                        </Div>
+                    <CardFooter Class="border-t bg-card!">
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel For="time-from">Start Time</FieldLabel>
+                                <InputGroup>
+                                    <InputGroupInput Type="time"
+                                                     Id="time-from"
+                                                     Value="10:30:00"
+                                                     step="1"
+                                                     Class="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none" />
+                                    <InputGroupAddon>
+                                        <Icon Name="LucideIcon.Clock2" TextColor="TextColor.MutedForeground" />
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Field>
+                            <Field>
+                                <FieldLabel For="time-to">End Time</FieldLabel>
+                                <InputGroup>
+                                    <InputGroupInput Type="time"
+                                                     Id="time-to"
+                                                     Value="12:30:00"
+                                                     step="1"
+                                                     Class="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none" />
+                                    <InputGroupAddon>
+                                        <Icon Name="LucideIcon.Clock2" TextColor="TextColor.MutedForeground" />
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Field>
+                        </FieldGroup>
                     </CardFooter>
                 </Card>
             </DemoSection>
@@ -403,5 +421,36 @@
                   CaptionLayout=""dropdown""
                   DayContent=""RenderPricingDay"" />
     </CardBody>
+</Card>";
+
+    private const string DateTimePickerCode =
+@"<Card CardSize=""CardSize.Sm"" Class=""mx-auto w-fit"">
+    <CardBody>
+        <Calendar SelectedDate=""selectedDate""
+                  SelectedDateChanged=""OnDateChanged""
+                  Class=""p-0 [--cell-size:--spacing(9.5)]"" />
+    </CardBody>
+    <CardFooter Class=""border-t bg-card!"">
+        <FieldGroup>
+            <Field>
+                <FieldLabel For=""time-from"">Start Time</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput Type=""time"" Id=""time-from"" Value=""10:30:00"" step=""1"" Class=""appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"" />
+                    <InputGroupAddon>
+                        <Icon Name=""LucideIcon.Clock2"" TextColor=""TextColor.MutedForeground"" />
+                    </InputGroupAddon>
+                </InputGroup>
+            </Field>
+            <Field>
+                <FieldLabel For=""time-to"">End Time</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput Type=""time"" Id=""time-to"" Value=""12:30:00"" step=""1"" Class=""appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"" />
+                    <InputGroupAddon>
+                        <Icon Name=""LucideIcon.Clock2"" TextColor=""TextColor.MutedForeground"" />
+                    </InputGroupAddon>
+                </InputGroup>
+            </Field>
+        </FieldGroup>
+    </CardFooter>
 </Card>";
 }

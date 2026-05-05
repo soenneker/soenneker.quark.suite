@@ -3,20 +3,20 @@
 @inherits Soenneker.Quark.Element
 
 <li @attributes="BuildAttributes()">
-    <div class="@ContentGridClass">
+    <Div Class="@ContentGridClass">
         @if (TimelineAlignment == TimelineAlign.Left)
         {
             @IconColumn
-            <div class="@ContentWrapperClass">@ContentBody</div>
+            <Div Class="@ContentWrapperClass">@ContentBody</Div>
         }
         else if (TimelineAlignment == TimelineAlign.Right)
         {
-            <div class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</div>
+            <Div Class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</Div>
             @IconColumn
         }
         else if (IsReversed)
         {
-            <div class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</div>
+            <Div Class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</Div>
             @IconColumn
             @DateColumn
         }
@@ -24,9 +24,9 @@
         {
             @DateColumn
             @IconColumn
-            <div class="@ContentWrapperClass">@ContentBody</div>
+            <Div Class="@ContentWrapperClass">@ContentBody</Div>
         }
-    </div>
+    </Div>
 </li>
 
 @code {
@@ -169,8 +169,8 @@
 
     private RenderFragment? EffectiveIconContent => IconContent ?? Marker;
 
-    private RenderFragment IconColumn => @<div class="flex flex-col items-center self-stretch">
-        <div class="relative z-[1]">
+    private RenderFragment IconColumn => @<Div Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" ItemsAlign="Quark.Items.Center" SelfAlign="Quark.Self.Stretch">
+        <Div Position="Quark.Position.Relative" ZIndex="Quark.ZIndex.Z1">
             @if (EffectiveIconContent != null)
             {
                 @EffectiveIconContent
@@ -179,14 +179,14 @@
             {
                 <TimelineIcon Color="@IconColor" TimelineSize="@IconSize" Status="@Status" Variant="@IconVariant" Loading="@Loading" />
             }
-        </div>
+        </Div>
         @if (ShowConnector)
         {
             <TimelineConnector Status="@Status" Color="@ConnectorColor" ConnectorStyle="@ConnectorStyle" Class="@ComputedConnectorClass" />
         }
-    </div>;
+    </Div>;
 
-    private RenderFragment DateColumn => @<div class="@DateColumnClass">
+    private RenderFragment DateColumn => @<Div Class="@DateColumnClass">
         @if (TimeContent != null)
         {
             @TimeContent
@@ -195,9 +195,9 @@
         {
             <TimelineTime Class="text-right pr-4">@Time</TimelineTime>
         }
-    </div>;
+    </Div>;
 
-    private RenderFragment ContentBody => @<div>
+    private RenderFragment ContentBody => @<Div>
         @if (UseShorthand)
         {
             <TimelineContent>
@@ -214,9 +214,9 @@
         {
             <Collapsible DefaultOpen="@DefaultOpen">
                 <CollapsibleTrigger Class="group flex w-full items-center gap-2 cursor-pointer">
-                    <div class="flex-1">
+                    <Div Flex="Quark.Flex.Is1">
                         @ChildContent
-                    </div>
+                    </Div>
                     <Icon Name="LucideIcon.ChevronDown" Class="transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -228,7 +228,7 @@
         {
             @ChildContent
         }
-    </div>;
+    </Div>;
 
     private string ResolveIconMinHeightClass()
     {

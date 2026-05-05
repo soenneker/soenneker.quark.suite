@@ -203,7 +203,7 @@ public sealed class QuarkResizablePlaywrightTests : QuarkPlaywrightTest
         return double.Parse(value, CultureInfo.InvariantCulture);
     }
 
-    private static async Task<double> WaitForPanelSizeCondition(ILocator panel, Func<double, bool> predicate, int timeoutMs = 5000)
+    private static async Task<double> WaitForPanelSizeCondition(ILocator panel, Func<double, bool> predicate, int timeoutMs = 1_000)
     {
         var start = DateTime.UtcNow;
         var lastSize = await GetPanelSize(panel);

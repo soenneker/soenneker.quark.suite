@@ -9,7 +9,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
 public abstract class QuarkPlaywrightTest : PlaywrightUnitTest
 {
-    private const int DefaultTimeoutMs = 5_000;
+    private const int DefaultTimeoutMs = 1_000;
     private const int DefaultNavigationTimeoutMs = 30_000;
 
     static QuarkPlaywrightTest()

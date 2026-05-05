@@ -22,41 +22,57 @@
                     Role="button"
                     AriaLabel="@AriaLabel"
                     Class="@GetTriggerClass()">
-                <span data-slot="model-selector-trigger-content" class="flex min-w-0 items-center gap-1">
-                    <span data-slot="model-selector-trigger-title" class="truncate text-sm">@SelectedLabel</span>
-                </span>
-                <span data-slot="model-selector-trigger-chevron" class="transition-transform duration-200 data-[state=open]:rotate-180">
+                <Span data-slot="model-selector-trigger-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
+                    <Span data-slot="model-selector-trigger-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm">@SelectedLabel</Span>
+                </Span>
+                <Span data-slot="model-selector-trigger-chevron" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Class="data-[state=open]:rotate-180">
                     <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
-                </span>
+                </Span>
             </Button>
         </PopoverTrigger>
         <PopoverContent Align="Alignment.Start" Class="@MenuClass">
-            <div data-slot="model-selector-group">
-                <div data-slot="model-selector-label" class="px-3 py-2 text-xs font-medium text-muted-foreground">Select model</div>
-                <div data-slot="model-selector-radio-group">
+            <Div data-slot="model-selector-group">
+                <Div data-slot="model-selector-label" Padding="Quark.Padding.Is3.OnX.Is2.OnY" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">Select model</Div>
+                <Div data-slot="model-selector-radio-group">
                     @foreach (var option in Options)
                     {
-                        <button type="button"
+                        <Button Type="ButtonType.Button"
                                 data-slot="model-selector-radio-item"
-                                class="relative flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-md py-2 pr-9 pl-3 text-left text-sm outline-hidden transition-colors duration-0 select-none hover:bg-accent focus:bg-accent focus:text-accent-foreground"
+                                Variant="ButtonVariant.Ghost"
+                                Width="Quark.Width.IsFull"
+                                MinHeight="Quark.Height.Is9"
+                                Position="Quark.Position.Relative"
+                                Cursor="Quark.Cursor.Pointer"
+                                ItemsAlign="Quark.Items.Center"
+                                Justify="Quark.Justify.Start"
+                                Gap="Quark.Gap.Is2"
+                                Rounded="Quark.Rounded.Md"
+                                Padding='Quark.Padding.Is2.OnY.Token("9").FromRight.Is3.FromLeft'
+                                TextAlign="Quark.TextAlign.Start"
+                                TextSize="Quark.TextSize.Sm"
+                                OutlineStyle="Quark.OutlineStyle.Hidden"
+                                Transition="Quark.Transition.Colors"
+                                Duration="Quark.Duration.Is0"
+                                UserSelect="Quark.UserSelect.None"
+                                Class="focus:bg-accent focus:text-accent-foreground"
                                 @onclick="@(() => SelectOption(option))">
-                            <span data-slot="model-selector-item-icon" class="flex shrink-0 items-center justify-center">
+                            <Span data-slot="model-selector-item-icon" Display="Quark.Display.Flex" Shrink="Quark.Shrink.Is0" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center">
                                 <Icon Name="@GetModelIcon(option)" Size="Quark.Size.Is4" />
-                            </span>
-                            <span data-slot="model-selector-radio-item-content" class="flex min-w-0 flex-1 flex-col gap-0.25">
-                                <span data-slot="model-selector-item-title" class="truncate text-sm font-normal">@option.Label</span>
+                            </Span>
+                            <Span data-slot="model-selector-radio-item-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap='Quark.Gap.Token("0.25")'>
+                                <Span data-slot="model-selector-item-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Normal">@option.Label</Span>
                                 @if (option.Description.HasContent())
                                 {
-                                    <span data-slot="model-selector-item-description" class="truncate text-xs font-light text-muted-foreground">@option.Description</span>
+                                    <Span data-slot="model-selector-item-description" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Light" TextColor="Quark.TextColor.MutedForeground">@option.Description</Span>
                                 }
-                            </span>
-                            <span data-slot="model-selector-item-indicator" class="@GetCheckClass(option)">
+                            </Span>
+                            <Span data-slot="model-selector-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Class="@GetCheckClass(option)">
                                 <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
-                            </span>
-                        </button>
+                            </Span>
+                        </Button>
                     }
-                </div>
-            </div>
+                </Div>
+            </Div>
         </PopoverContent>
     </Popover>
 </Div>

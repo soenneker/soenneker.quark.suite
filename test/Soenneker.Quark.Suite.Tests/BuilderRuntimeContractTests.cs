@@ -84,6 +84,26 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
+    public void Component_position_offset_side_properties_use_builder_output()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.Position, Position.Absolute)
+            .Add(p => p.Top, Top.Is1)
+            .Add(p => p.Right, Right.Token("2.5"))
+            .Add(p => p.Bottom, Bottom.Is0)
+            .Add(p => p.Left, Left.Px));
+
+        var box = cut.Find("[data-slot='test-box']");
+        var classes = box.GetAttribute("class")!;
+
+        classes.Should().Contain("absolute");
+        classes.Should().Contain("top-1");
+        classes.Should().Contain("right-2.5");
+        classes.Should().Contain("bottom-0");
+        classes.Should().Contain("left-px");
+    }
+
+    [Test]
     public void Component_shrink_property_uses_builder_output()
     {
         var cut = Render<TestRenderBox>(parameters => parameters

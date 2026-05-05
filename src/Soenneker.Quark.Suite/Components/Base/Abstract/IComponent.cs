@@ -16,6 +16,10 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     string? Title { get; set; }
     bool Hidden { get; set; }
     CssValue<InsetBuilder>? Inset { get; set; }
+    CssValue<TopBuilder>? Top { get; set; }
+    CssValue<RightBuilder>? Right { get; set; }
+    CssValue<BottomBuilder>? Bottom { get; set; }
+    CssValue<LeftBuilder>? Left { get; set; }
 
     CssValue<DisplayBuilder>? Display { get; set; }
     CssValue<VisibilityBuilder>? Visibility { get; set; }

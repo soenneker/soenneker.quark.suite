@@ -36,6 +36,18 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<InsetBuilder>? Inset { get; set; }
 
     [Parameter]
+    public CssValue<TopBuilder>? Top { get; set; }
+
+    [Parameter]
+    public CssValue<RightBuilder>? Right { get; set; }
+
+    [Parameter]
+    public CssValue<BottomBuilder>? Bottom { get; set; }
+
+    [Parameter]
+    public CssValue<LeftBuilder>? Left { get; set; }
+
+    [Parameter]
     public CssValue<DisplayBuilder>? Display { get; set; }
 
     [Parameter]
@@ -299,6 +311,10 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Margin ?? preset?.Margin);
         AddCss(ref sty, ref cls, Padding ?? preset?.Padding);
         AddCss(ref sty, ref cls, Inset ?? preset?.Inset);
+        AddCss(ref sty, ref cls, Top ?? preset?.Top);
+        AddCss(ref sty, ref cls, Right ?? preset?.Right);
+        AddCss(ref sty, ref cls, Bottom ?? preset?.Bottom);
+        AddCss(ref sty, ref cls, Left ?? preset?.Left);
         AddCss(ref sty, ref cls, Position ?? preset?.Position);
         AddCss(ref sty, ref cls, ScrollMargin ?? preset?.ScrollMargin);
         AddCss(ref sty, ref cls, Size ?? preset?.Size);
@@ -464,6 +480,10 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
         AddIf(ref hc, Inset);
+        AddIf(ref hc, Top);
+        AddIf(ref hc, Right);
+        AddIf(ref hc, Bottom);
+        AddIf(ref hc, Left);
         AddIf(ref hc, Position);
         AddIf(ref hc, ScrollMargin);
         AddIf(ref hc, Size);

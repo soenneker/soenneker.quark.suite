@@ -136,4 +136,19 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("[data-slot='drawer-overlay']").GetAttribute("class")!
             .Should().Contain("backdrop-blur");
     }
+
+    [Test]
+    public void Drawer_backdrop_click_closes_by_default()
+    {
+        var visible = true;
+        var cut = Render<Drawer>(parameters => parameters
+            .Add(p => p.Visible, visible)
+            .Add(p => p.VisibleChanged, value => visible = value)
+            .AddChildContent<DrawerContent>());
+
+        cut.Find("[data-slot='drawer-overlay']").Click();
+
+        visible.Should().BeFalse();
+        cut.FindAll("[data-slot='drawer-content'][data-state='open']").Should().BeEmpty();
+    }
 }

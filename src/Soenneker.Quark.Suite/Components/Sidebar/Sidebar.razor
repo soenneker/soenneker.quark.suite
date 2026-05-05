@@ -5,36 +5,24 @@
 
 @if (ShouldRenderMobileSidebar)
 {
-    <Sheet Visible="State?.OpenMobile == true"
-           VisibleChanged="OnMobileVisibleChanged"
-           ShowBackdrop="MobileShowBackdrop"
-           CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick"
-           CloseOnEscape="MobileCloseOnEscape"
-           LockScroll="MobileLockScroll"
-           TrapFocus="@ResolvedMobileTrapFocus">
-        <SheetContent Side="@ToSheetSide(Side)"
-                      ShowCloseButton="MobileShowCloseButton"
-                      ContainerClass="@GetMobileContainerClass()"
-                      ContainerStyle="@GetMobileContainerStyle()"
-                      OverlayClass="@MobileOverlayClass"
-                      OverlayStyle="@GetMobileOverlayStyle()"
-                      @attributes="BuildMobileAttributes()">
+    <Sheet Visible="State?.OpenMobile == true" VisibleChanged="OnMobileVisibleChanged" ShowBackdrop="MobileShowBackdrop" CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick" CloseOnEscape="MobileCloseOnEscape" LockScroll="MobileLockScroll" TrapFocus="@ResolvedMobileTrapFocus">
+        <SheetContent Side="@ToSheetSide(Side)" ShowCloseButton="MobileShowCloseButton" ContainerClass="@GetMobileContainerClass()" ContainerStyle="@GetMobileContainerStyle()" OverlayClass="@MobileOverlayClass" OverlayStyle="@GetMobileOverlayStyle()" @attributes="BuildMobileAttributes()">
             <SheetHeader Class="sr-only">
                 <SheetTitle>Sidebar</SheetTitle>
                 <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
-            <div class="flex h-full w-full flex-col">
+            <Div Display="Quark.Display.Flex" Height="Quark.Height.IsFull" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col">
                 @if (IsNavigationShell(Shell))
                 {
-                    <div class="no-scrollbar flex min-h-0 flex-1 flex-col gap-12 overflow-y-auto bg-background px-6 py-6">
+                    <Div Display="Quark.Display.Flex" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is12" BackgroundColor="Quark.BackgroundColor.Background" Padding="Quark.Padding.Is6" Class="no-scrollbar min-h-0 overflow-y-auto">
                         @RenderMobileBody()
-                    </div>
+                    </Div>
                 }
                 else
                 {
                     @RenderMobileBody()
                 }
-            </div>
+            </Div>
         </SheetContent>
     </Sheet>
 }
@@ -43,29 +31,29 @@ else if (IsNoneCollapsible(Collapsible))
     <aside @attributes="BuildStaticAttributes()">
         @if (IsNavigationShell(Shell))
         {
-            <div class="hidden h-9 lg:block"></div>
-            <div class="absolute top-8 z-10 hidden h-8 w-(--sidebar-menu-width) shrink-0 bg-linear-to-b from-background via-background/80 to-background/50 blur-xs lg:block"></div>
-            <div class="absolute top-12 right-2 bottom-0 hidden h-full w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></div>
+            <Div Height="Quark.Height.Is9" Class="hidden lg:block"></Div>
+            <Div Position="Quark.Position.Absolute" Top="Quark.Top.Is8" ZIndex="Quark.ZIndex.Z10" Height="Quark.Height.Is8" Width='Quark.Width.Token("(--sidebar-menu-width)")' Shrink="Quark.Shrink.Is0" Class="hidden bg-linear-to-b from-background via-background/80 to-background/50 blur-xs lg:block"></Div>
+            <Div Position="Quark.Position.Absolute" Top="Quark.Top.Is12" Right="Quark.Right.Is2" Bottom="Quark.Bottom.Is0" Height="Quark.Height.IsFull" Class="hidden w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></Div>
         }
 
         @ChildContent
 
         @if (IsNavigationShell(Shell))
         {
-            <div class="sticky -bottom-1 z-10 hidden h-16 shrink-0 bg-linear-to-t from-background via-background/80 to-background/50 blur-xs lg:block"></div>
+            <Div Position="Quark.Position.Sticky" Bottom='Quark.Bottom.Token("-1")' ZIndex="Quark.ZIndex.Z10" Height="Quark.Height.Is16" Shrink="Quark.Shrink.Is0" Class="hidden bg-linear-to-t from-background via-background/80 to-background/50 blur-xs lg:block"></Div>
         }
     </aside>
 }
 else
 {
-    <div @attributes="BuildAttributes()">
-        <div @attributes="BuildGapAttributes()"></div>
+    <Div @attributes="BuildAttributes()">
+        <Div @attributes="BuildGapAttributes()"></Div>
         <aside @attributes="BuildContainerAttributes()">
-            <div @attributes="BuildInnerAttributes()">
+            <Div @attributes="BuildInnerAttributes()">
                 @ChildContent
-            </div>
+            </Div>
         </aside>
-    </div>
+    </Div>
 }
 
 @code {

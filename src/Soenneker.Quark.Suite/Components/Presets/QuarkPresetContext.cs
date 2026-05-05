@@ -4,6 +4,10 @@ public sealed class QuarkPresetContext
 {
     public string? Class { get; set; }
     public CssValue<InsetBuilder>? Inset { get; set; }
+    public CssValue<TopBuilder>? Top { get; set; }
+    public CssValue<RightBuilder>? Right { get; set; }
+    public CssValue<BottomBuilder>? Bottom { get; set; }
+    public CssValue<LeftBuilder>? Left { get; set; }
     public CssValue<DisplayBuilder>? Display { get; set; }
     public CssValue<VisibilityBuilder>? Visibility { get; set; }
     public CssValue<FloatBuilder>? Float { get; set; }

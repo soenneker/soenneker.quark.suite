@@ -74,6 +74,26 @@ public class ComponentOptions
     public CssValue<InsetBuilder>? Inset { get; set; }
 
     /// <summary>
+    /// Gets or sets top offset utility classes.
+    /// </summary>
+    public CssValue<TopBuilder>? Top { get; set; }
+
+    /// <summary>
+    /// Gets or sets right offset utility classes.
+    /// </summary>
+    public CssValue<RightBuilder>? Right { get; set; }
+
+    /// <summary>
+    /// Gets or sets bottom offset utility classes.
+    /// </summary>
+    public CssValue<BottomBuilder>? Bottom { get; set; }
+
+    /// <summary>
+    /// Gets or sets left offset utility classes.
+    /// </summary>
+    public CssValue<LeftBuilder>? Left { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS position configuration.
     /// </summary>
     public CssValue<PositionBuilder>? Position { get; set; }
@@ -434,6 +454,10 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Margin, "margin");
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Inset, null);
+        AddRules(buffer, baseSelector, Top, null);
+        AddRules(buffer, baseSelector, Right, null);
+        AddRules(buffer, baseSelector, Bottom, null);
+        AddRules(buffer, baseSelector, Left, null);
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, ScrollMargin, null);
         AddRules(buffer, baseSelector, Size, null);

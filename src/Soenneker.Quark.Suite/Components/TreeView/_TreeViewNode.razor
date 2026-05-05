@@ -4,7 +4,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @if (NodeStates is not null)
     {
         if (Virtualize)
@@ -21,7 +21,7 @@
             }
         }
     }
-</div>
+</Div>
 
 @code {
     [Parameter] public ICollection<TreeViewNodeState<TNode>>? NodeStates { get; set; }
@@ -131,7 +131,7 @@
 
     private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
     {
-        <div @key="nodeState.Node"
+        <Div @key="nodeState.Node"
              role="treeitem"
              aria-expanded="@(nodeState.HasChildren ? nodeState.Expanded.ToString().ToLowerInvariant() : null)"
              aria-selected="@GetAriaSelected(nodeState)"
@@ -146,7 +146,7 @@
 
                 @if (nodeState.HasChildren)
                 {
-                    <span data-slot="tree-view-toggle" class="cursor-pointer select-none" @onclick="() => ToggleNode(nodeState, true)">
+                    <Span data-slot="tree-view-toggle" Cursor="Quark.Cursor.Pointer" UserSelect="Quark.UserSelect.None" @onclick="() => ToggleNode(nodeState, true)">
                         @if (nodeState.Expanded)
                         {
                             <Icon Name="@CollapseIcon" Class="@CollapseIconClass" />
@@ -155,7 +155,7 @@
                         {
                             <Icon Name="@ExpandIcon" Class="@ExpandIconClass" />
                         }
-                    </span>
+                    </Span>
                 }
 
                 <_TreeViewNodeContent TNode="TNode"
@@ -196,7 +196,7 @@
                                ContextMenuPreventDefault="@ContextMenuPreventDefault"
                                Virtualize="@Virtualize" />
             }
-        </div>
+        </Div>
     };
 
     private async Task ToggleNode(TreeViewNodeState<TNode> nodeState, bool refresh)
