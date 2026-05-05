@@ -22,7 +22,7 @@
     /// Gets or sets size (overrides group).
     /// </summary>
     [Parameter]
-    public CssValue<ToggleSizeBuilder>? Size { get; set; }
+    public CssValue<ToggleSizeBuilder>? ToggleSize { get; set; }
 
     private string ResolvedValue => Value ?? string.Empty;
 
@@ -31,7 +31,7 @@
         get
         {
             var variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
-            var size = Size ?? ParentToggleGroup?.Size ?? "default";
+            var size = ToggleSize ?? ParentToggleGroup?.ToggleSize ?? "default";
             Dictionary<string, object> attributes = new(BuildAttributes());
 
             attributes.Remove("disabled");
@@ -63,7 +63,7 @@
                 AppendClass(ref cls, "hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
                 AppendClass(ref cls, Toggle.GetToggleVariantClass(variant));
-                AppendClass(ref cls, Toggle.ResolveToggleSizeClass(size, includeShrink: true, isRtl));
+                AppendClass(ref cls, Toggle.ResolveToggleSizeClass(ToggleSize, includeShrink: true, isRtl));
             });
 
             return attributes;
@@ -92,9 +92,9 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ToggleSize);
         hc.Add(ParentToggleGroup?.Variant);
-        hc.Add(ParentToggleGroup?.Size);
+        hc.Add(ParentToggleGroup?.ToggleSize);
         hc.Add(ParentToggleGroup?.Spacing);
         hc.Add(ParentToggleGroup?.Orientation);
     }
@@ -104,6 +104,6 @@
         if (size?.TryGetThemeToken(out var token) == true && token is not null)
             return token;
 
-        return ToggleSize.Default.Value;
+        return "default";
     }
 }

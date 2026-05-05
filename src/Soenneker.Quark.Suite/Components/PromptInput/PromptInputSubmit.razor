@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 
 <div data-slot="prompt-input-button">
-    <Button Type="ButtonType.Submit" Size="@Size" Variant="@Variant" Disabled="@Disabled" Loading="@Loading" aria-label="@Label" @attributes="BuildAttributes()">
+    <Button Type="ButtonType.Submit" ButtonSize="@ButtonSize" Variant="@Variant" Disabled="@Disabled" Loading="@Loading" aria-label="@Label" @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -22,7 +22,7 @@
     public LucideIcon IconName { get; set; } = LucideIcon.ArrowUp;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.IconSm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = "icon-sm";
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
@@ -44,7 +44,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Label);
         hc.Add(IconName);
-        AddIf(ref hc, Size);
+        AddIf(ref hc, ButtonSize);
         hc.Add(Variant);
         hc.Add(Disabled);
         hc.Add(Loading);

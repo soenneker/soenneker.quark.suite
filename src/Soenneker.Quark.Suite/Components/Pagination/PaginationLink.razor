@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.FormControlElement
 @implements IPaginationLink
 
@@ -17,7 +18,7 @@
     /// Gets or sets the button size variant used for pagination links.
     /// </summary>
     [Parameter]
-    public ButtonSize Size { get; set; } = ButtonSize.Icon;
+    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Icon;
 
     /// <summary>
     /// Gets or sets the link target (href). When set, the link navigates; otherwise behaves as button.
@@ -52,7 +53,7 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "pagination-link";
-        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(Size?.Value);
+        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(ButtonSize?.Value);
         attributes["data-active"] = Active ? "true" : "false";
 
         if (Active)
@@ -66,7 +67,7 @@
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, ResolvePaginationButtonSizeClass(Size?.Value));
+            AppendClass(ref cls, ResolvePaginationButtonSizeClass(ButtonSize?.Value));
 
             if (Active)
                 AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
@@ -92,7 +93,7 @@
         hc.Add(Active);
         hc.Add(Disabled);
         hc.Add(To);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
     }
 
     private static string ResolvePaginationButtonSizeClass(string? size)

@@ -19,7 +19,7 @@
            Type="text"
            Value="@DisplayValue"
            ValueChanged="@HandleValueChanged"
-           Size="@Size"
+           InputSize="@InputSize"
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
            Label="@Label"
@@ -89,7 +89,7 @@
     public string? CultureName { get; set; }
 
     [Parameter]
-    public CssValue<InputSizeBuilder>? Size { get; set; } = InputSizes.Default;
+    public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
 
     [Parameter]
     public bool PlainText { get; set; }
@@ -159,7 +159,7 @@
 
     public string? GetSizeClass()
     {
-        var sizeClass = Size?.ToString();
+        var sizeClass = InputSize?.ToString();
         return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
@@ -386,7 +386,7 @@
         hc.Add(ShowSymbol);
         hc.Add(SymbolAtEnd);
         hc.Add(CultureName);
-        AddIf(ref hc, Size);
+        AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);

@@ -29,7 +29,7 @@ public sealed class QuarkPresetContext
     public CssValue<PaddingBuilder>? Padding { get; set; }
     public CssValue<PositionBuilder>? Position { get; set; }
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
-    public CssValue<SizeBuilder>? BoxSize { get; set; }
+    public CssValue<SizeBuilder>? Size { get; set; }
     public CssValue<WidthBuilder>? Width { get; set; }
     public CssValue<MinWidthBuilder>? MinWidth { get; set; }
     public CssValue<MaxWidthBuilder>? MaxWidth { get; set; }

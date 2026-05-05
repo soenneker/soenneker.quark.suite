@@ -15,7 +15,7 @@ else if (RenderAsLink)
     <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
-            <Span Animation="Quark.Animation.Spin" BoxSize="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
+            <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
         }
         @if (LoadingTemplate is not null && Loading)
         {
@@ -32,7 +32,7 @@ else
     <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
-            <Span Animation="Quark.Animation.Spin" BoxSize="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
+            <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.Is2.FromRight" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Token("current")' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
         }
         @if (LoadingTemplate is not null && Loading)
         {
@@ -69,16 +69,14 @@ else
 
     private bool IsInputGroupButton()
     {
-        return Attributes is not null &&
-               Attributes.TryGetValue("data-slot", out var dataSlot) &&
-               string.Equals(dataSlot?.ToString(), "input-group-button", StringComparison.Ordinal);
+        return Attributes is not null && Attributes.TryGetValue("data-slot", out var dataSlot) && string.Equals(dataSlot?.ToString(), "input-group-button", StringComparison.Ordinal);
     }
 
     /// <summary>
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.Default;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = "default";
 
     /// <summary>
     /// Gets or sets whether the button should span the full width of its container.
@@ -162,7 +160,6 @@ else
 
         if (Block)
             Width ??= Quark.Width.IsFull;
-
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -191,9 +188,7 @@ else
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || attributes.ContainsKey("disabled");
 
-        var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal)
-            ? "button"
-            : TriggerContext?.DataSlot;
+        var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal) ? "button" : TriggerContext?.DataSlot;
 
         if (triggerDataSlot is not null)
             attributes["data-slot"] = triggerDataSlot;
@@ -202,7 +197,7 @@ else
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
-        var effectiveSize = Size ?? ButtonGroup?.Size ?? "default";
+        var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize ?? "default";
         attributes["data-size"] = GetButtonSizeDataAttribute(effectiveSize);
 
         if (isLink)
@@ -217,7 +212,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/button bg-clip-padding select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px");
-            
+
             if (Rounded is null && !HasSizeSpecificRadius(effectiveSize))
                 AppendClass(ref cls, "rounded-lg");
 
@@ -315,7 +310,6 @@ else
 
         if (TriggerContext?.OnFocusOut is not null)
             attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
-
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
@@ -465,7 +459,7 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
         hc.Add(Disabled);
         hc.Add(Block);
         hc.Add(AsChild);
@@ -538,7 +532,7 @@ else
                 return raw;
         }
 
-        return ResolveButtonSizeClass(ButtonSize.Default.Value);
+        return ResolveButtonSizeClass("default");
     }
 
     internal static string ResolveButtonSizeClass(string? size)
@@ -561,17 +555,16 @@ else
         if (string.IsNullOrWhiteSpace(className))
             return false;
 
-        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .Any(token =>
-            {
-                var utility = token;
-                var modifierIndex = utility.LastIndexOf(':');
+        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries).Any(token =>
+        {
+            var utility = token;
+            var modifierIndex = utility.LastIndexOf(':');
 
-                if (modifierIndex >= 0)
-                    utility = utility[(modifierIndex + 1)..];
+            if (modifierIndex >= 0)
+                utility = utility[(modifierIndex + 1)..];
 
-                return utility.StartsWith(utilityPrefix, StringComparison.Ordinal);
-            });
+            return utility.StartsWith(utilityPrefix, StringComparison.Ordinal);
+        });
     }
 
     private static string GetButtonFocusClass(ButtonVariant? variant)
@@ -603,7 +596,7 @@ else
         if (!string.IsNullOrWhiteSpace(raw))
             return ResolveButtonSizeDataAttribute(raw);
 
-        return ResolveButtonSizeDataAttribute(ButtonSize.Default.Value);
+        return ResolveButtonSizeDataAttribute("default");
     }
 
     private static bool HasSizeSpecificRadius(CssValue<ButtonSizeBuilder>? size)

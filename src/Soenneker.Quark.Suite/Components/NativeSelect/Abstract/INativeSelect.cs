@@ -20,5 +20,5 @@ public interface INativeSelect : IElement
     /// <summary>
     /// Gets or sets the control size.
     /// </summary>
-    NativeSelectSize Size { get; set; }
+    NativeSelectSize NativeSelectSize { get; set; }
 }

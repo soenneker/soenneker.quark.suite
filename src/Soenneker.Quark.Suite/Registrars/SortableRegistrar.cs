@@ -15,9 +15,7 @@ public static class SortableRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkSortableAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
-                .AddResourceLoaderAsScoped()
-                .TryAddScoped<ISortableInterop, SortableInterop>();
+        services.AddModuleImportUtilAsScoped().AddResourceLoaderAsScoped().TryAddScoped<ISortableInterop, SortableInterop>();
         return services;
     }
 }

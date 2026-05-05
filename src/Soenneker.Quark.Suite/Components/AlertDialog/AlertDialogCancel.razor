@@ -2,6 +2,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
+@using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.Element
 @implements IAlertDialogCancel
 
@@ -25,7 +26,7 @@
     public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
 
     [Parameter]
-    public ButtonSize Size { get; set; } = ButtonSize.Default;
+    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Default;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -34,7 +35,7 @@
         attributes["data-slot"] = "alert-dialog-cancel";
         attributes["data-bradix-alert-dialog-cancel"] = "true";
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
-        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(Size?.Value);
+        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(ButtonSize?.Value);
         attributes["autofocus"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -43,7 +44,7 @@
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, Button.ResolveButtonSizeClass(Size?.Value));
+            AppendClass(ref cls, Button.ResolveButtonSizeClass(ButtonSize?.Value));
             AppendClass(ref cls, Button.GetButtonVariantClass(Variant));
         });
     }
@@ -102,6 +103,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AutoClose);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
     }
 }

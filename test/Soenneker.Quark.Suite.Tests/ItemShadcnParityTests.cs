@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ChildContent, "Item"));
         var itemXs = Render<Item>(parameters => parameters
             .Add(p => p.Variant, ItemVariant.Outline)
-            .Add(p => p.Size, ItemSize.ExtraSmall)
+            .Add(p => p.ItemSize, ItemSize.ExtraSmall)
             .Add(p => p.ChildContent, "Item"));
 
         var itemClasses = item.Find("[data-slot='item']").GetAttribute("class")!;
@@ -55,7 +55,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<Item>(parameters => parameters
             .Add(p => p.Variant, ItemVariant.Muted)
-            .Add(p => p.Size, ItemSize.Small)
+            .Add(p => p.ItemSize, ItemSize.Small)
             .Add(p => p.ChildContent, "Item"));
 
         var item = cut.Find("[data-slot='item']");

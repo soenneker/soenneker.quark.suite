@@ -36,7 +36,7 @@ else
     public Target? Target { get; set; }
 
     [Parameter]
-    public SidebarMenuSubButtonSize Size { get; set; } = SidebarMenuSubButtonSize.Md;
+    public SidebarMenuSubButtonSize ButtonSize { get; set; } = SidebarMenuSubButtonSize.Md;
 
     [Parameter]
     public bool Active { get; set; }
@@ -82,14 +82,14 @@ else
 
         attributes["data-slot"] = "sidebar-menu-sub-button";
         attributes["data-sidebar"] = "menu-sub-button";
-        attributes["data-size"] = Size == SidebarMenuSubButtonSize.Sm ? "sm" : "md";
+        attributes["data-size"] = ButtonSize == SidebarMenuSubButtonSize.Sm ? "sm" : "md";
         attributes["data-active"] = Active ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground -translate-x-px focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
             AppendClass(ref cls, "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground");
-            AppendClass(ref cls, Size == SidebarMenuSubButtonSize.Sm ? "text-xs" : "text-sm");
+            AppendClass(ref cls, ButtonSize == SidebarMenuSubButtonSize.Sm ? "text-xs" : "text-sm");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");
         });
     }
@@ -112,7 +112,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(To);
         hc.Add(Target);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
         hc.Add(Active);
         hc.Add(Match);
         hc.Add(AsChild);

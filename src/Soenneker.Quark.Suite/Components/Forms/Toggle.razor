@@ -37,7 +37,7 @@
     /// Gets or sets size.
     /// </summary>
     [Parameter]
-    public CssValue<ToggleSizeBuilder>? Size { get; set; } = "default";
+    public CssValue<ToggleSizeBuilder>? ToggleSize { get; set; } = "default";
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -106,7 +106,7 @@
                 AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
                 AppendClass(ref cls, GetToggleVariantClass(Variant));
-                AppendClass(ref cls, ResolveToggleSizeClass(Size, includeShrink: false, isRtl));
+                AppendClass(ref cls, ResolveToggleSizeClass(ToggleSize, includeShrink: false, isRtl));
             });
 
             return attributes;
@@ -129,7 +129,7 @@
         hc.Add(Pressed);
         hc.Add(Disabled);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ToggleSize);
         hc.Add(Dir);
         hc.Add(DirectionProviderDir);
     }
@@ -155,7 +155,7 @@
         var value = size?.ToString();
         return value is "default" or "sm" or "lg"
             ? ResolveToggleTokenSizeClass(value, includeShrink, isRtl)
-            : value ?? ResolveToggleTokenSizeClass(ToggleSize.Default.Value, includeShrink, isRtl);
+            : value ?? ResolveToggleTokenSizeClass("default", includeShrink, isRtl);
     }
 
     internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl = false)

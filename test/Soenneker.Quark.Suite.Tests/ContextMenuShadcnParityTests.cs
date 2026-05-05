@@ -35,7 +35,7 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Position=\"Quark.Position.Absolute\"");
         source.Should().Contain("Class=\"left-2\"");
         source.Should().Contain("Display=\"Quark.Display.Flex\"");
-        source.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        source.Should().Contain("Size='Quark.Size.Token(\"3.5\")'");
         source.Should().Contain("ItemsAlign=\"Items.Center\"");
         source.Should().Contain("Justify=\"Quark.Justify.Center\"");
         source.Should().Contain("Class=\"size-4\"");
@@ -55,7 +55,7 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("Position=\"Quark.Position.Absolute\"");
         source.Should().Contain("Class=\"left-2\"");
         source.Should().Contain("Display=\"Quark.Display.Flex\"");
-        source.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        source.Should().Contain("Size='Quark.Size.Token(\"3.5\")'");
         source.Should().Contain("ItemsAlign=\"Items.Center\"");
         source.Should().Contain("Justify=\"Quark.Justify.Center\"");
         source.Should().Contain("LucideIcon.Circle");

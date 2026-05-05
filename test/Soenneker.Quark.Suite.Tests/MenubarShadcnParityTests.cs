@@ -70,7 +70,7 @@ public sealed partial class RenderedShadcnParityTests
         checkbox.Should().Contain("Position=\"Quark.Position.Absolute\"");
         checkbox.Should().Contain("Class=\"left-2\"");
         checkbox.Should().Contain("Display=\"Quark.Display.Flex\"");
-        checkbox.Should().Contain("BoxSize='Quark.Size.Token(\"3.5\")'");
+        checkbox.Should().Contain("Size='Quark.Size.Token(\"3.5\")'");
         checkbox.Should().Contain("ItemsAlign=\"Items.Center\"");
         checkbox.Should().Contain("Justify=\"Quark.Justify.Center\"");
         checkbox.Should().Contain("Class=\"size-4\"");

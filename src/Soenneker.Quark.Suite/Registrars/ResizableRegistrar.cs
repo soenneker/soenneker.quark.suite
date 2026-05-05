@@ -14,8 +14,7 @@ public static class ResizableRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkResizableAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
-                .TryAddScoped<IResizableInterop, ResizableInterop>();
+        services.AddModuleImportUtilAsScoped().TryAddScoped<IResizableInterop, ResizableInterop>();
         return services;
     }
 }

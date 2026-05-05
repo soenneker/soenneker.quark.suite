@@ -8,5 +8,5 @@ public interface IAlertDialogContent : IElement
     /// <summary>
     /// Gets or sets the size variant of the content container.
     /// </summary>
-    string Size { get; set; }
+    string AlertDialogContentSize { get; set; }
 }

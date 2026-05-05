@@ -52,5 +52,5 @@ public interface IRadio : IElement
     /// <summary>
     /// Gets or sets the size of the radio button.
     /// </summary>
-    CssValue<RadioSizeBuilder>? Size { get; set; }
+    CssValue<RadioSizeBuilder>? RadioSize { get; set; }
 }

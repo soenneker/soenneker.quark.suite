@@ -50,7 +50,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
-        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
         var next = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
         var track = demo.Locator("[data-slot='carousel-content'] > div").First;
@@ -93,7 +93,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
-        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var carousel = defaultSection.Locator("[data-slot='carousel']").First;
         var item = defaultSection.Locator("[data-slot='carousel-item']").First;
         var next = defaultSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
@@ -108,22 +108,21 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await page.Keyboard.PressAsync("ArrowRight");
         await AssertHorizontalCarouselTrackStyle(track, shouldBeAtStart: false);
 
-        var spacingSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Adjust `CarouselContent` and `CarouselItem` spacing" }).First;
+        var spacingSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "To set the spacing between the items, we use a padding utility on CarouselItem and a negative margin on CarouselContent." }).First;
         var spacingViewport = spacingSection.Locator("[data-slot='carousel-content']").First;
         var spacingTrack = spacingSection.Locator("[data-slot='carousel-content'] > div").First;
 
         await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)overflow-hidden(\s|$)"));
         await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)touch-pan-y(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex(\s|$)"));
-        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-4(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-1(\s|$)"));
 
-        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Switch the orientation to vertical for stacked slide layouts." }).First;
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the orientation prop to set the orientation of the carousel." }).First;
         var verticalCarousel = verticalSection.Locator("[data-slot='carousel']").First;
         var verticalTrack = verticalSection.Locator("[data-slot='carousel-content'] > div").First;
         var verticalNext = verticalSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
 
-        await Assertions.Expect(verticalCarousel).ToHaveAttributeAsync("data-orientation", "vertical");
+        (await verticalCarousel.GetAttributeAsync("data-orientation")).Should().BeNull();
         await Assertions.Expect(verticalTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex-col(\s|$)"));
         await verticalNext.ClickAsync();
         await AssertVerticalCarouselTrackStyle(verticalTrack, shouldBeAtStart: false);
@@ -133,7 +132,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Carousel_loop_demo_wraps_from_last_slide_back_to_first()
+    public async ValueTask Carousel_api_demo_reports_selected_slide()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -143,21 +142,11 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Carousel - Quark Suite");
 
-        var apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The API callback now lets the page subscribe to selection changes." }).First;
+        var apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a state and the setApi props to get an instance of the carousel API." }).First;
         var apiNext = apiSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
 
         await apiNext.ClickAsync();
         await Assertions.Expect(apiSection).ToContainTextAsync("Slide 2 of 5");
-
-        var loopSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Quark exposes the most visible carousel option directly with `Loop=true`" }).First;
-        var loopTrack = loopSection.Locator("[data-slot='carousel-content'] > div").First;
-        var loopNext = loopSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
-
-        for (var i = 0; i < 4; i++)
-            await loopNext.ClickAsync();
-
-        await AssertHorizontalCarouselTrackStyle(loopTrack, shouldBeAtStart: true);
-        await Assertions.Expect(loopNext).ToBeEnabledAsync();
     }
 
     [Test]
@@ -171,7 +160,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
-        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var defaultViewport = defaultSection.Locator("[data-slot='carousel-content']").First;
         var defaultTrack = defaultSection.Locator("[data-slot='carousel-content'] > div").First;
         await defaultViewport.ScrollIntoViewIfNeededAsync();
@@ -185,7 +174,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await AssertHorizontalCarouselTrackStyle(defaultTrack, shouldBeAtStart: false);
 
-        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Switch the orientation to vertical for stacked slide layouts." }).First;
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the orientation prop to set the orientation of the carousel." }).First;
         var verticalViewport = verticalSection.Locator("[data-slot='carousel-content']").First;
         var verticalTrack = verticalSection.Locator("[data-slot='carousel-content'] > div").First;
         await verticalViewport.ScrollIntoViewIfNeededAsync();

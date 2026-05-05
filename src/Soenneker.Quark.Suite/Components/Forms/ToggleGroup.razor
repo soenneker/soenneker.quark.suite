@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElement
 
@@ -54,7 +54,7 @@
     /// Gets or sets size.
     /// </summary>
     [Parameter]
-    public CssValue<ToggleSizeBuilder>? Size { get; set; } = "default";
+    public CssValue<ToggleSizeBuilder>? ToggleSize { get; set; } = "default";
 
     /// <summary>
     /// Gets or sets the layout direction for toggle group items.
@@ -93,8 +93,8 @@
             if (ReferenceEquals(Variant, ToggleVariant.Outline))
                 attributes["data-variant"] = "outline";
 
-            var sizeDataAttribute = GetToggleSizeDataAttribute(Size);
-            if (!string.Equals(sizeDataAttribute, ToggleSize.Default.Value, StringComparison.Ordinal))
+            var sizeDataAttribute = GetToggleSizeDataAttribute(ToggleSize);
+            if (!string.Equals(sizeDataAttribute, "default", StringComparison.Ordinal))
                 attributes["data-size"] = sizeDataAttribute;
 
             attributes["data-orientation"] = Orientation?.Value ?? Orientation.Horizontal.Value;
@@ -135,7 +135,7 @@
         hc.Add(Type);
         hc.Add(Value);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ToggleSize);
         hc.Add(Orientation);
         hc.Add(Spacing);
         hc.Add(Dir);
@@ -149,6 +149,6 @@
         if (size?.TryGetThemeToken(out var token) == true && token is not null)
             return token;
 
-        return ToggleSize.Default.Value;
+        return "default";
     }
 }

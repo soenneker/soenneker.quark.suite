@@ -41,7 +41,7 @@ else
     public SidebarMenuButtonVariant Variant { get; set; } = SidebarMenuButtonVariant.Default;
 
     [Parameter]
-    public SidebarMenuButtonSize Size { get; set; } = SidebarMenuButtonSize.Default;
+    public SidebarMenuButtonSize ButtonSize { get; set; } = SidebarMenuButtonSize.Default;
 
     [Parameter]
     public bool Active { get; set; }
@@ -154,12 +154,12 @@ else
 
     private void ApplySizeDefaults()
     {
-        if (ReferenceEquals(Size, SidebarMenuButtonSize.Sm))
+        if (ReferenceEquals(ButtonSize, SidebarMenuButtonSize.Sm))
         {
             Height ??= Quark.Height.Token("7");
             TextSize ??= Quark.TextSize.Xs;
         }
-        else if (ReferenceEquals(Size, SidebarMenuButtonSize.Lg))
+        else if (ReferenceEquals(ButtonSize, SidebarMenuButtonSize.Lg))
         {
             Height ??= Quark.Height.Token("12");
             TextSize ??= Quark.TextSize.Sm;
@@ -177,7 +177,7 @@ else
 
         attributes["data-slot"] = "sidebar-menu-button";
         attributes["data-sidebar"] = "menu-button";
-        attributes["data-size"] = GetDataSize(Size);
+        attributes["data-size"] = GetDataSize(ButtonSize);
         attributes["data-active"] = Active ? "true" : "false";
         attributes["data-state"] = Open ? "open" : "closed";
 
@@ -190,7 +190,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
-            AppendClass(ref cls, GetSizeClass(Size));
+            AppendClass(ref cls, GetSizeClass(ButtonSize));
             AppendClass(ref cls, GetVariantClass(Variant));
         });
     }
@@ -212,7 +212,7 @@ else
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
         hc.Add(Active);
         hc.Add(Open);
         hc.Add(To);

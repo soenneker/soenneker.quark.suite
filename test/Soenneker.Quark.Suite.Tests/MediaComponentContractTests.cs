@@ -140,7 +140,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.NativeHeight, "32")
             .Add(p => p.PreserveAspectRatio, "xMidYMid meet")
             .Add(p => p.Focusable, false)
-            .Add(p => p.BoxSize, Size.Is4)
+            .Add(p => p.Size, Quark.Size.Is4)
             .Add(p => p.Stroke, Stroke.Token("current"))
             .Add(p => p.StrokeWidth, StrokeWidth.Is2)
             .Add(p => p.Fill, Fill.None)

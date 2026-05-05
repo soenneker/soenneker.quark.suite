@@ -25,7 +25,7 @@
     public TimelineStatus Status { get; set; } = TimelineStatus.Completed;
 
     [Parameter]
-    public TimelineSize? Size { get; set; }
+    public TimelineSize? TimelineSize { get; set; }
 
     [Parameter]
     public TimelineIconVariant Variant { get; set; } = TimelineIconVariant.Solid;
@@ -33,7 +33,7 @@
     [Parameter]
     public bool Loading { get; set; }
 
-    private TimelineSize ComputedSize => Size ?? ParentTimeline?.Size ?? TimelineSize.Medium;
+    private TimelineSize ComputedSize => TimelineSize ?? ParentTimeline?.TimelineSize ?? Quark.TimelineSize.Medium;
 
     private TimelineColor EffectiveColor => Status == TimelineStatus.Pending ? TimelineColor.Muted : Color;
 
@@ -48,7 +48,7 @@
         base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        BoxSize ??= ResolveBoxSize();
+        Size ??= ResolveSize();
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Rounded ??= Quark.Rounded.Full;
@@ -157,7 +157,7 @@
         return "h-5 w-5 rounded-full";
     }
 
-    private SizeBuilder ResolveBoxSize()
+    private SizeBuilder ResolveSize()
     {
         if (ReferenceEquals(ComputedSize, TimelineSize.Small))
             return Quark.Size.Is8;
@@ -190,7 +190,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Color);
         hc.Add(Status);
-        hc.Add(Size);
+        hc.Add(TimelineSize);
         hc.Add(Variant);
         hc.Add(Loading);
         hc.Add(ParentTimeline?.ConnectorFit);

@@ -10,7 +10,7 @@
 
 @code {
     [Parameter]
-    public CardSize Size { get; set; } = CardSize.Default;
+    public CardSize CardSize { get; set; } = CardSize.Default;
 
     public override CssValue<ShadowBuilder>? Shadow { get; set; }
 
@@ -32,7 +32,7 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "card";
-        attributes["data-size"] = Size?.Value ?? CardSize.Default.Value;
+        attributes["data-size"] = CardSize?.Value ?? Quark.CardSize.Default.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -46,6 +46,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Size.Value);
+        hc.Add(CardSize.Value);
     }
 }

@@ -111,7 +111,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
 
     [Parameter]
-    public CssValue<SizeBuilder>? BoxSize { get; set; }
+    public CssValue<SizeBuilder>? Size { get; set; }
 
     [Parameter]
     public CssValue<WidthBuilder>? Width { get; set; }
@@ -301,7 +301,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Inset ?? preset?.Inset);
         AddCss(ref sty, ref cls, Position ?? preset?.Position);
         AddCss(ref sty, ref cls, ScrollMargin ?? preset?.ScrollMargin);
-        AddCss(ref sty, ref cls, BoxSize ?? preset?.BoxSize);
+        AddCss(ref sty, ref cls, Size ?? preset?.Size);
         AddCss(ref sty, ref cls, Width ?? preset?.Width, "width");
         AddCss(ref sty, ref cls, MinWidth ?? preset?.MinWidth, "min-width");
         AddCss(ref sty, ref cls, MaxWidth ?? preset?.MaxWidth, "max-width");
@@ -466,7 +466,7 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Inset);
         AddIf(ref hc, Position);
         AddIf(ref hc, ScrollMargin);
-        AddIf(ref hc, BoxSize);
+        AddIf(ref hc, Size);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);
         AddIf(ref hc, MaxWidth);

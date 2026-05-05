@@ -42,7 +42,7 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     CssValue<PaddingBuilder>? Padding { get; set; }
     CssValue<PositionBuilder>? Position { get; set; }
     CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
-    CssValue<SizeBuilder>? BoxSize { get; set; }
+    CssValue<SizeBuilder>? Size { get; set; }
     CssValue<WidthBuilder>? Width { get; set; }
     CssValue<MinWidthBuilder>? MinWidth { get; set; }
     CssValue<MaxWidthBuilder>? MaxWidth { get; set; }

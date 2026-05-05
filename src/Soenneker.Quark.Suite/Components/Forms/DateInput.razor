@@ -11,7 +11,7 @@
            Name="@Name"
            Value="@GetCurrentValue()"
            ValueChanged="@HandleValueChanged"
-           Size="@Size"
+           InputSize="@InputSize"
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
            Label="@Label"
@@ -107,7 +107,7 @@
 	/// Gets or sets the size of the input.
 	/// </summary>
 	[Parameter]
-	public CssValue<InputSizeBuilder>? Size { get; set; } = InputSizes.Default;
+	public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
 
 	/// <summary>
 	/// Gets or sets whether the input should be displayed as plain text.
@@ -165,7 +165,7 @@
 
 	public string? GetSizeClass()
 	{
-		var sizeClass = Size?.ToString();
+		var sizeClass = InputSize?.ToString();
 		return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
 	}
 
@@ -370,7 +370,7 @@
 		hc.Add(MaxDateOnly);
 		hc.Add(Step);
 		hc.Add(InputMode);
-		AddIf(ref hc, Size);
+		AddIf(ref hc, InputSize);
 		hc.Add(PlainText);
 		hc.Add(FloatingLabel);
 		hc.Add(Label);

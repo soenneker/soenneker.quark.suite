@@ -14,7 +14,7 @@
     /// Supported values: default, sm, lg.
     /// </summary>
     [Parameter]
-    public string Size { get; set; } = "default";
+    public string AvatarSize { get; set; } = "default";
 
     private IReadOnlyDictionary<string, object> AvatarAttributes => BuildAttributes();
 
@@ -23,7 +23,7 @@
         base.ApplyDefaultParameters();
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        BoxSize ??= Quark.Size.Is8;
+        Size ??= Quark.Size.Is8;
         Rounded ??= Quark.Rounded.Full;
         Shrink ??= Quark.Shrink.Is0;
         UserSelect ??= Quark.UserSelect.None;
@@ -35,7 +35,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "avatar";
-        attributes["data-size"] = Size;
+        attributes["data-size"] = AvatarSize;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -46,7 +46,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Size);
+        hc.Add(AvatarSize);
     }
 
 }

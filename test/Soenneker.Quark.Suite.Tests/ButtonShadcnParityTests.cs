@@ -55,7 +55,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Outline)
-            .Add(p => p.Size, ButtonSize.Icon)
+            .Add(p => p.ButtonSize, ButtonSize.Icon)
             .AddUnmatched("aria-label", "Submit")
             .Add(p => p.ChildContent, "Icon"));
 
@@ -101,13 +101,13 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().Contain("<Icon Name=\"LucideIcon.GitBranch\" data-icon=\"inline-start\" />");
         source.Should().NotContain("LucideIcon.GitFork");
         source.Should().Contain("Use the rounded-full class to make the button rounded.");
-        source.Should().Contain("<Button Size=\"ButtonSize.Icon\" Rounded=\"Rounded.Full\" aria-label=\"Submit\">");
+        source.Should().Contain("<Button ButtonSize=\"ButtonSize.Icon\" Rounded=\"Rounded.Full\" aria-label=\"Submit\">");
         source.Should().Contain("<Spinner data-icon=\"inline-start\" />");
         source.Should().Contain("<Spinner data-icon=\"inline-end\" />");
         source.Should().Contain("<ButtonGroup AriaLabel=\"Message actions\">");
         source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\">Archive</Button>");
         source.Should().Contain("<DropdownToggle AsChild=\"true\">");
-        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\" Size=\"ButtonSize.Icon\" aria-label=\"More Options\">");
+        source.Should().Contain("<Button Variant=\"ButtonVariant.Outline\" ButtonSize=\"ButtonSize.Icon\" aria-label=\"More Options\">");
         source.Should().NotContain("<DropdownToggle IsSplit=\"true\" aria-label=\"More Options\">");
         source.Should().Contain("<Anchor To=\"/login\">Login</Anchor>");
         source.Should().Contain("<Button Variant=\"ButtonVariant.Destructive\">حذف</Button>");

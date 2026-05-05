@@ -18,7 +18,7 @@ public interface IScore : IElement
     /// <summary>
     /// Gets or sets the diameter of the score circle, in pixels.
     /// </summary>
-    int Size { get; set; }
+    int ScoreSize { get; set; }
 
     /// <summary>
     /// Gets or sets the thickness of the score ring, in pixels.

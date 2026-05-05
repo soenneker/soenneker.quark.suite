@@ -1,10 +1,11 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
+@using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.Element
 @implements IAlertDialogAction
 
-<Button Type="@ButtonType.Button" Variant="@Variant" Size="@Size" OnClick="HandleActionClick" @attributes="BuildAttributes()">
+<Button Type="@ButtonType.Button" Variant="@Variant" ButtonSize="@ButtonSize" OnClick="HandleActionClick" @attributes="BuildAttributes()">
     @ChildContent
 </Button>
 
@@ -34,7 +35,7 @@
     /// Gets or sets the size of the action button.
     /// </summary>
     [Parameter]
-    public ButtonSize Size { get; set; } = ButtonSize.Default;
+    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Default;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -56,6 +57,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AutoClose);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
     }
 }

@@ -8,7 +8,7 @@ public interface IButtonGroup : IElement
     /// <summary>
     /// Gets or sets the size of all buttons in the group (shadcn: default, sm, lg, icon, etc.).
     /// </summary>
-    CssValue<ButtonSizeBuilder>? Size { get; set; }
+    CssValue<ButtonSizeBuilder>? ButtonSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button group should be displayed vertically.

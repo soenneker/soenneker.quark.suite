@@ -43,7 +43,7 @@
 
     [Parameter] public int Value { get; set; }
     [Parameter] public string? Text { get; set; }
-    [Parameter] public int Size { get; set; } = 88;
+    [Parameter] public int ScoreSize { get; set; } = 88;
     [Parameter] public int Thickness { get; set; } = 8;
 
     protected override void ApplyDefaultParameters()
@@ -61,13 +61,13 @@
 
         _parametersChanged =
             _normalizedValue != _lastValue ||
-            Size != _lastSize ||
+            ScoreSize != _lastSize ||
             Thickness != _lastThickness ||
             !string.Equals(Text, _lastText, StringComparison.Ordinal);
 
         if (_parametersChanged)
         {
-            _sizePx = Size <= 0 ? 88 : Size;
+            _sizePx = ScoreSize <= 0 ? 88 : ScoreSize;
             _thicknessPx = Thickness <= 0 ? 8 : Thickness;
 
             _sizeCss = string.Concat(_sizePx.ToString(_inv), "px");
@@ -86,7 +86,7 @@
         }
 
         _lastValue = _normalizedValue;
-        _lastSize = Size;
+        _lastSize = ScoreSize;
         _lastThickness = Thickness;
         _lastText = Text;
 
@@ -136,7 +136,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Text);
-        hc.Add(Size);
+        hc.Add(ScoreSize);
         hc.Add(Thickness);
     }
 }

@@ -1,12 +1,13 @@
 @namespace Soenneker.Quark
+@using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.Element
 @implements IInputGroupButton
 
-<Button Type="@Type" Variant="@Variant" Size="@Size" Attributes="BuildAttributes()">@ChildContent</Button>
+<Button Type="@Type" Variant="@Variant" ButtonSize="@ButtonSize" Attributes="BuildAttributes()">@ChildContent</Button>
 
 @code {
     [Parameter]
-    public ButtonSize Size { get; set; } = ButtonSize.Xs;
+    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Xs;
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
@@ -29,14 +30,14 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "flex items-center gap-2 text-sm");
-            AppendClass(ref cls, Button.GetInputGroupButtonSizeClass(Size?.Value));
+            AppendClass(ref cls, Button.GetInputGroupButtonSizeClass(ButtonSize?.Value));
         });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
         hc.Add(Variant);
         hc.Add(Type);
     }

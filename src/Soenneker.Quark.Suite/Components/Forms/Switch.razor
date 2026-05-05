@@ -49,7 +49,7 @@ else
     public string? Label { get; set; }
 
     [Parameter]
-    public CssValue<SwitchSizeBuilder>? Size { get; set; } = SwitchSizes.Default;
+    public CssValue<SwitchSizeBuilder>? SwitchSize { get; set; } = SwitchSizes.Default;
 
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -91,10 +91,10 @@ else
 
     private bool IsSmSize()
     {
-        if (Size == null)
+        if (SwitchSize == null)
             return false;
 
-        var s = Size.Value.ToString()?.ToLowerInvariant();
+        var s = SwitchSize?.ToString()?.ToLowerInvariant();
         return s == "sm";
     }
 
@@ -201,7 +201,7 @@ else
         hc.Add(Name);
         hc.Add(Value);
         hc.Add(Label);
-        AddIf(ref hc, Size);
+        AddIf(ref hc, SwitchSize);
     }
 
     public override void Dispose()

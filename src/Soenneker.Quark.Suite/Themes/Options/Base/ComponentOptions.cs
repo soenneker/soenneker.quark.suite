@@ -91,7 +91,7 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS width configuration.
     /// </summary>
-    public CssValue<SizeBuilder>? BoxSize { get; set; }
+    public CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS width configuration.
@@ -436,7 +436,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Inset, null);
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, ScrollMargin, null);
-        AddRules(buffer, baseSelector, BoxSize, null);
+        AddRules(buffer, baseSelector, Size, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
         AddRules(buffer, baseSelector, Width, "width");
         AddRules(buffer, baseSelector, MinWidth, "min-width");

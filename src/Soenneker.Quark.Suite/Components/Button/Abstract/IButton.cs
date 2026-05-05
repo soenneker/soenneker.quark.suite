@@ -55,7 +55,7 @@ public interface IButton : IElement
     /// <summary>
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
-    CssValue<ButtonSizeBuilder>? Size { get; set; }
+    CssValue<ButtonSizeBuilder>? ButtonSize { get; set; }
 
     /// <summary>
     /// Gets or sets the visual style variant (shadcn/ui).

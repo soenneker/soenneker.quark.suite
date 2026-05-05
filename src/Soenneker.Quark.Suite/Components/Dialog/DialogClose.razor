@@ -1,6 +1,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
+@using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.Element
 
 @if (AsChild)
@@ -13,7 +14,7 @@ else
 {
     <Button Type="ButtonType.Button"
             Variant="@Variant"
-            Size="@Size"
+            ButtonSize="@ButtonSize"
             OnClick="HandleCloseButtonClick"
             @attributes="BuildAttributes()">
         @ChildContent
@@ -37,7 +38,7 @@ else
     public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
 
     [Parameter]
-    public ButtonSize Size { get; set; } = ButtonSize.Default;
+    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Default;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -73,6 +74,6 @@ else
         hc.Add(AsChild);
         hc.Add(AutoClose);
         hc.Add(Variant);
-        hc.Add(Size);
+        hc.Add(ButtonSize);
     }
 }
