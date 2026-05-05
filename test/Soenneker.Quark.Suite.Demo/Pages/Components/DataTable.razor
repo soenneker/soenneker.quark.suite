@@ -199,36 +199,113 @@
     private sealed record PaymentRow(string Id, string Status, string Email, string Amount);
 
     private const string DataTableCode =
-@"<Div Class=""w-full max-w-xl space-y-4"">
+@"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXl"" Space=""Space.Y.Is4"">
     <Div Class=""flex items-center justify-between gap-2"">
-        <Input Placeholder=""Filter emails..."" @bind-Value=""_emailFilter"" Class=""max-w-sm"" />
-        <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"">Columns</Button>
+        <Input Placeholder=""Filter emails..."" @bind-Value=""_emailFilter"" Class=""max-w-sm"" aria-label=""Filter emails"" />
+
+        <Dropdown RightAligned=""true"">
+            <DropdownToggle AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"" Class=""ml-auto"">
+                    Columns
+                    <Icon Name=""LucideIcon.ChevronDown"" data-icon=""inline-end"" />
+                </Button>
+            </DropdownToggle>
+            <DropdownMenu Width=""Width.Is36"">
+                <DropdownCheckboxItem @bind-Checked=""_showStatus"">Status</DropdownCheckboxItem>
+                <DropdownCheckboxItem @bind-Checked=""_showEmail"">Email</DropdownCheckboxItem>
+                <DropdownCheckboxItem @bind-Checked=""_showAmount"">Amount</DropdownCheckboxItem>
+            </DropdownMenu>
+        </Dropdown>
     </Div>
 
     <Div Rounded=""Rounded.Md"" Border=""Border.Default"">
         <TableElement>
             <Thead>
                 <Tr>
-                    <Th><Check aria-label=""Select all"" /></Th>
-                    <Th>Status</Th>
-                    <Th>Email</Th>
-                    <Th TextAlign='TextAlign.Token(""right"")'>Amount</Th>
-                    <Th><Span Class=""sr-only"">Actions</Span></Th>
+                    <Th Width=""Width.Is10"">
+                        <Check Id=""data-table-select-all""
+                               Name=""data-table-select-all""
+                               Checked=""@AllVisibleRowsSelected""
+                               Indeterminate=""@SomeVisibleRowsSelected""
+                               CheckedChanged=""HandleSelectAllChanged""
+                               AriaLabel=""Select all"" />
+                    </Th>
+                    @if (_showStatus)
+                    {
+                        <Th>Status</Th>
+                    }
+                    @if (_showEmail)
+                    {
+                        <Th>
+                            <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.Sm"" Height=""Height.Is8"" Class=""-ml-3 px-2"" OnClick=""ToggleEmailSort"">
+                                Email
+                                <Icon Name=""LucideIcon.ArrowUpDown"" data-icon=""inline-end"" />
+                            </Button>
+                        </Th>
+                    }
+                    @if (_showAmount)
+                    {
+                        <Th TextAlign='TextAlign.Token(""right"")'>Amount</Th>
+                    }
+                    <Th Width=""Width.Is10"">
+                        <Span Class=""sr-only"">Actions</Span>
+                    </Th>
                 </Tr>
             </Thead>
             <Tbody>
                 @foreach (PaymentRow row in FilteredRows)
                 {
-                    <Tr>
-                        <Td><Check aria-label=""Select row"" /></Td>
-                        <Td>@row.Status</Td>
-                        <Td>@row.Email</Td>
-                        <Td TextAlign='TextAlign.Token(""right"")'>@row.Amount</Td>
-                        <Td><Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.Icon"">...</Button></Td>
+                    <Tr Key=""@row.Id"" Attributes=""@GetRowAttributes(row.Id)"">
+                        <Td>
+                            <Check Id=""@($""data-table-row-{row.Id}"")""
+                                   Name=""@($""data-table-row-{row.Id}"")""
+                                   Checked=""@_selectedRowIds.Contains(row.Id)""
+                                   CheckedChanged=""@((bool selected) => HandleRowSelected(row.Id, selected))""
+                                   AriaLabel=""Select row"" />
+                        </Td>
+                        @if (_showStatus)
+                        {
+                            <Td Class=""capitalize"">@row.Status</Td>
+                        }
+                        @if (_showEmail)
+                        {
+                            <Td Class=""lowercase"">@row.Email</Td>
+                        }
+                        @if (_showAmount)
+                        {
+                            <Td TextAlign='TextAlign.Token(""right"")' FontWeight=""FontWeight.Medium"">@row.Amount</Td>
+                        }
+                        <Td TextAlign='TextAlign.Token(""right"")'>
+                            <Dropdown RightAligned=""true"">
+                                <DropdownToggle AsChild=""true"">
+                                    <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"">
+                                        <Icon Name=""LucideIcon.Ellipsis"" />
+                                        <Span Class=""sr-only"">Open menu</Span>
+                                    </Button>
+                                </DropdownToggle>
+                                <DropdownMenu Width=""Width.Is40"">
+                                    <DropdownLabel>Actions</DropdownLabel>
+                                    <DropdownItem>Copy payment ID</DropdownItem>
+                                    <DropdownDivider />
+                                    <DropdownItem>View customer</DropdownItem>
+                                    <DropdownItem>View payment details</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </Td>
                     </Tr>
                 }
             </Tbody>
         </TableElement>
+    </Div>
+
+    <Div Class=""flex items-center justify-between gap-4"">
+        <Paragraph Margin=""Margin.Is0"" Class=""text-sm text-muted-foreground"">
+            @SelectedVisibleRowsCount of @FilteredRows.Count row(s) selected.
+        </Paragraph>
+        <Div Class=""flex items-center space-x-2"">
+            <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"" Disabled=""true"">Previous</Button>
+            <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"">Next</Button>
+        </Div>
     </Div>
 </Div>";
 }

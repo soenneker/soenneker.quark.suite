@@ -16,7 +16,7 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
                          Description="A basic dropdown menu with labels and separators."
-                         Code="@BasicCode"
+                         Code="@BasicPreview2Code"
                          CodeLanguage="razor">
                 @BasicMenu
             </DemoSection>
@@ -196,7 +196,7 @@
             </DemoSection>
         </Section>
 
-        
+
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Avatar"
@@ -442,51 +442,81 @@
 </Dropdown>;
 
     private const string BasicCode =
+@"@AccountMenu";
+
+    private const string BasicPreview2Code = @"@BasicMenu";
+
+    private const string SubmenuCode =
 @"<Dropdown>
     <DropdownToggle AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Open</Button>
     </DropdownToggle>
     <DropdownMenu>
-        <DropdownGroup>
-            <DropdownLabel>My Account</DropdownLabel>
-            <DropdownItem>Profile</DropdownItem>
-            <DropdownItem>Billing</DropdownItem>
-        </DropdownGroup>
-        <DropdownDivider />
-        <DropdownGroup>
-            <DropdownItem>Team</DropdownItem>
-            <DropdownItem>Subscription</DropdownItem>
-        </DropdownGroup>
+        <DropdownItem>Email</DropdownItem>
+        <DropdownItem>Message</DropdownItem>
+        <DropdownSub>
+            <DropdownSubTrigger>More...</DropdownSubTrigger>
+            <DropdownSubContent>
+                <DropdownItem>Calendar</DropdownItem>
+                <DropdownItem>Slack</DropdownItem>
+            </DropdownSubContent>
+        </DropdownSub>
     </DropdownMenu>
 </Dropdown>";
 
-    private const string SubmenuCode =
-@"<DropdownSub>
-    <DropdownSubTrigger>More...</DropdownSubTrigger>
-    <DropdownSubContent>
-        <DropdownItem>Calendar</DropdownItem>
-        <DropdownItem>Slack</DropdownItem>
-    </DropdownSubContent>
-</DropdownSub>";
-
     private const string ShortcutsCode =
-@"<DropdownItem>
-    New Tab
-    <DropdownShortcut>⌘T</DropdownShortcut>
-</DropdownItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>
+            New Tab
+            <DropdownShortcut>⌘T</DropdownShortcut>
+        </DropdownItem>
+        <DropdownItem>
+            New Window
+            <DropdownShortcut>⌘N</DropdownShortcut>
+        </DropdownItem>
+        <DropdownItem>
+            Share
+            <DropdownShortcut>⇧⌘S</DropdownShortcut>
+        </DropdownItem>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string IconsCode =
-@"<DropdownItem><Icon Name=""LucideIcon.User"" />Profile</DropdownItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem><Icon Name=""LucideIcon.User"" />Profile</DropdownItem>
+        <DropdownItem><Icon Name=""LucideIcon.CreditCard"" />Billing</DropdownItem>
+        <DropdownItem><Icon Name=""LucideIcon.Settings"" />Settings</DropdownItem>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string CheckboxesCode =
-@"<DropdownCheckboxItem Checked=""true"">Status Bar</DropdownCheckboxItem>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownLabel>Appearance</DropdownLabel>
+        <DropdownDivider />
+        <DropdownCheckboxItem @bind-Checked=""_dropdownStatusBar"">Status Bar</DropdownCheckboxItem>
+        <DropdownCheckboxItem Checked=""false"" Disabled=""true"">Activity Bar</DropdownCheckboxItem>
+        <DropdownCheckboxItem @bind-Checked=""_dropdownPanel"">Panel</DropdownCheckboxItem>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string CheckboxesIconsCode =
 @"<Dropdown>
     <DropdownToggle AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Notifications</Button>
     </DropdownToggle>
-    <DropdownMenu Class=""w-48"">
+    <DropdownMenu Width=""Width.Is48"">
         <DropdownGroup>
             <DropdownLabel>Notification Preferences</DropdownLabel>
             <DropdownCheckboxItem @bind-Checked=""_dropdownEmailNotifications""><Icon Name=""LucideIcon.Mail"" />Email notifications</DropdownCheckboxItem>
@@ -497,23 +527,35 @@
 </Dropdown>";
 
     private const string RadioGroupCode =
-@"<DropdownRadioGroup @bind-Value=""_dropdownPanelPosition"">
-    <DropdownRadioItem Value=""top"">Top</DropdownRadioItem>
-    <DropdownRadioItem Value=""bottom"">Bottom</DropdownRadioItem>
-</DropdownRadioGroup>";
+@"<Dropdown>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownLabel>Panel Position</DropdownLabel>
+        <DropdownDivider />
+        <DropdownRadioGroup @bind-Value=""_dropdownPanelPosition"">
+            <DropdownRadioItem Value=""top"">Top</DropdownRadioItem>
+            <DropdownRadioItem Value=""bottom"">Bottom</DropdownRadioItem>
+            <DropdownRadioItem Value=""right"">Right</DropdownRadioItem>
+        </DropdownRadioGroup>
+    </DropdownMenu>
+</Dropdown>";
 
     private const string RadioIconsCode =
 @"<Dropdown>
     <DropdownToggle AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Payment Method</Button>
     </DropdownToggle>
-    <DropdownMenu Class=""min-w-56"">
-        <DropdownLabel>Select Payment Method</DropdownLabel>
-        <DropdownRadioGroup @bind-Value=""_dropdownPaymentMethod"">
-            <DropdownRadioItem Value=""card""><Icon Name=""LucideIcon.CreditCard"" />Credit Card</DropdownRadioItem>
-            <DropdownRadioItem Value=""paypal""><Icon Name=""LucideIcon.Wallet"" />PayPal</DropdownRadioItem>
-            <DropdownRadioItem Value=""bank""><Icon Name=""LucideIcon.Building2"" />Bank Transfer</DropdownRadioItem>
-        </DropdownRadioGroup>
+    <DropdownMenu MinWidth=""MinWidth.Is56"">
+        <DropdownGroup>
+            <DropdownLabel>Select Payment Method</DropdownLabel>
+            <DropdownRadioGroup @bind-Value=""_dropdownPaymentMethod"">
+                <DropdownRadioItem Value=""card""><Icon Name=""LucideIcon.CreditCard"" />Credit Card</DropdownRadioItem>
+                <DropdownRadioItem Value=""paypal""><Icon Name=""LucideIcon.Wallet"" />PayPal</DropdownRadioItem>
+                <DropdownRadioItem Value=""bank""><Icon Name=""LucideIcon.Building2"" />Bank Transfer</DropdownRadioItem>
+            </DropdownRadioGroup>
+        </DropdownGroup>
     </DropdownMenu>
 </Dropdown>";
 
@@ -540,25 +582,37 @@
             </Avatar>
         </Button>
     </DropdownToggle>
-    <DropdownMenu Align=""Alignment.End"">...</DropdownMenu>
+    <DropdownMenu Align=""Alignment.End"">
+        <DropdownGroup>
+            <DropdownItem><Icon Name=""LucideIcon.BadgeCheck"" />Account</DropdownItem>
+            <DropdownItem><Icon Name=""LucideIcon.CreditCard"" />Billing</DropdownItem>
+            <DropdownItem><Icon Name=""LucideIcon.Bell"" />Notifications</DropdownItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownItem><Icon Name=""LucideIcon.LogOut"" />Sign Out</DropdownItem>
+    </DropdownMenu>
 </Dropdown>";
 
     private const string ComplexCode =
-@"<Dropdown>
-    <DropdownToggle AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Complex Menu</Button>
-    </DropdownToggle>
-    <DropdownMenu Class=""w-44"">...</DropdownMenu>
-</Dropdown>";
+@"@ComplexMenu";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Dropdown>
-        <DropdownToggle AsChild=""true""><Button Variant=""ButtonVariant.Outline"">افتح القائمة</Button></DropdownToggle>
-        <DropdownMenu>
-            <DropdownItem>الملف الشخصي</DropdownItem>
-            <DropdownItem Variant=""destructive"">تسجيل الخروج</DropdownItem>
-        </DropdownMenu>
-    </Dropdown>
+    <Div TextAlign=""TextAlign.End"">
+        <Dropdown>
+            <DropdownToggle AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">افتح القائمة</Button>
+            </DropdownToggle>
+            <DropdownMenu>
+                <DropdownGroup>
+                    <DropdownLabel>حسابي</DropdownLabel>
+                    <DropdownItem>الملف الشخصي</DropdownItem>
+                    <DropdownItem>الفواتير</DropdownItem>
+                </DropdownGroup>
+                <DropdownDivider />
+                <DropdownItem Variant=""destructive"">تسجيل الخروج</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
+    </Div>
 </DirectionProvider>";
 }

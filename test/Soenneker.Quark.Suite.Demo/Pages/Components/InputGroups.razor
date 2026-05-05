@@ -440,8 +440,10 @@
 @code {
     private const string BasicCode =
 @"<InputGroup Class=""max-w-xs"">
-    <InputGroupInput Placeholder=""Search..."" />
-    <InputGroupAddon><Icon Name=""LucideIcon.Search"" /></InputGroupAddon>
+    <InputGroupInput @bind-Value=""_search"" Placeholder=""Search..."" />
+    <InputGroupAddon>
+        <Icon Name=""LucideIcon.Search"" />
+    </InputGroupAddon>
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">12 results</InputGroupAddon>
 </InputGroup>";
 
@@ -492,7 +494,7 @@
 @"<Field MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""inline-start-input"">Input</FieldLabel>
     <InputGroup>
-        <InputGroupInput Id=""inline-start-input"" Placeholder=""Search..."" />
+        <InputGroupInput Id=""inline-start-input"" @bind-Value=""_search"" Placeholder=""Search..."" />
         <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
             <Icon Name=""LucideIcon.Search"" />
         </InputGroupAddon>
@@ -504,7 +506,7 @@
 @"<Field MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""inline-end-input"">Input</FieldLabel>
     <InputGroup>
-        <InputGroupInput Id=""inline-end-input"" Placeholder=""Enter password"" Type=""InputType.Password"" />
+        <InputGroupInput Id=""inline-end-input"" @bind-Value=""_password"" Placeholder=""Enter password"" Type=""InputType.Password"" />
         <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
             <Icon Name=""LucideIcon.EyeOff"" />
         </InputGroupAddon>
@@ -513,25 +515,29 @@
 </Field>";
 
     private const string BlockStartCode =
-@"<FieldGroup>
+@"<FieldGroup Class=""w-full"">
     <Field>
         <FieldLabel For=""block-start-input"">Input</FieldLabel>
         <InputGroup>
-            <InputGroupInput Id=""block-start-input"" Placeholder=""Enter your name"" />
+            <InputGroupInput Id=""block-start-input"" @bind-Value=""_fullName"" Placeholder=""Enter your name"" />
             <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockStart"">
                 <InputGroupText>Full Name</InputGroupText>
             </InputGroupAddon>
         </InputGroup>
         <FieldDescription>Header positioned above the input.</FieldDescription>
     </Field>
+
     <Field>
         <FieldLabel For=""block-start-textarea"">Textarea</FieldLabel>
         <InputGroup>
-            <InputGroupTextarea Id=""block-start-textarea"" Placeholder=""console.log('Hello, world!');"" Class=""font-mono text-sm"" />
+            <InputGroupTextarea Id=""block-start-textarea"" @bind-Value=""_script"" Rows=""5"" Placeholder=""console.log('Hello, world!');"" Class=""font-mono text-sm"" />
             <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockStart"">
                 <Icon Name=""LucideIcon.FileCode"" />
                 <InputGroupText>script.js</InputGroupText>
-                <InputGroupButton Class=""ml-auto""><Icon Name=""LucideIcon.Copy"" />Copy</InputGroupButton>
+                <InputGroupButton Class=""ml-auto"">
+                    <Icon Name=""LucideIcon.Copy"" />
+                    Copy
+                </InputGroupButton>
             </InputGroupAddon>
         </InputGroup>
         <FieldDescription>Header positioned above the textarea.</FieldDescription>
@@ -539,21 +545,22 @@
 </FieldGroup>";
 
     private const string BlockEndCode =
-@"<FieldGroup>
+@"<FieldGroup Class=""w-full"">
     <Field>
         <FieldLabel For=""block-end-input"">Input</FieldLabel>
         <InputGroup>
-            <InputGroupInput Id=""block-end-input"" Placeholder=""Enter amount"" />
+            <InputGroupInput Id=""block-end-input"" @bind-Value=""_amount"" Placeholder=""Enter amount"" />
             <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockEnd"">
                 <InputGroupText>USD</InputGroupText>
             </InputGroupAddon>
         </InputGroup>
         <FieldDescription>Footer positioned below the input.</FieldDescription>
     </Field>
+
     <Field>
         <FieldLabel For=""block-end-textarea"">Textarea</FieldLabel>
         <InputGroup>
-            <InputGroupTextarea Id=""block-end-textarea"" Placeholder=""Write a comment..."" />
+            <InputGroupTextarea Id=""block-end-textarea"" @bind-Value=""_feedback"" Rows=""4"" Placeholder=""Write a comment..."" />
             <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockEnd"">
                 <InputGroupText>0/280</InputGroupText>
                 <InputGroupButton Class=""ml-auto"">Post</InputGroupButton>
@@ -564,84 +571,230 @@
 </FieldGroup>";
 
     private const string IconCode =
-@"<InputGroup>
-    <InputGroupInput Placeholder=""Card number"" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
-        <Icon Name=""LucideIcon.CreditCard"" />
-    </InputGroupAddon>
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <Icon Name=""LucideIcon.Check"" />
-    </InputGroupAddon>
-</InputGroup>";
+@"<Div Class=""grid w-full max-w-sm gap-2"">
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_iconSearch"" Placeholder=""Search..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <Icon Name=""LucideIcon.Search"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_email"" Placeholder=""Enter your email"" Type=""InputType.Email"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <Icon Name=""LucideIcon.Mail"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_card"" Placeholder=""Card number"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <Icon Name=""LucideIcon.CreditCard"" />
+        </InputGroupAddon>
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <Icon Name=""LucideIcon.Check"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_cardAlt"" Placeholder=""Card number"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <Icon Name=""LucideIcon.CreditCard"" />
+        </InputGroupAddon>
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""Favorite"">
+                <Icon Name=""LucideIcon.Star"" />
+            </InputGroupButton>
+            <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""Info"">
+                <Icon Name=""LucideIcon.Info"" />
+            </InputGroupButton>
+        </InputGroupAddon>
+    </InputGroup>
+</Div>";
 
     private const string TextCode =
-@"<InputGroup>
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
-        <InputGroupText>$</InputGroupText>
-    </InputGroupAddon>
-    <InputGroupInput Placeholder=""0.00"" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <InputGroupText>USD</InputGroupText>
-    </InputGroupAddon>
-</InputGroup>";
+@"<Div Class=""grid w-full max-w-sm gap-2"">
+    <InputGroup>
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <InputGroupText>$</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput @bind-Value=""_price"" Placeholder=""0.00"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>USD</InputGroupText>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput @bind-Value=""_domain"" Placeholder=""example.com"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>.com</InputGroupText>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_username"" Placeholder=""Enter your username"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>@(""@company.com"")</InputGroupText>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_message"" Placeholder=""Enter your message"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>120 characters left</InputGroupText>
+        </InputGroupAddon>
+    </InputGroup>
+</Div>";
 
     private const string ButtonCode =
-@"<InputGroup>
-    <InputGroupInput Placeholder=""Type to search..."" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <InputGroupButton>Search</InputGroupButton>
-    </InputGroupAddon>
-</InputGroup>";
+@"<Div Class=""grid w-full max-w-sm gap-2"">
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_url"" Placeholder=""https://x.com/shadcn"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupButton>
+                <Icon Name=""LucideIcon.Copy"" />
+                Copy
+            </InputGroupButton>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput @bind-Value=""_shortUrl"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""Copy"">
+                <Icon Name=""LucideIcon.Copy"" />
+            </InputGroupButton>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_query"" Placeholder=""Type to search..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupButton>Search</InputGroupButton>
+        </InputGroupAddon>
+    </InputGroup>
+</Div>";
 
     private const string KbdCode =
-@"<InputGroup>
-    <InputGroupInput Placeholder=""Search..."" />
+@"<InputGroup Class=""max-w-sm"">
+    <InputGroupInput @bind-Value=""_command"" Placeholder=""Search..."" />
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
         <Icon Name=""LucideIcon.Search"" />
     </InputGroupAddon>
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <KbdGroup><Kbd>⌘</Kbd><Kbd>K</Kbd></KbdGroup>
+        <KbdGroup>
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+        </KbdGroup>
     </InputGroupAddon>
 </InputGroup>";
 
     private const string DropdownCode =
-@"<InputGroup>
-    <InputGroupInput Placeholder=""Enter search query"" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <Dropdown>
-            <DropdownToggle AsChild=""true"">
-                <InputGroupButton>Search In...<Icon Name=""LucideIcon.ChevronDown"" /></InputGroupButton>
-            </DropdownToggle>
-            <DropdownMenu>
-                <DropdownItem>Documentation</DropdownItem>
-                <DropdownItem>Components</DropdownItem>
-                <DropdownItem>Examples</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
-    </InputGroupAddon>
-</InputGroup>";
+@"<Div Class=""grid w-full max-w-sm gap-2"">
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_fileName"" Placeholder=""Enter file name"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <Dropdown>
+                <DropdownToggle AsChild=""true"">
+                    <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""More"">
+                        <Icon Name=""LucideIcon.Ellipsis"" />
+                    </InputGroupButton>
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem>Rename</DropdownItem>
+                    <DropdownItem>Duplicate</DropdownItem>
+                    <DropdownItem>Delete</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_searchQuery"" Placeholder=""Enter search query"" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <Dropdown>
+                <DropdownToggle AsChild=""true"">
+                    <InputGroupButton>
+                        Search In...
+                        <Icon Name=""LucideIcon.ChevronDown"" />
+                    </InputGroupButton>
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem>Documentation</DropdownItem>
+                    <DropdownItem>Components</DropdownItem>
+                    <DropdownItem>Examples</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </InputGroupAddon>
+    </InputGroup>
+</Div>";
 
     private const string SpinnerCode =
-@"<InputGroup>
-    <InputGroupInput Placeholder=""Saving changes..."" />
-    <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-        <InputGroupText>Saving...</InputGroupText>
-        <Spinner Size=""Quark.Size.Is3"" />
-    </InputGroupAddon>
-</InputGroup>";
+@"<Div Class=""grid w-full max-w-sm gap-2"">
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_spinnerSearch"" Placeholder=""Searching..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <Spinner Size=""Quark.Size.Is3"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_processing"" Placeholder=""Processing..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+            <Spinner Size=""Quark.Size.Is3"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_saving"" Placeholder=""Saving changes..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>Saving...</InputGroupText>
+            <Spinner Size=""Quark.Size.Is3"" />
+        </InputGroupAddon>
+    </InputGroup>
+
+    <InputGroup>
+        <InputGroupInput @bind-Value=""_refreshing"" Placeholder=""Refreshing data..."" />
+        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+            <InputGroupText>Please wait...</InputGroupText>
+            <Spinner Size=""Quark.Size.Is3"" />
+        </InputGroupAddon>
+    </InputGroup>
+</Div>";
 
     private const string TextareaCode =
 @"<InputGroup>
-    <InputGroupTextarea Placeholder=""console.log('Hello, world!');"" Class=""font-mono text-sm"" />
+    <InputGroupTextarea @bind-Value=""_script"" Rows=""6"" Placeholder=""console.log('Hello, world!');"" Class=""font-mono text-sm"" />
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockEnd"">
         <InputGroupText>Line 1, Column 1</InputGroupText>
         <InputGroupButton Class=""ml-auto"">Run</InputGroupButton>
+        <InputGroupText>script.js</InputGroupText>
+        <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""Copy"">
+            <Icon Name=""LucideIcon.Copy"" />
+        </InputGroupButton>
+        <InputGroupButton ButtonSize=""ButtonSize.IconXs"" aria-label=""More"">
+            <Icon Name=""LucideIcon.Ellipsis"" />
+        </InputGroupButton>
     </InputGroupAddon>
 </InputGroup>";
 
     private const string CustomCode =
 @"<InputGroup>
-    <TextArea data-slot=""input-group-control"" Placeholder=""Autoresize textarea..."" />
+    <TextArea data-slot=""input-group-control""
+              Placeholder=""Autoresize textarea...""
+              Rows=""4""
+              Width=""Width.IsFull""
+              Border=""Border.Is0""
+              BackgroundColor=""BackgroundColor.Transparent""
+              Padding='Padding.Token(""2.5"").OnX.Is2.OnY'
+              TextSize=""TextSize.Sm""
+              Class=""resize-y min-h-24 flex-1 rounded-none shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent"" />
     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockEnd"">
         <InputGroupButton Class=""ml-auto"">Submit</InputGroupButton>
     </InputGroupAddon>
@@ -649,11 +802,34 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <InputGroup>
-        <InputGroupInput Placeholder=""بحث..."" />
-        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart""><Icon Name=""LucideIcon.Search"" /></InputGroupAddon>
-        <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">١٢ نتيجة</InputGroupAddon>
-    </InputGroup>
+    <Div Width=""Width.IsFull"" TextAlign=""TextAlign.End"" Class=""grid gap-2"">
+        <InputGroup>
+            <InputGroupInput @bind-Value=""_rtlValue"" Placeholder=""بحث..."" />
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineStart"">
+                <Icon Name=""LucideIcon.Search"" />
+            </InputGroupAddon>
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">١٢ نتيجة</InputGroupAddon>
+        </InputGroup>
+
+        <InputGroup>
+            <InputGroupInput @bind-Value=""_rtlSaving"" Placeholder=""جاري حفظ التغييرات..."" />
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
+                <InputGroupText>جاري الحفظ...</InputGroupText>
+                <Spinner Size=""Quark.Size.Is3"" />
+            </InputGroupAddon>
+        </InputGroup>
+
+        <InputGroup>
+            <InputGroupTextarea @bind-Value=""_rtlTextarea"" Rows=""4"" Placeholder=""اكتب تعليقًا..."" />
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockStart"">
+                <InputGroupText>منطقة النص</InputGroupText>
+            </InputGroupAddon>
+            <InputGroupAddon AddonAlign=""InputGroupAddonAlign.BlockEnd"">
+                <InputGroupText>٠/٢٨٠</InputGroupText>
+                <InputGroupButton Class=""mr-auto"">نشر</InputGroupButton>
+            </InputGroupAddon>
+        </InputGroup>
+    </Div>
 </DirectionProvider>";
 
     private string? _search;

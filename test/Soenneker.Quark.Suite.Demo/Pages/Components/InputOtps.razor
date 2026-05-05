@@ -331,43 +331,52 @@
 </InputOtp>";
 
     private const string FormCode =
-@"<Card Class=""mx-auto max-w-md"">
-    <CardHeader>
-        <CardTitle>Verify your login</CardTitle>
-        <CardDescription>
-            Enter the verification code we sent to your email address:
-            <Span FontWeight=""FontWeight.Medium"">m@example.com</Span>.
-        </CardDescription>
-    </CardHeader>
-    <CardBody>
-        <Field>
-            <Div Class=""flex items-center justify-between"">
-                <FieldLabel For=""otp-verification"">Verification code</FieldLabel>
-                <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"">Resend Code</Button>
-            </Div>
-            <InputOtp Id=""otp-verification"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"" Required=""true"">
-                <InputOtpInput />
-                <InputOtpGroup Class=""*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl"">
-                    <InputOtpSlot Index=""0"" />
-                    <InputOtpSlot Index=""1"" />
-                    <InputOtpSlot Index=""2"" />
-                </InputOtpGroup>
-                <InputOtpSeparator />
-                <InputOtpGroup Class=""*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl"">
-                    <InputOtpSlot Index=""3"" />
-                    <InputOtpSlot Index=""4"" />
-                    <InputOtpSlot Index=""5"" />
-                </InputOtpGroup>
-            </InputOtp>
-            <FieldDescription>
-                <Anchor To=""#"">I no longer have access to this email address.</Anchor>
-            </FieldDescription>
-        </Field>
-    </CardBody>
-    <CardFooter Class=""flex-col gap-2"">
-        <Button Width=""Width.IsFull"">Verify</Button>
-    </CardFooter>
-</Card>";
+@"<form>
+    <Card Class=""mx-auto max-w-md"">
+        <CardHeader>
+            <CardTitle>Verify your login</CardTitle>
+            <CardDescription>
+                Enter the verification code we sent to your email address:
+                <Span FontWeight=""FontWeight.Medium"">m@example.com</Span>.
+            </CardDescription>
+        </CardHeader>
+        <CardBody>
+            <Field>
+                <Div Class=""flex items-center justify-between"">
+                    <FieldLabel For=""otp-verification"">Verification code</FieldLabel>
+                    <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"">
+                        <Icon Name=""LucideIcon.RefreshCw"" />
+                        Resend Code
+                    </Button>
+                </Div>
+                <InputOtp Id=""otp-verification"" OtpValue=""@_formOtpValue"" OtpValueChanged=""OnFormOtpChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"" Required=""true"">
+                    <InputOtpInput />
+                    <InputOtpGroup Class=""*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl"">
+                        <InputOtpSlot Index=""0"" />
+                        <InputOtpSlot Index=""1"" />
+                        <InputOtpSlot Index=""2"" />
+                    </InputOtpGroup>
+                    <InputOtpSeparator />
+                    <InputOtpGroup Class=""*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl"">
+                        <InputOtpSlot Index=""3"" />
+                        <InputOtpSlot Index=""4"" />
+                        <InputOtpSlot Index=""5"" />
+                    </InputOtpGroup>
+                </InputOtp>
+                <FieldDescription>
+                    <Anchor To=""#"">I no longer have access to this email address.</Anchor>
+                </FieldDescription>
+            </Field>
+        </CardBody>
+        <CardFooter Class=""flex-col gap-2"">
+            <Button Type=""ButtonType.Submit"" Width=""Width.IsFull"">Verify</Button>
+            <Paragraph Class=""text-center text-sm text-muted-foreground"">
+                Having trouble signing in?
+                <Anchor To=""#"" Class=""underline underline-offset-4"">Contact support</Anchor>
+            </Paragraph>
+        </CardFooter>
+    </Card>
+</form>";
 
     private const string SimpleCode =
 @"<Field>
@@ -406,8 +415,8 @@
 
     private const string WithSeparatorCode =
 @"<Field>
-    <FieldLabel For=""separator-otp"">With Separator</FieldLabel>
-    <InputOtp Id=""separator-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+    <FieldLabel For=""separator-otp"">Separator</FieldLabel>
+    <InputOtp Id=""separator-otp"" OtpValue=""@_separatorValue"" OtpValueChanged=""OnSeparatorChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" />
@@ -430,7 +439,7 @@
 @"<Field>
     <FieldLabel For=""alphanumeric-otp"">Alphanumeric</FieldLabel>
     <FieldDescription>Accepts both letters and numbers.</FieldDescription>
-    <InputOtp Id=""alphanumeric-otp"" Length=""6"" Pattern=""@AlphaNumericPattern"" InputMode=""text"">
+    <InputOtp Id=""alphanumeric-otp"" OtpValue=""@_alphaNumericValue"" OtpValueChanged=""OnAlphaNumericChanged"" Length=""6"" Pattern=""@AlphaNumericPattern"" InputMode=""text"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" />
@@ -467,9 +476,9 @@
 
     private const string FourDigitsCode =
 @"<Field>
-    <FieldLabel For=""four-digit-otp"">4 Digits</FieldLabel>
+    <FieldLabel For=""four-digit-otp"">Four Digits</FieldLabel>
     <FieldDescription>Common pattern for PIN codes.</FieldDescription>
-    <InputOtp Id=""four-digit-otp"" Length=""4"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+    <InputOtp Id=""four-digit-otp"" OtpValue=""@_pinValue"" OtpValueChanged=""OnPinChanged"" Length=""4"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" />
@@ -482,9 +491,9 @@
 
     private const string InvalidCode =
 @"<Field IsInvalid=""true"">
-    <FieldLabel For=""invalid-otp"">Invalid State</FieldLabel>
+    <FieldLabel For=""invalid-otp"">Invalid</FieldLabel>
     <FieldDescription>Example showing the invalid error state.</FieldDescription>
-    <InputOtp Id=""invalid-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+    <InputOtp Id=""invalid-otp"" OtpValue=""@_invalidValue"" OtpValueChanged=""OnInvalidChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" aria-invalid=""true"" />
@@ -505,20 +514,23 @@
 </Field>";
 
     private const string ControlledCode =
-@"<InputOtp OtpValue=""@controlledValue"" OtpValueChanged=""OnControlledChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
-    <InputOtpInput />
-    <InputOtpGroup>
-        <InputOtpSlot Index=""0"" />
-        <InputOtpSlot Index=""1"" />
-        <InputOtpSlot Index=""2"" />
-    </InputOtpGroup>
-    <InputOtpSeparator />
-    <InputOtpGroup>
-        <InputOtpSlot Index=""3"" />
-        <InputOtpSlot Index=""4"" />
-        <InputOtpSlot Index=""5"" />
-    </InputOtpGroup>
-</InputOtp>";
+@"<Field>
+    <InputOtp OtpValue=""@_controlledValue"" OtpValueChanged=""OnControlledChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+        <InputOtpInput />
+        <InputOtpGroup>
+            <InputOtpSlot Index=""0"" />
+            <InputOtpSlot Index=""1"" />
+            <InputOtpSlot Index=""2"" />
+        </InputOtpGroup>
+        <InputOtpSeparator />
+        <InputOtpGroup>
+            <InputOtpSlot Index=""3"" />
+            <InputOtpSlot Index=""4"" />
+            <InputOtpSlot Index=""5"" />
+        </InputOtpGroup>
+    </InputOtp>
+    <FieldDescription>Enter your one-time password.</FieldDescription>
+</Field>";
 
     private const string DefaultValueCode =
 @"<form>
@@ -539,7 +551,7 @@
 @"<DirectionProvider Dir=""rtl"">
     <Field>
         <FieldLabel For=""rtl-otp"">رمز التحقق</FieldLabel>
-        <InputOtp Id=""rtl-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+        <InputOtp Id=""rtl-otp"" OtpValue=""@_rtlValue"" OtpValueChanged=""OnRtlChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
             <InputOtpInput />
             <InputOtpGroup>
                 <InputOtpSlot Index=""0"" />

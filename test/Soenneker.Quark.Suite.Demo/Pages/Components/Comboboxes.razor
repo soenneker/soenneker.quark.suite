@@ -34,7 +34,7 @@
 
         <DemoSection Title="Basic"
                      Description="A simple combobox with a list of frameworks."
-                     Code="@BasicCode"
+                     Code="@BasicPreview2Code"
                      CodeLanguage="razor">
             <Div MaxWidth="MaxWidth.IsSm">
                 <Combobox Value="@_basicFramework"
@@ -490,119 +490,296 @@
     private Task OnRtlOpenChanged(bool value) { _rtlOpen = value; return Task.CompletedTask; }
 
     private const string BasicCode =
-@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"">
-    <ComboboxInput Placeholder=""Select a framework"" />
-    <ComboboxContent>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-            <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
-            <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
-            <ComboboxItem Value=""Nuxt.js"">Nuxt.js</ComboboxItem>
-        </ComboboxList>
-    </ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_heroFramework""
+              ValueChanged=""OnHeroFrameworkChanged""
+              Search=""@_heroSearch""
+              SearchChanged=""OnHeroSearchChanged""
+              Open=""@_heroOpen""
+              OpenChanged=""OnHeroOpenChanged"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_heroSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
+
+    private const string BasicPreview2Code = @"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_basicFramework""
+              ValueChanged=""OnBasicFrameworkChanged""
+              Search=""@_basicSearch""
+              SearchChanged=""OnBasicSearchChanged""
+              Open=""@_basicOpen""
+              OpenChanged=""OnBasicOpenChanged"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_basicSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string MultipleCode =
-@"<Combobox Multiple=""true"" Values=""@frameworks"" ValueChangedMultiple=""OnFrameworksChanged"">
-    <ComboboxChips>
-        <ComboboxChip Value=""Next.js"">Next.js</ComboboxChip>
-        <ComboboxChipsInput Placeholder=""Add framework"" />
-    </ComboboxChips>
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsLg"">
+    <Combobox Multiple=""true""
+              Values=""@_multipleFrameworks""
+              ValueChangedMultiple=""OnMultipleFrameworksChanged""
+              Search=""@_multipleSearch""
+              SearchChanged=""OnMultipleSearchChanged""
+              Open=""@_multipleOpen""
+              OpenChanged=""OnMultipleOpenChanged"">
+        <ComboboxChips>
+            @foreach (var framework in _multipleFrameworks)
+            {
+                <ComboboxChip Value=""@framework"">@framework</ComboboxChip>
+            }
+            <ComboboxChipsInput Placeholder=""Add framework"" />
+        </ComboboxChips>
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_multipleSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string ClearButtonCode =
-@"<Combobox Value=""@framework"" ValueChanged=""OnFrameworkChanged"" ShowClear=""true"">
-    <ComboboxInput Placeholder=""Select a framework"" />
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_clearFramework""
+              ValueChanged=""OnClearFrameworkChanged""
+              Search=""@_clearSearch""
+              SearchChanged=""OnClearSearchChanged""
+              Open=""@_clearOpen""
+              OpenChanged=""OnClearOpenChanged""
+              ShowClear=""true"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_clearSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string GroupsCode =
-@"<Combobox>
-    <ComboboxInput Placeholder=""Select a timezone"" />
-    <ComboboxContent>
-        <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-        <ComboboxList>
-            <ComboboxGroup>
-                <ComboboxLabel>Americas</ComboboxLabel>
-                <ComboboxItem Value=""(GMT-5) New York"">(GMT-5) New York</ComboboxItem>
-            </ComboboxGroup>
-            <ComboboxSeparator />
-            <ComboboxGroup>
-                <ComboboxLabel>Europe</ComboboxLabel>
-                <ComboboxItem Value=""(GMT+0) London"">(GMT+0) London</ComboboxItem>
-            </ComboboxGroup>
-        </ComboboxList>
-    </ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_timezone""
+              ValueChanged=""OnTimezoneChanged""
+              Search=""@_timezoneSearch""
+              SearchChanged=""OnTimezoneSearchChanged""
+              Open=""@_timezoneOpen""
+              OpenChanged=""OnTimezoneOpenChanged"">
+        <ComboboxInput Placeholder=""Select a timezone"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+            <ComboboxList>
+                @for (var groupIndex = 0; groupIndex < FilterTimezoneGroups(_timezoneSearch).Count; groupIndex++)
+                {
+                    var group = FilterTimezoneGroups(_timezoneSearch)[groupIndex];
+                    <ComboboxGroup>
+                        <ComboboxLabel>@group.Label</ComboboxLabel>
+                        @foreach (var item in group.Items)
+                        {
+                            <ComboboxItem Value=""@item"">@item</ComboboxItem>
+                        }
+                    </ComboboxGroup>
+
+                    @if (groupIndex < FilterTimezoneGroups(_timezoneSearch).Count - 1)
+                    {
+                        <ComboboxSeparator />
+                    }
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string CustomItemsCode =
-@"<Combobox>
-    <ComboboxInput Placeholder=""Search countries..."" />
-    <ComboboxContent>
-        <ComboboxList>
-            <ComboboxItem Value=""Argentina"">
-                <Div Class=""flex flex-col"">
-                    <Span Class=""font-medium"">Argentina</Span>
-                    <Paragraph Class=""m-0 text-xs text-muted-foreground"">South America (ar)</Paragraph>
-                </Div>
-            </ComboboxItem>
-        </ComboboxList>
-    </ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_customCountry""
+              ValueChanged=""OnCustomCountryChanged""
+              Search=""@_customSearch""
+              SearchChanged=""OnCustomSearchChanged""
+              Open=""@_customOpen""
+              OpenChanged=""OnCustomOpenChanged"">
+        <ComboboxInput Placeholder=""Search countries..."" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _customSearch) || Matches(option.Description, _customSearch)))
+                {
+                    <ComboboxItem Value=""@country.Name"">
+                        <Div Display=""Display.Flex"" FlexDirection=""FlexDirection.Col"">
+                            <Span FontWeight=""FontWeight.Medium"">@country.Name</Span>
+                            <Paragraph TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">@country.Description</Paragraph>
+                        </Div>
+                    </ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string InvalidCode =
-@"<Combobox>
-    <ComboboxInput Placeholder=""Select a framework"" aria-invalid=""true"" />
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"" Space=""Space.Y.Is2"">
+    <Combobox Value=""@_invalidFramework""
+              ValueChanged=""OnInvalidFrameworkChanged""
+              Search=""@_invalidSearch""
+              SearchChanged=""OnInvalidSearchChanged""
+              Open=""@_invalidOpen""
+              OpenChanged=""OnInvalidOpenChanged"">
+        <ComboboxInput Placeholder=""Select a framework"" aria-invalid=""true"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_invalidSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" Margin=""Margin.Is0"">
+        Select a framework before continuing.
+    </Paragraph>
+</Div>";
 
     private const string DisabledCode =
-@"<Combobox Value=""Nuxt.js"" Disabled=""true"">
-    <ComboboxInput Placeholder=""Select a framework"" />
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""Nuxt.js"" Disabled=""true"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>
+            <ComboboxItem Value=""Nuxt.js"">Nuxt.js</ComboboxItem>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string AutoHighlightCode =
-@"<Combobox AutoHighlight=""true"">
-    <ComboboxInput Placeholder=""Select a framework"" />
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_autoFramework""
+              ValueChanged=""OnAutoFrameworkChanged""
+              Search=""@_autoSearch""
+              SearchChanged=""OnAutoSearchChanged""
+              Open=""@_autoOpen""
+              OpenChanged=""OnAutoOpenChanged""
+              AutoHighlight=""true"">
+        <ComboboxInput Placeholder=""Select a framework"" />
+        <ComboboxContent>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var framework in FilterFrameworks(_autoSearch))
+                {
+                    <ComboboxItem Value=""@framework"">@framework</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string PopupCode =
-@"<Combobox Value=""@country"" ValueChanged=""OnCountryChanged"">
+@"<Combobox Value=""@_popupCountry""
+          ValueChanged=""OnPopupCountryChanged""
+          Search=""@_popupSearch""
+          SearchChanged=""OnPopupSearchChanged""
+          Open=""@_popupOpen""
+          OpenChanged=""OnPopupOpenChanged"">
     <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" role=""combobox"">
-            Select country
-            <Icon Name=""LucideIcon.ChevronsUpDown"" />
+        <Button Variant=""ButtonVariant.Outline""
+                role=""combobox""
+                aria-expanded=""@_popupOpen""
+                Class=""w-[200px] justify-between"">
+            @(string.IsNullOrWhiteSpace(_popupCountry) ? ""Select country"" : _popupCountry)
+            <Icon Name=""LucideIcon.ChevronsUpDown"" Class=""opacity-50"" />
         </Button>
     </PopoverTrigger>
     <ComboboxContent Class=""w-[200px] p-0"">
         <ComboboxInput Anchor=""false"" ShowTrigger=""false"" Placeholder=""Search countries..."" />
         <ComboboxEmpty>No country found.</ComboboxEmpty>
-        <ComboboxList>...</ComboboxList>
+        <ComboboxList>
+            @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _popupSearch)))
+            {
+                <ComboboxItem Value=""@country.Name"">@country.Name</ComboboxItem>
+            }
+        </ComboboxList>
     </ComboboxContent>
 </Combobox>";
 
     private const string InputGroupCode =
-@"<Combobox>
-    <ComboboxInput Placeholder=""Select a timezone"">
-        <InputGroupAddon>
-            <Icon Name=""LucideIcon.Globe"" />
-        </InputGroupAddon>
-    </ComboboxInput>
-    <ComboboxContent>...</ComboboxContent>
-</Combobox>";
+@"<Div MaxWidth=""MaxWidth.IsSm"">
+    <Combobox Value=""@_inputGroupTimezone""
+              ValueChanged=""OnInputGroupTimezoneChanged""
+              Search=""@_inputGroupSearch""
+              SearchChanged=""OnInputGroupSearchChanged""
+              Open=""@_inputGroupOpen""
+              OpenChanged=""OnInputGroupOpenChanged"">
+        <ComboboxInput Placeholder=""Select a timezone"">
+            <InputGroupAddon>
+                <Icon Name=""LucideIcon.Globe"" />
+            </InputGroupAddon>
+        </ComboboxInput>
+        <ComboboxContent AlignOffset=""-28"" Class=""w-60"">
+            <ComboboxEmpty>No timezones found.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var group in FilterTimezoneGroups(_inputGroupSearch))
+                {
+                    <ComboboxGroup>
+                        <ComboboxLabel>@group.Label</ComboboxLabel>
+                        @foreach (var item in group.Items)
+                        {
+                            <ComboboxItem Value=""@item"">@item</ComboboxItem>
+                        }
+                    </ComboboxGroup>
+                }
+            </ComboboxList>
+        </ComboboxContent>
+    </Combobox>
+</Div>";
 
     private const string RtlCode =
-@"<Div dir=""rtl"">
+@"<Div dir=""rtl"" MaxWidth=""MaxWidth.IsSm"" Space=""Space.Y.Is2"">
     <Label>الفئات</Label>
-    <Combobox Multiple=""true"">
+    <Combobox Multiple=""true""
+              Values=""@_rtlCategories""
+              ValueChangedMultiple=""OnRtlCategoriesChanged""
+              Search=""@_rtlSearch""
+              SearchChanged=""OnRtlSearchChanged""
+              Open=""@_rtlOpen""
+              OpenChanged=""OnRtlOpenChanged"">
         <ComboboxChips>
-            <ComboboxChip Value=""التكنولوجيا"">التكنولوجيا</ComboboxChip>
+            @foreach (var category in _rtlCategories)
+            {
+                <ComboboxChip Value=""@category"">@category</ComboboxChip>
+            }
             <ComboboxChipsInput Placeholder=""أضف فئات"" />
         </ComboboxChips>
-        <ComboboxContent>...</ComboboxContent>
+        <ComboboxContent>
+            <ComboboxEmpty>لا توجد نتائج.</ComboboxEmpty>
+            <ComboboxList>
+                @foreach (var category in ArabicCategories.Where(category => Matches(category, _rtlSearch)))
+                {
+                    <ComboboxItem Value=""@category"">@category</ComboboxItem>
+                }
+            </ComboboxList>
+        </ComboboxContent>
     </Combobox>
 </Div>";
 }

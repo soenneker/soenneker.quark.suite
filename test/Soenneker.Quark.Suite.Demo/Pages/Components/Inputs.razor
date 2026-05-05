@@ -290,7 +290,7 @@
 
 @code {
     private const string ApiKeyCode =
-@"<Field>
+@"<Field MaxWidth=""MaxWidth.IsXs"">
     <FieldLabel For=""input-api-key"">API Key</FieldLabel>
     <Input Id=""input-api-key"" Type=""password"" Placeholder=""sk-..."" />
     <FieldDescription>Your API key is encrypted and stored securely.</FieldDescription>
@@ -307,7 +307,7 @@
 </Field>";
 
     private const string FieldGroupCode =
-@"<FieldGroup Class=""w-full max-w-xs"">
+@"<FieldGroup Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXs"">
     <Field>
         <FieldLabel For=""fieldgroup-name"">Name</FieldLabel>
         <Input Id=""fieldgroup-name"" Type=""text"" Placeholder=""Jordan Lee"" />
@@ -324,14 +324,14 @@
 </FieldGroup>";
 
     private const string DisabledCode =
-@"<Field Class=""max-w-xs"" Disabled=""true"">
+@"<Field MaxWidth=""MaxWidth.IsXs"" Disabled=""true"">
     <FieldLabel For=""input-disabled"">Email</FieldLabel>
     <Input Id=""input-disabled"" Type=""email"" Placeholder=""Email"" Disabled=""true"" />
     <FieldDescription>This field is currently disabled.</FieldDescription>
 </Field>";
 
     private const string InvalidCode =
-@"<Field Class=""max-w-xs"" IsInvalid=""true"">
+@"<Field MaxWidth=""MaxWidth.IsXs"" IsInvalid=""true"">
     <FieldLabel For=""input-invalid"">Invalid Input</FieldLabel>
     <Input Id=""input-invalid"" Placeholder=""Error"" aria-invalid=""true"" />
     <FieldDescription>This field contains validation errors.</FieldDescription>
@@ -399,16 +399,21 @@
     private const string FormCode =
 @"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""w-full max-w-sm space-y-4"">
     <DataAnnotationsValidator />
+
     <FieldGroup>
         <Field>
             <FieldLabel For=""input-form-name"">Name</FieldLabel>
             <Input Id=""input-form-name"" Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""John Doe"" />
+            <ValidationMessage For=""@(() => _formModel.Name)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
         </Field>
+
         <Field>
             <FieldLabel For=""input-form-email"">Email</FieldLabel>
             <Input Id=""input-form-email"" Type=""email"" @bind-Value=""_formModel.Email"" Placeholder=""john@example.com"" />
             <FieldDescription>We'll never share your email with anyone.</FieldDescription>
+            <ValidationMessage For=""@(() => _formModel.Email)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
         </Field>
+
         <Div Class=""grid grid-cols-2 gap-4"">
             <Field>
                 <FieldLabel For=""input-form-phone"">Phone</FieldLabel>
@@ -417,7 +422,9 @@
             <Field>
                 <FieldLabel For=""input-form-country"">Country</FieldLabel>
                 <Select TValue=""string"" SelectedValue=""@(""us"")"">
-                    <SelectTrigger Id=""input-form-country""><SelectValue /></SelectTrigger>
+                    <SelectTrigger Id=""input-form-country"">
+                        <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                         <SelectItem TValue=""string"" ItemValue=""@(""us"")"" Text=""United States"" />
                         <SelectItem TValue=""string"" ItemValue=""@(""uk"")"" Text=""United Kingdom"" />
@@ -426,15 +433,24 @@
                 </Select>
             </Field>
         </Div>
+
         <Field>
             <FieldLabel For=""input-form-address"">Address</FieldLabel>
             <Input Id=""input-form-address"" Type=""text"" Placeholder=""123 Main St"" />
         </Field>
+
         <Field Horizontal=""true"">
-            <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Cancel</Button>
+            <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" OnClick=""@(_ => ResetForm())"">Cancel</Button>
             <Button Type=""ButtonType.Submit"">Submit</Button>
         </Field>
     </FieldGroup>
+
+    @if (!string.IsNullOrEmpty(_formMessage))
+    {
+        <Div class=""rounded-lg border bg-card p-4"">
+            <Paragraph TextSize=""TextSize.Sm"">@_formMessage</Paragraph>
+        </Div>
+    }
 </EditForm>";
 
     private const string RtlCode =

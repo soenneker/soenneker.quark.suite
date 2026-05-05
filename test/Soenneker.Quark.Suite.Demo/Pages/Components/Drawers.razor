@@ -272,25 +272,44 @@
         <Button Variant=""ButtonVariant.Outline"">Open Drawer</Button>
     </DrawerTrigger>
     <DrawerContent>
-        <Div Margin=""Margin.X.Auto"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"">
+        <div class=""mx-auto w-full max-w-sm"">
             <DrawerHeader>
                 <DrawerTitle>Move Goal</DrawerTitle>
                 <DrawerDescription>Set your daily activity goal.</DrawerDescription>
             </DrawerHeader>
-            <Div Padding=""Padding.Is4"" Class=""pb-0"">
-                <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Center"" Gap=""Gap.Is2"">
-                    <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Icon"" Size=""Quark.Size.Is8"" Shrink=""Shrink.Is0"" Rounded=""Rounded.Full"">
+            <Div Class=""p-4 pb-0"">
+                <Div Class=""flex items-center justify-center gap-2"">
+                    <Button Variant=""ButtonVariant.Outline""
+                            ButtonSize=""ButtonSize.Icon""
+                            Size=""Quark.Size.Is8""
+                            Shrink=""Shrink.Is0""
+                            Rounded=""Rounded.Full""
+                            Disabled=""@(_goal <= 200)""
+                            OnClick=""DecreaseGoal"">
                         <Icon Name=""LucideIcon.Minus"" />
-                        <Span Class=""sr-only"">Decrease</Span>
+                        <Span ScreenReader=""ScreenReader.Only"">Decrease</Span>
                     </Button>
                     <Div Flex=""Flex.Is1"" TextAlign=""TextAlign.Center"">
                         <Div TextSize='TextSize.Token(""7xl"")' FontWeight=""FontWeight.Bold"" Tracking=""Tracking.Tighter"">@_goal</Div>
                         <Div TextSize='TextSize.Token(""[0.70rem]"")' TextTransform=""TextTransform.Uppercase"" TextColor=""TextColor.MutedForeground"">Calories/day</Div>
                     </Div>
-                    <Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Icon"" Size=""Quark.Size.Is8"" Shrink=""Shrink.Is0"" Rounded=""Rounded.Full"">
+                    <Button Variant=""ButtonVariant.Outline""
+                            ButtonSize=""ButtonSize.Icon""
+                            Size=""Quark.Size.Is8""
+                            Shrink=""Shrink.Is0""
+                            Rounded=""Rounded.Full""
+                            Disabled=""@(_goal >= 400)""
+                            OnClick=""IncreaseGoal"">
                         <Icon Name=""LucideIcon.Plus"" />
-                        <Span Class=""sr-only"">Increase</Span>
+                        <Span ScreenReader=""ScreenReader.Only"">Increase</Span>
                     </Button>
+                </Div>
+                <Div Margin=""Margin.Is3.FromTop"" Display=""Display.Flex"" Height='Height.Token(""[120px]"")' ItemsAlign=""Items.End"" Gap=""Gap.Is2"">
+                    @foreach (var value in _drawerGoals)
+                    {
+                        <Div MinWidth=""MinWidth.Is0"" Flex=""Flex.Is1""
+                             Style=""@($""height: {Math.Max(16, value / 4)}px; background-color: var(--chart-1);"")""></Div>
+                    }
                 </Div>
             </Div>
             <DrawerFooter>
@@ -331,31 +350,38 @@
 </Drawer>";
 
     private const string SidesCode =
-@"<Drawer Direction=""top"">
-    <DrawerTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">top</Button>
-    </DrawerTrigger>
-    <DrawerContent Class=""data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"">
-        <DrawerHeader>
-            <DrawerTitle>Move Goal</DrawerTitle>
-            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
-        </DrawerHeader>
-        <Div Class=""overflow-y-auto px-4"">
-            @for (var i = 0; i < 10; i++)
-            {
-                <Paragraph Class=""mb-4 leading-normal"">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </Paragraph>
-            }
+@"<Div Display=""Display.Flex"" Flex=@(""flex-wrap"") Gap=""Gap.Is2"">
+    @foreach (var side in _drawerSides)
+    {
+        <Div>
+            <Drawer @key=""side"" Direction=""@side.Value"">
+                <DrawerTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"" Class=""capitalize"">@side</Button>
+                </DrawerTrigger>
+                <DrawerContent Class=""data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"">
+                    <DrawerHeader>
+                        <DrawerTitle>Move Goal</DrawerTitle>
+                        <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+                    </DrawerHeader>
+                    <Div Class=""overflow-y-auto px-4"">
+                        @for (var i = 0; i < 10; i++)
+                        {
+                            <Paragraph Class=""mb-4 leading-normal"">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            </Paragraph>
+                        }
+                    </Div>
+                    <DrawerFooter>
+                        <Button>Submit</Button>
+                        <DrawerClose AsChild=""true"">
+                            <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+                        </DrawerClose>
+                    </DrawerFooter>
+                </DrawerContent>
+            </Drawer>
         </Div>
-        <DrawerFooter>
-            <Button>Submit</Button>
-            <DrawerClose AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
-            </DrawerClose>
-        </DrawerFooter>
-    </DrawerContent>
-</Drawer>";
+    }
+</Div>";
 
     private const string ResponsiveDialogCode =
 @"<Div class=""hidden md:block"">
@@ -370,14 +396,14 @@
                     Make changes to your profile here. Click save when you're done.
                 </DialogDescription>
             </DialogHeader>
-            <Div class=""grid gap-4 py-4"">
-                <Div class=""grid gap-3"">
+            <Div Display=""Display.Grid"" Gap=""Gap.Is4"" Padding=""Padding.Is4.OnY"">
+                <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
                     <Label For=""drawer-dialog-name"">Name</Label>
                     <Input Id=""drawer-dialog-name"" Value=""Pedro Duarte"" />
                 </Div>
-                <Div class=""grid gap-3"">
+                <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
                     <Label For=""drawer-dialog-username"">Username</Label>
-                    <Input Id=""drawer-dialog-username"" Value=""@peduarte"" />
+                    <Input Id=""drawer-dialog-username"" Value=""@(""@peduarte"")"" />
                 </Div>
             </Div>
             <DialogFooter>
@@ -392,21 +418,21 @@
             <Button Variant=""ButtonVariant.Outline"">Edit profile</Button>
         </DrawerTrigger>
         <DrawerContent>
-            <Div class=""mx-auto w-full max-w-sm"">
+            <Div class=""mx-auto"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"">
                 <DrawerHeader>
                     <DrawerTitle>Edit profile</DrawerTitle>
                     <DrawerDescription>
                         Make changes to your profile here. Click save when you're done.
                     </DrawerDescription>
                 </DrawerHeader>
-                <Div class=""grid gap-4 px-4 py-4"">
-                    <Div class=""grid gap-3"">
+                <Div Display=""Display.Grid"" Gap=""Gap.Is4"" Padding='Padding.Is4.OnX.Is4.OnY'>
+                    <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
                         <Label For=""drawer-mobile-name"">Name</Label>
                         <Input Id=""drawer-mobile-name"" Value=""Pedro Duarte"" />
                     </Div>
-                    <Div class=""grid gap-3"">
+                    <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
                         <Label For=""drawer-mobile-username"">Username</Label>
-                        <Input Id=""drawer-mobile-username"" Value=""@peduarte"" />
+                        <Input Id=""drawer-mobile-username"" Value=""@(""@peduarte"")"" />
                     </Div>
                 </Div>
                 <DrawerFooter>
@@ -422,13 +448,13 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div class=""w-full text-right"">
+    <Div Width=""Width.IsFull"" TextAlign=""TextAlign.End"">
         <Drawer Direction=""left"">
             <DrawerTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">افتح الدرج</Button>
             </DrawerTrigger>
             <DrawerContent>
-                <Div class=""mx-auto w-full max-w-sm"">
+                <Div class=""mx-auto"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"">
                     <DrawerHeader>
                         <DrawerTitle>تعديل الملف الشخصي</DrawerTitle>
                         <DrawerDescription>

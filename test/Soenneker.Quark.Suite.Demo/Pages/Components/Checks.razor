@@ -79,11 +79,11 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Description"
                          Description="Use FieldContent and FieldDescription for helper text."
-                         Code="@(@"<Field Horizontal=""true"">
+                         Code="@(@"<Field Horizontal=""true"" MaxWidth=""MaxWidth.IsSm"">
     <Check Id=""checkbox-description"" Checked=""true"" />
     <FieldContent>
         <FieldLabel For=""checkbox-description"">Accept terms and conditions</FieldLabel>
-        <FieldDescription>By clicking this checkbox, you agree to the terms.</FieldDescription>
+        <FieldDescription>By clicking this checkbox, you agree to the terms and conditions.</FieldDescription>
     </FieldContent>
 </Field>")"
                          CodeLanguage="razor">
@@ -270,11 +270,12 @@
     private string? _multipleSubmitJson;
 
     private const string DemoCode =
-@"<FieldGroup Class=""max-w-sm"">
+@"<FieldGroup MaxWidth=""MaxWidth.IsSm"">
     <Field Horizontal=""true"">
         <Check Id=""terms-checkbox"" Name=""terms-checkbox"" />
         <Label For=""terms-checkbox"">Accept terms and conditions</Label>
     </Field>
+
     <Field Horizontal=""true"">
         <Check Id=""terms-checkbox-2"" Name=""terms-checkbox-2"" Checked=""true"" />
         <FieldContent>
@@ -284,10 +285,12 @@
             </FieldDescription>
         </FieldContent>
     </Field>
+
     <Field Horizontal=""true"" Disabled=""true"">
         <Check Id=""toggle-checkbox"" Name=""toggle-checkbox"" Disabled=""true"" />
         <FieldLabel For=""toggle-checkbox"">Enable notifications</FieldLabel>
     </Field>
+
     <FieldLabel>
         <Field Horizontal=""true"">
             <Check Id=""toggle-checkbox-2"" Name=""toggle-checkbox-2"" />
@@ -342,9 +345,9 @@
 </EditForm>";
 
     private const string InvalidCode =
-@"<FieldGroup Class=""mx-auto w-56"">
+@"<FieldGroup Margin=""Margin.Auto.OnX"" Width='Width.Token(""56"")'>
     <Field Horizontal=""true"" IsInvalid=""true"">
-        <Check Id=""terms-checkbox-invalid"" Name=""terms-checkbox-invalid"" aria-invalid=""true"" />
+        <Check Id=""terms-checkbox-invalid"" aria-invalid=""true"" />
         <FieldLabel For=""terms-checkbox-invalid"">Accept terms and conditions</FieldLabel>
     </Field>
 </FieldGroup>";
@@ -366,15 +369,19 @@
     <FieldGroup Class=""gap-3"">
         <Field Horizontal=""true"">
             <Check Id=""finder-pref-hard-disks"" Checked=""true"" />
-            <FieldLabel For=""finder-pref-hard-disks"" Class=""font-normal"">Hard disks</FieldLabel>
+            <FieldLabel For=""finder-pref-hard-disks"" FontWeight=""FontWeight.Normal"">Hard disks</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
             <Check Id=""finder-pref-external-disks"" Checked=""true"" />
-            <FieldLabel For=""finder-pref-external-disks"" Class=""font-normal"">External disks</FieldLabel>
+            <FieldLabel For=""finder-pref-external-disks"" FontWeight=""FontWeight.Normal"">External disks</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
             <Check Id=""finder-pref-cds"" />
-            <FieldLabel For=""finder-pref-cds"" Class=""font-normal"">CDs, DVDs, and iPods</FieldLabel>
+            <FieldLabel For=""finder-pref-cds"" FontWeight=""FontWeight.Normal"">CDs, DVDs, and iPods</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Check Id=""finder-pref-connected-servers"" />
+            <FieldLabel For=""finder-pref-connected-servers"" FontWeight=""FontWeight.Normal"">Connected servers</FieldLabel>
         </Field>
     </FieldGroup>
 </FieldSet>";
@@ -383,8 +390,12 @@
 @"<TableElement>
     <Thead>
         <Tr>
-            <Th Class=""w-8"">
-                <Check Id=""select-all-checkbox"" Name=""select-all-checkbox"" Checked=""@_tableSelectAll"" Indeterminate=""@_tableSelectIndeterminate"" CheckedChanged=""HandleTableSelectAllChanged"" />
+            <Th Width=""Width.Is8"">
+                <Check Id=""select-all-checkbox""
+                       Name=""select-all-checkbox""
+                       Checked=""@_tableSelectAll""
+                       Indeterminate=""@_tableSelectIndeterminate""
+                       CheckedChanged=""HandleTableSelectAllChanged"" />
             </Th>
             <Th>Name</Th>
             <Th>Email</Th>
@@ -396,7 +407,10 @@
         {
             <Tr Attributes=""@GetTableRowAttributes(row.Id)"">
                 <Td>
-                    <Check Id=""@($""row-{row.Id}-checkbox"")"" Name=""@($""row-{row.Id}-checkbox"")"" Checked=""@GetRowSelected(row.Id)"" CheckedChanged=""@((bool v) => HandleTableRowChanged(row.Id, v))"" />
+                    <Check Id=""@($""row-{row.Id}-checkbox"")""
+                           Name=""@($""row-{row.Id}-checkbox"")""
+                           Checked=""@GetRowSelected(row.Id)""
+                           CheckedChanged=""@(v => HandleTableRowChanged(row.Id, v))"" />
                 </Td>
                 <Td FontWeight=""FontWeight.Medium"">@row.Name</Td>
                 <Td>@row.Email</Td>
@@ -408,7 +422,7 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <FieldGroup Class=""max-w-sm"">
+    <FieldGroup MaxWidth=""MaxWidth.IsSm"">
         <Field Horizontal=""true"">
             <Check Id=""terms-checkbox-rtl"" />
             <Label For=""terms-checkbox-rtl"">قبول الشروط والأحكام</Label>

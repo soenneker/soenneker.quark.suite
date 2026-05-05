@@ -127,10 +127,18 @@
             <DemoSection Title="Shortcuts"
                          Description="Add ContextMenuShortcut to show keyboard hints."
                          Code="@(@"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">Right click</ContextMenuTrigger>
+    <ContextMenuTrigger Id=""context-menu-shortcuts-trigger""
+                        data-testid=""context-menu-shortcuts-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
+    </ContextMenuTrigger>
     <ContextMenuContent>
         <ContextMenuItem>Back<ContextMenuShortcut>⌘[</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Forward<ContextMenuShortcut>⌘]</ContextMenuShortcut></ContextMenuItem>
         <ContextMenuItem>Reload<ContextMenuShortcut>⌘R</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>Save<ContextMenuShortcut>⌘S</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Save As...<ContextMenuShortcut>⇧⌘S</ContextMenuShortcut></ContextMenuItem>
     </ContextMenuContent>
 </ContextMenu>")"
                          CodeLanguage="razor">
@@ -155,13 +163,29 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Groups"
                          Description="Group related actions and separate them with dividers."
-                         Code="@(@"<ContextMenuContent>
-    <ContextMenuLabel>View</ContextMenuLabel>
-    <ContextMenuItem>Command Menu</ContextMenuItem>
-    <ContextMenuSeparator />
-    <ContextMenuLabel>Account</ContextMenuLabel>
-    <ContextMenuItem>Profile</ContextMenuItem>
-</ContextMenuContent>")"
+                         Code="@(@"<ContextMenu>
+    <ContextMenuTrigger Id=""context-menu-groups-trigger""
+                        data-testid=""context-menu-groups-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <ContextMenuLabel>File</ContextMenuLabel>
+        <ContextMenuItem>New File<ContextMenuShortcut>⌘N</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Open File<ContextMenuShortcut>⌘O</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Save<ContextMenuShortcut>⌘S</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuLabel>Edit</ContextMenuLabel>
+        <ContextMenuItem>Undo<ContextMenuShortcut>⌘Z</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Redo<ContextMenuShortcut>⇧⌘Z</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>Cut<ContextMenuShortcut>⌘X</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Copy<ContextMenuShortcut>⌘C</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>Paste<ContextMenuShortcut>⌘V</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem Variant=""destructive"">Delete<ContextMenuShortcut>⌫</ContextMenuShortcut></ContextMenuItem>
+    </ContextMenuContent>
+</ContextMenu>")"
                          CodeLanguage="razor">
                 <ContextMenu>
                     <ContextMenuTrigger Id="context-menu-groups-trigger"
@@ -192,10 +216,20 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Icons"
                          Description="Combine icons with labels for quick scanning."
-                         Code="@(@"<ContextMenuItem>
-    <Icon Name=""LucideIcon.Copy"" />
-    Copy
-</ContextMenuItem>")"
+                         Code="@(@"<ContextMenu>
+    <ContextMenuTrigger Id=""context-menu-icons-trigger""
+                        data-testid=""context-menu-icons-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <ContextMenuItem><Icon Name=""LucideIcon.Copy"" />Copy</ContextMenuItem>
+        <ContextMenuItem><Icon Name=""LucideIcon.Scissors"" />Cut</ContextMenuItem>
+        <ContextMenuItem><Icon Name=""LucideIcon.Clipboard"" />Paste</ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem Variant=""destructive""><Icon Name=""LucideIcon.Trash"" />Delete</ContextMenuItem>
+    </ContextMenuContent>
+</ContextMenu>")"
                          CodeLanguage="razor">
                 <ContextMenu>
                     <ContextMenuTrigger Id="context-menu-icons-trigger"
@@ -286,10 +320,21 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Destructive"
                          Description="Use variant=&quot;destructive&quot; to style the menu item as destructive."
-                         Code="@(@"<ContextMenuItem><Icon Name=""LucideIcon.Pencil"" />Edit project</ContextMenuItem>
-<ContextMenuItem><Icon Name=""LucideIcon.Share"" />Share project</ContextMenuItem>
-<ContextMenuSeparator />
-<ContextMenuItem Variant=""destructive""><Icon Name=""LucideIcon.Trash"" />Delete project</ContextMenuItem>")"
+                         Code="@(@"<ContextMenu>
+    <ContextMenuTrigger Id=""context-menu-destructive-trigger""
+                        data-testid=""context-menu-destructive-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <Div>
+            <ContextMenuItem><Icon Name=""LucideIcon.Pencil"" />Edit</ContextMenuItem>
+            <ContextMenuItem><Icon Name=""LucideIcon.Share"" />Share</ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem Variant=""destructive""><Icon Name=""LucideIcon.Trash"" />Delete</ContextMenuItem>
+        </Div>
+    </ContextMenuContent>
+</ContextMenu>")"
                          CodeLanguage="razor">
                 <ContextMenu>
                     <ContextMenuTrigger Id="context-menu-destructive-trigger"
@@ -435,17 +480,28 @@
 
     private const string BasicCode =
 @"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click here
+    <ContextMenuTrigger Id=""context-menu-overview-trigger""
+                        data-testid=""context-menu-overview-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
     </ContextMenuTrigger>
-    <ContextMenuContent>
-        <Div Class=""w-52"">
-            <ContextMenuItem Indented=""true"">Back<ContextMenuShortcut>⌘[</ContextMenuShortcut></ContextMenuItem>
-            <ContextMenuItem Indented=""true"" Disabled=""true"">Forward<ContextMenuShortcut>⌘]</ContextMenuShortcut></ContextMenuItem>
-            <ContextMenuItem Indented=""true"">Reload<ContextMenuShortcut>⌘R</ContextMenuShortcut></ContextMenuItem>
+    <ContextMenuContent Width='Width.Token(""48"")'>
+        <Div>
+            <ContextMenuItem Indented=""true"">
+                Back
+                <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem Indented=""true"" Disabled=""true"">
+                Forward
+                <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem Indented=""true"">
+                Reload
+                <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+            </ContextMenuItem>
             <ContextMenuSub>
                 <ContextMenuSubTrigger Indented=""true"">More Tools</ContextMenuSubTrigger>
-                <ContextMenuSubContent Class=""w-44"">
+                <ContextMenuSubContent Width='Width.Token(""44"")'>
                     <ContextMenuItem>Save Page...</ContextMenuItem>
                     <ContextMenuItem>Create Shortcut...</ContextMenuItem>
                     <ContextMenuItem>Name Window...</ContextMenuItem>
@@ -456,13 +512,21 @@
                 </ContextMenuSubContent>
             </ContextMenuSub>
             <ContextMenuSeparator />
-            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show Bookmarks</ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem @bind-Checked=""showFullUrls"">Show Full URLs</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""_showBookmarks"">
+                Show Bookmarks
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""_showFullUrls"">
+                Show Full URLs
+            </ContextMenuCheckboxItem>
             <ContextMenuSeparator />
             <ContextMenuRadioGroup>
                 <ContextMenuLabel Indented=""true"">People</ContextMenuLabel>
-                <ContextMenuRadioItem Selected=""true"">Pedro Duarte</ContextMenuRadioItem>
-                <ContextMenuRadioItem>Colm Tuite</ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsPedroSelected"" SelectedChanged=""@(selected => OnPersonSelected(""pedro"", selected))"">
+                    Pedro Duarte
+                </ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsColmSelected"" SelectedChanged=""@(selected => OnPersonSelected(""colm"", selected))"">
+                    Colm Tuite
+                </ContextMenuRadioItem>
             </ContextMenuRadioGroup>
         </Div>
     </ContextMenuContent>
@@ -470,33 +534,45 @@
 
     private const string BasicSimpleCode =
 @"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click here
+    <ContextMenuTrigger Id=""context-menu-demo-trigger""
+                        data-testid=""context-menu-demo-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
     </ContextMenuTrigger>
     <ContextMenuContent>
-        <ContextMenuItem>Profile</ContextMenuItem>
-        <ContextMenuItem>Billing</ContextMenuItem>
-        <ContextMenuItem>Team</ContextMenuItem>
-        <ContextMenuItem>Subscription</ContextMenuItem>
+        <ContextMenuItem>Back</ContextMenuItem>
+        <ContextMenuItem>Forward</ContextMenuItem>
+        <ContextMenuItem>Reload</ContextMenuItem>
     </ContextMenuContent>
 </ContextMenu>";
 
     private const string SubmenuCode =
 @"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click for more tools
+    <ContextMenuTrigger Id=""context-menu-submenu-trigger""
+                        data-testid=""context-menu-submenu-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
     </ContextMenuTrigger>
     <ContextMenuContent>
-        <Div Class=""w-56"">
-            <ContextMenuItem>Save page<ContextMenuShortcut>Ctrl+S</ContextMenuShortcut></ContextMenuItem>
-            <ContextMenuItem>Duplicate tab<ContextMenuShortcut>Ctrl+D</ContextMenuShortcut></ContextMenuItem>
+        <Div>
+            <ContextMenuItem>
+                Copy
+                <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+                Cut
+                <ContextMenuShortcut>⌘X</ContextMenuShortcut>
+            </ContextMenuItem>
             <ContextMenuSub>
-                <ContextMenuSubTrigger>More tools</ContextMenuSubTrigger>
-                <ContextMenuSubContent Class=""w-44"">
-                    <ContextMenuItem>Downloads</ContextMenuItem>
-                    <ContextMenuItem>Task manager</ContextMenuItem>
+                <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                    <ContextMenuItem>Save Page...</ContextMenuItem>
+                    <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                    <ContextMenuItem>Name Window...</ContextMenuItem>
                     <ContextMenuSeparator />
-                    <ContextMenuItem>Developer tools</ContextMenuItem>
+                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem Variant=""destructive"">Delete</ContextMenuItem>
                 </ContextMenuSubContent>
             </ContextMenuSub>
         </Div>
@@ -505,54 +581,105 @@
 
     private const string CheckboxCode =
 @"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click for view options
+    <ContextMenuTrigger Id=""context-menu-checkbox-trigger""
+                        data-testid=""context-menu-checkbox-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
     </ContextMenuTrigger>
     <ContextMenuContent>
-        <Div Class=""w-56"">
-            <ContextMenuLabel>View</ContextMenuLabel>
-            <ContextMenuSeparator />
-            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show bookmarks bar</ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem @bind-Checked=""showFullUrls"">Show full URLs</ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem @bind-Checked=""showLineNumbers"">Show line numbers</ContextMenuCheckboxItem>
+        <Div Width='Width.Token(""45"")'>
+            <ContextMenuCheckboxItem @bind-Checked=""_exampleShowBookmarks"">
+                Show Bookmarks Bar
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""_exampleShowFullUrls"">
+                Show Full URLs
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""_showDeveloperTools"">
+                Show Developer Tools
+            </ContextMenuCheckboxItem>
         </Div>
     </ContextMenuContent>
 </ContextMenu>";
 
     private const string RadioCode =
 @"<ContextMenu>
-    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click for layout choices
+    <ContextMenuTrigger Id=""context-menu-radio-trigger""
+                        data-testid=""context-menu-radio-trigger""
+                        Class=""@ContextMenuTriggerClass"">
+        @ContextMenuTriggerText
     </ContextMenuTrigger>
     <ContextMenuContent>
-        <Div Class=""w-56"">
-            <ContextMenuLabel>Density</ContextMenuLabel>
-            <ContextMenuSeparator />
+        <Div>
+            <ContextMenuLabel>People</ContextMenuLabel>
             <ContextMenuRadioGroup>
-                <ContextMenuRadioItem Selected=""true"">Comfortable</ContextMenuRadioItem>
-                <ContextMenuRadioItem>Compact</ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsExamplePedroSelected"" SelectedChanged=""@(selected => OnExamplePersonSelected(""pedro"", selected))"">
+                    Pedro Duarte
+                </ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsExampleColmSelected"" SelectedChanged=""@(selected => OnExamplePersonSelected(""colm"", selected))"">
+                    Colm Tuite
+                </ContextMenuRadioItem>
             </ContextMenuRadioGroup>
             <ContextMenuSeparator />
-            <ContextMenuItem Variant=""destructive"">Delete project</ContextMenuItem>
+            <ContextMenuLabel>Theme</ContextMenuLabel>
+            <ContextMenuRadioGroup>
+                <ContextMenuRadioItem Selected=""@IsLightThemeSelected"" SelectedChanged=""@(selected => OnThemeSelected(""light"", selected))"">
+                    Light
+                </ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsDarkThemeSelected"" SelectedChanged=""@(selected => OnThemeSelected(""dark"", selected))"">
+                    Dark
+                </ContextMenuRadioItem>
+                <ContextMenuRadioItem Selected=""@IsSystemThemeSelected"" SelectedChanged=""@(selected => OnThemeSelected(""system"", selected))"">
+                    System
+                </ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
         </Div>
     </ContextMenuContent>
 </ContextMenu>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <ContextMenu>
-        <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-            انقر بزر الماوس الأيمن هنا
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-            <Div Class=""w-52"">
-                <ContextMenuItem>رجوع</ContextMenuItem>
-                <ContextMenuItem>إعادة تحميل</ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem Variant=""destructive"">حذف</ContextMenuItem>
-            </Div>
-        </ContextMenuContent>
-    </ContextMenu>
+    <Div TextAlign=""TextAlign.End"">
+        <ContextMenu>
+            <ContextMenuTrigger Id=""context-menu-rtl-trigger""
+                                data-testid=""context-menu-rtl-trigger""
+                                Class=""@ContextMenuTriggerClass"">
+                انقر بزر الماوس الأيمن هنا
+            </ContextMenuTrigger>
+            <ContextMenuContent Width='Width.Token(""48"")'>
+                <Div>
+                    <ContextMenuSub>
+                        <ContextMenuSubTrigger>التنقل</ContextMenuSubTrigger>
+                        <ContextMenuSubContent Width='Width.Token(""44"")'>
+                            <ContextMenuItem>رجوع<ContextMenuShortcut>⌘[</ContextMenuShortcut></ContextMenuItem>
+                            <ContextMenuItem>تقدم<ContextMenuShortcut>⌘]</ContextMenuShortcut></ContextMenuItem>
+                            <ContextMenuItem>إعادة تحميل<ContextMenuShortcut>⌘R</ContextMenuShortcut></ContextMenuItem>
+                        </ContextMenuSubContent>
+                    </ContextMenuSub>
+                    <ContextMenuSub>
+                        <ContextMenuSubTrigger>المزيد من الأدوات</ContextMenuSubTrigger>
+                        <ContextMenuSubContent Width='Width.Token(""44"")'>
+                            <ContextMenuItem>حفظ الصفحة...</ContextMenuItem>
+                            <ContextMenuItem>إنشاء اختصار...</ContextMenuItem>
+                            <ContextMenuItem>تسمية النافذة...</ContextMenuItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem>أدوات المطور</ContextMenuItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem Variant=""destructive"">حذف</ContextMenuItem>
+                        </ContextMenuSubContent>
+                    </ContextMenuSub>
+                    <ContextMenuSeparator />
+                    <ContextMenuCheckboxItem @bind-Checked=""_rtlShowBookmarks"">إظهار الإشارات المرجعية</ContextMenuCheckboxItem>
+                    <ContextMenuCheckboxItem @bind-Checked=""_rtlShowFullUrls"">إظهار عناوين URL الكاملة</ContextMenuCheckboxItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuRadioGroup>
+                        <ContextMenuLabel>الأشخاص</ContextMenuLabel>
+                        <ContextMenuRadioItem Selected=""@IsRtlPedroSelected"" SelectedChanged=""@(selected => OnRtlPersonSelected(""pedro"", selected))"">Pedro Duarte</ContextMenuRadioItem>
+                        <ContextMenuRadioItem Selected=""@IsRtlColmSelected"" SelectedChanged=""@(selected => OnRtlPersonSelected(""colm"", selected))"">Colm Tuite</ContextMenuRadioItem>
+                    </ContextMenuRadioGroup>
+                </Div>
+            </ContextMenuContent>
+        </ContextMenu>
+    </Div>
 </DirectionProvider>";
 
 }

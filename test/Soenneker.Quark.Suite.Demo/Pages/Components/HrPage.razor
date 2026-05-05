@@ -4,9 +4,11 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is4">
-        <DemoSection Title="Basic Horizontal Rules" Code="@(@"<Text>Content above</Text>
-<Hr/>
-<Text>Content below</Text>")"
+        <DemoSection Title="Basic Horizontal Rules" Code="@(@"<Div>
+    <Text>Content above the horizontal rule</Text>
+    <Hr/>
+    <Text>Content below the horizontal rule</Text>
+</Div>")"
 CodeLanguage="razor">
             <Div>
                 <Text>Content above the horizontal rule</Text>
@@ -38,9 +40,16 @@ CodeLanguage="razor">
             </Div>
         </DemoSection>
 
-        <DemoSection Title="In Sections" Description="Hr separates content sections." Code="@(@"<Text>Section 1 content</Text>
-<Hr/>
-<Text>Section 2 content</Text>")"
+        <DemoSection Title="In Sections" Description="Hr separates content sections." Code="@(@"<Div>
+    <Div TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">Section 1</Div>
+    <Text>Content of section 1.</Text>
+    <Hr/>
+    <Div TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">Section 2</Div>
+    <Text>Content of section 2.</Text>
+    <Hr/>
+    <Div TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">Section 3</Div>
+    <Text>Content of section 3.</Text>
+</Div>")"
 CodeLanguage="razor">
             <Div>
                 <Div TextSize="TextSize.Lg" FontWeight="FontWeight.Semibold">Section 1</Div>
@@ -69,12 +78,31 @@ CodeLanguage="razor">
 
 @code {
     private const string HrStyledCode =
-@"<Hr/>
-<Hr Class=""border-primary""/>
-<Hr Style=""height: 5px; background: linear-gradient(...); border: none;""/>";
+@"<Div Space=""Space.Y.Is4"">
+    <Div>
+        <Text>Default:</Text>
+        <Hr/>
+    </Div>
+    <Div>
+        <Text>Primary border:</Text>
+        <Hr Class=""border-primary""/>
+    </Div>
+    <Div>
+        <Text>Custom gradient:</Text>
+        <Hr Style=""height: 5px; background: linear-gradient(to right, #007bff, #6f42c1); border: none;""/>
+    </Div>
+    <Div>
+        <Text>Dashed:</Text>
+        <Hr Style=""border: none; border-top: 2px dashed #dc3545;""/>
+    </Div>
+</Div>";
 
     private const string HrInteractiveCode =
-@"<Hr Class=""cursor-pointer hover:opacity-50"" @onclick=""HandleHrClick"" Title=""Click me!""/>";
+@"<Div>
+    <Text Class=""mb-2 block"">Hover and click the rule below:</Text>
+    <Hr Class=""cursor-pointer transition-all duration-300 hover:opacity-50"" @onclick=""HandleHrClick"" Title=""Click me!""/>
+    <Text Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">Click count: @_clickCount</Text>
+</Div>";
 
     private int _clickCount;
 

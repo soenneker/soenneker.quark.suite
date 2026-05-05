@@ -8,14 +8,30 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic List"
                          Description="Drag entire cards to reorder a backlog. The component raises an event so your page can persist the new order."
-                         Code="@(@"<SortableList OnReorder=""HandleBacklogReorder"">
-    @foreach (var item in _backlog)
-    {
-        <SortableItem ItemId=""@item.Id"">
-            ...
-        </SortableItem>
-    }
-</SortableList>")"
+                         Code="@(@"<Div Id=""sortable-basic-demo"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.Is3xl"">
+    <SortableList Id=""sortable-basic-list"" OnReorder=""HandleBacklogReorder"">
+        @foreach (var card in _backlog)
+        {
+            <SortableItem @key=""card.Id"" ItemId=""@card.Id"">
+                <Div Width=""Width.IsFull"" Rounded=""Rounded.Xl"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" TextColor=""TextColor.CardForeground"" Class=""shadow-sm transition-shadow hover:shadow-md"">
+                    <Div Display=""Display.Flex"" ItemsAlign=""Items.Start"" Justify=""Justify.Between"" Gap=""Gap.Is4"">
+                        <Div Space=""Space.Y.Is1"">
+                            <Div TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Semibold"">@card.Title</Div>
+                            <Div TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">@card.Owner</Div>
+                        </Div>
+                        <Span TextSize=""TextSize.Xs"" FontWeight=""FontWeight.Medium"" Rounded=""Rounded.Full"" Padding=""Padding.Is1.OnY.Is2.OnX"" Class=""@($""inline-flex {card.BadgeClass}"")"">
+                            @card.Status
+                        </Span>
+                    </Div>
+                </Div>
+            </SortableItem>
+        }
+    </SortableList>
+
+    <Paragraph Id=""sortable-basic-order"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is4.FromTop.Is0.FromBottom"">
+        Current order: <Strong>@GetBacklogOrder()</Strong>
+    </Paragraph>
+</Div>")"
 CodeLanguage="razor">
                 <Div Id="sortable-basic-demo" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
                     <SortableList Id="sortable-basic-list" OnReorder="HandleBacklogReorder">
@@ -47,13 +63,33 @@ CodeLanguage="razor">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Handle Only"
                          Description="Set HandleOnly to require a dedicated drag affordance instead of making the whole row draggable."
-                         Code="@(@"<SortableList HandleOnly=""true"" OnReorder=""HandleReleaseStepReorder"">
-    <SortableItem ItemId=""deploy"">
-        <SortableHandle>
-            <Icon Name=""LucideIcon.GripVertical"" />
-        </SortableHandle>
-    </SortableItem>
-</SortableList>")"
+                         Code="@(@"<Div Id=""sortable-handle-demo"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.Is3xl"">
+    <SortableList Id=""sortable-handle-list"" HandleOnly=""true"" OnReorder=""HandleReleaseStepReorder"">
+        @foreach (var step in _releaseSteps)
+        {
+            <SortableItem @key=""step.Id"" ItemId=""@step.Id"">
+                <Div Display=""Display.Flex"" Width=""Width.IsFull"" ItemsAlign=""Items.Center"" Gap=""Gap.Is3"" Rounded=""Rounded.Xl"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Background"" Padding=""Padding.Is4"" Class=""shadow-sm"">
+                    <SortableHandle Class=""size-9 rounded-lg border border-border bg-muted/40 text-muted-foreground"">
+                        <Icon Name=""LucideIcon.GripVertical"" Size=""Quark.Size.Is4"" />
+                    </SortableHandle>
+
+                    <Div Width=""Width.IsFull"" Class=""min-w-0 flex-1 text-left"">
+                        <Div TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Semibold"" Class=""truncate"">@step.Title</Div>
+                        <Div TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Class=""truncate"">@step.Detail</Div>
+                    </Div>
+
+                    <Span Display=""Display.InlineFlex"" Rounded=""Rounded.Md"" BackgroundColor=""BackgroundColor.Muted"" Padding=""Padding.Is1.OnY.Is2.OnX"" TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"">
+                        @step.Environment
+                    </Span>
+                </Div>
+            </SortableItem>
+        }
+    </SortableList>
+
+    <Paragraph Id=""sortable-handle-state"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is4.FromTop.Is0.FromBottom"">
+        Last move: <Strong>@_releaseStepMoveSummary</Strong>
+    </Paragraph>
+</Div>")"
 CodeLanguage="razor">
                 <Div Id="sortable-handle-demo" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
                     <SortableList Id="sortable-handle-list" HandleOnly="true" OnReorder="HandleReleaseStepReorder">
@@ -137,16 +173,40 @@ CodeLanguage="razor">
 
 @code {
     private const string SortableDisabledCode =
-@"<SortableList Disabled=""true"">
-    <SortableItem ItemId=""a"">...</SortableItem>
-</SortableList>";
+@"<Div Id=""sortable-disabled-demo"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.Is3xl"">
+    <SortableList Id=""sortable-disabled-list"" Disabled=""true"">
+        @foreach (var item in _frozenChecklist)
+        {
+            <SortableItem @key=""item.Id"" ItemId=""@item.Id"">
+                <Div Width=""Width.IsFull"" Rounded=""Rounded.Xl"" Border=""Border.Is1"" Class=""border-dashed text-left"" BackgroundColor='BackgroundColor.Token(""muted/20"")' Padding=""Padding.Is4"">
+                    <Div TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Semibold"">@item.Title</Div>
+                    <Div TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">@item.Detail</Div>
+                </Div>
+            </SortableItem>
+        }
+    </SortableList>
+</Div>";
 
     private const string StaticContentCode =
-@"<SortableList>
-    <SortableItem ItemId=""alpha"">Alpha</SortableItem>
-    <SortableItem ItemId=""bravo"">Bravo</SortableItem>
-    <SortableItem ItemId=""charlie"">Charlie</SortableItem>
-</SortableList>";
+@"<Div Id=""sortable-static-demo"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.Is3xl"">
+    <SortableList Id=""sortable-static-list"">
+        <SortableItem ItemId=""alpha"">
+            <Div Rounded=""Rounded.Xl"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Class=""shadow-sm"">
+                <Strong>Alpha</Strong>
+            </Div>
+        </SortableItem>
+        <SortableItem ItemId=""bravo"">
+            <Div Rounded=""Rounded.Xl"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Class=""shadow-sm"">
+                <Strong>Bravo</Strong>
+            </Div>
+        </SortableItem>
+        <SortableItem ItemId=""charlie"">
+            <Div Rounded=""Rounded.Xl"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Class=""shadow-sm"">
+                <Strong>Charlie</Strong>
+            </Div>
+        </SortableItem>
+    </SortableList>
+</Div>";
 
     private readonly List<SortableCard> _backlog =
     [

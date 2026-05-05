@@ -305,7 +305,7 @@
     .recipe-steps {
         counter-reset: recipe-step;
     }
-    
+
     .recipe-steps > li {
         counter-increment: recipe-step;
         margin-bottom: 10px;
@@ -320,51 +320,237 @@
     private const string OrderedBasicCode =
 @"<OrderedList>
     <OrderedListItem>First step</OrderedListItem>
+    <OrderedListItem>Second step</OrderedListItem>
+    <OrderedListItem>Third step</OrderedListItem>
+    <OrderedListItem>Fourth step</OrderedListItem>
 </OrderedList>";
 
     private const string OrderedNestedCode =
 @"<OrderedList>
+    <OrderedListItem>Main step 1</OrderedListItem>
     <OrderedListItem>
-        Main
-        <OrderedList><OrderedListItem>Nested</OrderedListItem></OrderedList>
+        Main step 2
+        <OrderedList>
+            <OrderedListItem>Sub step 2.1</OrderedListItem>
+            <OrderedListItem>Sub step 2.2</OrderedListItem>
+            <OrderedListItem>
+                Sub step 2.3
+                <OrderedList>
+                    <OrderedListItem>Sub-sub step 2.3.1</OrderedListItem>
+                    <OrderedListItem>Sub-sub step 2.3.2</OrderedListItem>
+                </OrderedList>
+            </OrderedListItem>
+        </OrderedList>
     </OrderedListItem>
+    <OrderedListItem>Main step 3</OrderedListItem>
 </OrderedList>";
 
     private const string OrderedNumberingCode =
-@"<OrderedList ListStyleType=""ListStyleType.LowerAlpha"">...</OrderedList>";
+@"<Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"">
+    <Div>
+        <H4>Decimal (Default)</H4>
+        <OrderedList ListStyleType=""ListStyleType.Decimal"">
+            <OrderedListItem>Decimal item 1</OrderedListItem>
+            <OrderedListItem>Decimal item 2</OrderedListItem>
+            <OrderedListItem>Decimal item 3</OrderedListItem>
+        </OrderedList>
+    </Div>
+    <Div>
+        <H4>Lowercase Letters</H4>
+        <OrderedList ListStyleType=""ListStyleType.LowerAlpha"">
+            <OrderedListItem>Letter item a</OrderedListItem>
+            <OrderedListItem>Letter item b</OrderedListItem>
+            <OrderedListItem>Letter item c</OrderedListItem>
+        </OrderedList>
+    </Div>
+</Grid>
+<Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"" Margin=""Margin.Is3.FromTop"">
+    <Div>
+        <H4>Uppercase Letters</H4>
+        <OrderedList ListStyleType=""ListStyleType.UpperAlpha"">
+            <OrderedListItem>Letter item A</OrderedListItem>
+            <OrderedListItem>Letter item B</OrderedListItem>
+            <OrderedListItem>Letter item C</OrderedListItem>
+        </OrderedList>
+    </Div>
+    <Div>
+        <H4>Lowercase Roman</H4>
+        <OrderedList ListStyleType=""ListStyleType.LowerRoman"">
+            <OrderedListItem>Roman item i</OrderedListItem>
+            <OrderedListItem>Roman item ii</OrderedListItem>
+            <OrderedListItem>Roman item iii</OrderedListItem>
+        </OrderedList>
+    </Div>
+</Grid>
+<Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"" Margin=""Margin.Is3.FromTop"">
+    <Div>
+        <H4>Uppercase Roman</H4>
+        <OrderedList ListStyleType=""ListStyleType.UpperRoman"">
+            <OrderedListItem>Roman item I</OrderedListItem>
+            <OrderedListItem>Roman item II</OrderedListItem>
+            <OrderedListItem>Roman item III</OrderedListItem>
+        </OrderedList>
+    </Div>
+    <Div>
+        <H4>Numbers (1, 2, 3)</H4>
+        <OrderedList ListStyleType=""ListStyleType.DecimalLeadingZero"">
+            <OrderedListItem>Zero-padded item 01</OrderedListItem>
+            <OrderedListItem>Zero-padded item 02</OrderedListItem>
+            <OrderedListItem>Zero-padded item 03</OrderedListItem>
+        </OrderedList>
+    </Div>
+</Grid>";
 
     private const string OrderedStartCode =
-@"<OrderedList Start=""5"">
+@"<H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" TextColor=""TextColor.MutedForeground"">Starting from 5</H4>
+<OrderedList Start=""5"">
     <OrderedListItem>Fifth item</OrderedListItem>
+    <OrderedListItem>Sixth item</OrderedListItem>
+    <OrderedListItem>Seventh item</OrderedListItem>
+</OrderedList>
+
+<H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is4.FromTop"">Starting from 10</H4>
+<OrderedList Start=""10"">
+    <OrderedListItem>Tenth item</OrderedListItem>
+    <OrderedListItem>Eleventh item</OrderedListItem>
+    <OrderedListItem>Twelfth item</OrderedListItem>
 </OrderedList>";
 
     private const string OrderedStyledCode =
-@"<OrderedList Class=""custom-ordered-list"" Style=""border: 2px solid #28a745; ..."">
-    <OrderedListItem>...</OrderedListItem>
+@"<H3 TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">Process steps</H3>
+<OrderedList Class=""custom-ordered-list"" Style=""counter-reset: step-counter; border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #f8f9fa;"">
+    <OrderedListItem Class=""custom-ordered-item"" Style=""counter-increment: step-counter; margin-bottom: 15px; padding: 10px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"">
+        <Strong>Step @(1):</Strong> Initialize the project
+    </OrderedListItem>
+    <OrderedListItem Class=""custom-ordered-item"" Style=""counter-increment: step-counter; margin-bottom: 15px; padding: 10px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"">
+        <Strong>Step @(2):</Strong> Set up the development environment
+    </OrderedListItem>
+    <OrderedListItem Class=""custom-ordered-item"" Style=""counter-increment: step-counter; margin-bottom: 15px; padding: 10px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"">
+        <Strong>Step @(3):</Strong> Configure the database
+    </OrderedListItem>
+    <OrderedListItem Class=""custom-ordered-item"" Style=""counter-increment: step-counter; margin-bottom: 15px; padding: 10px; background-color: white; border-radius: 6px; border-left: 4px solid #28a745;"">
+        <Strong>Step @(4):</Strong> Deploy to production
+    </OrderedListItem>
 </OrderedList>";
 
     private const string OrderedIconsCode =
 @"<OrderedList ListVariant=""ListVariant.None"">
-    <OrderedListItem Display=""Display.Flex"">...</OrderedListItem>
+    <OrderedListItem Display=""Display.Flex"" ItemsAlign=""Items.Center"" Margin=""Margin.Is3.FromBottom"">
+        <Icon Name=""LucideIcon.CircleCheck"" TextColor=""TextColor.Accent"" Margin=""Margin.Is3.FromEnd""/>
+        <Div Grow=""Grow.Is1"">
+            <Strong>Step 1: Project Setup</Strong>
+            <Paragraph Margin=""Margin.Is0.FromBottom"" TextColor=""TextColor.MutedForeground"">Initialize the project and install dependencies</Paragraph>
+        </Div>
+        <Badge Variant=""BadgeVariant.Default"">Completed</Badge>
+    </OrderedListItem>
+    <OrderedListItem Display=""Display.Flex"" ItemsAlign=""Items.Center"" Margin=""Margin.Is3.FromBottom"">
+        <Icon Name=""LucideIcon.Clock"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is3.FromEnd""/>
+        <Div Grow=""Grow.Is1"">
+            <Strong>Step 2: Development</Strong>
+            <Paragraph Margin=""Margin.Is0.FromBottom"" TextColor=""TextColor.MutedForeground"">Implement core features and functionality</Paragraph>
+        </Div>
+        <Badge BackgroundColor=""BackgroundColor.Muted"">In Progress</Badge>
+    </OrderedListItem>
+    <OrderedListItem Display=""Display.Flex"" ItemsAlign=""Items.Center"" Margin=""Margin.Is3.FromBottom"">
+        <Icon Name=""LucideIcon.Circle"" TextColor=""TextColor.Secondary"" Margin=""Margin.Is3.FromEnd""/>
+        <Div Grow=""Grow.Is1"">
+            <Strong>Step 3: Testing</Strong>
+            <Paragraph Margin=""Margin.Is0.FromBottom"" TextColor=""TextColor.MutedForeground"">Perform comprehensive testing and quality assurance</Paragraph>
+        </Div>
+        <Badge BackgroundColor=""BackgroundColor.Secondary"">Pending</Badge>
+    </OrderedListItem>
+    <OrderedListItem Display=""Display.Flex"" ItemsAlign=""Items.Center"" Margin=""Margin.Is3.FromBottom"">
+        <Icon Name=""LucideIcon.Circle"" TextColor=""TextColor.Secondary"" Margin=""Margin.Is3.FromEnd""/>
+        <Div Grow=""Grow.Is1"">
+            <Strong>Step 4: Deployment</Strong>
+            <Paragraph Margin=""Margin.Is0.FromBottom"" TextColor=""TextColor.MutedForeground"">Deploy to production environment</Paragraph>
+        </Div>
+        <Badge BackgroundColor=""BackgroundColor.Secondary"">Pending</Badge>
+    </OrderedListItem>
 </OrderedList>";
 
     private const string OrderedInteractiveCode =
 @"<OrderedList ListVariant=""ListVariant.None"">
-    <OrderedListItem><Button @onclick=""..."">Step</Button></OrderedListItem>
-</OrderedList>";
+    <OrderedListItem Margin=""Margin.Is2.FromBottom"">
+        <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"">
+            <Span Margin=""Margin.Is3.FromEnd"" FontWeight=""FontWeight.Bold"">1.</Span>
+            <Button BackgroundColor=""BackgroundColor.Primary"" ButtonSize=""ButtonSize.Sm"" @onclick=""() => HandleStepClick(1)"">
+                <Icon Name=""LucideIcon.Play"" Margin=""Margin.Is1.FromEnd""/>
+                Start Step 1
+            </Button>
+        </Div>
+    </OrderedListItem>
+    <OrderedListItem Margin=""Margin.Is2.FromBottom"">
+        <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"">
+            <Span Margin=""Margin.Is3.FromEnd"" FontWeight=""FontWeight.Bold"">2.</Span>
+            <Button BackgroundColor=""BackgroundColor.Accent"" ButtonSize=""ButtonSize.Sm"" @onclick=""() => HandleStepClick(2)"">
+                <Icon Name=""LucideIcon.Check"" Margin=""Margin.Is1.FromEnd""/>
+                Complete Step 2
+            </Button>
+        </Div>
+    </OrderedListItem>
+    <OrderedListItem Margin=""Margin.Is2.FromBottom"">
+        <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"">
+            <Span Margin=""Margin.Is3.FromEnd"" FontWeight=""FontWeight.Bold"">3.</Span>
+            <Button BackgroundColor=""BackgroundColor.Muted"" ButtonSize=""ButtonSize.Sm"" @onclick=""() => HandleStepClick(3)"">
+                <Icon Name=""LucideIcon.Pencil"" Margin=""Margin.Is1.FromEnd""/>
+                Edit Step 3
+            </Button>
+        </Div>
+    </OrderedListItem>
+</OrderedList>
+
+<Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">Last clicked: @_lastClickedStep</Paragraph>";
 
     private const string OrderedRecipeCode =
-@"<OrderedList Class=""recipe-steps"">
-    <OrderedListItem><Strong>Preheat oven</Strong> to 375°F</OrderedListItem>
+@"<H3 TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">Chocolate Chip Cookies</H3>
+<OrderedList Class=""recipe-steps"">
+    <OrderedListItem>
+        <Strong>Preheat oven</Strong> to 375°F (190°C)
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Mix dry ingredients</Strong> - In a bowl, combine flour, baking soda, and salt
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Cream butter and sugars</Strong> - Beat butter, brown sugar, and granulated sugar until fluffy
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Add eggs and vanilla</Strong> - Beat in eggs one at a time, then vanilla
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Combine wet and dry</Strong> - Gradually blend in flour mixture
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Add chocolate chips</Strong> - Stir in chocolate chips
+    </OrderedListItem>
+    <OrderedListItem>
+        <Strong>Bake</Strong> - Drop rounded tablespoons onto ungreased cookie sheets and bake for 9-11 minutes
+    </OrderedListItem>
 </OrderedList>";
 
     private const string OrderedFeaturesCode =
-@"<OrderedList> — container; <OrderedListItem> — items; Start, Style, nesting";
+@"<Div Rounded=""Rounded.Lg"" Border=""Border.Is1"" BorderColor=""BorderColor.Border"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is4"">
+<H3 TextSize=""TextSize.Lg"" FontWeight=""FontWeight.Semibold"">OrderedList Features</H3>
+<Paragraph>The OrderedList and OrderedListItem components provide:</Paragraph>
+    <UnorderedList>
+        <UnorderedListItem><Strong>OrderedList:</Strong> Main container for numbered lists</UnorderedListItem>
+        <UnorderedListItem><Strong>OrderedListItem:</Strong> Individual numbered list items</UnorderedListItem>
+        <UnorderedListItem><Strong>Nesting:</Strong> Support for nested numbered lists</UnorderedListItem>
+        <UnorderedListItem><Strong>Numbering Styles:</Strong> Various list-style-type options</UnorderedListItem>
+        <UnorderedListItem><Strong>Starting Numbers:</Strong> Custom start values</UnorderedListItem>
+        <UnorderedListItem><Strong>Styling:</Strong> Custom CSS classes and styles</UnorderedListItem>
+        <UnorderedListItem><Strong>Interactive Content:</Strong> Buttons, forms, and other components</UnorderedListItem>
+        <UnorderedListItem><Strong>Accessibility:</Strong> Proper semantic HTML structure</UnorderedListItem>
+    </UnorderedList>
+        </Div>";
 
     private const string OrderedA11yCode =
 @"<OrderedList Role=""list"" AriaLabel=""Step-by-step instructions"">
-    <OrderedListItem Role=""listitem"" AriaLabel=""First instruction"">...</OrderedListItem>
-</OrderedList>";
+    <OrderedListItem Role=""listitem"" AriaLabel=""First instruction"">Accessible instruction 1</OrderedListItem>
+    <OrderedListItem Role=""listitem"" AriaLabel=""Second instruction"">Accessible instruction 2</OrderedListItem>
+    <OrderedListItem Role=""listitem"" AriaLabel=""Third instruction"">Accessible instruction 3</OrderedListItem>
+</OrderedList>
+<Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">List has Role and AriaLabel for screen readers.</Paragraph>";
 
     private string _lastClickedStep = "None";
 

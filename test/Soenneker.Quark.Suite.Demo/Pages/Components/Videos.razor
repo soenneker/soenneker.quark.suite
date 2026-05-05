@@ -8,13 +8,15 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic video" Description="HTML5 video with poster and standard controls." Code="@(@"<Video Source=""https://.../video.mp4""
-    Poster=""https://.../poster.jpg""
+            <DemoSection Title="Basic video" Description="HTML5 video with poster and standard controls." Code="@(@"<Video
+    Source=""https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4""
+    Poster=""https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217""
     Style=""width: 100%; max-height: 400px;""
     Border=""Border.Is1""
-    Rounded=""Rounded.Default""/>")"
+    Rounded=""Rounded.Default""
+/>")"
     CodeLanguage="razor">
-                <Video 
+                <Video
                     Source="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                     Poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
                     Style="width: 100%; max-height: 400px;"
@@ -25,10 +27,25 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Video with options" Description="Autoplay, loop, muted, plays inline." Code="@(@"<Video Source=""..."" Autoplay=""true"" Loop=""true"" Muted=""true"" PlaysInline=""true""/>")"
+            <DemoSection Title="Video with options" Description="Autoplay, loop, muted, plays inline." Code="@(@"<Paragraph Margin=""Margin.Is0"">Video player with autoplay, loop, and muted options enabled.</Paragraph>
+<Video
+    Source=""https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4""
+    Autoplay=""true""
+    Loop=""true""
+    Muted=""true""
+    PlaysInline=""true""
+    Style=""width: 100%; max-height: 300px;""
+    Border=""Border.Is1""
+    Rounded=""Rounded.Default""
+/>
+<Div Margin=""Margin.Is3.FromTop"">
+    <Badge BackgroundColor=""BackgroundColor.Secondary"">Autoplay</Badge>
+    <Badge BackgroundColor=""BackgroundColor.Accent"" Margin=""Margin.Is2.FromStart"">Loop</Badge>
+    <Badge BackgroundColor=""BackgroundColor.Muted"" Margin=""Margin.Is2.FromStart"">Muted</Badge>
+</Div>")"
             CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Video player with autoplay, loop, and muted options enabled.</Paragraph>
-                            <Video 
+                            <Video
                                 Source="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
                                 Autoplay="true"
                                 Loop="true"
@@ -47,18 +64,35 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Event handling" Description="Play, pause, ended callbacks." Code="@(@"<Video Source=""..."" OnPlay=""OnPlay"" OnPause=""OnPause"" OnEnded=""OnEnded""/>")"
+            <DemoSection Title="Event handling" Description="Play, pause, ended callbacks." Code="@(@"<Paragraph Margin=""Margin.Is0"">Video with event callbacks for play, pause, and ended states.</Paragraph>
+
+@if (!string.IsNullOrEmpty(_videoStatus))
+{
+    <Alert BackgroundColor=""@GetStatusColor()"">
+        <Icon Name=""@GetStatusIcon()"" Margin=""Margin.Is2.FromEnd""/> @_videoStatus
+    </Alert>
+}
+
+<Video
+    Source=""https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4""
+    OnPlay=""HandleVideoPlay""
+    OnPause=""HandleVideoPause""
+    OnEnded=""HandleVideoEnded""
+    Style=""width: 100%; max-height: 350px;""
+    Border=""Border.Is1""
+    Rounded=""Rounded.Default""
+/>")"
             CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Video with event callbacks for play, pause, and ended states.</Paragraph>
-                            
+
                             @if (!string.IsNullOrEmpty(_videoStatus))
                             {
                                 <Alert BackgroundColor="@GetStatusColor()">
                                     <Icon Name="@GetStatusIcon()" Margin="Margin.Is2.FromEnd"/> @_videoStatus
                                 </Alert>
                             }
-                            
-                            <Video 
+
+                            <Video
                                 Source="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
                                 OnPlay="HandleVideoPlay"
                                 OnPause="HandleVideoPause"
@@ -75,7 +109,7 @@
                          Description="Source elements for format compatibility."
                          Code="@MultipleSourcesCode"
                          CodeLanguage="razor">
-                <Video 
+                <Video
                                 Poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
                                 Style="width: 100%; max-height: 400px;"
                                 Border="Border.Is1"
@@ -92,7 +126,7 @@
                          Description="HTML5 audio with controls."
                          Code="@AudioPlayerCode"
                          CodeLanguage="razor">
-                <Audio 
+                <Audio
                     Source="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
                     Width="Width.Is100"
                 />
@@ -105,15 +139,15 @@
                          Code="@AudioEventsCode"
                          CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Audio player with play/pause event tracking.</Paragraph>
-                            
+
                             @if (!string.IsNullOrEmpty(_audioStatus))
                             {
                                 <Alert BackgroundColor="BackgroundColor.Secondary">
                                     <Icon Name="LucideIcon.Music" Margin="Margin.Is2.FromEnd"/> @_audioStatus
                                 </Alert>
                             }
-                            
-                            <Audio 
+
+                            <Audio
                                 Source="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
                                 OnPlay="HandleAudioPlay"
                                 OnPause="HandleAudioPause"
@@ -127,7 +161,7 @@
                          Description="Loop continuously."
                          Code="@AudioLoopCode"
                          CodeLanguage="razor">
-                <Audio 
+                <Audio
                     Source="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
                     Loop="true"
                     Width="Width.Is100"></Audio>
@@ -141,23 +175,47 @@
 
 @code {
     private const string MultipleSourcesCode =
-@"<Video Poster=""..."" Style=""width: 100%; max-height: 400px;"" Border=""Border.Is1"" Rounded=""Rounded.Default"">
-    <source src=""https://.../video.mp4"" type=""video/mp4"" />
-    <Text>Your browser does not support the video tag.</Text>
-</Video>";
+@"<Video
+                Poster=""https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217""
+                Style=""width: 100%; max-height: 400px;""
+                Border=""Border.Is1""
+                Rounded=""Rounded.Default""
+            >
+                <source src=""https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"" type=""video/mp4"" />
+                <Text>Your browser does not support the video tag.</Text>
+            </Video>";
 
     private const string AudioPlayerCode =
-@"<Audio Source=""https://.../audio.mp3"" Width=""Width.Is100"" />";
+@"<Audio
+    Source=""https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3""
+    Width=""Width.Is100""
+/>";
 
     private const string AudioEventsCode =
-@"<Audio Source=""https://.../audio.mp3""
+@"<Paragraph Margin=""Margin.Is0"">Audio player with play/pause event tracking.</Paragraph>
+
+@if (!string.IsNullOrEmpty(_audioStatus))
+{
+    <Alert BackgroundColor=""BackgroundColor.Secondary"">
+        <Icon Name=""LucideIcon.Music"" Margin=""Margin.Is2.FromEnd""/> @_audioStatus
+    </Alert>
+}
+
+<Audio
+    Source=""https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3""
     OnPlay=""HandleAudioPlay""
     OnPause=""HandleAudioPause""
     OnEnded=""HandleAudioEnded""
-    Width=""Width.Is100"" />";
+    Width=""Width.Is100""></Audio>";
 
     private const string AudioLoopCode =
-@"<Audio Source=""https://.../audio.mp3"" Loop=""true"" Width=""Width.Is100"" />";
+@"<Audio
+    Source=""https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3""
+    Loop=""true""
+    Width=""Width.Is100""></Audio>
+<Div Margin=""Margin.Is2.FromTop"">
+    <Badge BackgroundColor=""BackgroundColor.Accent"">Looping Enabled</Badge>
+</Div>";
 
     private string? _videoStatus;
     private string? _audioStatus;

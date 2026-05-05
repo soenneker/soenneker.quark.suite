@@ -4,9 +4,17 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is4">
-        <DemoSection Title="Article" Description="Represents a self-contained composition that is independently distributable." Code="@(@"<Article>
-    <H3>Article Title</H3>
-    <Paragraph>Content goes here...</Paragraph>
+        <DemoSection Title="Article" Description="Represents a self-contained composition that is independently distributable." Code="@(@"<Article Border=""Border.Is1"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Muted"" Rounded=""Rounded.Lg"">
+    <H3>Understanding Semantic HTML</H3>
+    <Paragraph TextColor=""TextColor.MutedForeground"">
+        <Small>Published January 15, 2024</Small>
+    </Paragraph>
+    <Paragraph>
+        Semantic elements provide meaning for search engines and assistive technologies.
+    </Paragraph>
+    <Paragraph Margin=""Margin.Is0.FromBottom"">
+        Using &lt;article&gt;, &lt;main&gt;, and &lt;aside&gt; improves accessibility and SEO.
+    </Paragraph>
 </Article>")"
 CodeLanguage="razor">
             <Article Border="Border.Is1" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Muted" Rounded="Rounded.Lg">
@@ -108,26 +116,69 @@ CodeLanguage="razor">
 
 @code {
     private const string MainCode =
-@"<Main Border=""Border.Is1"" Padding=""Padding.Is4"" Rounded=""Rounded.Lg"">
+@"<Main Border=""Border.Is1"" Padding=""Padding.Is4"" BackgroundColor=""BackgroundColor.Primary"" BackgroundOpacity=""BackgroundOpacity.Is10"" Rounded=""Rounded.Lg"">
     <H3>Main Content Area</H3>
-    <Paragraph>Primary page content.</Paragraph>
+    <Paragraph>
+        The &lt;main&gt; element contains primary content. Exclude repeated elements like nav, header, footer.
+    </Paragraph>
+    <Paragraph Margin=""Margin.Is0.FromBottom"">
+        Screen readers use main to jump to primary content.
+    </Paragraph>
 </Main>";
 
     private const string ArticleAsideCode =
-@"<Div Class=""grid gap-4 lg:grid-cols-3"">
-    <Article>...</Article>
-    <Aside>...</Aside>
-</Div>";
+@"<Div Display=""Display.Grid"" Gap=""Gap.Is4"" Class=""lg:grid-cols-3"">
+            <Div Class=""lg:col-span-2"">
+                <Article Border=""Border.Is1"" Rounded=""Rounded.Default"" Padding=""Padding.Is3"" Class=""h-full rounded-lg"">
+                    <H4>Main Article Content</H4>
+                    <Paragraph>
+                        Primary information the user came to read. The article continues with details and explanations.
+                    </Paragraph>
+                </Article>
+            </Div>
+            <Aside Border=""Border.Is1"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Secondary"" BackgroundOpacity=""BackgroundOpacity.Is10"" Rounded=""Rounded.Lg"">
+                <H6>Related Information</H6>
+                <Paragraph Margin=""Margin.Is2.FromBottom"">
+                    <Small>
+                        <Icon Name=""LucideIcon.Lightbulb"" Margin=""Margin.Is1.FromEnd""/>
+                        <Strong>Did you know?</Strong>
+                    </Small>
+                </Paragraph>
+                <Paragraph Margin=""Margin.Is0.FromBottom"">
+                    <Small>Aside is used for sidebars, pull quotes, or related links.</Small>
+                </Paragraph>
+            </Aside>
+        </Div>
+        <CodeEditor ReadOnly=""true"" Language=""html"" AutoHeight=""true""
+                    Text=""@(@""<Article>
+    <H4>Main content</H4>
+    <Paragraph>Primary content.</Paragraph>
+</Article>
+<Aside>
+    <H6>Sidebar</H6>
+    <Paragraph>Related content.</Paragraph>
+</Aside>"")"" />";
 
     private const string MultipleArticlesCode =
-@"<Div Class=""grid gap-4 md:grid-cols-2"">
-    <Article>...</Article>
-    <Article>...</Article>
+@"<Div Display=""Display.Grid"" Gap=""Gap.Is4"" Class=""md:grid-cols-2"">
+    <Article Border=""Border.Is1"" Rounded=""Rounded.Default"" Padding=""Padding.Is3"" Class=""h-full rounded-lg"">
+        <H5>First Article</H5>
+        <Paragraph Margin=""Margin.Is0.FromBottom"">Self-contained content that could be syndicated independently.</Paragraph>
+    </Article>
+    <Article Border=""Border.Is1"" Rounded=""Rounded.Default"" Padding=""Padding.Is3"" Class=""h-full rounded-lg"">
+        <H5>Second Article</H5>
+        <Paragraph Margin=""Margin.Is0.FromBottom"">Each article represents a complete, independent piece of content.</Paragraph>
+    </Article>
 </Div>";
 
     private const string BenefitsCode =
 @"<Alert BackgroundColor=""BackgroundColor.Accent"">
+    <Icon Name=""LucideIcon.CircleCheck"" Margin=""Margin.Is2.FromEnd""/>
     <Strong>Semantic HTML improves:</Strong>
-    <UnorderedList>...</UnorderedList>
+    <UnorderedList Class=""mt-2 list-inside list-disc space-y-1"">
+        <UnorderedListItem>Search engine understanding of structure</UnorderedListItem>
+        <UnorderedListItem>Accessibility for screen readers</UnorderedListItem>
+        <UnorderedListItem>Code readability and maintainability</UnorderedListItem>
+    </UnorderedList>
 </Alert>";
 }

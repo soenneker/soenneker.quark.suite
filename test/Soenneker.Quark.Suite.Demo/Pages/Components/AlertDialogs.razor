@@ -193,7 +193,7 @@
     private Task HandleContinue() => Task.CompletedTask;
     private Task HandleDelete() => Task.CompletedTask;
 
-    private const string DefaultCode = @"<AlertDialog @bind-Visible=""show"" CloseOnBackdropClick=""false"">
+    private const string DefaultCode = @"<AlertDialog @bind-Visible=""_showDefaultAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
     </AlertDialogTrigger>
@@ -206,12 +206,12 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
+            <AlertDialogAction OnAction=""HandleContinue"">Continue</AlertDialogAction>
         </AlertDialogFooter>
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string BasicCode = @"<AlertDialog @bind-Visible=""show"" CloseOnBackdropClick=""false"">
+    private const string BasicCode = @"<AlertDialog @bind-Visible=""_showBasicAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
     </AlertDialogTrigger>
@@ -224,19 +224,21 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
+            <AlertDialogAction OnAction=""HandleContinue"">Continue</AlertDialogAction>
         </AlertDialogFooter>
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string SmallCode = @"<AlertDialog @bind-Visible=""showSmall"" CloseOnBackdropClick=""false"">
+    private const string SmallCode = @"<AlertDialog @bind-Visible=""_showSmallAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
     </AlertDialogTrigger>
-    <AlertDialogContent Size=""sm"">
+    <AlertDialogContent AlertDialogContentSize=""sm"">
         <AlertDialogHeader>
             <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
-            <AlertDialogDescription>Do you want to allow the USB accessory to connect to this device?</AlertDialogDescription>
+            <AlertDialogDescription>
+                Do you want to allow the USB accessory to connect to this device?
+            </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Don't allow</AlertDialogCancel>
@@ -245,15 +247,19 @@
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string MediaCode = @"<AlertDialog>
+    private const string MediaCode = @"<AlertDialog @bind-Visible=""_showMediaAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Share Project</Button>
     </AlertDialogTrigger>
     <AlertDialogContent>
         <AlertDialogHeader>
-            <AlertDialogMedia><Icon Name=""LucideIcon.CircleFadingPlus"" /></AlertDialogMedia>
+            <AlertDialogMedia>
+                <Icon Name=""LucideIcon.CircleFadingPlus""/>
+            </AlertDialogMedia>
             <AlertDialogTitle>Share this project?</AlertDialogTitle>
-            <AlertDialogDescription>Anyone with the link will be able to view and edit this project.</AlertDialogDescription>
+            <AlertDialogDescription>
+                Anyone with the link will be able to view and edit this project.
+            </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -262,15 +268,19 @@
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string SmallMediaCode = @"<AlertDialog>
+    private const string SmallMediaCode = @"<AlertDialog @bind-Visible=""_showSmallMediaAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Show Dialog</Button>
     </AlertDialogTrigger>
-    <AlertDialogContent Size=""sm"">
+    <AlertDialogContent AlertDialogContentSize=""sm"">
         <AlertDialogHeader>
-            <AlertDialogMedia><Icon Name=""LucideIcon.Bluetooth"" /></AlertDialogMedia>
+            <AlertDialogMedia>
+                <Icon Name=""LucideIcon.Bluetooth""/>
+            </AlertDialogMedia>
             <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
-            <AlertDialogDescription>Do you want to allow the USB accessory to connect to this device?</AlertDialogDescription>
+            <AlertDialogDescription>
+                Do you want to allow the USB accessory to connect to this device?
+            </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Don't allow</AlertDialogCancel>
@@ -279,56 +289,64 @@
     </AlertDialogContent>
 </AlertDialog>";
 
-    private const string DestructiveCode = @"<AlertDialog @bind-Visible=""showDelete"" CloseOnBackdropClick=""false"">
+    private const string DestructiveCode = @"<AlertDialog @bind-Visible=""_showDestructiveAlert"" CloseOnBackdropClick=""false"">
     <AlertDialogTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Destructive"">Delete Chat</Button>
     </AlertDialogTrigger>
-    <AlertDialogContent Size=""sm"">
+    <AlertDialogContent AlertDialogContentSize=""sm"">
         <AlertDialogHeader>
             <AlertDialogMedia Class=""bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive"">
-                <Icon Name=""LucideIcon.Trash2"" />
+                <Icon Name=""LucideIcon.Trash2""/>
             </AlertDialogMedia>
             <AlertDialogTitle>Delete chat?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete this chat conversation. View <a href=""#"">Settings</a> delete any memories saved during this chat.</AlertDialogDescription>
+            <AlertDialogDescription>
+                This will permanently delete this chat conversation. View <a href=""#"">Settings</a> delete any memories saved during this chat.
+            </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction Variant=""ButtonVariant.Destructive"">Delete</AlertDialogAction>
+            <AlertDialogAction Variant=""ButtonVariant.Destructive"" OnAction=""HandleDelete"">Delete</AlertDialogAction>
         </AlertDialogFooter>
     </AlertDialogContent>
 </AlertDialog>";
 
     private const string RtlCode = @"<DirectionProvider Dir=""rtl"">
     <Div Display=""Display.Flex"" Gap=""Gap.Is2"" FlexWrap=""FlexWrap.Wrap"" Justify=""Justify.Center"">
-        <AlertDialog @bind-Visible=""showRtl"" CloseOnBackdropClick=""false"">
+        <AlertDialog @bind-Visible=""_showRtlAlert"" CloseOnBackdropClick=""false"">
             <AlertDialogTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">إظهار الحوار</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
-                <AlertDialogDescription>لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا من خوادمنا.</AlertDialogDescription>
+                    <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا من خوادمنا.
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>عدم السماح</AlertDialogCancel>
-                    <AlertDialogAction>السماح</AlertDialogAction>
+                    <AlertDialogAction OnAction=""HandleContinue"">السماح</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
 
-        <AlertDialog @bind-Visible=""showRtlSmall"" CloseOnBackdropClick=""false"">
+        <AlertDialog @bind-Visible=""_showRtlSmallAlert"" CloseOnBackdropClick=""false"">
             <AlertDialogTrigger AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">إظهار الحوار (صغير)</Button>
             </AlertDialogTrigger>
-            <AlertDialogContent Size=""sm"">
+            <AlertDialogContent AlertDialogContentSize=""sm"">
                 <AlertDialogHeader>
-                    <AlertDialogMedia><Icon Name=""LucideIcon.Bluetooth"" /></AlertDialogMedia>
+                    <AlertDialogMedia>
+                        <Icon Name=""LucideIcon.Bluetooth""/>
+                    </AlertDialogMedia>
                     <AlertDialogTitle>السماح للملحق بالاتصال؟</AlertDialogTitle>
-                    <AlertDialogDescription>هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟</AlertDialogDescription>
+                    <AlertDialogDescription>
+                        هل تريد السماح لملحق USB بالاتصال بهذا الجهاز؟
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>عدم السماح</AlertDialogCancel>
-                    <AlertDialogAction>السماح</AlertDialogAction>
+                    <AlertDialogAction OnAction=""HandleContinue"">السماح</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

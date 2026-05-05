@@ -581,7 +581,7 @@
 </Div>";
 
     private const string FieldCode =
-@"<FieldGroup>
+@"<FieldGroup MaxWidth=""MaxWidth.IsSm"">
     <Field>
         <FieldLabel For=""field-username"">Username</FieldLabel>
         <Input Id=""field-username"" Placeholder=""shadcn"" />
@@ -595,7 +595,7 @@
 </FieldGroup>";
 
     private const string TextareaCode =
-@"<FieldSet Class=""w-full max-w-xs"">
+@"<FieldSet Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXs"">
     <FieldGroup>
         <Field>
             <FieldLabel For=""feedback"">Feedback</FieldLabel>
@@ -606,7 +606,7 @@
 </FieldSet>";
 
     private const string SelectCode =
-@"<Field>
+@"<Field MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""field-department"">Department</FieldLabel>
     <Select TValue=""string"" SelectedValue=""@("""")"">
         <SelectTrigger Id=""field-department"">
@@ -623,14 +623,14 @@
 </Field>";
 
     private const string SliderCode =
-@"<Field>
+@"<Field MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""field-price-range"">Price Range</FieldLabel>
     <Slider Id=""field-price-range"" Min=""0"" Max=""1000"" Step=""50"" Values=""@([200d, 800d])"" />
     <FieldDescription>Set your budget range ($200 - 800).</FieldDescription>
 </Field>";
 
     private const string FieldsetCode =
-@"<FieldSet>
+@"<FieldSet MaxWidth=""MaxWidth.IsSm"">
     <FieldLegend>Address Information</FieldLegend>
     <FieldDescription>We need your address to deliver your order.</FieldDescription>
     <FieldGroup>
@@ -652,17 +652,25 @@
 </FieldSet>";
 
     private const string CheckboxCode =
-@"<FieldSet>
+@"<FieldSet MaxWidth=""MaxWidth.IsSm"">
     <FieldLegend Variant=""label"">Show these items on the desktop</FieldLegend>
     <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
     <FieldGroup Slot=""checkbox-group"">
         <Field Horizontal=""true"">
             <Check Id=""field-hard-disks"" Checked=""true"" />
-            <FieldLabel For=""field-hard-disks"">Hard disks</FieldLabel>
+            <FieldLabel For=""field-hard-disks"" FontWeight=""FontWeight.Normal"">Hard disks</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
             <Check Id=""field-external-disks"" />
-            <FieldLabel For=""field-external-disks"">External disks</FieldLabel>
+            <FieldLabel For=""field-external-disks"" FontWeight=""FontWeight.Normal"">External disks</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Check Id=""field-cds-dvds-ipods"" />
+            <FieldLabel For=""field-cds-dvds-ipods"" FontWeight=""FontWeight.Normal"">CDs, DVDs, and iPods</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Check Id=""field-connected-servers"" />
+            <FieldLabel For=""field-connected-servers"" FontWeight=""FontWeight.Normal"">Connected servers</FieldLabel>
         </Field>
     </FieldGroup>
     <FieldSeparator />
@@ -670,39 +678,39 @@
         <Check Id=""field-sync-desktop"" Checked=""true"" />
         <FieldContent>
             <FieldLabel For=""field-sync-desktop"">Sync Desktop & Documents folders</FieldLabel>
-            <FieldDescription>Your Desktop & Documents folders are being synced with iCloud Drive.</FieldDescription>
+            <FieldDescription>Your Desktop & Documents folders are being synced with iCloud Drive. You can access them from other devices.</FieldDescription>
         </FieldContent>
     </Field>
 </FieldSet>";
 
     private const string RadioCode =
-@"<FieldSet>
+@"<FieldSet MaxWidth=""MaxWidth.IsSm"">
     <FieldLegend Variant=""label"">Subscription Plan</FieldLegend>
     <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
     <RadioGroup Name=""field-subscription-plan"" Value=""yearly"">
         <Field Horizontal=""true"">
             <Radio Id=""field-plan-monthly"" Value=""monthly"" />
-            <FieldLabel For=""field-plan-monthly"">Monthly ($9.99/month)</FieldLabel>
+            <FieldLabel For=""field-plan-monthly"" FontWeight=""FontWeight.Normal"">Monthly ($9.99/month)</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
             <Radio Id=""field-plan-yearly"" Value=""yearly"" />
-            <FieldLabel For=""field-plan-yearly"">Yearly ($99.99/year)</FieldLabel>
+            <FieldLabel For=""field-plan-yearly"" FontWeight=""FontWeight.Normal"">Yearly ($99.99/year)</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
             <Radio Id=""field-plan-lifetime"" Value=""lifetime"" />
-            <FieldLabel For=""field-plan-lifetime"">Lifetime ($299.99)</FieldLabel>
+            <FieldLabel For=""field-plan-lifetime"" FontWeight=""FontWeight.Normal"">Lifetime ($299.99)</FieldLabel>
         </Field>
     </RadioGroup>
 </FieldSet>";
 
     private const string SwitchCode =
-@"<Field Horizontal=""true"">
+@"<Field Horizontal=""true"" MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""field-mfa"">Multi-factor authentication</FieldLabel>
     <Switch Id=""field-mfa"" />
 </Field>";
 
     private const string FieldErrorCode =
-@"<Field IsInvalid=""true"">
+@"<Field IsInvalid=""true"" MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""deploy-branch"">Deployment branch</FieldLabel>
     <Input Id=""deploy-branch"" Value=""main main"" aria-invalid=""true"" />
     <FieldDescription>Use a single git branch name.</FieldDescription>
@@ -710,10 +718,10 @@
 </Field>";
 
     private const string ChoiceCardCode =
-@"<FieldSet>
+@"<FieldSet MaxWidth=""MaxWidth.IsSm"">
     <FieldLegend Variant=""label"">Compute Environment</FieldLegend>
     <FieldDescription>Select the compute environment for your cluster.</FieldDescription>
-    <RadioGroup Name=""field-compute-environment"" Value=""kubernetes"">
+    <RadioGroup Name=""field-compute-environment"" Value=""kubernetes"" Class=""grid gap-3"">
         <FieldLabel For=""field-compute-kubernetes"">
             <Field Horizontal=""true"" Selectable=""true"">
                 <Radio Id=""field-compute-kubernetes"" Value=""kubernetes"" />
@@ -723,36 +731,52 @@
                 </FieldContent>
             </Field>
         </FieldLabel>
+        <FieldLabel For=""field-compute-vm"">
+            <Field Horizontal=""true"" Selectable=""true"">
+                <Radio Id=""field-compute-vm"" Value=""vm"" />
+                <FieldContent>
+                    <FieldTitle>Virtual Machine</FieldTitle>
+                    <FieldDescription>Access a cluster to run GPU workloads.</FieldDescription>
+                </FieldContent>
+            </Field>
+        </FieldLabel>
     </RadioGroup>
 </FieldSet>";
 
     private const string FieldGroupCode =
-@"<FieldGroup>
+@"<FieldGroup MaxWidth=""MaxWidth.IsSm"">
     <Field>
         <FieldContent>
             <FieldTitle>Responses</FieldTitle>
-            <FieldDescription>Get notified when ChatGPT responds to requests that take time.</FieldDescription>
+            <FieldDescription>Get notified when ChatGPT responds to requests that take time, like research or image generation.</FieldDescription>
         </FieldContent>
         <Field Horizontal=""true"" Disabled=""true"">
             <Check Id=""field-responses-push"" Checked=""true"" Disabled=""true"" />
-            <FieldLabel For=""field-responses-push"">Push notifications</FieldLabel>
+            <FieldLabel For=""field-responses-push"" FontWeight=""FontWeight.Normal"">Push notifications</FieldLabel>
         </Field>
     </Field>
     <FieldSeparator />
     <Field>
         <FieldContent>
             <FieldTitle>Tasks</FieldTitle>
-            <FieldDescription>Get notified when tasks you've created have updates. Manage tasks</FieldDescription>
+            <FieldDescription>
+                Get notified when tasks you've created have updates.
+                <Button Type=""ButtonType.Link"" Variant=""ButtonVariant.Link"" To=""#"" Class=""h-auto p-0 text-sm"">Manage tasks</Button>
+            </FieldDescription>
         </FieldContent>
         <Field Horizontal=""true"">
+            <Check Id=""field-tasks-push"" />
+            <FieldLabel For=""field-tasks-push"" FontWeight=""FontWeight.Normal"">Push notifications</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
             <Check Id=""field-tasks-email"" />
-            <FieldLabel For=""field-tasks-email"">Email notifications</FieldLabel>
+            <FieldLabel For=""field-tasks-email"" FontWeight=""FontWeight.Normal"">Email notifications</FieldLabel>
         </Field>
     </Field>
 </FieldGroup>";
 
     private const string RtlCode =
-@"<FieldGroup dir=""rtl"">
+@"<FieldGroup MaxWidth=""MaxWidth.IsSm"" dir=""rtl"">
     <FieldSet>
         <FieldLegend>طريقة الدفع</FieldLegend>
         <FieldDescription>جميع المعاملات آمنة ومشفرة</FieldDescription>
@@ -819,7 +843,7 @@
         <FieldGroup>
             <Field Horizontal=""true"">
                 <Check Id=""field-rtl-same-as-shipping"" Checked=""true"" />
-                <FieldLabel For=""field-rtl-same-as-shipping"">نفس عنوان الشحن</FieldLabel>
+                <FieldLabel For=""field-rtl-same-as-shipping"" FontWeight=""FontWeight.Normal"">نفس عنوان الشحن</FieldLabel>
             </Field>
         </FieldGroup>
     </FieldSet>
@@ -834,10 +858,10 @@
 </FieldGroup>";
 
     private const string ResponsiveLayoutCode =
-@"<FieldSet>
+@"<FieldSet MaxWidth=""MaxWidth.Is2xl"">
     <FieldLegend>Profile</FieldLegend>
     <FieldDescription>Fill in your profile information.</FieldDescription>
-    <FieldGroup Class=""@container/field-group"">
+    <FieldGroup Class=""@(""@container/field-group"")"">
         <Field Orientation=""responsive"">
             <FieldContent>
                 <FieldLabel For=""field-responsive-name"">Name</FieldLabel>
@@ -853,7 +877,7 @@
 </FieldSet>";
 
     private const string AccessibilityCode =
-@"<Field>
+@"<Field MaxWidth=""MaxWidth.IsSm"">
     <FieldLabel For=""accessibility-email"">Email</FieldLabel>
     <Input Id=""accessibility-email""
            Type=""email""

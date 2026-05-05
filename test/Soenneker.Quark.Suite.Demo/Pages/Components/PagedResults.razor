@@ -13,14 +13,62 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, TableInfo, TablePagination." Code="@(@"<Table @ref=""_quarkTable"" OnInteraction=""OnInteraction"" Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
-    <TableSearch Placeholder=""Search...""/>
-    <TableElement>
-        <Thead><Tr><Th Data=""Name"">Name</Th><Th Data=""Email"">Email</Th></Tr></Thead>
-        <Tbody>@foreach (var item in _items) { <Tr><Td>@item.Name</Td><Td>@item.Email</Td></Tr> }</Tbody>
-    </TableElement>
-    <TableBottomBar><TableInfo/><TablePagination/></TableBottomBar>
-</Table>")"
+    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, TableInfo, TablePagination." Code="@(@"<Card Class=""demo-card"">
+    <CardHeader>
+        <Div Class=""card-header-content"">
+            <H3><Icon Name=""LucideIcon.Layers"" Margin=""Margin.Is2.FromEnd""/>Advanced Employee Directory</H3>
+            <Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0.FromBottom"">This page shows how Table works with PagedResult and handles continuation tokens internally.</Paragraph>
+        </Div>
+    </CardHeader>
+    <CardBody>
+        <Table @ref=""_quarkTable""
+                    OnInteraction=""OnInteraction""
+                    OnOrder=""HandleOrder""
+                    OnInitialize=""HandleInitialize""
+                    Options=""_tableOptions""
+                    TotalRecords=""@_totalRecords"">
+
+            <TableSearch Placeholder=""Search employees...""/>
+
+            <TableElement>
+                <Thead>
+                    <Tr>
+                        <Th Sortable=""true"" Searchable=""true"">Name</Th>
+                        <Th Sortable=""true"" Searchable=""true"">Department</Th>
+                        <Th Sortable=""true"" Searchable=""true"">Email</Th>
+                        <Th Sortable=""true"" Searchable=""true"">Salary</Th>
+                        <Th Sortable=""true"" Searchable=""true"">Hire Date</Th>
+                        <Th Sortable=""true"" Searchable=""true"">Status</Th>
+                        <Th Sortable=""true"" Searchable=""true"">ID</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    @if (_currentEmployees != null)
+                    {
+                        @foreach (var employee in _currentEmployees)
+                        {
+                            <Tr Key=""@employee.Id"">
+                                <Td>@employee.Name</Td>
+                                <Td>@employee.Department</Td>
+                                <Td>@employee.Email</Td>
+                                <Td>@employee.Salary.ToString(""C"")</Td>
+                                <Td>@employee.HireDate.ToString(""MMM dd, yyyy"")</Td>
+                                <Td>@employee.Status</Td>
+                                <Td>@employee.Id</Td>
+                            </Tr>
+                        }
+                    }
+                </Tbody>
+            </TableElement>
+
+            <TableBottomBar>
+                <TableInfo/>
+                <TablePagination/>
+            </TableBottomBar>
+
+        </Table>
+    </CardBody>
+</Card>")"
 CodeLanguage="razor">
     <Card Class="demo-card">
         <CardHeader>
@@ -271,11 +319,11 @@ CodeLanguage="razor">
         .demo-title {
             font-size: 2rem;
         }
-        
+
         .demo-subtitle {
             font-size: 1rem;
         }
-        
+
         .card-header,
         .card-body {
             padding: 1.5rem;

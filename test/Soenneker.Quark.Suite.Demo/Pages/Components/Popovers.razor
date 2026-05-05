@@ -15,7 +15,7 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
                          Description="A simple popover with a header, title, and description."
-                         Code="@BasicCode"
+                         Code="@BasicPreview2Code"
                          CodeLanguage="razor">
                 @BasicPopover("Open Popover", "basic")
             </DemoSection>
@@ -164,20 +164,37 @@
     </Popover>;
 
     private const string BasicCode =
-@"<Popover>
-    <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"">Open popover</Button>
-    </PopoverTrigger>
-    <PopoverContent Width='Width.Token(""80"")'>
-        ...
-    </PopoverContent>
-</Popover>";
+@"@BasicPopover(""Open popover"", ""popover"")";
+
+    private const string BasicPreview2Code = @"@BasicPopover(""Open Popover"", ""basic"")";
 
     private const string AlignmentsCode =
-@"<Popover>
-    <PopoverTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Start</Button></PopoverTrigger>
-    <PopoverContent Align=""Alignment.Start"">Aligned to start</PopoverContent>
-</Popover>";
+@"<Div Display=""Display.Flex"" Flex=""@Flex.Wrap"" ItemsAlign=""Items.Start"" Gap=""Gap.Is3"">
+    <Popover>
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Start</Button>
+        </PopoverTrigger>
+        <PopoverContent Align=""Alignment.Start"" Width='Width.Token(""40"")'>
+            Aligned to start
+        </PopoverContent>
+    </Popover>
+    <Popover>
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Center</Button>
+        </PopoverTrigger>
+        <PopoverContent Align=""Alignment.Center"" Width='Width.Token(""40"")'>
+            Aligned to center
+        </PopoverContent>
+    </Popover>
+    <Popover>
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">End</Button>
+        </PopoverTrigger>
+        <PopoverContent Align=""Alignment.End"" Width='Width.Token(""40"")'>
+            Aligned to end
+        </PopoverContent>
+    </Popover>
+</Div>";
 
     private const string WithFormCode =
 @"<Popover>
@@ -189,17 +206,54 @@
             <PopoverTitle>Dimensions</PopoverTitle>
             <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
         </PopoverHeader>
-        <FieldGroup Class=""gap-4"">...</FieldGroup>
+        <FieldGroup Gap=""Gap.Is4"">
+            <Field Orientation=""Orientation.Horizontal"">
+                <FieldLabel For=""form-width"" Width=""Width.Is1of2"">Width</FieldLabel>
+                <Input Id=""form-width"" Value=""100%"" />
+            </Field>
+            <Field Orientation=""Orientation.Horizontal"">
+                <FieldLabel For=""form-height"" Width=""Width.Is1of2"">Height</FieldLabel>
+                <Input Id=""form-height"" Value=""25px"" />
+            </Field>
+        </FieldGroup>
     </PopoverContent>
 </Popover>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Popover>
-        <PopoverTrigger AsChild=""true"">
-            <Button Variant=""ButtonVariant.Outline"">يسار</Button>
-        </PopoverTrigger>
-        <PopoverContent Side=""Side.Left"">تظهر النافذة يسار الزر.</PopoverContent>
-    </Popover>
+    <Div Display=""Display.Flex"" Flex=""@Flex.Wrap"" ItemsAlign=""Items.Center"" Justify=""Justify.Center"" Gap=""Gap.Is3"" Width=""Width.IsFull"" TextAlign=""TextAlign.End"">
+        <Popover>
+            <PopoverTrigger AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">يسار</Button>
+            </PopoverTrigger>
+            <PopoverContent Side=""Side.Left"" Width='Width.Token(""56"")'>
+                تظهر النافذة يسار الزر.
+            </PopoverContent>
+        </Popover>
+        <Popover>
+            <PopoverTrigger AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">أعلى</Button>
+            </PopoverTrigger>
+            <PopoverContent Side=""Side.Top"" Width='Width.Token(""56"")'>
+                تظهر النافذة أعلى الزر.
+            </PopoverContent>
+        </Popover>
+        <Popover>
+            <PopoverTrigger AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">أسفل</Button>
+            </PopoverTrigger>
+            <PopoverContent Side=""Side.Bottom"" Width='Width.Token(""56"")'>
+                تظهر النافذة أسفل الزر.
+            </PopoverContent>
+        </Popover>
+        <Popover>
+            <PopoverTrigger AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">يمين</Button>
+            </PopoverTrigger>
+            <PopoverContent Side=""Side.Right"" Width='Width.Token(""56"")'>
+                تظهر النافذة يمين الزر.
+            </PopoverContent>
+        </Popover>
+    </Div>
 </DirectionProvider>";
 }

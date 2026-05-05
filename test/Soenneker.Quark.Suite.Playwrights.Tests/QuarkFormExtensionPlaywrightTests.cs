@@ -49,6 +49,35 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask DemoSection_centers_direct_field_previews()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}checks",
+            static p => p.Locator("[data-slot='checkbox']").First,
+            expectedTitle: "Checkbox Component - Quark Suite");
+
+        var basicSection = page.Locator("section")
+                               .Filter(new LocatorFilterOptions { HasText = "Pair the checkbox with Field and FieldLabel for proper layout and labeling." })
+                               .First;
+        var preview = basicSection.Locator("[data-slot='component-preview']").First;
+        var field = basicSection.Locator("[data-slot='field']").First;
+
+        var previewBox = await preview.BoundingBoxAsync();
+        var fieldBox = await field.BoundingBoxAsync();
+
+        previewBox.Should().NotBeNull();
+        fieldBox.Should().NotBeNull();
+
+        var previewCenter = previewBox!.X + previewBox.Width / 2;
+        var fieldCenter = fieldBox!.X + fieldBox.Width / 2;
+
+        fieldCenter.Should().BeApproximately(previewCenter, 2);
+    }
+
+    [Test]
     public async ValueTask DateInput_uses_native_modes_constraints_and_updates_bound_text()
     {
         await using var session = await CreateSession();

@@ -4,10 +4,16 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is4">
-        <DemoSection Code="@(@"<Button CollapseTarget=""basicCollapse"">Toggle</Button>
-<Collapse Id=""basicCollapse"">
-    <Card><CardBody><Paragraph>Content...</Paragraph></CardBody></Card>
-</Collapse>")"
+        <DemoSection Code="@(@"<Div Space=""Space.Y.Is2"">
+    <Button BackgroundColor=""BackgroundColor.Primary"" CollapseTarget=""basicCollapse"">Toggle Collapse</Button>
+    <Collapse Id=""basicCollapse"">
+        <Card>
+            <CardBody>
+                <Paragraph>Collapsible content. Can include text, images, forms, or other components.</Paragraph>
+            </CardBody>
+        </Card>
+    </Collapse>
+</Div>")"
 CodeLanguage="razor">
             <Div Space="Space.Y.Is2">
                 <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="basicCollapse">Toggle Collapse</Button>
@@ -21,10 +27,19 @@ CodeLanguage="razor">
             </Div>
         </DemoSection>
 
-        <DemoSection Title="File Tree" Description="A file-tree style layout using multiple collapsible targets." Code="@(@"<Button CollapseTarget=""firstCollapse"">First</Button>
-<Button CollapseTarget=""secondCollapse"">Second</Button>
-<Collapse Id=""firstCollapse""><Card><CardBody>First collapsible.</CardBody></Card></Collapse>
-<Collapse Id=""secondCollapse""><Card><CardBody>Second collapsible.</CardBody></Card></Collapse>")"
+        <DemoSection Title="File Tree" Description="A file-tree style layout using multiple collapsible targets." Code="@(@"<Div Display=""Display.Flex"" Flex=@(""flex-wrap"") Gap=""Gap.Is2"" Margin=""Margin.Is4.FromBottom"">
+    <Button BackgroundColor=""BackgroundColor.Primary"" CollapseTarget=""firstCollapse"">First</Button>
+    <Button BackgroundColor=""BackgroundColor.Secondary"" CollapseTarget=""secondCollapse"">Second</Button>
+    <Button BackgroundColor=""BackgroundColor.Accent"" Attributes=""@(new Dictionary<string, object> { { ""data-toggle"", ""collapse"" }, { ""data-target"", "".multi-collapse"" }, { ""aria-controls"", ""firstCollapse secondCollapse"" } })"">Both</Button>
+</Div>
+<Div Display=""Display.Grid"" Gap=""Gap.Is4"" Class=""md:grid-cols-2"">
+    <Collapse Class=""multi-collapse"" Id=""firstCollapse"">
+        <Card><CardBody><Paragraph>First collapsible element.</Paragraph></CardBody></Card>
+    </Collapse>
+    <Collapse Class=""multi-collapse"" Id=""secondCollapse"">
+        <Card><CardBody><Paragraph>Second collapsible element.</Paragraph></CardBody></Card>
+    </Collapse>
+</Div>")"
 CodeLanguage="razor">
             <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2" Margin="Margin.Is4.FromBottom">
                 <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="firstCollapse">First</Button>
@@ -41,10 +56,18 @@ CodeLanguage="razor">
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Horizontal" Description="Horizontal=true animates width instead of height." Code="@(@"<Button CollapseTarget=""horizontalCollapse"">Toggle Horizontal</Button>
-<Collapse Id=""horizontalCollapse"" Horizontal=""true"">
-    <Card Width='Width.Token(""[300px]"")'><CardBody>Horizontal collapse animates width.</CardBody></Card>
-</Collapse>")"
+        <DemoSection Title="Horizontal" Description="Horizontal=true animates width instead of height." Code="@(@"<Div Space=""Space.Y.Is2"">
+    <Button BackgroundColor=""BackgroundColor.Primary"" CollapseTarget=""horizontalCollapse"">Toggle Horizontal</Button>
+    <Div Display=""Display.Flex"">
+        <Collapse Id=""horizontalCollapse"" Horizontal=""true"">
+            <Card Width='Width.Token(""[300px]"")'>
+                <CardBody>
+                    <Paragraph>Horizontal collapse animates width instead of height.</Paragraph>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Div>
+</Div>")"
 CodeLanguage="razor">
             <Div Space="Space.Y.Is2">
                 <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="horizontalCollapse">Toggle Horizontal</Button>
@@ -60,17 +83,23 @@ CodeLanguage="razor">
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Settings Panel" Description="A collapsible settings panel that reveals form controls only when needed." Code="@(@"<Button CollapseTarget=""formCollapse"">Toggle Form</Button>
-<Collapse Id=""formCollapse"">
-    <Card>
-        <CardHeader>Contact Form</CardHeader>
-        <CardBody>
-            <Field><FieldLabel>Name</FieldLabel><FieldBody><TextEdit @bind-Value=""_formName""/></FieldBody></Field>
-            <Field><FieldLabel>Email</FieldLabel><FieldBody><TextEdit @bind-Value=""_formEmail""/></FieldBody></Field>
-            <Button OnClick=""SubmitForm"">Submit</Button>
-        </CardBody>
-    </Card>
-</Collapse>")"
+        <DemoSection Title="Settings Panel" Description="A collapsible settings panel that reveals form controls only when needed." Code="@(@"<Div Space=""Space.Y.Is2"">
+    <Button BackgroundColor=""BackgroundColor.Secondary"" CollapseTarget=""formCollapse"">Toggle Form</Button>
+    <Collapse Id=""formCollapse"">
+        <Card>
+            <CardHeader><Strong>Contact Form</Strong></CardHeader>
+            <CardBody>
+                <Field><FieldLabel>Name</FieldLabel><FieldBody><TextInput @bind-Value=""_formName"" Placeholder=""Name""/></FieldBody></Field>
+                <Field><FieldLabel>Email</FieldLabel><FieldBody><TextInput @bind-Value=""_formEmail"" Placeholder=""Email""/></FieldBody></Field>
+                <Field><FieldLabel>Message</FieldLabel><FieldBody><MemoInput @bind-Value=""_formMessage"" Placeholder=""Message"" Rows=""3""/></FieldBody></Field>
+                <Div Display=""Display.Flex"" Gap=""Gap.Is2"" Margin=""Margin.Is4.FromTop"">
+                    <Button BackgroundColor=""BackgroundColor.Accent"" OnClick=""SubmitForm"">Submit</Button>
+                    <Button BackgroundColor=""BackgroundColor.Secondary"" OnClick=""ResetForm"">Reset</Button>
+                </Div>
+            </CardBody>
+        </Card>
+    </Collapse>
+</Div>")"
 CodeLanguage="razor">
             <Div Space="Space.Y.Is2">
                 <Button BackgroundColor="BackgroundColor.Secondary" CollapseTarget="formCollapse">Toggle Form</Button>
@@ -91,11 +120,17 @@ CodeLanguage="razor">
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Programmatic Control" Description="@($"State: {(_programmaticCollapseExpanded ? "Expanded" : "Collapsed")}")" Code="@(@"<Button OnClick=""ShowProgrammaticCollapse"">Show</Button>
-<Button OnClick=""HideProgrammaticCollapse"">Hide</Button>
-<Button OnClick=""ToggleProgrammaticCollapse"">Toggle</Button>
-<Collapse @ref=""_programmaticCollapse"" Expanded=""_programmaticCollapseExpanded"">
-    <Card><CardBody>Content controlled by Expanded binding.</CardBody></Card>
+        <DemoSection Title="Programmatic Control" Description="@($"State: {(_programmaticCollapseExpanded ? "Expanded" : "Collapsed")}")" Code="@(@"<Div Display=""Display.Flex"" Gap=""Gap.Is2"" Margin=""Margin.Is4.FromBottom"">
+    <Button BackgroundColor=""BackgroundColor.Primary"" OnClick=""ShowProgrammaticCollapse"">Show</Button>
+    <Button BackgroundColor=""BackgroundColor.Secondary"" OnClick=""HideProgrammaticCollapse"">Hide</Button>
+    <Button BackgroundColor=""BackgroundColor.Secondary"" OnClick=""ToggleProgrammaticCollapse"">Toggle</Button>
+</Div>
+<Collapse @ref=""_programmaticCollapse"" Expanded=""@_programmaticCollapseExpanded"">
+    <Card>
+        <CardBody>
+            <Paragraph>Controlled programmatically via Show, Hide, Toggle.</Paragraph>
+        </CardBody>
+    </Card>
 </Collapse>")"
 CodeLanguage="razor">
             <Div Display="Display.Flex" Gap="Gap.Is2" Margin="Margin.Is4.FromBottom">

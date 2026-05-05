@@ -9,12 +9,19 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <DemoSection Title="Basic TextInput" Description="Standard binding and expression tree binding." Code="@(@"<Field>
-    <FieldLabel For=""basicInput"">Basic Input</FieldLabel>
+    <FieldLabel For=""basicInput"">Basic Input (Standard binding)</FieldLabel>
     <FieldBody>
         <TextInput Id=""basicInput"" Placeholder=""Enter some text..."" @bind-Value=""_basicValue""/>
+        <Small TextColor=""TextColor.MutedForeground"">Current value: @_basicValue</Small>
     </FieldBody>
 </Field>
-<TextInput Id=""expressionInput"" Placeholder=""Uses expression tree..."" @bind-Value=""_expressionValue""/>")"
+<Field>
+    <FieldLabel For=""expressionInput"">Expression Tree Binding</FieldLabel>
+    <FieldBody>
+        <TextInput Id=""expressionInput"" Placeholder=""Uses expression tree..."" @bind-Value=""_expressionValue""/>
+        <Small TextColor=""TextColor.MutedForeground"">Current value: @_expressionValue</Small>
+    </FieldBody>
+</Field>")"
 CodeLanguage="razor">
                 <Field>
                     <FieldLabel For="basicInput">Basic Input (Standard binding)</FieldLabel>
@@ -33,10 +40,43 @@ CodeLanguage="razor">
         </DemoSection>
 
                 <DemoSection Title="TextInput with Validation" Description="Validations, Validation, ValidationError with TextInput." Code="@(@"<Validations Model=""_validationModel"">
-    <Validation Action=""@ValidateRequired"">
-        <TextInput Id=""validatedInput"" Placeholder=""Required..."" @bind-Value=""_validationModel.RequiredField""/>
-        <ValidationError/>
-    </Validation>
+    <Div Space=""Space.Y.Is4"">
+        <Field>
+            <FieldLabel For=""validatedInput"" RequiredIndicator=""true"">Required Field</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateRequired"">
+                    <TextInput Id=""validatedInput""
+                              Placeholder=""This field is required...""
+                              @bind-Value=""_validationModel.RequiredField""/>
+                    <ValidationError/>
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""emailInput"">Email Field</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateEmail"">
+                    <TextInput Id=""emailInput""
+                              Placeholder=""Enter a valid email...""
+                              @bind-Value=""_validationModel.EmailField""/>
+                    <ValidationError/>
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""patternInput"">Phone Number (Pattern Validation)</FieldLabel>
+            <FieldBody>
+                <Validation UsePattern=""true"" PatternString=""^[\d\s\-\(\)\+]+$"">
+                    <TextInput Id=""patternInput""
+                              Placeholder=""Enter phone number...""
+                              @bind-Value=""_validationModel.PhoneField""/>
+                    <ValidationError/>
+                </Validation>
+            </FieldBody>
+        </Field>
+    </Div>
 </Validations>")"
 CodeLanguage="razor">
                 <Validations Model="_validationModel">
@@ -81,16 +121,49 @@ CodeLanguage="razor">
                 </DemoSection>
 
                 <DemoSection Title="Form with Multiple Validations" Description="Validations with Row/Column layout and Validate All." Code="@(@"<Validations @ref=""_validationsRef"" Model=""_formModel"">
+    <Grid Columns=""GridCols.Is1.OnXl.Is2"" Gap=""Gap.Is4"">
+        <Div>
+            <Field>
+                <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
+                <FieldBody>
+                    <Validation Action=""@ValidateRequired"">
+                        <TextInput Id=""firstName""
+                                  Placeholder=""First name...""
+                                  @bind-Value=""_formModel.FirstName""/>
+                        <ValidationError/>
+                    </Validation>
+                </FieldBody>
+            </Field>
+        </Div>
+        <Div>
+            <Field>
+                <FieldLabel For=""lastName"" RequiredIndicator=""true"">Last Name</FieldLabel>
+                <FieldBody>
+                    <Validation Action=""@ValidateRequired"">
+                        <TextInput Id=""lastName""
+                                  Placeholder=""Last name...""
+                                  @bind-Value=""_formModel.LastName""/>
+                        <ValidationError/>
+                    </Validation>
+                </FieldBody>
+            </Field>
+        </Div>
+    </Grid>
+
     <Field>
-        <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
+        <FieldLabel For=""company"">Company</FieldLabel>
         <FieldBody>
-            <Validation Action=""@ValidateRequired"">
-                <TextInput Id=""firstName"" @bind-Value=""_formModel.FirstName""/>
+            <Validation Action=""@ValidateCompany"">
+                <TextInput Id=""company""
+                          Placeholder=""Company name...""
+                          @bind-Value=""_formModel.Company""/>
                 <ValidationError/>
             </Validation>
         </FieldBody>
     </Field>
-    <Button OnClick=""ValidateAll"">Validate All Fields</Button>
+
+    <Button BackgroundColor=""BackgroundColor.Primary"" OnClick=""ValidateAll"">Validate All Fields</Button>
+    <Button BackgroundColor=""BackgroundColor.Secondary"" OnClick=""ClearAll"" Margin=""Margin.Is2.FromStart"">Clear All</Button>
 </Validations>")"
 CodeLanguage="razor">
                 <Validations @ref="_validationsRef" Model="_formModel">

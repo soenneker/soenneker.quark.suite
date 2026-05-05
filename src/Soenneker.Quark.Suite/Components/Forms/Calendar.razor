@@ -521,28 +521,11 @@
         return Enumerable.Range(minYear, maxYear - minYear + 1);
     }
 
-    private string GetMonthLabel(int month)
-    {
-        return ResolveCulture().DateTimeFormat.GetMonthName(month);
-    }
-
     private string GetMonthDropdownLabel(int month)
     {
         var culture = ResolveCulture();
 
-        if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
-        {
-            var names = new[]
-            {
-                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            };
-            return names[month - 1];
-        }
-
-        return UseFullMonthNames
-            ? culture.DateTimeFormat.GetMonthName(month)
-            : culture.DateTimeFormat.GetAbbreviatedMonthName(month);
+        return GetLocalizedGregorianMonthName(culture, month, abbreviated: !UseFullMonthNames);
     }
 
     private string GetMonthCaption(DateOnly month)
@@ -562,18 +545,119 @@
             return $"{names[monthIndex]} {year}";
         }
 
-        if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
-        {
-            var names = new[]
-            {
-                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            };
-            return $"{names[month.Month - 1]} {month.Year.ToString(CultureInfo.InvariantCulture)}";
-        }
+        if (!culture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) && TryGetGregorianMonthNames(culture, out _))
+            return $"{GetLocalizedGregorianMonthName(culture, month.Month, abbreviated: false)} {month.Year.ToString(CultureInfo.InvariantCulture)}";
 
         return month.ToString("MMMM yyyy", culture);
     }
+
+    private static string GetLocalizedGregorianMonthName(CultureInfo culture, int month, bool abbreviated)
+    {
+        if (TryGetGregorianMonthNames(culture, out var localizedNames) && localizedNames is not null)
+        {
+            var names = abbreviated ? localizedNames.Abbreviated : localizedNames.Full;
+            return names[month - 1];
+        }
+
+        return abbreviated
+            ? culture.DateTimeFormat.GetAbbreviatedMonthName(month)
+            : culture.DateTimeFormat.GetMonthName(month);
+    }
+
+    private static bool TryGetGregorianMonthNames(CultureInfo culture, out GregorianMonthNames? names)
+    {
+        var key = culture.Name;
+
+        while (key.Length > 0)
+        {
+            if (_gregorianMonthNamesByCulture.TryGetValue(key, out names))
+                return true;
+
+            var separatorIndex = key.LastIndexOf('-');
+            key = separatorIndex > 0 ? key[..separatorIndex] : string.Empty;
+        }
+
+        names = null;
+        return false;
+    }
+
+    private sealed record GregorianMonthNames(string[] Full, string[] Abbreviated);
+
+    private static readonly Dictionary<string, GregorianMonthNames> _gregorianMonthNamesByCulture = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ar"] = new(
+        [
+            "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        ],
+        [
+            "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        ]),
+        ["es"] = new(
+        [
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ],
+        [
+            "ene", "feb", "mar", "abr", "may", "jun",
+            "jul", "ago", "sept", "oct", "nov", "dic"
+        ]),
+        ["fa"] = new(
+        [
+            "ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن",
+            "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"
+        ],
+        [
+            "ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن",
+            "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"
+        ]),
+        ["fr"] = new(
+        [
+            "janvier", "février", "mars", "avril", "mai", "juin",
+            "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+        ],
+        [
+            "janv.", "févr.", "mars", "avr.", "mai", "juin",
+            "juil.", "août", "sept.", "oct.", "nov.", "déc."
+        ]),
+        ["de"] = new(
+        [
+            "Januar", "Februar", "März", "April", "Mai", "Juni",
+            "Juli", "August", "September", "Oktober", "November", "Dezember"
+        ],
+        [
+            "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+            "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
+        ]),
+        ["it"] = new(
+        [
+            "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+            "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"
+        ],
+        [
+            "gen", "feb", "mar", "apr", "mag", "giu",
+            "lug", "ago", "set", "ott", "nov", "dic"
+        ]),
+        ["pt"] = new(
+        [
+            "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+            "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+        ],
+        [
+            "jan", "fev", "mar", "abr", "mai", "jun",
+            "jul", "ago", "set", "out", "nov", "dez"
+        ]),
+        ["he"] = new(
+        [
+            "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+            "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
+        ],
+        [
+            "ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני",
+            "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"
+        ])
+    };
 
     private CultureInfo ResolveCulture()
     {

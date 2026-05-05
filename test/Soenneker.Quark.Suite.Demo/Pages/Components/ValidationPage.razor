@@ -4,27 +4,30 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-            <DemoSection Title="Basic Validation" Description="Required field and email validation with Validations, Validation, ValidationError." Code="@(@"<Validations @ref=""_validationsRef"" Model=""_model"">
-    <Field>
-        <FieldLabel For=""requiredField"" RequiredIndicator=""true"">Required Field</FieldLabel>
-        <FieldBody>
-            <Validation Action=""@ValidateRequired"">
-                <TextInput Id=""requiredField"" @bind-Value=""_model.RequiredField"" />
-                <ValidationError />
-            </Validation>
-        </FieldBody>
-    </Field>
-    <Field>
-        <FieldLabel For=""emailField"">Email Address</FieldLabel>
-        <FieldBody>
-            <Validation Action=""@ValidateEmail"">
-                <TextInput Id=""emailField"" Type=""email"" @bind-Value=""_model.EmailField"" />
-                <ValidationError />
-            </Validation>
-        </FieldBody>
-    </Field>
-    <Button BackgroundColor=""@BackgroundColor.Primary"" @onclick=""ValidateForm"">Validate Form</Button>
-</Validations>")"
+            <DemoSection Title="Basic Validation" Description="Required field and email validation with Validations, Validation, ValidationError." Code="@(@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations @ref=""_basicValidationsRef"" Model=""_basicModel"">
+        <Field>
+            <FieldLabel For=""requiredField"" RequiredIndicator=""true"">Required Field</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateRequired"">
+                    <TextInput Id=""requiredField"" Placeholder=""This field is required"" @bind-Value=""_basicModel.RequiredField"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For=""emailField"">Email Address</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateEmail"">
+                    <TextInput Id=""emailField"" Type=""email"" Placeholder=""Enter email address"" @bind-Value=""_basicModel.EmailField"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Button BackgroundColor=""BackgroundColor.Primary"" @onclick=""ValidateBasicForm"">Validate Form</Button>
+    </Validations>
+</Div>
+<Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">Basic validation with required field and email validation.</Paragraph>")"
 CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_basicValidationsRef" Model="_basicModel">
@@ -54,27 +57,99 @@ CodeLanguage="razor">
 
             <Hr/>
 
-            <DemoSection Title="Complex Form Validation" Description="Multi-field form with Field, FieldLabel, FieldBody, Validation, and custom validators." Code="@(@"<Validations @ref=""_validationsRef"" Model=""_model"">
-    <Field>
-        <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
-        <FieldBody>
-            <Validation Action=""@ValidateRequired"">
-                <TextInput Id=""firstName"" @bind-Value=""_model.FirstName"" />
-                <ValidationError />
-            </Validation>
-        </FieldBody>
-    </Field>
-    <Field>
-        <FieldLabel For=""email"" RequiredIndicator=""true"">Email</FieldLabel>
-        <FieldBody>
-            <Validation Action=""@ValidateEmail"">
-                <TextInput Id=""email"" Type=""email"" @bind-Value=""_model.Email"" />
-                <ValidationError />
-            </Validation>
-        </FieldBody>
-    </Field>
-    <Button BackgroundColor=""@BackgroundColor.Accent"" @onclick=""ValidateForm"">Validate All</Button>
-</Validations>")"
+            <DemoSection Title="Complex Form Validation" Description="Multi-field form with Field, FieldLabel, FieldBody, Validation, and custom validators." Code="@(@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations @ref=""_complexValidationsRef"" Model=""_complexModel"">
+        <Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"">
+            <Div>
+                <Field>
+                    <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
+                    <FieldBody>
+                        <Validation Action=""@ValidateRequired"">
+                            <TextInput Id=""firstName"" Placeholder=""Enter first name"" @bind-Value=""_complexModel.FirstName"" />
+                            <ValidationError />
+                        </Validation>
+                    </FieldBody>
+                </Field>
+            </Div>
+            <Div>
+                <Field>
+                    <FieldLabel For=""lastName"" RequiredIndicator=""true"">Last Name</FieldLabel>
+                    <FieldBody>
+                        <Validation Action=""@ValidateRequired"">
+                            <TextInput Id=""lastName"" Placeholder=""Enter last name"" @bind-Value=""_complexModel.LastName"" />
+                            <ValidationError />
+                        </Validation>
+                    </FieldBody>
+                </Field>
+            </Div>
+        </Grid>
+
+        <Field>
+            <FieldLabel For=""email"" RequiredIndicator=""true"">Email Address</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateEmail"">
+                    <TextInput Id=""email"" Type=""email"" Placeholder=""Enter email address"" @bind-Value=""_complexModel.Email"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""phone"">Phone Number</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidatePhone"">
+                    <TextInput Id=""phone"" Type=""tel"" Placeholder=""Enter phone number"" @bind-Value=""_complexModel.Phone"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""age"">Age</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateAge"">
+                    <NumericInput Id=""age"" Placeholder=""Enter age"" @bind-Value=""_complexModel.Age"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""password"" RequiredIndicator=""true"">Password</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidatePassword"">
+                    <TextInput Id=""password"" Type=""password"" Placeholder=""Enter password"" @bind-Value=""_complexModel.Password"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""confirmPassword"" RequiredIndicator=""true"">Confirm Password</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateConfirmPassword"">
+                    <TextInput Id=""confirmPassword"" Type=""password"" Placeholder=""Confirm password"" @bind-Value=""_complexModel.ConfirmPassword"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Field>
+            <FieldLabel For=""acceptTerms"" RequiredIndicator=""true"">Terms and conditions</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateTerms"">
+                    <Check Id=""acceptTerms"" @bind-Checked=""_complexModel.AcceptTerms"" /> I accept the terms and conditions
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+
+        <Div>
+            <Button BackgroundColor=""BackgroundColor.Accent"" @onclick=""ValidateComplexForm"" Margin=""Margin.Is2.FromEnd"">Validate All</Button>
+            <Button BackgroundColor=""BackgroundColor.Secondary"" @onclick=""ClearComplexForm"">Clear Form</Button>
+        </Div>
+    </Validations>
+</Div>")"
 CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_complexValidationsRef" Model="_complexModel">
@@ -162,7 +237,7 @@ CodeLanguage="razor">
                                 </Validation>
                             </FieldBody>
                         </Field>
-                        
+
                         <Div>
                             <Button BackgroundColor="BackgroundColor.Accent" @onclick="ValidateComplexForm" Margin="Margin.Is2.FromEnd">Validate All</Button>
                             <Button BackgroundColor="BackgroundColor.Secondary" @onclick="ClearComplexForm">Clear Form</Button>
@@ -173,10 +248,38 @@ CodeLanguage="razor">
 
             <Hr/>
 
-            <DemoSection Title="Pattern Validation" Description="UsePattern, PatternString, PatternMessage for regex validation." Code="@(@"<Validation UsePattern=""true"" PatternString=""^\d{5}(-\d{4})?$"" PatternMessage=""Please enter a valid US ZIP code"">
-    <TextInput Id=""zipCode"" @bind-Value=""_model.ZipCode"" />
-    <ValidationError />
-</Validation>")"
+            <DemoSection Title="Pattern Validation" Description="UsePattern, PatternString, PatternMessage for regex validation." Code="@(@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations @ref=""_patternValidationsRef"" Model=""_patternModel"">
+        <Field>
+            <FieldLabel For=""zipCode"">ZIP Code (US Format)</FieldLabel>
+            <FieldBody>
+                <Validation UsePattern=""true"" PatternString=""^\d{5}(-\d{4})?$"" PatternMessage=""Please enter a valid US ZIP code (12345 or 12345-6789)"">
+                    <TextInput Id=""zipCode"" Placeholder=""12345 or 12345-6789"" @bind-Value=""_patternModel.ZipCode"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For=""ssn"">Social Security Number</FieldLabel>
+            <FieldBody>
+                <Validation UsePattern=""true"" PatternString=""^\d{3}-\d{2}-\d{4}$"" PatternMessage=""Please enter SSN in format XXX-XX-XXXX"">
+                    <TextInput Id=""ssn"" Placeholder=""XXX-XX-XXXX"" @bind-Value=""_patternModel.Ssn"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For=""creditCard"">Credit Card Number</FieldLabel>
+            <FieldBody>
+                <Validation UsePattern=""true"" PatternString=""^\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}$"" PatternMessage=""Please enter a valid 16-digit credit card number"">
+                    <TextInput Id=""creditCard"" Placeholder=""1234 5678 9012 3456"" @bind-Value=""_patternModel.CreditCard"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Button BackgroundColor=""BackgroundColor.Primary"" @onclick=""ValidatePatternForm"">Validate Patterns</Button>
+    </Validations>
+</Div>")"
 CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_patternValidationsRef" Model="_patternModel">
@@ -214,10 +317,29 @@ CodeLanguage="razor">
 
             <Hr/>
 
-            <DemoSection Title="Custom Validation Messages" Description="Custom validators with Action and error messages." Code="@(@"<Validation Action=""@ValidateUsername"">
-    <TextInput Id=""username"" @bind-Value=""_model.Username"" />
-    <ValidationError />
-</Validation>")"
+            <DemoSection Title="Custom Validation Messages" Description="Custom validators with Action and error messages." Code="@(@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations @ref=""_customValidationsRef"" Model=""_customModel"">
+        <Field>
+            <FieldLabel For=""username"">Username</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateUsername"">
+                    <TextInput Id=""username"" Placeholder=""Enter username"" @bind-Value=""_customModel.Username"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Field>
+            <FieldLabel For=""website"">Website URL</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateWebsite"">
+                    <TextInput Id=""website"" Type=""url"" Placeholder=""https://example.com"" @bind-Value=""_customModel.Website"" />
+                    <ValidationError />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Button BackgroundColor=""BackgroundColor.Primary"" @onclick=""ValidateCustomForm"">Validate Custom</Button>
+    </Validations>
+</Div>")"
 CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_customValidationsRef" Model="_customModel">
@@ -246,11 +368,21 @@ CodeLanguage="razor">
 
             <Hr/>
 
-            <DemoSection Title="Validation Success Messages" Description="ValidationSuccess component for success state." Code="@(@"<Validation Action=""@ValidateWithSuccess"">
-    <TextInput Id=""successField"" @bind-Value=""_model.SuccessField"" />
-    <ValidationError />
-    <ValidationSuccess />
-</Validation>")"
+            <DemoSection Title="Validation Success Messages" Description="ValidationSuccess component for success state." Code="@(@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations @ref=""_successValidationsRef"" Model=""_successModel"">
+        <Field>
+            <FieldLabel For=""successField"">Field with Success Message</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateWithSuccess"">
+                    <TextInput Id=""successField"" Placeholder=""Type 'success' for success message"" @bind-Value=""_successModel.SuccessField"" />
+                    <ValidationError />
+                    <ValidationSuccess SuccessText=""Looks good."" />
+                </Validation>
+            </FieldBody>
+        </Field>
+        <Button BackgroundColor=""BackgroundColor.Primary"" @onclick=""ValidateSuccessForm"">Validate Success</Button>
+    </Validations>
+</Div>")"
 CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_successValidationsRef" Model="_successModel">
@@ -303,8 +435,8 @@ CodeLanguage="razor">
                             <FieldLabel For="realtimeField">Real-time Validation</FieldLabel>
                             <FieldBody>
                                 <Validation Action="@ValidateRealtime">
-                                    <TextInput Id="realtimeField" 
-                                             Placeholder="Type to see real-time validation" 
+                                    <TextInput Id="realtimeField"
+                                             Placeholder="Type to see real-time validation"
                                              @bind-Value="_realtimeModel.RealtimeField"
                                              @oninput="HandleRealtimeInput" />
                                     <ValidationError />
@@ -321,22 +453,40 @@ CodeLanguage="razor">
 
 @code {
     private const string ValidationComponentPropertiesCode =
-@"<Validations Model=""_model"">
-    <Validation>
-        <TextInput @bind-Value=""_model.Field"" />
-        <ValidationError />
-        <ValidationSuccess />
-    </Validation>
-</Validations>";
+@"<Div BackgroundColor=""BackgroundColor.Muted"" Padding=""Padding.Is3"" Margin=""Margin.Is3.FromBottom"">
+    <H3>Validation Features</H3>
+    <Paragraph>Validation components provide comprehensive form validation:</Paragraph>
+    <UnorderedList>
+        <UnorderedListItem><Strong>Validations:</Strong> Main validation container with model binding</UnorderedListItem>
+        <UnorderedListItem><Strong>Validation:</Strong> Individual field validation wrapper</UnorderedListItem>
+        <UnorderedListItem><Strong>ValidationError:</Strong> Displays validation error messages</UnorderedListItem>
+        <UnorderedListItem><Strong>ValidationSuccess:</Strong> Displays validation success messages</UnorderedListItem>
+        <UnorderedListItem><Strong>ValidationError:</Strong> Individual error message component</UnorderedListItem>
+        <UnorderedListItem><Strong>Pattern Validation:</Strong> Regex pattern validation support</UnorderedListItem>
+        <UnorderedListItem><Strong>Custom Validation:</Strong> Custom validation logic support</UnorderedListItem>
+        <UnorderedListItem><Strong>Model Binding:</Strong> Automatic model property validation</UnorderedListItem>
+    </UnorderedList>
+</Div>";
 
     private const string RealtimeValidationCode =
-@"<Validations Model=""_realtimeModel"">
-    <Validation Action=""@ValidateRealtime"">
-        <TextInput @bind-Value=""_realtimeModel.RealtimeField"" @oninput=""HandleRealtimeInput"" />
-        <ValidationError />
-        <ValidationSuccess />
-    </Validation>
-</Validations>";
+@"<Div Margin=""Margin.Is3.FromEnd"" Space=""Space.Y.Is4"">
+    <Validations Model=""_realtimeModel"">
+        <Field>
+            <FieldLabel For=""realtimeField"">Real-time Validation</FieldLabel>
+            <FieldBody>
+                <Validation Action=""@ValidateRealtime"">
+                    <TextInput Id=""realtimeField""
+                             Placeholder=""Type to see real-time validation""
+                             @bind-Value=""_realtimeModel.RealtimeField""
+                             @oninput=""HandleRealtimeInput"" />
+                    <ValidationError />
+                    <ValidationSuccess SuccessText=""Looks good."" />
+                </Validation>
+            </FieldBody>
+        </Field>
+    </Validations>
+</Div>
+<Paragraph TextColor=""TextColor.MutedForeground"">This field validates in real-time as you type.</Paragraph>";
 
     private Validations? _basicValidationsRef;
     private Validations? _complexValidationsRef;

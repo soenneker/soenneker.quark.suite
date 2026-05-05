@@ -16,7 +16,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Fluid" Description="Full width of container." Code="@(@"<Image Source=""..."" Alt=""Fluid image"" Fluid=""true""/>")"
+            <DemoSection Title="Fluid" Description="Full width of container." Code="@(@"<Paragraph>Image that takes up the full width of its container:</Paragraph>
+<Div MaxWidth=""@(""500px"")"">
+    <Image Source=""https://picsum.photos/800/400"" Alt=""Fluid image"" Fluid=""true""/>
+</Div>")"
             CodeLanguage="razor">
                 <Paragraph>Image that takes up the full width of its container:</Paragraph>
                 <Div MaxWidth="@("500px")">
@@ -26,21 +29,24 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Lazy loading" Description="Loading=lazy attribute." Code="@(@"<Image Source=""..."" Alt=""Lazy"" Lazy=""true""/>")"
+            <DemoSection Title="Lazy loading" Description="Loading=lazy attribute." Code="@(@"<Image Source=""https://picsum.photos/400/300"" Alt=""Lazy loaded image"" Lazy=""true""/>")"
             CodeLanguage="razor">
                 <Image Source="https://picsum.photos/400/300" Alt="Lazy loaded image" Lazy="true"/>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom dimensions" Description="Width and height." Code="@(@"<Image Source=""..."" Alt=""Custom"" Width=""250"" Height=""150""/>")"
+            <DemoSection Title="Custom dimensions" Description="Width and height." Code="@(@"<Image Source=""https://picsum.photos/250/150"" Alt=""Custom sized image"" Width=""250"" Height=""150""/>")"
             CodeLanguage="razor">
                 <Image Source="https://picsum.photos/250/150" Alt="Custom sized image" Width="250" Height="150"/>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Responsive" Description="SrcSet and Sizes." Code="@(@"<Image Source=""..."" Alt=""Responsive"" SrcSet=""... 200w, ... 400w"" Sizes=""(max-width: 600px) 200px, 400px""/>")"
+            <DemoSection Title="Responsive" Description="SrcSet and Sizes." Code="@(@"<Image Source=""https://picsum.photos/400/300""
+       Alt=""Responsive image""
+       SrcSet=""https://picsum.photos/200/150 200w, https://picsum.photos/400/300 400w, https://picsum.photos/800/600 800w""
+       Sizes=""(max-width: 600px) 200px, (max-width: 1200px) 400px, 800px""/>")"
             CodeLanguage="razor">
                 <Image Source="https://picsum.photos/400/300"
                        Alt="Responsive image"
@@ -50,7 +56,9 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom classes" Description="Rounded, Shadow." Code="@(@"<Image Source=""..."" Alt=""Styled"" Class=""rounded shadow""/>")"
+            <DemoSection Title="Custom classes" Description="Rounded, Shadow." Code="@(@"<Image Source=""https://picsum.photos/300/200""
+       Alt=""Custom styled image""
+       Class=""rounded shadow""/>")"
             CodeLanguage="razor">
                 <Image Source="https://picsum.photos/300/200"
                        Alt="Custom styled image"
@@ -102,11 +110,31 @@
 
 @code {
     private const string ImageEventsCode =
-@"<Image Source=""..."" Alt=""..."" OnLoad=""OnImageLoad"" OnError=""OnImageError""/>";
+@"<Image Source=""https://picsum.photos/300/200""
+       Alt=""Image with events""
+       OnLoad=""OnImageLoad""
+       OnError=""OnImageError""/>
+@if (_loadMessage.HasContent())
+{
+    <Alert Class=""border-border mt-2"" BackgroundColor=""BackgroundColor.Accent"">@_loadMessage</Alert>
+}
+@if (_errorMessage.HasContent())
+{
+    <Alert Class=""border-border mt-2"" BackgroundColor=""BackgroundColor.Destructive"">@_errorMessage</Alert>
+}";
 
     private const string ImageGalleryCode =
 @"<Grid Columns=""GridCols.Is1.OnMd.Is3"" Gap=""Gap.Is3"">
-    <Image Source=""https://picsum.photos/300/200"" Alt=""Gallery"" Class=""img-fluid rounded""/>
+    @for (var i = 1; i <= 6; i++)
+    {
+        var imageSource = $""https://picsum.photos/300/200?random={i}"";
+        var imageAlt = $""Gallery image {i}"";
+        <Div>
+            <Image Source=""@imageSource""
+                   Alt=""@imageAlt""
+                   Class=""img-fluid rounded""/>
+        </Div>
+    }
 </Grid>";
 
     private string? _loadMessage;

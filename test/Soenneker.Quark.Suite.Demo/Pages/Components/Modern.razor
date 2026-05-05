@@ -11,14 +11,69 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-    <DemoSection Title="Modern Table" Description="Table with modern options, TableSearch, TablePagination." Code="@(@"<Table Options=""_modernTableOptions"" TotalRecords=""@_totalRecords"">
-    <TableSearch Placeholder=""Search...""/>
-    <TableElement>
-        <Thead><Tr><Th Data=""Name"" Sortable=""true"">Name</Th><Th Data=""Department"" Sortable=""true"">Department</Th></Tr></Thead>
-        <Tbody>@foreach (var item in _items) { <Tr><Td>@item.Name</Td><Td>@item.Department</Td></Tr> }</Tbody>
-    </TableElement>
-    <TableBottomBar><TablePagination/></TableBottomBar>
-</Table>")"
+    <DemoSection Title="Modern Table" Description="Table with modern options, TableSearch, TablePagination." Code="@(@"<Card Class=""demo-card"">
+    <CardHeader>
+        <Div Class=""card-header-content"">
+            <H3><Icon Name=""LucideIcon.Palette"" Margin=""Margin.Is2.FromEnd""/>Modern Employee Directory</H3>
+            <Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0.FromBottom"">Experience the clean, minimalist design with enhanced visual hierarchy</Paragraph>
+        </Div>
+    </CardHeader>
+    <CardBody>
+        <Table @ref=""_tableRef""
+                    OnInteraction=""OnInteraction""
+                    OnOrder=""HandleOrder""
+                    OnInitialize=""HandleInitialize""
+                    Options=""_modernTableOptions""
+                    TotalRecords=""@_totalRecords"">
+
+            <TableSearch Placeholder=""Search...""/>
+
+            <TableElement>
+                <Thead>
+                    <Tr>
+                        <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
+                        <Th Data=""Department"" Sortable=""true"" Searchable=""true"">Department</Th>
+                        <Th Data=""Email"" Sortable=""true"" Searchable=""true"">Email</Th>
+                        <Th Data=""Salary"" Sortable=""true"" Searchable=""true"">Salary</Th>
+                        <Th Data=""HireDate"" Sortable=""true"" Searchable=""true"">Hire Date</Th>
+                        <Th Data=""Status"" Sortable=""true"" Searchable=""true"">Status</Th>
+                    </Tr>
+                </Thead>
+
+                <Tbody>
+                    @if (_currentEmployees is { Count: > 0 })
+                    {
+                        @foreach (var employee in _currentEmployees)
+                        {
+                            <Tr Key=""@employee.Id"">
+                                <Td>@employee.Name</Td>
+                                <Td>@employee.Department</Td>
+                                <Td>@employee.Email</Td>
+                                <Td>@employee.Salary.ToString(""C"")</Td>
+                                <Td>@employee.HireDate.ToString(""MMM dd, yyyy"")</Td>
+                                <Td>@employee.Status</Td>
+                            </Tr>
+                        }
+                    }
+                    else if (_tableRef?.HasLoadedOnce == true)
+                    {
+                        <TableNoData>
+                            <Div Class=""no-data-content"">
+                                <Div Class=""no-data-icon"">🎨</Div>
+                                <H4>No employees found</H4>
+                                <Paragraph>Try adjusting your search criteria.</Paragraph>
+                            </Div>
+                        </TableNoData>
+                    }
+                </Tbody>
+            </TableElement>
+
+            <TableBottomBar>
+                <TablePagination/>
+            </TableBottomBar>
+        </Table>
+    </CardBody>
+</Card>")"
 CodeLanguage="razor">
     <Card Class="demo-card">
         <CardHeader>
@@ -266,11 +321,11 @@ CodeLanguage="razor">
         .demo-title {
             font-size: 2rem;
         }
-        
+
         .demo-subtitle {
             font-size: 1rem;
         }
-        
+
         .card-header,
         .card-body {
             padding: 1.5rem;
