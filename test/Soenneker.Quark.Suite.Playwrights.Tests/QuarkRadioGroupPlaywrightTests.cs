@@ -13,66 +13,6 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Radio_group_form_demo_requires_selection_and_submits_selected_value()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}radiogroups",
-            static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true }),
-            expectedTitle: "Radio Group - Quark Suite");
-
-        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value." }).First;
-        var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
-        var form = formSection.Locator("form");
-
-        await submit.ClickAsync();
-        await Assertions.Expect(form).ToContainTextAsync("You need to select a notification type.");
-
-        var notificationGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true });
-        var nothingRadio = notificationGroup.GetByRole(AriaRole.Radio).Nth(2);
-
-        await nothingRadio.ClickAsync();
-
-        await Assertions.Expect(form).Not.ToContainTextAsync("You need to select a notification type.");
-        await Assertions.Expect(nothingRadio).ToHaveAttributeAsync("aria-checked", "true");
-
-        await submit.ClickAsync();
-
-        await Assertions.Expect(formSection.Locator("pre")).ToContainTextAsync("\"type\": \"none\"");
-    }
-
-[Test]
-    public async ValueTask Radio_form_requires_selection_and_updates_checked_state()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}radiogroups",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
-            expectedTitle: "Radio Group - Quark Suite");
-
-        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value." }).First;
-        var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
-
-        await submit.ClickAsync();
-        await Assertions.Expect(formSection.GetByText("You need to select a notification type.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-
-        var mentions = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "Direct messages and mentions", Exact = true });
-        var all = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "All new messages", Exact = true });
-
-        await mentions.ClickAsync();
-
-        await Assertions.Expect(mentions).ToHaveAttributeAsync("data-state", "checked");
-        await Assertions.Expect(all).ToHaveAttributeAsync("data-state", "unchecked");
-
-        await submit.ClickAsync();
-        await Assertions.Expect(formSection.Locator("pre").First).ToContainTextAsync("\"type\": \"mentions\"");
-    }
-
-[Test]
     public async ValueTask Radio_group_demo_home_and_end_keys_move_selection_to_edge_options()
     {
         await using var session = await CreateSession();

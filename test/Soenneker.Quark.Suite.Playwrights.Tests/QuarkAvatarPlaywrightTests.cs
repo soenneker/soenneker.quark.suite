@@ -12,24 +12,27 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
     {
     }
 
-[Test]
-    public async ValueTask Avatar_fallback_demo_preserves_error_fallback_and_hides_it_after_successful_load()
+    [Test]
+    public async ValueTask Avatar_demo_exposes_images_fallbacks_group_count_and_dropdown_menu()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}avatars",
-            static p => p.Locator("#avatar-error-example"),
+            static p => p.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First,
             expectedTitle: "Avatars - Quark Suite");
 
-        var brokenAvatar = page.Locator("#avatar-error-example");
-        var loadedAvatar = page.Locator("#avatar-loaded-example");
+        await Assertions.Expect(page.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByText("CN", new PageGetByTextOptions { Exact = true }).First).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByText("+3", new PageGetByTextOptions { Exact = true }).First).ToBeVisibleAsync();
 
-        await Assertions.Expect(brokenAvatar.GetByText("QE", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        await Assertions.Expect(brokenAvatar.GetByRole(AriaRole.Img)).ToHaveCountAsync(0);
+        var dropdownTrigger = page.GetByRole(AriaRole.Button).Filter(new LocatorFilterOptions { Has = page.GetByAltText("shadcn", new PageGetByAltTextOptions { Exact = true }) }).First;
+        await dropdownTrigger.ClickAsync();
 
-        await Assertions.Expect(loadedAvatar.GetByAltText("Loaded avatar example", new LocatorGetByAltTextOptions { Exact = true })).ToBeVisibleAsync();
-        await Assertions.Expect(loadedAvatar.GetByText("QL", new LocatorGetByTextOptions { Exact = true })).ToHaveCountAsync(0);
+        var menu = page.GetByRole(AriaRole.Menu);
+        await Assertions.Expect(menu).ToBeVisibleAsync();
+        await Assertions.Expect(menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profile", Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Log out", Exact = true })).ToBeVisibleAsync();
     }
 }

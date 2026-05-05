@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -37,7 +36,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Calendar - Quark Suite");
 
         var calendar = page.Locator("[data-slot='calendar']").First;
-        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )p-3( |$)"));
+        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )p-2( |$)"));
         await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("\\[--cell-size:--spacing\\(7\\)\\]"));
         await Assertions.Expect(calendar.GetByRole(AriaRole.Grid)).ToBeVisibleAsync();
 
@@ -46,13 +45,12 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(monthDropdown).ToHaveAttributeAsync("aria-label", "Choose the Month");
         await Assertions.Expect(dropdownRoot).ToBeVisibleAsync();
 
-        var targetDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
-        var target = calendar.Locator($"[data-day='{targetDate:yyyy-MM-dd}']");
+        var target = calendar.Locator("[data-day]:not([data-disabled])").First;
 
         await target.ClickAsync();
 
-        await Assertions.Expect(target).ToHaveAttributeAsync("data-selected-single", "true");
-        var targetLabel = await target.GetAttributeAsync("aria-label");
+        await Assertions.Expect(target).ToHaveAttributeAsync("data-selected", "true");
+        var targetLabel = await target.Locator("button").First.GetAttributeAsync("aria-label");
         targetLabel.Should().NotBeNullOrWhiteSpace();
 
         sawPageError.Should().BeFalse();

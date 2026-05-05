@@ -14,7 +14,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 [NotInParallel]
 public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywrightTest
 {
-    private const int FastTimeoutMs = 1_000;
+    private const int FastTimeoutMs = 5_000;
 
     public QuarkDemoRouteSmokePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {

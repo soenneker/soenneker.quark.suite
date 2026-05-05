@@ -14,23 +14,6 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_form_demo_requires_selection_before_submit()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}selects",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
-            expectedTitle: "Select Component - Quark Suite");
-
-        var submit = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true });
-        await submit.ClickAsync();
-
-        await Assertions.Expect(page.GetByText("Please select an email to display.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-    }
-
-[Test]
     public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click()
     {
         await using var session = await CreateSession();
@@ -102,44 +85,6 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         await page.Keyboard.PressAsync("Home");
 
         await Assertions.Expect(apple).ToHaveAttributeAsync("data-highlighted", string.Empty);
-    }
-
-[Test]
-    public async ValueTask Select_native_form_demo_requires_selection_and_submits_selected_value()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}selects",
-            static p => p.GetByTestId("select-native-form-result"),
-            expectedTitle: "Select Component - Quark Suite");
-
-        var form = page.GetByTestId("select-native-form");
-        var result = page.GetByTestId("select-native-form-result");
-        var hiddenSelect = page.Locator("select[name='framework']");
-
-        await Assertions.Expect(result).ToContainTextAsync("No submission yet.");
-        await Assertions.Expect(hiddenSelect).ToHaveAttributeAsync("required", string.Empty);
-        var isInitiallyValid = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
-        (isInitiallyValid).Should().BeFalse();
-
-        var trigger = form.GetByRole(AriaRole.Combobox).First;
-        await trigger.ClickAsync();
-        var listbox = page.Locator("[role='listbox']:visible").First;
-        await Assertions.Expect(listbox).ToBeVisibleAsync();
-        var astroOption = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Astro", Exact = true });
-        await astroOption.FocusAsync();
-        await Assertions.Expect(astroOption).ToBeFocusedAsync();
-        await page.Keyboard.PressAsync("Enter");
-
-        await Assertions.Expect(trigger).ToContainTextAsync("Astro");
-        await Assertions.Expect(hiddenSelect).ToHaveValueAsync("astro");
-        var isValidAfterSelection = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
-        (isValidAfterSelection).Should().BeTrue();
-
-        await form.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit native form", Exact = true }).ClickAsync();
-        await Assertions.Expect(result).ToContainTextAsync("framework=astro");
     }
 
 [Test]

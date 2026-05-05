@@ -34,14 +34,14 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Breadcrumbs - Quark Suite");
 
         var linkSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "BreadcrumbLink can pass its styling into a child Quark link with AsChild." }).First;
+            { HasText = "To use a custom link component from your routing library, you can use the AsChild prop on BreadcrumbLink." }).First;
         var navigation = linkSection.Locator("[data-slot='breadcrumb']").First;
         var homeLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(0);
         var componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
         var currentPage = navigation.Locator("[data-slot='breadcrumb-page']").First;
 
-        await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "#");
-        await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "#");
+        await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "/");
+        await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "/components");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
         (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("gap-1.5");
@@ -77,7 +77,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Collapsed breadcrumb trail with an overflow menu in the middle." })
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays the path to the current resource using a hierarchy of links." })
                           .First;
         var trigger = section.Locator("[data-slot='dropdown-menu-trigger']").First;
 

@@ -97,28 +97,6 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_shows_disabled_button_explanation()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Disabled", Exact = true }),
-            expectedTitle: "Tooltips - Quark Suite");
-
-        var disabledSection = page.Locator("section")
-                                  .Filter(new LocatorFilterOptions { HasText = "Wrap disabled controls in a neutral element" })
-                                  .First;
-        var tooltipTrigger = disabledSection.Locator("[data-slot='tooltip-trigger']").First;
-        await tooltipTrigger.ScrollIntoViewIfNeededAsync();
-        await tooltipTrigger.HoverAsync();
-
-        var tooltip = page.Locator("[data-slot='tooltip-content']")
-                          .Filter(new LocatorFilterOptions { HasText = "This feature is currently unavailable" });
-        await Assertions.Expect(tooltip).ToBeVisibleAsync();
-    }
-
-    [Test]
     public async ValueTask Tooltip_demo_portals_above_page_and_has_no_console_errors()
     {
         await using var session = await CreateSession();

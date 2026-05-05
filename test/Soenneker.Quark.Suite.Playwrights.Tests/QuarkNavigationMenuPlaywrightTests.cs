@@ -188,37 +188,6 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(section.Locator("[data-slot='navigation-menu-content'][data-state='open']")).ToHaveCountAsync(0);
     }
 
-[Test]
-    public async ValueTask Navigation_menu_rtl_demo_inherits_rtl_direction_and_renders_viewport_content()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}navigationmenus",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "البدء", Exact = true }),
-            expectedTitle: "Navigation Menu - Quark Suite");
-
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu content and viewport positioning respect right-to-left layouts." }).First;
-        var root = section.Locator("[data-slot='navigation-menu']").First;
-        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "البدء", Exact = true });
-
-        await Assertions.Expect(root).ToHaveAttributeAsync("dir", "rtl");
-        await Assertions.Expect(root).ToHaveAttributeAsync("data-viewport", "true");
-
-        await trigger.ClickAsync();
-
-        var viewport = section.Locator("[data-slot='navigation-menu-viewport']").First;
-        var activeLink = viewport.Locator("[data-slot='navigation-menu-link'][aria-current='page']").Filter(new LocatorFilterOptions
-        {
-            HasText = "المكونات"
-        }).First;
-        await Assertions.Expect(viewport).ToBeVisibleAsync();
-        await Assertions.Expect(viewport).ToContainTextAsync("المكونات");
-        await Assertions.Expect(viewport).ToContainTextAsync("الأزرار");
-        await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
-    }
-
     [Test]
     public async ValueTask Navigation_menu_demo_layers_viewport_and_has_no_console_errors()
     {

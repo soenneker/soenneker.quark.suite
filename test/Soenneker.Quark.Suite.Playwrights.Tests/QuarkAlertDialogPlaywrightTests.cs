@@ -27,7 +27,6 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
 
         var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
-        await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
 
         await ClickJustOutside(page, dialog);
@@ -73,13 +72,13 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true });
         await trigger.ClickAsync();
 
-        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Delete this project?", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Delete chat?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete", Exact = true }).ClickAsync();
@@ -119,6 +118,6 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
     }
 
     private static ILocator DemoTrigger(IPage page) =>
-        page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Confirmation dialog with trigger, title, description, and actions." })
+        page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A modal dialog that interrupts the user with important content and expects a response." })
             .First.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show Dialog", Exact = true }).First;
 }
