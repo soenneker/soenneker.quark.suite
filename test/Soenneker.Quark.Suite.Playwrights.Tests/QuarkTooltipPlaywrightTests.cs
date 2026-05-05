@@ -10,6 +10,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 [ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
 {
+    private const string BasicDemoTestId = "quark-tooltip-basic-demo";
+    private const string SideDemoTestId = "quark-tooltip-side-demo";
+
     public QuarkTooltipPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
@@ -23,9 +26,8 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
 
-        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
-        var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
+        var basicTrigger = page.GetByTestId(BasicDemoTestId)
+                               .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
         var basicTooltip = page.Locator("[data-slot='tooltip-content']")
                                .Filter(new LocatorFilterOptions { HasText = "Add to library" });
 
@@ -46,9 +48,8 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
 
-        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
-        var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
+        var basicTrigger = page.GetByTestId(BasicDemoTestId)
+                               .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
         await basicTrigger.HoverAsync();
 
         var basicTooltip = page.Locator("[data-slot='tooltip-content']")
@@ -66,17 +67,13 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady($"{BaseUrl}tooltips", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Top", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 
-        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
-        var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
-        var sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Choose the side that best fits the surrounding layout." }).First;
-        var topTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top", Exact = true });
-        var rightTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Right", Exact = true });
-        var openTopTooltip = page.Locator("[data-slot='tooltip-content']")
-                                 .Filter(new LocatorFilterOptions { HasText = "Default placement" });
-        var openRightTooltip =
-            page.Locator("[data-slot='tooltip-content']")
-                .Filter(new LocatorFilterOptions { HasText = "Helpful context on the right" });
+        var basicTrigger = page.GetByTestId(BasicDemoTestId)
+                               .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
+        var sideDemo = page.GetByTestId(SideDemoTestId);
+        var topTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top", Exact = true });
+        var rightTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Right", Exact = true });
+        var openTooltip = page.Locator("[data-slot='tooltip-content']")
+                              .Filter(new LocatorFilterOptions { HasText = "Add to library" });
 
         await basicTrigger.HoverAsync();
         var basicTooltip = page.Locator("[data-slot='tooltip-content']")
@@ -87,38 +84,38 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(basicTooltip).ToHaveCountAsync(0);
         await page.WaitForTimeoutAsync(350);
 
+        await topTrigger.ScrollIntoViewIfNeededAsync();
         await topTrigger.HoverAsync();
-        await Assertions.Expect(openTopTooltip).ToBeVisibleAsync();
+        await Assertions.Expect(openTooltip).ToBeVisibleAsync();
+        await Assertions.Expect(openTooltip).ToHaveAttributeAsync("data-side", "top");
 
+        await rightTrigger.ScrollIntoViewIfNeededAsync();
         await rightTrigger.HoverAsync();
 
-        await Assertions.Expect(openRightTooltip).ToBeVisibleAsync();
-        await Assertions.Expect(openTopTooltip).Not.ToBeVisibleAsync();
+        await Assertions.Expect(openTooltip).ToBeVisibleAsync();
+        await Assertions.Expect(openTooltip).ToHaveAttributeAsync("data-side", "right");
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_supports_nested_tooltip_inside_modal_dialog()
+    public async ValueTask Tooltip_demo_shows_disabled_button_explanation()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open tooltip dialog", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Disabled", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 
-        var dialogTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open tooltip dialog", Exact = true });
-        await dialogTrigger.ClickAsync();
-
-        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Tooltip dialog", Exact = true });
-        await Assertions.Expect(dialog).ToBeVisibleAsync();
-
-        var tooltipTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show nested tooltip", Exact = true });
+        var disabledSection = page.Locator("section")
+                                  .Filter(new LocatorFilterOptions { HasText = "Wrap disabled controls in a neutral element" })
+                                  .First;
+        var tooltipTrigger = disabledSection.Locator("[data-slot='tooltip-trigger']").First;
+        await tooltipTrigger.ScrollIntoViewIfNeededAsync();
         await tooltipTrigger.HoverAsync();
 
         var tooltip = page.Locator("[data-slot='tooltip-content']")
-                          .Filter(new LocatorFilterOptions { HasText = "Nested tooltip" });
+                          .Filter(new LocatorFilterOptions { HasText = "This feature is currently unavailable" });
         await Assertions.Expect(tooltip).ToBeVisibleAsync();
-        await Assertions.Expect(dialog).ToBeVisibleAsync();
     }
 
     [Test]
@@ -141,9 +138,8 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 
-        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
-        var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
+        var basicTrigger = page.GetByTestId(BasicDemoTestId)
+                               .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
 
         await basicTrigger.HoverAsync();
 

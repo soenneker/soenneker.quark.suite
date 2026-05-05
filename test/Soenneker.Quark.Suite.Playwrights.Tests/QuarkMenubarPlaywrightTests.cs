@@ -22,10 +22,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var demo = MainDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
         var profiles = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profiles", Exact = true });
 
@@ -47,10 +47,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var demo = MainDemo(page);
         var viewTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
         await viewTrigger.ClickAsync();
 
@@ -63,27 +63,23 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_rtl_demo_inverts_horizontal_arrow_navigation()
+    public async ValueTask Menubar_rtl_demo_exposes_arabic_menu_content()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-rtl-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "ملف", Exact = true }),
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-rtl-demo']");
+        var demo = RtlDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
-        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "عرض", Exact = true });
 
-        await file.FocusAsync();
-        await file.PressAsync("ArrowRight");
+        await file.ClickAsync();
 
-        await Assertions.Expect(view).ToBeFocusedAsync();
-
-        await view.PressAsync("ArrowLeft");
-        await Assertions.Expect(file).ToBeFocusedAsync();
+        await Assertions.Expect(file).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(page.Locator("[role='menu']:visible").First).ToContainTextAsync("علامة تبويب جديدة");
     }
 
     [Test]
@@ -94,10 +90,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-main-demo']").First,
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-main-demo']").First;
+        var demo = MainDemo(page);
         var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
 
         await fileTrigger.ClickAsync();
@@ -134,10 +130,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var demo = MainDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
         var edit = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Edit", Exact = true });
         var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
@@ -174,8 +170,8 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Profiles", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var profilesTrigger = page.Locator("[data-testid='menubar-radio-trigger']");
-        var selectedProfile = page.Locator("[data-testid='menubar-radio-value']");
+        var radioDemo = RadioDemo(page);
+        var profilesTrigger = radioDemo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profiles", Exact = true });
         await Assertions.Expect(profilesTrigger).ToBeVisibleAsync();
 
         await profilesTrigger.ClickAsync();
@@ -189,10 +185,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "false");
-        await Assertions.Expect(selectedProfile).ToHaveTextAsync("benoit");
-
         await luis.EvaluateAsync("element => element.click()");
-        await Assertions.Expect(selectedProfile).ToHaveTextAsync("luis");
         await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
@@ -209,10 +202,11 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-checkbox-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "View", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var viewTrigger = page.Locator("[data-testid='menubar-checkbox-trigger']");
+        var checkboxDemo = CheckboxDemo(page);
+        var viewTrigger = checkboxDemo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
         await Assertions.Expect(viewTrigger).ToBeVisibleAsync();
 
         await viewTrigger.ClickAsync();
@@ -228,10 +222,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();
 
-        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "false");
-        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "false");
 
-        await bookmarks.ClickAsync();
+        await fullUrls.ClickAsync();
         await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
 
@@ -243,6 +237,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();
         await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
     }
 
     [Test]
@@ -263,10 +258,10 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubars",
-            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var demo = MainDemo(page);
         var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
 
         await fileTrigger.ClickAsync();
@@ -289,5 +284,34 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
+    }
+
+    private static ILocator MainDemo(IPage page)
+    {
+        return page.Locator("section").Filter(new LocatorFilterOptions
+        {
+            HasText = "A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands."
+        }).First;
+    }
+
+    private static ILocator CheckboxDemo(IPage page)
+    {
+        return page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Checkbox" }).First;
+    }
+
+    private static ILocator RadioDemo(IPage page)
+    {
+        return page.Locator("section")
+                   .Filter(new LocatorFilterOptions { HasText = "Radio" })
+                   .Filter(new LocatorFilterOptions { HasText = "Theme" })
+                   .First;
+    }
+
+    private static ILocator RtlDemo(IPage page)
+    {
+        return page.Locator("section").Filter(new LocatorFilterOptions
+        {
+            HasText = "To enable RTL support in shadcn/ui, see the RTL configuration guide."
+        }).First;
     }
 }

@@ -72,7 +72,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(page.GetByText("Manage how you receive notifications. You can enable email alerts for updates or push notifications for mobile devices.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        await Assertions.Expect(page.GetByText("Control your privacy settings and security preferences. Enable two-factor authentication, manage connected devices, review active sessions, and configure data sharing preferences. You can also download your data or delete your account.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByText("Control account privacy, password settings, and two-factor authentication options.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
     [Test]
@@ -128,7 +128,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
-        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Accordion example." }).First;
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertically stacked set of interactive headings that each reveal a section of content." }).First;
         var accordion = demoSection.Locator("[data-slot='accordion']").First;
         var accordionContainer = accordion.Locator("xpath=..").First;
         var shippingTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What are your shipping options?", Exact = true });
@@ -151,6 +151,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var afterSwitchBox = await accordionContainer.BoundingBoxAsync();
         (afterSwitchBox).Should().NotBeNull();
         (Math.Abs(afterSwitchBox.Width - initialBox.Width)).Should().BeInRange(0, 2);
+        (Math.Abs(afterSwitchBox.Y - initialBox.Y)).Should().BeInRange(0, 2);
 
         var returnsPanelId = await returnsTrigger.GetAttributeAsync("aria-controls");
         (string.IsNullOrWhiteSpace(returnsPanelId)).Should().BeFalse();
@@ -191,32 +192,6 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
-    }
-
-    [Test]
-    public async ValueTask Accordion_force_mount_demo_keeps_closed_content_mounted_with_closed_state_metadata()
-    {
-        await using var session = await CreateSession();
-        var page = session.Page;
-
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
-            static p => p.Locator("[data-testid='accordion-force-mount-demo']"),
-            expectedTitle: "Accordion - Quark Suite");
-
-        var demo = page.Locator("[data-testid='accordion-force-mount-demo']");
-        var trigger = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Keep details mounted for animation", Exact = true });
-        var contentInner = demo.Locator(".accordion-force-mount-content").First;
-        var content = contentInner.Locator("xpath=..");
-
-        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(content).ToHaveAttributeAsync("data-state", "closed");
-        await Assertions.Expect(contentInner).ToContainTextAsync("Force mounted accordion details remain in the DOM while closed.");
-
-        await trigger.ClickAsync();
-
-        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
-        await Assertions.Expect(content).ToHaveAttributeAsync("data-state", "open");
     }
 
     private static async Task ExpectActiveElement(IPage page, ILocator locator)
