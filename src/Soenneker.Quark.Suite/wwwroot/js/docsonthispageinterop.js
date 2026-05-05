@@ -54,7 +54,19 @@ export function createActiveObserver(options, dotNetRef) {
     return (Number.isFinite(parsedHeaderHeight) ? parsedHeaderHeight : 72) + 24;
   };
 
+  const isScrolledToBottom = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+
+    return scrollTop + viewportHeight >= scrollHeight - 2;
+  };
+
   const findActiveHeading = () => {
+    if (isScrolledToBottom()) {
+      return headings[headings.length - 1]?.id || null;
+    }
+
     const offset = getOffset();
     let active = headings[0]?.id || null;
 
@@ -84,6 +96,7 @@ export function createActiveObserver(options, dotNetRef) {
 
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
+  window.addEventListener("hashchange", scheduleUpdate);
 
   updateActiveHeading();
 
@@ -95,6 +108,7 @@ export function createActiveObserver(options, dotNetRef) {
 
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("hashchange", scheduleUpdate);
     }
   });
 
