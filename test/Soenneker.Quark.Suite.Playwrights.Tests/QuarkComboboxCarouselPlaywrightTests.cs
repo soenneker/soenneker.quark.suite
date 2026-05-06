@@ -73,10 +73,20 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await page.Keyboard.PressAsync("Escape");
 
         await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Input Group", Exact = true }).ScrollIntoViewIfNeededAsync();
-        await page.GetByPlaceholder("Select a timezone").Last.ClickAsync();
+        var inputGroupInput = page.GetByPlaceholder("Select a timezone").Last;
+        var inputGroupControl = inputGroupInput.Locator("xpath=ancestor::*[@data-combobox-slot='combobox-control'][1]");
+
+        await inputGroupInput.ClickAsync();
+        var inputGroupPopup = page.Locator("[data-slot='combobox-content'][data-state='open']").First;
 
         foreach (var timezone in ExpandedTimezoneOptions)
             await Assertions.Expect(page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = timezone, Exact = true })).ToBeVisibleAsync();
+
+        var inputGroupBox = await inputGroupControl.BoundingBoxAsync();
+        var popupBox = await inputGroupPopup.BoundingBoxAsync();
+        inputGroupBox.Should().NotBeNull();
+        popupBox.Should().NotBeNull();
+        popupBox!.X.Should().BeApproximately(inputGroupBox!.X, 2);
 
         await page.Keyboard.PressAsync("Escape");
 
