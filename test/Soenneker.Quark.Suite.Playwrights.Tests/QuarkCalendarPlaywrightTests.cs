@@ -54,10 +54,17 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         targetLabel.Should().NotBeNullOrWhiteSpace();
 
         var presets = page.Locator("[data-slot='calendar']").Nth(5);
+        var presetFooter = presets.Locator("xpath=ancestor::*[@data-slot='card'][1]//*[@data-slot='card-footer']");
         var presetLabels = new[] { "Today", "Tomorrow", "In 3 days", "In a week", "In 2 weeks" };
 
+        await Assertions.Expect(presetFooter).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )bg-muted/50( |$)"));
+
         foreach (var presetLabel in presetLabels)
-            await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = presetLabel, Exact = true })).ToBeVisibleAsync();
+        {
+            var presetButton = page.GetByRole(AriaRole.Button, new() { Name = presetLabel, Exact = true });
+            await Assertions.Expect(presetButton).ToBeVisibleAsync();
+            await Assertions.Expect(presetButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )flex-1( |$)"));
+        }
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Tomorrow", Exact = true }).ClickAsync();
         await Assertions.Expect(presets.Locator("td[data-day='2026-05-01']")).ToHaveAttributeAsync("data-selected", "true");

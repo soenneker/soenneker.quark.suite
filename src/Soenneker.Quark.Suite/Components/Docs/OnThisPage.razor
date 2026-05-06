@@ -8,27 +8,37 @@
 
 @if (!ShouldHide)
 {
-    <aside class="@OuterClass" data-slot="docs-on-this-page">
-        <div class="@ResolvedContainerClass">
-            <p class="@TitleClass">@Title</p>
-            <nav class="@ResolvedNavClass" aria-label="@Title">
+    <Aside Position="Position.Sticky" Top="@_stickyTop" Display="Display.None.OnXl.Block" SelfAlign="Self.Start" Class="@Class" Attributes="@_docsOnThisPageAttributes">
+        <Div MaxHeight="@_containerMaxHeight" OverflowY="Overflow.Auto" Padding="@_containerPadding" Class="@ContainerClass">
+            <Paragraph Margin="Margin.Is4.FromBottom" TextSize="@_tocTextSize" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">
+                @Title
+            </Paragraph>
+            <Nav Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is2" TextSize="@_tocTextSize" AriaLabel="@Title" Class="@NavClass">
                 @foreach (var item in _items)
                 {
-                    <a @key="item.Id" href="@GetLinkHref(item.Id)" class="@GetLinkClass(item)" aria-current="@(item.Id == _activeId ? "location" : null)">
+                    <Anchor @key="item.Id" To="@GetLinkHref(item.Id)" Display="Display.Block" Leading="@_linkLeading" TextColor="TextColor.MutedForeground" Transition="Transition.Colors" Class="@GetLinkClass(item)" aria-current='@(item.Id == _activeId ? "location" : null)'>
                         @item.Title
-                    </a>
+                    </Anchor>
                 }
-            </nav>
-        </div>
-    </aside>
+            </Nav>
+        </Div>
+    </Aside>
 }
 
 @code {
-    private const string _defaultOuterClass = "sticky top-[calc(var(--header-height)+1rem)] hidden self-start xl:block";
-    private const string _defaultContainerClass = "max-h-[calc(100vh-var(--header-height)-2rem)] overflow-y-auto py-1";
-    private const string _defaultTitleClass = "mb-4 text-[0.8rem] font-medium text-muted-foreground";
-    private const string _defaultNavClass = "flex flex-col gap-2 text-[0.8rem]";
-    private const string _defaultLinkClass = "block leading-6 text-muted-foreground transition-colors hover:text-foreground";
+
+    private static readonly IReadOnlyDictionary<string, object> _docsOnThisPageAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "docs-on-this-page"
+    };
+    
+    private static readonly TopBuilder _stickyTop = Top.Token("[calc(var(--header-height)+1rem)]");
+    private static readonly HeightBuilder _containerMaxHeight = Height.Token("[calc(100vh-var(--header-height)-2rem)]");
+    private static readonly PaddingBuilder _containerPadding = Padding.OnX.Is1;
+    private static readonly TextSizeBuilder _tocTextSize = TextSize.Token("[0.8rem]");
+    private static readonly LeadingBuilder _linkLeading = Leading.Token("6");
+
+    private const string _defaultLinkClass = "hover:text-foreground";
     private const string _defaultActiveLinkClass = "font-medium !text-black dark:!text-white";
 
     private DotNetObjectReference<OnThisPage>? _dotNetRef;
@@ -72,10 +82,6 @@
     public string? ActiveLinkClass { get; set; }
 
     private bool ShouldHide => HideWhenEmpty && _items.Count == 0;
-    private string OuterClass => CombineClasses(_defaultOuterClass, Class);
-    private string ResolvedContainerClass => CombineClasses(_defaultContainerClass, ContainerClass);
-    private string TitleClass => _defaultTitleClass;
-    private string ResolvedNavClass => CombineClasses(_defaultNavClass, NavClass);
 
     protected override void OnInitialized()
     {
@@ -179,16 +185,6 @@
 
         builder.Append('#');
         builder.Append(id);
-
-        return builder.ToStringAndDispose();
-    }
-
-    private static string CombineClasses(string defaultClass, string? className)
-    {
-        var builder = new PooledStringBuilder(defaultClass.Length + (className?.Length ?? 0) + 1);
-
-        AppendClass(ref builder, defaultClass);
-        AppendClass(ref builder, className);
 
         return builder.ToStringAndDispose();
     }

@@ -5,6 +5,6 @@ public sealed class NavOptions : ComponentOptions
 {
     public NavOptions()
     {
-        Selector = ".q-nav";
+        Selector = "[data-slot='nav']";
     }
 }

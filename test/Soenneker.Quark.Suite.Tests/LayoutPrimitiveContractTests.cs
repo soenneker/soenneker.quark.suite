@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AwesomeAssertions;
 using Bunit;
 
@@ -90,5 +91,28 @@ public sealed partial class RenderedShadcnParityTests
         var overlayClasses = overlay.Find("[data-slot='overlay-container']").GetAttribute("class")!;
 
         overlayClasses.Should().Contain("relative");
+    }
+
+    [Test]
+    public void Semantic_structure_primitives_render_native_elements()
+    {
+        var aside = Render<Aside>(parameters => parameters.Add(p => p.ChildContent, "Aside"));
+        var nav = Render<Nav>(parameters => parameters.Add(p => p.ChildContent, "Nav"));
+
+        aside.Find("aside[data-slot='aside']").TextContent.Should().Be("Aside");
+        nav.Find("nav[data-slot='nav']").TextContent.Should().Be("Nav");
+    }
+
+    [Test]
+    public void Aside_preserves_explicit_data_slot()
+    {
+        var cut = Render<Aside>(parameters => parameters
+            .Add(p => p.Attributes, new Dictionary<string, object>
+            {
+                ["data-slot"] = "docs-on-this-page"
+            })
+            .Add(p => p.ChildContent, "Docs"));
+
+        cut.Find("aside[data-slot='docs-on-this-page']").TextContent.Should().Be("Docs");
     }
 }

@@ -19,7 +19,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}radiogroups",
+            $"{BaseUrl}radio-group",
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
@@ -71,7 +71,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}radiogroups",
+            $"{BaseUrl}radio-group",
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 

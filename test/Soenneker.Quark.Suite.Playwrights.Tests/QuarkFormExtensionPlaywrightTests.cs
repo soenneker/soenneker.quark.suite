@@ -55,7 +55,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}checks",
+            $"{BaseUrl}checkbox",
             static p => p.Locator("[data-slot='checkbox']").First,
             expectedTitle: "Checkbox Component - Quark Suite");
 

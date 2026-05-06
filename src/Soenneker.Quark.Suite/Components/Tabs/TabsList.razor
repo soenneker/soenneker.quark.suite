@@ -26,6 +26,8 @@
     {
         base.ApplyDefaultParameters();
 
+        var hasExplicitWidth = Width is not null;
+
         Display ??= Quark.Display.InlineFlex;
         Width ??= Quark.Width.IsFit;
         ItemsAlign ??= Items.Center;
@@ -47,8 +49,8 @@
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
         }
 
-        if (ParentTabs?.Justified == true)
-            Width ??= Quark.Width.IsFull;
+        if (ParentTabs?.Justified == true && !hasExplicitWidth)
+            Width = Quark.Width.IsFull;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

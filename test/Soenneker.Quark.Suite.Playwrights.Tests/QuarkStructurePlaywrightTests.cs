@@ -34,6 +34,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Semantic HTML - Quark Suite");
 
         await Assertions.Expect(page.Locator("main[data-slot='main']").First).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("nav[data-slot='nav']").First).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("article[data-slot='article']").First).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("aside[data-slot='aside']").First).ToBeVisibleAsync();
 

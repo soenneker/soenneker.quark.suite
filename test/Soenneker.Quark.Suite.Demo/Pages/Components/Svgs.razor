@@ -1,0 +1,107 @@
+@page "/svgs"
+
+<PageTitle>Svg - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Description="Inline SVG with Quark sizing, stroke, and fill utilities."
+                         Code="@BasicSvgCode"
+                         CodeLanguage="razor">
+                <Svg Size="Quark.Size.Is12"
+                     ViewBox="0 0 24 24"
+                     Fill="Quark.Fill.None"
+                     Stroke='Quark.Stroke.Token("current")'
+                     StrokeWidth="Quark.StrokeWidth.Is2"
+                     StrokeLineCap="Quark.StrokeLineCap.Round"
+                     StrokeLineJoin="Quark.StrokeLineJoin.Round"
+                     TextColor="TextColor.Primary"
+                     aria-hidden="true">
+                    <path d="M12 3 2 8l10 5 10-5-10-5Z" />
+                    <path d="m2 17 10 5 10-5" />
+                    <path d="m2 12 10 5 10-5" />
+                </Svg>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Native attributes"
+                         Description="NativeWidth, NativeHeight, preserveAspectRatio, and focusable."
+                         Code="@NativeAttributesCode"
+                         CodeLanguage="razor">
+                <Svg NativeWidth="160"
+                     NativeHeight="80"
+                     ViewBox="0 0 160 80"
+                     PreserveAspectRatio="xMidYMid meet"
+                     Focusable="false"
+                     Class="max-w-full rounded-lg border border-border bg-muted">
+                    <rect x="16" y="16" width="128" height="48" rx="12" class="fill-background stroke-border" stroke-width="2" />
+                    <circle cx="52" cy="40" r="14" class="fill-primary" />
+                    <path d="M82 32h42M82 48h28" class="stroke-muted-foreground" stroke-width="6" stroke-linecap="round" />
+                </Svg>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Accessible"
+                         Description="Pair role, aria-labelledby, title, and desc for meaningful SVGs."
+                         Code="@AccessibleSvgCode"
+                         CodeLanguage="razor">
+                <Svg Role="img"
+                     aria-labelledby="svg-chart-title svg-chart-desc"
+                     NativeWidth="220"
+                     NativeHeight="120"
+                     ViewBox="0 0 220 120"
+                     Class="max-w-full rounded-lg border border-border bg-background p-2">
+                    <title id="svg-chart-title">Revenue trend</title>
+                    <desc id="svg-chart-desc">A simple upward line chart from January through April.</desc>
+                    <path d="M24 96H196" class="stroke-border" stroke-width="2" />
+                    <path d="M24 96V20" class="stroke-border" stroke-width="2" />
+                    <path d="M34 82 78 66 122 72 176 34" class="fill-none stroke-primary" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="34" cy="82" r="5" class="fill-primary" />
+                    <circle cx="78" cy="66" r="5" class="fill-primary" />
+                    <circle cx="122" cy="72" r="5" class="fill-primary" />
+                    <circle cx="176" cy="34" r="5" class="fill-primary" />
+                </Svg>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private const string BasicSvgCode =
+@"<Svg Size=""Quark.Size.Is12""
+     ViewBox=""0 0 24 24""
+     Fill=""Quark.Fill.None""
+     Stroke='Quark.Stroke.Token(""current"")'
+     StrokeWidth=""Quark.StrokeWidth.Is2""
+     StrokeLineCap=""Quark.StrokeLineCap.Round""
+     StrokeLineJoin=""Quark.StrokeLineJoin.Round""
+     aria-hidden=""true"">
+    <path d=""M12 3 2 8l10 5 10-5-10-5Z"" />
+    <path d=""m2 17 10 5 10-5"" />
+    <path d=""m2 12 10 5 10-5"" />
+</Svg>";
+
+    private const string NativeAttributesCode =
+@"<Svg NativeWidth=""160""
+     NativeHeight=""80""
+     ViewBox=""0 0 160 80""
+     PreserveAspectRatio=""xMidYMid meet""
+     Focusable=""false""
+     Class=""max-w-full rounded-lg border border-border bg-muted"">
+    <rect x=""16"" y=""16"" width=""128"" height=""48"" rx=""12"" />
+    <circle cx=""52"" cy=""40"" r=""14"" />
+</Svg>";
+
+    private const string AccessibleSvgCode =
+@"<Svg Role=""img""
+     aria-labelledby=""svg-chart-title svg-chart-desc""
+     NativeWidth=""220""
+     NativeHeight=""120""
+     ViewBox=""0 0 220 120"">
+    <title id=""svg-chart-title"">Revenue trend</title>
+    <desc id=""svg-chart-desc"">A simple upward line chart from January through April.</desc>
+    <path d=""M34 82 78 66 122 72 176 34"" />
+</Svg>";
+}

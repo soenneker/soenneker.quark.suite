@@ -21,7 +21,7 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}hovercards",
+            $"{BaseUrl}hover-card",
             static p => p.Locator("[data-slot='hover-card-trigger']").First,
             expectedTitle: "Hover Cards - Quark Suite");
 
@@ -48,7 +48,7 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}hovercards",
+            $"{BaseUrl}hover-card",
             static p => p.Locator("[data-slot='hover-card-trigger']").First,
             expectedTitle: "Hover Cards - Quark Suite");
 
