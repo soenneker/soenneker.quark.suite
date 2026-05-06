@@ -52,6 +52,42 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(page.GetByRole(AriaRole.Option)).ToHaveCountAsync(FrameworkOptions.Length);
     }
 
+    [Test]
+    public async ValueTask Combobox_demo_matches_shadcn_popup_input_group_and_custom_item_examples()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}comboboxes",
+            static p => p.GetByPlaceholder("Select a framework").First,
+            expectedTitle: "Combobox - Quark Suite");
+
+        await page.GetByText("Popup", new PageGetByTextOptions { Exact = true }).ScrollIntoViewIfNeededAsync();
+        var popupTrigger = page.Locator("[data-slot='popover-trigger']").Filter(new LocatorFilterOptions { HasText = "Select country" }).First;
+
+        await Assertions.Expect(popupTrigger).ToContainTextAsync("Select country");
+        await popupTrigger.ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Select country", Exact = true })).ToBeVisibleAsync();
+
+        await page.Keyboard.PressAsync("Escape");
+
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Input Group", Exact = true }).ScrollIntoViewIfNeededAsync();
+        await page.GetByPlaceholder("Select a timezone").Last.ClickAsync();
+
+        foreach (var timezone in ExpandedTimezoneOptions)
+            await Assertions.Expect(page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = timezone, Exact = true })).ToBeVisibleAsync();
+
+        await page.Keyboard.PressAsync("Escape");
+
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Custom Items", Exact = true }).ScrollIntoViewIfNeededAsync();
+        await page.GetByPlaceholder("Search countries...").First.ClickAsync();
+
+        var argentina = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { NameRegex = new Regex(@"Argentina\s+South America \(ar\)") }).First;
+        await Assertions.Expect(argentina.Locator("[data-slot='item']")).ToHaveAttributeAsync("data-size", "xs");
+        await Assertions.Expect(argentina.Locator("[data-slot='item']")).ToHaveClassAsync(new Regex(@"(^|\s)p-0(\s|$)"));
+    }
+
     private static readonly string[] FrameworkOptions =
     [
         "Next.js",
@@ -59,6 +95,19 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         "Nuxt.js",
         "Remix",
         "Astro"
+    ];
+
+    private static readonly string[] ExpandedTimezoneOptions =
+    [
+        "(GMT-5) Toronto",
+        "(GMT-8) Vancouver",
+        "(GMT-3) São Paulo",
+        "(GMT+1) Rome",
+        "(GMT+1) Madrid",
+        "(GMT+1) Amsterdam",
+        "(GMT+8) Shanghai",
+        "(GMT+4) Dubai",
+        "(GMT+9) Seoul"
     ];
 
     [Test]

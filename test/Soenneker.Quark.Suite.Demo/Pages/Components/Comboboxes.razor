@@ -167,13 +167,15 @@
                     <ComboboxContent>
                         <ComboboxEmpty>No items found.</ComboboxEmpty>
                         <ComboboxList>
-                            @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _customSearch) || Matches(option.Description, _customSearch)))
+                            @foreach (var country in CountryOptions.Where(option => !string.IsNullOrEmpty(option.Code) && (Matches(option.Label, _customSearch) || Matches(option.Continent, _customSearch) || Matches(option.Code, _customSearch))))
                             {
-                                <ComboboxItem Value="@country.Name">
-                                    <Div Display="Display.Flex" FlexDirection="FlexDirection.Col">
-                                        <Span FontWeight="FontWeight.Medium">@country.Name</Span>
-                                        <Paragraph TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@country.Description</Paragraph>
-                                    </Div>
+                                <ComboboxItem Value="@country.Label">
+                                    <Item ItemSize="ItemSize.ExtraSmall" Class="p-0">
+                                        <ItemContent>
+                                            <ItemTitle Class="whitespace-nowrap">@country.Label</ItemTitle>
+                                            <ItemDescription>@country.Continent (@country.Code)</ItemDescription>
+                                        </ItemContent>
+                                    </Item>
                                 </ComboboxItem>
                             }
                         </ComboboxList>
@@ -273,9 +275,9 @@
                     <ComboboxInput Anchor="false" ShowTrigger="false" Placeholder="Search countries..." />
                     <ComboboxEmpty>No country found.</ComboboxEmpty>
                     <ComboboxList>
-                        @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _popupSearch)))
+                        @foreach (var country in CountryOptions.Where(option => Matches(option.Label, _popupSearch)))
                         {
-                            <ComboboxItem Value="@country.Name">@country.Name</ComboboxItem>
+                            <ComboboxItem Value="@country.Label">@country.Label</ComboboxItem>
                         }
                     </ComboboxList>
                 </ComboboxContent>
@@ -353,7 +355,7 @@
 </Div>
 
 @code {
-    private sealed record CountryOption(string Name, string Description);
+    private sealed record CountryOption(string Code, string Label, string Continent);
     private sealed record TimezoneGroup(string Label, string[] Items);
 
     private static readonly string[] Frameworks =
@@ -367,32 +369,33 @@
 
     private static readonly CountryOption[] CountryOptions =
     [
-        new("Argentina", "South America (ar)"),
-        new("Australia", "Oceania (au)"),
-        new("Brazil", "South America (br)"),
-        new("Canada", "North America (ca)"),
-        new("China", "Asia (cn)"),
-        new("Colombia", "South America (co)"),
-        new("Egypt", "Africa (eg)"),
-        new("France", "Europe (fr)"),
-        new("Germany", "Europe (de)"),
-        new("Italy", "Europe (it)"),
-        new("Japan", "Asia (jp)"),
-        new("Kenya", "Africa (ke)"),
-        new("Mexico", "North America (mx)"),
-        new("New Zealand", "Oceania (nz)"),
-        new("Nigeria", "Africa (ng)"),
-        new("South Africa", "Africa (za)"),
-        new("South Korea", "Asia (kr)"),
-        new("United Kingdom", "Europe (gb)"),
-        new("United States", "North America (us)")
+        new("", "Select country", ""),
+        new("ar", "Argentina", "South America"),
+        new("au", "Australia", "Oceania"),
+        new("br", "Brazil", "South America"),
+        new("ca", "Canada", "North America"),
+        new("cn", "China", "Asia"),
+        new("co", "Colombia", "South America"),
+        new("eg", "Egypt", "Africa"),
+        new("fr", "France", "Europe"),
+        new("de", "Germany", "Europe"),
+        new("it", "Italy", "Europe"),
+        new("jp", "Japan", "Asia"),
+        new("ke", "Kenya", "Africa"),
+        new("mx", "Mexico", "North America"),
+        new("nz", "New Zealand", "Oceania"),
+        new("ng", "Nigeria", "Africa"),
+        new("za", "South Africa", "Africa"),
+        new("kr", "South Korea", "Asia"),
+        new("gb", "United Kingdom", "Europe"),
+        new("us", "United States", "North America")
     ];
 
     private static readonly TimezoneGroup[] TimezoneGroups =
     [
-        new("Americas", ["(GMT-5) New York", "(GMT-8) Los Angeles", "(GMT-6) Chicago"]),
-        new("Europe", ["(GMT+0) London", "(GMT+1) Paris", "(GMT+1) Berlin"]),
-        new("Asia/Pacific", ["(GMT+9) Tokyo", "(GMT+8) Singapore", "(GMT+11) Sydney"])
+        new("Americas", ["(GMT-5) New York", "(GMT-8) Los Angeles", "(GMT-6) Chicago", "(GMT-5) Toronto", "(GMT-8) Vancouver", "(GMT-3) São Paulo"]),
+        new("Europe", ["(GMT+0) London", "(GMT+1) Paris", "(GMT+1) Berlin", "(GMT+1) Rome", "(GMT+1) Madrid", "(GMT+1) Amsterdam"]),
+        new("Asia/Pacific", ["(GMT+9) Tokyo", "(GMT+8) Shanghai", "(GMT+8) Singapore", "(GMT+4) Dubai", "(GMT+11) Sydney", "(GMT+9) Seoul"])
     ];
 
     private static readonly string[] ArabicCategories =
@@ -625,13 +628,15 @@
         <ComboboxContent>
             <ComboboxEmpty>No items found.</ComboboxEmpty>
             <ComboboxList>
-                @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _customSearch) || Matches(option.Description, _customSearch)))
+                @foreach (var country in CountryOptions.Where(option => !string.IsNullOrEmpty(option.Code) && (Matches(option.Label, _customSearch) || Matches(option.Continent, _customSearch) || Matches(option.Code, _customSearch))))
                 {
-                    <ComboboxItem Value=""@country.Name"">
-                        <Div Display=""Display.Flex"" FlexDirection=""FlexDirection.Col"">
-                            <Span FontWeight=""FontWeight.Medium"">@country.Name</Span>
-                            <Paragraph TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">@country.Description</Paragraph>
-                        </Div>
+                    <ComboboxItem Value=""@country.Label"">
+                        <Item ItemSize=""ItemSize.ExtraSmall"" Class=""p-0"">
+                            <ItemContent>
+                                <ItemTitle Class=""whitespace-nowrap"">@country.Label</ItemTitle>
+                                <ItemDescription>@country.Continent (@country.Code)</ItemDescription>
+                            </ItemContent>
+                        </Item>
                     </ComboboxItem>
                 }
             </ComboboxList>
@@ -715,9 +720,9 @@
         <ComboboxInput Anchor=""false"" ShowTrigger=""false"" Placeholder=""Search countries..."" />
         <ComboboxEmpty>No country found.</ComboboxEmpty>
         <ComboboxList>
-            @foreach (var country in CountryOptions.Where(option => Matches(option.Name, _popupSearch)))
+            @foreach (var country in CountryOptions.Where(option => Matches(option.Label, _popupSearch)))
             {
-                <ComboboxItem Value=""@country.Name"">@country.Name</ComboboxItem>
+                <ComboboxItem Value=""@country.Label"">@country.Label</ComboboxItem>
             }
         </ComboboxList>
     </ComboboxContent>
