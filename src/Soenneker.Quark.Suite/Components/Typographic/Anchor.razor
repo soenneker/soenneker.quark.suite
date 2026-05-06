@@ -19,7 +19,7 @@
     /// Gets or sets the URL to navigate to.
     /// </summary>
     [Parameter]
-    public string? To { get; set; }
+    public string? Href { get; set; }
 
     /// <summary>
     /// Gets or sets the target attribute for the link.
@@ -38,8 +38,8 @@
     {
         base.BuildAttributesCore(attributes);
 
-        if (To.HasContent())
-            attributes["href"] = To!;
+        if (Href.HasContent())
+            attributes["href"] = Href!;
 
         if (Target is not null)
             attributes["target"] = Target.Value;
@@ -50,7 +50,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(To);
+        hc.Add(Href);
         hc.Add(Target);
         hc.Add(PreventDefault);
         hc.Add(OnClick.HasDelegate);

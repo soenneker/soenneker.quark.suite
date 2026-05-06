@@ -5,13 +5,8 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Description="Semantic navigation landmark."
-                         Code="@BasicNavCode"
-                         CodeLanguage="razor">
-                <Nav AriaLabel="Primary demo navigation"
-                     Border="Border.Is1"
-                     Rounded="Rounded.Lg"
-                     Padding="Padding.Is3">
+            <DemoSection Description="Semantic navigation landmark." Code="@BasicNavCode" CodeLanguage="razor">
+                <Nav AriaLabel="Primary demo navigation" Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is3">
                     <Div Display="Display.Flex" Flex="@("flex-wrap")" Gap="Gap.Is3">
                         <Anchor Href="#overview" FontWeight="FontWeight.Medium">Overview</Anchor>
                         <Anchor Href="#usage" FontWeight="FontWeight.Medium">Usage</Anchor>
@@ -22,23 +17,13 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Vertical"
-                         Description="A secondary navigation list."
-                         Code="@VerticalNavCode"
-                         CodeLanguage="razor">
-                <Nav AriaLabel="Documentation sections"
-                     Width="@("min(100%, 18rem)")"
-                     Border="Border.Is1"
-                     Rounded="Rounded.Lg"
-                     Padding="Padding.Is2">
+            <DemoSection Title="Vertical" Description="A secondary navigation list." Code="@VerticalNavCode" CodeLanguage="razor">
+                <Nav AriaLabel="Documentation sections" Width="@("min(100%, 18rem)")" Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is2">
                     <UnorderedList Margin="Margin.Is0" Class="space-y-1">
                         @foreach (var item in _sections)
                         {
                             <UnorderedListItem>
-                                <Anchor Href="@item.Href"
-                                        Display="Display.Block"
-                                        Rounded="Rounded.Md"
-                                        Class="px-2 py-1 hover:bg-muted">
+                                <Anchor Href="@item.To" Display="Display.Block" Rounded="Rounded.Md" Class="px-2 py-1 hover:bg-muted">
                                     @item.Label
                                 </Anchor>
                             </UnorderedListItem>
@@ -49,15 +34,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="With current page"
-                         Description="Use aria-current for the active link."
-                         Code="@CurrentPageNavCode"
-                         CodeLanguage="razor">
-                <Nav AriaLabel="Settings"
-                     Border="Border.Is1"
-                     Rounded="Rounded.Lg"
-                     Padding="Padding.Is3"
-                     BackgroundColor="BackgroundColor.Muted">
+            <DemoSection Title="With current page" Description="Use aria-current for the active link." Code="@CurrentPageNavCode" CodeLanguage="razor">
+                <Nav AriaLabel="Settings" Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Muted">
                     <Div Display="Display.Flex" Flex="@("flex-wrap")" Gap="Gap.Is2">
                         <Anchor Href="#profile" AriaCurrent="page" Class="rounded-md bg-background px-3 py-1.5 font-medium shadow-sm">Profile</Anchor>
                         <Anchor Href="#team" Class="rounded-md px-3 py-1.5 font-medium hover:bg-background">Team</Anchor>
@@ -70,6 +48,7 @@
 </Div>
 
 @code {
+
     private static readonly NavDemoLink[] _sections =
     [
         new("Getting started", "#getting-started"),
@@ -78,8 +57,7 @@
         new("Theming", "#theming")
     ];
 
-    private const string BasicNavCode =
-@"<Nav AriaLabel=""Primary demo navigation"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"">
+    private const string BasicNavCode = @"<Nav AriaLabel=""Primary demo navigation"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"">
     <Div Display=""Display.Flex"" Flex=""@(""flex-wrap"")"" Gap=""Gap.Is3"">
         <Anchor Href=""#overview"">Overview</Anchor>
         <Anchor Href=""#usage"">Usage</Anchor>
@@ -87,8 +65,7 @@
     </Div>
 </Nav>";
 
-    private const string VerticalNavCode =
-@"<Nav AriaLabel=""Documentation sections"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is2"">
+    private const string VerticalNavCode = @"<Nav AriaLabel=""Documentation sections"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is2"">
     <UnorderedList Margin=""Margin.Is0"" Class=""space-y-1"">
         <UnorderedListItem>
             <Anchor Href=""#getting-started"" Display=""Display.Block"" Class=""rounded-md px-2 py-1 hover:bg-muted"">
@@ -98,13 +75,13 @@
     </UnorderedList>
 </Nav>";
 
-    private const string CurrentPageNavCode =
-@"<Nav AriaLabel=""Settings"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Muted"">
+    private const string CurrentPageNavCode = @"<Nav AriaLabel=""Settings"" Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Muted"">
     <Div Display=""Display.Flex"" Flex=""@(""flex-wrap"")"" Gap=""Gap.Is2"">
         <Anchor Href=""#profile"" AriaCurrent=""page"" Class=""rounded-md bg-background px-3 py-1.5 font-medium shadow-sm"">Profile</Anchor>
         <Anchor Href=""#team"" Class=""rounded-md px-3 py-1.5 font-medium hover:bg-background"">Team</Anchor>
     </Div>
 </Nav>";
 
-    private sealed record NavDemoLink(string Label, string Href);
+    private sealed record NavDemoLink(string Label, string To);
+
 }

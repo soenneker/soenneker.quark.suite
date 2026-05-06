@@ -8,7 +8,7 @@ public interface IAnchor : IElement
     /// <summary>
     /// The URL that the hyperlink points to
     /// </summary>
-    string? To { get; set; }
+    string? Href { get; set; }
 
     /// <summary>
     /// Where to display the linked URL
