@@ -47,15 +47,18 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Presets" Description="Preset actions can drive the selected date while keeping the calendar as the source of date selection." Code="@(@"<Card CardSize=""CardSize.Sm"" Margin=""Margin.Auto.OnX"" Width=""Width.IsFit"" MaxWidth='MaxWidth.Token(""[300px]"")'>
-    <CardBody>
-        <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" DisplayMonth=""_aprilDisplayMonth"" FixedWeeks=""true"" Class=""p-0 [--cell-size:--spacing(9.5)]""/>
-    </CardBody>
-</Card>")" CodeLanguage="razor">
+            <DemoSection Title="Presets" Description="Preset actions can drive the selected date while keeping the calendar as the source of date selection." Code="@PresetsCode" CodeLanguage="razor">
                 <Card CardSize="CardSize.Sm" Margin="Margin.Auto.OnX" Width="Width.IsFit" MaxWidth='MaxWidth.Token("[300px]")'>
                     <CardBody>
                         <Calendar SelectedDate="_presetDate" SelectedDateChanged="OnPresetDateChanged" DisplayMonth="_aprilDisplayMonth" FixedWeeks="true" Class="p-0 [--cell-size:--spacing(9.5)]"/>
                     </CardBody>
+                    <CardFooter Class="flex flex-wrap gap-2 border-t bg-card!">
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Xs" OnClick="@(() => SetCalendarPreset(0))">Today</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Xs" OnClick="@(() => SetCalendarPreset(1))">Tomorrow</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Xs" OnClick="@(() => SetCalendarPreset(3))">In 3 days</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Xs" OnClick="@(() => SetCalendarPreset(7))">In a week</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Xs" OnClick="@(() => SetCalendarPreset(14))">In 2 weeks</Button>
+                    </CardFooter>
                 </Card>
             </DemoSection>
         </Section>
@@ -232,14 +235,9 @@
         return Task.CompletedTask;
     }
 
-    private void SetCalendarPresetToday()
+    private void SetCalendarPreset(int daysToAdd)
     {
-        _presetDate = new DateOnly(2026, 4, 30);
-    }
-
-    private void SetCalendarPresetNextWeek()
-    {
-        _presetDate = new DateOnly(2026, 5, 7);
+        _presetDate = new DateOnly(2026, 4, 30).AddDays(daysToAdd);
     }
 
     private Task OnWeekNumberDateChanged(DateOnly? value)
@@ -309,6 +307,19 @@
                                                                               </Div>;
 
     private const string DropdownCaptionCode = @"<Calendar SelectedDate=""_dropdownCaptionDate"" SelectedDateChanged=""OnDropdownCaptionDateChanged"" CaptionLayout=""dropdown"" DisplayMonth=""_aprilDisplayMonth"" Class=""rounded-lg border""/>";
+
+    private const string PresetsCode = @"<Card CardSize=""CardSize.Sm"" Margin=""Margin.Auto.OnX"" Width=""Width.IsFit"" MaxWidth='MaxWidth.Token(""[300px]"")'>
+    <CardBody>
+        <Calendar SelectedDate=""_presetDate"" SelectedDateChanged=""OnPresetDateChanged"" DisplayMonth=""_aprilDisplayMonth"" FixedWeeks=""true"" Class=""p-0 [--cell-size:--spacing(9.5)]""/>
+    </CardBody>
+    <CardFooter Class=""flex flex-wrap gap-2 border-t bg-card!"">
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Xs"" OnClick=""@(() => SetCalendarPreset(0))"">Today</Button>
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Xs"" OnClick=""@(() => SetCalendarPreset(1))"">Tomorrow</Button>
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Xs"" OnClick=""@(() => SetCalendarPreset(3))"">In 3 days</Button>
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Xs"" OnClick=""@(() => SetCalendarPreset(7))"">In a week</Button>
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Xs"" OnClick=""@(() => SetCalendarPreset(14))"">In 2 weeks</Button>
+    </CardFooter>
+</Card>";
 
     private const string BookedDatesCode = @"<Card Margin=""Margin.Auto.OnX"" Width=""Width.IsFit"" Padding=""Padding.Is0"">
     <CardBody Padding=""Padding.Is0"">
