@@ -36,8 +36,8 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Calendar - Quark Suite");
 
         var calendar = page.Locator("[data-slot='calendar']").First;
-        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )p-2( |$)"));
-        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("\\[--cell-size:--spacing\\(7\\)\\]"));
+        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )p-3( |$)"));
+        await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("\\[--cell-size:--spacing\\(8\\)\\]"));
         await Assertions.Expect(calendar.GetByRole(AriaRole.Grid)).ToBeVisibleAsync();
 
         var monthDropdown = calendar.Locator("select.rdp-months_dropdown");
