@@ -88,6 +88,29 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(argentina.Locator("[data-slot='item']")).ToHaveClassAsync(new Regex(@"(^|\s)p-0(\s|$)"));
     }
 
+    [Test]
+    public async ValueTask Combobox_invalid_demo_matches_shadcn_simple_example_and_ring()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}comboboxes",
+            static p => p.GetByPlaceholder("Select a framework").First,
+            expectedTitle: "Combobox - Quark Suite");
+
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Invalid", Exact = true }).ScrollIntoViewIfNeededAsync();
+        var invalidInput = page.Locator("input[aria-invalid='true'][placeholder='Select a framework']");
+        var invalidControl = invalidInput.Locator("xpath=ancestor::*[@data-combobox-slot='combobox-control'][1]");
+
+        await Assertions.Expect(invalidInput).ToHaveCountAsync(1);
+        await Assertions.Expect(invalidInput).ToHaveAttributeAsync("aria-invalid", "true");
+        await Assertions.Expect(invalidInput).ToHaveValueAsync(string.Empty);
+        await Assertions.Expect(invalidControl).ToHaveClassAsync(new Regex(@"(^|\s)has-\[\[data-slot\]\[aria-invalid=true\]\]:ring-3(\s|$)"));
+        await Assertions.Expect(page.GetByText("This field is required.", new PageGetByTextOptions { Exact = true })).ToHaveCountAsync(0);
+        await Assertions.Expect(page.GetByText("Please select a valid framework.", new PageGetByTextOptions { Exact = true })).ToHaveCountAsync(0);
+    }
+
     private static readonly string[] FrameworkOptions =
     [
         "Next.js",
