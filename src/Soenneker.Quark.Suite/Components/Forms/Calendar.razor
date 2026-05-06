@@ -4,99 +4,69 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<div @attributes="BuildAttributes()">
-    <div class="relative flex flex-col gap-4 md:flex-row rdp-months">
-        <nav class="absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1 rdp-nav" aria-label="">
-            <button type="button"
-                    data-slot="button"
-                    data-variant="ghost"
-                    data-size="icon"
-                    class="group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_previous"
-                    aria-label="Go to the Previous Month"
-                    aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())"
-                    tabindex="@GetNavTabIndex(CanNavigatePrevious())"
-                    @onclick="PrevMonth">
-                <Icon Name="LucideIcon.ChevronLeft" Class="cn-rtl-flip size-4 rdp-chevron" aria-hidden="true" />
-            </button>
-            <button type="button"
-                    data-slot="button"
-                    data-variant="ghost"
-                    data-size="icon"
-                    class="group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_next"
-                    aria-label="Go to the Next Month"
-                    aria-disabled="@GetAriaDisabled(!CanNavigateNext())"
-                    tabindex="@GetNavTabIndex(CanNavigateNext())"
-                    @onclick="NextMonth">
-                <Icon Name="LucideIcon.ChevronRight" Class="cn-rtl-flip size-4 rdp-chevron" aria-hidden="true" />
-            </button>
-        </nav>
+<Div @attributes="BuildAttributes()">
+    <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="md:flex-row rdp-months">
+        <Nav Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0.OnX" Top="Quark.Top.Is0" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is1" AriaLabel="" Class="rdp-nav">
+            <Button Type="ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_previous" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="@(_ => PrevMonth())">
+                <Icon Name="LucideIcon.ChevronLeft" Class="cn-rtl-flip size-4 rdp-chevron" aria-hidden="true"/>
+            </Button>
+            <Button Type="ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_next" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="@(_ => NextMonth())">
+                <Icon Name="LucideIcon.ChevronRight" Class="cn-rtl-flip size-4 rdp-chevron" aria-hidden="true"/>
+            </Button>
+        </Nav>
 
         @for (var monthIndex = 0; monthIndex < Math.Max(NumberOfMonths, 1); monthIndex++)
         {
             var month = _displayMonth.AddMonths(monthIndex);
             var weeks = BuildMonthWeeks(month);
 
-            <div class="flex w-full flex-col gap-4 rdp-month">
-                <div class="flex h-(--cell-size) w-full items-center justify-center px-(--cell-size) rdp-month_caption">
+            <Div Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="rdp-month">
+                <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Padding='Quark.Padding.Token("(--cell-size)").OnX' Class="rdp-month_caption">
                     @if (CaptionLayout == "dropdown")
                     {
-                        <div class="flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium rdp-dropdowns">
-                            <span data-disabled="false" class="cn-calendar-dropdown-root relative rounded-md border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
-                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown"
-                                        aria-label="Choose the Month"
-                                        value="@(month.Month - 1)"
-                                        @onchange="OnMonthChanged">
+                        <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Token("1.5")' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
+                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Input" Shadow="Quark.Shadow.Xs" Class="cn-calendar-dropdown-root has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" value="@(month.Month - 1)" @onchange="OnMonthChanged">
                                     @foreach (var optionMonth in Enumerable.Range(0, 12))
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
                                 </select>
-                                <span class="font-medium select-none cn-calendar-caption-label flex h-8 items-center gap-1 rounded-md pr-1 pl-2 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
-                                      aria-hidden="true">
-                                    <span>@GetMonthDropdownLabel(month.Month)</span>
-                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron" />
-                                </span>
-                            </span>
-                            <span data-disabled="false" class="cn-calendar-dropdown-root relative rounded-md border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
-                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown"
-                                        aria-label="Choose the Year"
-                                        value="@month.Year"
-                                        @onchange="OnYearChanged">
+                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" Height="Quark.Height.Is8" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Rounded="Quark.Rounded.Md" Padding="Quark.Padding.Is1.FromRight.Is2.FromLeft" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                    <Span>@GetMonthDropdownLabel(month.Month)</Span>
+                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
+                                </Span>
+                            </Span>
+                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Input" Shadow="Quark.Shadow.Xs" Class="cn-calendar-dropdown-root has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" value="@month.Year" @onchange="OnYearChanged">
                                     @foreach (var year in GetSelectableYears())
                                     {
                                         <option value="@year">@year</option>
                                     }
                                 </select>
-                                <span class="font-medium select-none cn-calendar-caption-label flex h-8 items-center gap-1 rounded-md pr-1 pl-2 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
-                                      aria-hidden="true">
-                                    <span>@month.Year</span>
-                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron" />
-                                </span>
-                            </span>
-                        </div>
+                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" Height="Quark.Height.Is8" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Rounded="Quark.Rounded.Md" Padding="Quark.Padding.Is1.FromRight.Is2.FromLeft" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                    <Span>@month.Year</Span>
+                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
+                                </Span>
+                            </Span>
+                        </Div>
                     }
                     else
                     {
-                        <span role="status"
-                              aria-live="polite"
-                              class="font-medium select-none cn-calendar-caption text-sm rdp-caption_label">@GetMonthCaption(month)</span>
+                        <Span Role="status" aria-live="polite" FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption rdp-caption_label">@GetMonthCaption(month)</Span>
                     }
-                </div>
+                </Div>
                 <table role="grid" aria-multiselectable="@GetDataBoolean(IsMultipleMode || IsRangeMode)" aria-label="@GetMonthCaption(month)" class="rdp-month_grid">
                     <thead aria-hidden="true">
                         <tr class="flex rdp-weekdays">
                             @if (ShowWeekNumber)
                             {
-                                <th class="w-(--cell-size) select-none rdp-week_number_header"
-                                    scope="col"
-                                    aria-label="Week Number"></th>
+                                <th class="w-(--cell-size) select-none rdp-week_number_header" scope="col" aria-label="Week Number"></th>
                             }
 
                             @for (var dayIndex = 0; dayIndex < _dayNames.Length; dayIndex++)
                             {
-                                <th class="flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday"
-                                    scope="col"
-                                    aria-label="@_fullDayNames[dayIndex]">@_dayNames[dayIndex]</th>
+                                <th class="flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday" scope="col" aria-label="@_fullDayNames[dayIndex]">@_dayNames[dayIndex]</th>
                             }
                         </tr>
                     </thead>
@@ -106,61 +76,43 @@
                             <tr class="mt-2 flex w-full rdp-week">
                                 @if (ShowWeekNumber)
                                 {
-                                    <td class="text-[0.8rem] text-muted-foreground select-none rdp-week_number"
-                                        role="rowheader"
-                                        scope="row"
-                                        aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
-                                        <div class="flex size-(--cell-size) items-center justify-center text-center">
+                                    <td class="text-[0.8rem] text-muted-foreground select-none rdp-week_number" role="rowheader" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
+                                        <Div Display="Quark.Display.Flex" Size='Quark.Size.Token("(--cell-size)")' ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" TextAlign="Quark.TextAlign.Center">
                                             @GetWeekNumber(week[0].Date).ToString("00", CultureInfo.InvariantCulture)
-                                        </div>
+                                        </Div>
                                     </td>
                                 }
 
-                            @foreach (var day in week)
-                            {
-                                var dayContext = BuildDayContext(day);
-                                var cellCss = GetDayCellClass(dayContext, day);
-                                var buttonCss = GetDayButtonClass(dayContext, day);
+                                @foreach (var day in week)
+                                {
+                                    var dayContext = BuildDayContext(day);
+                                    var cellCss = GetDayCellClass(dayContext, day);
+                                    var buttonCss = GetDayButtonClass(dayContext, day);
 
-                                <td class="@cellCss"
-                                     role="gridcell"
-                                     aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)"
-                                     data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)"
-                                     data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)"
-                                     data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                    <button type="button"
-                                            class="@buttonCss"
-                                            disabled="@day.Disabled"
-                                            aria-label="@GetDayAriaLabel(day.Date)"
-                                            aria-disabled="@GetDataBoolean(day.Disabled)"
-                                            tabindex="@GetDayTabIndex(dayContext, day)"
-                                            data-day="@GetDataDay(day.Date)"
-                                            data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
-                                            data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
-                                            data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
-                                            data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))"
-                                            @onclick="() => SelectDate(day.Date)">
-                                        @if (DayContent is not null)
-                                        {
-                                            @DayContent(dayContext)
-                                        }
-                                        else
-                                        {
-                                            @GetDayLabel(day.Date)
-                                        }
-                                    </button>
-                                </td>
-                            }
+                                    <td class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
+                                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@("p-0")" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(day.Date)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
+                                            @if (DayContent is not null)
+                                            {
+                                                @DayContent(dayContext)
+                                            }
+                                            else
+                                            {
+                                                @GetDayLabel(day.Date)
+                                            }
+                                        </Button>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>
                 </table>
-            </div>
+            </Div>
         }
-    </div>
-</div>
+    </Div>
+</Div>
 
 @code {
+
     [Parameter]
     public DateOnly? SelectedDate { get; set; }
 
@@ -295,11 +247,7 @@
 
         if (!_initialized)
         {
-            var initialDate = IsRangeMode
-                ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? DateOnly.FromDateTime(DateTime.Today)
-                : IsMultipleMode
-                    ? EffectiveSelectedDates.FirstOrDefault(DateOnly.FromDateTime(DateTime.Today))
-                    : EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var initialDate = IsRangeMode ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? DateOnly.FromDateTime(DateTime.Today) : IsMultipleMode ? EffectiveSelectedDates.FirstOrDefault(DateOnly.FromDateTime(DateTime.Today)) : EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
             _displayMonth = new DateOnly(initialDate.Year, initialDate.Month, 1);
             _initialized = true;
         }
@@ -356,9 +304,7 @@
         {
             var d = gridStart.AddDays(i);
             var inMonth = isInDisplayedMonth(d);
-            var disabled = (Min.HasValue && d < Min.Value) ||
-                           (Max.HasValue && d > Max.Value) ||
-                           (DisabledDates?.Contains(d) == true);
+            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value) || (DisabledDates?.Contains(d) == true);
             if (!ShowOutsideDays && !inMonth)
                 disabled = true;
 
@@ -537,9 +483,7 @@
             return names[month - 1];
         }
 
-        return abbreviated
-            ? culture.DateTimeFormat.GetAbbreviatedMonthName(month)
-            : culture.DateTimeFormat.GetMonthName(month);
+        return abbreviated ? culture.DateTimeFormat.GetAbbreviatedMonthName(month) : culture.DateTimeFormat.GetMonthName(month);
     }
 
     private static bool TryGetGregorianMonthNames(CultureInfo culture, out GregorianMonthNames? names)
@@ -563,75 +507,59 @@
 
     private static readonly Dictionary<string, GregorianMonthNames> _gregorianMonthNamesByCulture = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["ar"] = new(
-        [
+        ["ar"] = new([
             "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
             "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-        ],
-        [
+        ], [
             "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
             "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
         ]),
-        ["es"] = new(
-        [
+        ["es"] = new([
             "enero", "febrero", "marzo", "abril", "mayo", "junio",
             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-        ],
-        [
+        ], [
             "ene", "feb", "mar", "abr", "may", "jun",
             "jul", "ago", "sept", "oct", "nov", "dic"
         ]),
-        ["fa"] = new(
-        [
+        ["fa"] = new([
             "ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن",
             "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"
-        ],
-        [
+        ], [
             "ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن",
             "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"
         ]),
-        ["fr"] = new(
-        [
+        ["fr"] = new([
             "janvier", "février", "mars", "avril", "mai", "juin",
             "juillet", "août", "septembre", "octobre", "novembre", "décembre"
-        ],
-        [
+        ], [
             "janv.", "févr.", "mars", "avr.", "mai", "juin",
             "juil.", "août", "sept.", "oct.", "nov.", "déc."
         ]),
-        ["de"] = new(
-        [
+        ["de"] = new([
             "Januar", "Februar", "März", "April", "Mai", "Juni",
             "Juli", "August", "September", "Oktober", "November", "Dezember"
-        ],
-        [
+        ], [
             "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
             "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
         ]),
-        ["it"] = new(
-        [
+        ["it"] = new([
             "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
             "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"
-        ],
-        [
+        ], [
             "gen", "feb", "mar", "apr", "mag", "giu",
             "lug", "ago", "set", "ott", "nov", "dic"
         ]),
-        ["pt"] = new(
-        [
+        ["pt"] = new([
             "janeiro", "fevereiro", "março", "abril", "maio", "junho",
             "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
-        ],
-        [
+        ], [
             "jan", "fev", "mar", "abr", "mai", "jun",
             "jul", "ago", "set", "out", "nov", "dez"
         ]),
-        ["he"] = new(
-        [
+        ["he"] = new([
             "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
             "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
-        ],
-        [
+        ], [
             "ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני",
             "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"
         ])
@@ -655,9 +583,7 @@
     private string GetDayLabel(DateOnly date)
     {
         var culture = ResolveCulture();
-        var day = UseCultureCalendar
-            ? culture.Calendar.GetDayOfMonth(date.ToDateTime(TimeOnly.MinValue))
-            : date.Day;
+        var day = UseCultureCalendar ? culture.Calendar.GetDayOfMonth(date.ToDateTime(TimeOnly.MinValue)) : date.Day;
 
         return ToNativeDigits(day.ToString(CultureInfo.InvariantCulture), culture);
     }
@@ -752,9 +678,9 @@
         return day.ToString(CultureInfo.InvariantCulture) + suffix;
     }
 
-    private string GetDayTabIndex(CalendarDayContext dayContext, Cell day)
+    private int GetDayTabIndex(CalendarDayContext dayContext, Cell day)
     {
-        return !day.Disabled && IsFocusableDay(dayContext, day.Date) ? "0" : "-1";
+        return !day.Disabled && IsFocusableDay(dayContext, day.Date) ? 0 : -1;
     }
 
     private bool IsFocusableDay(CalendarDayContext dayContext, DateOnly date)
@@ -792,16 +718,7 @@
     {
         var modifiers = GetModifierNames(day.Date);
 
-        return new CalendarDayContext(
-            day.Date,
-            day.InMonth,
-            day.Disabled,
-            day.Date == DateOnly.FromDateTime(DateTime.Today),
-            IsDateSelected(day.Date),
-            EffectiveSelectedRange?.From == day.Date,
-            EffectiveSelectedRange?.To == day.Date,
-            IsDateInRange(day.Date),
-            modifiers);
+        return new CalendarDayContext(day.Date, day.InMonth, day.Disabled, day.Date == DateOnly.FromDateTime(DateTime.Today), IsDateSelected(day.Date), EffectiveSelectedRange?.From == day.Date, EffectiveSelectedRange?.To == day.Date, IsDateInRange(day.Date), modifiers);
     }
 
     private List<string> GetModifierNames(DateOnly date)
@@ -869,12 +786,7 @@
 
     private string GetDayButtonClass(CalendarDayContext dayContext, Cell day)
     {
-        var css = "group/button shrink-0 items-center justify-center rounded-md text-sm whitespace-nowrap transition-all outline-none";
-        css += " focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
-        css += " disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40";
-        css += " [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
-        css += " hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50";
-        css += " flex aspect-square size-auto w-full min-w-(--cell-size) min-w-[var(--cell-size)] flex-col gap-1 leading-none font-normal";
+        var css = "aspect-square size-auto min-w-(--cell-size) min-w-[var(--cell-size)]";
         css += " group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring";
         css += " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50";
         css += " data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md";
@@ -915,25 +827,21 @@
 
     private bool CanNavigatePrevious()
     {
-        var minMonth = Min.HasValue
-            ? new DateOnly(Min.Value.Year, Min.Value.Month, 1)
-            : new DateOnly(DateTime.Today.Year - 100, 1, 1);
+        var minMonth = Min.HasValue ? new DateOnly(Min.Value.Year, Min.Value.Month, 1) : new DateOnly(DateTime.Today.Year - 100, 1, 1);
 
         return _displayMonth.AddMonths(-1) >= minMonth;
     }
 
     private bool CanNavigateNext()
     {
-        var maxMonth = Max.HasValue
-            ? new DateOnly(Max.Value.Year, Max.Value.Month, 1)
-            : new DateOnly(DateTime.Today.Year, 12, 1);
+        var maxMonth = Max.HasValue ? new DateOnly(Max.Value.Year, Max.Value.Month, 1) : new DateOnly(DateTime.Today.Year, 12, 1);
 
         return _displayMonth.AddMonths(Math.Max(NumberOfMonths, 1)) <= maxMonth;
     }
 
-    private static string? GetNavTabIndex(bool enabled)
+    private static int? GetNavTabIndex(bool enabled)
     {
-        return enabled ? null : "-1";
+        return enabled ? null : -1;
     }
 
     private static string? GetAriaDisabled(bool disabled)
@@ -946,11 +854,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "calendar";
-        attributes["data-mode"] = ReferenceEquals(Mode, CalendarSelectionMode.Multiple)
-            ? "multiple"
-            : ReferenceEquals(Mode, CalendarSelectionMode.Range)
-                ? "range"
-                : "single";
+        attributes["data-mode"] = ReferenceEquals(Mode, CalendarSelectionMode.Multiple) ? "multiple" : ReferenceEquals(Mode, CalendarSelectionMode.Range) ? "range" : "single";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -1021,4 +925,5 @@
             }
         }
     }
+
 }

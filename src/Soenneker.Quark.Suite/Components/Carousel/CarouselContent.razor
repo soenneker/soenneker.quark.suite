@@ -1,19 +1,14 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildViewportAttributes()"
-     @onpointerdown="HandlePointerDown"
-     @onpointerup="HandlePointerUp"
-     @onpointercancel="HandlePointerCancel"
-     @ontouchstart="HandleTouchStart"
-     @ontouchend="HandleTouchEnd"
-     @ontouchcancel="HandleTouchCancel">
+<div @attributes="BuildViewportAttributes()" @onpointerdown="HandlePointerDown" @onpointerup="HandlePointerUp" @onpointercancel="HandlePointerCancel" @ontouchstart="HandleTouchStart" @ontouchend="HandleTouchEnd" @ontouchcancel="HandleTouchCancel">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
 </div>
 
 @code {
+
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
 
@@ -84,6 +79,7 @@
         {
             var horizontal = ParentCarousel?.IsVertical != true;
             AppendClass(ref cls, "flex");
+
             if (horizontal)
             {
                 if (!HasClassToken("-ml-") && !HasClassToken("-ms-"))
@@ -134,4 +130,5 @@
 
         base.Dispose();
     }
+
 }
