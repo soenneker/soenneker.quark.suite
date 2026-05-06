@@ -11,4 +11,5 @@ public interface IElement : IComponent
     string? AriaLabel { get; set; }
     string? AriaLabelledBy { get; set; }
     string? AriaDescribedBy { get; set; }
+    string? AriaCurrent { get; set; }
 }
