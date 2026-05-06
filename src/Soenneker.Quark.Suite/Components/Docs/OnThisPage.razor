@@ -8,7 +8,7 @@
 
 @if (!ShouldHide)
 {
-    <Aside Position="Position.Sticky" Top="@_stickyTop" Display="Display.None.OnXl.Block" SelfAlign="Self.Start" Class="@Class" Attributes="@_docsOnThisPageAttributes">
+    <Aside Position="Position.Sticky" Display="Display.None.OnXl.Block" SelfAlign="Self.Start" Class="@GetAsideClass()" Attributes="@_docsOnThisPageAttributes">
         <Div MaxHeight="@_containerMaxHeight" OverflowY="Overflow.Auto" Padding="@_containerPadding" Class="@ContainerClass">
             <Paragraph Margin="Margin.Is4.FromBottom" TextSize="@_tocTextSize" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">
                 @Title
@@ -32,14 +32,14 @@
         ["data-slot"] = "docs-on-this-page"
     };
     
-    private static readonly TopBuilder _stickyTop = Top.Token("[calc(var(--header-height)+1rem)]");
     private static readonly HeightBuilder _containerMaxHeight = Height.Token("[calc(100vh-var(--header-height)-2rem)]");
     private static readonly PaddingBuilder _containerPadding = Padding.OnX.Is1;
     private static readonly TextSizeBuilder _tocTextSize = TextSize.Token("[0.8rem]");
     private static readonly LeadingBuilder _linkLeading = Leading.Token("6");
 
     private const string _defaultLinkClass = "hover:text-foreground";
-    private const string _defaultActiveLinkClass = "font-medium !text-black dark:!text-white";
+    private const string _defaultActiveLinkClass = "font-medium !text-foreground";
+    private const string _defaultAsideClass = "top-[calc(var(--header-height)+1rem)]";
 
     private DotNetObjectReference<OnThisPage>? _dotNetRef;
     private CancellationTokenSource? _refreshCts;
@@ -166,6 +166,16 @@
             AppendClass(ref builder, _defaultActiveLinkClass);
             AppendClass(ref builder, ActiveLinkClass);
         }
+
+        return builder.ToStringAndDispose();
+    }
+
+    private string GetAsideClass()
+    {
+        var builder = new PooledStringBuilder(128);
+
+        AppendClass(ref builder, _defaultAsideClass);
+        AppendClass(ref builder, Class);
 
         return builder.ToStringAndDispose();
     }

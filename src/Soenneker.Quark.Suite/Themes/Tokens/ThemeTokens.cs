@@ -62,44 +62,54 @@ public sealed class ThemeTokenScheme
     {
         return new ThemeTokenScheme
         {
-            Background = "oklch(1 0 0)",
-            Foreground = "oklch(0.145 0 0)",
-            Card = "oklch(1 0 0)",
-            CardForeground = "oklch(0.145 0 0)",
-            Popover = "oklch(1 0 0)",
-            PopoverForeground = "oklch(0.145 0 0)",
-            Primary = "oklch(0.205 0 0)",
-            PrimaryForeground = "oklch(0.985 0 0)",
-            Secondary = "oklch(0.97 0 0)",
-            SecondaryForeground = "oklch(0.205 0 0)",
-            Muted = "oklch(0.97 0 0)",
-            MutedForeground = "oklch(0.556 0 0)",
-            Accent = "oklch(0.97 0 0)",
-            AccentForeground = "oklch(0.205 0 0)",
-            Destructive = "oklch(0.577 0.245 27.325)",
-            DestructiveForeground = "oklch(0.577 0.245 27.325)",
-            Border = "oklch(0.922 0 0)",
-            Input = "oklch(0.922 0 0)",
-            Ring = "oklch(0.708 0 0)",
-            Radius = "0.625rem",
+            Background = "#fff",
+            Foreground = "#0a0a0a",
+            Card = "#fff",
+            CardForeground = "#0a0a0a",
+            Popover = "#fff",
+            PopoverForeground = "#0a0a0a",
+            Primary = "#171717",
+            PrimaryForeground = "#fafafa",
+            Secondary = "#f5f5f5",
+            SecondaryForeground = "#171717",
+            Muted = "#f5f5f5",
+            MutedForeground = "#737373",
+            Accent = "#f5f5f5",
+            AccentForeground = "#171717",
+            Destructive = "#e40014",
+            DestructiveForeground = "#fcf3f3",
+            Border = "#e5e5e5",
+            Input = "#e5e5e5",
+            Ring = "#a1a1a1",
+            Radius = ".625rem",
             Chart = new ThemeChartTokens
             {
-                First = "oklch(0.809 0.105 251.813)",
-                Second = "oklch(0.6 0.118 184.704)",
-                Third = "oklch(0.398 0.07 227.392)",
-                Fourth = "oklch(0.828 0.189 84.429)",
-                Fifth = "oklch(0.769 0.188 70.08)"
+                First = "var(--color-blue-300)",
+                Second = "var(--color-blue-500)",
+                Third = "var(--color-blue-600)",
+                Fourth = "var(--color-blue-700)",
+                Fifth = "var(--color-blue-800)"
             },
             Sidebar = new ThemeSidebarTokens
             {
-                Background = "oklch(0.985 0 0)",
-                Foreground = "oklch(0.145 0 0)",
-                Primary = "oklch(0.205 0 0)",
-                PrimaryForeground = "oklch(0.985 0 0)",
-                Accent = "oklch(0.97 0 0)",
-                AccentForeground = "oklch(0.205 0 0)",
-                Border = "oklch(0.922 0 0)",
-                Ring = "oklch(0.708 0 0)"
+                Background = "#fafafa",
+                Foreground = "#0a0a0a",
+                Primary = "#171717",
+                PrimaryForeground = "#fafafa",
+                Accent = "#f5f5f5",
+                AccentForeground = "#171717",
+                Border = "#e5e5e5",
+                Ring = "#a1a1a1"
+            },
+            Variables = new Dictionary<string, string>
+            {
+                ["surface"] = "#f8f8f8",
+                ["surface-foreground"] = "var(--foreground)",
+                ["code"] = "var(--surface)",
+                ["code-foreground"] = "var(--surface-foreground)",
+                ["code-highlight"] = "#f2f2f2",
+                ["code-number"] = "#747474",
+                ["selection"] = "#0a0a0a"
             }
         };
     }
@@ -108,44 +118,54 @@ public sealed class ThemeTokenScheme
     {
         return new ThemeTokenScheme
         {
-            Background = "oklch(0.145 0 0)",
-            Foreground = "oklch(0.985 0 0)",
-            Card = "oklch(0.205 0 0)",
-            CardForeground = "oklch(0.985 0 0)",
-            Popover = "oklch(0.205 0 0)",
-            PopoverForeground = "oklch(0.985 0 0)",
-            Primary = "oklch(0.985 0 0)",
-            PrimaryForeground = "oklch(0.205 0 0)",
-            Secondary = "oklch(0.269 0 0)",
-            SecondaryForeground = "oklch(0.985 0 0)",
-            Muted = "oklch(0.269 0 0)",
-            MutedForeground = "oklch(0.708 0 0)",
-            Accent = "oklch(0.269 0 0)",
-            AccentForeground = "oklch(0.985 0 0)",
-            Destructive = "oklch(0.704 0.191 22.216)",
-            DestructiveForeground = "oklch(0.704 0.191 22.216)",
-            Border = "oklch(0.269 0 0)",
-            Input = "oklch(0.269 0 0)",
-            Ring = "oklch(0.439 0 0)",
-            Radius = "0.625rem",
+            Background = "#0a0a0a",
+            Foreground = "#fafafa",
+            Card = "#171717",
+            CardForeground = "#fafafa",
+            Popover = "#171717",
+            PopoverForeground = "#fafafa",
+            Primary = "#e5e5e5",
+            PrimaryForeground = "#171717",
+            Secondary = "#262626",
+            SecondaryForeground = "#fafafa",
+            Muted = "#262626",
+            MutedForeground = "#a1a1a1",
+            Accent = "#404040",
+            AccentForeground = "#fafafa",
+            Destructive = "#ff6568",
+            DestructiveForeground = "#df2225",
+            Border = "#ffffff1a",
+            Input = "#ffffff26",
+            Ring = "#737373",
+            Radius = ".625rem",
             Chart = new ThemeChartTokens
             {
-                First = "oklch(0.809 0.105 251.813)",
-                Second = "oklch(0.696 0.17 162.48)",
-                Third = "oklch(0.769 0.188 70.08)",
-                Fourth = "oklch(0.627 0.265 303.9)",
-                Fifth = "oklch(0.645 0.246 16.439)"
+                First = "var(--color-blue-300)",
+                Second = "var(--color-blue-500)",
+                Third = "var(--color-blue-600)",
+                Fourth = "var(--color-blue-700)",
+                Fifth = "var(--color-blue-800)"
             },
             Sidebar = new ThemeSidebarTokens
             {
-                Background = "oklch(0.205 0 0)",
-                Foreground = "oklch(0.985 0 0)",
-                Primary = "oklch(0.488 0.243 264.376)",
-                PrimaryForeground = "oklch(0.985 0 0)",
-                Accent = "oklch(0.269 0 0)",
-                AccentForeground = "oklch(0.985 0 0)",
-                Border = "oklch(0.269 0 0)",
-                Ring = "oklch(0.439 0 0)"
+                Background = "#171717",
+                Foreground = "#fafafa",
+                Primary = "#1447e6",
+                PrimaryForeground = "#fafafa",
+                Accent = "#262626",
+                AccentForeground = "#fafafa",
+                Border = "#ffffff1a",
+                Ring = "#525252"
+            },
+            Variables = new Dictionary<string, string>
+            {
+                ["surface"] = "#161616",
+                ["surface-foreground"] = "#a1a1a1",
+                ["code"] = "var(--surface)",
+                ["code-foreground"] = "var(--surface-foreground)",
+                ["code-highlight"] = "#262626",
+                ["code-number"] = "#a4a4a4",
+                ["selection"] = "#e5e5e5"
             }
         };
     }

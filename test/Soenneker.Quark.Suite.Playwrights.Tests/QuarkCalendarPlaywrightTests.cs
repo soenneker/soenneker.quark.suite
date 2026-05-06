@@ -57,13 +57,14 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         var presetFooter = presets.Locator("xpath=ancestor::*[@data-slot='card'][1]//*[@data-slot='card-footer']");
         var presetLabels = new[] { "Today", "Tomorrow", "In 3 days", "In a week", "In 2 weeks" };
 
-        await Assertions.Expect(presetFooter).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )bg-muted/50( |$)"));
+        await Assertions.Expect(presetFooter).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )bg-card!( |$)"));
 
         foreach (var presetLabel in presetLabels)
         {
             var presetButton = page.GetByRole(AriaRole.Button, new() { Name = presetLabel, Exact = true });
             await Assertions.Expect(presetButton).ToBeVisibleAsync();
             await Assertions.Expect(presetButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )flex-1( |$)"));
+            await Assertions.Expect(presetButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )h-8( |$)"));
         }
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Tomorrow", Exact = true }).ClickAsync();

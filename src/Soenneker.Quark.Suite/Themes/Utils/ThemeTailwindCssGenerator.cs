@@ -95,6 +95,13 @@ public static class ThemeTailwindCssGenerator
         AppendVariable(builder, "color-border", "var(--border)");
         AppendVariable(builder, "color-input", "var(--input)");
         AppendVariable(builder, "color-ring", "var(--ring)");
+        AppendVariable(builder, "color-surface", "var(--surface)");
+        AppendVariable(builder, "color-surface-foreground", "var(--surface-foreground)");
+        AppendVariable(builder, "color-code", "var(--code)");
+        AppendVariable(builder, "color-code-foreground", "var(--code-foreground)");
+        AppendVariable(builder, "color-code-highlight", "var(--code-highlight)");
+        AppendVariable(builder, "color-code-number", "var(--code-number)");
+        AppendVariable(builder, "color-selection", "var(--selection)");
         AppendVariable(builder, "color-chart-1", "var(--chart-1)");
         AppendVariable(builder, "color-chart-2", "var(--chart-2)");
         AppendVariable(builder, "color-chart-3", "var(--chart-3)");

@@ -66,4 +66,31 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         expandedBox!.Height.Should().BeGreaterThan(initialBox!.Height);
         expandedBox.Y.Should().BeApproximately(initialBox.Y, 2);
     }
+
+    [Test]
+    public async ValueTask Collapsible_order_demo_expands_down_without_shifting_up()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}collapsibles",
+            static p => p.GetByText("Order #4189", new PageGetByTextOptions { Exact = true }),
+            expectedTitle: "Collapsible - Quark Suite");
+
+        var orderSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Order #4189" }).First;
+        var collapsible = orderSection.Locator("[data-slot='collapsible']").First;
+        var trigger = orderSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle details", Exact = true });
+
+        var initialBox = await collapsible.BoundingBoxAsync();
+        initialBox.Should().NotBeNull();
+
+        await trigger.ClickAsync();
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
+
+        var expandedBox = await collapsible.BoundingBoxAsync();
+        expandedBox.Should().NotBeNull();
+        expandedBox!.Height.Should().BeGreaterThan(initialBox!.Height);
+        expandedBox.Y.Should().BeApproximately(initialBox.Y, 2);
+    }
 }
