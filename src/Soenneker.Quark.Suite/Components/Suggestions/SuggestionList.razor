@@ -14,6 +14,18 @@
         Display ??= Quark.Display.Flex;
         Gap ??= Quark.Gap.Is2;
 
+        if (Orientation == Orientation.Vertical)
+        {
+            FlexDirection ??= Quark.FlexDirection.Col;
+            ItemsAlign ??= Quark.Items.Start;
+        }
+        else
+        {
+            FlexDirection ??= Quark.FlexDirection.Row;
+            FlexWrap ??= Quark.FlexWrap.Wrap;
+            ItemsAlign ??= Quark.Items.Center;
+            Justify ??= Quark.Justify.Center;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -26,9 +38,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "animate-in duration-150 fade-in-0");
-            AppendClass(ref cls, Orientation == Orientation.Vertical
-                ? "flex-col items-start"
-                : "flex-row flex-wrap items-center justify-center");
         });
     }
 }

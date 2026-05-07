@@ -49,7 +49,7 @@ public sealed class ThemeTokenScheme
     public string Input { get; set; } = "";
     public string Ring { get; set; } = "";
     public string Radius { get; set; } = "";
-    public ThemeChartTokens Chart { get; set; } = new();
+    public ThemeSeriesTokens Series { get; set; } = new();
     public ThemeSidebarTokens Sidebar { get; set; } = new();
 
     /// <summary>
@@ -82,7 +82,7 @@ public sealed class ThemeTokenScheme
             Input = "#e5e5e5",
             Ring = "#a1a1a1",
             Radius = ".625rem",
-            Chart = new ThemeChartTokens
+            Series = new ThemeSeriesTokens
             {
                 First = "var(--color-blue-300)",
                 Second = "var(--color-blue-500)",
@@ -138,7 +138,7 @@ public sealed class ThemeTokenScheme
             Input = "#ffffff26",
             Ring = "#737373",
             Radius = ".625rem",
-            Chart = new ThemeChartTokens
+            Series = new ThemeSeriesTokens
             {
                 First = "var(--color-blue-300)",
                 Second = "var(--color-blue-500)",
@@ -172,9 +172,9 @@ public sealed class ThemeTokenScheme
 }
 
 /// <summary>
-/// Chart palette tokens used by the shadcn theme contract.
+/// Sequential palette tokens used by visual components.
 /// </summary>
-public sealed class ThemeChartTokens
+public sealed class ThemeSeriesTokens
 {
     public string First { get; set; } = "";
     public string Second { get; set; } = "";

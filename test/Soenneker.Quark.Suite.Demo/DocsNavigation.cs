@@ -15,6 +15,8 @@ public static class DocsNavigation
         new("Introduction", "introduction"),
         new("Components", "components"),
         new("Installation", "installation"),
+        new("Properties", "properties"),
+        new("Themes", "themes"),
         new("Validation", "validation")
     ];
 
@@ -32,7 +34,6 @@ public static class DocsNavigation
         new("Calendar", "calendar"),
         new("Card", "card"),
         new("Carousel", "carousel"),
-        new("Chart", "chart"),
         new("Checkbox", "checkbox"),
         new("Collapsible", "collapsible"),
         new("Combobox", "combobox"),

@@ -93,4 +93,32 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         expandedBox!.Height.Should().BeGreaterThan(initialBox!.Height);
         expandedBox.Y.Should().BeApproximately(initialBox.Y, 2);
     }
+
+    [Test]
+    public async ValueTask Collapsible_settings_panel_matches_shadcn_defaults()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}collapsibles",
+            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Settings Panel", Exact = true }),
+            expectedTitle: "Collapsible - Quark Suite");
+
+        var settingsSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a trigger button to reveal additional settings." }).First;
+        var radiusX = settingsSection.Locator("#radius-top-left");
+        var radiusY = settingsSection.Locator("#radius-top-right");
+        var radiusBottomLeft = settingsSection.Locator("#radius-bottom-left");
+        var trigger = settingsSection.Locator("[data-slot='collapsible-trigger']").First;
+
+        await Assertions.Expect(radiusX).ToHaveValueAsync("0");
+        await Assertions.Expect(radiusY).ToHaveValueAsync("0");
+        await Assertions.Expect(radiusBottomLeft).Not.ToBeVisibleAsync();
+        await Assertions.Expect(trigger.Locator(".lucide-maximize")).ToBeVisibleAsync();
+
+        await trigger.ClickAsync();
+
+        await Assertions.Expect(radiusBottomLeft).ToBeVisibleAsync();
+        await Assertions.Expect(trigger.Locator(".lucide-minimize")).ToBeVisibleAsync();
+    }
 }

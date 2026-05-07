@@ -38,11 +38,6 @@ else
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -170,16 +165,6 @@ else
             return parentDescribedBy;
 
         return $"{parentDescribedBy} {tooltipId}";
-    }
-
-    private Task HandleClick(MouseEventArgs e)
-    {
-        return HandleTriggerClickCore(Tooltip, ParentTriggerContext);
-    }
-
-    private Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        return Tooltip is null ? Task.CompletedTask : HandleTriggerKeyDownCore(e, Tooltip);
     }
 
     private Task HandleTriggerPointerMove()
