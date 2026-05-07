@@ -1,0 +1,85 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<style>
+@@keyframes text-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: -100% 50%; }
+}
+</style>
+@if (ResolvedTag == "p")
+{
+    <p @attributes="BuildAttributes()">@ChildContent</p>
+}
+else if (ResolvedTag == "div")
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
+else
+{
+    <span @attributes="BuildAttributes()">@ChildContent</span>
+}
+
+@code {
+    [Parameter]
+    public double Duration { get; set; } = 1;
+
+    [Parameter]
+    public double RepeatDelay { get; set; }
+
+    [Parameter]
+    public int Spread { get; set; } = 20;
+
+    [Parameter]
+    public int Angle { get; set; }
+
+    [Parameter]
+    public string? Color { get; set; }
+
+    [Parameter]
+    public bool Invert { get; set; }
+
+    private string ResolvedTag => Tag == "div" ? "span" : Tag;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "text-shimmer";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]");
+        });
+
+        attributes["style"] = string.Join(";", new[]
+        {
+            $"--text-shimmer-duration:{Math.Max(Duration + RepeatDelay, 0.001):0.###}s",
+            $"background-image:{BuildGradient()}",
+            "-webkit-text-fill-color:transparent",
+            attributes.TryGetValue("style", out var style) ? style?.ToString() : null
+        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Duration);
+        hc.Add(RepeatDelay);
+        hc.Add(Spread);
+        hc.Add(Angle);
+        hc.Add(Color);
+        hc.Add(Invert);
+    }
+
+    private string BuildGradient()
+    {
+        var spread = Math.Clamp(Spread, 5, 45);
+        var start = 50 - spread;
+        var end = 50 + spread;
+        var beam = Color ?? (Invert
+            ? "oklch(from currentColor min(calc(l - 0.4), 0.2) c h / calc(alpha + 0.4))"
+            : "oklch(from currentColor max(0.8, calc(l + 0.4)) c h / calc(alpha + 0.35))");
+
+        return $"linear-gradient({90 + Angle}deg, currentColor {start}%, {beam} 50%, currentColor {end}%)";
+    }
+}

@@ -1,0 +1,24 @@
+@namespace Soenneker.Quark
+
+<button type="button" disabled="@(!CanScroll)" @onclick="Scroll" @attributes="ButtonAttributes">
+    <Icon Name="LucideIcon.ArrowLeft" Class="size-4" aria-hidden="true" />
+</button>
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    private bool CanScroll => ParentCitation?.CanScrollPrev == true;
+
+    private Task Scroll()
+    {
+        ParentCitation?.ScrollPrev();
+        return Task.CompletedTask;
+    }
+
+    private static readonly IReadOnlyDictionary<string, object> ButtonAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-carousel-prev",
+        ["class"] = "flex size-6.5 cursor-pointer items-center justify-center rounded-full text-primary outline-0 transition-all hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-accent/50"
+    };
+}

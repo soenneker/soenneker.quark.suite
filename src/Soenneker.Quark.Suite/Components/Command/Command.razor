@@ -16,7 +16,7 @@
 
     internal string? Search => _search;
 
-    internal bool HasVisibleItems => _entries.Any(entry => entry.IsVisible);
+    internal bool HasVisibleItems => _entries.Any(entry => entry.Matches(_search));
 
     internal string? ActiveItemId => _activeItem?.Id;
 
@@ -24,8 +24,12 @@
 
     internal void RegisterItem(CommandItem item, CommandGroup? group)
     {
-        if (_entries.Any(entry => ReferenceEquals(entry.Item, item)))
+        var existingEntry = _entries.FirstOrDefault(entry => ReferenceEquals(entry.Item, item));
+        if (existingEntry is not null)
+        {
+            existingEntry.Group = group;
             return;
+        }
 
         _entries.Add(new CommandEntry { Item = item, Group = group });
 
@@ -33,6 +37,13 @@
             _activeItem = item;
 
         Refresh();
+    }
+
+    internal void UpdateItemGroup(CommandItem item, CommandGroup? group)
+    {
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        if (entry is not null)
+            entry.Group = group;
     }
 
     internal void UnregisterItem(CommandItem item)
@@ -62,7 +73,21 @@
 
     internal bool GroupHasVisibleItems(CommandGroup group)
     {
-        return _entries.Any(entry => ReferenceEquals(entry.Group, group) && entry.IsVisible);
+        if (_entries.Any(entry => entry.Group is null && entry.Matches(_search)))
+            return true;
+
+        return _entries.Any(entry => IsSameGroup(entry.Group, group) && entry.Matches(_search));
+    }
+
+    private static bool IsSameGroup(CommandGroup? entryGroup, CommandGroup group)
+    {
+        if (ReferenceEquals(entryGroup, group))
+            return true;
+
+        if (entryGroup is null)
+            return false;
+
+        return string.Equals(entryGroup.Heading, group.Heading, StringComparison.Ordinal);
     }
 
     internal async Task SetSearch(string? value)
@@ -133,7 +158,8 @@
         Width ??= Quark.Width.IsFull;
         FlexDirection ??= Quark.FlexDirection.Col;
         Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Md;
+        Rounded ??= Quark.Rounded.Xl;
+        Padding ??= Quark.Padding.Is1;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
     }
@@ -144,6 +170,10 @@
 
         attributes["data-slot"] = "command";
 
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "size-full rounded-xl!");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

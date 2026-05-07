@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+@using Soenneker.Bradix
+
+<HoverCardContent Align="@Align" SideOffset="@SideOffset" Class="@BuildClass()">
+    @ChildContent
+</HoverCardContent>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public Alignment Align { get; set; } = Alignment.Center;
+
+    [Parameter]
+    public int SideOffset { get; set; } = 4;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string BuildClass() => string.Join(" ", new[]
+    {
+        "flex w-66 flex-col overflow-hidden rounded-[12px] border-border p-0 shadow-modal dark:border-accent",
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+}

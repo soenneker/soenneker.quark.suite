@@ -1,0 +1,17 @@
+@namespace Soenneker.Quark
+
+@if (ParentCitation is not null)
+{
+    <Span Attributes="@IndexAttributes">@(ParentCitation.ActiveIndex + 1)/@ParentCitation.ResolvedCitations.Count</Span>
+}
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    private static readonly IReadOnlyDictionary<string, object> IndexAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-carousel-index",
+        ["class"] = "text-xs leading-4.5 font-[350] text-muted-foreground tabular-nums"
+    };
+}

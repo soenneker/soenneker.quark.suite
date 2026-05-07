@@ -1,161 +1,135 @@
 @page "/images"
-@using Microsoft.Extensions.Logging
-@using Soenneker.Extensions.String
 
-@inject ILogger<Index> Logger
-
-<PageTitle>Images - Quark Suite</PageTitle>
+<PageTitle>Image - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Div Space="Space.Y.Is6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Description="Default styling." Code="@(@"<Image Source=""https://picsum.photos/300/200"" Alt=""Random image""/>")"
-            CodeLanguage="razor">
-                <Image Source="https://picsum.photos/300/200" Alt="Random image"/>
-            </DemoSection>
-        </Section>
+    <DemoSection Code="@DefaultCode" CodeLanguage="razor">
+        <Div Class="flex min-h-96 items-center justify-center">
+            <Image Source="@BallImage" Alt="Picture of a ball" Class="size-72">
+                <ImagePreview />
+            </Image>
+        </Div>
+    </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Fluid" Description="Full width of container." Code="@(@"<Paragraph>Image that takes up the full width of its container:</Paragraph>
-<Div MaxWidth=""@(""500px"")"">
-    <Image Source=""https://picsum.photos/800/400"" Alt=""Fluid image"" Fluid=""true""/>
-</Div>")"
-            CodeLanguage="razor">
-                <Paragraph>Image that takes up the full width of its container:</Paragraph>
-                <Div MaxWidth="@("500px")">
-                    <Image Source="https://picsum.photos/800/400" Alt="Fluid image" Fluid="true"/>
-                </Div>
-            </DemoSection>
-        </Section>
+    <DemoSection Title="With Overlay Actions" Code="@OverlayActionsCode" CodeLanguage="razor">
+        <Div Class="flex min-h-96 flex-wrap items-center justify-center gap-6">
+            <Image Source="@BallImage" Alt="Picture of a ball" Class="size-72">
+                <ImagePreview />
+                <ImageActions Align="block-start">
+                    <ImageActionGroup>
+                        <ImageAction>
+                            <Icon Name="LucideIcon.Download" />
+                            <Span Class="sr-only">Download</Span>
+                        </ImageAction>
+                        <ImageAction>
+                            <Icon Name="LucideIcon.Copy" />
+                            <Span Class="sr-only">Copy</Span>
+                        </ImageAction>
+                    </ImageActionGroup>
+                    <ImageActionGroup>
+                        <ImageAction ButtonSize="ButtonSize.Sm">
+                            Edit
+                        </ImageAction>
+                    </ImageActionGroup>
+                </ImageActions>
+            </Image>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Lazy loading" Description="Loading=lazy attribute." Code="@(@"<Image Source=""https://picsum.photos/400/300"" Alt=""Lazy loaded image"" Lazy=""true""/>")"
-            CodeLanguage="razor">
-                <Image Source="https://picsum.photos/400/300" Alt="Lazy loaded image" Lazy="true"/>
-            </DemoSection>
-        </Section>
+            <Image Source="@BallImage" Alt="Picture of a ball" Class="size-72">
+                <ImagePreview />
+                <ImageActions Align="block-end">
+                    <ImageActionGroup>
+                        <ImageAction>
+                            <Icon Name="LucideIcon.Download" />
+                            <Span Class="sr-only">Download</Span>
+                        </ImageAction>
+                        <ImageAction>
+                            <Icon Name="LucideIcon.Copy" />
+                            <Span Class="sr-only">Copy</Span>
+                        </ImageAction>
+                    </ImageActionGroup>
+                    <ImageActionGroup>
+                        <ImageAction ButtonSize="ButtonSize.Sm">
+                            Edit
+                        </ImageAction>
+                    </ImageActionGroup>
+                </ImageActions>
+            </Image>
+        </Div>
+    </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom dimensions" Description="Width and height." Code="@(@"<Image Source=""https://picsum.photos/250/150"" Alt=""Custom sized image"" Width=""250"" Height=""150""/>")"
-            CodeLanguage="razor">
-                <Image Source="https://picsum.photos/250/150" Alt="Custom sized image" Width="250" Height="150"/>
-            </DemoSection>
-        </Section>
+    <DemoSection Title="External URL" Code="@ExternalUrlCode" CodeLanguage="razor">
+        <Div Class="flex min-h-96 items-center justify-center">
+            <Image Source="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=512&amp;h=512&amp;fit=crop" Alt="Image loaded from external URL" Class="size-72">
+                <ImagePreview />
+            </Image>
+        </Div>
+    </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Responsive" Description="SrcSet and Sizes." Code="@(@"<Image Source=""https://picsum.photos/400/300""
-       Alt=""Responsive image""
-       SrcSet=""https://picsum.photos/200/150 200w, https://picsum.photos/400/300 400w, https://picsum.photos/800/600 800w""
-       Sizes=""(max-width: 600px) 200px, (max-width: 1200px) 400px, 800px""/>")"
-            CodeLanguage="razor">
-                <Image Source="https://picsum.photos/400/300"
-                       Alt="Responsive image"
-                       SrcSet="https://picsum.photos/200/150 200w, https://picsum.photos/400/300 400w, https://picsum.photos/800/600 800w"
-                       Sizes="(max-width: 600px) 200px, (max-width: 1200px) 400px, 800px"/>
-            </DemoSection>
-        </Section>
+    <DemoSection Title="No Source Placeholder" Code="@PlaceholderCode" CodeLanguage="razor">
+        <Div Class="flex min-h-96 items-center justify-center">
+            <Image Alt="Generated image placeholder" Class="size-72">
+                <ImagePreview />
+            </Image>
+        </Div>
+    </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom classes" Description="Rounded, Shadow." Code="@(@"<Image Source=""https://picsum.photos/300/200""
-       Alt=""Custom styled image""
-       Class=""rounded shadow""/>")"
-            CodeLanguage="razor">
-                <Image Source="https://picsum.photos/300/200"
-                       Alt="Custom styled image"
-                       Class="rounded shadow"/>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Event handlers"
-                         Description="OnLoad, OnError."
-                         Code="@ImageEventsCode"
-                         CodeLanguage="razor">
-                <Image Source="https://picsum.photos/300/200"
-                       Alt="Image with events"
-                       OnLoad="OnImageLoad"
-                       OnError="OnImageError"/>
-                @if (_loadMessage.HasContent())
-                {
-                    <Alert Class="border-border mt-2" BackgroundColor="BackgroundColor.Accent">@_loadMessage</Alert>
-                }
-                @if (_errorMessage.HasContent())
-                {
-                    <Alert Class="border-border mt-2" BackgroundColor="BackgroundColor.Destructive">@_errorMessage</Alert>
-                }
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Gallery"
-                         Description="Responsive grid of images."
-                         Code="@ImageGalleryCode"
-                         CodeLanguage="razor">
-                <Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is3">
-                    @for (var i = 1; i <= 6; i++)
-                    {
-                        var imageSource = $"https://picsum.photos/300/200?random={i}";
-                        var imageAlt = $"Gallery image {i}";
-                        <Div>
-                            <Image Source="@imageSource"
-                                   Alt="@imageAlt"
-                                   Class="img-fluid rounded"/>
-                        </Div>
-                    }
-                </Grid>
-            </DemoSection>
-        </Section>
-    </Div>
+    <DemoSection Title="Lightbox Preview" Code="@LightboxCode" CodeLanguage="razor">
+        <Div Class="flex min-h-96 items-center justify-center">
+            <Image Source="@BallImage" Alt="Preview that opens in a lightbox" Class="size-72">
+                <ImagePreview TriggerLightbox="true" />
+                <ImageLightbox>
+                    <ImageLightboxPreview />
+                    <Div Class="absolute top-4 right-4">
+                        <ImageLightboxClose />
+                    </Div>
+                </ImageLightbox>
+            </Image>
+        </Div>
+    </DemoSection>
 </Div>
 
 @code {
-    private const string ImageEventsCode =
-@"<Image Source=""https://picsum.photos/300/200""
-       Alt=""Image with events""
-       OnLoad=""OnImageLoad""
-       OnError=""OnImageError""/>
-@if (_loadMessage.HasContent())
-{
-    <Alert Class=""border-border mt-2"" BackgroundColor=""BackgroundColor.Accent"">@_loadMessage</Alert>
-}
-@if (_errorMessage.HasContent())
-{
-    <Alert Class=""border-border mt-2"" BackgroundColor=""BackgroundColor.Destructive"">@_errorMessage</Alert>
-}";
+    private const string BallImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC";
 
-    private const string ImageGalleryCode =
-@"<Grid Columns=""GridCols.Is1.OnMd.Is3"" Gap=""Gap.Is3"">
-    @for (var i = 1; i <= 6; i++)
-    {
-        var imageSource = $""https://picsum.photos/300/200?random={i}"";
-        var imageAlt = $""Gallery image {i}"";
-        <Div>
-            <Image Source=""@imageSource""
-                   Alt=""@imageAlt""
-                   Class=""img-fluid rounded""/>
+    private const string DefaultCode =
+@"<Image Source=""@BallImage"" Alt=""Picture of a ball"" Class=""size-72"">
+    <ImagePreview />
+</Image>";
+
+    private const string OverlayActionsCode =
+@"<Image Source=""@BallImage"" Alt=""Picture of a ball"" Class=""size-72"">
+    <ImagePreview />
+    <ImageActions Align=""block-start"">
+        <ImageActionGroup>
+            <ImageAction><Icon Name=""LucideIcon.Download"" /></ImageAction>
+            <ImageAction><Icon Name=""LucideIcon.Copy"" /></ImageAction>
+        </ImageActionGroup>
+        <ImageActionGroup>
+            <ImageAction ButtonSize=""ButtonSize.Sm"">Edit</ImageAction>
+        </ImageActionGroup>
+    </ImageActions>
+</Image>";
+
+    private const string ExternalUrlCode =
+@"<Image Source=""https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=512&h=512&fit=crop""
+       Alt=""Image loaded from external URL""
+       Class=""size-72"">
+    <ImagePreview />
+</Image>";
+
+    private const string PlaceholderCode =
+@"<Image Alt=""Generated image placeholder"" Class=""size-72"">
+    <ImagePreview />
+</Image>";
+
+    private const string LightboxCode =
+@"<Image Source=""@BallImage"" Alt=""Preview that opens in a lightbox"" Class=""size-72"">
+    <ImagePreview TriggerLightbox=""true"" />
+    <ImageLightbox>
+        <ImageLightboxPreview />
+        <Div Class=""absolute top-4 right-4"">
+            <ImageLightboxClose />
         </Div>
-    }
-</Grid>";
-
-    private string? _loadMessage;
-    private string? _errorMessage;
-
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("Image demo page initialized");
-    }
-
-    private void OnImageLoad(ProgressEventArgs args)
-    {
-        _loadMessage = "Image loaded successfully!";
-        _errorMessage = null;
-        StateHasChanged();
-    }
-
-    private void OnImageError(ErrorEventArgs args)
-    {
-        _errorMessage = "Failed to load image!";
-        _loadMessage = null;
-        StateHasChanged();
-    }
+    </ImageLightbox>
+</Image>";
 }

@@ -1,0 +1,39 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@Context" IsFixed="false">
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+</CascadingValue>
+
+@code {
+    private MessageContext Context => new(From);
+
+    [Parameter]
+    public string From { get; set; } = "assistant";
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        Role ??= "article";
+        AriaLabel ??= From == "user" ? "User message" : "Assistant message";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "message";
+        attributes["data-from"] = From;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/message flex w-full max-w-[90%] items-start gap-2");
+            AppendClass(ref cls, From == "user" ? "ms-auto" : "me-auto");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(From);
+    }
+}

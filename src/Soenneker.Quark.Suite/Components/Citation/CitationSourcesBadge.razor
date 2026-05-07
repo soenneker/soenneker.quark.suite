@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+
+@if (ParentCitation is not null)
+{
+    <Div Attributes="@BuildAttributes()">
+        @if (ShowFavicons)
+        {
+            <Div Attributes="@FaviconGroupAttributes">
+                @foreach (var citation in ParentCitation.ResolvedCitations.Take(3))
+                {
+                    <CitationFavicon Source="@citation" />
+                }
+            </Div>
+        }
+        <Span Class="text-xs leading-4.5 font-normal text-primary">@(Label ?? $"{ParentCitation.ResolvedCitations.Count} {(ParentCitation.ResolvedCitations.Count == 1 ? "source" : "sources")}")</Span>
+    </Div>
+}
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    [Parameter]
+    public bool ShowFavicons { get; set; } = true;
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-sources-badge",
+        ["class"] = string.Join(" ", new[]
+        {
+            "mt-0 flex h-6 items-center gap-1.5 rounded-full bg-secondary pr-2 w-fit",
+            ShowFavicons ? "pl-1" : "pl-2",
+            Class
+        }.Where(x => !string.IsNullOrWhiteSpace(x)))
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> FaviconGroupAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-favicon-group",
+        ["class"] = "flex -space-x-2 *:data-[slot=citation-favicon]:ring-2 *:data-[slot=citation-favicon]:ring-secondary"
+    };
+}

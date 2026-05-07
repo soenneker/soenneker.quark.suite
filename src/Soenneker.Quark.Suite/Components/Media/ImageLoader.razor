@@ -1,0 +1,16 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()" />
+
+@code {
+    [Parameter]
+    public bool Error { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "image-loader";
+        AppendToClassAttr(attributes, Error ? "size-full animate-pulse rounded-lg bg-destructive/20" : "size-full animate-pulse rounded-lg bg-input");
+    }
+}

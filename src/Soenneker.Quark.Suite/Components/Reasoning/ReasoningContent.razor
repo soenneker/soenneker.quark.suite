@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+
+<CollapsibleContent Class="@BuildClass()" Attributes="@ContentAttributes">
+    <Div Class="@MarkdownClass">@ChildContent</Div>
+</CollapsibleContent>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string MarkdownClass => "prose max-w-none text-sm leading-6 font-normal text-muted-foreground [&_p]:mb-2.5 prose-strong:font-medium prose-strong:text-foreground prose-ol:my-0 prose-ol:pl-3 prose-ul:my-0 prose-li:my-[-0.5px] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0";
+
+    private string BuildClass() => string.Join(" ", new[]
+    {
+        "mt-2 ml-2 overflow-hidden border-l pl-3 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down",
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private static readonly IReadOnlyDictionary<string, object> ContentAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "reasoning-content"
+    };
+}

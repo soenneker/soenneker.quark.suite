@@ -1,0 +1,70 @@
+@page "/reasoning"
+
+<PageTitle>Reasoning - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Code="@DefaultCode" CodeLanguage="razor">
+        <Div Class="mx-auto flex w-full max-w-xl flex-col justify-center">
+            <Reasoning IsStreaming="true">
+                <ReasoningTrigger />
+                <ReasoningContent>
+                    <Paragraph>
+                        We need answer. Need determine capital. France capital is Paris. User asked simple factual question. Provide concise answer.
+                    </Paragraph>
+                </ReasoningContent>
+            </Reasoning>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Finished" Code="@FinishedCode" CodeLanguage="razor">
+        <Div Class="mx-auto flex w-full max-w-xl flex-col justify-center">
+            <Reasoning DefaultOpen="true">
+                <ReasoningTrigger />
+                <ReasoningContent>
+                    <Paragraph>
+                        The request requires a short direct response. No external lookup is necessary because the fact is stable.
+                    </Paragraph>
+                </ReasoningContent>
+            </Reasoning>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Custom trigger" Code="@CustomTriggerCode" CodeLanguage="razor">
+        <Div Class="mx-auto flex w-full max-w-xl flex-col justify-center">
+            <Reasoning DefaultOpen="true">
+                <ReasoningTrigger>Analyzing sources...</ReasoningTrigger>
+                <ReasoningContent>
+                    <Paragraph>
+                        Compare the available source snippets, prefer primary references, then produce the smallest useful answer.
+                    </Paragraph>
+                </ReasoningContent>
+            </Reasoning>
+        </Div>
+    </DemoSection>
+</Div>
+
+@code {
+    private const string DefaultCode =
+@"<Reasoning IsStreaming=""true"">
+    <ReasoningTrigger />
+    <ReasoningContent>
+        <Paragraph>We need answer...</Paragraph>
+    </ReasoningContent>
+</Reasoning>";
+
+    private const string FinishedCode =
+@"<Reasoning DefaultOpen=""true"">
+    <ReasoningTrigger />
+    <ReasoningContent>
+        <Paragraph>The request requires a short direct response.</Paragraph>
+    </ReasoningContent>
+</Reasoning>";
+
+    private const string CustomTriggerCode =
+@"<Reasoning DefaultOpen=""true"">
+    <ReasoningTrigger>Analyzing sources...</ReasoningTrigger>
+    <ReasoningContent>
+        <Paragraph>Compare the available source snippets...</Paragraph>
+    </ReasoningContent>
+</Reasoning>";
+}

@@ -1,0 +1,25 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<Button Variant="@Variant" ButtonSize="@ButtonSize" Class="@BuildClass()" Attributes="@ActionAttributes">
+    @ChildContent
+</Button>
+
+@code {
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Secondary;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = "icon-sm";
+
+    private string BuildClass() => string.Join(" ", new[]
+    {
+        "pointer-events-auto bg-background/90 shadow-xs backdrop-blur hover:bg-background",
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private IReadOnlyDictionary<string, object> ActionAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "image-action"
+    };
+}

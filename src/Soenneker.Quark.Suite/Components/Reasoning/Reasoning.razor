@@ -1,0 +1,88 @@
+@namespace Soenneker.Quark
+
+<CascadingValue Value="@Context" IsFixed="false">
+    <Collapsible Open="@ResolvedOpen" DefaultOpen="@ResolvedDefaultOpen" OpenChanged="@HandleOpenChanged" Class="@BuildClass()" Attributes="@RootAttributes">
+        @ChildContent
+    </Collapsible>
+</CascadingValue>
+
+@code {
+    private bool _open;
+    private DateTimeOffset? _startedAt;
+    private string? _durationLabel;
+    private bool _hasStreamed;
+
+    [Parameter]
+    public bool IsStreaming { get; set; }
+
+    [Parameter]
+    public bool? Open { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private bool ResolvedDefaultOpen => DefaultOpen || IsStreaming;
+
+    private bool ResolvedOpen => IsStreaming || (Open ?? (_open || DefaultOpen));
+
+    private ReasoningContext Context => new(IsStreaming, Label);
+
+    private string Label
+    {
+        get
+        {
+            if (!_hasStreamed || IsStreaming)
+                return "Thinking...";
+
+            if (_durationLabel is { } duration)
+                return $"Thought for {duration} {(duration == "1" ? "second" : "seconds")}";
+
+            return "Thought for a few seconds";
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsStreaming)
+        {
+            _hasStreamed = true;
+            _startedAt ??= DateTimeOffset.UtcNow;
+            _durationLabel = null;
+            _open = true;
+        }
+        else if (_startedAt is not null)
+        {
+            var seconds = Math.Max(1, (int)Math.Round((DateTimeOffset.UtcNow - _startedAt.Value).TotalSeconds));
+            _durationLabel = seconds.ToString();
+            _startedAt = null;
+            if (Open is null)
+                _open = false;
+        }
+    }
+
+    private async Task HandleOpenChanged(bool open)
+    {
+        var nextOpen = IsStreaming || open;
+        if (Open is null)
+            _open = nextOpen;
+
+        await OpenChanged.InvokeAsync(nextOpen);
+    }
+
+    private string BuildClass() => string.Join(" ", new[] { "not-prose w-full", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private IReadOnlyDictionary<string, object> RootAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "reasoning",
+        ["data-streaming"] = IsStreaming ? "true" : "false"
+    };
+}

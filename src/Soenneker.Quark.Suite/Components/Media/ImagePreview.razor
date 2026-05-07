@@ -1,0 +1,66 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (TriggerLightbox)
+{
+    <DialogTrigger Class="contents cursor-zoom-in" Attributes="@PreviewAttributes">
+        @RenderPreview()
+    </DialogTrigger>
+}
+else
+{
+    <div @attributes="PreviewAttributes">
+        @RenderPreview()
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    private ImageContext? ImageContext { get; set; }
+
+    [Parameter]
+    public bool TriggerLightbox { get; set; }
+
+    [Parameter]
+    public RenderFragment? Loader { get; set; }
+
+    private IReadOnlyDictionary<string, object> PreviewAttributes => BuildPreviewAttributes();
+
+    private Dictionary<string, object> BuildPreviewAttributes()
+    {
+        var attributes = BuildAttributes();
+        attributes["data-slot"] = "image-preview";
+        AppendToClassAttr(attributes, "relative z-1 size-full max-w-full overflow-hidden rounded-md");
+        return attributes;
+    }
+
+    private RenderFragment RenderPreview() => builder =>
+    {
+        if (ImageContext?.Source.HasContent() == true)
+        {
+            builder.OpenElement(0, "img");
+            builder.AddAttribute(1, "src", ImageContext.Source);
+            builder.AddAttribute(2, "alt", ImageContext.Alt ?? string.Empty);
+            if (ImageContext.Loading.HasContent())
+                builder.AddAttribute(3, "loading", ImageContext.Loading);
+            if (ImageContext.Decoding.HasContent())
+                builder.AddAttribute(4, "decoding", ImageContext.Decoding);
+            if (ImageContext.SrcSet.HasContent())
+                builder.AddAttribute(5, "srcset", ImageContext.SrcSet);
+            if (ImageContext.Sizes.HasContent())
+                builder.AddAttribute(6, "sizes", ImageContext.Sizes);
+            builder.AddAttribute(7, "class", "size-full max-w-full object-cover");
+            builder.CloseElement();
+            return;
+        }
+
+        if (Loader is not null)
+        {
+            builder.AddContent(8, Loader);
+            return;
+        }
+
+        builder.OpenComponent<ImageLoader>(9);
+        builder.CloseComponent();
+    };
+}

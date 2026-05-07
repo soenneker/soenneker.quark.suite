@@ -53,6 +53,12 @@
     public string Slot { get; set; } = "popover-content";
 
     [Parameter]
+    public bool UseDefaultLayout { get; set; } = true;
+
+    [Parameter]
+    public bool UseDefaultMotion { get; set; } = true;
+
+    [Parameter]
     public bool DisableAutoOpen { get; set; }
 
     [Parameter]
@@ -96,9 +102,13 @@
         base.ApplyDefaultParameters();
 
         ZIndex ??= "z-50";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Token("2.5");
+        if (UseDefaultLayout)
+        {
+            Display ??= Quark.Display.Flex;
+            FlexDirection ??= Quark.FlexDirection.Col;
+            Gap ??= Quark.Gap.Token("2.5");
+        }
+
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
         Width ??= Quark.Width.Token("72");
@@ -128,11 +138,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            if (!UseDefaultMotion)
+                return;
+
             AppendClass(ref cls, "origin-(--radix-popover-content-transform-origin)");
             AppendClass(ref cls, "duration-100");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
             AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
         });
     }
 
@@ -143,6 +155,8 @@
         hc.Add(Side);
         hc.Add(Align);
         hc.Add(Slot);
+        hc.Add(UseDefaultLayout);
+        hc.Add(UseDefaultMotion);
         hc.Add(SideOffset);
         hc.Add(AlignOffset);
         hc.Add(ArrowPadding);

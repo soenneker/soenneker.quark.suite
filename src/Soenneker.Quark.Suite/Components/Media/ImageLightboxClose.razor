@@ -1,0 +1,27 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<DialogClose Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="@BuildClass()" Attributes="@CloseAttributes">
+    @if (ChildContent is null)
+    {
+        <Icon Name="LucideIcon.X" />
+        <Span Class="sr-only">Close</Span>
+    }
+    else
+    {
+        @ChildContent
+    }
+</DialogClose>
+
+@code {
+    private string BuildClass() => string.Join(" ", new[]
+    {
+        "text-white hover:bg-white/10 hover:text-white",
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private IReadOnlyDictionary<string, object> CloseAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "image-lightbox-close"
+    };
+}

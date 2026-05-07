@@ -1,0 +1,29 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [CascadingParameter]
+    private MessageContext? MessageContext { get; set; }
+
+    private string From => MessageContext?.From ?? "assistant";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "message-content";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "rounded-[20px] text-sm leading-6.5 text-primary");
+            AppendClass(ref cls, From == "user" ? "w-fit bg-muted px-4 py-2" : "mb-2 w-full bg-transparent px-2");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(From);
+    }
+}

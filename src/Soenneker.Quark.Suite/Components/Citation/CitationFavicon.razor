@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+
+@if (!string.IsNullOrWhiteSpace(ResolvedSource?.FaviconSrc))
+{
+    <img src="@ResolvedSource.FaviconSrc" alt="" data-slot="citation-favicon" class="@BuildClass()" />
+}
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    [Parameter]
+    public ResolvedCitation? Source { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private ResolvedCitation? ResolvedSource => Source ?? ParentCitation?.ActiveCitation;
+
+    private string BuildClass() => string.Join(" ", new[] { "size-4 shrink-0 rounded-full bg-background", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
+}

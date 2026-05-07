@@ -1,0 +1,34 @@
+@namespace Soenneker.Quark
+
+<CollapsibleTrigger Class="@BuildClass()" Attributes="@TriggerAttributes">
+    <Icon Name="LucideIcon.Brain" Class="size-4" aria-hidden="true" />
+    <Span Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
+    <Icon Name="LucideIcon.ChevronDown" Class="ml-0.5 size-4 opacity-0 transition-all group-hover:opacity-100 group-data-[state=open]:rotate-180 group-data-[state=open]:group-data-[streaming=false]:opacity-100" aria-hidden="true" />
+</CollapsibleTrigger>
+
+@code {
+    [CascadingParameter]
+    private ReasoningContext? ReasoningContext { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string LabelClass => "text-sm leading-6 group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
+
+    private RenderFragment DefaultLabel => builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
+
+    private string BuildClass() => string.Join(" ", new[]
+    {
+        "group flex cursor-pointer items-center gap-1.25 text-muted-foreground transition-colors hover:text-foreground",
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private IReadOnlyDictionary<string, object> TriggerAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "reasoning-trigger",
+        ["data-streaming"] = ReasoningContext?.IsStreaming == true ? "true" : "false"
+    };
+}

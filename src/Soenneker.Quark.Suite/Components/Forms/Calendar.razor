@@ -25,26 +25,26 @@
                     @if (CaptionLayout == "dropdown")
                     {
                         <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Token("1.5")' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
-                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Input" Shadow="Quark.Shadow.Xs" Class="cn-calendar-dropdown-root has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                            <Span data-disabled="false" Position="Quark.Position.Relative" Class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" value="@(month.Month - 1)" @onchange="OnMonthChanged">
                                     @foreach (var optionMonth in Enumerable.Range(0, 12))
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
                                 </select>
-                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" Height="Quark.Height.Is8" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Rounded="Quark.Rounded.Md" Padding="Quark.Padding.Is1.FromRight.Is2.FromLeft" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label rounded-(--cell-radius) [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
                                     <Span>@GetMonthDropdownLabel(month.Month)</Span>
                                     <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
                                 </Span>
                             </Span>
-                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Input" Shadow="Quark.Shadow.Xs" Class="cn-calendar-dropdown-root has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                            <Span data-disabled="false" Position="Quark.Position.Relative" Class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" value="@month.Year" @onchange="OnYearChanged">
                                     @foreach (var year in GetSelectableYears())
                                     {
                                         <option value="@year">@year</option>
                                     }
                                 </select>
-                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" Height="Quark.Height.Is8" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Rounded="Quark.Rounded.Md" Padding="Quark.Padding.Is1.FromRight.Is2.FromLeft" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption-label rounded-(--cell-radius) [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
                                     <Span>@month.Year</Span>
                                     <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
                                 </Span>
@@ -66,7 +66,7 @@
 
                             @for (var dayIndex = 0; dayIndex < _dayNames.Length; dayIndex++)
                             {
-                                <th class="flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday" scope="col" aria-label="@_fullDayNames[dayIndex]">@_dayNames[dayIndex]</th>
+                                <th class="flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday" scope="col" aria-label="@_fullDayNames[dayIndex]">@_dayNames[dayIndex]</th>
                             }
                         </tr>
                     </thead>
@@ -90,7 +90,7 @@
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
                                     <td class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@("p-0")" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(day.Date)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
+                                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(day.Date)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
                                             @if (DayContent is not null)
                                             {
                                                 @DayContent(dayContext)
@@ -753,19 +753,21 @@
 
     private string GetDayCellClass(CalendarDayContext dayContext, Cell day)
     {
-        var css = "group/day relative aspect-square h-full w-full p-0 text-center select-none";
+        var css = "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none";
 
         if (ShowWeekNumber)
-            css += " [&:last-child[data-selected=true]_button]:rounded-r-md [&:nth-child(2)[data-selected=true]_button]:rounded-l-md";
+            css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) [&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)";
         else
-            css += " [&:last-child[data-selected=true]_button]:rounded-r-md [&:first-child[data-selected=true]_button]:rounded-l-md";
+            css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) [&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)";
 
         css += " rdp-day";
 
         if (dayContext.IsRangeStart)
-            css += " rounded-l-md bg-accent";
+            css += " relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted";
         if (dayContext.IsRangeEnd)
-            css += " rounded-r-md bg-accent";
+            css += " relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted";
+        if (dayContext.IsRangeMiddle)
+            css += " rounded-none";
 
         if (!ShowOutsideDays && !day.InMonth)
             css += " invisible";
@@ -774,7 +776,7 @@
             css += " text-muted-foreground aria-selected:text-muted-foreground rdp-outside";
 
         if (dayContext.IsToday)
-            css += " rounded-md bg-accent text-accent-foreground data-[selected=true]:rounded-none rdp-today";
+            css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none rdp-today";
 
         if (day.Disabled)
             css += " text-muted-foreground opacity-50";
@@ -786,15 +788,15 @@
 
     private string GetDayButtonClass(CalendarDayContext dayContext, Cell day)
     {
-        var css = "aspect-square size-auto min-w-(--cell-size) min-w-[var(--cell-size)]";
+        var css = "relative isolate z-10 aspect-square size-auto min-w-(--cell-size) min-w-[var(--cell-size)] border-0";
         css += " group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring";
         css += " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50";
-        css += " data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md";
+        css += " data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius)";
         css += " data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground";
-        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground";
-        css += " data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md";
+        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground";
+        css += " data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius)";
         css += " data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground";
-        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground";
+        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground";
         css += " [&>span]:text-xs [&>span]:opacity-70 rdp-day rdp-day_button";
 
         if (day.Disabled)
@@ -861,13 +863,13 @@
             AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
 
             if (!HasClassOverride("p-"))
-                AppendClass(ref cls, "p-3");
+                AppendClass(ref cls, "p-2");
 
             if (!HasClassOverride("--cell-radius"))
                 AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
 
             if (!HasClassOverride("--cell-size"))
-                AppendClass(ref cls, "[--cell-size:--spacing(8)]");
+                AppendClass(ref cls, "[--cell-size:--spacing(7)]");
 
             AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
             AppendClass(ref cls, "rtl:**:[.rdp-button_next>svg]:rotate-180 rtl:**:[.rdp-button_previous>svg]:rotate-180");

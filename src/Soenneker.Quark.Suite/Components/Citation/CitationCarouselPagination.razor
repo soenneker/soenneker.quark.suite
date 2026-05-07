@@ -1,0 +1,17 @@
+@namespace Soenneker.Quark
+
+<Div Attributes="@BuildAttributes()">@ChildContent</Div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-carousel-pagination",
+        ["class"] = string.Join(" ", new[] { "flex items-center gap-1", Class }.Where(x => !string.IsNullOrWhiteSpace(x)))
+    };
+}

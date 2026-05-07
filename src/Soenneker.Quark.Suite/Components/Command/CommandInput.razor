@@ -2,8 +2,10 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
-    <Icon Name="LucideIcon.Search" Opacity="Quark.Opacity.Is50" />
-    <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
+    <div @attributes="BuildInputGroupAttributes()">
+        <Icon Name="LucideIcon.Search" Opacity="Quark.Opacity.Is50" />
+        <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
+    </div>
 </div>
 
 @code {
@@ -48,7 +50,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-transparent outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
+            AppendClass(ref cls, "w-full text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
         });
     }
 
@@ -57,10 +59,6 @@
         base.ApplyDefaultParameters();
 
         Width ??= Quark.Width.IsFull;
-        Height ??= Quark.Height.Is10;
-        Display ??= Quark.Display.Flex;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is3.OnY;
         TextSize ??= Quark.TextSize.Sm;
     }
 
@@ -73,8 +71,24 @@
         };
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "flex h-9 items-center gap-2 border-b px-3");
+            AppendClass(ref cls, "p-1 pb-0");
         });
+        return attrs;
+    }
+
+    private Dictionary<string, object> BuildInputGroupAttributes()
+    {
+        var attrs = new Dictionary<string, object>
+        {
+            ["data-slot"] = "input-group",
+            ["role"] = "group"
+        };
+
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex h-8! w-full items-center gap-2 rounded-lg! border border-input/30 bg-input/30 px-2 shadow-none!");
+        });
+
         return attrs;
     }
 

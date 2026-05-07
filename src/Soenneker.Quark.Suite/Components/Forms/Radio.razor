@@ -19,7 +19,9 @@
                                   OnFocus="HandleGroupedFocus"
                                   OnKeyDown="HandleGroupedKeyDown"
                                       AdditionalAttributes="@BuildGroupedItemAttributes()">
-                    <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
+                    <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
+                        <Span @attributes="BuildGroupedIndicatorDotAttributes()" />
+                    </BradixRadioGroupIndicator>
                 </BradixRadioGroupItem>
             @if (ChildContent != null)
             {
@@ -37,7 +39,9 @@
                               OnFocus="HandleGroupedFocus"
                               OnKeyDown="HandleGroupedKeyDown"
                               AdditionalAttributes="@BuildGroupedItemAttributes()">
-            <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
+            <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
+                <Span @attributes="BuildGroupedIndicatorDotAttributes()" />
+            </BradixRadioGroupIndicator>
         </BradixRadioGroupItem>
     }
 }
@@ -57,7 +61,7 @@ else
                 <Span @attributes="BuildIndicatorAttributes()">
                     @if (EffectiveChecked)
                     {
-                        <Span data-slot="radio-group-indicator" Position="Quark.Position.Relative" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" />
+                        <Span @attributes="BuildUngroupedIndicatorDotAttributes()" />
                     }
                 </Span>
                 @if (ChildContent != null)
@@ -78,7 +82,7 @@ else
             <Span @attributes="BuildIndicatorAttributes()">
                 @if (EffectiveChecked)
                 {
-                    <Span data-slot="radio-group-indicator" Position="Quark.Position.Relative" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" />
+                    <Span @attributes="BuildUngroupedIndicatorDotAttributes()" />
                 }
             </Span>
         }
@@ -267,7 +271,7 @@ else
     }
 
     private const string _shadcnRadioItemBase =
-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input bg-background text-primary shadow-xs transition-[color,box-shadow,border-width] outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[state=checked]:border-[5px] data-[state=checked]:border-primary data-[state=checked]:bg-background dark:data-[state=checked]:bg-background";
+        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -411,8 +415,27 @@ else
         return new Dictionary<string, object>
         {
             ["data-slot"] = "radio-group-indicator",
-            ["class"] = "flex size-4 items-center justify-center"
+            ["class"] = "relative flex size-4 items-center justify-center"
         };
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorDotAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["aria-hidden"] = "true",
+            ["class"] = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildUngroupedIndicatorDotAttributes()
+    {
+        var attributes = new Dictionary<string, object>(BuildGroupedIndicatorDotAttributes())
+        {
+            ["data-slot"] = "radio-group-indicator"
+        };
+
+        return attributes;
     }
 
     private string? GetValidationClass()

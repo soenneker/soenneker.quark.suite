@@ -13,10 +13,10 @@
           PointerEvents="Quark.PointerEvents.None"
           Position="Quark.Position.Absolute"
           Display="Quark.Display.Flex"
-          Size='Quark.Size.Token("3.5")'
+          Size="Quark.Size.Is4"
           ItemsAlign="Items.Center"
           Justify="Quark.Justify.Center"
-          Class="left-2">
+          Class="left-1.5 [&_svg:not([class*='size-'])]:size-4">
         <BradixMenubarItemIndicator>
             <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
         </BradixMenubarItemIndicator>
@@ -27,6 +27,9 @@
 @code {
     [Parameter]
     public bool CloseOnSelect { get; set; }
+
+    [Parameter]
+    public bool Indented { get; set; }
 
     private BradixCheckboxCheckedState ResolvedCheckedState =>
         Checked ? BradixCheckboxCheckedState.Checked : BradixCheckboxCheckedState.Unchecked;
@@ -40,11 +43,13 @@
         attributes["data-slot"] = "menubar-checkbox-item";
         attributes["data-state"] = Checked ? "checked" : "unchecked";
         attributes["aria-checked"] = Checked ? "true" : "false";
+        if (Indented)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-[inset]:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
         });
     }
 
@@ -56,7 +61,7 @@
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is2.FromRight.Token("8").FromLeft.Is1.OnY;
+        Padding ??= Quark.Padding.Token("1.5").FromRight.Token("7").FromLeft.Is1.OnY;
         TextSize ??= Quark.TextSize.Sm;
         OutlineStyle ??= "outline-hidden";
         UserSelect ??= Quark.UserSelect.None;
@@ -75,6 +80,7 @@
         hc.Add(Checked);
         hc.Add(Disabled);
         hc.Add(CloseOnSelect);
+        hc.Add(Indented);
     }
 
     private async Task HandleCheckedStateChanged(BradixCheckboxCheckedState state)

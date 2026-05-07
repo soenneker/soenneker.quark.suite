@@ -1,0 +1,164 @@
+@page "/citation"
+
+<PageTitle>Citation - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Code="@DefaultCode" CodeLanguage="razor">
+        <Div Class="flex flex-wrap items-center justify-center gap-3">
+            @foreach (var citation in DefaultCitations)
+            {
+                <Citation Citations="@([citation])">
+                    <CitationTrigger />
+                    <CitationContent>
+                        <CitationItem />
+                    </CitationContent>
+                </Citation>
+            }
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Multiple sources" Code="@MultipleCode" CodeLanguage="razor">
+        <Div Class="flex flex-wrap items-center justify-center gap-3">
+            <Citation Citations="@AfricaSources">
+                <CitationTrigger />
+                <CitationContent>
+                    <CitationCarouselHeader>
+                        <CitationSourcesBadge />
+                        <CitationCarouselPagination>
+                            <CitationCarouselPrev />
+                            <CitationCarouselIndex />
+                            <CitationCarouselNext />
+                        </CitationCarouselPagination>
+                    </CitationCarouselHeader>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+            <Citation Citations="@FrontendSources">
+                <CitationTrigger />
+                <CitationContent>
+                    <CitationCarouselHeader>
+                        <CitationSourcesBadge />
+                        <CitationCarouselPagination>
+                            <CitationCarouselPrev />
+                            <CitationCarouselIndex />
+                            <CitationCarouselNext />
+                        </CitationCarouselPagination>
+                    </CitationCarouselHeader>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Trigger label and favicon" Code="@TriggerCode" CodeLanguage="razor">
+        <Div Class="flex flex-wrap items-center justify-center gap-3">
+            <Citation Citations="@GithubSources">
+                <CitationTrigger Label="@CustomLabel" />
+                <CitationContent>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+            <Citation Citations="@GithubSources">
+                <CitationTrigger ShowFavicon="false" />
+                <CitationContent>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+            <Citation Citations="@GithubSources">
+                <CitationTrigger ShowSiteName="false" />
+                <CitationContent>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Inline with text" Code="@InlineCode" CodeLanguage="razor">
+        <Paragraph Class="mx-auto max-w-xl text-center text-sm leading-6">
+            Africa's largest country by area is Algeria
+            <Citation Citations="@AfricaSources">
+                <CitationTrigger />
+                <CitationContent>
+                    <CitationCarouselHeader>
+                        <CitationSourcesBadge />
+                        <CitationCarouselPagination>
+                            <CitationCarouselPrev />
+                            <CitationCarouselIndex />
+                            <CitationCarouselNext />
+                        </CitationCarouselPagination>
+                    </CitationCarouselHeader>
+                    <CitationItem />
+                </CitationContent>
+            </Citation>
+            while population rankings can vary by source and date.
+        </Paragraph>
+    </DemoSection>
+</Div>
+
+@code {
+    private static readonly IReadOnlyList<CitationSourceInput> DefaultCitations =
+    [
+        CitationSourceInput.Create("https://en.wikipedia.org/wiki/List_of_African_countries_by_area", "Wikipedia", "List of African countries by area."),
+        CitationSourceInput.Create("https://www.worldometers.info/population/countries-in-africa-by-population/", "Worldometers", "Countries in Africa by population."),
+        CitationSourceInput.Create("https://developer.mozilla.org/en-US/docs/Web/CSS/flex", "Mozilla", "CSS flexible box layout reference."),
+        CitationSourceInput.Create("https://github.com/vercel/ai", "Github", "The Vercel AI SDK repository.")
+    ];
+
+    private static readonly IReadOnlyList<CitationSourceInput> AfricaSources =
+    [
+        CitationSourceInput.Create("https://en.wikipedia.org/wiki/List_of_African_countries_by_area", "Wikipedia", "Algeria is listed as the largest African country by area."),
+        CitationSourceInput.Create("https://www.worldometers.info/population/countries-in-africa-by-population/", "Worldometers", "Population estimates and country rankings for Africa."),
+        CitationSourceInput.Create("https://www.britannica.com/place/Algeria", "Britannica", "Reference profile for Algeria.")
+    ];
+
+    private static readonly IReadOnlyList<CitationSourceInput> FrontendSources =
+    [
+        CitationSourceInput.Create("https://developer.mozilla.org/en-US/docs/Web/CSS/flex", "Mozilla", "Reference documentation for CSS flexbox."),
+        CitationSourceInput.Create("https://github.com/vercel/ai", "Github", "AI SDK source and examples.")
+    ];
+
+    private static readonly IReadOnlyList<CitationSourceInput> GithubSources =
+    [
+        CitationSourceInput.Create("https://github.com/vercel/ai", "Github", "The Vercel AI SDK repository.")
+    ];
+
+    private static readonly RenderFragment CustomLabel = builder => builder.AddContent(0, "github.com");
+
+    private const string DefaultCode =
+@"<Citation Citations=""@([CitationSourceInput.Create(""https://example.com"", ""Example"", ""Description"")])"">
+    <CitationTrigger />
+    <CitationContent>
+        <CitationItem />
+    </CitationContent>
+</Citation>";
+
+    private const string MultipleCode =
+@"<Citation Citations=""@Sources"">
+    <CitationTrigger />
+    <CitationContent>
+        <CitationCarouselHeader>
+            <CitationSourcesBadge />
+            <CitationCarouselPagination>
+                <CitationCarouselPrev />
+                <CitationCarouselIndex />
+                <CitationCarouselNext />
+            </CitationCarouselPagination>
+        </CitationCarouselHeader>
+        <CitationItem />
+    </CitationContent>
+</Citation>";
+
+    private const string TriggerCode =
+@"<CitationTrigger Label=""@CustomLabel"" />
+<CitationTrigger ShowFavicon=""false"" />
+<CitationTrigger ShowSiteName=""false"" />";
+
+    private const string InlineCode =
+@"Africa's largest country by area is Algeria
+<Citation Citations=""@Sources"">
+    <CitationTrigger />
+    <CitationContent>
+        <CitationItem />
+    </CitationContent>
+</Citation>";
+}

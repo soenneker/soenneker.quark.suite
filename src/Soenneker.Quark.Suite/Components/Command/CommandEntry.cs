@@ -7,7 +7,7 @@ internal sealed class CommandEntry
 {
     public required CommandItem Item { get; init; }
 
-    public CommandGroup? Group { get; init; }
+    public CommandGroup? Group { get; set; }
 
     public bool IsVisible => Item.IsVisibleResolved;
 

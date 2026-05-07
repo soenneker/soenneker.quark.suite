@@ -1,0 +1,83 @@
+@namespace Soenneker.Quark
+
+@if (ParentCitation is not null)
+{
+    <HoverCardTrigger Class="@BuildTriggerClass()" Attributes="@TriggerAttributes">
+        @if (ShowFavicon)
+        {
+            <CitationFavicon Source="@Primary" />
+        }
+        @if (HasText)
+        {
+            <CitationSiteName Source="@Primary">@LabelContent</CitationSiteName>
+        }
+        @if (MultipleSources)
+        {
+            <Span Attributes="@ExtraCountAttributes">+@(ParentCitation.ResolvedCitations.Count - 1)</Span>
+        }
+    </HoverCardTrigger>
+}
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    [Parameter]
+    public RenderFragment? Label { get; set; }
+
+    [Parameter]
+    public bool ShowFavicon { get; set; } = true;
+
+    [Parameter]
+    public bool ShowSiteName { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private ResolvedCitation Primary => ParentCitation!.ResolvedCitations[0];
+
+    private bool MultipleSources => ParentCitation is not null && ParentCitation.ResolvedCitations.Count > 1;
+
+    private bool HasText => Label is not null || ShowSiteName || !ShowFavicon;
+
+    private RenderFragment LabelContent => builder =>
+    {
+        if (Label is not null)
+            builder.AddContent(0, Label);
+        else if (ShowSiteName)
+            builder.AddContent(1, Primary.SiteName);
+        else if (!ShowFavicon)
+            builder.AddContent(2, "Source");
+    };
+
+    private string BuildTriggerClass()
+    {
+        var classes = new List<string>
+        {
+            "inline-flex h-5.5 max-w-full cursor-default items-center rounded-full bg-secondary opacity-100 transition-colors hover:bg-border data-[state=open]:opacity-100 align-middle"
+        };
+
+        if (HasText && ShowFavicon)
+            classes.Add("gap-1 py-1 pr-1.5 pl-1");
+        else if (HasText)
+            classes.Add("px-2 py-1");
+        else if (ShowFavicon)
+            classes.Add("p-1");
+
+        if (!string.IsNullOrWhiteSpace(Class))
+            classes.Add(Class!);
+
+        return string.Join(" ", classes);
+    }
+
+    private static readonly IReadOnlyDictionary<string, object> TriggerAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-trigger"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> ExtraCountAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "citation-extra-count",
+        ["class"] = "text-xs leading-4.5 font-[350] text-muted-foreground tabular-nums"
+    };
+}

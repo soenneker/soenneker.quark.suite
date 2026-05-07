@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+
+<Avatar AvatarSize="@Size" Class="@BuildClass()">
+    <AvatarImage Src="@Src" Alt="@Alt" Class="my-0!" Attributes="@ImageAttributes" />
+    <AvatarFallback Class="my-0! shrink-0" Attributes="@FallbackAttributes">@Fallback</AvatarFallback>
+</Avatar>
+
+@code {
+    [Parameter]
+    public string? Src { get; set; }
+
+    [Parameter]
+    public string Alt { get; set; } = "";
+
+    [Parameter]
+    public RenderFragment? Fallback { get; set; }
+
+    [Parameter]
+    public string Size { get; set; } = "default";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string BuildClass() => string.Join(" ", new[] { "size-7 shrink-0", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private static readonly IReadOnlyDictionary<string, object> ImageAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "message-avatar-image"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> FallbackAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "message-avatar-fallback"
+    };
+}

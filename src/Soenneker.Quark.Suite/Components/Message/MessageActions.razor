@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [CascadingParameter]
+    private MessageContext? MessageContext { get; set; }
+
+    private string From => MessageContext?.From ?? "assistant";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "message-actions";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex w-full");
+            AppendClass(ref cls, From == "user" ? "justify-end" : "justify-start");
+        });
+    }
+}

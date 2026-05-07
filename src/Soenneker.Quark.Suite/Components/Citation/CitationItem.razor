@@ -1,0 +1,69 @@
+@namespace Soenneker.Quark
+
+@if (Citation is not null)
+{
+    <a href="@Citation.Url" target="_blank" rel="noreferrer" @attributes="BuildAttributes()">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @if (ShowTitle && Citation.Title is not null)
+            {
+                <h4 data-slot="citation-title" class="line-clamp-2 text-xs leading-4 font-[450] text-primary">@Citation.Title</h4>
+            }
+            @if (ShowDescription && Citation.Description is not null)
+            {
+                <p data-slot="citation-description" class="line-clamp-3 text-xs leading-4.5 font-[350] text-muted-foreground">@Citation.Description</p>
+            }
+            @if (ShowSource)
+            {
+                <CitationSource Source="@Citation" />
+            }
+        }
+    </a>
+}
+
+@code {
+    [CascadingParameter]
+    private Citation? ParentCitation { get; set; }
+
+    [Parameter]
+    public int? Index { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool ShowTitle { get; set; } = true;
+
+    [Parameter]
+    public bool ShowDescription { get; set; } = true;
+
+    [Parameter]
+    public bool ShowSource { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    private ResolvedCitation? Citation => ParentCitation is null
+        ? null
+        : ParentCitation.ResolvedCitations[Math.Clamp(Index ?? ParentCitation.ActiveIndex, 0, ParentCitation.ResolvedCitations.Count - 1)];
+
+    private IReadOnlyDictionary<string, object> BuildAttributes()
+    {
+        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+        attributes["data-slot"] = "citation-item";
+        attributes["class"] = string.Join(" ", new[]
+        {
+            "flex w-full flex-col gap-1 p-3 text-start no-underline outline-none",
+            Class,
+            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
+        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        return attributes;
+    }
+}

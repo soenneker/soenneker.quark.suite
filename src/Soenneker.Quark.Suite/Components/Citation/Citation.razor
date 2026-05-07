@@ -1,0 +1,60 @@
+@namespace Soenneker.Quark
+
+@if (Resolved.Count > 0)
+{
+    <CascadingValue Value="this" IsFixed="false">
+        <HoverCard OpenDelay="@OpenDelay" CloseDelay="@CloseDelay">
+            @ChildContent
+        </HoverCard>
+    </CascadingValue>
+}
+
+@code {
+    private IReadOnlyList<ResolvedCitation> Resolved => Citations.Select(CitationSourceResolver.Resolve).ToArray();
+
+    internal int ActiveIndex { get; private set; }
+
+    internal ResolvedCitation ActiveCitation => Resolved[Math.Clamp(ActiveIndex, 0, Math.Max(0, Resolved.Count - 1))];
+
+    internal IReadOnlyList<ResolvedCitation> ResolvedCitations => Resolved;
+
+    internal bool CanScrollPrev => ActiveIndex > 0;
+
+    internal bool CanScrollNext => ActiveIndex < Resolved.Count - 1;
+
+    [Parameter]
+    public IReadOnlyList<CitationSourceInput> Citations { get; set; } = [];
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public int OpenDelay { get; set; } = 50;
+
+    [Parameter]
+    public int CloseDelay { get; set; } = 50;
+
+    internal void ScrollPrev()
+    {
+        if (CanScrollPrev)
+        {
+            ActiveIndex--;
+            StateHasChanged();
+        }
+    }
+
+    internal void ScrollNext()
+    {
+        if (CanScrollNext)
+        {
+            ActiveIndex++;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (ActiveIndex >= Resolved.Count)
+            ActiveIndex = Math.Max(0, Resolved.Count - 1);
+    }
+}

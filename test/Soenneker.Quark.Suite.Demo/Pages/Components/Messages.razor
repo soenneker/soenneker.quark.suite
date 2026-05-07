@@ -1,0 +1,137 @@
+@page "/message"
+
+<PageTitle>Message - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Code="@DefaultCode" CodeLanguage="razor">
+        <Div Class="flex w-full flex-col items-center justify-center gap-6">
+            <Message From="user">
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>What is the capital of France?</MessageMarkdown>
+                    </MessageContent>
+                </MessageStack>
+            </Message>
+            <Message From="assistant">
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>The capital of France is Paris.</MessageMarkdown>
+                    </MessageContent>
+                </MessageStack>
+            </Message>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="With Actions" Code="@ActionsCode" CodeLanguage="razor">
+        <Div Class="flex w-full flex-col items-center justify-center gap-6">
+            <Message From="user">
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>Tell me about Nexus UI.</MessageMarkdown>
+                    </MessageContent>
+                    <MessageActions>
+                        <MessageActionGroup>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Copy">
+                                <Icon Name="LucideIcon.Copy" />
+                            </Button>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Edit">
+                                <Icon Name="LucideIcon.Pencil" />
+                            </Button>
+                        </MessageActionGroup>
+                    </MessageActions>
+                </MessageStack>
+            </Message>
+            <Message From="assistant">
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>Nexus UI is an open-source React component library aimed at AI-powered UIs--chat, streaming, and multimodal flows--built with Tailwind CSS v4 and Radix UI.</MessageMarkdown>
+                    </MessageContent>
+                    <MessageActions>
+                        <MessageActionGroup>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Copy">
+                                <Icon Name="LucideIcon.Copy" />
+                            </Button>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Refresh">
+                                <Icon Name="LucideIcon.RefreshCcw" />
+                            </Button>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Thumbs up">
+                                <Icon Name="LucideIcon.ThumbsUp" />
+                            </Button>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Thumbs down">
+                                <Icon Name="LucideIcon.ThumbsDown" />
+                            </Button>
+                        </MessageActionGroup>
+                    </MessageActions>
+                </MessageStack>
+            </Message>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="With Avatar" Code="@AvatarCode" CodeLanguage="razor">
+        <Div Class="flex w-full flex-col items-center justify-center gap-6">
+            <Message From="user">
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>Hello - can you help me draft an email?</MessageMarkdown>
+                    </MessageContent>
+                </MessageStack>
+                <MessageAvatar Src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&amp;h=400&amp;fit=crop" Alt="You" Fallback="@UserFallback" />
+            </Message>
+            <Message From="assistant">
+                <MessageAvatar Src="" Alt="Nexus" Fallback="@AssistantFallback" />
+                <MessageStack>
+                    <MessageContent>
+                        <MessageMarkdown>Absolutely. Share the audience, tone, and the main points you want included.</MessageMarkdown>
+                    </MessageContent>
+                </MessageStack>
+            </Message>
+        </Div>
+    </DemoSection>
+</Div>
+
+@code {
+    private static readonly RenderFragment UserFallback = builder => builder.AddContent(0, "Y");
+    private static readonly RenderFragment AssistantFallback = builder => builder.AddContent(0, "AI");
+
+    private const string DefaultCode =
+@"<Message From=""user"">
+    <MessageStack>
+        <MessageContent>
+            <MessageMarkdown>What is the capital of France?</MessageMarkdown>
+        </MessageContent>
+    </MessageStack>
+</Message>
+<Message From=""assistant"">
+    <MessageStack>
+        <MessageContent>
+            <MessageMarkdown>The capital of France is Paris.</MessageMarkdown>
+        </MessageContent>
+    </MessageStack>
+</Message>";
+
+    private const string ActionsCode =
+@"<Message From=""assistant"">
+    <MessageStack>
+        <MessageContent>
+            <MessageMarkdown>Nexus UI is an open-source React component library...</MessageMarkdown>
+        </MessageContent>
+        <MessageActions>
+            <MessageActionGroup>
+                <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""icon-sm"" AriaLabel=""Copy"">
+                    <Icon Name=""LucideIcon.Copy"" />
+                </Button>
+            </MessageActionGroup>
+        </MessageActions>
+    </MessageStack>
+</Message>";
+
+    private const string AvatarCode =
+@"<Message From=""user"">
+    <MessageStack>
+        <MessageContent>
+            <MessageMarkdown>Hello - can you help me draft an email?</MessageMarkdown>
+        </MessageContent>
+    </MessageStack>
+    <MessageAvatar Src=""/avatar.png"" Alt=""You"" Fallback=""@UserFallback"" />
+</Message>";
+}

@@ -1,0 +1,19 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<img @attributes="BuildPreviewAttributes()" />
+
+@code {
+    [CascadingParameter]
+    private ImageContext? ImageContext { get; set; }
+
+    private Dictionary<string, object> BuildPreviewAttributes()
+    {
+        var attributes = BuildAttributes();
+        attributes["data-slot"] = "image-lightbox-preview";
+        attributes["src"] = ImageContext?.Source ?? string.Empty;
+        attributes["alt"] = ImageContext?.Alt ?? string.Empty;
+        AppendToClassAttr(attributes, "max-h-[85vh] max-w-[90vw] rounded-lg object-contain");
+        return attributes;
+    }
+}
