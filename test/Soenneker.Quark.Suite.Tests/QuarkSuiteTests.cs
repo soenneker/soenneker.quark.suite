@@ -25,9 +25,9 @@ public sealed class QuarkSuiteTests : UnitTest
     {
         var tokens = new Theme().Tokens.Dark;
 
-        tokens.Card.Should().Be("oklch(0.205 0 0)");
-        tokens.Popover.Should().Be("oklch(0.205 0 0)");
-        tokens.Destructive.Should().Be("oklch(0.704 0.191 22.216)");
-        tokens.DestructiveForeground.Should().Be("oklch(0.704 0.191 22.216)");
+        tokens.Card.Should().Be("#171717");
+        tokens.Popover.Should().Be("#171717");
+        tokens.Destructive.Should().Be("#ff6568");
+        tokens.DestructiveForeground.Should().Be("#df2225");
     }
 }
