@@ -208,7 +208,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button text-sm border border-transparent bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "group/button text-sm border bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
 
             var hasExplicitRadius = Rounded is not null || HasTailwindUtility(Class, "rounded");
 
@@ -522,21 +522,21 @@ else
     internal static string GetButtonVariantClass(ButtonVariant? variant)
     {
         if (ReferenceEquals(variant, ButtonVariant.Destructive))
-            return "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
+            return "border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
 
         if (ReferenceEquals(variant, ButtonVariant.Outline))
             return "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Secondary))
-            return "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
+            return "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
 
         if (ReferenceEquals(variant, ButtonVariant.Ghost))
-            return "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
+            return "border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
 
         if (ReferenceEquals(variant, ButtonVariant.Link))
-            return "text-primary underline-offset-4 hover:underline";
+            return "border-transparent text-primary underline-offset-4 hover:underline";
 
-        return "bg-primary text-primary-foreground [a]:hover:bg-primary/80";
+        return "border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
     }
 
     internal static string GetButtonSizeClass(CssValue<ButtonSizeBuilder>? size, bool includeSizeRadius = true)
@@ -548,6 +548,9 @@ else
 
         if (!string.IsNullOrWhiteSpace(raw))
         {
+            if (IsKnownButtonSize(raw))
+                return ResolveButtonSizeClass(raw, includeSizeRadius);
+
             if (raw.Contains('-') || raw.Contains(' ') || raw.Contains(':') || raw.Contains('[') || raw.Contains('('))
                 return raw;
 
@@ -565,12 +568,12 @@ else
         return size switch
         {
             "xs" => includeSizeRadius
-                ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3"
-                : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+                ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3"
+                : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3",
             "sm" => includeSizeRadius
-                ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5"
-                : "h-7 gap-1 px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+                ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5"
+                : "h-7 gap-1 px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
             "icon" => "size-8",
             "icon-xs" => includeSizeRadius
                 ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3"
@@ -579,8 +582,13 @@ else
                 ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg"
                 : "size-7 in-data-[slot=button-group]:rounded-lg",
             "icon-lg" => "size-9",
-            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
         };
+    }
+
+    private static bool IsKnownButtonSize(string? size)
+    {
+        return size is "default" or "xs" or "sm" or "lg" or "icon" or "icon-xs" or "icon-sm" or "icon-lg";
     }
 
     private static bool HasTailwindUtility(string? className, string utilityPrefix)
