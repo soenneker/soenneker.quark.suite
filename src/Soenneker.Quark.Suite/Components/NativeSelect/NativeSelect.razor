@@ -4,7 +4,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelect
 
-<Div data-slot="native-select-wrapper" data-size="@GetSizeValue()" Position="Quark.Position.Relative" Width="Quark.Width.IsFit" Class="group/native-select has-[select:disabled]:opacity-50">
+<Div data-slot="native-select-wrapper" data-size="@GetSizeValue()" dir="@(IsRtl ? "rtl" : null)" Position="Quark.Position.Relative" Width="Quark.Width.IsFit" Class="group/native-select has-[select:disabled]:opacity-50">
     <select value="@Value" @onchange="HandleChange" @attributes="BuildAttributes()">
         @ChildContent
     </select>
@@ -83,6 +83,10 @@
 
         attributes["data-slot"] = "native-select";
         attributes["data-size"] = GetSizeValue();
+
+        if (IsRtl)
+            attributes["dir"] = "rtl";
+
         ApplyFieldControlAttributes(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>

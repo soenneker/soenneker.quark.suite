@@ -8,7 +8,7 @@
 <BradixDialogPortal>
     @if (ParentSheet?.ShowBackdrop == true)
     {
-        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
+        <BradixDialogOverlay EmitOpenClosedAttributes="false" AdditionalAttributes="@OverlayAttributes" />
     }
 
     <BradixDialogContent Id="@Context?.ContentId"
@@ -16,11 +16,12 @@
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
                          OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         EmitOpenClosedAttributes="false"
                          AdditionalAttributes="@ContentAttributes">
         @ChildContent
         @if (ShowCloseButton)
         {
-            <BradixDialogClose AdditionalAttributes="@CloseButtonAttributes">
+            <BradixDialogClose AriaLabel="@null" AdditionalAttributes="@CloseButtonAttributes">
                 <Svg Size="Quark.Size.Is4" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Token("current")' StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
                 <Span ScreenReader="Quark.ScreenReader.Only">Close</Span>
             </BradixDialogClose>
@@ -107,10 +108,6 @@
         if (!attributes.ContainsKey("data-side"))
             attributes["data-side"] = Side.ToString().ToLowerInvariant();
 
-        if (ParentSheet?.Visible == true)
-            attributes["data-open"] = string.Empty;
-        else
-            attributes["data-closed"] = string.Empty;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -134,11 +131,6 @@
         attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
         attributes["data-slot"] = "sheet-overlay";
         attributes["aria-hidden"] = "true";
-
-        if (ParentSheet?.Visible == true)
-            attributes["data-open"] = string.Empty;
-        else
-            attributes["data-closed"] = string.Empty;
 
         return attributes;
     }

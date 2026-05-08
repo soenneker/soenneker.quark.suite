@@ -126,13 +126,22 @@
         var size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
         var styles = new List<string>
         {
-            $"flex: 0 0 {size.ToString("0.###", CultureInfo.InvariantCulture)}%"
+            "min-height: 0px",
+            "max-height: 100%",
+            "height: auto",
+            "min-width: 0px",
+            "max-width: 100%",
+            "width: auto",
+            "border: 0px",
+            "padding: 0px",
+            "margin: 0px",
+            "display: flex",
+            $"flex: {size.ToString("0.###", CultureInfo.InvariantCulture)} 1 0px",
+            "overflow: hidden"
         };
 
         if (IsVertical)
         {
-            styles.Add("min-height: 0");
-
             if (panel.MinSize.HasValue)
                 styles.Add($"min-height: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
 
@@ -141,8 +150,6 @@
         }
         else
         {
-            styles.Add("min-width: 0");
-
             if (panel.MinSize.HasValue)
                 styles.Add($"min-width: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
 
@@ -405,11 +412,21 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "resizable-panel-group";
-        attributes["aria-orientation"] = OrientationValue;
+        attributes["data-group"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "aria-[orientation=vertical]:flex-col");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, "height:100%");
+            AppendStyleDecl(ref sty, "width:100%");
+            AppendStyleDecl(ref sty, "overflow:hidden");
+            AppendStyleDecl(ref sty, "display:flex");
+            AppendStyleDecl(ref sty, $"flex-direction:{(IsVertical ? "column" : "row")}");
+            AppendStyleDecl(ref sty, "flex-wrap:nowrap");
         });
     }
 

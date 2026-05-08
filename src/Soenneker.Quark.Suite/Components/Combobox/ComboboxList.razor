@@ -26,6 +26,10 @@
         if (ParentCombobox?.HasVisibleItems != true)
             attributes["data-empty"] = string.Empty;
 
+        attributes["style"] = attributes.TryGetValue("style", out var style) && style is not null
+            ? $"{style}; padding: 0.25rem;"
+            : "padding: 0.25rem;";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "no-scrollbar scroll-py-1 overscroll-contain data-empty:p-0");

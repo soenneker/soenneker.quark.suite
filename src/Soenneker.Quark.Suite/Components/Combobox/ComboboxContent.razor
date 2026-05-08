@@ -67,8 +67,15 @@
             if (ParentCombobox?.HasVisibleItems != true)
                 attributes["data-empty"] = string.Empty;
 
+            var anchorWidth = ParentCombobox?.Multiple == true
+                ? "var(--radix-popper-anchor-width)"
+                : "calc(var(--radix-popper-anchor-width) - 1.75rem)";
+            var minWidth = ParentCombobox?.Multiple == true
+                ? "var(--anchor-width)"
+                : "calc(var(--anchor-width) + 1.75rem)";
+
             attributes["style"] =
-                "--anchor-width: var(--radix-popper-anchor-width); --available-width: var(--radix-popper-available-width); --available-height: var(--radix-popper-available-height); --transform-origin: var(--radix-popover-content-transform-origin); max-width: var(--available-width); max-height: var(--available-height);" +
+                $"--anchor-width: {anchorWidth}; --available-width: var(--radix-popper-available-width); --available-height: var(--radix-popper-available-height); --transform-origin: var(--radix-popover-content-transform-origin); width: var(--anchor-width); min-width: {minWidth}; max-width: var(--available-width); max-height: var(--available-height);" +
                 (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
 
             if (ParentCombobox?.Multiple == true)

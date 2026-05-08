@@ -26,9 +26,6 @@
 
 @code {
     [CascadingParameter]
-    private PopoverContext? Context { get; set; }
-
-    [CascadingParameter]
     private BradixPopover? BradixPopover { get; set; }
 
     [Parameter]
@@ -127,15 +124,6 @@
 
         attributes["data-slot"] = Slot;
 
-        if (Context is not null)
-        {
-            if (!attributes.ContainsKey("aria-labelledby") && !attributes.ContainsKey("aria-label"))
-                attributes["aria-labelledby"] = Context.TitleId;
-
-            if (!attributes.ContainsKey("aria-describedby"))
-                attributes["aria-describedby"] = Context.DescriptionId;
-        }
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             if (!UseDefaultMotion)
@@ -172,10 +160,7 @@
         hc.Add(HideWhenDetached);
         hc.Add(DisableAutoOpen);
         hc.Add(CloseOnEscape);
-        hc.Add(Context?.Modal ?? false);
         hc.Add(BradixPopover?.CurrentOpen);
         hc.Add(ResolvedContentId);
-        hc.Add(Context?.TitleId);
-        hc.Add(Context?.DescriptionId);
     }
 }

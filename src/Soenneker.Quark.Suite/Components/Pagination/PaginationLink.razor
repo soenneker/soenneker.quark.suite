@@ -45,17 +45,19 @@
         var resolvedButtonSize = ButtonSize?.Value ?? ButtonSizeType.Icon.Value;
         attributes["data-slot"] = "pagination-link";
         attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(resolvedButtonSize);
-        attributes["data-active"] = Active ? "true" : "false";
 
         if (Active)
         {
+            attributes["data-active"] = "true";
             attributes["aria-current"] = "page";
         }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             var variant = Active ? ButtonVariant.Outline : ButtonVariant.Ghost;
-            AppendClass(ref cls, "group/button shrink-0 text-sm border border-transparent bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "group/button shrink-0 text-sm border bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            if (!Active)
+                AppendClass(ref cls, "border-transparent");
             AppendClass(ref cls, "rounded-lg");
             AppendClass(ref cls, Button.GetButtonFocusClass(variant));
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
