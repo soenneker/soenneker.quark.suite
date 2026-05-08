@@ -29,7 +29,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}buttons",
+            $"{BaseUrl}components/button",
             static p => p.Locator("a[data-sidebar='menu-button'][aria-current='page']").First,
             expectedTitle: "Buttons - Quark Suite");
 
@@ -72,7 +72,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
         await page.SetViewportSizeAsync(2048, 960);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}buttons",
+            $"{BaseUrl}components/button",
             static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First,
             expectedTitle: "Buttons - Quark Suite");
 
@@ -109,7 +109,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Components - Quark Suite");
 
         var heading = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Components" }).First;
-        var firstComponentLink = page.Locator("main a[href='accordions']").First;
+        var firstComponentLink = page.Locator("main a[href='components/accordion']").First;
 
         var headingRect = await heading.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
         var linkRect = await firstComponentLink.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");

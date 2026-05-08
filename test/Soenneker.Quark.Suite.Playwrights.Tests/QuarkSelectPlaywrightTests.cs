@@ -20,7 +20,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
@@ -63,7 +63,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
@@ -94,7 +94,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
@@ -122,7 +122,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
@@ -145,7 +145,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
@@ -172,7 +172,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}select",
+            $"{BaseUrl}components/select",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First,
             expectedTitle: "Select Component - Quark Suite");
 

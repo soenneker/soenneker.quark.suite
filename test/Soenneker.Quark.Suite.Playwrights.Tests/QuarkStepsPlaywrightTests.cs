@@ -29,7 +29,7 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}steps",
+            $"{BaseUrl}components/steps",
             static p => p.Locator("#steps-disabled-demo"),
             expectedTitle: "Steps - Quark Suite");
 
@@ -88,7 +88,7 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}steps#review",
+            $"{BaseUrl}components/steps#review",
             static p => p.Locator("#steps-validation"),
             expectedTitle: "Steps - Quark Suite");
 
@@ -104,7 +104,7 @@ public sealed class QuarkStepsPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(reviewTab).ToHaveAttributeAsync("aria-selected", "false");
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}steps",
+            $"{BaseUrl}components/steps",
             static p => p.Locator("#steps-validation"),
             expectedTitle: "Steps - Quark Suite");
 

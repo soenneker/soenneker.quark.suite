@@ -29,7 +29,7 @@ public sealed class QuarkTimelinePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}timelines",
+            $"{BaseUrl}components/timelines",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Re-render timeline", Exact = true }),
             expectedTitle: "Timeline - Quark Suite");
 
@@ -81,7 +81,7 @@ public sealed class QuarkTimelinePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}timelines",
+            $"{BaseUrl}components/timelines",
             static p => p.Locator("[data-slot='timeline']").First,
             expectedTitle: "Timeline - Quark Suite");
 

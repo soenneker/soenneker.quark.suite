@@ -29,7 +29,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}currency-inputs",
+            $"{BaseUrl}components/currency-inputs",
             static p => p.Locator("[data-slot='currency-input']").First,
             expectedTitle: "CurrencyInput - Quark Suite");
 
@@ -55,7 +55,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}checkbox",
+            $"{BaseUrl}components/checkbox",
             static p => p.Locator("[data-slot='checkbox']").First,
             expectedTitle: "Checkbox Component - Quark Suite");
 
@@ -92,7 +92,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}dateinputs",
+            $"{BaseUrl}components/dateinputs",
             static p => p.GetByText("Basic Date Input", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "DateInputs - Quark Suite");
 
@@ -133,7 +133,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}memoinputs",
+            $"{BaseUrl}components/memoinputs",
             static p => p.Locator("textarea[data-slot='textarea']").First,
             expectedTitle: "MemoInputs - Quark Suite");
 

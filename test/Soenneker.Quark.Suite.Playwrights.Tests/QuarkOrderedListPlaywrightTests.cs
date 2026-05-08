@@ -29,7 +29,7 @@ public sealed class QuarkOrderedListPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}orderedlists",
+            $"{BaseUrl}components/orderedlists",
             static p => p.Locator("ol[data-slot='ordered-list']").First,
             expectedTitle: "Ordered Lists - Quark Suite");
 

@@ -29,7 +29,7 @@ public sealed class QuarkCardPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}cards",
+            $"{BaseUrl}components/card",
             static p => p.Locator("[data-slot='card']").First,
             expectedTitle: "Card - Quark Suite");
 

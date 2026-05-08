@@ -30,7 +30,7 @@ public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}alerts",
+            $"{BaseUrl}components/alert",
             static p => p.GetByRole(AriaRole.Alert).First,
             expectedTitle: "Alerts - Quark Suite");
 

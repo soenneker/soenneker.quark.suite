@@ -31,7 +31,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Accessible one-time password component with copy-paste functionality." }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -68,7 +68,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Four Digits" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -95,7 +95,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separator" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -124,7 +124,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the disabled prop to disable the input." }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -160,7 +160,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the value and onChange props to control the input value." }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -187,7 +187,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separator" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
@@ -208,7 +208,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}input-otp",
+            $"{BaseUrl}components/input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "رمز التحقق" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 

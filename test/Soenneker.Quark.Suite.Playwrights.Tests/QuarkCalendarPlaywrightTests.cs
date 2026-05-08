@@ -31,7 +31,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}calendars",
+            $"{BaseUrl}components/calendar",
             static p => p.Locator("[data-slot='calendar']").First,
             expectedTitle: "Calendar - Quark Suite");
 

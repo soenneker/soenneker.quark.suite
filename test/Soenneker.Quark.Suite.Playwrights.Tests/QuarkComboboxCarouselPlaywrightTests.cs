@@ -22,7 +22,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}comboboxes",
+            $"{BaseUrl}components/combobox",
             static p => p.GetByPlaceholder("Select a framework").First,
             expectedTitle: "Combobox - Quark Suite");
 
@@ -36,7 +36,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}comboboxes",
+            $"{BaseUrl}components/combobox",
             static p => p.GetByPlaceholder("Select a framework").First,
             expectedTitle: "Combobox - Quark Suite");
 
@@ -59,7 +59,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}comboboxes",
+            $"{BaseUrl}components/combobox",
             static p => p.GetByPlaceholder("Select a framework").First,
             expectedTitle: "Combobox - Quark Suite");
 
@@ -105,7 +105,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}comboboxes",
+            $"{BaseUrl}components/combobox",
             static p => p.GetByPlaceholder("Select a framework").First,
             expectedTitle: "Combobox - Quark Suite");
 
@@ -160,7 +160,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}carousels",
+            $"{BaseUrl}components/carousel",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
@@ -203,7 +203,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}carousels",
+            $"{BaseUrl}components/carousel",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
@@ -252,7 +252,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}carousels",
+            $"{BaseUrl}components/carousel",
             static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Carousel - Quark Suite");
 
@@ -270,7 +270,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}carousels",
+            $"{BaseUrl}components/carousel",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 

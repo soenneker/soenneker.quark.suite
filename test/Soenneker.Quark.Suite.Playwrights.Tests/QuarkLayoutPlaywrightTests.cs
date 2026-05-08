@@ -29,7 +29,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}containers",
+            $"{BaseUrl}components/containers",
             static p => p.GetByText("Even tighter layout").First,
             expectedTitle: "Container - Quark Suite");
 
@@ -53,7 +53,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
         ParsePixels(containerProbe.paddingLeft).Should().BeGreaterThanOrEqualTo(16);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}grids",
+            $"{BaseUrl}components/grids",
             static p => p.GetByText("Featured").First,
             expectedTitle: "Grid - Quark Suite");
 
@@ -77,7 +77,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
         gridProbe.featuredColumnEnd.Should().Be("span 2");
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}stacks",
+            $"{BaseUrl}components/stacks",
             static p => p.GetByText("All").First,
             expectedTitle: "Stack - Quark Suite");
 

@@ -30,7 +30,7 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawRuntimeError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}popover-smoke",
+            $"{BaseUrl}components/popover-smoke",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popover Smoke - Quark Suite");
 

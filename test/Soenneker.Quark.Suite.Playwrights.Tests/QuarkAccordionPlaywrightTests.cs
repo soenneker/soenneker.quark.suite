@@ -21,7 +21,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
+            $"{BaseUrl}components/accordion",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
@@ -60,7 +60,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
+            $"{BaseUrl}components/accordion",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
@@ -82,7 +82,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
+            $"{BaseUrl}components/accordion",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How do I reset my password?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
@@ -124,7 +124,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await page.SetViewportSizeAsync(1400, 1000);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
+            $"{BaseUrl}components/accordion",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
@@ -173,7 +173,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}accordions",
+            $"{BaseUrl}components/accordion",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 

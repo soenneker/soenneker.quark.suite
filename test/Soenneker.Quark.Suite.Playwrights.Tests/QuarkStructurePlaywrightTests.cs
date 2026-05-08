@@ -29,7 +29,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}semantic-html",
+            $"{BaseUrl}components/semantic-html",
             static p => p.Locator("main[data-slot='main']").First,
             expectedTitle: "Semantic HTML - Quark Suite");
 
@@ -39,14 +39,14 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(page.Locator("aside[data-slot='aside']").First).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}figures",
+            $"{BaseUrl}components/figures",
             static p => p.Locator("figure[data-slot='figure']").First,
             expectedTitle: "Figures & Figcaptions - Quark Suite");
 
         await Assertions.Expect(page.Locator("figure[data-slot='figure'] figcaption[data-slot='figcaption']").First).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}fieldsets",
+            $"{BaseUrl}components/fieldsets",
             static p => p.Locator("fieldset[data-slot='field-set']").First,
             expectedTitle: "Fieldsets & Legends - Quark Suite");
 
@@ -56,7 +56,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
         (await disabledFieldset.Locator("input").First.IsDisabledAsync()).Should().BeTrue();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}details",
+            $"{BaseUrl}components/details",
             static p => p.Locator("details[data-slot='details']").First,
             expectedTitle: "Details & Summary - Quark Suite");
 

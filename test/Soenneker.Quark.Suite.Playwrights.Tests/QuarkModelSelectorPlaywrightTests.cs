@@ -29,7 +29,7 @@ public sealed class QuarkModelSelectorPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}model-selectors",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/model-selectors",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Select a model", Exact = true }),
             expectedTitle: "Model Selector - Quark Suite");
 

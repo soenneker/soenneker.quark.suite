@@ -19,7 +19,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
             DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -40,7 +40,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
             DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -71,7 +71,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -92,7 +92,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
             DemoTrigger,
             expectedTitle: "Alert Dialogs - Quark Suite");
 

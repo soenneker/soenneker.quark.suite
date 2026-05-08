@@ -20,7 +20,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First,
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First,
             expectedTitle: "Tabs - Quark Suite");
 
         var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays a set of tabs that switch between related panels." }).First;
@@ -43,7 +43,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tabs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
             static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First, expectedTitle: "Tabs - Quark Suite");
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertical tabs list." }).First;
@@ -81,7 +81,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Home", Exact = true }),
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Home", Exact = true }),
             expectedTitle: "Tabs - Quark Suite");
 
         var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions
@@ -106,7 +106,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tabs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
             static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First, expectedTitle: "Tabs - Quark Suite");
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertical tabs list." }).First;
@@ -141,7 +141,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
 
         page.PageError += (_, _) => sawPageError = true;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tabs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
             static p => p.GetByRole(AriaRole.Tablist).First,
             expectedTitle: "Tabs - Quark Suite");
 

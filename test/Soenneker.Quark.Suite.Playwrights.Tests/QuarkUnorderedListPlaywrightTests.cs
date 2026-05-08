@@ -29,7 +29,7 @@ public sealed class QuarkUnorderedListPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}unorderedlists",
+            $"{BaseUrl}components/unorderedlists",
             static p => p.Locator("[data-slot='unordered-list']").First,
             expectedTitle: "Unordered List - Quark Suite");
 

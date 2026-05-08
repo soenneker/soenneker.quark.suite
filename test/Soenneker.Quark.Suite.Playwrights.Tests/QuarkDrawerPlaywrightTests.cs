@@ -21,7 +21,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}drawers",
+            $"{BaseUrl}components/drawer",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }),
             expectedTitle: "Drawer - Quark Suite");
 
@@ -64,7 +64,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}drawers",
+            $"{BaseUrl}components/drawer",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }),
             expectedTitle: "Drawer - Quark Suite");
 

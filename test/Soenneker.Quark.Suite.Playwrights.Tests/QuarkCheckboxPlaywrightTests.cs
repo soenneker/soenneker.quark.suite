@@ -27,7 +27,7 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
         };
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}checkbox",
+            $"{BaseUrl}components/checkbox",
             static p => p.Locator("#terms-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
         await WaitForInteractive(page);

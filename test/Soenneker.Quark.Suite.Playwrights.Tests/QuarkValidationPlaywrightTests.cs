@@ -29,7 +29,7 @@ public sealed class QuarkValidationPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}validation",
+            $"{BaseUrl}components/validation",
             static p => p.Locator("#requiredField"),
             expectedTitle: "Validation - Quark Suite");
 

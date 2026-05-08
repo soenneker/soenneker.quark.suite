@@ -20,7 +20,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}collapsibles",
+            $"{BaseUrl}components/collapsible",
             static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "File Tree", Exact = true }),
             expectedTitle: "Collapsible - Quark Suite");
 
@@ -47,7 +47,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}collapsibles",
+            $"{BaseUrl}components/collapsible",
             static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Basic", Exact = true }),
             expectedTitle: "Collapsible - Quark Suite");
 
@@ -74,7 +74,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}collapsibles",
+            $"{BaseUrl}components/collapsible",
             static p => p.GetByText("Order #4189", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Collapsible - Quark Suite");
 
@@ -101,7 +101,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}collapsibles",
+            $"{BaseUrl}components/collapsible",
             static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Settings Panel", Exact = true }),
             expectedTitle: "Collapsible - Quark Suite");
 

@@ -29,7 +29,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, _) => sawPageError = true;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/breadcrumb",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
@@ -73,7 +73,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, _) => sawPageError = true;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/breadcrumb",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 

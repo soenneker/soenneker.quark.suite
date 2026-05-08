@@ -28,7 +28,7 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}prompt-inputs",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/prompt-inputs",
             static p => p.Locator("[data-slot='prompt-input']"),
             expectedTitle: "Prompt Input - Quark Suite");
 
@@ -75,7 +75,7 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}suggestions",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/suggestions",
             static p => p.Locator("[data-slot='suggestions']"),
             expectedTitle: "Suggestions - Quark Suite");
 

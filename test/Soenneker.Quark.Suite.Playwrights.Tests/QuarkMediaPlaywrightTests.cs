@@ -29,7 +29,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}images",
+            $"{BaseUrl}components/images",
             static p => p.GetByText("Default styling.").First,
             expectedTitle: "Images - Quark Suite");
 
@@ -49,7 +49,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(page.GetByText("Image loaded successfully!")).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}videos",
+            $"{BaseUrl}components/videos",
             static p => p.GetByText("HTML5 video with poster and standard controls.").First,
             expectedTitle: "Video & Audio - Quark Suite");
 
@@ -86,7 +86,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(page.GetByText("Audio paused")).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}iframes",
+            $"{BaseUrl}components/iframes",
             static p => p.GetByText("Source URL and title for accessibility.").First,
             expectedTitle: "IFrames - Quark Suite");
 

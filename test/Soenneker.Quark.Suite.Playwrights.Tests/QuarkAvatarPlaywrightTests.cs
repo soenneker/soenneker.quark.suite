@@ -19,7 +19,7 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}avatars",
+            $"{BaseUrl}components/avatar",
             static p => p.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First,
             expectedTitle: "Avatars - Quark Suite");
 

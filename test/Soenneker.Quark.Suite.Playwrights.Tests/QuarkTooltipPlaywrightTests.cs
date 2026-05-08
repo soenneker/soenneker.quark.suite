@@ -23,7 +23,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
@@ -45,7 +45,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
@@ -64,7 +64,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tooltips", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Top", Exact = true }),
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Top", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
@@ -112,7 +112,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
 
         page.PageError += (_, _) => sawPageError = true;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 

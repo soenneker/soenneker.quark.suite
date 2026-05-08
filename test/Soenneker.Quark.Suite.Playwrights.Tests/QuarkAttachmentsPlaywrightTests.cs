@@ -28,7 +28,7 @@ public sealed class QuarkAttachmentsPlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}attachments",
+        await page.GotoAndWaitForReady($"{BaseUrl}components/attachments",
             static p => p.Locator("[data-slot='attachments']"),
             expectedTitle: "Attachments - Quark Suite");
 

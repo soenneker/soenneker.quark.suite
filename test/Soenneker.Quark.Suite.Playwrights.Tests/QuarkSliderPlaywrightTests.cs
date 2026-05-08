@@ -21,7 +21,7 @@ public sealed class QuarkSliderPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}sliders",
+            $"{BaseUrl}components/slider",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Vertical sliders." }).GetByRole(AriaRole.Slider).First,
             expectedTitle: "Sliders - Quark Suite");
 

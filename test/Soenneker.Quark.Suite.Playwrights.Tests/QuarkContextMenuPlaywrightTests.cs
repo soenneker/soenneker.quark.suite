@@ -21,7 +21,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}context-menu",
+            $"{BaseUrl}components/context-menu",
             static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
             expectedTitle: "Context Menus - Quark Suite");
 
@@ -61,7 +61,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
-            $"{BaseUrl}context-menu",
+            $"{BaseUrl}components/context-menu",
             static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
             expectedTitle: "Context Menus - Quark Suite");
 
