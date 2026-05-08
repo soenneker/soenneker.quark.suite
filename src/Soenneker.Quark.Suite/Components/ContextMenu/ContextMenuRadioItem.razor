@@ -11,14 +11,10 @@
     <Span data-slot="context-menu-radio-item-indicator"
           PointerEvents="Quark.PointerEvents.None"
           Position="Quark.Position.Absolute"
-          Display="Quark.Display.Flex"
-          Size='Quark.Size.Token("3.5")'
-          ItemsAlign="Items.Center"
-          Justify="Quark.Justify.Center"
-          Class="start-2">
+          Class="right-2">
         @if (Selected)
         {
-            <Icon Name="LucideIcon.Circle" Size="Quark.Size.Is2" Class="fill-current" />
+            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
         }
     </Span>
     @ChildContent
@@ -31,6 +27,9 @@
     [Parameter]
     public EventCallback<bool> SelectedChanged { get; set; }
 
+    [Parameter]
+    public bool Indented { get; set; }
+
     private IReadOnlyDictionary<string, object> RadioItemAttributes => BuildRadioItemAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -39,11 +38,13 @@
         attributes["data-slot"] = "context-menu-radio-item";
         attributes["data-state"] = Selected ? "checked" : "unchecked";
         attributes["aria-checked"] = Selected ? "true" : "false";
+        if (Indented)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
-            AppendClass(ref cls, "ps-8 pe-8 data-inset:ps-8 whitespace-nowrap");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50");
+            AppendClass(ref cls, "data-inset:pl-7 pr-8 pl-1.5");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
@@ -74,6 +75,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Selected);
         hc.Add(Disabled);
+        hc.Add(Indented);
     }
 
     private async Task HandleSelect()

@@ -2,7 +2,15 @@
 @inherits Soenneker.Quark.Element
 @using Soenneker.Bradix
 
-<div @attributes="BuildAttributes()">@(InputOtpContext?.GetCharacter(Index))</div>
+<div @attributes="BuildAttributes()">
+    @(InputOtpContext?.GetCharacter(Index))
+    @if (ShouldShowFakeCaret)
+    {
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="h-4 w-px animate-caret-blink bg-foreground duration-1000"></div>
+        </div>
+    }
+</div>
 
 @code {
     [CascadingParameter]
@@ -13,6 +21,8 @@
     /// </summary>
     [Parameter]
     public int Index { get; set; }
+
+    private bool ShouldShowFakeCaret => InputOtpContext?.IsActive(Index) == true && InputOtpContext.GetCharacter(Index) is null;
 
     protected override void ApplyDefaultParameters()
     {

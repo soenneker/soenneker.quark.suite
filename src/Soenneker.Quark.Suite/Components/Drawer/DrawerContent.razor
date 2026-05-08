@@ -90,12 +90,16 @@
         var attrs = new Dictionary<string, object>();
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
+            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
 
             if (ParentDrawer?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
         });
         attrs["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
+        if (ParentDrawer?.Visible == true)
+            attrs["data-open"] = string.Empty;
+        else
+            attrs["data-closed"] = string.Empty;
         attrs["data-slot"] = "drawer-overlay";
         attrs["aria-hidden"] = "true";
         return attrs;

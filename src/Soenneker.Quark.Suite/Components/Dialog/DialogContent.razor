@@ -101,6 +101,11 @@
         });
 
         attributes["data-slot"] = "dialog-content";
+
+        if (ParentDialog?.Visible == true)
+            attributes["data-open"] = string.Empty;
+        else
+            attributes["data-closed"] = string.Empty;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -118,6 +123,11 @@
         attributes["data-slot"] = "dialog-overlay";
         attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
         attributes["aria-hidden"] = "true";
+
+        if (ParentDialog?.Visible == true)
+            attributes["data-open"] = string.Empty;
+        else
+            attributes["data-closed"] = string.Empty;
 
         if (ShouldCloseOnOutsideInteraction)
             attributes["onclick"] = EventCallback.Factory.Create(this, HandleOverlayClick);

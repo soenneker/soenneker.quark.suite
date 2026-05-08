@@ -2,12 +2,10 @@
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 
-@if (IsVisibleResolved)
-{
-    <div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
-        @ChildContent
-    </div>
-}
+<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+    @ChildContent
+    <Icon Name="LucideIcon.Check" Class="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+</div>
 
 @code {
     private ElementReference _elementRef;
@@ -20,6 +18,9 @@
 
     [Parameter]
     public string[]? Keywords { get; set; }
+
+    [Parameter]
+    public bool Checked { get; set; }
 
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
@@ -97,8 +98,11 @@
         attributes["aria-selected"] = selected ? "true" : "false";
         if (selected)
             attributes["data-selected"] = "true";
+        if (!IsVisibleResolved)
+            attributes["hidden"] = string.Empty;
         attributes["data-value"] = SearchText;
         attributes["data-disabled"] = Disabled ? "true" : "false";
+        attributes["data-checked"] = Checked ? "true" : "false";
         if (Disabled)
             attributes["aria-disabled"] = "true";
 
@@ -118,6 +122,7 @@
         hc.Add(IsVisibleResolved);
         hc.Add(ParentCommand?.IsItemActive(this));
         hc.Add(SearchValue);
+        hc.Add(Checked);
     }
 
     internal async Task Focus()

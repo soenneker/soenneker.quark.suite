@@ -33,27 +33,18 @@
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
-        Shrink ??= Quark.Shrink.Is0;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Active ? Quark.BorderColor.Border : Quark.BorderColor.Transparent;
-        TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
-
-        if (Active)
-        {
-            BackgroundColor ??= Quark.BackgroundColor.Background;
-        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        var resolvedButtonSize = ButtonSize?.Value ?? ButtonSizeType.Icon.Value;
         attributes["data-slot"] = "pagination-link";
-        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(ButtonSize?.Value);
+        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(resolvedButtonSize);
         attributes["data-active"] = Active ? "true" : "false";
 
         if (Active)
@@ -63,16 +54,15 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button bg-clip-padding select-none");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50");
+            var variant = Active ? ButtonVariant.Outline : ButtonVariant.Ghost;
+            AppendClass(ref cls, "group/button shrink-0 text-sm border border-transparent bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "rounded-lg");
+            AppendClass(ref cls, Button.GetButtonFocusClass(variant));
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, ResolvePaginationButtonSizeClass(ButtonSize?.Value));
-
-            if (Active)
-                AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
-            else
-                AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50");
+            AppendClass(ref cls, Button.GetButtonVariantClass(variant));
+            AppendClass(ref cls, Button.ResolveButtonSizeClass(resolvedButtonSize, false));
 
             if (Disabled)
                 AppendClass(ref cls, "opacity-50 pointer-events-none");
@@ -96,18 +86,4 @@
         hc.Add(ButtonSize);
     }
 
-    private static string ResolvePaginationButtonSizeClass(string? size)
-    {
-        return size switch
-        {
-            "xs" => "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-            "sm" => "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-            "lg" => "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-            "icon" => "size-8",
-            "icon-xs" => "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-            "icon-sm" => "size-8",
-            "icon-lg" => "size-10",
-            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
-        };
-    }
 }

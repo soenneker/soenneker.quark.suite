@@ -445,6 +445,8 @@
 		attributes["data-slot"] = "slider";
 		attributes["data-orientation"] = OrientationValue;
 		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
+		if (Disabled)
+			attributes["data-disabled"] = string.Empty;
 		if (!IsVertical)
 			attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
 
@@ -574,7 +576,6 @@
 
 	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
 	{
-		var isActive = _focusedThumbIndex == index || _draggingThumbIndex == index;
 		var resolvedValues = GetResolvedValues();
 		var thumbLabel = ResolveThumbLabel(index, resolvedValues.Length);
 
@@ -636,9 +637,6 @@
 			AppendClass(ref cls, "relative block");
 			AppendClass(ref cls, GetThumbSizeClass());
 			AppendClass(ref cls, "shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50");
-
-			if (isActive)
-				AppendClass(ref cls, "ring-3");
 		});
 
 		return attributes;

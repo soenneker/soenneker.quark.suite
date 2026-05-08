@@ -486,7 +486,7 @@
 
     private void OnStateChanged()
     {
-        _ = HandleStateChanged();
+        _ = InvokeAsync(HandleStateChanged);
     }
 
     private async Task HandleStateChanged()
@@ -496,7 +496,8 @@
 
         _shouldMeasureHeights = true;
         await RefreshToastGroups();
-        await InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        StateHasChanged();
     }
 
     private Task SetExpanded(SonnerPosition position, bool value)

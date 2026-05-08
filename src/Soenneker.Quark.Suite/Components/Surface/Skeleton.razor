@@ -10,9 +10,7 @@
     {
         base.ApplyDefaultParameters();
 
-        if (!HasExplicitRoundedClass(Class))
-            Rounded ??= Quark.Rounded.Md;
-
+        Rounded ??= Quark.Rounded.Md;
         BackgroundColor ??= Quark.BackgroundColor.Muted;
         Animation ??= Quark.Animation.Pulse;
     }
@@ -22,14 +20,5 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "skeleton";
 
-    }
-
-    private static bool HasExplicitRoundedClass(string? className)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return false;
-
-        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Any(token => token == "rounded" || token.StartsWith("rounded-", StringComparison.Ordinal));
     }
 }

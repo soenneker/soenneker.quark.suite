@@ -1,20 +1,20 @@
 ## Test execution
 
-If you need to execute specific tests, use Microsoft Testing Platform (MTP) filters, not VSTest filters.
+When running specific tests, use Microsoft Testing Platform (MTP) tree node filters.
 
-Do not use:
+Do **not** use VSTest filters:
 
 ```bash
 dotnet test --filter ...
-````
-
-Use:
-
-```bash
-dotnet test --treenode-filter "<filter>"
 ```
 
-Format:
+Use `--project` to target the test project, then pass MTP arguments after `--`:
+
+```bash
+dotnet test --project <project-directory-or-csproj> -- --treenode-filter "<filter>"
+```
+
+Filter format:
 
 ```text
 /<Assembly>/<Namespace>/<Class>/<Test>
@@ -23,6 +23,7 @@ Format:
 Examples:
 
 ```bash
-dotnet test --treenode-filter "/*/*/*/MyTest"
-dotnet test --treenode-filter "/*/*/MyTestClass/*"
+dotnet test --project ./tests/MyProject.Tests -- --treenode-filter "/*/*/*/MyTest"
+
+dotnet test --project ./tests/MyProject.Tests -- --treenode-filter "/*/*/MyTestClass/*"
 ```

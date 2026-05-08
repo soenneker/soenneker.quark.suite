@@ -86,13 +86,14 @@ else
         attributes["data-slot"] = "sidebar-menu-sub-button";
         attributes["data-sidebar"] = "menu-sub-button";
         attributes["data-size"] = ButtonSize == SidebarMenuSubButtonSize.Sm ? "sm" : "md";
-        attributes["data-active"] = Active ? "true" : "false";
+        if (Active)
+            attributes["data-active"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground -translate-x-px focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
-            AppendClass(ref cls, "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground");
-            AppendClass(ref cls, ButtonSize == SidebarMenuSubButtonSize.Sm ? "text-xs" : "text-sm");
+            AppendClass(ref cls, "data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground");
+            AppendClass(ref cls, "data-[size=md]:text-sm data-[size=sm]:text-xs");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");
         });
     }

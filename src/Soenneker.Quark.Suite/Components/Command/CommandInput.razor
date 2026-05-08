@@ -2,13 +2,17 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
-    <div @attributes="BuildInputGroupAttributes()">
-        <Icon Name="LucideIcon.Search" Opacity="Quark.Opacity.Is50" />
-        <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
-    </div>
+    <InputGroup Class="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!" @onclick="@(() => FocusInput())">
+        <input @ref="_inputElement" value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
+        <InputGroupAddon>
+            <Icon Name="LucideIcon.Search" Class="size-4 shrink-0 opacity-50" />
+        </InputGroupAddon>
+    </InputGroup>
 </div>
 
 @code {
+    private ElementReference _inputElement;
+
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
@@ -23,6 +27,11 @@
             await ParentCommand.SetSearch(Value);
 
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    private ValueTask FocusInput()
+    {
+        return _inputElement.FocusAsync();
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
@@ -50,7 +59,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "w-full text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
+            AppendClass(ref cls, "w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50");
         });
     }
 
@@ -73,22 +82,6 @@
         {
             AppendClass(ref cls, "p-1 pb-0");
         });
-        return attrs;
-    }
-
-    private Dictionary<string, object> BuildInputGroupAttributes()
-    {
-        var attrs = new Dictionary<string, object>
-        {
-            ["data-slot"] = "input-group",
-            ["role"] = "group"
-        };
-
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex h-8! w-full items-center gap-2 rounded-lg! border border-input/30 bg-input/30 px-2 shadow-none!");
-        });
-
         return attrs;
     }
 

@@ -4,11 +4,11 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelect
 
-<Div data-slot="native-select-wrapper" Position="Quark.Position.Relative" Width="Quark.Width.IsFit" Class="group/native-select has-[select:disabled]:opacity-50">
+<Div data-slot="native-select-wrapper" data-size="@GetSizeValue()" Position="Quark.Position.Relative" Width="Quark.Width.IsFit" Class="group/native-select has-[select:disabled]:opacity-50">
     <select value="@Value" @onchange="HandleChange" @attributes="BuildAttributes()">
         @ChildContent
     </select>
-    <Svg PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Size="Quark.Size.Is4" TextColor="Quark.TextColor.MutedForeground" Opacity="Quark.Opacity.Is50" UserSelect="Quark.UserSelect.None" Class="top-1/2 right-3.5 -translate-y-1/2"
+    <Svg PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Size="Quark.Size.Is4" TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="@GetIconClass()"
          aria-hidden="true"
          data-slot="native-select-icon"
          NativeWidth="24"
@@ -37,6 +37,17 @@
     [Parameter]
     public NativeSelectSize NativeSelectSize { get; set; } = NativeSelectSize.Default;
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    private string GetSizeValue() => ReferenceEquals(NativeSelectSize, NativeSelectSize.Sm) ? "sm" : "default";
+
+    private bool IsRtl => string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
+
+    private string GetIconClass() => IsRtl
+        ? "end-2.5 top-1/2 -translate-y-1/2"
+        : "top-1/2 right-2.5 -translate-y-1/2";
+
     private async Task HandleChange(ChangeEventArgs e)
     {
         var next = e.Value?.ToString();
@@ -60,7 +71,7 @@
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
         Height ??= Quark.Height.Token("8");
         Rounded ??= Quark.Rounded.Lg;
-        Padding ??= "py-1 pr-8 pl-2.5";
+        Padding ??= IsRtl ? "py-1 ps-2.5 pe-8" : "py-1 pr-8 pl-2.5";
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
         OutlineStyle ??= Quark.OutlineStyle.None;
@@ -71,7 +82,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "native-select";
-        attributes["data-size"] = ReferenceEquals(Size, NativeSelectSize.Sm) ? "sm" : "default";
+        attributes["data-size"] = GetSizeValue();
         ApplyFieldControlAttributes(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -91,6 +102,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(NativeSelectSize);
+        hc.Add(DirectionProviderDir);
         hc.Add(Disabled);
         hc.Add(Required);
     }

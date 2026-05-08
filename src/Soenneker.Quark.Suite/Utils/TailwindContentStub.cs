@@ -14,6 +14,7 @@ internal static class TailwindContentStub
 
     // Layout classes emitted by built-in presets.
     private static readonly CssValue<MaxWidthBuilder> PresetMaxWidth = MaxWidth.Token("[1400px]");
+    private static readonly CssValue<MinWidthBuilder> CalendarCellMinWidth = MinWidth.Token("(--cell-size)");
 
     // Rounded: rounded + corners(tl,tr,bl,br,t,b,l,r) + sizes(none,sm,md,lg,xl,2xl,3xl,full)
     private const string Rounded = "rounded rounded-none rounded-sm rounded-md rounded-lg rounded-xl rounded-2xl rounded-3xl rounded-full rounded-t rounded-t-none rounded-t-sm rounded-t-md rounded-t-lg rounded-t-xl rounded-t-2xl rounded-t-3xl rounded-t-full rounded-b rounded-b-none rounded-b-sm rounded-b-md rounded-b-lg rounded-b-xl rounded-b-2xl rounded-b-3xl rounded-b-full rounded-l rounded-l-none rounded-l-sm rounded-l-md rounded-l-lg rounded-l-xl rounded-l-2xl rounded-l-3xl rounded-l-full rounded-r rounded-r-none rounded-r-sm rounded-r-md rounded-r-lg rounded-r-xl rounded-r-2xl rounded-r-3xl rounded-r-full rounded-tl rounded-tl-none rounded-tl-sm rounded-tl-md rounded-tl-lg rounded-tl-xl rounded-tl-2xl rounded-tl-3xl rounded-tl-full rounded-tr rounded-tr-none rounded-tr-sm rounded-tr-md rounded-tr-lg rounded-tr-xl rounded-tr-2xl rounded-tr-3xl rounded-tr-full rounded-bl rounded-bl-none rounded-bl-sm rounded-bl-md rounded-bl-lg rounded-bl-xl rounded-bl-2xl rounded-bl-3xl rounded-bl-full rounded-br rounded-br-none rounded-br-sm rounded-br-md rounded-br-lg rounded-br-xl rounded-br-2xl rounded-br-3xl rounded-br-full";
@@ -24,7 +25,7 @@ internal static class TailwindContentStub
     // State variants that are difficult for the build-time scanner to discover reliably.
     private const string StateVariants = "data-[state=checked]:border-primary data-[state=checked]:border-[5px] data-[state=checked]:bg-background dark:data-[state=checked]:bg-background has-[[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[[data-slot=checkbox][data-state=checked]]:bg-muted has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[[data-slot=radio-group-item][data-state=checked]]:bg-muted dark:has-[[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[[data-slot=checkbox][data-state=checked]]:bg-primary/10 dark:has-[[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[[data-slot=radio-group-item][data-state=checked]]:bg-primary/10";
 
-    // Calendar variable utilities used by DayPicker-style markup.
-    private const string Calendar = "min-w-(--cell-size)";
+    // CSS variable utilities used by Radix/shadcn-style markup and docs layout.
+    private const string CssVariableUtilities = "min-w-(--cell-size) h-(--top-spacing) h-(--radix-accordion-content-height) h-(--radix-navigation-menu-viewport-height) md:w-(--radix-navigation-menu-viewport-width) max-h-(--radix-select-content-available-height) h-(--radix-select-trigger-height) min-w-(--radix-select-trigger-width)";
 
 }
