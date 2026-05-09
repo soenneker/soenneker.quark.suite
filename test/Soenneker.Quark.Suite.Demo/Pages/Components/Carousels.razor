@@ -169,7 +169,7 @@
                      Code="@PluginsCode"
                      CodeLanguage="razor">
             <Div Class="mx-auto w-full max-w-[10rem] sm:max-w-xs">
-                <Carousel Autoplay="true" Loop="true" AutoplayDelay="TimeSpan.FromSeconds(2)" Width="Width.IsFull" Class="max-w-[10rem] sm:max-w-xs">
+                <Carousel Autoplay="true" AutoplayDelay="TimeSpan.FromSeconds(2)" Width="Width.IsFull" Class="max-w-[10rem] sm:max-w-xs">
                     <CarouselContent>
                         @for (var index = 1; index <= 5; index++)
                         {
@@ -199,42 +199,28 @@
                      PreviewClass="@CarouselTallResponsivePreviewClass"
                      Code="@RtlCode"
                      CodeLanguage="razor">
-            <Div Class="flex flex-col items-center gap-6">
-                <Select TValue="string" SelectSize="SelectSizes.Sm" SelectedValue="@_carouselRtlLanguage" SelectedValueChanged="HandleCarouselRtlLanguageChanged">
-                    <SelectTrigger Width="Width.Is44" dir="ltr">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
-                        <SelectGroup>
-                            <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
-                            <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-
-                <DirectionProvider Dir="@CarouselRtlDirection">
-                    <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs">
-                        <Carousel Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs">
-                            <CarouselContent>
-                                @foreach (var slideNumber in CarouselRtlSlides)
-                                {
-                                    <CarouselItem>
-                                        <Div class="p-1">
-                                            <Card>
-                                                <CardBody Class="flex aspect-square items-center justify-center p-6">
-                                                    <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
-                                                </CardBody>
-                                            </Card>
-                                        </Div>
-                                    </CarouselItem>
-                                }
-                            </CarouselContent>
-                            <CarouselPrevious />
-                            <CarouselNext />
-                        </Carousel>
-                    </Div>
-                </DirectionProvider>
-            </Div>
+            <DirectionProvider Dir="rtl">
+                <Div Class="mx-auto w-full max-w-[12rem] sm:max-w-xs">
+                    <Carousel Width="Width.IsFull" Class="max-w-[12rem] sm:max-w-xs">
+                        <CarouselContent>
+                            @foreach (var slideNumber in CarouselRtlSlides)
+                            {
+                                <CarouselItem>
+                                    <Div class="p-1">
+                                        <Card>
+                                            <CardBody Class="flex aspect-square items-center justify-center p-6">
+                                                <Span TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold">@slideNumber</Span>
+                                            </CardBody>
+                                        </Card>
+                                    </Div>
+                                </CarouselItem>
+                            }
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </Carousel>
+                </Div>
+            </DirectionProvider>
         </DemoSection>
     </Section>
 </Div>
@@ -377,7 +363,7 @@
 
     private const string PluginsCode =
 @"<Div Class=""mx-auto w-full max-w-[10rem] sm:max-w-xs"">
-    <Carousel Autoplay=""true"" Loop=""true"" AutoplayDelay=""TimeSpan.FromSeconds(2)"" Width=""Width.IsFull"" Class=""max-w-[10rem] sm:max-w-xs"">
+    <Carousel Autoplay=""true"" AutoplayDelay=""TimeSpan.FromSeconds(2)"" Width=""Width.IsFull"" Class=""max-w-[10rem] sm:max-w-xs"">
         <CarouselContent>
             @for (var index = 1; index <= 5; index++)
             {
@@ -400,57 +386,32 @@
 </Div>";
 
     private const string RtlCode =
-@"<Div Class=""flex flex-col items-center gap-6"">
-    <Select TValue=""string"" SelectSize=""SelectSizes.Sm"" SelectedValue=""@_carouselRtlLanguage"" SelectedValueChanged=""HandleCarouselRtlLanguageChanged"">
-        <SelectTrigger Width=""Width.Is44"" dir=""ltr"">
-            <SelectValue />
-        </SelectTrigger>
-        <SelectContent Class=""data-[state=open]:animate-none data-[state=closed]:animate-none"" dir=""ltr"">
-            <SelectGroup>
-                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
-            </SelectGroup>
-        </SelectContent>
-    </Select>
+@"<DirectionProvider Dir=""rtl"">
+    <Div Class=""mx-auto w-full max-w-[12rem] sm:max-w-xs"">
+        <Carousel Width=""Width.IsFull"" Class=""max-w-[12rem] sm:max-w-xs"">
+            <CarouselContent>
+                @foreach (var slideNumber in CarouselRtlSlides)
+                {
+                    <CarouselItem>
+                        <Div class=""p-1"">
+                            <Card>
+                                <CardBody Class=""flex aspect-square items-center justify-center p-6"">
+                                    <Span TextSize=""TextSize.ThreeXl"" FontWeight=""FontWeight.Semibold"">@slideNumber</Span>
+                                </CardBody>
+                            </Card>
+                        </Div>
+                    </CarouselItem>
+                }
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+        </Carousel>
+    </Div>
+</DirectionProvider>";
 
-    <DirectionProvider Dir=""@CarouselRtlDirection"">
-        <Div Class=""mx-auto w-full max-w-[12rem] sm:max-w-xs"">
-            <Carousel Width=""Width.IsFull"" Class=""max-w-[12rem] sm:max-w-xs"">
-                <CarouselContent>
-                    @foreach (var slideNumber in CarouselRtlSlides)
-                    {
-                        <CarouselItem>
-                            <Div class=""p-1"">
-                                <Card>
-                                    <CardBody Class=""flex aspect-square items-center justify-center p-6"">
-                                        <Span TextSize=""TextSize.ThreeXl"" FontWeight=""FontWeight.Semibold"">@slideNumber</Span>
-                                    </CardBody>
-                                </Card>
-                            </Div>
-                        </CarouselItem>
-                    }
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-            </Carousel>
-        </Div>
-    </DirectionProvider>
-</Div>";
-
-    private string _carouselRtlLanguage = "ar";
     private int _carouselApiCurrent = 1;
 
-    private string CarouselRtlDirection => _carouselRtlLanguage == "ar" ? "rtl" : "ltr";
-
-    private IReadOnlyList<string> CarouselRtlSlides => _carouselRtlLanguage == "ar"
-        ? ["١", "٢", "٣", "٤", "٥"]
-        : ["1", "2", "3", "4", "5"];
-
-    private Task HandleCarouselRtlLanguageChanged(string? value)
-    {
-        _carouselRtlLanguage = string.IsNullOrWhiteSpace(value) ? "ar" : value;
-        return Task.CompletedTask;
-    }
+    private static readonly IReadOnlyList<string> CarouselRtlSlides = ["١", "٢", "٣", "٤", "٥"];
 
     private Task HandleCarouselApiIndexChanged(int index)
     {

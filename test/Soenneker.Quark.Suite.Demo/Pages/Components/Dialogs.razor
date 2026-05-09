@@ -165,37 +165,55 @@
                          CodeLanguage="razor"
                          PreviewClass="@DialogPreviewClass">
                 <DirectionProvider Dir="rtl">
-                    <Dialog>
-                        <DialogTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline">افتح الحوار</Button>
-                        </DialogTrigger>
-                        <DialogContent Class="text-right">
-                            <DialogHeader>
-                                <DialogTitle>تعديل الملف الشخصي</DialogTitle>
-                                <DialogDescription>
-                                    قم بتحديث معلوماتك هنا، ثم احفظ التغييرات عند الانتهاء.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <DialogBody>
-                                <Div Display="Display.Grid" Gap="Gap.Is4">
-                                    <Div Display="Display.Grid" Gap="Gap.Is3">
-                                        <Label For="dialog-rtl-name">الاسم</Label>
-                                        <Input Id="dialog-rtl-name" Value="بيدرو دوارتي" />
-                                    </Div>
-                                    <Div Display="Display.Grid" Gap="Gap.Is3">
-                                        <Label For="dialog-rtl-username">اسم المستخدم</Label>
-                                        <Input Id="dialog-rtl-username" Value="@("@peduarte")" />
-                                    </Div>
-                                </Div>
-                            </DialogBody>
-                            <DialogFooter>
-                                <DialogClose AsChild="true">
-                                    <Button Variant="ButtonVariant.Outline">إلغاء</Button>
-                                </DialogClose>
-                                <Button>حفظ التغييرات</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <Div Class="grid w-full gap-6" dir="rtl">
+                        <Div Display="Display.Flex" AlignItems="AlignItems.Center" Gap="Gap.Is2" Class="-mx-6" dir="ltr">
+                            <Select TValue="string" SelectSize="SelectSizes.Sm" SelectedValue="@_rtlLocale" SelectedValueChanged="OnRtlLocaleChanged">
+                                <SelectTrigger Width="Width.Is36" dir="ltr">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
+                                    <SelectGroup>
+                                        <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                        <SelectItem TValue="string" ItemValue="@("he")" Text="Hebrew (עברית)" />
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Class="ml-auto size-7" OnClick="ToggleRtlLocale">
+                                <Icon Name="LucideIcon.Languages" />
+                                <Span Class="sr-only">Toggle</Span>
+                            </Button>
+                        </Div>
+
+                        <Div Class="flex justify-center">
+                            <Dialog>
+                                <DialogTrigger AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">@RtlDialogTrigger</Button>
+                                </DialogTrigger>
+                                <DialogContent Class="text-right">
+                                    <DialogHeader>
+                                        <DialogTitle>@RtlDialogTitle</DialogTitle>
+                                        <DialogDescription>@RtlDialogDescription</DialogDescription>
+                                    </DialogHeader>
+                                    <FieldGroup Class="gap-5">
+                                        <Field>
+                                            <Label For="dialog-rtl-name">@RtlNameLabel</Label>
+                                            <Input Id="dialog-rtl-name" Value="Pedro Duarte" />
+                                        </Field>
+                                        <Field>
+                                            <Label For="dialog-rtl-username">@RtlUsernameLabel</Label>
+                                            <Input Id="dialog-rtl-username" Value="@("@peduarte")" />
+                                        </Field>
+                                    </FieldGroup>
+                                    <DialogFooter>
+                                        <DialogClose AsChild="true">
+                                            <Button Variant="ButtonVariant.Outline">@RtlCancelLabel</Button>
+                                        </DialogClose>
+                                        <Button>@RtlSaveLabel</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </Div>
+                    </Div>
                 </DirectionProvider>
             </DemoSection>
         </Section>
@@ -203,6 +221,28 @@
 </Div>
 
 @code {
+    private string? _rtlLocale = "ar";
+    private bool IsHebrewRtl => _rtlLocale == "he";
+    private string RtlDialogTrigger => IsHebrewRtl ? "פתח דיאלוג" : "فتح الحوار";
+    private string RtlDialogTitle => IsHebrewRtl ? "עריכת פרופיל" : "تعديل الملف الشخصي";
+    private string RtlDialogDescription => IsHebrewRtl ? "בצע שינויים בפרופיל שלך כאן. לחץ על שמור כשתסיים." : "قم بإجراء تغييرات على ملفك الشخصي هنا. انقر فوق حفظ عند الانتهاء.";
+    private string RtlNameLabel => IsHebrewRtl ? "שם" : "الاسم";
+    private string RtlUsernameLabel => IsHebrewRtl ? "שם משתמש" : "اسم المستخدم";
+    private string RtlCancelLabel => IsHebrewRtl ? "ביטול" : "إلغاء";
+    private string RtlSaveLabel => IsHebrewRtl ? "שמור שינויים" : "حفظ التغييرات";
+
+    private Task OnRtlLocaleChanged(string? value)
+    {
+        _rtlLocale = value;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleRtlLocale()
+    {
+        _rtlLocale = IsHebrewRtl ? "ar" : "he";
+        return Task.CompletedTask;
+    }
+
     private const string DialogPreviewClass =
         "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0";
 
@@ -326,37 +366,55 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Dialog>
-        <DialogTrigger AsChild=""true"">
-            <Button Variant=""ButtonVariant.Outline"">افتح الحوار</Button>
-        </DialogTrigger>
-        <DialogContent Class=""text-right"">
-            <DialogHeader>
-                <DialogTitle>تعديل الملف الشخصي</DialogTitle>
-                <DialogDescription>
-                    قم بتحديث معلوماتك هنا، ثم احفظ التغييرات عند الانتهاء.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <Div Display=""Display.Grid"" Gap=""Gap.Is4"">
-                    <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
-                        <Label For=""dialog-rtl-name"">الاسم</Label>
-                        <Input Id=""dialog-rtl-name"" Value=""بيدرو دوارتي"" />
-                    </Div>
-                    <Div Display=""Display.Grid"" Gap=""Gap.Is3"">
-                        <Label For=""dialog-rtl-username"">اسم المستخدم</Label>
-                        <Input Id=""dialog-rtl-username"" Value=""@(""@peduarte"")"" />
-                    </Div>
-                </Div>
-            </DialogBody>
-            <DialogFooter>
-                <DialogClose AsChild=""true"">
-                    <Button Variant=""ButtonVariant.Outline"">إلغاء</Button>
-                </DialogClose>
-                <Button>حفظ التغييرات</Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+    <Div Class=""grid w-full gap-6"" dir=""rtl"">
+        <Div Display=""Display.Flex"" AlignItems=""AlignItems.Center"" Gap=""Gap.Is2"" Class=""-mx-6"" dir=""ltr"">
+            <Select TValue=""string"" SelectSize=""SelectSizes.Sm"" SelectedValue=""@_rtlLocale"" SelectedValueChanged=""OnRtlLocaleChanged"">
+                <SelectTrigger Width=""Width.Is36"" dir=""ltr"">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent Class=""data-[state=open]:animate-none data-[state=closed]:animate-none"" dir=""ltr"">
+                    <SelectGroup>
+                        <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+                        <SelectItem TValue=""string"" ItemValue=""@(""he"")"" Text=""Hebrew (עברית)"" />
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+            <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconSm"" Class=""ml-auto size-7"" OnClick=""ToggleRtlLocale"">
+                <Icon Name=""LucideIcon.Languages"" />
+                <Span Class=""sr-only"">Toggle</Span>
+            </Button>
+        </Div>
+
+        <Div Class=""flex justify-center"">
+            <Dialog>
+                <DialogTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">@RtlDialogTrigger</Button>
+                </DialogTrigger>
+                <DialogContent Class=""text-right"">
+                    <DialogHeader>
+                        <DialogTitle>@RtlDialogTitle</DialogTitle>
+                        <DialogDescription>@RtlDialogDescription</DialogDescription>
+                    </DialogHeader>
+                    <FieldGroup Class=""gap-5"">
+                        <Field>
+                            <Label For=""dialog-rtl-name"">@RtlNameLabel</Label>
+                            <Input Id=""dialog-rtl-name"" Value=""Pedro Duarte"" />
+                        </Field>
+                        <Field>
+                            <Label For=""dialog-rtl-username"">@RtlUsernameLabel</Label>
+                            <Input Id=""dialog-rtl-username"" Value=""@(""@peduarte"")"" />
+                        </Field>
+                    </FieldGroup>
+                    <DialogFooter>
+                        <DialogClose AsChild=""true"">
+                            <Button Variant=""ButtonVariant.Outline"">@RtlCancelLabel</Button>
+                        </DialogClose>
+                        <Button>@RtlSaveLabel</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </Div>
+    </Div>
 </DirectionProvider>";
 
 }

@@ -373,12 +373,12 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div TextAlign="TextAlign.End">
+                    <Div dir="rtl" Class="flex w-full justify-center">
                         <ContextMenu>
                             <ContextMenuTrigger Id="context-menu-rtl-trigger"
                                                 data-testid="context-menu-rtl-trigger"
                                                 Class="@ContextMenuTriggerClass">
-                                انقر بزر الماوس الأيمن هنا
+                                @RtlContextMenuTriggerText
                             </ContextMenuTrigger>
                             <ContextMenuContent Width='Width.Token("48")'>
                                 <Div>
@@ -461,6 +461,18 @@
         builder.OpenElement(3, "span");
         builder.AddAttribute(4, "class", "hidden pointer-coarse:inline-block");
         builder.AddContent(5, "Long press here");
+        builder.CloseElement();
+    };
+
+    private RenderFragment RtlContextMenuTriggerText => builder =>
+    {
+        builder.OpenElement(0, "span");
+        builder.AddAttribute(1, "class", "hidden pointer-fine:inline-block");
+        builder.AddContent(2, "انقر بزر الماوس الأيمن هنا");
+        builder.CloseElement();
+        builder.OpenElement(3, "span");
+        builder.AddAttribute(4, "class", "hidden pointer-coarse:inline-block");
+        builder.AddContent(5, "اضغط مطولاً هنا");
         builder.CloseElement();
     };
 
@@ -658,12 +670,12 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div TextAlign=""TextAlign.End"">
+    <Div dir=""rtl"" Class=""flex w-full justify-center"">
         <ContextMenu>
             <ContextMenuTrigger Id=""context-menu-rtl-trigger""
                                 data-testid=""context-menu-rtl-trigger""
                                 Class=""@ContextMenuTriggerClass"">
-                انقر بزر الماوس الأيمن هنا
+                @RtlContextMenuTriggerText
             </ContextMenuTrigger>
             <ContextMenuContent Width='Width.Token(""48"")'>
                 <Div>

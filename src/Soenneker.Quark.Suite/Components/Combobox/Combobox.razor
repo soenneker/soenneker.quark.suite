@@ -17,6 +17,7 @@
     private readonly List<ComboboxItem> _items = [];
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
+    private bool _triggerReservesInlineEndAction;
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -60,6 +61,8 @@
 
     internal ElementReference TriggerElement => _triggerElement;
 
+    internal bool TriggerReservesInlineEndAction => _triggerReservesInlineEndAction;
+
     internal bool HasClearValue => Multiple
         ? Values?.Length > 0 || !Search.IsNullOrEmpty()
         : !Value.IsNullOrEmpty() || !Search.IsNullOrEmpty();
@@ -88,10 +91,11 @@
         Refresh();
     }
 
-    internal void SetTriggerElement(ElementReference elementReference)
+    internal void SetTriggerElement(ElementReference elementReference, bool reservesInlineEndAction = false)
     {
         _triggerElement = elementReference;
         _hasTriggerElement = true;
+        _triggerReservesInlineEndAction = reservesInlineEndAction;
     }
 
     internal async Task Select(string? v)

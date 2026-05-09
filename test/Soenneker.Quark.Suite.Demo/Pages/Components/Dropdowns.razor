@@ -269,21 +269,66 @@
                          CodeLanguage="razor"
                          PreviewClass="@DropdownPreviewClass">
                 <DirectionProvider Dir="rtl">
-                    <Div TextAlign="TextAlign.End">
-                        <Dropdown>
-                            <DropdownToggle AsChild="true">
-                                <Button Variant="ButtonVariant.Outline">افتح القائمة</Button>
-                            </DropdownToggle>
-                            <DropdownMenu>
-                                <DropdownGroup>
-                                    <DropdownLabel>حسابي</DropdownLabel>
-                                    <DropdownItem>الملف الشخصي</DropdownItem>
-                                    <DropdownItem>الفواتير</DropdownItem>
-                                </DropdownGroup>
-                                <DropdownDivider />
-                                <DropdownItem Variant="destructive">تسجيل الخروج</DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
+                    <Div dir="rtl" Class="grid w-full gap-6">
+                        <Div Display="Display.Flex" AlignItems="AlignItems.Center" Gap="Gap.Is2" dir="ltr">
+                            <Select TValue="string" SelectSize="SelectSizes.Sm" SelectedValue="@_dropdownRtlLocale" SelectedValueChanged="OnDropdownRtlLocaleChanged">
+                                <SelectTrigger Width="Width.Is36" dir="ltr">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
+                                    <SelectGroup>
+                                        <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                        <SelectItem TValue="string" ItemValue="@("he")" Text="Hebrew (עברית)" />
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Class="ml-auto size-7" OnClick="ToggleDropdownRtlLocale">
+                                <Icon Name="LucideIcon.Languages" />
+                                <Span Class="sr-only">Toggle</Span>
+                            </Button>
+                        </Div>
+                        <Div Class="flex justify-center">
+                            <Dropdown>
+                                <DropdownToggle AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">@DropdownRtlOpenLabel</Button>
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    <DropdownLabel>@DropdownRtlAccountLabel</DropdownLabel>
+                                    <DropdownGroup>
+                                        <DropdownItem>@DropdownRtlTeamLabel</DropdownItem>
+                                        <DropdownSub>
+                                            <DropdownSubTrigger>@DropdownRtlTeamLabel</DropdownSubTrigger>
+                                            <DropdownSubContent>
+                                                <DropdownItem>@DropdownRtlInviteUsersLabel</DropdownItem>
+                                                <DropdownDivider />
+                                                <DropdownItem>@DropdownRtlMoreLabel</DropdownItem>
+                                            </DropdownSubContent>
+                                        </DropdownSub>
+                                        <DropdownItem>
+                                            @DropdownRtlNewTeamLabel
+                                            <DropdownShortcut>⌘+T</DropdownShortcut>
+                                        </DropdownItem>
+                                    </DropdownGroup>
+                                    <DropdownDivider />
+                                    <DropdownLabel>@DropdownRtlViewLabel</DropdownLabel>
+                                    <DropdownGroup>
+                                        <DropdownCheckboxItem @bind-Checked="_dropdownStatusBar">@DropdownRtlStatusBarLabel</DropdownCheckboxItem>
+                                        <DropdownCheckboxItem Checked="false">@DropdownRtlActivityBarLabel</DropdownCheckboxItem>
+                                        <DropdownCheckboxItem @bind-Checked="_dropdownPanel">@DropdownRtlPanelLabel</DropdownCheckboxItem>
+                                    </DropdownGroup>
+                                    <DropdownDivider />
+                                    <DropdownLabel>@DropdownRtlPositionLabel</DropdownLabel>
+                                    <DropdownRadioGroup @bind-Value="_dropdownPanelPosition">
+                                        <DropdownRadioItem Value="top">@DropdownRtlTopLabel</DropdownRadioItem>
+                                        <DropdownRadioItem Value="bottom">@DropdownRtlBottomLabel</DropdownRadioItem>
+                                        <DropdownRadioItem Value="right">@DropdownRtlRightLabel</DropdownRadioItem>
+                                        <DropdownRadioItem Value="left">@DropdownRtlLeftLabel</DropdownRadioItem>
+                                    </DropdownRadioGroup>
+                                    <DropdownDivider />
+                                    <DropdownItem Variant="destructive">@DropdownRtlLogoutLabel</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </Div>
                     </Div>
                 </DirectionProvider>
             </DemoSection>
@@ -303,6 +348,24 @@
     private string? _dropdownPanelPosition = "bottom";
     private string? _dropdownPaymentMethod = "card";
     private string? _dropdownTheme = "light";
+    private string? _dropdownRtlLocale = "ar";
+    private bool IsDropdownRtlHebrew => _dropdownRtlLocale == "he";
+    private string DropdownRtlOpenLabel => IsDropdownRtlHebrew ? "פתח תפריט" : "افتح القائمة";
+    private string DropdownRtlAccountLabel => IsDropdownRtlHebrew ? "חשבון" : "الحساب";
+    private string DropdownRtlTeamLabel => IsDropdownRtlHebrew ? "צוות" : "الفريق";
+    private string DropdownRtlInviteUsersLabel => IsDropdownRtlHebrew ? "הזמן משתמשים" : "دعوة المستخدمين";
+    private string DropdownRtlMoreLabel => IsDropdownRtlHebrew ? "עוד..." : "المزيد...";
+    private string DropdownRtlNewTeamLabel => IsDropdownRtlHebrew ? "צוות חדש" : "فريق جديد";
+    private string DropdownRtlViewLabel => IsDropdownRtlHebrew ? "תצוגה" : "عرض";
+    private string DropdownRtlStatusBarLabel => IsDropdownRtlHebrew ? "שורת מצב" : "شريط الحالة";
+    private string DropdownRtlActivityBarLabel => IsDropdownRtlHebrew ? "סרגל פעילות" : "شريط النشاط";
+    private string DropdownRtlPanelLabel => IsDropdownRtlHebrew ? "לוח" : "اللوحة";
+    private string DropdownRtlPositionLabel => IsDropdownRtlHebrew ? "מיקום" : "الموضع";
+    private string DropdownRtlTopLabel => IsDropdownRtlHebrew ? "למעלה" : "أعلى";
+    private string DropdownRtlBottomLabel => IsDropdownRtlHebrew ? "למטה" : "أسفل";
+    private string DropdownRtlRightLabel => IsDropdownRtlHebrew ? "ימין" : "يمين";
+    private string DropdownRtlLeftLabel => IsDropdownRtlHebrew ? "שמאל" : "يسار";
+    private string DropdownRtlLogoutLabel => IsDropdownRtlHebrew ? "התנתק" : "تسجيل الخروج";
 
     private RenderFragment BasicMenu =>
 @<Dropdown>
@@ -475,6 +538,18 @@
     </DropdownMenu>
 </Dropdown>;
 
+    private Task OnDropdownRtlLocaleChanged(string? value)
+    {
+        _dropdownRtlLocale = value;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleDropdownRtlLocale()
+    {
+        _dropdownRtlLocale = IsDropdownRtlHebrew ? "ar" : "he";
+        return Task.CompletedTask;
+    }
+
     private const string BasicCode =
 @"@AccountMenu";
 
@@ -633,21 +708,66 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div TextAlign=""TextAlign.End"">
-        <Dropdown>
-            <DropdownToggle AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"">افتح القائمة</Button>
-            </DropdownToggle>
-            <DropdownMenu>
-                <DropdownGroup>
-                    <DropdownLabel>حسابي</DropdownLabel>
-                    <DropdownItem>الملف الشخصي</DropdownItem>
-                    <DropdownItem>الفواتير</DropdownItem>
-                </DropdownGroup>
-                <DropdownDivider />
-                <DropdownItem Variant=""destructive"">تسجيل الخروج</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
+    <Div dir=""rtl"" Class=""grid w-full gap-6"">
+        <Div Display=""Display.Flex"" AlignItems=""AlignItems.Center"" Gap=""Gap.Is2"" dir=""ltr"">
+            <Select TValue=""string"" SelectSize=""SelectSizes.Sm"" SelectedValue=""@_dropdownRtlLocale"" SelectedValueChanged=""OnDropdownRtlLocaleChanged"">
+                <SelectTrigger Width=""Width.Is36"" dir=""ltr"">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent Class=""data-[state=open]:animate-none data-[state=closed]:animate-none"" dir=""ltr"">
+                    <SelectGroup>
+                        <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+                        <SelectItem TValue=""string"" ItemValue=""@(""he"")"" Text=""Hebrew (עברית)"" />
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+            <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconSm"" Class=""ml-auto size-7"" OnClick=""ToggleDropdownRtlLocale"">
+                <Icon Name=""LucideIcon.Languages"" />
+                <Span Class=""sr-only"">Toggle</Span>
+            </Button>
+        </Div>
+        <Div Class=""flex justify-center"">
+            <Dropdown>
+                <DropdownToggle AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">@DropdownRtlOpenLabel</Button>
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownLabel>@DropdownRtlAccountLabel</DropdownLabel>
+                    <DropdownGroup>
+                        <DropdownItem>@DropdownRtlTeamLabel</DropdownItem>
+                        <DropdownSub>
+                            <DropdownSubTrigger>@DropdownRtlTeamLabel</DropdownSubTrigger>
+                            <DropdownSubContent>
+                                <DropdownItem>@DropdownRtlInviteUsersLabel</DropdownItem>
+                                <DropdownDivider />
+                                <DropdownItem>@DropdownRtlMoreLabel</DropdownItem>
+                            </DropdownSubContent>
+                        </DropdownSub>
+                        <DropdownItem>
+                            @DropdownRtlNewTeamLabel
+                            <DropdownShortcut>⌘+T</DropdownShortcut>
+                        </DropdownItem>
+                    </DropdownGroup>
+                    <DropdownDivider />
+                    <DropdownLabel>@DropdownRtlViewLabel</DropdownLabel>
+                    <DropdownGroup>
+                        <DropdownCheckboxItem @bind-Checked=""_dropdownStatusBar"">@DropdownRtlStatusBarLabel</DropdownCheckboxItem>
+                        <DropdownCheckboxItem Checked=""false"">@DropdownRtlActivityBarLabel</DropdownCheckboxItem>
+                        <DropdownCheckboxItem @bind-Checked=""_dropdownPanel"">@DropdownRtlPanelLabel</DropdownCheckboxItem>
+                    </DropdownGroup>
+                    <DropdownDivider />
+                    <DropdownLabel>@DropdownRtlPositionLabel</DropdownLabel>
+                    <DropdownRadioGroup @bind-Value=""_dropdownPanelPosition"">
+                        <DropdownRadioItem Value=""top"">@DropdownRtlTopLabel</DropdownRadioItem>
+                        <DropdownRadioItem Value=""bottom"">@DropdownRtlBottomLabel</DropdownRadioItem>
+                        <DropdownRadioItem Value=""right"">@DropdownRtlRightLabel</DropdownRadioItem>
+                        <DropdownRadioItem Value=""left"">@DropdownRtlLeftLabel</DropdownRadioItem>
+                    </DropdownRadioGroup>
+                    <DropdownDivider />
+                    <DropdownItem Variant=""destructive"">@DropdownRtlLogoutLabel</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </Div>
     </Div>
 </DirectionProvider>";
 }

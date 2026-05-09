@@ -196,7 +196,7 @@
                 <Field MaxWidth="MaxWidth.IsXs">
                     <FieldLabel For="input-button-group">Search</FieldLabel>
                     <ButtonGroup>
-                        <Input Id="input-button-group" Type="search" Placeholder="Type to search..." />
+                        <Input Id="input-button-group" Placeholder="Type to search..." />
                         <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">Search</Button>
                     </ButtonGroup>
                 </Field>
@@ -215,7 +215,7 @@
                     <FieldGroup>
                         <Field>
                             <FieldLabel For="input-form-name">Name</FieldLabel>
-                            <Input Id="input-form-name" Type="text" @bind-Value="_formModel.Name" Placeholder="John Doe" />
+                            <Input Id="input-form-name" Type="text" @bind-Value="_formModel.Name" Placeholder="Evil Rabbit" />
                             <ValidationMessage For="@(() => _formModel.Name)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
                         </Field>
 
@@ -271,17 +271,34 @@
             <DemoSection Title="RTL"
                          Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
-                         PreviewClass="preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 *:max-w-xs"
-                         ShowPreviewToolbar="true"
-                         PreviewLang="ar"
-                         PreviewDir="rtl"
+                         PreviewClass="preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Field MaxWidth="MaxWidth.IsXs">
-                        <FieldLabel For="input-rtl-api-key">مفتاح API</FieldLabel>
-                        <Input Id="input-rtl-api-key" Type="password" Placeholder="sk-..." />
-                        <FieldDescription>مفتاح API الخاص بك مشفر ومخزن بأمان.</FieldDescription>
-                    </Field>
+                    <Div Class="grid w-full gap-6" dir="rtl">
+                        <Div Display="Display.Flex" AlignItems="AlignItems.Center" Gap="Gap.Is2" Class="-mx-6" dir="ltr">
+                            <Select TValue="string" SelectSize="SelectSizes.Sm" SelectedValue="@_rtlLocale" SelectedValueChanged="OnRtlLocaleChanged">
+                                <SelectTrigger Width="Width.Is36" dir="ltr">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
+                                    <SelectGroup>
+                                        <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                        <SelectItem TValue="string" ItemValue="@("he")" Text="Hebrew (עברית)" />
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Class="ml-auto size-7" OnClick="ToggleRtlLocale">
+                                <Icon Name="LucideIcon.Languages" />
+                                <Span Class="sr-only">Toggle</Span>
+                            </Button>
+                        </Div>
+
+                        <Field MaxWidth="MaxWidth.IsXs" Class="mx-auto">
+                            <FieldLabel For="input-rtl-api-key">@RtlApiKeyLabel</FieldLabel>
+                            <Input Id="input-rtl-api-key" Type="password" Placeholder="sk-..." />
+                            <FieldDescription>@RtlApiKeyDescription</FieldDescription>
+                        </Field>
+                    </Div>
                 </DirectionProvider>
             </DemoSection>
         </Section>
@@ -391,7 +408,7 @@
 @"<Field MaxWidth=""MaxWidth.IsXs"">
     <FieldLabel For=""input-button-group"">Search</FieldLabel>
     <ButtonGroup>
-        <Input Id=""input-button-group"" Type=""search"" Placeholder=""Type to search..."" />
+        <Input Id=""input-button-group"" Placeholder=""Type to search..."" />
         <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Search</Button>
     </ButtonGroup>
 </Field>";
@@ -403,7 +420,7 @@
     <FieldGroup>
         <Field>
             <FieldLabel For=""input-form-name"">Name</FieldLabel>
-            <Input Id=""input-form-name"" Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""John Doe"" />
+            <Input Id=""input-form-name"" Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""Evil Rabbit"" />
             <ValidationMessage For=""@(() => _formModel.Name)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
         </Field>
 
@@ -455,15 +472,40 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Field MaxWidth=""MaxWidth.IsXs"">
-        <FieldLabel For=""input-rtl-api-key"">مفتاح API</FieldLabel>
-        <Input Id=""input-rtl-api-key"" Type=""password"" Placeholder=""sk-..."" />
-        <FieldDescription>مفتاح API الخاص بك مشفر ومخزن بأمان.</FieldDescription>
-    </Field>
+    <Div Class=""grid w-full gap-6"" dir=""rtl"">
+        <Div Display=""Display.Flex"" AlignItems=""AlignItems.Center"" Gap=""Gap.Is2"" Class=""-mx-6"" dir=""ltr"">
+            <Select TValue=""string"" SelectSize=""SelectSizes.Sm"" SelectedValue=""@_rtlLocale"" SelectedValueChanged=""OnRtlLocaleChanged"">
+                <SelectTrigger Width=""Width.Is36"" dir=""ltr"">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent Class=""data-[state=open]:animate-none data-[state=closed]:animate-none"" dir=""ltr"">
+                    <SelectGroup>
+                        <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
+                        <SelectItem TValue=""string"" ItemValue=""@(""he"")"" Text=""Hebrew (עברית)"" />
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+            <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconSm"" Class=""ml-auto size-7"" OnClick=""ToggleRtlLocale"">
+                <Icon Name=""LucideIcon.Languages"" />
+                <Span Class=""sr-only"">Toggle</Span>
+            </Button>
+        </Div>
+
+        <Field MaxWidth=""MaxWidth.IsXs"" Class=""mx-auto"">
+            <FieldLabel For=""input-rtl-api-key"">@RtlApiKeyLabel</FieldLabel>
+            <Input Id=""input-rtl-api-key"" Type=""password"" Placeholder=""sk-..."" />
+            <FieldDescription>@RtlApiKeyDescription</FieldDescription>
+        </Field>
+    </Div>
 </DirectionProvider>";
 
     private InputFormModel _formModel = new();
     private string? _formMessage;
+    private string? _rtlLocale = "ar";
+    private bool IsHebrewRtl => _rtlLocale == "he";
+
+    private string RtlApiKeyLabel => IsHebrewRtl ? "מפתח API" : "مفتاح API";
+    private string RtlApiKeyDescription => IsHebrewRtl ? "מפתח ה-API שלך מוצפן ומאוחסן בצורה מאובטחת." : "مفتاح API الخاص بك مشفر ومخزن بأمان.";
 
     private void HandleValidSubmit()
     {
@@ -474,6 +516,18 @@
     {
         _formModel = new();
         _formMessage = null;
+    }
+
+    private Task OnRtlLocaleChanged(string? value)
+    {
+        _rtlLocale = value;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleRtlLocale()
+    {
+        _rtlLocale = IsHebrewRtl ? "ar" : "he";
+        return Task.CompletedTask;
     }
 
     private sealed class InputFormModel
