@@ -9,33 +9,31 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements ISlider
 
-@inject IControlsInterop Interop
-
 @{
 	var resolvedValues = GetResolvedValues();
 }
 
-<div @ref="ElementRef" @attributes="BuildWrapperAttributes()">
-	<div @attributes="BuildTrackAttributes()">
-		<div @attributes="BuildRangeAttributes(resolvedValues)"></div>
-	</div>
+<BradixSlider Values="resolvedValues"
+              Min="@Min"
+              Max="@Max"
+              Step="@Step"
+              Name="@Name"
+              Disabled="@Disabled"
+              Orientation="@Orientation"
+              Dir="@(ResolveIsRtl() ? "rtl" : "ltr")"
+              OnValuesChange="HandleBradixValuesChange"
+              OnValueCommit="HandleBradixValueCommit"
+              @attributes="BuildWrapperAttributes()">
+	<BradixSliderTrack @attributes="BuildTrackAttributes()">
+		<BradixSliderRange @attributes="BuildRangeAttributes(resolvedValues)" />
+	</BradixSliderTrack>
 	@for (var index = 0; index < resolvedValues.Length; index++)
 	{
 		var thumbIndex = index;
-		<span @attributes="BuildThumbWrapperAttributes(thumbIndex, resolvedValues[thumbIndex])">
-			<span @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])"
-			      @onfocus="@(() => HandleThumbFocus(thumbIndex))"
-			      @onblur="@(() => HandleThumbBlur(thumbIndex))"
-			      @onkeydown="@(e => HandleThumbKeyDown(thumbIndex, e))"
-			      @onkeydown:preventDefault="true">
-			</span>
-		</span>
+		<BradixSliderThumb AriaLabel="@ResolveThumbLabel(thumbIndex, resolvedValues.Length)"
+		                   @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])" />
 	}
-	@for (var index = 0; index < resolvedValues.Length; index++)
-	{
-		<input @attributes="BuildHiddenInputAttributes(index, resolvedValues[index])" />
-	}
-</div>
+</BradixSlider>
 
 @code {
 	[Parameter]
@@ -93,12 +91,9 @@
 	private string? DirectionProviderDir { get; set; }
 
 	private readonly string _hiddenInputClass = "sr-only";
-	private DotNetObjectReference<object>? _sliderBridgeRef;
 	private double[] _valuesBeforeSlideStart = [];
 	private int _focusedThumbIndex = -1;
 	private int _draggingThumbIndex = -1;
-	private bool _isRtl;
-	private bool _sliderBridgeRegistered;
 
 	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
 	private bool IsVertical => Orientation == Orientation.Vertical;
@@ -129,7 +124,7 @@
 				return false;
 		}
 
-		return _isRtl;
+		return false;
 	}
 
 	public string? GetSizeClass()
@@ -321,6 +316,52 @@
 		return constrainedValue;
 	}
 
+	private async Task HandleBradixValuesChange(IReadOnlyList<double> values)
+	{
+		var normalized = NormalizeValues(values, UsesValuesApi);
+
+		if (UsesValuesApi)
+		{
+			if (!AreValuesEqual(GetResolvedValues(), normalized))
+			{
+				Values = normalized;
+				await ValuesChanged.InvokeIfHasDelegate(normalized);
+			}
+		}
+		else
+		{
+			var nextValue = normalized.Length > 0 ? normalized[0] : Min;
+
+			if (!SliderValue.Equals(nextValue))
+			{
+				SliderValue = nextValue;
+				await SliderValueChanged.InvokeAsync(SliderValue);
+			}
+		}
+
+		if (ParentValidation is not null)
+			await ParentValidation.NotifyInputChanged(ValidationValue);
+
+		if (normalized.Length > 0)
+			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
+
+		Refresh();
+	}
+
+	private async Task HandleBradixValueCommit(IReadOnlyList<double> values)
+	{
+		var normalized = NormalizeValues(values, UsesValuesApi);
+
+		if (ParentValidation is not null)
+		{
+			ParentValidation.MarkTouched();
+			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+
+		if (normalized.Length > 0)
+			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
+	}
+
 	private double GetValueFromFractions(double xFraction, double yFraction)
 	{
 		var range = Max - Min;
@@ -443,14 +484,6 @@
 		});
 
 		attributes["data-slot"] = "slider";
-		attributes["data-orientation"] = OrientationValue;
-		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
-		if (Disabled)
-			attributes["data-disabled"] = string.Empty;
-		if (!IsVertical)
-			attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
-
-		attributes["aria-disabled"] = Disabled ? "true" : "false";
 
 		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
 			attributes["id"] = CurrentFieldContext.ControlId;
@@ -473,11 +506,6 @@
 		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
 			attributes["aria-invalid"] = "true";
 
-		if (Disabled)
-		{
-			attributes["data-disabled"] = string.Empty;
-		}
-
 		if (ReadOnly)
 			attributes["aria-readonly"] = "true";
 
@@ -488,8 +516,7 @@
 	{
 		var attributes = new Dictionary<string, object>
 		{
-			["data-slot"] = "slider-track",
-			["data-orientation"] = OrientationValue
+			["data-slot"] = "slider-track"
 		};
 
 		BuildClassAttribute(attributes, (ref cls) =>
@@ -543,31 +570,12 @@
 
 		var attributes = new Dictionary<string, object>
 		{
-			["data-slot"] = "slider-range",
-			["data-orientation"] = OrientationValue
+			["data-slot"] = "slider-range"
 		};
 
-		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full");
-
-			if (IsVertical)
-			{
-				AppendStyleDecl(ref sty, $"bottom: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
-				AppendStyleDecl(ref sty, $"top: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
-			}
-			else
-			{
-				if (IsHorizontalRtl)
-					AppendStyleDecl(ref sty, $"right: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
-				else
-					AppendStyleDecl(ref sty, $"left: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
-
-				if (IsHorizontalRtl)
-					AppendStyleDecl(ref sty, $"left: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
-				else
-					AppendStyleDecl(ref sty, $"right: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
-			}
 		});
 
 		return attributes;
@@ -575,37 +583,10 @@
 
 	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
 	{
-		var resolvedValues = GetResolvedValues();
-		var thumbLabel = ResolveThumbLabel(index, resolvedValues.Length);
-
 		var attributes = new Dictionary<string, object>
 		{
-			["data-slot"] = "slider-thumb",
-			["data-orientation"] = OrientationValue,
-			["role"] = "slider",
-			["aria-valuemin"] = FormatSliderNumber(Min),
-			["aria-valuemax"] = FormatSliderNumber(Max),
-			["aria-valuenow"] = FormatSliderNumber(value),
-			["aria-orientation"] = OrientationValue,
-			["data-radix-collection-item"] = ""
+			["data-slot"] = "slider-thumb"
 		};
-
-		if (!Disabled)
-			attributes["tabindex"] = 0;
-
-		if (thumbLabel is not null)
-			attributes["aria-label"] = thumbLabel;
-
-		if (Disabled)
-		{
-			attributes["data-disabled"] = string.Empty;
-		}
-
-		if (ReadOnly)
-			attributes["aria-readonly"] = "true";
-
-		if (Required)
-			attributes["aria-required"] = "true";
 
 		if (AutoFocus && index == 0)
 			attributes["autofocus"] = true;
@@ -814,11 +795,6 @@
 	{
 		if (firstRender)
 		{
-			_sliderBridgeRef = DotNetObjectReference.Create<object>(this);
-			await Interop.RegisterSliderPointerBridge(ElementRef, _sliderBridgeRef);
-			_sliderBridgeRegistered = true;
-			await InvokeAsync(StateHasChanged);
-
 			if (ParentValidation is not null)
 			{
 				if (ValuesExpression is not null)
@@ -827,33 +803,6 @@
 					await ParentValidation.InitializeInputExpression(SliderValueExpression);
 			}
 
-		}
-
-		bool resolvedIsRtl;
-
-		if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-		{
-			resolvedIsRtl = true;
-		}
-		else if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
-		{
-			resolvedIsRtl = false;
-		}
-		else if (Attributes is not null &&
-			Attributes.TryGetValue("dir", out var dirValue) &&
-			(dirValue is not null))
-		{
-			resolvedIsRtl = string.Equals(dirValue.ToString(), "rtl", StringComparison.OrdinalIgnoreCase);
-		}
-		else
-		{
-			resolvedIsRtl = await Interop.IsDirectionRtl(ElementRef);
-		}
-
-		if (_isRtl != resolvedIsRtl)
-		{
-			_isRtl = resolvedIsRtl;
-			Refresh();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -897,20 +846,10 @@
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);
 		hc.Add(Required);
-		hc.Add(_isRtl);
 		hc.Add(DirectionProviderDir);
-		hc.Add(_sliderBridgeRegistered);
 		hc.Add(_focusedThumbIndex);
 		hc.Add(_draggingThumbIndex);
 	}
 
-	protected override async ValueTask OnDisposeAsync()
-	{
-		if (_sliderBridgeRef is not null)
-		{
-			await Interop.UnregisterSliderPointerBridge(ElementRef);
-			_sliderBridgeRef.Dispose();
-			_sliderBridgeRef = null;
-		}
-	}
+	protected override ValueTask OnDisposeAsync() => ValueTask.CompletedTask;
 }

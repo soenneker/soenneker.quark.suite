@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits TriggerElement
 @implements IButton
 @inject NavigationManager Navigation
@@ -53,6 +54,9 @@ else
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
 
+    [CascadingParameter(Name = "BradixDialogCloseContext")]
+    private BradixDialogCloseContext? DialogCloseContext { get; set; }
+
     private ElementReference _elementRef;
     private bool _triggerElementRegistered;
     private bool _ignoreNextKeyboardClick;
@@ -61,7 +65,7 @@ else
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
     private bool PreventLinkDefault =>
-        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
+        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
 
     private bool StopClickPropagation => TriggerContext?.Toggle is not null || InputGroupButton;
 
@@ -183,7 +187,7 @@ else
         RemoveAttribute(attributes, "onkeyup");
 
         var isLink = RenderAsLink;
-        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || attributes.ContainsKey("disabled");
+        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || attributes.ContainsKey("disabled");
 
         var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal) ? "button" : TriggerContext?.DataSlot;
 
@@ -255,6 +259,15 @@ else
 
             if (TriggerContext.ParentDisabled)
                 attributes["data-disabled"] = "true";
+        }
+
+        if (DialogCloseContext is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(DialogCloseContext.AriaLabel) && !attributes.ContainsKey("aria-label"))
+                attributes["aria-label"] = DialogCloseContext.AriaLabel;
+
+            if (DialogCloseContext.Disabled)
+                attributes["data-disabled"] = string.Empty;
         }
 
         if (!isLink && Type is not null)
@@ -336,7 +349,7 @@ else
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || (Attributes is not null && Attributes.ContainsKey("disabled"));
+        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
 
@@ -351,6 +364,9 @@ else
 
         if (TriggerContext?.Toggle is not null)
             await TriggerContext.Toggle();
+
+        if (DialogCloseContext is not null)
+            await DialogCloseContext.Close(args);
 
         if (To.HasContent() && !To!.StartsWith("#"))
             Navigation.NavigateTo(To!);
@@ -517,6 +533,8 @@ else
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
         hc.Add(TriggerContext?.ParentDisabled == true);
+        hc.Add(DialogCloseContext?.Disabled == true);
+        hc.Add(DialogCloseContext?.AriaLabel);
     }
 
     internal static string GetButtonVariantClass(ButtonVariant? variant)
@@ -568,16 +586,16 @@ else
         return size switch
         {
             "xs" => includeSizeRadius
-                ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3"
-                : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3",
+                ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3"
+                : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
             "sm" => includeSizeRadius
-                ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5"
-                : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+                ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5"
+                : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
             "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
             "icon" => "size-8",
             "icon-xs" => includeSizeRadius
-                ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3"
-                : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+                ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3"
+                : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
             "icon-sm" => includeSizeRadius
                 ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg"
                 : "size-7 in-data-[slot=button-group]:rounded-lg",
@@ -620,10 +638,12 @@ else
     {
         return size switch
         {
+            "default" => "h-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
             "sm" => string.Empty,
+            "xs" => "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
             "icon-xs" => "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0",
             "icon-sm" => "size-8 p-0 has-[>svg]:p-0",
-            _ => "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5"
+            _ => string.Empty
         };
     }
 

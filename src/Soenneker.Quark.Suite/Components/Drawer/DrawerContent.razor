@@ -8,7 +8,7 @@
 <BradixDialogPortal>
     @if (ParentDrawer?.ShowBackdrop == true && ParentDrawer.Visible)
     {
-        <Div @onclick="HandleOverlayClick" @attributes="OverlayAttributes"></Div>
+        <Div @attributes="OverlayAttributes"></Div>
     }
 
     <BradixDialogContent Id="@Context?.ContentId"
@@ -90,7 +90,7 @@
         var attrs = new Dictionary<string, object>();
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
+            AppendClass(ref cls, "pointer-events-auto fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
 
             if (ParentDrawer?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
@@ -108,15 +108,6 @@
     private Task HandleBackdropPointerDownOutside()
     {
         return ParentDrawer?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
-    }
-
-    private async Task HandleOverlayClick()
-    {
-        if (!ShouldCloseOnOutsideInteraction || ParentDrawer is null)
-            return;
-
-        await ParentDrawer.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentDrawer.Hide();
     }
 
     private async Task HandleOpenAutoFocus(BradixAutoFocusEventArgs args)

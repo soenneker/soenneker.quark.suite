@@ -12,6 +12,7 @@
 
 @code {
     private ElementReference _inputElement;
+    private bool _focusAfterSelect;
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -39,9 +40,24 @@
         if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
             await ParentCommand.HandleInputNavigation(e.Key);
         else if (ParentCommand is not null && e.Key == "Enter")
+        {
             await ParentCommand.SelectActiveItem();
+            _focusAfterSelect = true;
+            await InvokeAsync(StateHasChanged);
+        }
 
         await base.HandleKeyDown(e);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_focusAfterSelect)
+            return;
+
+        _focusAfterSelect = false;
+        await _inputElement.FocusAsync();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

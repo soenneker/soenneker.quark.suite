@@ -3,11 +3,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Value="@RadioGroupContext" IsFixed="false">
-    <BradixDropdownMenuRadioGroup AdditionalAttributes="@GroupAttributes">
-        @ChildContent
-    </BradixDropdownMenuRadioGroup>
-</CascadingValue>
+<BradixDropdownMenuRadioGroup Value="@Value"
+                              ValueChanged="@SetValue"
+                              AdditionalAttributes="@GroupAttributes">
+    @ChildContent
+</BradixDropdownMenuRadioGroup>
 
 @code {
     [Parameter]
@@ -17,12 +17,6 @@
     public EventCallback<string?> ValueChanged { get; set; }
 
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
-
-    private DropdownRadioGroupContext RadioGroupContext => new()
-    {
-        Value = Value,
-        SetValue = SetValue
-    };
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

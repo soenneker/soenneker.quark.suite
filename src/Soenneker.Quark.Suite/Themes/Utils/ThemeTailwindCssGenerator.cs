@@ -113,7 +113,7 @@ public static class ThemeTailwindCssGenerator
         AppendVariable(builder, "radius-xl", "calc(var(--radius) + 4px)");
         AppendVariable(builder, "radius-2xl", "calc(var(--radius) + 8px)");
         AppendVariable(builder, "radius-3xl", "calc(var(--radius) + 12px)");
-        AppendVariable(builder, "radius-4xl", "calc(var(--radius) + 16px)");
+        AppendVariable(builder, "radius-4xl", "calc(var(--radius) * 2.6)");
         AppendVariable(builder, "color-sidebar", "var(--sidebar)");
         AppendVariable(builder, "color-sidebar-foreground", "var(--sidebar-foreground)");
         AppendVariable(builder, "color-sidebar-primary", "var(--sidebar-primary)");

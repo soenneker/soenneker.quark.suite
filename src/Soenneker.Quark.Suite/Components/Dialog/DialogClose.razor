@@ -1,21 +1,42 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @using ButtonSizeType = Soenneker.Quark.ButtonSize
 @inherits Soenneker.Quark.Element
 
-@if (AsChild)
+@if (AsChild && AutoClose)
+{
+    <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" Disabled="@Disabled" OnClick="HandleBradixCloseClick">
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
+    </BradixDialogClose>
+}
+else if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
         @ChildContent
     </CascadingValue>
+}
+else if (AutoClose)
+{
+    <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" Disabled="@Disabled" OnClick="HandleBradixCloseClick">
+        <Button Type="ButtonType.Button"
+                Variant="@Variant"
+                ButtonSize="@ButtonSize"
+                @attributes="BuildAttributes()">
+            @ChildContent
+        </Button>
+    </BradixDialogClose>
 }
 else
 {
     <Button Type="ButtonType.Button"
             Variant="@Variant"
             ButtonSize="@ButtonSize"
-            OnClick="HandleCloseButtonClick"
+            Disabled="@Disabled"
+            OnClick="HandleNonAutoCloseClick"
             @attributes="BuildAttributes()">
         @ChildContent
     </Button>
@@ -32,6 +53,9 @@ else
     public bool AutoClose { get; set; } = true;
 
     [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
     public EventCallback OnClose { get; set; }
 
     [Parameter]
@@ -46,17 +70,14 @@ else
         attributes["data-slot"] = "dialog-close";
     }
 
-    private async Task HandleCloseClick()
+    private async Task HandleBradixCloseClick(MouseEventArgs _)
     {
         await OnClose.InvokeIfHasDelegate();
-
-        if (AutoClose && ParentDialog is not null)
-            await ParentDialog.Hide();
     }
 
-    private async Task HandleCloseButtonClick(MouseEventArgs _)
+    private async Task HandleNonAutoCloseClick(MouseEventArgs _)
     {
-        await HandleCloseClick();
+        await OnClose.InvokeIfHasDelegate();
     }
 
     private TriggerContext GetTriggerContext()
@@ -64,7 +85,8 @@ else
         return new TriggerContext
         {
             DataSlot = null,
-            OnClick = HandleCloseClick
+            ParentDisabled = Disabled,
+            OnClick = AutoClose ? null : () => OnClose.InvokeIfHasDelegate()
         };
     }
 
@@ -73,6 +95,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(AutoClose);
+        hc.Add(Disabled);
         hc.Add(Variant);
         hc.Add(ButtonSize);
     }

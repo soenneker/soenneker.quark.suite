@@ -24,6 +24,28 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Pattern"
+                         Description="Use the pattern prop to define a custom pattern for the input."
+                         Code="@DigitsOnlyCode"
+                         CodeLanguage="razor">
+                <Field>
+                    <FieldLabel For="digits-only-otp">Digits Only</FieldLabel>
+                    <InputOtp Id="digits-only-otp" Length="6" Pattern="@DigitsOnlyPattern">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Separator"
                          Description="Use the <InputOTPSeparator /> component to add a separator between input groups."
                          Code="@WithSeparatorCode"
@@ -88,9 +110,6 @@
                             <InputOtpSlot Index="0" />
                             <InputOtpSlot Index="1" />
                             <InputOtpSlot Index="2" />
-                        </InputOtpGroup>
-                        <InputOtpSeparator />
-                        <InputOtpGroup>
                             <InputOtpSlot Index="3" />
                             <InputOtpSlot Index="4" />
                             <InputOtpSlot Index="5" />
@@ -159,7 +178,7 @@
                 <Field>
                     <FieldLabel For="alphanumeric-otp">Alphanumeric</FieldLabel>
                     <FieldDescription>Accepts both letters and numbers.</FieldDescription>
-                    <InputOtp Id="alphanumeric-otp" OtpValue="@_alphaNumericValue" OtpValueChanged="OnAlphaNumericChanged" Length="6" Pattern="@AlphaNumericPattern" InputMode="text">
+                    <InputOtp Id="alphanumeric-otp" OtpValue="@_alphaNumericValue" OtpValueChanged="OnAlphaNumericChanged" Length="6" Pattern="@AlphaNumericPattern">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -199,7 +218,7 @@
                                         Resend Code
                                     </Button>
                                 </Div>
-                                <InputOtp Id="otp-verification" OtpValue="@_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true">
+                                <InputOtp Id="otp-verification" OtpValue="@_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true" RootHeight="48px">
                                     <InputOtpInput />
                                     <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
                                         <InputOtpSlot Index="0" />
@@ -247,9 +266,6 @@
                                 <InputOtpSlot Index="0" />
                                 <InputOtpSlot Index="1" />
                                 <InputOtpSlot Index="2" />
-                            </InputOtpGroup>
-                            <InputOtpSeparator />
-                            <InputOtpGroup>
                                 <InputOtpSlot Index="3" />
                                 <InputOtpSlot Index="4" />
                                 <InputOtpSlot Index="5" />
@@ -268,9 +284,9 @@
     private const string AlphaNumericPattern = "^[0-9A-Za-z]$";
 
     private string _formOtpValue = "";
-    private string _separatorValue = "123456";
-    private string _alphaNumericValue = "A9";
-    private string _pinValue = "7";
+    private string _separatorValue = "";
+    private string _alphaNumericValue = "";
+    private string _pinValue = "";
     private string _invalidValue = "000000";
     private string _controlledValue = "";
     private string _rtlValue = "123456";
@@ -349,7 +365,7 @@
                         Resend Code
                     </Button>
                 </Div>
-                <InputOtp Id=""otp-verification"" OtpValue=""@_formOtpValue"" OtpValueChanged=""OnFormOtpChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"" Required=""true"">
+                <InputOtp Id=""otp-verification"" OtpValue=""@_formOtpValue"" OtpValueChanged=""OnFormOtpChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"" Required=""true"" RootHeight=""48px"">
                     <InputOtpInput />
                     <InputOtpGroup Class=""*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl"">
                         <InputOtpSlot Index=""0"" />
@@ -400,7 +416,7 @@
     private const string DigitsOnlyCode =
 @"<Field>
     <FieldLabel For=""digits-only-otp"">Digits Only</FieldLabel>
-    <InputOtp Id=""digits-only-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+    <InputOtp Id=""digits-only-otp"" Length=""6"" Pattern=""@DigitsOnlyPattern"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" />
@@ -439,7 +455,7 @@
 @"<Field>
     <FieldLabel For=""alphanumeric-otp"">Alphanumeric</FieldLabel>
     <FieldDescription>Accepts both letters and numbers.</FieldDescription>
-    <InputOtp Id=""alphanumeric-otp"" OtpValue=""@_alphaNumericValue"" OtpValueChanged=""OnAlphaNumericChanged"" Length=""6"" Pattern=""@AlphaNumericPattern"" InputMode=""text"">
+    <InputOtp Id=""alphanumeric-otp"" OtpValue=""@_alphaNumericValue"" OtpValueChanged=""OnAlphaNumericChanged"" Length=""6"" Pattern=""@AlphaNumericPattern"">
         <InputOtpInput />
         <InputOtpGroup>
             <InputOtpSlot Index=""0"" />
@@ -521,9 +537,6 @@
             <InputOtpSlot Index=""0"" />
             <InputOtpSlot Index=""1"" />
             <InputOtpSlot Index=""2"" />
-        </InputOtpGroup>
-        <InputOtpSeparator />
-        <InputOtpGroup>
             <InputOtpSlot Index=""3"" />
             <InputOtpSlot Index=""4"" />
             <InputOtpSlot Index=""5"" />
@@ -557,9 +570,6 @@
                 <InputOtpSlot Index=""0"" />
                 <InputOtpSlot Index=""1"" />
                 <InputOtpSlot Index=""2"" />
-            </InputOtpGroup>
-            <InputOtpSeparator />
-            <InputOtpGroup>
                 <InputOtpSlot Index=""3"" />
                 <InputOtpSlot Index=""4"" />
                 <InputOtpSlot Index=""5"" />

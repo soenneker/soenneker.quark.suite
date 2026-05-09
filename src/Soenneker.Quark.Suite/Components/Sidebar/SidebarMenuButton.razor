@@ -30,9 +30,12 @@ else if (To.HasContent())
 }
 else
 {
-    <button @onclick="HandleActivate"
+    <button @ref="_elementRef"
+            @onclick="HandleActivate"
+            @onclick:stopPropagation="StopClickPropagation"
+            @onkeydown="HandleKeyDown"
             @attributes="BuildAttributes()">
-        @ChildContent
+        @RenderChildContent()
     </button>
 }
 
@@ -73,7 +76,18 @@ else
     [CascadingParameter(Name = "SidebarContextState")]
     public SidebarContextState? State { get; set; }
 
+    [CascadingParameter(Name = "TriggerContext")]
+    private TriggerContext? TriggerContext { get; set; }
+
+    private ElementReference _elementRef;
+    private bool _triggerElementRegistered;
+    private string? _registeredTriggerId;
+
     private const string _activeClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
+
+    private bool StopClickPropagation => TriggerContext?.Toggle is not null;
+
+    private static readonly TriggerContext? NoChildTriggerContext = null;
 
     private bool ShowCollapsedTooltip =>
         Tooltip.HasContent() &&
@@ -131,6 +145,7 @@ else
         RingColor ??= "ring-sidebar-ring";
         OutlineStyle ??= "outline-hidden";
         Transition ??= "transition-[width,height,padding]";
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
 
         if (ReferenceEquals(Variant, SidebarMenuButtonVariant.Outline))
         {
@@ -178,17 +193,32 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        var triggerDataState = TriggerContext?.DataState;
         attributes["data-slot"] = "sidebar-menu-button";
         attributes["data-sidebar"] = "menu-button";
         attributes["data-size"] = GetDataSize(ButtonSize);
-        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-state"] = triggerDataState ?? (Open ? "open" : "closed");
 
         attributes["data-active"] = Active ? "true" : "false";
 
-        if (Open)
+        if (TriggerContext?.TriggerId is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = TriggerContext.TriggerId;
+
+        if (TriggerContext?.AriaHasPopup is not null)
+            attributes["aria-haspopup"] = TriggerContext.AriaHasPopup;
+
+        if (TriggerContext?.AriaControls is not null)
+        {
+            attributes["aria-expanded"] = TriggerContext.IsOpen ? "true" : "false";
+            attributes["aria-controls"] = TriggerContext.AriaControls;
+        }
+        else if (Open)
         {
             attributes["aria-expanded"] = "true";
         }
+
+        if (TriggerContext?.ParentDisabled == true)
+            attributes["disabled"] = true;
 
         if (ShowCollapsedTooltip)
             attributes["title"] = Tooltip!;
@@ -209,13 +239,48 @@ else
         return BuildAttributes();
     }
 
+    private RenderFragment? RenderChildContent()
+    {
+        if (TriggerContext is null || ChildContent is null)
+            return ChildContent;
+
+        return @<CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
+            @ChildContent
+        </CascadingValue>;
+    }
+
     private async Task HandleActivate(MouseEventArgs args)
     {
+        if (TriggerContext?.OnClick is not null)
+            await TriggerContext.OnClick();
+
+        if (TriggerContext?.Toggle is not null)
+            await TriggerContext.Toggle();
+
         if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
             await SidebarProvider.SetOpenMobile(false);
 
         if (OnClick.HasDelegate)
             await OnClick.InvokeAsync(args);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (TriggerContext?.OnKeyDown is not null)
+            await TriggerContext.OnKeyDown(args);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (TriggerContext?.RegisterElement is not null &&
+            (!_triggerElementRegistered || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        {
+            TriggerContext.RegisterElement(_elementRef);
+            _triggerElementRegistered = true;
+            _registeredTriggerId = TriggerContext.TriggerId;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -232,5 +297,11 @@ else
         hc.Add(AsChild);
         hc.Add(State?.Open);
         hc.Add(State?.IsMobile);
+        hc.Add(TriggerContext?.TriggerId);
+        hc.Add(TriggerContext?.DataState);
+        hc.Add(TriggerContext?.AriaHasPopup);
+        hc.Add(TriggerContext?.AriaControls);
+        hc.Add(TriggerContext?.IsOpen);
+        hc.Add(TriggerContext?.ParentDisabled == true);
     }
 }

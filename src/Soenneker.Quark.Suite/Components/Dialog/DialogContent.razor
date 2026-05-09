@@ -52,15 +52,6 @@
         return ParentDialog?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
     }
 
-    private async Task HandleOverlayClick()
-    {
-        if (!ShouldCloseOnOutsideInteraction || ParentDialog is null)
-            return;
-
-        await ParentDialog.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentDialog.Hide();
-    }
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -128,9 +119,6 @@
             attributes["data-open"] = string.Empty;
         else
             attributes["data-closed"] = string.Empty;
-
-        if (ShouldCloseOnOutsideInteraction)
-            attributes["onclick"] = EventCallback.Factory.Create(this, HandleOverlayClick);
 
         return attributes;
     }

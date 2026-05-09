@@ -3,17 +3,31 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-@if (AsChild)
+@if (AsChild && AutoClose)
+{
+    <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" OnClick="HandleBradixCloseClick">
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
+    </BradixDialogClose>
+}
+else if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
         @ChildContent
     </CascadingValue>
 }
-else
+else if (AutoClose)
 {
-    <BradixDialogClose OnClick="HandleDefaultClick" AdditionalAttributes="@CloseAttributes">
+    <BradixDialogClose OnClick="HandleBradixCloseClick" AdditionalAttributes="@CloseAttributes">
         @ChildContent
     </BradixDialogClose>
+}
+else
+{
+    <button type="button" @onclick="HandleNonAutoCloseClick" @attributes="CloseAttributes">
+        @ChildContent
+    </button>
 }
 
 @code {
@@ -32,12 +46,6 @@ else
 
     private IReadOnlyDictionary<string, object> CloseAttributes => BuildAttributes();
 
-    private async Task HandleClose()
-    {
-        if (AutoClose && ParentDrawer is not null)
-            await ParentDrawer.Hide();
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -45,9 +53,14 @@ else
         attributes["data-slot"] = "drawer-close";
     }
 
-    private async Task HandleDefaultClick(MouseEventArgs e)
+    private async Task HandleBradixCloseClick(MouseEventArgs e)
     {
-        await HandleClose();
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
+    }
+
+    private async Task HandleNonAutoCloseClick(MouseEventArgs e)
+    {
         if (OnClick.HasDelegate)
             await OnClick.InvokeAsync(e);
     }
@@ -57,7 +70,7 @@ else
         return new TriggerContext
         {
             DataSlot = "drawer-close",
-            OnClick = HandleClose
+            OnClick = AutoClose ? null : () => OnClick.InvokeAsync()
         };
     }
 

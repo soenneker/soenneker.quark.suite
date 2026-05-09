@@ -4,11 +4,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 
-<BradixMenuItem Role="menuitemradio"
-                Disabled="@Disabled"
-                CloseOnSelect="@AutoClose"
-                OnSelect="HandleSelect"
-                AdditionalAttributes="@RadioItemAttributes">
+<BradixDropdownMenuRadioItem Value="@ResolvedValue"
+                             Disabled="@Disabled"
+                             CloseOnSelect="@AutoClose"
+                             OnSelect="HandleSelect"
+                             AdditionalAttributes="@RadioItemAttributes">
     <Span data-slot="dropdown-menu-radio-item-indicator"
           PointerEvents="Quark.PointerEvents.None"
           Position="Quark.Position.Absolute"
@@ -16,18 +16,14 @@
           ItemsAlign="Items.Center"
           Justify="Quark.Justify.Center"
           Class="right-2">
-        @if (ResolvedSelected)
-        {
+        <BradixDropdownMenuItemIndicator>
             <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
-        }
+        </BradixDropdownMenuItemIndicator>
     </Span>
     @ChildContent
-</BradixMenuItem>
+</BradixDropdownMenuRadioItem>
 
 @code {
-    [CascadingParameter]
-    private DropdownRadioGroupContext? RadioGroupContext { get; set; }
-
     [Parameter]
     public bool Selected { get; set; }
 
@@ -35,24 +31,19 @@
     public EventCallback<bool> SelectedChanged { get; set; }
 
     [Parameter]
-    public bool AutoClose { get; set; }
+    public bool AutoClose { get; set; } = true;
 
     [Parameter]
     public bool Indented { get; set; }
 
     private IReadOnlyDictionary<string, object> RadioItemAttributes => BuildRadioItemAttributes();
 
-    private bool ResolvedSelected =>
-        RadioGroupContext?.Value is { } groupValue && Value is not null
-            ? string.Equals(groupValue, Value, StringComparison.Ordinal)
-            : Selected;
+    private string ResolvedValue => Value ?? string.Empty;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-radio-item";
-        attributes["data-state"] = ResolvedSelected ? "checked" : "unchecked";
-        attributes["aria-checked"] = ResolvedSelected ? "true" : "false";
 
         if (Indented)
             attributes["data-inset"] = "true";
@@ -90,8 +81,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Selected);
         hc.Add(Value);
-        hc.Add(ResolvedSelected);
-        hc.Add(RadioGroupContext?.Value);
         hc.Add(Disabled);
         hc.Add(AutoClose);
         hc.Add(Indented);
@@ -99,14 +88,8 @@
 
     private async Task HandleSelect()
     {
-        if (Disabled || ResolvedSelected)
+        if (Disabled)
             return;
-
-        if (RadioGroupContext?.SetValue is not null && Value is not null)
-        {
-            await RadioGroupContext.SetValue(Value);
-            return;
-        }
 
         Selected = true;
         await SelectedChanged.InvokeIfHasDelegate(true);

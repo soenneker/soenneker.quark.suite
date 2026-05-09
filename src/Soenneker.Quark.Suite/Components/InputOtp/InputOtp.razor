@@ -5,17 +5,17 @@
 @using System.Text.RegularExpressions
 
 <CascadingValue Value="_context" IsFixed="false">
-    <Div role="group" Position="Quark.Position.Relative" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Class="cn-input-otp has-disabled:opacity-50">
-        <Div Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" PointerEvents="Quark.PointerEvents.Auto" ZIndex="Quark.ZIndex.Z10">
+    <div data-input-otp-container="true" style="@ContainerStyle" class="cn-input-otp flex items-center has-disabled:opacity-50">
+        @ChildContent
+        <div style="position:absolute;inset:0;pointer-events:none">
             <input @ref="_inputRef"
                    value="@CurrentValue"
                    @oninput="HandleInput"
                    @onfocus="HandleOtpFocus"
                    @onblur="HandleOtpBlur"
                    @attributes="BuildAttributes()" />
-        </Div>
-        @ChildContent
-    </Div>
+        </div>
+    </div>
 </CascadingValue>
 
 @code {
@@ -59,7 +59,13 @@
     /// Controls the virtual keyboard hint for the hidden input.
     /// </summary>
     [Parameter]
-    public string? InputMode { get; set; }
+    public string? InputMode { get; set; } = "numeric";
+
+    /// <summary>
+    /// Sets the OTP package root height custom property used by the transparent input.
+    /// </summary>
+    [Parameter]
+    public string RootHeight { get; set; } = "32px";
 
     /// <summary>
     /// Gets or sets the autocomplete attribute for the hidden input.
@@ -115,13 +121,13 @@
         if (OtpValue is null)
             _uncontrolledValue = sanitized;
 
-        _context = CreateContext(sanitized, focused: true);
+        _context = CreateContext(sanitized, focused: true, _context.ActiveIndex);
         await OtpValueChanged.InvokeAsync(sanitized);
     }
 
     private void HandleOtpFocus(FocusEventArgs _)
     {
-        _context = CreateContext(CurrentValue, focused: true);
+        _context = CreateContext(CurrentValue, focused: true, activeIndex: 0);
     }
 
     private void HandleOtpBlur(FocusEventArgs _)
@@ -138,8 +144,12 @@
     {
         base.BuildAttributesCore(attributes);
 
+        var selectionIndex = CurrentValue.Length < Length ? _context.ActiveIndex : 0;
+
         attributes["data-slot"] = "input-otp";
         attributes["data-input-otp"] = "true";
+        attributes["data-input-otp-mss"] = selectionIndex;
+        attributes["data-input-otp-mse"] = selectionIndex;
         attributes["type"] = "text";
         attributes["autocomplete"] = AutoComplete;
         attributes["spellcheck"] = "false";
@@ -164,7 +174,7 @@
             attributes["required"] = true;
 
         attributes["style"] =
-            "position:absolute;inset:0;width:calc(100% + 40px);height:100%;display:flex;text-align:left;opacity:1;color:transparent;pointer-events:all;background:transparent;caret-color:transparent;border:0 solid transparent;outline:0 solid transparent;box-shadow:none;line-height:1;letter-spacing:-.5em;font-size:var(--root-height);font-family:monospace;font-variant-numeric:tabular-nums;clip-path:inset(0 40px 0 0)";
+            "position:absolute;inset:0;width:100%;height:100%;display:flex;text-align:left;opacity:1;color:transparent;pointer-events:all;background:transparent;caret-color:transparent;border:0 solid transparent;outline:0 solid transparent;box-shadow:none;line-height:1;letter-spacing:-.5em;font-size:var(--root-height);font-family:monospace;font-variant-numeric:tabular-nums";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -174,17 +184,19 @@
 
     private void SyncContext()
     {
-        _context = CreateContext(CurrentValue, _context.Focused);
+        _context = CreateContext(CurrentValue, _context.Focused, _context.ActiveIndex);
     }
 
-    private InputOtpContext CreateContext(string value, bool focused)
+    private string ContainerStyle => $"position: relative; cursor: {(Disabled ? "default" : "text")}; user-select: none; pointer-events: none; --root-height: {RootHeight};";
+
+    private InputOtpContext CreateContext(string value, bool focused, int? activeIndex = null)
     {
         return new InputOtpContext
         {
             Value = value,
             Length = Length,
             Focused = focused,
-            ActiveIndex = Math.Clamp(value.Length, 0, Math.Max(0, Length - 1))
+            ActiveIndex = Math.Clamp(activeIndex ?? 0, 0, Math.Max(0, Length - 1))
         };
     }
 
@@ -198,5 +210,6 @@
         hc.Add(InputMode);
         hc.Add(AutoComplete);
         hc.Add(Disabled);
+        hc.Add(RootHeight);
     }
 }
