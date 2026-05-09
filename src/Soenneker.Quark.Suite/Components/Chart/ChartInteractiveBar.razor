@@ -1,0 +1,144 @@
+@namespace Soenneker.Quark
+
+<ChartContainer Class="@Class" Style="@ContainerStyle" AdditionalAttributes="@AdditionalAttributes">
+    <div class="recharts-responsive-container size-full">
+        <div class="recharts-wrapper relative size-full">
+            <svg class="recharts-surface pointer-events-auto size-full overflow-visible"
+                 role="application"
+                 viewBox="0 0 590 250"
+                 preserveAspectRatio="none">
+                <title>@Title</title>
+                <desc>@Description</desc>
+
+                @foreach (var y in GridLines)
+                {
+                    <line class="quark-chart-grid-line"
+                          x1="12"
+                          x2="578"
+                          y1="@y.ToString("0.####")"
+                          y2="@y.ToString("0.####")"
+                          stroke="#ccc"
+                          stroke-width="1" />
+                }
+
+                @for (var i = 0; i < Data.Count; i++)
+                {
+                    var datum = Data[i];
+                    var geometry = GetGeometry(i, datum);
+
+                    <g class="quark-chart-bar-group group/chart-bar">
+                        <path class="recharts-rectangle pointer-events-auto"
+                              fill="@ActiveColor"
+                              d="@geometry.Path"
+                              tabindex="0"
+                              role="img"
+                              aria-label="@($"{datum.TooltipLabel}: {GetValue(datum):N0} page views")" />
+
+                        <foreignObject class="quark-chart-bar-tooltip pointer-events-none hidden overflow-visible group-hover/chart-bar:block group-focus-within/chart-bar:block"
+                                       x="@GetTooltipX(geometry.X).ToString("0.####")"
+                                       y="@GetTooltipY(geometry.Y).ToString("0.####")"
+                                       width="150"
+                                       height="64">
+                            <div data-slot="chart-tooltip"
+                                 class="grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
+                                <div class="font-medium">@datum.TooltipLabel</div>
+                                <div class="flex items-center gap-2">
+                                    <span class="size-2.5 shrink-0 rounded-[2px]" style="@($"background:{ActiveColor}")"></span>
+                                    <span class="text-muted-foreground">Page Views</span>
+                                    <span class="ml-auto font-mono font-medium tabular-nums text-foreground">@GetValue(datum).ToString("N0")</span>
+                                </div>
+                            </div>
+                        </foreignObject>
+                    </g>
+                }
+
+                @((MarkupString)GetAxisTextMarkup(DesktopAxisTicks, "hidden sm:block"))
+                @((MarkupString)GetAxisTextMarkup(MobileAxisTicks, "sm:hidden"))
+            </svg>
+        </div>
+    </div>
+</ChartContainer>
+
+@code {
+    private const double ChartHeight = 220;
+    private const double BarWidth = 15;
+    private const double BarStep = 18.8667;
+    private const double BarStart = 13.8867;
+    private const double MaxValue = 600;
+
+    private static readonly double[] GridLines = [220, 165, 110, 55, 0];
+    private static readonly (string Label, double X)[] DesktopAxisTicks =
+    [
+        ("Apr 1", 40.3),
+        ("Apr 5", 115.7667),
+        ("Apr 9", 191.2333),
+        ("Apr 13", 266.7),
+        ("Apr 17", 342.1667),
+        ("Apr 21", 417.6333),
+        ("Apr 25", 493.1),
+        ("Apr 29", 568.5667)
+    ];
+
+    private static readonly (string Label, double X)[] MobileAxisTicks =
+    [
+        ("Apr 1", 40.3),
+        ("Apr 7", 153.5),
+        ("Apr 14", 285.5),
+        ("Apr 21", 417.6333),
+        ("Apr 29", 568.5667)
+    ];
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ChartBarDatum> Data { get; set; } = [];
+
+    [Parameter]
+    public string ActiveSeries { get; set; } = "desktop";
+
+    [Parameter]
+    public string DesktopColor { get; set; } = "var(--series-2)";
+
+    [Parameter]
+    public string MobileColor { get; set; } = "var(--series-1)";
+
+    [Parameter]
+    public string Title { get; set; } = "Interactive bar chart";
+
+    [Parameter]
+    public string Description { get; set; } = "Daily page views";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ActiveColor => string.Equals(ActiveSeries, "mobile", StringComparison.OrdinalIgnoreCase)
+        ? "var(--color-mobile)"
+        : "var(--color-desktop)";
+
+    private string ContainerStyle =>
+        $"--color-desktop: {DesktopColor}; --color-mobile: {MobileColor};";
+
+    private int GetValue(ChartBarDatum datum) =>
+        string.Equals(ActiveSeries, "mobile", StringComparison.OrdinalIgnoreCase)
+            ? datum.Mobile
+            : datum.Desktop;
+
+    private (double X, double Y, string Path) GetGeometry(int index, ChartBarDatum datum)
+    {
+        var height = Math.Clamp(GetValue(datum) / MaxValue * ChartHeight, 1, ChartHeight);
+        var x = BarStart + index * BarStep;
+        var y = ChartHeight - height;
+        return (x, y, $"M {x:0.####},{y:0.####} h {BarWidth:0.####} v {height:0.####} h -{BarWidth:0.####} Z");
+    }
+
+    private static double GetTooltipX(double barX) => Math.Clamp(barX - 14, 0, 440);
+
+    private static double GetTooltipY(double barY) => Math.Clamp(barY - 18, 0, 190);
+
+    private static string GetAxisTextMarkup(IEnumerable<(string Label, double X)> ticks, string className)
+    {
+        return string.Concat(ticks.Select(tick =>
+            $"<text class=\"recharts-text recharts-cartesian-axis-tick-value quark-chart-axis-text {className}\" x=\"{tick.X:0.####}\" y=\"234\" fill=\"#666\" stroke=\"none\" text-anchor=\"middle\">{tick.Label}</text>"));
+    }
+}
