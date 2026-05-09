@@ -9,7 +9,7 @@
                          Description="Combine labels, controls, and help text to compose accessible form fields and grouped inputs."
                          Code="@BasicCode"
                          CodeLanguage="razor"
-                         PreviewClass="preview relative flex min-h-[800px] w-full justify-center p-6 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+                         PreviewClass="@FieldOverviewPreviewClass">
                 <Div Class="w-full max-w-md">
                     <form>
                         <FieldGroup>
@@ -104,8 +104,9 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Input"
                          Code="@FieldCode"
-                         CodeLanguage="razor">
-                <FieldGroup MaxWidth="MaxWidth.IsSm">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
+                <FieldSet Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
                     <Field>
                         <FieldLabel For="field-username">Username</FieldLabel>
                         <Input Id="field-username" Placeholder="shadcn" />
@@ -116,14 +117,15 @@
                         <Input Id="field-password" Type="password" />
                         <FieldDescription>Must be at least 8 characters long.</FieldDescription>
                     </Field>
-                </FieldGroup>
+                </FieldSet>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Textarea"
                          Code="@TextareaCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
                 <FieldSet Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
                     <FieldGroup>
                         <Field>
@@ -139,8 +141,9 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Select"
                          Code="@SelectCode"
-                         CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsSm">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
                     <FieldLabel For="field-department">Department</FieldLabel>
                     <Select TValue="string" SelectedValue="@("")">
                         <SelectTrigger Id="field-department">
@@ -161,8 +164,9 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Slider"
                          Code="@SliderCode"
-                         CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsSm">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
                     <FieldLabel For="field-price-range">Price Range</FieldLabel>
                     <Slider Id="field-price-range" Min="0" Max="1000" Step="50" Values="@([200d, 800d])" />
                     <FieldDescription>Set your budget range ($200 - 800).</FieldDescription>
@@ -173,7 +177,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Fieldset"
                          Code="@FieldsetCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
                 <FieldSet MaxWidth="MaxWidth.IsSm">
                     <FieldLegend>Address Information</FieldLegend>
                     <FieldDescription>We need your address to deliver your order.</FieldDescription>
@@ -200,28 +205,31 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Checkbox"
                          Code="@CheckboxCode"
-                         CodeLanguage="razor">
-                <FieldSet MaxWidth="MaxWidth.IsSm">
-                    <FieldLegend Variant="label">Show these items on the desktop</FieldLegend>
-                    <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
-                    <FieldGroup Slot="checkbox-group">
-                        <Field Horizontal="true">
-                            <Check Id="field-hard-disks" Checked="true" />
-                            <FieldLabel For="field-hard-disks" FontWeight="FontWeight.Normal">Hard disks</FieldLabel>
-                        </Field>
-                        <Field Horizontal="true">
-                            <Check Id="field-external-disks" />
-                            <FieldLabel For="field-external-disks" FontWeight="FontWeight.Normal">External disks</FieldLabel>
-                        </Field>
-                        <Field Horizontal="true">
-                            <Check Id="field-cds-dvds-ipods" />
-                            <FieldLabel For="field-cds-dvds-ipods" FontWeight="FontWeight.Normal">CDs, DVDs, and iPods</FieldLabel>
-                        </Field>
-                        <Field Horizontal="true">
-                            <Check Id="field-connected-servers" />
-                            <FieldLabel For="field-connected-servers" FontWeight="FontWeight.Normal">Connected servers</FieldLabel>
-                        </Field>
-                    </FieldGroup>
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldCheckboxPreviewClass">
+                <FieldGroup MaxWidth="MaxWidth.IsXs">
+                    <FieldSet>
+                        <FieldLegend Variant="label">Show these items on the desktop</FieldLegend>
+                        <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
+                        <FieldGroup Slot="checkbox-group">
+                            <Field Horizontal="true">
+                                <Check Id="field-hard-disks" Checked="true" />
+                                <FieldLabel For="field-hard-disks" FontWeight="FontWeight.Normal">Hard disks</FieldLabel>
+                            </Field>
+                            <Field Horizontal="true">
+                                <Check Id="field-external-disks" />
+                                <FieldLabel For="field-external-disks" FontWeight="FontWeight.Normal">External disks</FieldLabel>
+                            </Field>
+                            <Field Horizontal="true">
+                                <Check Id="field-cds-dvds-ipods" />
+                                <FieldLabel For="field-cds-dvds-ipods" FontWeight="FontWeight.Normal">CDs, DVDs, and iPods</FieldLabel>
+                            </Field>
+                            <Field Horizontal="true">
+                                <Check Id="field-connected-servers" />
+                                <FieldLabel For="field-connected-servers" FontWeight="FontWeight.Normal">Connected servers</FieldLabel>
+                            </Field>
+                        </FieldGroup>
+                    </FieldSet>
                     <FieldSeparator />
                     <Field Horizontal="true">
                         <Check Id="field-sync-desktop" Checked="true" />
@@ -230,15 +238,16 @@
                             <FieldDescription>Your Desktop & Documents folders are being synced with iCloud Drive. You can access them from other devices.</FieldDescription>
                         </FieldContent>
                     </Field>
-                </FieldSet>
+                </FieldGroup>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Radio"
                          Code="@RadioCode"
-                         CodeLanguage="razor">
-                <FieldSet MaxWidth="MaxWidth.IsSm">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
+                <FieldSet MaxWidth="MaxWidth.IsXs">
                     <FieldLegend Variant="label">Subscription Plan</FieldLegend>
                     <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
                     <RadioGroup Name="field-subscription-plan" Value="yearly">
@@ -262,7 +271,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Switch"
                          Code="@SwitchCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
                 <Field Horizontal="true" MaxWidth="MaxWidth.IsSm">
                     <FieldLabel For="field-mfa">Multi-factor authentication</FieldLabel>
                     <Switch Id="field-mfa" />
@@ -274,8 +284,9 @@
             <DemoSection Title="Choice Card"
                          Description="Wrap Field components inside FieldLabel to create selectable field groups. This works with RadioItem, Checkbox and Switch components."
                          Code="@ChoiceCardCode"
-                         CodeLanguage="razor">
-                <FieldSet MaxWidth="MaxWidth.IsSm">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldDefaultPreviewClass">
+                <FieldSet MaxWidth="MaxWidth.IsXs">
                     <FieldLegend Variant="label">Compute Environment</FieldLegend>
                     <FieldDescription>Select the compute environment for your cluster.</FieldDescription>
                     <RadioGroup Name="field-compute-environment" Value="kubernetes" Class="grid gap-3">
@@ -306,9 +317,10 @@
             <DemoSection Title="Field Group"
                          Description="Stack Field components with FieldGroup. Add FieldSeparator to divide them."
                          Code="@FieldGroupCode"
-                         CodeLanguage="razor">
-                <FieldGroup MaxWidth="MaxWidth.IsSm">
-                    <Field>
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldGroupPreviewClass">
+                <FieldGroup MaxWidth="MaxWidth.IsXs">
+                    <FieldSet>
                         <FieldContent>
                             <FieldTitle>Responses</FieldTitle>
                             <FieldDescription>Get notified when ChatGPT responds to requests that take time, like research or image generation.</FieldDescription>
@@ -317,9 +329,9 @@
                             <Check Id="field-responses-push" Checked="true" Disabled="true" />
                             <FieldLabel For="field-responses-push" FontWeight="FontWeight.Normal">Push notifications</FieldLabel>
                         </Field>
-                    </Field>
+                    </FieldSet>
                     <FieldSeparator />
-                    <Field>
+                    <FieldSet>
                         <FieldContent>
                             <FieldTitle>Tasks</FieldTitle>
                             <FieldDescription>
@@ -335,7 +347,7 @@
                             <Check Id="field-tasks-email" />
                             <FieldLabel For="field-tasks-email" FontWeight="FontWeight.Normal">Email notifications</FieldLabel>
                         </Field>
-                    </Field>
+                    </FieldSet>
                 </FieldGroup>
             </DemoSection>
         </Section>
@@ -347,87 +359,90 @@
                          CodeLanguage="razor"
                          ShowPreviewToolbar="true"
                          PreviewLang="ar"
-                         PreviewDir="rtl">
-                <FieldGroup MaxWidth="MaxWidth.IsSm" dir="rtl">
-                    <FieldSet>
-                        <FieldLegend>طريقة الدفع</FieldLegend>
-                        <FieldDescription>جميع المعاملات آمنة ومشفرة</FieldDescription>
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel For="field-rtl-card-name">الاسم على البطاقة</FieldLabel>
-                                <Input Id="field-rtl-card-name" Placeholder="أرنب شرير" />
-                            </Field>
-                            <Field>
-                                <FieldLabel For="field-rtl-card-number">رقم البطاقة</FieldLabel>
-                                <Input Id="field-rtl-card-number" Placeholder="1234 5678 9012 3456" />
-                                <FieldDescription>أدخل رقم البطاقة المكون من 16 رقمًا</FieldDescription>
-                            </Field>
-                            <Div Class="grid grid-cols-3 gap-4">
+                         PreviewDir="rtl"
+                         PreviewClass="@FieldRtlPreviewClass">
+                <Div Class="w-full py-6" Style="max-width: 28rem;">
+                    <FieldGroup dir="rtl">
+                        <FieldSet>
+                            <FieldLegend>طريقة الدفع</FieldLegend>
+                            <FieldDescription>جميع المعاملات آمنة ومشفرة</FieldDescription>
+                            <FieldGroup>
                                 <Field>
-                                    <FieldLabel For="field-rtl-month">الشهر</FieldLabel>
-                                    <Select TValue="string" SelectedValue="@("")">
-                                        <SelectTrigger Id="field-rtl-month">
-                                            <SelectValue Placeholder="ش.ش" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem TValue="string" ItemValue="@("01")" Text="٠١" />
-                                            <SelectItem TValue="string" ItemValue="@("02")" Text="٠٢" />
-                                            <SelectItem TValue="string" ItemValue="@("03")" Text="٠٣" />
-                                            <SelectItem TValue="string" ItemValue="@("04")" Text="٠٤" />
-                                            <SelectItem TValue="string" ItemValue="@("05")" Text="٠٥" />
-                                            <SelectItem TValue="string" ItemValue="@("06")" Text="٠٦" />
-                                            <SelectItem TValue="string" ItemValue="@("07")" Text="٠٧" />
-                                            <SelectItem TValue="string" ItemValue="@("08")" Text="٠٨" />
-                                            <SelectItem TValue="string" ItemValue="@("09")" Text="٠٩" />
-                                            <SelectItem TValue="string" ItemValue="@("10")" Text="١٠" />
-                                            <SelectItem TValue="string" ItemValue="@("11")" Text="١١" />
-                                            <SelectItem TValue="string" ItemValue="@("12")" Text="١٢" />
-                                        </SelectContent>
-                                    </Select>
+                                    <FieldLabel For="field-rtl-card-name">الاسم على البطاقة</FieldLabel>
+                                    <Input Id="field-rtl-card-name" Placeholder="أرنب شرير" />
                                 </Field>
                                 <Field>
-                                    <FieldLabel For="field-rtl-year">السنة</FieldLabel>
-                                    <Select TValue="string" SelectedValue="@("")">
-                                        <SelectTrigger Id="field-rtl-year">
-                                            <SelectValue Placeholder="YYYY" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem TValue="string" ItemValue="@("2024")" Text="2024" />
-                                            <SelectItem TValue="string" ItemValue="@("2025")" Text="2025" />
-                                            <SelectItem TValue="string" ItemValue="@("2026")" Text="2026" />
-                                            <SelectItem TValue="string" ItemValue="@("2027")" Text="2027" />
-                                            <SelectItem TValue="string" ItemValue="@("2028")" Text="2028" />
-                                            <SelectItem TValue="string" ItemValue="@("2029")" Text="2029" />
-                                        </SelectContent>
-                                    </Select>
+                                    <FieldLabel For="field-rtl-card-number">رقم البطاقة</FieldLabel>
+                                    <Input Id="field-rtl-card-number" Placeholder="1234 5678 9012 3456" />
+                                    <FieldDescription>أدخل رقم البطاقة المكون من 16 رقمًا</FieldDescription>
                                 </Field>
-                                <Field>
-                                    <FieldLabel For="field-rtl-cvv">CVV</FieldLabel>
-                                    <Input Id="field-rtl-cvv" Placeholder="123" />
+                                <Div Class="grid grid-cols-3 gap-4">
+                                    <Field>
+                                        <FieldLabel For="field-rtl-month">الشهر</FieldLabel>
+                                        <Select TValue="string" SelectedValue="@("")">
+                                            <SelectTrigger Id="field-rtl-month">
+                                                <SelectValue Placeholder="ش.ش" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem TValue="string" ItemValue="@("01")" Text="٠١" />
+                                                <SelectItem TValue="string" ItemValue="@("02")" Text="٠٢" />
+                                                <SelectItem TValue="string" ItemValue="@("03")" Text="٠٣" />
+                                                <SelectItem TValue="string" ItemValue="@("04")" Text="٠٤" />
+                                                <SelectItem TValue="string" ItemValue="@("05")" Text="٠٥" />
+                                                <SelectItem TValue="string" ItemValue="@("06")" Text="٠٦" />
+                                                <SelectItem TValue="string" ItemValue="@("07")" Text="٠٧" />
+                                                <SelectItem TValue="string" ItemValue="@("08")" Text="٠٨" />
+                                                <SelectItem TValue="string" ItemValue="@("09")" Text="٠٩" />
+                                                <SelectItem TValue="string" ItemValue="@("10")" Text="١٠" />
+                                                <SelectItem TValue="string" ItemValue="@("11")" Text="١١" />
+                                                <SelectItem TValue="string" ItemValue="@("12")" Text="١٢" />
+                                            </SelectContent>
+                                        </Select>
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel For="field-rtl-year">السنة</FieldLabel>
+                                        <Select TValue="string" SelectedValue="@("")">
+                                            <SelectTrigger Id="field-rtl-year">
+                                                <SelectValue Placeholder="YYYY" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem TValue="string" ItemValue="@("2024")" Text="2024" />
+                                                <SelectItem TValue="string" ItemValue="@("2025")" Text="2025" />
+                                                <SelectItem TValue="string" ItemValue="@("2026")" Text="2026" />
+                                                <SelectItem TValue="string" ItemValue="@("2027")" Text="2027" />
+                                                <SelectItem TValue="string" ItemValue="@("2028")" Text="2028" />
+                                                <SelectItem TValue="string" ItemValue="@("2029")" Text="2029" />
+                                            </SelectContent>
+                                        </Select>
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel For="field-rtl-cvv">CVV</FieldLabel>
+                                        <Input Id="field-rtl-cvv" Placeholder="123" />
+                                    </Field>
+                                </Div>
+                            </FieldGroup>
+                        </FieldSet>
+                        <FieldSeparator />
+                        <FieldSet>
+                            <FieldLegend>عنوان الفوترة</FieldLegend>
+                            <FieldDescription>عنوان الفوترة المرتبط بطريقة الدفع الخاصة بك</FieldDescription>
+                            <FieldGroup>
+                                <Field Horizontal="true">
+                                    <Check Id="field-rtl-same-as-shipping" Checked="true" />
+                                    <FieldLabel For="field-rtl-same-as-shipping" FontWeight="FontWeight.Normal">نفس عنوان الشحن</FieldLabel>
                                 </Field>
-                            </Div>
-                        </FieldGroup>
-                    </FieldSet>
-                    <FieldSeparator />
-                    <FieldSet>
-                        <FieldLegend>عنوان الفوترة</FieldLegend>
-                        <FieldDescription>عنوان الفوترة المرتبط بطريقة الدفع الخاصة بك</FieldDescription>
-                        <FieldGroup>
-                            <Field Horizontal="true">
-                                <Check Id="field-rtl-same-as-shipping" Checked="true" />
-                                <FieldLabel For="field-rtl-same-as-shipping" FontWeight="FontWeight.Normal">نفس عنوان الشحن</FieldLabel>
-                            </Field>
-                        </FieldGroup>
-                    </FieldSet>
-                    <Field>
-                        <FieldLabel For="field-rtl-comments">تعليقات</FieldLabel>
-                        <TextArea Id="field-rtl-comments" Class="resize-none" />
-                    </Field>
-                    <Field Horizontal="true">
-                        <Button Type="ButtonType.Submit">إرسال</Button>
-                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">إلغاء</Button>
-                    </Field>
-                </FieldGroup>
+                            </FieldGroup>
+                        </FieldSet>
+                        <Field>
+                            <FieldLabel For="field-rtl-comments">تعليقات</FieldLabel>
+                            <TextArea Id="field-rtl-comments" Class="resize-none" />
+                        </Field>
+                        <Field Horizontal="true">
+                            <Button Type="ButtonType.Submit">إرسال</Button>
+                            <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline">إلغاء</Button>
+                        </Field>
+                    </FieldGroup>
+                </Div>
             </DemoSection>
         </Section>
 
@@ -435,8 +450,9 @@
             <DemoSection Title="Responsive Layout"
                          Description="Vertical fields: Default orientation stacks label, control, and helper text—ideal for mobile-first layouts. Horizontal fields: Set orientation=&quot;horizontal&quot; on Field to align the label and control side-by-side. Pair with FieldContent to keep descriptions aligned. Responsive fields: Set orientation=&quot;responsive&quot; for automatic column layouts inside container-aware parents. Apply container-aware classes on FieldGroup to switch orientations at specific breakpoints."
                          Code="@ResponsiveLayoutCode"
-                         CodeLanguage="razor">
-                <FieldSet MaxWidth="MaxWidth.Is2xl">
+                         CodeLanguage="razor"
+                         PreviewClass="@FieldResponsivePreviewClass">
+                <FieldSet Style="width: 100%; max-width: 32rem;">
                     <FieldLegend>Profile</FieldLegend>
                     <FieldDescription>Fill in your profile information.</FieldDescription>
                     <FieldGroup Class="@("@container/field-group")">
@@ -456,41 +472,28 @@
             </DemoSection>
         </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Validation and Errors"
-                         Description="Invalid fields expose aria-invalid and FieldError content without changing the field structure."
-                         Code="@FieldErrorCode"
-                         CodeLanguage="razor">
-                <Field IsInvalid="true" MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel For="deploy-branch">Deployment branch</FieldLabel>
-                    <Input Id="deploy-branch" Value="main main" aria-invalid="true" />
-                    <FieldDescription>Use a single git branch name.</FieldDescription>
-                    <FieldError>Branch names cannot contain spaces.</FieldError>
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Accessibility"
-                         Description="Field descriptions and errors are associated with their controls for assistive technology."
-                         Code="@AccessibilityCode"
-                         CodeLanguage="razor">
-                <Field MaxWidth="MaxWidth.IsSm">
-                    <FieldLabel For="accessibility-email">Email</FieldLabel>
-                    <Input Id="accessibility-email"
-                           Type="email"
-                           Placeholder="m@example.com"
-                           aria-describedby="accessibility-email-description" />
-                    <FieldDescription Id="accessibility-email-description">
-                        We will use this address for account notifications.
-                    </FieldDescription>
-                </Field>
-            </DemoSection>
-        </Section>
 </Div>
 </Div>
 
 @code {
+    private const string FieldDefaultPreviewClass =
+        "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0";
+
+    private const string FieldOverviewPreviewClass =
+        "preview relative flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[800px] p-6 md:h-[850px]";
+
+    private const string FieldCheckboxPreviewClass =
+        "preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[32rem]";
+
+    private const string FieldGroupPreviewClass =
+        "preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-96";
+
+    private const string FieldRtlPreviewClass =
+        "preview relative flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-auto p-6";
+
+    private const string FieldResponsivePreviewClass =
+        "preview relative flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[650px] p-6 md:h-[500px] md:p-10";
+
     private const string BasicCode =
 @"<Div Class=""w-full max-w-md"">
     <form>

@@ -150,7 +150,6 @@ function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIn
 
   const metrics = getMetrics(groupElement, clientX, clientY, orientation);
   handleElement.dataset.resizableLastPercentage = String(metrics.percentage);
-  invokeDotNet(handleElement, dotNetRef, "HandlePointerDragMove", handleIndex, metrics.percentage, metrics.size);
 }
 
 function disposeHandleRegistration(handleElement) {

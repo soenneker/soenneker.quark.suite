@@ -13,9 +13,35 @@
         }
         else if (Description != null)
         {
-            <Span Display="Quark.Display.Block" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">@Description</Span>
+            @if (ShouldRenderIntroDescription)
+            {
+                <p class="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance md:max-w-[80%]">@Description</p>
+            }
+            else
+            {
+                <Span Display="Quark.Display.Block" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">@Description</Span>
+            }
         }
     </Div>
+
+    @if (ShouldRenderImplementationTabs)
+    {
+        <div class="mt-2 mb-4 inline-flex w-full items-center gap-6 lg:mt-6">
+            <a href="#"
+               data-active="true"
+               class="relative inline-flex items-center justify-center gap-1 pt-1 pb-0.5 text-base font-medium text-muted-foreground transition-colors after:absolute after:inset-x-0 after:bottom-[-4px] after:h-0.5 after:bg-foreground after:opacity-0 after:transition-opacity hover:text-foreground data-[active=true]:text-foreground data-[active=true]:after:opacity-100"
+               @onclick:preventDefault="true">Radix UI</a>
+            <a href="#"
+               data-active="false"
+               class="relative inline-flex items-center justify-center gap-1 pt-1 pb-0.5 text-base font-medium text-muted-foreground transition-colors after:absolute after:inset-x-0 after:bottom-[-4px] after:h-0.5 after:bg-foreground after:opacity-0 after:transition-opacity hover:text-foreground data-[active=true]:text-foreground data-[active=true]:after:opacity-100"
+               @onclick:preventDefault="true">Base UI</a>
+            <div class="ml-auto size-4 shrink-0 text-muted-foreground opacity-80 [&_svg]:size-4" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2 3 12l9 10 9-10L12 2Zm0 3.5L17.9 12 12 18.5 6.1 12 12 5.5Z" />
+                </svg>
+            </div>
+        </div>
+    }
 
     <Div data-slot="component-preview"
          Class="group [&_[data-slot=header]]:relative [&_[data-slot=header]]:top-auto"
@@ -212,10 +238,12 @@
         };
     private bool ShouldShowViewCodeButton => GetCodeLineCount() > 0;
     private bool ShouldShowCollapsedCodeOverlay => ShouldShowViewCodeButton && !_showCode;
-    private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 3 : 1;
-    private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 3 : null;
+    private bool ShouldRenderIntroDescription => Title is null;
+    private bool ShouldRenderImplementationTabs => Title is null && Description is not null;
+    private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 4 : 1;
+    private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 4 : null;
     private string ResolvedPreviewClass => string.IsNullOrWhiteSpace(PreviewClass)
-        ? "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0"
+        ? "preview relative flex h-72 w-full justify-center p-2 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0"
         : PreviewClass;
     private string ResolvedPreviewInnerClass => string.IsNullOrWhiteSpace(PreviewInnerClass)
         ? "demo-section-preview-inner mx-auto flex w-full max-w-full flex-col items-center justify-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full"
@@ -226,7 +254,7 @@
         const string baseClass = "relative overflow-hidden border-t border-border **:data-[slot=copy-button]:right-4 **:data-[slot=copy-button]:hidden data-[mobile-code-visible=true]:**:data-[slot=copy-button]:flex [&_pre]:max-h-72";
 
         if (ShouldShowCollapsedCodeOverlay)
-            return $"{baseClass} pointer-events-none block";
+            return $"{baseClass} pointer-events-none block min-h-[104px]";
 
         return baseClass;
     }

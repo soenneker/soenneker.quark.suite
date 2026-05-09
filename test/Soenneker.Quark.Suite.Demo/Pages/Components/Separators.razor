@@ -8,8 +8,9 @@
             <DemoSection
                          Description="Visually or semantically separates content."
                          Code="@DemoCode"
-                         CodeLanguage="razor">
-                <Div MaxWidth="MaxWidth.IsSm" Display="Display.Flex" Flex="@("flex-col")" Gap="Gap.Is4" TextSize="TextSize.Sm">
+                         CodeLanguage="razor"
+                         PreviewClass="@SeparatorPreviewClass">
+                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" Display="Display.Flex" Flex="@("flex-col")" Gap="Gap.Is4" TextSize="TextSize.Sm">
                     <Div Display="Display.Flex" Flex="@("flex-col")" Gap='Gap.Token("1.5")'>
                         <Div FontWeight="FontWeight.Medium" Leading="Leading.None">shadcn/ui</Div>
                         <Div TextColor="TextColor.MutedForeground">
@@ -28,8 +29,9 @@
             <DemoSection Title="Vertical"
                          Description="Use orientation=&quot;vertical&quot; for a vertical separator."
                          Code="@VerticalCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" Height='Height.Token("5")' ItemsAlign="Items.Center" Gap="Gap.Is4" TextSize="TextSize.Sm">
+                         CodeLanguage="razor"
+                         PreviewClass="@SeparatorPreviewClass">
+                <Div Width="Width.Auto" Display="Display.Flex" Height='Height.Token("5")' ItemsAlign="Items.Center" Gap="Gap.Is4" TextSize="TextSize.Sm" Class="w-fit">
                     <Div>Blog</Div>
                     <Separator Orientation="SeparatorOrientation.Vertical" />
                     <Div>Docs</Div>
@@ -43,16 +45,22 @@
             <DemoSection Title="Menu"
                          Description="Vertical separators between menu items with descriptions."
                          Code="@MenuCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4" TextSize="TextSize.Sm">
-                    <Div Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is1">
+                         CodeLanguage="razor"
+                         PreviewClass="@SeparatorPreviewClass">
+                <Div Width="Width.Auto" Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is4" TextSize="TextSize.Sm" Class="w-fit">
+                    <Div Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is1" Class="min-w-max">
                         <Span FontWeight="FontWeight.Medium">Settings</Span>
                         <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">Manage preferences</Span>
                     </Div>
-                    <Separator Orientation="SeparatorOrientation.Vertical" />
-                    <Div Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is1">
+                    <Separator Orientation="SeparatorOrientation.Vertical" Class="hidden sm:block" />
+                    <Div Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is1" Class="hidden min-w-max sm:flex">
                         <Span FontWeight="FontWeight.Medium">Account</Span>
                         <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">Profile &amp; security</Span>
+                    </Div>
+                    <Separator Orientation="SeparatorOrientation.Vertical" />
+                    <Div Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is1" Class="min-w-max">
+                        <Span FontWeight="FontWeight.Medium">Help</Span>
+                        <Span TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">Support &amp; docs</Span>
                     </Div>
                 </Div>
             </DemoSection>
@@ -62,7 +70,8 @@
             <DemoSection Title="List"
                          Description="Horizontal separators between list items."
                          Code="@ListCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SeparatorPreviewClass">
                 <Div Display="Display.Flex" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" Flex=@("flex-col") Gap="Gap.Is2" TextSize="TextSize.Sm">
                     <dl class="m-0 flex items-center justify-between">
                         <dt class="m-0">Item 1</dt>
@@ -86,39 +95,28 @@
             <DemoSection Title="RTL"
                          Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is8" Width="Width.IsFull">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Width="Width.IsFull">
-                        <Select TValue="string" SelectedValue="@("ar")">
-                            <SelectTrigger Width="Width.Is44">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
-                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
-                            </SelectContent>
-                        </Select>
-                        <Icon Name="LucideIcon.Info" Class="size-4" TextColor="TextColor.MutedForeground" />
-                    </Div>
-                    <DirectionProvider Dir="rtl">
-                        <Div Display="Display.Flex" MaxWidth="MaxWidth.IsSm" Flex=@("flex-col") Gap="Gap.Is4" TextSize="TextSize.Sm" TextAlign="TextAlign.End">
-                            <Div Display="Display.Flex" Flex=@("flex-col") Gap='Gap.Token("1.5")'>
-                                <Div FontWeight="FontWeight.Medium" Leading="Leading.None">shadcn/ui</Div>
-                                <Div TextColor="TextColor.MutedForeground">الأساس لنظام التصميم الخاص بك</Div>
-                            </Div>
-                            <Separator />
-                            <Div>مجموعة من المكونات المصممة بشكل جميل يمكنك تخصيصها وتوسيعها والبناء عليها.</Div>
+                         CodeLanguage="razor"
+                         PreviewClass="@SeparatorPreviewClass">
+                <DirectionProvider Dir="rtl">
+                    <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" Display="Display.Flex" Flex=@("flex-col") Gap="Gap.Is4" TextSize="TextSize.Sm" TextAlign="TextAlign.End">
+                        <Div Display="Display.Flex" Flex=@("flex-col") Gap='Gap.Token("1.5")'>
+                            <Div FontWeight="FontWeight.Medium" Leading="Leading.None">shadcn/ui</Div>
+                            <Div TextColor="TextColor.MutedForeground">الأساس لنظام التصميم الخاص بك</Div>
                         </Div>
-                    </DirectionProvider>
-                </Div>
+                        <Separator />
+                        <Div>مجموعة من المكونات المصممة بشكل جميل يمكنك تخصيصها وتوسيعها والبناء عليها.</Div>
+                    </Div>
+                </DirectionProvider>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
 @code {
+    private const string SeparatorPreviewClass = "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start";
+
     private const string DemoCode =
-@"<Div MaxWidth=""MaxWidth.IsSm"" Display=""Display.Flex"" Flex=""@(""flex-col"")"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"">
+@"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"" Display=""Display.Flex"" Flex=""@(""flex-col"")"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"">
     <Div Display=""Display.Flex"" Flex=""@(""flex-col"")"" Gap='Gap.Token(""1.5"")'>
         <Div FontWeight=""FontWeight.Medium"" Leading=""Leading.None"">shadcn/ui</Div>
         <Div TextColor=""TextColor.MutedForeground"">
@@ -132,15 +130,20 @@
 </Div>";
 
     private const string MenuCode =
-@"<Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"">
-    <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is1"">
+@"<Div Width=""Width.Auto"" Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"" Class=""w-fit"">
+    <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is1"" Class=""min-w-max"">
         <Span FontWeight=""FontWeight.Medium"">Settings</Span>
         <Span TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"">Manage preferences</Span>
     </Div>
-    <Separator Orientation=""SeparatorOrientation.Vertical"" />
-    <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is1"">
+    <Separator Orientation=""SeparatorOrientation.Vertical"" Class=""hidden sm:block"" />
+    <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is1"" Class=""hidden min-w-max sm:flex"">
         <Span FontWeight=""FontWeight.Medium"">Account</Span>
         <Span TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"">Profile &amp; security</Span>
+    </Div>
+    <Separator Orientation=""SeparatorOrientation.Vertical"" />
+    <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is1"" Class=""min-w-max"">
+        <Span FontWeight=""FontWeight.Medium"">Help</Span>
+        <Span TextSize=""TextSize.Xs"" TextColor=""TextColor.MutedForeground"">Support &amp; docs</Span>
     </Div>
 </Div>";
 
@@ -163,33 +166,19 @@
 </Div>";
 
     private const string RtlCode =
-@"<Div Space=""Space.Y.Is8"" Width=""Width.IsFull"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Width=""Width.IsFull"">
-        <Select TValue=""string"" SelectedValue=""@(""ar"")"">
-            <SelectTrigger Width=""Width.Is44"">
-                <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
-            </SelectContent>
-        </Select>
-        <Icon Name=""LucideIcon.Info"" Class=""size-4"" TextColor=""TextColor.MutedForeground"" />
-    </Div>
-    <DirectionProvider Dir=""rtl"">
-        <Div Display=""Display.Flex"" MaxWidth=""MaxWidth.IsSm"" Flex=@(""flex-col"") Gap=""Gap.Is4"" TextSize=""TextSize.Sm"" TextAlign=""TextAlign.End"">
-            <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap='Gap.Token(""1.5"")'>
-                <Div FontWeight=""FontWeight.Medium"" Leading=""Leading.None"">shadcn/ui</Div>
-                <Div TextColor=""TextColor.MutedForeground"">الأساس لنظام التصميم الخاص بك</Div>
-            </Div>
-            <Separator />
-            <Div>مجموعة من المكونات المصممة بشكل جميل يمكنك تخصيصها وتوسيعها والبناء عليها.</Div>
+@"<DirectionProvider Dir=""rtl"">
+    <Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"" Display=""Display.Flex"" Flex=@(""flex-col"") Gap=""Gap.Is4"" TextSize=""TextSize.Sm"" TextAlign=""TextAlign.End"">
+        <Div Display=""Display.Flex"" Flex=@(""flex-col"") Gap='Gap.Token(""1.5"")'>
+            <Div FontWeight=""FontWeight.Medium"" Leading=""Leading.None"">shadcn/ui</Div>
+            <Div TextColor=""TextColor.MutedForeground"">الأساس لنظام التصميم الخاص بك</Div>
         </Div>
-    </DirectionProvider>
-</Div>";
+        <Separator />
+        <Div>مجموعة من المكونات المصممة بشكل جميل يمكنك تخصيصها وتوسيعها والبناء عليها.</Div>
+    </Div>
+</DirectionProvider>";
 
     private const string VerticalCode =
-@"<Div Display=""Display.Flex"" Height='Height.Token(""5"")' ItemsAlign=""Items.Center"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"">
+@"<Div Width=""Width.Auto"" Display=""Display.Flex"" Height='Height.Token(""5"")' ItemsAlign=""Items.Center"" Gap=""Gap.Is4"" TextSize=""TextSize.Sm"" Class=""w-fit"">
     <Div>Blog</Div>
     <Separator Orientation=""SeparatorOrientation.Vertical"" />
     <Div>Docs</Div>

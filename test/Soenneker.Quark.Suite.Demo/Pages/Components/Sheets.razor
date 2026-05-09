@@ -8,7 +8,8 @@
             <DemoSection
                          Description="Extends the Dialog component to display content that complements the main content of the screen."
                          Code="@DemoCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SheetPreviewClass">
                 <Sheet>
                     <SheetTrigger AsChild="true">
                         <Button Variant="ButtonVariant.Outline">Open</Button>
@@ -44,7 +45,8 @@
             <DemoSection Title="Side"
                          Description="Use the side prop on SheetContent to set the edge of the screen where the sheet appears. Values are top, right, bottom, or left."
                          Code="@SidesCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SheetPreviewClass">
                 <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     @foreach (var side in _sheetSides)
                     {
@@ -84,7 +86,8 @@
             <DemoSection Title="No Close Button"
                          Description="Use showCloseButton={false} on SheetContent to hide the close button."
                          Code="@NoCloseCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SheetPreviewClass">
                 <Sheet>
                     <SheetTrigger AsChild="true">
                         <Button Variant="ButtonVariant.Outline">Open Sheet</Button>
@@ -105,54 +108,39 @@
             <DemoSection Title="RTL"
                          Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is8" Width="Width.IsFull">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Width="Width.IsFull">
-                        <Select TValue="string" SelectedValue="@("ar")">
-                            <SelectTrigger Width="Width.Is44">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
-                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
-                            </SelectContent>
-                        </Select>
-                        <Icon Name="LucideIcon.Info" Class="size-4" TextColor="TextColor.MutedForeground" />
-                    </Div>
-                    <DirectionProvider Dir="rtl">
-                        <Div Width="Width.IsFull" Display="Display.Flex" Justify="Justify.Center">
-                            <Sheet>
-                                <SheetTrigger AsChild="true">
-                                    <Button Variant="ButtonVariant.Outline">فتح</Button>
-                                </SheetTrigger>
-                                <SheetContent Side="Side.Left" dir="rtl">
-                                    <SheetHeader>
-                                        <SheetTitle>تعديل الملف الشخصي</SheetTitle>
-                                        <SheetDescription>
-                                            قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.
-                                        </SheetDescription>
-                                    </SheetHeader>
-                                    <FieldGroup Class="gap-5 px-4">
-                                        <Field>
-                                            <FieldLabel For="sheet-rtl-name">الاسم</FieldLabel>
-                                            <Input Id="sheet-rtl-name" Value="Pedro Duarte" />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel For="sheet-rtl-username">اسم المستخدم</FieldLabel>
-                                            <Input Id="sheet-rtl-username" Value="peduarte" />
-                                        </Field>
-                                    </FieldGroup>
-                                    <SheetFooter>
-                                        <Button>حفظ التغييرات</Button>
-                                        <SheetClose AsChild="true">
-                                            <Button Variant="ButtonVariant.Outline">إغلاق</Button>
-                                        </SheetClose>
-                                    </SheetFooter>
-                                </SheetContent>
-                            </Sheet>
-                        </Div>
-                    </DirectionProvider>
-                </Div>
+                         CodeLanguage="razor"
+                         PreviewClass="@SheetPreviewClass">
+                <DirectionProvider Dir="rtl">
+                    <Sheet>
+                        <SheetTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline">فتح</Button>
+                        </SheetTrigger>
+                        <SheetContent Side="Side.Left" dir="rtl">
+                            <SheetHeader>
+                                <SheetTitle>تعديل الملف الشخصي</SheetTitle>
+                                <SheetDescription>
+                                    قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.
+                                </SheetDescription>
+                            </SheetHeader>
+                            <FieldGroup Class="gap-5 px-4">
+                                <Field>
+                                    <FieldLabel For="sheet-rtl-name">الاسم</FieldLabel>
+                                    <Input Id="sheet-rtl-name" Value="Pedro Duarte" />
+                                </Field>
+                                <Field>
+                                    <FieldLabel For="sheet-rtl-username">اسم المستخدم</FieldLabel>
+                                    <Input Id="sheet-rtl-username" Value="peduarte" />
+                                </Field>
+                            </FieldGroup>
+                            <SheetFooter>
+                                <Button>حفظ التغييرات</Button>
+                                <SheetClose AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">إغلاق</Button>
+                                </SheetClose>
+                            </SheetFooter>
+                        </SheetContent>
+                    </Sheet>
+                </DirectionProvider>
             </DemoSection>
         </Section>
 
@@ -160,6 +148,8 @@
 </Div>
 
 @code {
+    private const string SheetPreviewClass = "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start";
+
     private readonly Side[] _sheetSides =
     [
         Side.Top,
@@ -236,53 +226,37 @@
 </Div>";
 
     private const string RtlCode =
-@"<Div Space=""Space.Y.Is8"" Width=""Width.IsFull"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Width=""Width.IsFull"">
-        <Select TValue=""string"" SelectedValue=""@(""ar"")"">
-            <SelectTrigger Width=""Width.Is44"">
-                <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
-            </SelectContent>
-        </Select>
-        <Icon Name=""LucideIcon.Info"" Class=""size-4"" TextColor=""TextColor.MutedForeground"" />
-    </Div>
-    <DirectionProvider Dir=""rtl"">
-        <Div Width=""Width.IsFull"" Display=""Display.Flex"" Justify=""Justify.Center"">
-            <Sheet>
-                <SheetTrigger AsChild=""true"">
-                    <Button Variant=""ButtonVariant.Outline"">فتح</Button>
-                </SheetTrigger>
-                <SheetContent Side=""Side.Left"" dir=""rtl"">
-                    <SheetHeader>
-                        <SheetTitle>تعديل الملف الشخصي</SheetTitle>
-                        <SheetDescription>
-                            قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <FieldGroup Class=""gap-5 px-4"">
-                        <Field>
-                            <FieldLabel For=""sheet-rtl-name"">الاسم</FieldLabel>
-                            <Input Id=""sheet-rtl-name"" Value=""Pedro Duarte"" />
-                        </Field>
-                        <Field>
-                            <FieldLabel For=""sheet-rtl-username"">اسم المستخدم</FieldLabel>
-                            <Input Id=""sheet-rtl-username"" Value=""peduarte"" />
-                        </Field>
-                    </FieldGroup>
-                    <SheetFooter>
-                        <Button>حفظ التغييرات</Button>
-                        <SheetClose AsChild=""true"">
-                            <Button Variant=""ButtonVariant.Outline"">إغلاق</Button>
-                        </SheetClose>
-                    </SheetFooter>
-                </SheetContent>
-            </Sheet>
-        </Div>
-    </DirectionProvider>
-</Div>";
+@"<DirectionProvider Dir=""rtl"">
+    <Sheet>
+        <SheetTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">فتح</Button>
+        </SheetTrigger>
+        <SheetContent Side=""Side.Left"" dir=""rtl"">
+            <SheetHeader>
+                <SheetTitle>تعديل الملف الشخصي</SheetTitle>
+                <SheetDescription>
+                    قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.
+                </SheetDescription>
+            </SheetHeader>
+            <FieldGroup Class=""gap-5 px-4"">
+                <Field>
+                    <FieldLabel For=""sheet-rtl-name"">الاسم</FieldLabel>
+                    <Input Id=""sheet-rtl-name"" Value=""Pedro Duarte"" />
+                </Field>
+                <Field>
+                    <FieldLabel For=""sheet-rtl-username"">اسم المستخدم</FieldLabel>
+                    <Input Id=""sheet-rtl-username"" Value=""peduarte"" />
+                </Field>
+            </FieldGroup>
+            <SheetFooter>
+                <Button>حفظ التغييرات</Button>
+                <SheetClose AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">إغلاق</Button>
+                </SheetClose>
+            </SheetFooter>
+        </SheetContent>
+    </Sheet>
+</DirectionProvider>";
 
     private const string NoCloseCode =
 @"<Sheet>

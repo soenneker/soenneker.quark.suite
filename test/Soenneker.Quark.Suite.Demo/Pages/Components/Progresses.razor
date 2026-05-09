@@ -9,7 +9,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Description="Displays an indicator showing the completion progress of a task, typically displayed as a progress bar."
                          Code="@DemoCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@ProgressPreviewClass">
                 <Progress ProgressValue="@_demoProgress" Width='Width.Token("[60%]")' />
             </DemoSection>
         </Section>
@@ -18,7 +19,8 @@
             <DemoSection Title="Label"
                          Description="Use a Field component to add a label to the progress bar."
                          Code="@LabelCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@ProgressPreviewClass">
                 <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
                     <FieldLabel Id="progress-upload-label" For="progress-upload" Width="Width.IsFull" Display="Display.Flex" FlexDirection="FlexDirection.Row" ItemsAlign="Items.Center">
                         <Span>Upload progress</Span>
@@ -33,7 +35,8 @@
             <DemoSection Title="Controlled"
                          Description="A progress bar that can be controlled by a slider."
                          Code="@ControlledCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@ProgressPreviewClass">
                 <Div Display="Display.Flex" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm" FlexDirection="FlexDirection.Col" Gap="Gap.Is4">
                     <Progress ProgressValue="@GetControlledPercent()" Width="Width.IsFull" />
                     <Slider Min="0"
@@ -50,7 +53,8 @@
             <DemoSection Title="RTL"
                          Description="Layout and the bar respond to right-to-left direction."
                          Code="@RtlCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@ProgressPreviewClass">
                 <DirectionProvider Dir="rtl">
                     <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
                         <FieldLabel For="progress-upload-rtl" Width="Width.IsFull" Display="Display.Flex" FlexDirection="FlexDirection.Row" ItemsAlign="Items.Center">
@@ -66,6 +70,8 @@
 </Div>
 
 @code {
+    private const string ProgressPreviewClass = "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start";
+
     private CancellationTokenSource? _demoCts;
     private int _demoProgress = 13;
     private double _controlledValue = 50;

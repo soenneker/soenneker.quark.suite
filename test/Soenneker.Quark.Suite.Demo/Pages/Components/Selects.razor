@@ -7,7 +7,8 @@
             <DemoSection
                          Description="Displays a list of options for the user to pick from—triggered by a button."
                          Code="@DemoCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <Select TValue="string" @bind-SelectedValue="_selectedFruit">
                     <SelectTrigger Width="Width.IsFull" MaxWidth='MaxWidth.Token("48")'>
                         <SelectValue Placeholder="Select a fruit" />
@@ -30,31 +31,32 @@
             <DemoSection Title="Align Item With Trigger"
                          Description="Use the position prop on SelectContent to control alignment. When position=&quot;item-aligned&quot; (default), the popup positions so the selected item appears over the trigger. When position=&quot;popper&quot;, the popup aligns to the trigger edge."
                          Code="@AlignItemCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <FieldGroup MaxWidth="MaxWidth.IsXs">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is4">
-                        <Div Space="Space.Y.Is1">
-                            <Label TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" for="select-align-item">Align Item</Label>
-                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                                Toggle to align the item with the trigger.
-                            </Paragraph>
-                        </Div>
+                    <Field Horizontal="true">
+                        <FieldContent>
+                            <FieldLabel For="select-align-item">Align Item</FieldLabel>
+                            <FieldDescription>Toggle to align the item with the trigger.</FieldDescription>
+                        </FieldContent>
                         <Switch Id="select-align-item" @bind-Checked="_alignItemWithTrigger" />
-                    </Div>
-                    <Select TValue="string" @bind-SelectedValue="_selectedAlignedFruit">
-                        <SelectTrigger Width="Width.IsFull">
-                            <SelectValue Placeholder="Select a fruit" />
-                        </SelectTrigger>
-                        <SelectContent ContentPosition="@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)">
-                            <SelectGroup>
-                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
-                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
-                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
-                                <SelectItem TValue="string" ItemValue="@("grapes")" Text="Grapes" />
-                                <SelectItem TValue="string" ItemValue="@("pineapple")" Text="Pineapple" />
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                    </Field>
+                    <Field>
+                        <Select TValue="string" @bind-SelectedValue="_selectedAlignedFruit">
+                            <SelectTrigger Width="Width.IsFull">
+                                <SelectValue Placeholder="Select a fruit" />
+                            </SelectTrigger>
+                            <SelectContent ContentPosition="@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)">
+                                <SelectGroup>
+                                    <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                                    <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                                    <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                                    <SelectItem TValue="string" ItemValue="@("grapes")" Text="Grapes" />
+                                    <SelectItem TValue="string" ItemValue="@("pineapple")" Text="Pineapple" />
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Field>
                 </FieldGroup>
             </DemoSection>
         </Section>
@@ -63,7 +65,8 @@
             <DemoSection Title="Groups"
                          Description="Use SelectGroup, SelectLabel, and SelectSeparator to organize items."
                          Code="@GroupsCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <Select TValue="string" @bind-SelectedValue="_selectedProduce">
                     <SelectTrigger Width="Width.IsFull" MaxWidth='MaxWidth.Token("48")'>
                         <SelectValue Placeholder="Select a fruit" />
@@ -92,7 +95,8 @@
             <DemoSection Title="Scrollable"
                          Description="A select with many items that scrolls."
                          Code="@ScrollableCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <Select TValue="string" @bind-SelectedValue="_selectedTimezone">
                     <SelectTrigger Width="Width.IsFull" MaxWidth='MaxWidth.Token("64")'>
                         <SelectValue Placeholder="Select a timezone" />
@@ -148,7 +152,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Code="@DisabledCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <Select TValue="string" Disabled="true">
                     <SelectTrigger Width="Width.IsFull" MaxWidth='MaxWidth.Token("48")'>
                         <SelectValue Placeholder="Select a fruit" />
@@ -170,7 +175,8 @@
             <DemoSection Title="Invalid"
                          Description="Add the data-invalid attribute to the Field component and the aria-invalid attribute to the SelectTrigger component to show an error state."
                          Code="@InvalidCode"
-                         CodeLanguage="razor">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
                 <Field IsInvalid="true" Width="Width.IsFull" MaxWidth='MaxWidth.Token("48")'>
                     <FieldLabel>Fruit</FieldLabel>
                     <Select TValue="string">
@@ -194,22 +200,10 @@
             <DemoSection Title="RTL"
                          Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                          Code="@RtlCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is8" Width="Width.IsFull">
-                    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Width="Width.IsFull">
-                        <Select TValue="string" SelectSize="SelectSizes.Sm" SelectedValue="@("ar")">
-                            <SelectTrigger Width="Width.Is36">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
-                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
-                            </SelectContent>
-                        </Select>
-                        <Icon Name="LucideIcon.Info" Class="size-4" TextColor="TextColor.MutedForeground" />
-                    </Div>
-                    <DirectionProvider Dir="rtl">
-                        <Div Width="Width.IsFull" Display="Display.Flex" Justify="Justify.Center">
+                         CodeLanguage="razor"
+                         PreviewClass="@SelectPreviewClass">
+                <DirectionProvider Dir="rtl">
+                    <Div Width="Width.IsFull" Display="Display.Flex" Justify="Justify.Center">
                         <Select TValue="string" @bind-SelectedValue="_selectedRtlFruit">
                             <SelectTrigger Width="Width.Is32">
                                 <SelectValue Placeholder="اختر فاكهة" />
@@ -222,9 +216,8 @@
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
-                        </Div>
-                    </DirectionProvider>
-                </Div>
+                    </Div>
+                </DirectionProvider>
             </DemoSection>
         </Section>
     </Div>
@@ -237,6 +230,8 @@
     private string? _selectedTimezone;
     private string? _selectedRtlFruit;
     private bool _alignItemWithTrigger = true;
+
+    private const string SelectPreviewClass = "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start";
 
     private const string DemoCode =
 @"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"">
@@ -347,29 +342,29 @@
 
     private const string AlignItemCode =
 @"<FieldGroup MaxWidth=""MaxWidth.IsXs"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Gap=""Gap.Is4"">
-        <Div Space=""Space.Y.Is1"">
-            <Label TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" for=""select-align-item"">Align Item</Label>
-            <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
-                Toggle to align the item with the trigger.
-            </Paragraph>
-        </Div>
+    <Field Horizontal=""true"">
+        <FieldContent>
+            <FieldLabel For=""select-align-item"">Align Item</FieldLabel>
+            <FieldDescription>Toggle to align the item with the trigger.</FieldDescription>
+        </FieldContent>
         <Switch Id=""select-align-item"" @bind-Checked=""_alignItemWithTrigger"" />
-    </Div>
-    <Select TValue=""string"" @bind-SelectedValue=""_selectedAlignedFruit"">
-        <SelectTrigger Width=""Width.IsFull"">
-            <SelectValue Placeholder=""Select a fruit"" />
-        </SelectTrigger>
-        <SelectContent ContentPosition=""@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)"">
-            <SelectGroup>
-                <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
-            </SelectGroup>
-        </SelectContent>
-    </Select>
+    </Field>
+    <Field>
+        <Select TValue=""string"" @bind-SelectedValue=""_selectedAlignedFruit"">
+            <SelectTrigger Width=""Width.IsFull"">
+                <SelectValue Placeholder=""Select a fruit"" />
+            </SelectTrigger>
+            <SelectContent ContentPosition=""@(_alignItemWithTrigger ? SelectPosition.ItemAligned : SelectPosition.Popper)"">
+                <SelectGroup>
+                    <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+                    <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+                    <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+                    <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" />
+                    <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+    </Field>
 </FieldGroup>";
 
     private const string GroupsCode =
@@ -430,21 +425,8 @@
 </Field>";
 
     private const string RtlCode =
-@"<Div Space=""Space.Y.Is8"" Width=""Width.IsFull"">
-    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Width=""Width.IsFull"">
-        <Select TValue=""string"" SelectSize=""SelectSizes.Sm"" SelectedValue=""@(""ar"")"">
-            <SelectTrigger Width=""Width.Is36"">
-                <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem TValue=""string"" ItemValue=""@(""ar"")"" Text=""Arabic (العربية)"" />
-                <SelectItem TValue=""string"" ItemValue=""@(""en"")"" Text=""English"" />
-            </SelectContent>
-        </Select>
-        <Icon Name=""LucideIcon.Info"" Class=""size-4"" TextColor=""TextColor.MutedForeground"" />
-    </Div>
-    <DirectionProvider Dir=""rtl"">
-        <Div Width=""Width.IsFull"" Display=""Display.Flex"" Justify=""Justify.Center"">
+@"<DirectionProvider Dir=""rtl"">
+    <Div Width=""Width.IsFull"" Display=""Display.Flex"" Justify=""Justify.Center"">
         <Select TValue=""string"" @bind-SelectedValue=""_selectedRtlFruit"">
             <SelectTrigger Width=""Width.Is32"">
                 <SelectValue Placeholder=""اختر فاكهة"" />
@@ -457,7 +439,6 @@
                 </SelectGroup>
             </SelectContent>
         </Select>
-        </Div>
-    </DirectionProvider>
-</Div>";
+    </Div>
+</DirectionProvider>";
 }

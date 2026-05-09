@@ -73,6 +73,24 @@
         return entry?.Matches(_search) ?? true;
     }
 
+    internal int? GetItemOrder(CommandItem item)
+    {
+        if (string.IsNullOrWhiteSpace(_search))
+            return null;
+
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        if (entry is null || !entry.Matches(_search))
+            return null;
+
+        var sortedEntries = _entries
+            .Where(candidate => IsSameEntryGroup(candidate.Group, entry.Group) && candidate.Matches(_search))
+            .OrderBy(candidate => candidate.Item.SearchText, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var index = sortedEntries.FindIndex(candidate => ReferenceEquals(candidate.Item, item));
+        return index >= 0 ? index : null;
+    }
+
     internal bool GroupHasVisibleItems(CommandGroup group)
     {
         if (_entries.Any(entry => entry.Group is null && entry.Matches(_search)))
@@ -90,6 +108,17 @@
             return false;
 
         return string.Equals(entryGroup.Heading, group.Heading, StringComparison.Ordinal);
+    }
+
+    private static bool IsSameEntryGroup(CommandGroup? left, CommandGroup? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null || right is null)
+            return false;
+
+        return string.Equals(left.Heading, right.Heading, StringComparison.Ordinal);
     }
 
     internal async Task SetSearch(string? value)

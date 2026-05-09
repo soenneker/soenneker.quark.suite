@@ -105,6 +105,9 @@
         if (Disabled)
             attributes["aria-disabled"] = "true";
 
+        if (ParentCommand?.GetItemOrder(this) is { } order)
+            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "order: ", order.ToString()));
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/command-item in-data-[slot=dialog-content]:rounded-lg!");
@@ -120,6 +123,7 @@
         hc.Add(Disabled);
         hc.Add(IsVisibleResolved);
         hc.Add(ParentCommand?.IsItemActive(this));
+        hc.Add(ParentCommand?.GetItemOrder(this));
         hc.Add(SearchValue);
         hc.Add(Checked);
     }

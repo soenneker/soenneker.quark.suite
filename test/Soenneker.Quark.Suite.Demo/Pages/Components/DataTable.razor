@@ -4,15 +4,11 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Section Space="Space.Y.Is4">
-        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-            Powerful table and datagrids built using TanStack Table.
-        </Paragraph>
-
-        <DemoSection Code="@DataTableCode"
-                     CodeLanguage="razor"
-                     PreviewClass="preview relative flex min-h-[451px] w-full justify-center p-4 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
-            <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl" Space="Space.Y.Is4">
-                <Div Class="flex items-center justify-between gap-2">
+        <DemoSection Description="Powerful table and datagrids built using TanStack Table."
+                     PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
+                     PreviewInnerClass="w-full">
+            <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+                <Div Class="flex items-center py-4">
                     <Input Placeholder="Filter emails..." @bind-Value="_emailFilter" Class="max-w-sm" aria-label="Filter emails" />
 
                     <Dropdown RightAligned="true">
@@ -112,11 +108,11 @@
                     </TableElement>
                 </Div>
 
-                <Div Class="flex items-center justify-between gap-4">
-                    <Paragraph Margin="Margin.Is0" Class="text-sm text-muted-foreground">
+                <Div Class="flex items-center justify-end space-x-2 py-4">
+                    <Paragraph Margin="Margin.Is0" Class="flex-1 text-sm text-muted-foreground">
                         @SelectedVisibleRowsCount of @FilteredRows.Count row(s) selected.
                     </Paragraph>
-                    <Div Class="flex items-center space-x-2">
+                    <Div Class="space-x-2">
                         <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" Disabled="true">Previous</Button>
                         <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm">Next</Button>
                     </Div>
@@ -124,24 +120,151 @@
             </Div>
         </DemoSection>
     </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="RTL"
+                     Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
+                     PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
+                     PreviewInnerClass="w-full">
+            <DirectionProvider Dir="rtl">
+                <Div dir="rtl" Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+                    <Div Class="flex items-center py-4">
+                        <Input Placeholder="تصفية البريد الإلكتروني..." @bind-Value="_rtlEmailFilter" Class="max-w-sm" aria-label="تصفية البريد الإلكتروني" />
+
+                        <Dropdown RightAligned="true">
+                            <DropdownToggle AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Class="me-auto" Style="padding-inline-end: 0.625rem;">
+                                    الأعمدة
+                                    <Icon Name="LucideIcon.ChevronDown" data-icon="inline-end" />
+                                </Button>
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownCheckboxItem @bind-Checked="_rtlShowStatus">الحالة</DropdownCheckboxItem>
+                                <DropdownCheckboxItem @bind-Checked="_rtlShowEmail">البريد الإلكتروني</DropdownCheckboxItem>
+                                <DropdownCheckboxItem @bind-Checked="_rtlShowAmount">المبلغ</DropdownCheckboxItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </Div>
+
+                    <Div Rounded="Rounded.Md" Border="Border.Default">
+                        <TableElement>
+                            <Thead>
+                                <Tr>
+                                    <Th>
+                                        <Check Id="data-table-rtl-select-all"
+                                               Name="data-table-rtl-select-all"
+                                               Checked="@AllVisibleRtlRowsSelected"
+                                               Indeterminate="@SomeVisibleRtlRowsSelected"
+                                               CheckedChanged="HandleRtlSelectAllChanged"
+                                               AriaLabel="حدد الكل" />
+                                    </Th>
+                                    @if (_rtlShowStatus)
+                                    {
+                                        <Th>الحالة</Th>
+                                    }
+                                    @if (_rtlShowEmail)
+                                    {
+                                        <Th>
+                                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" Height="Height.Is8" Class="-mr-3 px-2" OnClick="ToggleRtlEmailSort">
+                                                البريد الإلكتروني
+                                                <Icon Name="LucideIcon.ArrowUpDown" data-icon="inline-end" />
+                                            </Button>
+                                        </Th>
+                                    }
+                                    @if (_rtlShowAmount)
+                                    {
+                                        <Th>
+                                            <Div Class="text-left">المبلغ</Div>
+                                        </Th>
+                                    }
+                                    <Th />
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                @foreach (PaymentRow row in FilteredRtlRows)
+                                {
+                                    <Tr Key="@($"rtl-{row.Id}")" Attributes="@GetRtlRowAttributes(row.Id)">
+                                        <Td>
+                                            <Check Id="@($"data-table-rtl-row-{row.Id}")"
+                                                   Name="@($"data-table-rtl-row-{row.Id}")"
+                                                   Checked="@_rtlSelectedRowIds.Contains(row.Id)"
+                                                   CheckedChanged="@((bool selected) => HandleRtlRowSelected(row.Id, selected))"
+                                                   AriaLabel="حدد الصف" />
+                                        </Td>
+                                        @if (_rtlShowStatus)
+                                        {
+                                            <Td>@row.StatusArabic</Td>
+                                        }
+                                        @if (_rtlShowEmail)
+                                        {
+                                            <Td Class="lowercase">@row.Email</Td>
+                                        }
+                                        @if (_rtlShowAmount)
+                                        {
+                                            <Td>
+                                                <Div Class="text-left font-medium">@row.AmountArabic</Div>
+                                            </Td>
+                                        }
+                                        <Td TextAlign='TextAlign.Token("left")'>
+                                            <Dropdown RightAligned="true">
+                                                <DropdownToggle AsChild="true">
+                                                    <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs">
+                                                        <Icon Name="LucideIcon.Ellipsis" />
+                                                        <Span Class="sr-only">فتح القائمة</Span>
+                                                    </Button>
+                                                </DropdownToggle>
+                                                <DropdownMenu Width="Width.Is40">
+                                                    <DropdownLabel>الإجراءات</DropdownLabel>
+                                                    <DropdownItem>نسخ معرف الدفع</DropdownItem>
+                                                    <DropdownDivider />
+                                                    <DropdownItem>عرض العميل</DropdownItem>
+                                                    <DropdownItem>عرض تفاصيل الدفع</DropdownItem>
+                                                </DropdownMenu>
+                                            </Dropdown>
+                                        </Td>
+                                    </Tr>
+                                }
+                            </Tbody>
+                        </TableElement>
+                    </Div>
+
+                    <Div Class="flex items-center justify-end space-x-2 py-4">
+                        <Paragraph Margin="Margin.Is0" Class="flex-1 text-sm text-muted-foreground">
+                            @SelectedVisibleRtlRowsCount من @FilteredRtlRows.Count صف(وف) محدد.
+                        </Paragraph>
+                        <Div Class="space-x-2">
+                            <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" Disabled="true">السابق</Button>
+                            <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm">التالي</Button>
+                        </Div>
+                    </Div>
+                </Div>
+            </DirectionProvider>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
     private readonly List<PaymentRow> _rows =
     [
-        new("m5gr84i9", "success", "ken99@example.com", "$316.00"),
-        new("3u1reuv4", "success", "Abe45@example.com", "$242.00"),
-        new("derv1ws0", "processing", "Monserrat44@example.com", "$837.00"),
-        new("5kma53ae", "success", "Silas22@example.com", "$874.00"),
-        new("bhqecj4p", "failed", "carmella@example.com", "$721.00")
+        new("m5gr84i9", "success", "ناجح", "ken99@example.com", "$316.00", "‏٣١٦٫٠٠ US$"),
+        new("3u1reuv4", "success", "ناجح", "Abe45@example.com", "$242.00", "‏٢٤٢٫٠٠ US$"),
+        new("derv1ws0", "processing", "قيد المعالجة", "Monserrat44@example.com", "$837.00", "‏٨٣٧٫٠٠ US$"),
+        new("5kma53ae", "success", "ناجح", "Silas22@example.com", "$874.00", "‏٨٧٤٫٠٠ US$"),
+        new("bhqecj4p", "failed", "فشل", "carmella@example.com", "$721.00", "‏٧٢١٫٠٠ US$")
     ];
 
     private readonly HashSet<string> _selectedRowIds = [];
+    private readonly HashSet<string> _rtlSelectedRowIds = [];
     private string? _emailFilter;
+    private string? _rtlEmailFilter;
     private bool _showStatus = true;
     private bool _showEmail = true;
     private bool _showAmount = true;
+    private bool _rtlShowStatus = true;
+    private bool _rtlShowEmail = true;
+    private bool _rtlShowAmount = true;
     private bool? _emailSortDescending;
+    private bool? _rtlEmailSortDescending;
 
     private List<PaymentRow> FilteredRows
     {
@@ -167,9 +290,38 @@
     private bool AllVisibleRowsSelected => FilteredRows.Count > 0 && SelectedVisibleRowsCount == FilteredRows.Count;
     private bool SomeVisibleRowsSelected => SelectedVisibleRowsCount > 0 && !AllVisibleRowsSelected;
 
+    private List<PaymentRow> FilteredRtlRows
+    {
+        get
+        {
+            IEnumerable<PaymentRow> rows = _rows;
+
+            if (!string.IsNullOrWhiteSpace(_rtlEmailFilter))
+                rows = rows.Where(row => row.Email.Contains(_rtlEmailFilter, StringComparison.OrdinalIgnoreCase));
+
+            if (_rtlEmailSortDescending is not null)
+            {
+                rows = _rtlEmailSortDescending.Value
+                    ? rows.OrderByDescending(row => row.Email)
+                    : rows.OrderBy(row => row.Email);
+            }
+
+            return rows.ToList();
+        }
+    }
+
+    private int SelectedVisibleRtlRowsCount => FilteredRtlRows.Count(row => _rtlSelectedRowIds.Contains(row.Id));
+    private bool AllVisibleRtlRowsSelected => FilteredRtlRows.Count > 0 && SelectedVisibleRtlRowsCount == FilteredRtlRows.Count;
+    private bool SomeVisibleRtlRowsSelected => SelectedVisibleRtlRowsCount > 0 && !AllVisibleRtlRowsSelected;
+
     private void ToggleEmailSort()
     {
         _emailSortDescending = _emailSortDescending is null ? false : !_emailSortDescending.Value;
+    }
+
+    private void ToggleRtlEmailSort()
+    {
+        _rtlEmailSortDescending = _rtlEmailSortDescending is null ? false : !_rtlEmailSortDescending.Value;
     }
 
     private void HandleSelectAllChanged(bool selected)
@@ -191,6 +343,25 @@
             _selectedRowIds.Remove(rowId);
     }
 
+    private void HandleRtlSelectAllChanged(bool selected)
+    {
+        foreach (PaymentRow row in FilteredRtlRows)
+        {
+            if (selected)
+                _rtlSelectedRowIds.Add(row.Id);
+            else
+                _rtlSelectedRowIds.Remove(row.Id);
+        }
+    }
+
+    private void HandleRtlRowSelected(string rowId, bool selected)
+    {
+        if (selected)
+            _rtlSelectedRowIds.Add(rowId);
+        else
+            _rtlSelectedRowIds.Remove(rowId);
+    }
+
     private IReadOnlyDictionary<string, object> GetRowAttributes(string rowId)
     {
         return _selectedRowIds.Contains(rowId)
@@ -198,7 +369,14 @@
             : new Dictionary<string, object>();
     }
 
-    private sealed record PaymentRow(string Id, string Status, string Email, string Amount);
+    private IReadOnlyDictionary<string, object> GetRtlRowAttributes(string rowId)
+    {
+        return _rtlSelectedRowIds.Contains(rowId)
+            ? new Dictionary<string, object> { ["data-state"] = "selected" }
+            : new Dictionary<string, object>();
+    }
+
+    private sealed record PaymentRow(string Id, string Status, string StatusArabic, string Email, string Amount, string AmountArabic);
 
     private const string DataTableCode =
 @"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXl"" Space=""Space.Y.Is4"">
