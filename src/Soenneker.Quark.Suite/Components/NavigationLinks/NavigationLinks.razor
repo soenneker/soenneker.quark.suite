@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@inject NavigationManager Navigation
 
 @if (ReferenceEquals(Mode, NavigationLinksMode.Header))
 {
@@ -43,7 +44,7 @@ else if (ReferenceEquals(Mode, NavigationLinksMode.Stack))
             {
                 @if (item.Href is not null)
                 {
-                    <Anchor Href="@item.Href" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
+                    <Anchor Href="@item.Href" PreventDefault="@ShouldHandleStackNavigation(item)" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
                         @item.Title
                         @if (item.IsNew)
                         {
@@ -136,8 +137,21 @@ else
 
     private async Task HandleStackItemClick(NavigationItem item)
     {
-        if (item.Href.HasContent() && SidebarState?.OpenMobile == true && SidebarProvider is not null)
-            await SidebarProvider.SetOpenMobile(false);
+        if (!ShouldHandleStackNavigation(item))
+            return;
+
+        await SidebarProvider!.SetOpenMobile(false);
+        await Task.Delay(90);
+        Navigation.NavigateTo(item.Href!);
+    }
+
+    private bool ShouldHandleStackNavigation(NavigationItem item)
+    {
+        return item.Href.HasContent() &&
+               SidebarState?.OpenMobile == true &&
+               SidebarProvider is not null &&
+               !item.Href!.StartsWith('#') &&
+               !Uri.TryCreate(item.Href, UriKind.Absolute, out _);
     }
 
     private string GetHeaderItemClass(NavigationItem item)
