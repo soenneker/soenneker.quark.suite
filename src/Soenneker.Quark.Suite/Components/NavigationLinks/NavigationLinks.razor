@@ -142,7 +142,14 @@ else
 
         await SidebarProvider!.SetOpenMobile(false);
         await Task.Delay(90);
-        Navigation.NavigateTo(item.Href!);
+        Navigation.NavigateTo(GetNavigationTarget(item.Href!));
+    }
+
+    private string GetNavigationTarget(string href)
+    {
+        return href is "." or "./"
+            ? Navigation.BaseUri
+            : href;
     }
 
     private bool ShouldHandleStackNavigation(NavigationItem item)
