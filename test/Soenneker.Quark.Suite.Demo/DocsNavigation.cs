@@ -8,7 +8,7 @@ public static class DocsNavigation
 
     public static IReadOnlyList<NavigationItem> TopLinks { get; } =
     [
-        new("Docs", "installation", ExactMatch: true),
+        new("Docs", ".", ExactMatch: true),
         new("Components", "components")
     ];
 

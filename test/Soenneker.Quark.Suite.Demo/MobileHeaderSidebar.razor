@@ -1,4 +1,4 @@
-@if (State?.IsMobile == true)
+@if (State?.IsMobile == true || State?.OpenMobile == true)
 {
     <Sidebar Collapsible="SidebarCollapsible.None"
              Shell="SidebarShell.Navigation"
@@ -9,6 +9,12 @@
              MobileOffsetTop="calc(3rem + 2px)">
         <MobileContent>
             <NavigationLinks Items="Items" Mode="NavigationLinksMode.Stack" Title="Menu" IsActive="IsActive" />
+            @if (IncludeDocsNavigation)
+            {
+                <NavigationLinks Items="DocsNavigation.SectionLinks" Mode="NavigationLinksMode.Stack" Title="Sections" IsActive="IsActive" />
+                <NavigationLinks Items="DocsNavigation.ComponentLinks" Mode="NavigationLinksMode.Stack" Title="Components" IsActive="IsActive" />
+                <NavigationLinks Items="DocsNavigation.PrimitiveLinks" Mode="NavigationLinksMode.Stack" Title="Primitives" IsActive="IsActive" />
+            }
         </MobileContent>
     </Sidebar>
 }
@@ -22,4 +28,7 @@
 
     [Parameter]
     public Func<NavigationItem, bool>? IsActive { get; set; }
+
+    [Parameter]
+    public bool IncludeDocsNavigation { get; set; }
 }

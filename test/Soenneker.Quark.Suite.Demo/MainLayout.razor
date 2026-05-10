@@ -108,7 +108,7 @@
         @if (IsLandingPage)
         {
             <Div Flex=@("grow") Padding="Padding.Is2.OnX" Presets="@NavigationShellContainerPresets">
-                <MobileHeaderSidebar Items="_headerLinks" IsActive="IsHeaderNavActive"/>
+                <MobileHeaderSidebar Items="DocsNavigation.TopLinks" IsActive="IsTopNavActive" IncludeDocsNavigation="true"/>
 
                 <Main Margin="Margin.Auto.OnX" MinWidth="MinWidth.Is0" Width="Width.IsFull" Flex=@("grow") Class="@MainClass">
                     @Body
@@ -271,7 +271,7 @@
     {
         return NormalizeRoute(item.Href) switch
         {
-            "/installation" => CurrentPath is "/installation" or "/introduction",
+            "/" => CurrentPath == "/",
             "/components" => CurrentPath == "/components" || DocsNavigation.ComponentLinks.Any(IsCurrentPath) || DocsNavigation.PrimitiveLinks.Any(IsCurrentPath),
             _ => false
         };
@@ -296,7 +296,10 @@
 
     private static string NormalizeRoute(string? href)
     {
-        return string.IsNullOrWhiteSpace(href) ? "/" : $"/{href.Trim('/')}";
+        if (string.IsNullOrWhiteSpace(href) || href is "." or "./")
+            return "/";
+
+        return $"/{href.Trim('/')}";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
