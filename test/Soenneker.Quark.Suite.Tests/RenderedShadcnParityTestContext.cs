@@ -325,6 +325,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask Activate(string overlayId, ElementReference container, bool trapFocus = true, bool lockScroll = true, string? initialFocusSelector = null,
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask ActivateScrollLock(string overlayId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public ValueTask Deactivate(string overlayId, bool unlockScroll = true, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

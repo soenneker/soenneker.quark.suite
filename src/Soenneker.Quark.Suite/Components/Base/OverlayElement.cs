@@ -91,19 +91,28 @@ public abstract class OverlayElement : InteractiveElement
         _hasRestoreFocusTarget = true;
     }
 
-    internal void SetOverlayContentElement(ElementReference elementReference)
+    internal async Task SetOverlayContentElement(ElementReference elementReference)
     {
         _overlayContentElement = elementReference;
         _hasOverlayContentElement = true;
+
+        if (Visible)
+            await OnOverlayShown();
     }
 
     protected virtual async Task OnOverlayShown()
     {
-        if (!_hasOverlayContentElement)
-            return;
-
         try
         {
+            if (!_hasOverlayContentElement)
+            {
+                if (LockScroll)
+                    await OverlayInterop.ActivateScrollLock(_overlayId);
+
+                _overlayBehaviorActive = true;
+                return;
+            }
+
             await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
             _overlayBehaviorActive = true;
         }

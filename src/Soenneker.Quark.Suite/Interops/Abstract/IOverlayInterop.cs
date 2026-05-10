@@ -22,6 +22,11 @@ public interface IOverlayInterop : IAsyncDisposable
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Activates scroll locking for an overlay before its focus container is available.
+    /// </summary>
+    ValueTask ActivateScrollLock(string overlayId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Deactivates focus management and optional scroll locking for an overlay.
     /// </summary>
     ValueTask Deactivate(string overlayId, bool unlockScroll = true, CancellationToken cancellationToken = default);

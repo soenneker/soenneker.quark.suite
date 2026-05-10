@@ -41,6 +41,17 @@ public sealed class OverlayInterop : IOverlayInterop
         }
     }
 
+    public async ValueTask ActivateScrollLock(string overlayId, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("activateScrollLock", linked, overlayId);
+        }
+    }
+
     public async ValueTask Deactivate(string overlayId, bool unlockScroll = true, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

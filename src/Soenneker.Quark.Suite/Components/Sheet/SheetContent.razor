@@ -16,6 +16,7 @@
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
                          OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         OnElementReferenceCaptured="HandleElementReferenceCaptured"
                          EmitOpenClosedAttributes="false"
                          AdditionalAttributes="@ContentAttributes">
         @ChildContent
@@ -149,6 +150,12 @@
     private Task HandleBackdropPointerDownOutside()
     {
         return ParentSheet?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
+    }
+
+    private async Task HandleElementReferenceCaptured(ElementReference element)
+    {
+        if (ParentSheet is not null)
+            await ParentSheet.SetOverlayContentElement(element);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

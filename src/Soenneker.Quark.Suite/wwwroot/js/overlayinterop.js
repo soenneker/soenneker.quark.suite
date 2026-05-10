@@ -161,7 +161,7 @@ function unlockBodyScroll() {
 }
 
 export function activate(overlayId, container, trapFocus, lockScroll, initialFocusSelector) {
-    if (!overlayId || !container) {
+    if (!overlayId) {
         return;
     }
 
@@ -169,15 +169,33 @@ export function activate(overlayId, container, trapFocus, lockScroll, initialFoc
     removeOverlay(overlayId);
     overlayStack.push(overlayId);
 
-    if (trapFocus) {
-        createFocusTrap(overlayId, container);
-    }
-
     if (lockScroll && !alreadyActive) {
         lockBodyScroll();
     }
 
+    if (!container) {
+        return;
+    }
+
+    if (trapFocus) {
+        createFocusTrap(overlayId, container);
+    }
+
     focusInitial(container, initialFocusSelector);
+}
+
+export function activateScrollLock(overlayId) {
+    if (!overlayId) {
+        return;
+    }
+
+    const alreadyActive = overlayStack.includes(overlayId);
+    removeOverlay(overlayId);
+    overlayStack.push(overlayId);
+
+    if (!alreadyActive) {
+        lockBodyScroll();
+    }
 }
 
 export function deactivate(overlayId, unlockScroll) {
