@@ -30,4 +30,9 @@ public interface IOverlayInterop : IAsyncDisposable
     /// Deactivates focus management and optional scroll locking for an overlay.
     /// </summary>
     ValueTask Deactivate(string overlayId, bool unlockScroll = true, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Releases any remaining document-level overlay scroll locks.
+    /// </summary>
+    ValueTask ReleaseScrollLocks(CancellationToken cancellationToken = default);
 }

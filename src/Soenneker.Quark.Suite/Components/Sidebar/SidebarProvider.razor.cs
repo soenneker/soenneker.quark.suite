@@ -28,6 +28,9 @@ public partial class SidebarProvider
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
 
+    [Inject]
+    private IOverlayInterop OverlayInterop { get; set; } = null!;
+
     [Parameter]
     public bool DefaultOpen { get; set; } = true;
 
@@ -188,7 +191,20 @@ public partial class SidebarProvider
         if (!CloseMobileOnNavigation || !GetOpenMobile())
             return;
 
-        _ = InvokeAsync(() => SetOpenMobile(false));
+        _ = InvokeAsync(CloseMobileAfterNavigation);
+    }
+
+    private async Task CloseMobileAfterNavigation()
+    {
+        await SetOpenMobile(false);
+
+        try
+        {
+            await OverlayInterop.ReleaseScrollLocks();
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
     }
 
     private async Task PersistOpen(bool value)

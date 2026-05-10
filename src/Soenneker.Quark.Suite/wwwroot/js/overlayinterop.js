@@ -212,3 +212,13 @@ export function deactivate(overlayId, unlockScroll) {
         unlockBodyScroll();
     }
 }
+
+export function releaseScrollLocks() {
+    if (scrollLockCount === 0) {
+        return;
+    }
+
+    scrollLockCount = 0;
+    document.body.style.overflow = originalBodyOverflow;
+    document.body.style.paddingRight = originalBodyPaddingRight;
+}

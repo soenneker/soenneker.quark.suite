@@ -329,6 +329,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask Deactivate(string overlayId, bool unlockScroll = true, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask ReleaseScrollLocks(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
