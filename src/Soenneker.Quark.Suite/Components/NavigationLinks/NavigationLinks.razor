@@ -130,6 +130,8 @@ else
     [Parameter]
     public Func<NavigationItem, bool>? IsActive { get; set; }
 
+    private string? _navigationTargetAfterClose;
+
     private bool IsItemActive(NavigationItem item)
     {
         return IsActive?.Invoke(item) ?? false;
@@ -140,9 +142,28 @@ else
         if (!ShouldHandleStackNavigation(item))
             return;
 
+        await CloseAndNavigateStackItem(item);
+    }
+
+    private async Task CloseAndNavigateStackItem(NavigationItem item)
+    {
+        var href = item.Href;
+
+        if (!href.HasContent())
+            return;
+
+        _navigationTargetAfterClose = GetNavigationTarget(href);
         await SidebarProvider!.SetOpenMobile(false);
-        await Task.Delay(90);
-        Navigation.NavigateTo(GetNavigationTarget(item.Href!));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (_navigationTargetAfterClose is null || SidebarState?.OpenMobile == true)
+            return;
+
+        var target = _navigationTargetAfterClose;
+        _navigationTargetAfterClose = null;
+        Navigation.NavigateTo(target);
     }
 
     private string GetNavigationTarget(string href)
@@ -154,8 +175,13 @@ else
 
     private bool ShouldHandleStackNavigation(NavigationItem item)
     {
+        return CanCoordinateStackNavigation(item) &&
+               SidebarState?.OpenMobile == true;
+    }
+
+    private bool CanCoordinateStackNavigation(NavigationItem item)
+    {
         return item.Href.HasContent() &&
-               SidebarState?.OpenMobile == true &&
                SidebarProvider is not null &&
                !item.Href!.StartsWith('#') &&
                !Uri.TryCreate(item.Href, UriKind.Absolute, out _);

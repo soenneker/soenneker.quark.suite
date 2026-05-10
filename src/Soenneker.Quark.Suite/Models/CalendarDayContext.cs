@@ -16,3 +16,4 @@ public sealed record CalendarDayContext(
     bool IsRangeEnd,
     bool IsRangeMiddle,
     IReadOnlyList<string> Modifiers);
+
