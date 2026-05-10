@@ -214,9 +214,8 @@ export function deactivate(overlayId, unlockScroll) {
 }
 
 export function releaseScrollLocks() {
-    if (scrollLockCount === 0) {
-        return;
-    }
+    traps.forEach((trap, overlayId) => disposeFocusTrap(overlayId));
+    overlayStack.length = 0;
 
     scrollLockCount = 0;
     document.body.style.overflow = originalBodyOverflow;

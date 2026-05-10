@@ -43,7 +43,7 @@ else if (ReferenceEquals(Mode, NavigationLinksMode.Stack))
             {
                 @if (item.Href is not null)
                 {
-                    <Anchor Href="@item.Href" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
+                    <Anchor Href="@item.Href" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
                         @item.Title
                         @if (item.IsNew)
                         {
@@ -108,6 +108,12 @@ else
 }
 
 @code {
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public Soenneker.Quark.Dtos.SidebarContextState? SidebarState { get; set; }
+
     [Parameter]
     public IEnumerable<NavigationItem> Items { get; set; } = [];
 
@@ -126,6 +132,12 @@ else
     private bool IsItemActive(NavigationItem item)
     {
         return IsActive?.Invoke(item) ?? false;
+    }
+
+    private async Task HandleStackItemClick(NavigationItem item)
+    {
+        if (item.Href.HasContent() && SidebarState?.OpenMobile == true && SidebarProvider is not null)
+            await SidebarProvider.SetOpenMobile(false);
     }
 
     private string GetHeaderItemClass(NavigationItem item)
