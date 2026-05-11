@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 @using System.Linq
 
 @if (ShouldRenderControl)
@@ -20,43 +21,43 @@
     internal Thread? ParentThread { get; set; }
 
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter]
-    public string? Title { get; set; } = "Scroll to bottom";
-
-    [Parameter]
     public bool HideWhenAtBottom { get; set; } = true;
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
-
     private bool ShouldRenderControl => ParentThread is null || !HideWhenAtBottom || !ParentThread.IsAtBottom;
 
-    private IReadOnlyDictionary<string, object> BuildAttributes()
+    protected override void ApplyDefaultParameters()
     {
-        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+        base.ApplyDefaultParameters();
+
+        Title ??= "Scroll to bottom";
+        Position ??= Quark.Position.Absolute;
+        Bottom ??= Quark.Bottom.Token("6");
+        Left ??= Quark.Left.Token("[50%]");
+        Display ??= Quark.Display.Flex;
+        Size ??= Quark.Size.Is8;
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Rounded ??= Quark.Rounded.Full;
+        Border ??= Quark.Border.Is1;
+        BorderColor ??= Quark.BorderColor.Border;
+        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Shadow ??= Quark.Shadow.Sm;
+        Transition ??= Quark.Transition.All;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "thread-scroll-to-bottom";
         attributes["type"] = "button";
         attributes["aria-label"] = Title ?? "Scroll to bottom";
 
-        if (!string.IsNullOrWhiteSpace(Title))
-            attributes["title"] = Title!;
-
-        attributes["class"] = string.Join(" ", new[]
-        {
-            "absolute bottom-6 left-[50%] flex size-8 translate-x-[-50%] cursor-pointer items-center justify-center rounded-full border border-border bg-secondary text-muted-foreground shadow-sm transition-all hover:bg-border active:scale-95",
-            Class,
-            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
-        }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-        return attributes;
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "translate-x-[-50%] hover:bg-border active:scale-95"));
     }
 
     private async Task HandleClick(MouseEventArgs args)

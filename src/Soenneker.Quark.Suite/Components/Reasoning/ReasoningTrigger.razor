@@ -1,13 +1,7 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<CollapsibleTrigger Display="Quark.Display.Flex"
-                    Cursor="Quark.Cursor.Pointer"
-                    ItemsAlign="Quark.Items.Center"
-                    Gap='Quark.Gap.Token("1.25")'
-                    TextColor="Quark.TextColor.MutedForeground"
-                    Transition="Quark.Transition.Colors"
-                    Class="@TriggerClass"
-                    Attributes="@TriggerAttributes">
+<CollapsibleTrigger Attributes="@BuildTriggerAttributes()">
     <Icon Name="LucideIcon.Brain" Size="Quark.Size.Is4" aria-hidden="true" />
     <Span TextSize="Quark.TextSize.Sm" Leading="Quark.Leading.Is6" Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
     <Icon Name="LucideIcon.ChevronDown"
@@ -23,25 +17,33 @@
     [CascadingParameter]
     private ReasoningContext? ReasoningContext { get; set; }
 
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
-
-    private string TriggerClass => string.Join(" ", new[]
+    protected override void ApplyDefaultParameters()
     {
-        "group hover:text-foreground",
-        Class
-    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Token("1.25");
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Transition ??= Quark.Transition.Colors;
+    }
 
     private string LabelClass => "group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
 
     private RenderFragment DefaultLabel => builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
 
-    private IReadOnlyDictionary<string, object> TriggerAttributes => new Dictionary<string, object>
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        ["data-slot"] = "reasoning-trigger",
-        ["data-streaming"] = ReasoningContext?.IsStreaming == true ? "true" : "false"
-    };
+        var attributes = BuildAttributes();
+        attributes["data-streaming"] = ReasoningContext?.IsStreaming == true ? "true" : "false";
+        return attributes;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("reasoning-trigger");
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
+    }
 }

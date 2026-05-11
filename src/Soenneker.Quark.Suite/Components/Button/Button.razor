@@ -191,10 +191,7 @@ else
 
         var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal) ? "button" : TriggerContext?.DataSlot;
 
-        if (triggerDataSlot is not null)
-            attributes["data-slot"] = triggerDataSlot;
-        else if (!attributes.ContainsKey("data-slot"))
-            attributes["data-slot"] = "button";
+        SetDefaultDataSlot(triggerDataSlot ?? "button");
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
@@ -585,20 +582,12 @@ else
     {
         return size switch
         {
-            "xs" => includeSizeRadius
-                ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3"
-                : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
-            "sm" => includeSizeRadius
-                ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5"
-                : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
+            "xs" => includeSizeRadius ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
+            "sm" => includeSizeRadius ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5" : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
             "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
             "icon" => "size-8",
-            "icon-xs" => includeSizeRadius
-                ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3"
-                : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
-            "icon-sm" => includeSizeRadius
-                ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg"
-                : "size-7 in-data-[slot=button-group]:rounded-lg",
+            "icon-xs" => includeSizeRadius ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
+            "icon-sm" => includeSizeRadius ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg" : "size-7 in-data-[slot=button-group]:rounded-lg",
             "icon-lg" => "size-9",
             _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
         };

@@ -2,7 +2,7 @@
 
 @if (Citation is not null)
 {
-    <a href="@Citation.Url" target="_blank" rel="noreferrer" @attributes="BuildAttributes()">
+    <Anchor Href="@Citation.Url" Target="Quark.Target.Blank" rel="noreferrer" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Padding="Quark.Padding.Is3" TextAlign="Quark.TextAlign.Start" DecorationLine="Quark.DecorationLine.None" OutlineStyle="Quark.OutlineStyle.None" Attributes="@BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -11,18 +11,18 @@
         {
             @if (ShowTitle && Citation.Title is not null)
             {
-                <h4 data-slot="citation-title" class="line-clamp-2 text-xs leading-4 font-[450] text-primary">@Citation.Title</h4>
+                <H4 DataSlot="citation-title" LineClamp="Quark.LineClamp.Is2" TextSize="Quark.TextSize.Xs" Leading="Quark.Leading.Is4" FontWeight='@("font-[450]")' TextColor="Quark.TextColor.Primary">@Citation.Title</H4>
             }
             @if (ShowDescription && Citation.Description is not null)
             {
-                <p data-slot="citation-description" class="line-clamp-3 text-xs leading-4.5 font-[350] text-muted-foreground">@Citation.Description</p>
+                <Paragraph DataSlot="citation-description" LineClamp="Quark.LineClamp.Is3" TextSize="Quark.TextSize.Xs" Leading='Quark.Leading.Token("4.5")' FontWeight='@("font-[350]")' TextColor="Quark.TextColor.MutedForeground">@Citation.Description</Paragraph>
             }
             @if (ShowSource)
             {
                 <CitationSource Source="@Citation" />
             }
         }
-    </a>
+    </Anchor>
 }
 
 @code {
@@ -58,12 +58,7 @@
     {
         var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
         attributes["data-slot"] = "citation-item";
-        attributes["class"] = string.Join(" ", new[]
-        {
-            "flex w-full flex-col gap-1 p-3 text-start no-underline outline-none",
-            Class,
-            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
-        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        attributes["class"] = string.Join(" ", new[] { Class, attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null }.Where(x => !string.IsNullOrWhiteSpace(x)));
         return attributes;
     }
 }

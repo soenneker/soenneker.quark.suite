@@ -3,7 +3,7 @@
 @using Microsoft.JSInterop
 @inherits Soenneker.Quark.Component
 @implements IAsyncDisposable
-@inject IJSRuntime JSRuntime
+@inject IPromptInputInterop PromptInputInterop
 
 <textarea @ref="_element"
           @attributes="TextareaAttributes"
@@ -14,9 +14,8 @@
           @onkeydown="HandleKeyDown"></textarea>
 
 @code {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/promptinputinterop.js";
     private ElementReference _element;
-    private IJSObjectReference? _module;
+    private bool _registered;
 
     [CascadingParameter]
     public PromptInput? PromptInput { get; set; }
@@ -40,7 +39,7 @@
             var attributes = new Dictionary<string, object>(BuildAttributes());
             attributes.TryGetValue("class", out var existingClass);
             attributes["aria-label"] = "Message input";
-            attributes["data-slot"] = "prompt-input-textarea";
+            attributes["data-slot"] = DataSlot ?? "prompt-input-textarea";
             attributes["class"] = string.Join(" ", new[]
             {
                 "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent",
@@ -72,8 +71,8 @@
         if (!firstRender)
             return;
 
-        _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", _modulePath);
-        await _module.InvokeVoidAsync("registerTextarea", _element);
+        await PromptInputInterop.RegisterTextarea(_element);
+        _registered = true;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -86,13 +85,12 @@
 
     protected override async ValueTask OnDisposeAsync()
     {
-        if (_module is null)
+        if (!_registered)
             return;
 
         try
         {
-            await _module.InvokeVoidAsync("unregisterTextarea", _element);
-            await _module.DisposeAsync();
+            await PromptInputInterop.UnregisterTextarea(_element);
         }
         catch (JSDisconnectedException)
         {

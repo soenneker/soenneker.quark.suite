@@ -1,8 +1,11 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
 @if (!string.IsNullOrWhiteSpace(ResolvedSource?.FaviconSrc))
 {
-    <img src="@ResolvedSource.FaviconSrc" alt="" data-slot="citation-favicon" class="@BuildClass()" />
+    <Image Source="@ResolvedSource.FaviconSrc"
+           Alt=""
+           Attributes="@BuildAttributes()" />
 }
 
 @code {
@@ -12,10 +15,21 @@
     [Parameter]
     public ResolvedCitation? Source { get; set; }
 
-    [Parameter]
-    public string? Class { get; set; }
-
     private ResolvedCitation? ResolvedSource => Source ?? ParentCitation?.ActiveCitation;
 
-    private string BuildClass() => string.Join(" ", new[] { "size-4 shrink-0 rounded-full bg-background", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Size ??= Quark.Size.Is4;
+        Shrink ??= Quark.Shrink.Is0;
+        Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("citation-favicon");
+    }
 }

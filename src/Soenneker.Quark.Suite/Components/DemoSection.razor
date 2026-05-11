@@ -1,5 +1,5 @@
-@using Microsoft.JSInterop
 @using System.Text
+@using Soenneker.Blazor.Utils.Clipboard.Abstract
 
 <Div Width="Quark.Width.IsFull" Space="Quark.Space.Y.Is4">
     <Div Space="Quark.Space.Y.Is2">
@@ -15,7 +15,7 @@
         {
             @if (ShouldRenderIntroDescription)
             {
-                <p class="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance md:max-w-[80%]">@Description</p>
+                <Paragraph TextSize='Quark.TextSize.Token("[1.05rem]").OnSm.Base' TextColor="Quark.TextColor.MutedForeground" TextWrap='@("sm:text-balance")' MaxWidth='@("md:max-w-[80%]")'>@Description</Paragraph>
             }
             else
             {
@@ -24,7 +24,7 @@
         }
     </Div>
 
-    <Div data-slot="component-preview"
+    <Div DataSlot="component-preview"
          Class="group [&_[data-slot=header]]:relative [&_[data-slot=header]]:top-auto"
          Position="Quark.Position.Relative"
          Margin='Quark.Margin.Is4.FromTop.Token("12").FromBottom'
@@ -33,10 +33,10 @@
          Overflow="Quark.Overflow.Hidden"
          Rounded="Quark.Rounded.Xl"
          Border="Quark.Border.Default">
-        <Div data-slot="preview" dir="@PreviewDir" data-lang="@PreviewLang">
+        <Div DataSlot="preview" dir="@PreviewDir" data-lang="@PreviewLang">
             @if (ShowPreviewToolbar)
             {
-                <Div data-slot="preview-toolbar"
+                <Div DataSlot="preview-toolbar"
                      dir="ltr"
                      Display="Quark.Display.Flex"
                      Height="Quark.Height.Is14"
@@ -89,7 +89,7 @@
 
         @if (Code != null)
         {
-            <Div data-slot="code"
+            <Div DataSlot="code"
                  data-mobile-code-visible="@_showCodeCss"
                  class="@GetCodeSectionClass()">
                 <Div Position="Quark.Position.Relative">
@@ -202,7 +202,7 @@
     public string? PreviewInnerClass { get; set; }
 
     [Inject]
-    private IJSRuntime JSRuntime { get; set; } = null!;
+    private IClipboardUtil ClipboardUtil { get; set; } = null!;
 
     private bool _showCode;
     private string _copyButtonLabel = "Copy";
@@ -258,7 +258,7 @@
             return;
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            await ClipboardUtil.WriteText(Code);
             _copyButtonLabel = "Copied!";
             StateHasChanged();
             await Task.Delay(1500);

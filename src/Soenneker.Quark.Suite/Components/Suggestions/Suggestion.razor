@@ -1,15 +1,13 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
-<Button Variant="ButtonVariant.Ghost" ButtonSize="@ButtonSize" OnClick="@HandleClick" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Ghost" ButtonSize="@ButtonSize" OnClick="@HandleClick" Attributes="@BuildAttributes()">
     @ChildContent
 </Button>
 
 @code {
     [CascadingParameter]
     internal Suggestions? ParentSuggestions { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
     public string Variant { get; set; } = "filled";
@@ -23,25 +21,17 @@
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
-
-    private IReadOnlyDictionary<string, object> BuildAttributes()
-    {
-        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
-        attributes["data-slot"] = "suggestion";
-        attributes["class"] = string.Join(" ", new[]
-        {
-            GetVariantClass(),
-            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
-        }.Where(x => !string.IsNullOrWhiteSpace(x)));
-        return attributes;
-    }
-
     private async Task HandleClick(MouseEventArgs args)
     {
         await OnClick.InvokeAsync(args);
         await (ParentSuggestions?.Select(Value) ?? Task.CompletedTask);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("suggestion");
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, GetVariantClass()));
     }
 
     private string GetVariantClass()
@@ -54,5 +44,13 @@
             "ghost" => $"{baseClass} border-none bg-transparent text-muted-foreground hover:bg-muted hover:text-primary",
             _ => $"{baseClass} border-none bg-muted text-primary hover:bg-border"
         };
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Variant);
+        hc.Add(Value);
+        AddIf(ref hc, ButtonSize);
     }
 }

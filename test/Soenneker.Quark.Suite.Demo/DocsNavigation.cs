@@ -36,7 +36,6 @@ public static class DocsNavigation
         new("Calendar", ComponentRoute("calendar")),
         new("Card", ComponentRoute("card")),
         new("Carousel", ComponentRoute("carousel")),
-        new("Chart", ComponentRoute("chart")),
         new("Checkbox", ComponentRoute("checkbox")),
         new("Collapsible", ComponentRoute("collapsible")),
         new("Combobox", ComponentRoute("combobox")),

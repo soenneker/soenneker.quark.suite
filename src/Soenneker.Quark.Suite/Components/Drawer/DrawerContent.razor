@@ -11,14 +11,8 @@
         <Div @attributes="OverlayAttributes"></Div>
     }
 
-    <BradixDialogContent Id="@Context?.ContentId"
-                         CloseOnEscapeKeyDown="@ShouldCloseOnEscape"
-                         CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
-                         CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
-                         OnOpenAutoFocusDetailed="HandleOpenAutoFocus"
-                         OnPointerDownOutside="HandleBackdropPointerDownOutside"
-                         AdditionalAttributes="@ContentAttributes">
-        <Div Margin="Quark.Margin.Auto.OnX.Is4.FromTop" Height="Quark.Height.Is1" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" Class="hidden group-data-[vaul-drawer-direction=bottom]/drawer-content:block"></Div>
+    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" AdditionalAttributes="@ContentAttributes">
+        <Div Margin="Quark.Margin.Auto.OnX.Is4.FromTop" Height="Quark.Height.Is1" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" Display="Quark.Display.None" Class="group-data-[vaul-drawer-direction=bottom]/drawer-content:block"></Div>
         @ChildContent
     </BradixDialogContent>
 </BradixDialogPortal>
@@ -41,14 +35,10 @@
     private Side ResolvedSide => Side ?? ParentDrawer?.DirectionSide ?? Soenneker.Bradix.Side.Bottom;
 
     private bool ShouldCloseOnOutsideInteraction =>
-        ParentDrawer is not null &&
-        !ParentDrawer.Static &&
-        ParentDrawer.CloseOnBackdropClick;
+        ParentDrawer is not null && !ParentDrawer.Static && ParentDrawer.CloseOnBackdropClick;
 
     private bool ShouldCloseOnEscape =>
-        ParentDrawer is not null &&
-        !ParentDrawer.Static &&
-        ParentDrawer.CloseOnEscape;
+        ParentDrawer is not null && !ParentDrawer.Static && ParentDrawer.CloseOnEscape;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
@@ -70,7 +60,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "drawer-content";
+        SetDefaultDataSlot("drawer-content");
         attributes["data-vaul-drawer-direction"] = ResolvedSide.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -99,7 +89,7 @@
             attrs["data-open"] = string.Empty;
         else
             attrs["data-closed"] = string.Empty;
-        attrs["data-slot"] = "drawer-overlay";
+        attrs["data-slot"] = DataSlot ?? "drawer-overlay";
         attrs["aria-hidden"] = "true";
         return attrs;
     }
@@ -152,4 +142,5 @@
         hc.Add(BradixDialog?.ResolvedTriggerId);
         hc.Add(_triggerRefocusedForOpen);
     }
+
 }

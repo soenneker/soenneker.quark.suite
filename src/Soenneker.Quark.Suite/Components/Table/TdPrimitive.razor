@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+@inherits Element
+
+<td @attributes="BuildAttributes()">
+    @ChildContent
+</td>
+
+@code {
+    [Parameter]
+    public int? Colspan { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("table-cell-primitive");
+
+        if (Colspan is > 1)
+            attributes["colspan"] = Colspan.Value;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Colspan);
+    }
+}

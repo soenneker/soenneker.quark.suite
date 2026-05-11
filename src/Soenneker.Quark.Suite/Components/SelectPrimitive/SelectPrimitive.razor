@@ -1,0 +1,22 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.FormControlElement
+
+<select @onchange="HandleChange" @attributes="BuildAttributes()">
+    @ChildContent
+</select>
+
+@code {
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    private Task HandleChange(ChangeEventArgs args)
+    {
+        return OnChange.HasDelegate ? OnChange.InvokeAsync(args) : Task.CompletedTask;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("select-primitive");
+    }
+}

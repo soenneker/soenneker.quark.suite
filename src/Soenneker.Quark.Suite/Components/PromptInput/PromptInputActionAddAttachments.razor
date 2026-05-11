@@ -3,10 +3,10 @@
 @using Microsoft.JSInterop
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
-@inject IJSRuntime JSRuntime
+@inject IPromptInputInterop PromptInputInterop
 
 <PromptInputButton>
-    <Button Type="ButtonType.Button"
+    <Button Type="@ButtonType.Button"
             ButtonSize="@ButtonSize"
             Variant="@Variant"
             Disabled="@Disabled"
@@ -38,10 +38,9 @@
 </PromptInputButton>
 
 @code {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/promptinputinterop.js";
     private readonly string _inputId = $"prompt-input-file-{Guid.NewGuid():N}";
-    private IJSObjectReference? _module;
     private DotNetObjectReference<PromptInputActionAddAttachments>? _dotNetReference;
+    private bool _registered;
 
     [CascadingParameter]
     public PromptInput? PromptInput { get; set; }
@@ -76,10 +75,10 @@
 
     private async Task OpenFileDialog()
     {
-        if (Disabled || _module is null)
+        if (Disabled || !_registered)
             return;
 
-        await _module.InvokeVoidAsync("openFileDialogById", _inputId);
+        await PromptInputInterop.OpenFileDialogById(_inputId);
     }
 
     private async Task HandleFilesSelected(InputFileChangeEventArgs args)
@@ -116,9 +115,9 @@
         if (!firstRender)
             return;
 
-        _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", _modulePath);
         _dotNetReference = DotNetObjectReference.Create(this);
-        await _module.InvokeVoidAsync("registerAttachmentsById", _inputId, _dotNetReference, PromptInput?.GlobalDrop == true);
+        await PromptInputInterop.RegisterAttachmentsById(_inputId, _dotNetReference, PromptInput?.GlobalDrop == true);
+        _registered = true;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -137,12 +136,11 @@
 
     protected override async ValueTask OnDisposeAsync()
     {
-        if (_module is not null)
+        if (_registered)
         {
             try
             {
-                await _module.InvokeVoidAsync("unregisterAttachmentsById", _inputId);
-                await _module.DisposeAsync();
+                await PromptInputInterop.UnregisterAttachmentsById(_inputId);
             }
             catch (JSDisconnectedException)
             {

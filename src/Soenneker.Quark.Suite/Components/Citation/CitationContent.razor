@@ -1,26 +1,36 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 @using Soenneker.Bradix
 
-<HoverCardContent Align="@Align" SideOffset="@SideOffset" Class="@BuildClass()">
+<HoverCardContent Align="@Align"
+                  SideOffset="@SideOffset"
+                  Attributes="@BuildAttributes()">
     @ChildContent
 </HoverCardContent>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public Alignment Align { get; set; } = Alignment.Center;
 
     [Parameter]
     public int SideOffset { get; set; } = 4;
 
-    [Parameter]
-    public string? Class { get; set; }
-
-    private string BuildClass() => string.Join(" ", new[]
+    protected override void ApplyDefaultParameters()
     {
-        "flex w-66 flex-col overflow-hidden rounded-[12px] border-border p-0 shadow-modal dark:border-accent",
-        Class
-    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.Token("66");
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Token("[12px]");
+        BorderColor ??= Quark.BorderColor.Border;
+        Padding ??= Quark.Padding.Is0;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "shadow-modal dark:border-accent"));
+    }
 }

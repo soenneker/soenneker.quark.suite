@@ -15,6 +15,7 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     IReadOnlyList<QuarkPresetToken>? Presets { get; set; }
     string? Title { get; set; }
     bool Hidden { get; set; }
+    string? DataSlot { get; set; }
     CssValue<InsetBuilder>? Inset { get; set; }
     CssValue<TopBuilder>? Top { get; set; }
     CssValue<RightBuilder>? Right { get; set; }

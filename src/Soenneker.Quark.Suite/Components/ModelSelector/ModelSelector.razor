@@ -1,8 +1,9 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
 
-<Div Display="Display.Grid" Gap="Gap.Is3">
+<Div Attributes="@BuildAttributes()">
     @if (ShowLabel)
     {
         <HoverCard OpenDelay="200">
@@ -17,65 +18,34 @@
 
     <Popover Open="@_open" OpenChanged="HandleOpenChanged">
         <PopoverTrigger AsChild="true">
-            <Button Id="@_triggerId"
-                    Variant="ButtonVariant.Ghost"
-                    Role="button"
-                    AriaLabel="@AriaLabel"
-                    Class="@GetTriggerClass()">
-                <Span data-slot="model-selector-trigger-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
-                    <Span data-slot="model-selector-trigger-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm">@SelectedLabel</Span>
+            <Button Id="@_triggerId" Variant="ButtonVariant.Ghost" Role="button" AriaLabel="@AriaLabel" Class="@GetTriggerClass()">
+                <Span DataSlot="model-selector-trigger-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
+                    <Span DataSlot="model-selector-trigger-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm">@SelectedLabel</Span>
                 </Span>
-                <Span data-slot="model-selector-trigger-chevron" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Class="data-[state=open]:rotate-180">
-                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
+                <Span DataSlot="model-selector-trigger-chevron" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Class="data-[state=open]:rotate-180">
+                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0"/>
                 </Span>
             </Button>
         </PopoverTrigger>
         <PopoverContent Align="Alignment.Start" Class="@MenuClass">
-            <Div data-slot="model-selector-group">
-                <Div data-slot="model-selector-label" Padding="Quark.Padding.Is3.OnX.Is2.OnY" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">Select model</Div>
-                <Div data-slot="model-selector-radio-group">
+            <Div DataSlot="model-selector-group">
+                <Div DataSlot="model-selector-label" Padding="Quark.Padding.Is3.OnX.Is2.OnY" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">Select model</Div>
+                <Div DataSlot="model-selector-radio-group">
                     @foreach (var option in Options)
                     {
-                        <Button Type="ButtonType.Button"
-                                data-slot="model-selector-radio-item"
-                                Variant="ButtonVariant.Ghost"
-                                Width="Quark.Width.IsFull"
-                                MinHeight="Quark.Height.Is9"
-                                Position="Quark.Position.Relative"
-                                Cursor="Quark.Cursor.Pointer"
-                                ItemsAlign="Quark.Items.Center"
-                                Justify="Quark.Justify.Start"
-                                Gap="Quark.Gap.Is2"
-                                Rounded="Quark.Rounded.Md"
-                                Padding='Quark.Padding.Is2.OnY.Token("9").FromRight.Is3.FromLeft'
-                                TextAlign="Quark.TextAlign.Start"
-                                TextSize="Quark.TextSize.Sm"
-                                OutlineStyle="Quark.OutlineStyle.Hidden"
-                                Transition="Quark.Transition.Colors"
-                                Duration="Quark.Duration.Is0"
-                                UserSelect="Quark.UserSelect.None"
-                                Class="focus:bg-accent focus:text-accent-foreground"
-                                @onclick="@(() => SelectOption(option))">
-                            <Span data-slot="model-selector-item-icon" Display="Quark.Display.Flex" Shrink="Quark.Shrink.Is0" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center">
-                                <Icon Name="@GetModelIcon(option)" Size="Quark.Size.Is4" />
+                        <Button Type="@ButtonType.Button" DataSlot="model-selector-radio-item" Variant="ButtonVariant.Ghost" Width="Quark.Width.IsFull" MinHeight="Quark.Height.Is9" Position="Quark.Position.Relative" Cursor="Quark.Cursor.Pointer" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Start" Gap="Quark.Gap.Is2" Rounded="Quark.Rounded.Md" Padding='Quark.Padding.Is2.OnY.Token("9").FromRight.Is3.FromLeft' TextAlign="Quark.TextAlign.Start" TextSize="Quark.TextSize.Sm" OutlineStyle="Quark.OutlineStyle.Hidden" Transition="Quark.Transition.Colors" Duration="Quark.Duration.Is0" UserSelect="Quark.UserSelect.None" Class="focus:bg-accent focus:text-accent-foreground" @onclick="@(() => SelectOption(option))">
+                            <Span DataSlot="model-selector-item-icon" Display="Quark.Display.Flex" Shrink="Quark.Shrink.Is0" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center">
+                                <Icon Name="@GetModelIcon(option)" Size="Quark.Size.Is4"/>
                             </Span>
-                            <Span data-slot="model-selector-radio-item-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap='Quark.Gap.Token("0.25")'>
-                                <Span data-slot="model-selector-item-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Normal">@option.Label</Span>
+                            <Span DataSlot="model-selector-radio-item-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap='Quark.Gap.Token("0.25")'>
+                                <Span DataSlot="model-selector-item-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Normal">@option.Label</Span>
                                 @if (option.Description.HasContent())
                                 {
-                                    <Span data-slot="model-selector-item-description" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Light" TextColor="Quark.TextColor.MutedForeground">@option.Description</Span>
+                                    <Span DataSlot="model-selector-item-description" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Light" TextColor="Quark.TextColor.MutedForeground">@option.Description</Span>
                                 }
                             </Span>
-                            <Span data-slot="model-selector-item-indicator"
-                                  PointerEvents="Quark.PointerEvents.None"
-                                  Position="Quark.Position.Absolute"
-                                  Right="Quark.Right.Is3"
-                                  Display="Quark.Display.Flex"
-                                  Size="Quark.Size.Is4"
-                                  ItemsAlign="Quark.Items.Center"
-                                  Justify="Quark.Justify.Center"
-                                  Opacity="@(IsSelected(option) ? Quark.Opacity.Is100 : Quark.Opacity.Is0)">
-                                <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
+                            <Span DataSlot="model-selector-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Right="Quark.Right.Is3" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Opacity="@(IsSelected(option) ? Quark.Opacity.Is100 : Quark.Opacity.Is0)">
+                                <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4"/>
                             </Span>
                         </Button>
                     }
@@ -119,8 +89,7 @@
     public string Label { get; set; } = "Model";
 
     [Parameter]
-    public string Description { get; set; } =
-        "The model which will generate the completion. Some models are suitable for natural language tasks, others specialize in code.";
+    public string Description { get; set; } = "The model which will generate the completion. Some models are suitable for natural language tasks, others specialize in code.";
 
     [Parameter]
     public bool ShowLabel { get; set; }
@@ -135,9 +104,6 @@
     public string? AriaLabel { get; set; } = "Select a model";
 
     [Parameter]
-    public string Class { get; set; } = "";
-
-    [Parameter]
     public string MenuClass { get; set; } = "w-[264px] p-1";
 
     [Parameter]
@@ -150,6 +116,14 @@
     private string PeekedLabel => _peekedOption?.Label ?? SelectedOption?.Label ?? Placeholder;
 
     private string? PeekedDescription => _peekedOption?.Description ?? SelectedOption?.Description;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Grid;
+        Gap ??= Quark.Gap.Is3;
+    }
 
     protected override void OnParametersSet()
     {
@@ -196,4 +170,5 @@
             _ => LucideIcon.Circle
         };
     }
+
 }

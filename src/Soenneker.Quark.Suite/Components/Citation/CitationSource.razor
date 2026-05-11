@@ -1,11 +1,12 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 @if (ResolvedSource is not null)
 {
-    <Div Attributes="@BuildAttributes()">
+    <div @attributes="BuildAttributes()">
         <CitationFavicon Source="@ResolvedSource" />
         <CitationSiteName Source="@ResolvedSource" />
-    </Div>
+    </div>
 }
 
 @code {
@@ -15,14 +16,21 @@
     [Parameter]
     public ResolvedCitation? Source { get; set; }
 
-    [Parameter]
-    public string? Class { get; set; }
-
     private ResolvedCitation? ResolvedSource => Source ?? ParentCitation?.ActiveCitation;
 
-    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "citation-source",
-        ["class"] = string.Join(" ", new[] { "mt-2 flex items-center gap-1.5", Class }.Where(x => !string.IsNullOrWhiteSpace(x)))
-    };
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is2.FromTop;
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Token("1.5");
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("citation-source");
+    }
 }

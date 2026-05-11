@@ -157,6 +157,15 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
+    public void Component_data_slot_parameter_overrides_component_default_slot()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.DataSlot, "custom-box"));
+
+        cut.Find("[data-slot='custom-box']").Should().NotBeNull();
+    }
+
+    [Test]
     public void Section_has_no_default_padding_class()
     {
         var cut = Render<Section>();

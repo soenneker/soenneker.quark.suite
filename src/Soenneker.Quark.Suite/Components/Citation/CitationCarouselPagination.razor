@@ -1,17 +1,21 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<Div Attributes="@BuildAttributes()">@ChildContent</Div>
+<div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
-
-    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "citation-carousel-pagination",
-        ["class"] = string.Join(" ", new[] { "flex items-center gap-1", Class }.Where(x => !string.IsNullOrWhiteSpace(x)))
-    };
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is1;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("citation-carousel-pagination");
+    }
 }

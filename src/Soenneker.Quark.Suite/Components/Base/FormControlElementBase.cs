@@ -94,7 +94,7 @@ public abstract class FormControlElementBase : InteractiveElement
     protected void ApplyFieldControlAttributes(Dictionary<string, object> attrs, bool isInvalid = false)
     {
         if (IsFormControlSlot)
-            attrs["data-slot"] = "form-control";
+            attrs["data-slot"] = DataSlot ?? "form-control";
 
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;

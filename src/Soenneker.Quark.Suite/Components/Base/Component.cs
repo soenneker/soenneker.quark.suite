@@ -33,6 +33,11 @@ public abstract class Component : RenderComponent, IComponent
     public bool Hidden { get; set; }
 
     [Parameter]
+    public string? DataSlot { get; set; }
+
+    protected string? DefaultDataSlot { get; private set; }
+
+    [Parameter]
     public CssValue<InsetBuilder>? Inset { get; set; }
 
     [Parameter]
@@ -266,6 +271,8 @@ public abstract class Component : RenderComponent, IComponent
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
+        DefaultDataSlot = null;
+
         base.BuildOwnedAttributes(attrs);
 
         if (Title.HasContent())
@@ -274,6 +281,25 @@ public abstract class Component : RenderComponent, IComponent
         if (Hidden)
             attrs["hidden"] = true;
 
+    }
+
+    protected override void BuildFinalAttributes(Dictionary<string, object> attrs)
+    {
+        base.BuildFinalAttributes(attrs);
+
+        if (DataSlot.HasContent())
+        {
+            attrs["data-slot"] = DataSlot!;
+            return;
+        }
+
+        if (DefaultDataSlot.HasContent() && !attrs.ContainsKey("data-slot"))
+            attrs["data-slot"] = DefaultDataSlot!;
+    }
+
+    protected void SetDefaultDataSlot(string dataSlot)
+    {
+        DefaultDataSlot ??= dataSlot;
     }
 
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -448,6 +474,7 @@ public abstract class Component : RenderComponent, IComponent
         hc.Add(Style);
         hc.Add(Title);
         hc.Add(Hidden);
+        hc.Add(DataSlot);
         AddIf(ref hc, Display);
         AddIf(ref hc, Visibility);
         AddIf(ref hc, Float);

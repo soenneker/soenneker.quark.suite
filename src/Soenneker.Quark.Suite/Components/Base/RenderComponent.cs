@@ -168,6 +168,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
                 attrs["style"] = sty.ToString();
 
             BuildAttributesCore(attrs);
+            BuildFinalAttributes(attrs);
 
             _cachedAttrs = attrs;
             _cachedAttrsKey = currentKey;
@@ -205,6 +206,13 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// class tweaks, or style tweaks after shared ownership has been applied.
     /// </summary>
     protected virtual void BuildAttributesCore(Dictionary<string, object> attrs)
+    {
+    }
+
+    /// <summary>
+    /// Final shared attribute hook after concrete component defaults have been applied.
+    /// </summary>
+    protected virtual void BuildFinalAttributes(Dictionary<string, object> attrs)
     {
     }
 

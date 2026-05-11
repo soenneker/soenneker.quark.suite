@@ -225,7 +225,7 @@ public partial class SidebarProvider
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "sidebar-wrapper";
+        SetDefaultDataSlot("sidebar-wrapper");
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {

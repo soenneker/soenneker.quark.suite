@@ -12,16 +12,20 @@
 		base.ApplyDefaultParameters();
 		Display ??= Quark.Display.Flex;
 		ItemsAlign ??= Items.Center;
-
+		Rounded ??= Quark.Rounded.Bottom.Xl;
+		Border ??= Quark.Border.Is1.FromTop;
+		BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
+		Padding ??= Quark.Padding.Is4;
 	}
 
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
-		attributes["data-slot"] = "card-footer";
+		SetDefaultDataSlot("card-footer");
+
 		BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/card:p-3");
+            AppendClass(ref cls, "group-data-[size=sm]/card:p-3");
         });
 	}
 }

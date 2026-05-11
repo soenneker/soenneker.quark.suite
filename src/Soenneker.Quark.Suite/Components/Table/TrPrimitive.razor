@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Element
+
+<tr @key="@Key" @attributes="BuildAttributes()">
+    @ChildContent
+</tr>
+
+@code {
+    [Parameter]
+    public object? Key { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("table-row-primitive");
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Key);
+    }
+}

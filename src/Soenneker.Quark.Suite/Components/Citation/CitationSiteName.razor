@@ -1,8 +1,9 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographyElement
 
 @if (ResolvedSource is not null)
 {
-    <Span Attributes="@BuildAttributes()">
+    <span @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -11,7 +12,7 @@
         {
             @DefaultContent
         }
-    </Span>
+    </span>
 }
 
 @code {
@@ -21,19 +22,23 @@
     [Parameter]
     public ResolvedCitation? Source { get; set; }
 
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
-
     private ResolvedCitation? ResolvedSource => Source ?? ParentCitation?.ActiveCitation;
 
     private RenderFragment DefaultContent => builder => builder.AddContent(0, ResolvedSource?.SiteName);
 
-    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "citation-site-name",
-        ["class"] = string.Join(" ", new[] { "text-xs leading-4.5 font-normal text-primary", Class }.Where(x => !string.IsNullOrWhiteSpace(x)))
-    };
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Xs;
+        Leading ??= Quark.Leading.Token("4.5");
+        FontWeight ??= Quark.FontWeight.Normal;
+        TextColor ??= Quark.TextColor.Primary;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("citation-site-name");
+    }
 }

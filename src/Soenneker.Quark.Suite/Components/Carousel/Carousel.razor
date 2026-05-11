@@ -5,7 +5,7 @@
 @using Soenneker.Bradix
 @using Microsoft.JSInterop
 @implements IAsyncDisposable
-@inject IJSRuntime JSRuntime
+@inject ICarouselInterop CarouselInterop
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
     <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
@@ -50,8 +50,8 @@
     private Action<CarouselApi>? _lastSetApi;
     private CancellationTokenSource? _autoplayCancellation;
     private ElementReference _elementRef;
-    private IJSObjectReference? _module;
     private DotNetObjectReference<Carousel>? _dotNetReference;
+    private bool _initialized;
     private double _scrollOffsetPixels;
     private double? _pointerStart;
     private bool _pointerDragStarted;
@@ -100,11 +100,11 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (_module is null)
+        if (!_initialized)
         {
             _dotNetReference ??= DotNetObjectReference.Create(this);
-            _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Soenneker.Quark.Suite/js/carouselinterop.js");
-            await _module.InvokeVoidAsync("initialize", _elementRef, _dotNetReference, CurrentIndex, IsVertical, Align);
+            await CarouselInterop.Initialize(_elementRef, _dotNetReference, CurrentIndex, IsVertical, Align);
+            _initialized = true;
         }
 
         await MeasureScrollOffset();
@@ -250,10 +250,10 @@
 
     private async Task MeasureScrollOffset()
     {
-        if (_module is null)
+        if (!_initialized)
             return;
 
-        var offset = await _module.InvokeAsync<double>("measureOffset", _elementRef, CurrentIndex, IsVertical, Align);
+        var offset = await CarouselInterop.MeasureOffset(_elementRef, CurrentIndex, IsVertical, Align);
         await OnCarouselMeasured(offset);
     }
 
@@ -342,7 +342,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "carousel";
+        SetDefaultDataSlot("carousel");
 
         if (!string.IsNullOrWhiteSpace(ResolvedDir))
             attributes["dir"] = ResolvedDir!;
@@ -368,12 +368,11 @@
     {
         StopAutoplay();
 
-        if (_module is not null)
+        if (_initialized)
         {
             try
             {
-                await _module.InvokeVoidAsync("dispose", _elementRef);
-                await _module.DisposeAsync();
+                await CarouselInterop.Destroy(_elementRef);
             }
             catch (JSDisconnectedException)
             {

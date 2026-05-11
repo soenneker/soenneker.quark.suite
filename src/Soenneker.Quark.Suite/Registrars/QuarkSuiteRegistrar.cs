@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.Blazor.Utils.Clipboard.Registrars;
 using Soenneker.Bradix;
 
 namespace Soenneker.Quark;
@@ -31,13 +32,16 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkSortableAsScoped()
                 .AddQuarkSonnerAsScoped()
                 .AddQuarkThemeAsScoped()
+                .AddQuarkCarouselAsScoped()
+                .AddQuarkPromptInputAsScoped()
                 .AddQuarkResizableAsScoped()
                 .AddQuarkTreeViewAsScoped()
                 .AddQuarkThreadsAsScoped()
                 .AddQuarkStepsAsScoped()
                 .AddQuarkCodeEditorAsScoped()
                 .AddQuarkScoreAsScoped()
-                .AddQuarkOnThisPageAsScoped();
+                .AddQuarkOnThisPageAsScoped()
+                .AddClipboardAsScoped();
 
         return services;
     }

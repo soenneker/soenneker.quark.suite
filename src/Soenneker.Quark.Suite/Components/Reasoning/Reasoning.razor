@@ -1,7 +1,8 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
 <CascadingValue Value="@Context" IsFixed="false">
-    <Collapsible Open="@ResolvedOpen" DefaultOpen="@ResolvedDefaultOpen" OpenChanged="@HandleOpenChanged" Class="@BuildClass()" Attributes="@RootAttributes">
+    <Collapsible Open="@ResolvedOpen" DefaultOpen="@ResolvedDefaultOpen" OpenChanged="@HandleOpenChanged" Attributes="@BuildRootAttributes()">
         @ChildContent
     </Collapsible>
 </CascadingValue>
@@ -23,12 +24,6 @@
 
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
 
     private bool ResolvedDefaultOpen => DefaultOpen || IsStreaming;
 
@@ -67,6 +62,8 @@
             if (Open is null)
                 _open = false;
         }
+
+        base.OnParametersSet();
     }
 
     private async Task HandleOpenChanged(bool open)
@@ -78,11 +75,24 @@
         await OpenChanged.InvokeAsync(nextOpen);
     }
 
-    private string BuildClass() => string.Join(" ", new[] { "not-prose w-full", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-    private IReadOnlyDictionary<string, object> RootAttributes => new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "reasoning",
-        ["data-streaming"] = IsStreaming ? "true" : "false"
-    };
+        base.ApplyDefaultParameters();
+
+        Width ??= Quark.Width.IsFull;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildRootAttributes()
+    {
+        var attributes = BuildAttributes();
+        attributes["data-streaming"] = IsStreaming ? "true" : "false";
+        return attributes;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        SetDefaultDataSlot("reasoning");
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "not-prose"));
+    }
 }

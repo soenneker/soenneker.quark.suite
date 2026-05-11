@@ -1,8 +1,9 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
-<Avatar AvatarSize="@Size" Class="@BuildClass()">
-    <AvatarImage Src="@Src" Alt="@Alt" Class="my-0!" Attributes="@ImageAttributes" />
-    <AvatarFallback Class="my-0! shrink-0" Attributes="@FallbackAttributes">@Fallback</AvatarFallback>
+<Avatar AvatarSize="@AvatarSize" Attributes="@BuildAttributes()">
+    <AvatarImage Src="@Src" Alt="@Alt" Margin='Quark.Margin.Token("0!").OnY' Attributes="@ImageAttributes" />
+    <AvatarFallback Margin='Quark.Margin.Token("0!").OnY' Shrink="Quark.Shrink.Is0" Attributes="@FallbackAttributes">@Fallback</AvatarFallback>
 </Avatar>
 
 @code {
@@ -16,12 +17,15 @@
     public RenderFragment? Fallback { get; set; }
 
     [Parameter]
-    public string Size { get; set; } = "default";
+    public string AvatarSize { get; set; } = "default";
 
-    [Parameter]
-    public string? Class { get; set; }
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
 
-    private string BuildClass() => string.Join(" ", new[] { "size-7 shrink-0", Class }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        Size ??= Quark.Size.Is7;
+        Shrink ??= Quark.Shrink.Is0;
+    }
 
     private static readonly IReadOnlyDictionary<string, object> ImageAttributes = new Dictionary<string, object>
     {

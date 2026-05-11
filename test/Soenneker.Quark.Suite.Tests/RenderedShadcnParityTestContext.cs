@@ -2,6 +2,9 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Utils.Clipboard.Abstract;
+using Soenneker.Blazor.Utils.Clipboard.Dtos;
+using Soenneker.Blazor.Utils.Clipboard.Enums;
 using Soenneker.Blazor.MockJsRuntime.Registrars;
 using Soenneker.Bradix;
 using Soenneker.Quark.Gen.Lucide.Abstractions;
@@ -235,12 +238,15 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IStepsInterop, FakeStepsInterop>();
         Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
+        Services.AddScoped<ICarouselInterop, FakeCarouselInterop>();
+        Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
         Services.AddScoped<IThemeInterop, FakeThemeInterop>();
         Services.AddScoped<Demo.Services.ThemeService>();
         Services.AddScoped<ICodeEditorInterop, FakeCodeEditorInterop>();
         Services.AddScoped<ITablesInterop, FakeTablesInterop>();
+        Services.AddScoped<IClipboardUtil, FakeClipboardUtil>();
         Services.AddScoped<ISonnerService, SonnerService>();
         Services.AddScoped<ISonnerInterop, FakeSonnerInterop>();
     }
@@ -334,6 +340,35 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
+    private sealed class FakeCarouselInterop : ICarouselInterop
+    {
+        public ValueTask Initialize(ElementReference element, DotNetObjectReference<Carousel> callbackReference, int currentIndex, bool isVertical, string? align,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask<double> MeasureOffset(ElementReference element, int currentIndex, bool isVertical, string? align,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(0d);
+
+        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakePromptInputInterop : IPromptInputInterop
+    {
+        public ValueTask RegisterTextarea(ElementReference textarea, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask UnregisterTextarea(ElementReference textarea, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask OpenFileDialogById(string inputId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RegisterAttachmentsById(string inputId, DotNetObjectReference<PromptInputActionAddAttachments> callbackReference, bool globalDrop,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask UnregisterAttachmentsById(string inputId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
     private sealed class FakeResizableInterop : IResizableInterop
     {
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -385,6 +420,37 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeClipboardUtil : IClipboardUtil
+    {
+        public ValueTask<bool> HasClipboard(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+
+        public ValueTask<ClipboardPermissionState> GetReadPermissionState(System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ClipboardPermissionState.Granted);
+
+        public ValueTask<ClipboardPermissionState> GetWritePermissionState(System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ClipboardPermissionState.Granted);
+
+        public ValueTask<string> ReadText(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(string.Empty);
+
+        public ValueTask<(bool Success, string? Text)> TryReadText(System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.FromResult((true, (string?) string.Empty));
+
+        public ValueTask WriteText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask<bool> TryWriteText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+
+        public ValueTask CopyText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask CopyPlainAndHtml(string plainText, string? html = null, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask<IReadOnlyList<ClipboardItemDto>> Read(System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.FromResult<IReadOnlyList<ClipboardItemDto>>(System.Array.Empty<ClipboardItemDto>());
+
+        public ValueTask Write(IEnumerable<ClipboardItemDto> items, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask Clear(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 
     private sealed class FakeSonnerInterop : ISonnerInterop
