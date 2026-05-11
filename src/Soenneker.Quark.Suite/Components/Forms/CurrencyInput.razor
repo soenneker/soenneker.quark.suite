@@ -28,7 +28,7 @@
            ReadOnly="@ReadOnly"
            Required="@Required"
            Class="@InputClass"
-           Style="@Style"
+           Style="@InputStyle"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            OnClick="@OnClick"
@@ -129,15 +129,22 @@
 
     private string InputClass
     {
+        get => "text-right tabular-nums";
+    }
+
+    private string? InputStyle
+    {
         get
         {
-            var extraPadding = ShowSymbol
-                ? SymbolAtEnd
-                    ? "pr-9"
-                    : "pl-9"
-                : null;
+            var symbolPadding = GetSymbolPaddingStyle();
 
-            return extraPadding is null ? "text-right tabular-nums" : $"text-right tabular-nums {extraPadding}";
+            if (string.IsNullOrWhiteSpace(symbolPadding))
+                return Style;
+
+            if (string.IsNullOrWhiteSpace(Style))
+                return symbolPadding;
+
+            return $"{symbolPadding} {Style}";
         }
     }
 
@@ -348,6 +355,23 @@
             return string.Empty;
 
         return value.Value.ToString($"F{Math.Max(0, DecimalPlaces)}", GetCultureInfo());
+    }
+
+    private string? GetSymbolPaddingStyle()
+    {
+        if (!ShowSymbol)
+            return null;
+
+        var length = EffectiveSymbol.Trim().Length;
+        var padding = length switch
+        {
+            <= 1 => "2.25rem",
+            <= 3 => "3rem",
+            <= 6 => "4rem",
+            _ => "5rem"
+        };
+
+        return SymbolAtEnd ? $"padding-right: {padding};" : $"padding-left: {padding};";
     }
 
     private CultureInfo GetCultureInfo()
