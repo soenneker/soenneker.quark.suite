@@ -6,9 +6,9 @@
 @inject IControlsInterop ControlsInterop
 
 <BradixDialogPortal>
-    @if (ParentDrawer?.ShowBackdrop == true && ParentDrawer.Visible)
+    @if (ParentDrawer?.ShowBackdrop == true)
     {
-        <Div @attributes="OverlayAttributes"></Div>
+        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
     }
 
     <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" AdditionalAttributes="@ContentAttributes">
@@ -71,6 +71,8 @@
             AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l");
             AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b");
             AppendClass(ref cls, "data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm");
+            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-[vaul-drawer-direction=bottom]:data-open:slide-in-from-bottom-10 data-[vaul-drawer-direction=left]:data-open:slide-in-from-left-10 data-[vaul-drawer-direction=right]:data-open:slide-in-from-right-10 data-[vaul-drawer-direction=top]:data-open:slide-in-from-top-10");
+            AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0 data-[vaul-drawer-direction=bottom]:data-closed:slide-out-to-bottom-10 data-[vaul-drawer-direction=left]:data-closed:slide-out-to-left-10 data-[vaul-drawer-direction=right]:data-closed:slide-out-to-right-10 data-[vaul-drawer-direction=top]:data-closed:slide-out-to-top-10");
         });
     }
 
@@ -84,11 +86,6 @@
             if (ParentDrawer?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
         });
-        attrs["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
-        if (ParentDrawer?.Visible == true)
-            attrs["data-open"] = string.Empty;
-        else
-            attrs["data-closed"] = string.Empty;
         attrs["data-slot"] = DataSlot ?? "drawer-overlay";
         attrs["aria-hidden"] = "true";
         return attrs;

@@ -8,6 +8,7 @@
 </CascadingValue>
 
 @code {
+    private bool _initialized;
     private bool _open;
     private DateTimeOffset? _startedAt;
     private string? _durationLabel;
@@ -27,7 +28,7 @@
 
     private bool ResolvedDefaultOpen => DefaultOpen || IsStreaming;
 
-    private bool ResolvedOpen => IsStreaming || (Open ?? (_open || DefaultOpen));
+    private bool ResolvedOpen => IsStreaming || (Open ?? _open);
 
     private ReasoningContext Context => new(IsStreaming, Label);
 
@@ -47,6 +48,12 @@
 
     protected override void OnParametersSet()
     {
+        if (!_initialized)
+        {
+            _open = DefaultOpen || IsStreaming;
+            _initialized = true;
+        }
+
         if (IsStreaming)
         {
             _hasStreamed = true;
