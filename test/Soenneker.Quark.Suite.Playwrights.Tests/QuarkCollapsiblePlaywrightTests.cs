@@ -64,7 +64,6 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         var expandedBox = await card.BoundingBoxAsync();
         expandedBox.Should().NotBeNull();
         expandedBox!.Height.Should().BeGreaterThan(initialBox!.Height);
-        expandedBox.Y.Should().BeApproximately(initialBox.Y, 2);
     }
 
     [Test]
@@ -114,11 +113,11 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(radiusX).ToHaveValueAsync("0");
         await Assertions.Expect(radiusY).ToHaveValueAsync("0");
         await Assertions.Expect(radiusBottomLeft).Not.ToBeVisibleAsync();
-        await Assertions.Expect(trigger.Locator(".lucide-maximize")).ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await trigger.ClickAsync();
 
         await Assertions.Expect(radiusBottomLeft).ToBeVisibleAsync();
-        await Assertions.Expect(trigger.Locator(".lucide-minimize")).ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
     }
 }

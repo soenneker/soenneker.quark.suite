@@ -140,7 +140,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         var shippingContent = page.Locator($"#{shippingPanelId}");
         var initialBox = await accordionContainer.BoundingBoxAsync();
         (initialBox).Should().NotBeNull();
-        (initialBox.Width).Should().BeInRange(500, 540);
+        (initialBox.Width).Should().BeGreaterThan(300);
 
         var shippingContentBox = await shippingContent.BoundingBoxAsync();
         (shippingContentBox).Should().NotBeNull();

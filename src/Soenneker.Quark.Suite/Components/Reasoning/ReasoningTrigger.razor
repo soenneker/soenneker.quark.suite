@@ -1,9 +1,22 @@
 @namespace Soenneker.Quark
 
-<CollapsibleTrigger Class="@BuildClass()" Attributes="@TriggerAttributes">
-    <Icon Name="LucideIcon.Brain" Class="size-4" aria-hidden="true" />
-    <Span Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
-    <Icon Name="LucideIcon.ChevronDown" Class="ml-0.5 size-4 opacity-0 transition-all group-hover:opacity-100 group-data-[state=open]:rotate-180 group-data-[state=open]:group-data-[streaming=false]:opacity-100" aria-hidden="true" />
+<CollapsibleTrigger Display="Quark.Display.Flex"
+                    Cursor="Quark.Cursor.Pointer"
+                    ItemsAlign="Quark.Items.Center"
+                    Gap='Quark.Gap.Token("1.25")'
+                    TextColor="Quark.TextColor.MutedForeground"
+                    Transition="Quark.Transition.Colors"
+                    Class="@TriggerClass"
+                    Attributes="@TriggerAttributes">
+    <Icon Name="LucideIcon.Brain" Size="Quark.Size.Is4" aria-hidden="true" />
+    <Span TextSize="Quark.TextSize.Sm" Leading="Quark.Leading.Is6" Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
+    <Icon Name="LucideIcon.ChevronDown"
+          Margin='Quark.Margin.Token("0.5").FromLeft'
+          Size="Quark.Size.Is4"
+          Opacity="Quark.Opacity.Is0"
+          Transition="Quark.Transition.All"
+          Class="group-hover:opacity-100 group-data-[state=open]:rotate-180 group-data-[state=open]:group-data-[streaming=false]:opacity-100"
+          aria-hidden="true" />
 </CollapsibleTrigger>
 
 @code {
@@ -16,15 +29,15 @@
     [Parameter]
     public string? Class { get; set; }
 
-    private string LabelClass => "text-sm leading-6 group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
-
-    private RenderFragment DefaultLabel => builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
-
-    private string BuildClass() => string.Join(" ", new[]
+    private string TriggerClass => string.Join(" ", new[]
     {
-        "group flex cursor-pointer items-center gap-1.25 text-muted-foreground transition-colors hover:text-foreground",
+        "group hover:text-foreground",
         Class
     }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private string LabelClass => "group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
+
+    private RenderFragment DefaultLabel => builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => new Dictionary<string, object>
     {

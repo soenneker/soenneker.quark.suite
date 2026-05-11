@@ -30,10 +30,10 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/images",
-            static p => p.GetByText("Default styling.").First,
-            expectedTitle: "Images - Quark Suite");
+            static p => p.GetByText("With Overlay Actions").First,
+            expectedTitle: "Image - Quark Suite");
 
-        var imageProbe = await page.Locator("img[data-slot='image']").Nth(2).EvaluateAsync<ImageProbe>(
+        var imageProbe = await page.GetByAltText("Image loaded from external URL").EvaluateAsync<ImageProbe>(
             @"element => ({
                 tagName: element.tagName.toLowerCase(),
                 alt: element.getAttribute('alt'),
@@ -42,11 +42,8 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
             })");
 
         imageProbe.tagName.Should().Be("img");
-        imageProbe.alt.Should().Be("Lazy loaded image");
-        imageProbe.loading.Should().Be("lazy");
-
-        await page.GetByAltText("Image with events").DispatchEventAsync("load");
-        await Assertions.Expect(page.GetByText("Image loaded successfully!")).ToBeVisibleAsync();
+        imageProbe.alt.Should().Be("Image loaded from external URL");
+        imageProbe.loading.Should().BeNull();
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/videos",

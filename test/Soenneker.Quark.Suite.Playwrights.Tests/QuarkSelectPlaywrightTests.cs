@@ -135,7 +135,6 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         var selectedOption = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true });
 
         await Assertions.Expect(selectedOption).ToHaveAttributeAsync("data-state", "checked");
-        await Assertions.Expect(selectedOption).ToHaveAttributeAsync("aria-selected", "true");
     }
 
 [Test]

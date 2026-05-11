@@ -77,7 +77,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays the path to the current resource using a hierarchy of links." })
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "You can compose BreadcrumbItem with a DropdownMenu to create a dropdown in the breadcrumb." })
                           .First;
         var trigger = section.Locator("[data-slot='dropdown-menu-trigger']").First;
 

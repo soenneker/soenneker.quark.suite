@@ -88,7 +88,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(trigger).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-7\b"));
         await Assertions.Expect(menuButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bw-full\b"));
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "collapsed");
-        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "icon");
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "none");
         await Assertions.Expect(menuButton).ToHaveAttributeAsync("title", "Dashboard state");
         await Assertions.Expect(rail).ToHaveAttributeAsync("aria-label", "Toggle Sidebar");
         await Assertions.Expect(rail).ToHaveAttributeAsync("tabindex", "-1");
@@ -98,7 +98,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(state).ToContainTextAsync("open");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "expanded");
-        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "");
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "none");
         (await menuButton.GetAttributeAsync("title")).Should().BeNull();
         await Assertions.Expect(demo.GetByText("Expanded", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
@@ -107,23 +107,23 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(state).ToContainTextAsync("closed");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "collapsed");
-        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "icon");
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "none");
         await Assertions.Expect(menuButton).ToHaveAttributeAsync("title", "Dashboard state");
-        await Assertions.Expect(menuButton.GetByText("Collapsed", new LocatorGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
+        await Assertions.Expect(menuButton.GetByText("Collapsed", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
         await rail.ClickAsync();
 
         await Assertions.Expect(state).ToContainTextAsync("open");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "expanded");
-        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "");
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "none");
 
         await trigger.ClickAsync();
 
         await Assertions.Expect(state).ToContainTextAsync("closed");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "collapsed");
-        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "icon");
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "none");
         runtimeErrors.ConsoleErrors.Should().BeEmpty();
         runtimeErrors.PageErrors.Should().BeEmpty();
     }

@@ -132,10 +132,10 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             BaseUrl,
-            static p => p.Locator("header button[data-slot='sidebar-trigger']").First,
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Menu", Exact = true }).First,
             expectedTitle: "Quark Suite - Blazor Components");
 
-        var trigger = page.Locator("header button[data-slot='sidebar-trigger']").First;
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Menu", Exact = true }).First;
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await trigger.ClickAsync();
@@ -143,8 +143,8 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         var mobileSidebar = page.Locator("[data-sidebar='sidebar'][data-mobile='true'][data-state='open']").First;
         await Assertions.Expect(mobileSidebar).ToBeVisibleAsync();
-        await Assertions.Expect(mobileSidebar.GetByText("Docs", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        await Assertions.Expect(mobileSidebar.GetByText("Components", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(mobileSidebar.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Docs", Exact = true }).First).ToBeVisibleAsync();
+        await Assertions.Expect(mobileSidebar.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Components", Exact = true }).First).ToBeVisibleAsync();
     }
 
     [Test]

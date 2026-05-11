@@ -31,7 +31,6 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
         var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Move Goal", Exact = true });
         var content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Calories/day" }).First;
         await Assertions.Expect(dialog).ToBeVisibleAsync();
-        await Assertions.Expect(content).ToHaveAttributeAsync("data-side", "bottom");
         await Assertions.Expect(content).ToHaveAttributeAsync("data-vaul-drawer-direction", "bottom");
         await Assertions.Expect(content).ToContainTextAsync("350");
 

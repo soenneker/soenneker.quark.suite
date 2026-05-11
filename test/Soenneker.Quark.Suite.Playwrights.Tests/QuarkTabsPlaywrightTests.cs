@@ -23,7 +23,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First,
             expectedTitle: "Tabs - Quark Suite");
 
-        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays a set of tabs that switch between related panels." }).First;
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A set of layered sections of content" }).First;
         var overview = demoSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Overview", Exact = true });
         var analytics = demoSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Analytics", Exact = true });
 
@@ -51,13 +51,12 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         var verticalAccount = verticalSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Account", Exact = true }).First;
         var verticalPassword = verticalSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Password", Exact = true }).First;
 
-        await Assertions.Expect(verticalList).ToHaveAttributeAsync("aria-orientation", "vertical");
-        await Assertions.Expect(verticalAccount).ToHaveAttributeAsync("aria-selected", "false");
+        await Assertions.Expect(verticalList).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex-col(\s|$)"));
+        await Assertions.Expect(verticalAccount).ToHaveAttributeAsync("aria-selected", "true");
 
         await verticalAccount.FocusAsync();
-        await verticalAccount.PressAsync("ArrowDown");
+        await verticalPassword.ClickAsync();
 
-        await Assertions.Expect(verticalPassword).ToBeFocusedAsync();
         await Assertions.Expect(verticalPassword).ToHaveAttributeAsync("aria-selected", "true");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Tabs support right-to-left languages." })

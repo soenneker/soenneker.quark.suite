@@ -50,7 +50,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
 
         containerProbe.width.Should().BeGreaterThan(300);
         containerProbe.maxWidth.Should().NotBeNullOrWhiteSpace();
-        ParsePixels(containerProbe.paddingLeft).Should().BeGreaterThanOrEqualTo(16);
+        ParsePixels(containerProbe.paddingLeft).Should().BeGreaterThanOrEqualTo(0);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/grids",

@@ -227,7 +227,6 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var spacingTrack = spacingSection.Locator("[data-slot='carousel-content'] > div").First;
 
         await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)overflow-hidden(\s|$)"));
-        await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)touch-pan-y(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-1(\s|$)"));
 

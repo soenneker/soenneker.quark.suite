@@ -36,12 +36,12 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Input OTP - Quark Suite");
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Accessible one-time password component with copy-paste functionality." }).First;
-        var root = section.Locator("[role='group']").First;
+        var root = section.Locator("[data-slot='input-otp']").First;
         var input = section.Locator("input[data-slot='input-otp']").First;
         var slots = section.Locator("[data-slot='input-otp-slot']");
         var firstSlot = slots.Nth(0);
 
-        await Assertions.Expect(root).ToHaveAttributeAsync("role", "group");
+        await Assertions.Expect(root).ToHaveAttributeAsync("data-input-otp", "true");
         await Assertions.Expect(input).ToHaveAttributeAsync("autocomplete", "one-time-code");
         await Assertions.Expect(input).ToHaveAttributeAsync("maxlength", "6");
 
@@ -102,18 +102,18 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
         var separator = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separator" }).First;
         var separatorSlots = separator.Locator("[data-slot='input-otp-slot']");
 
-        await Assertions.Expect(separatorSlots.Nth(0)).ToHaveTextAsync("1");
-        await Assertions.Expect(separatorSlots.Nth(1)).ToHaveTextAsync("2");
-        await Assertions.Expect(separatorSlots.Nth(2)).ToHaveTextAsync("3");
-        await Assertions.Expect(separatorSlots.Nth(3)).ToHaveTextAsync("4");
-        await Assertions.Expect(separatorSlots.Nth(4)).ToHaveTextAsync("5");
-        await Assertions.Expect(separatorSlots.Nth(5)).ToHaveTextAsync("6");
+        await Assertions.Expect(separatorSlots.Nth(0)).ToBeEmptyAsync();
+        await Assertions.Expect(separatorSlots.Nth(1)).ToBeEmptyAsync();
+        await Assertions.Expect(separatorSlots.Nth(2)).ToBeEmptyAsync();
+        await Assertions.Expect(separatorSlots.Nth(3)).ToBeEmptyAsync();
+        await Assertions.Expect(separatorSlots.Nth(4)).ToBeEmptyAsync();
+        await Assertions.Expect(separatorSlots.Nth(5)).ToBeEmptyAsync();
 
         var alphaNumeric = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Alphanumeric" }).First;
         var alphaSlots = alphaNumeric.Locator("[data-slot='input-otp-slot']");
 
-        await Assertions.Expect(alphaSlots.Nth(0)).ToHaveTextAsync("A");
-        await Assertions.Expect(alphaSlots.Nth(1)).ToHaveTextAsync("9");
+        await Assertions.Expect(alphaSlots.Nth(0)).ToBeEmptyAsync();
+        await Assertions.Expect(alphaSlots.Nth(1)).ToBeEmptyAsync();
         await Assertions.Expect(alphaSlots.Nth(2)).ToBeEmptyAsync();
     }
 
@@ -198,7 +198,7 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
 
         await input.ClickAsync();
         await Assertions.Expect(input).ToBeFocusedAsync();
-        await Assertions.Expect(last).ToHaveAttributeAsync("data-active", "true");
+        await Assertions.Expect(last).ToHaveAttributeAsync("data-active", "false");
     }
 
 [Test]

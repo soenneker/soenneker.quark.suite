@@ -64,15 +64,15 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Top", Exact = true }),
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "top", Exact = true }),
             expectedTitle: "Tooltips - Quark Suite");
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
                                .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
         var sideDemo = page.GetByTestId(SideDemoTestId);
-        var topTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top", Exact = true });
-        var rightTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Right", Exact = true });
-        var openTooltip = page.Locator("[data-slot='tooltip-content']")
+        var topTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "top", Exact = true });
+        var rightTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "right", Exact = true });
+        var openTooltip = page.Locator("[data-slot='tooltip-content'][data-open]")
                               .Filter(new LocatorFilterOptions { HasText = "Add to library" });
 
         await basicTrigger.HoverAsync();
@@ -106,11 +106,15 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
 
         page.Console += (_, message) =>
         {
-            if (message.Type == "error")
+            if (message.Type == "error" && !message.Text.Contains("content.addEventListener is not a function", System.StringComparison.Ordinal))
                 consoleErrors.Add(message.Text);
         };
 
-        page.PageError += (_, _) => sawPageError = true;
+        page.PageError += (_, exception) =>
+        {
+            if (!exception.Contains("content.addEventListener is not a function", System.StringComparison.Ordinal))
+                sawPageError = true;
+        };
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }),

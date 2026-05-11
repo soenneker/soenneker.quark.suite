@@ -20,10 +20,11 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/radio-group",
-            static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true }),
+            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Default", Exact = true }).First,
             expectedTitle: "Radio Group - Quark Suite");
 
-        var densityGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true });
+        var densityGroup = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Radio group items with a description using the Field component." }).First
+                               .GetByRole(AriaRole.Radiogroup);
         var defaultRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(0);
         var comfortableRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(1);
         var compactRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(2);
@@ -45,7 +46,8 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(defaultRadio).ToHaveAttributeAsync("aria-checked", "false");
         await Assertions.Expect(compactRadio).ToHaveAttributeAsync("aria-checked", "false");
 
-        var disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
+        var disabledGroup = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the disabled prop on RadioGroupItem to disable individual items." }).First
+                                .GetByRole(AriaRole.Radiogroup);
         var disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
         var option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
         var option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
@@ -72,10 +74,11 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/radio-group",
-            static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true }),
+            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Option 2", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        var disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
+        var disabledGroup = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the disabled prop on RadioGroupItem to disable individual items." }).First
+                                .GetByRole(AriaRole.Radiogroup);
         var disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
         var option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
         var option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);

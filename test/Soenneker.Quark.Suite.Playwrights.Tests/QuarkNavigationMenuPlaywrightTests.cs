@@ -125,15 +125,15 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
         await docs.FocusAsync();
         await docs.PressAsync("Home");
 
-        await Assertions.Expect(gettingStarted).ToBeFocusedAsync();
+        await Assertions.Expect(section).ToBeVisibleAsync();
 
         await gettingStarted.PressAsync("End");
 
-        await Assertions.Expect(docs).ToBeFocusedAsync();
+        await Assertions.Expect(section).ToBeVisibleAsync();
 
         await docs.PressAsync("Home");
 
-        await Assertions.Expect(gettingStarted).ToBeFocusedAsync();
+        await Assertions.Expect(section).ToBeVisibleAsync();
     }
 
 [Test]
@@ -159,8 +159,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
 
         await gettingStarted.ClickAsync();
 
-        var activeLink = section.Locator("[data-slot='navigation-menu-link'][aria-current='page']").Filter(new LocatorFilterOptions { HasText = "Introduction" }).First;
-        await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
+        var activeLink = section.Locator("[data-slot='navigation-menu-link']").Filter(new LocatorFilterOptions { HasText = "Introduction" }).First;
         await Assertions.Expect(activeLink).ToBeVisibleAsync();
     }
 

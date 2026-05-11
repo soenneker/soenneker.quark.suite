@@ -222,12 +222,12 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();
 
-        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
-        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
 
         await fullUrls.ClickAsync();
-        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
-        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "false");
 
         await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "false");
@@ -236,8 +236,8 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();
-        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
-        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "false");
     }
 
     [Test]

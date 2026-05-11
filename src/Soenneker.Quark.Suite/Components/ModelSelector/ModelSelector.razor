@@ -9,7 +9,7 @@
             <HoverCardTrigger AsChild="true">
                 <Label For="@_triggerId">@Label</Label>
             </HoverCardTrigger>
-            <HoverCardContent Side="Side.Left" Align="Alignment.Start" Class="w-[260px] text-sm">
+            <HoverCardContent Side="Side.Left" Align="Alignment.Start" Width='Quark.Width.Token("[260px]")' TextSize="Quark.TextSize.Sm">
                 @Description
             </HoverCardContent>
         </HoverCard>
@@ -66,7 +66,15 @@
                                     <Span data-slot="model-selector-item-description" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Light" TextColor="Quark.TextColor.MutedForeground">@option.Description</Span>
                                 }
                             </Span>
-                            <Span data-slot="model-selector-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Class="@GetCheckClass(option)">
+                            <Span data-slot="model-selector-item-indicator"
+                                  PointerEvents="Quark.PointerEvents.None"
+                                  Position="Quark.Position.Absolute"
+                                  Right="Quark.Right.Is3"
+                                  Display="Quark.Display.Flex"
+                                  Size="Quark.Size.Is4"
+                                  ItemsAlign="Quark.Items.Center"
+                                  Justify="Quark.Justify.Center"
+                                  Opacity="@(IsSelected(option) ? Quark.Opacity.Is100 : Quark.Opacity.Is0)">
                                 <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
                             </Span>
                         </Button>
@@ -178,11 +186,6 @@
         const string triggerClass = "inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-muted px-3 text-sm font-normal text-primary shadow-none transition-all duration-200 ease-out hover:bg-border";
         return string.IsNullOrWhiteSpace(Class) ? triggerClass : $"{triggerClass} {Class}";
     }
-
-    private string GetCheckClass(ModelSelectorOption option) =>
-        IsSelected(option)
-            ? "pointer-events-none absolute right-3 flex size-4 items-center justify-center opacity-100"
-            : "pointer-events-none absolute right-3 flex size-4 items-center justify-center opacity-0";
 
     private static LucideIcon GetModelIcon(ModelSelectorOption option)
     {

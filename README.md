@@ -87,6 +87,16 @@ Quark includes browser theme interop for light/dark mode and centralized compone
 
 If you need custom build-time theme generation, author a `Theme` and use `Soenneker.Quark.Gen.Themes` to emit generated CSS artifacts.
 
+## Quality Bar
+
+Quark is backed by more than static samples:
+
+- a dedicated demo application for the shipped component surface
+- bUnit component tests that exercise components at the Razor/component boundary
+- Playwright end-to-end coverage against a running demo app
+- test coverage that touches essentially every shipped component
+- CI packaging and verification workflows
+
 ## Demo
 
 [Open the demo site](https://soenneker.github.io/soenneker.quark.suite/)

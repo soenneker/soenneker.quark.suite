@@ -194,13 +194,15 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         if (text.Contains("MONO_WASM", StringComparison.Ordinal) &&
             (text.Contains("Response body loading was aborted", StringComparison.OrdinalIgnoreCase) ||
+             text.Contains("WebAssembly compilation aborted", StringComparison.OrdinalIgnoreCase) ||
              text.Contains("TypeError: Failed to fetch", StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }
 
         if (text.Contains("Error in mono_download_assets", StringComparison.Ordinal) &&
-            text.Contains("TypeError: Failed to fetch", StringComparison.OrdinalIgnoreCase))
+            (text.Contains("TypeError: Failed to fetch", StringComparison.OrdinalIgnoreCase) ||
+             text.Contains("WebAssembly compilation aborted", StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }

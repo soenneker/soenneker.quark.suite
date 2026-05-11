@@ -2,17 +2,30 @@
 
 @if (ParentCitation is not null)
 {
-    <Div Attributes="@BuildAttributes()">
+    <Div data-slot="citation-sources-badge"
+         Margin="Quark.Margin.Is0.FromTop"
+         Display="Quark.Display.Flex"
+         Height="Quark.Height.Is6"
+         Width="Quark.Width.IsFit"
+         ItemsAlign="Quark.Items.Center"
+         Gap='Quark.Gap.Token("1.5")'
+         Rounded="Quark.Rounded.Full"
+         BackgroundColor="Quark.BackgroundColor.Secondary"
+         Padding="@SourcesBadgePadding"
+         Class="@Class">
         @if (ShowFavicons)
         {
-            <Div Attributes="@FaviconGroupAttributes">
+            <Div data-slot="citation-favicon-group"
+                 Display="Quark.Display.Flex"
+                 Space='Quark.Space.X.Token("-2")'
+                 Class="*:data-[slot=citation-favicon]:ring-2 *:data-[slot=citation-favicon]:ring-secondary">
                 @foreach (var citation in ParentCitation.ResolvedCitations.Take(3))
                 {
                     <CitationFavicon Source="@citation" />
                 }
             </Div>
         }
-        <Span Class="text-xs leading-4.5 font-normal text-primary">@(Label ?? $"{ParentCitation.ResolvedCitations.Count} {(ParentCitation.ResolvedCitations.Count == 1 ? "source" : "sources")}")</Span>
+        <Span TextSize="Quark.TextSize.Xs" Leading='Quark.Leading.Token("4.5")' FontWeight="Quark.FontWeight.Normal" TextColor="Quark.TextColor.Primary">@(Label ?? $"{ParentCitation.ResolvedCitations.Count} {(ParentCitation.ResolvedCitations.Count == 1 ? "source" : "sources")}")</Span>
     </Div>
 }
 
@@ -29,20 +42,8 @@
     [Parameter]
     public string? Class { get; set; }
 
-    private IReadOnlyDictionary<string, object> BuildAttributes() => new Dictionary<string, object>
-    {
-        ["data-slot"] = "citation-sources-badge",
-        ["class"] = string.Join(" ", new[]
-        {
-            "mt-0 flex h-6 items-center gap-1.5 rounded-full bg-secondary pr-2 w-fit",
-            ShowFavicons ? "pl-1" : "pl-2",
-            Class
-        }.Where(x => !string.IsNullOrWhiteSpace(x)))
-    };
-
-    private static readonly IReadOnlyDictionary<string, object> FaviconGroupAttributes = new Dictionary<string, object>
-    {
-        ["data-slot"] = "citation-favicon-group",
-        ["class"] = "flex -space-x-2 *:data-[slot=citation-favicon]:ring-2 *:data-[slot=citation-favicon]:ring-secondary"
-    };
+    private CssValue<PaddingBuilder> SourcesBadgePadding =>
+        ShowFavicons
+            ? Quark.Padding.Is2.FromRight.Is1.FromLeft
+            : Quark.Padding.Is2.OnX;
 }
