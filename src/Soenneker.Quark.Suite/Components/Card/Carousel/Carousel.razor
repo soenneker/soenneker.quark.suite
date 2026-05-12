@@ -1,0 +1,386 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@using System.Linq
+@using System.Threading
+@using Soenneker.Bradix
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject ICarouselInterop CarouselInterop
+
+<CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
+    <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+
+    /// <summary>
+    /// Gets or sets orientation: horizontal or vertical.
+    /// </summary>
+    [Parameter]
+    public Orientation Orientation { get; set; } = Orientation.Horizontal;
+
+    [Parameter]
+    public bool Loop { get; set; }
+
+    [Parameter]
+    public string? Align { get; set; }
+
+    [Parameter]
+    public string? Dir { get; set; }
+
+    [Parameter]
+    public bool Autoplay { get; set; }
+
+    [Parameter]
+    public TimeSpan AutoplayDelay { get; set; } = TimeSpan.FromSeconds(4);
+
+    [Parameter]
+    public Action<CarouselApi>? SetApi { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedIndexChanged { get; set; }
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    internal event Action? StateChanged;
+    private readonly CarouselApi _api = new();
+    private Action<CarouselApi>? _lastSetApi;
+    private CancellationTokenSource? _autoplayCancellation;
+    private ElementReference _elementRef;
+    private DotNetObjectReference<Carousel>? _dotNetReference;
+    private bool _initialized;
+    private double _scrollOffsetPixels;
+    private double? _pointerStart;
+    private bool _pointerDragStarted;
+
+    internal int CurrentIndex { get; private set; }
+    internal int ItemCount { get; private set; }
+    internal bool IsVertical => Orientation == Orientation.Vertical;
+    internal string? ResolvedDir => string.IsNullOrWhiteSpace(Dir) ? DirectionProviderDir : Dir;
+    internal bool IsRtl => string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
+    internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
+    internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
+    internal double ScrollOffsetPixels => _scrollOffsetPixels;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "carousel";
+
+        Position ??= Quark.Position.Relative;
+    }
+
+    protected override void OnInitialized()
+    {
+        _api.SelectedIndexAccessor = () => CurrentIndex;
+        _api.ScrollSnapListAccessor = () => ItemCount <= 0 ? Array.Empty<int>() : Enumerable.Range(0, ItemCount).ToArray();
+        _api.CanScrollPreviousAccessor = () => CanScrollPrevious;
+        _api.CanScrollNextAccessor = () => CanScrollNext;
+        _api.ScrollPreviousAction = () => _ = Previous();
+        _api.ScrollNextAction = () => _ = Next();
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (SetApi is not null && !ReferenceEquals(_lastSetApi, SetApi))
+        {
+            _lastSetApi = SetApi;
+            SetApi(_api);
+        }
+
+        ConfigureAutoplay();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_initialized)
+        {
+            _dotNetReference ??= DotNetObjectReference.Create(this);
+            await CarouselInterop.Initialize(_elementRef, _dotNetReference, CurrentIndex, IsVertical, Align);
+            _initialized = true;
+        }
+
+        await MeasureScrollOffset();
+    }
+
+    internal void RegisterItem()
+    {
+        ItemCount++;
+        _ = NotifyStateChanged();
+    }
+
+    internal void UnregisterItem()
+    {
+        if (ItemCount == 0)
+            return;
+
+        ItemCount--;
+
+        if (ItemCount == 0)
+            CurrentIndex = 0;
+        else if (CurrentIndex >= ItemCount)
+            CurrentIndex = ItemCount - 1;
+
+        _ = NotifyStateChanged();
+    }
+
+    internal Task Previous()
+    {
+        return GoTo(CurrentIndex - 1);
+    }
+
+    internal Task Next()
+    {
+        return GoTo(CurrentIndex + 1);
+    }
+
+    internal void BeginPointerDrag(PointerEventArgs args)
+    {
+        if (ItemCount <= 1 || (args.PointerType != "touch" && args.Button != 0))
+            return;
+
+        _pointerStart = GetAxisCoordinate(args);
+        _pointerDragStarted = true;
+    }
+
+    internal void CompletePointerDrag(PointerEventArgs args)
+    {
+        if (!_pointerDragStarted || _pointerStart is null)
+            return;
+
+        CompleteDrag(GetAxisCoordinate(args));
+    }
+
+    internal void BeginTouchDrag(TouchEventArgs args)
+    {
+        if (ItemCount <= 1 || !TryGetTouchAxisCoordinate(args, out var coordinate))
+            return;
+
+        _pointerStart = coordinate;
+        _pointerDragStarted = true;
+    }
+
+    internal void CompleteTouchDrag(TouchEventArgs args)
+    {
+        if (!_pointerDragStarted || _pointerStart is null || !TryGetTouchAxisCoordinate(args, out var coordinate))
+            return;
+
+        CompleteDrag(coordinate);
+    }
+
+    private void CompleteDrag(double endCoordinate)
+    {
+        if (!_pointerDragStarted || _pointerStart is null)
+            return;
+
+        var delta = endCoordinate - _pointerStart.Value;
+        _pointerStart = null;
+        _pointerDragStarted = false;
+
+        const double threshold = 40;
+        if (Math.Abs(delta) < threshold)
+            return;
+
+        var shouldMoveNext = delta < 0;
+
+        if (!IsVertical && IsRtl)
+            shouldMoveNext = !shouldMoveNext;
+
+        if (shouldMoveNext)
+            _ = Next();
+        else
+            _ = Previous();
+    }
+
+    internal void CancelPointerDrag()
+    {
+        _pointerStart = null;
+        _pointerDragStarted = false;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowLeft")
+        {
+            await Previous();
+        }
+        else if (e.Key == "ArrowRight")
+        {
+            await Next();
+        }
+    }
+
+    private async Task GoTo(int index)
+    {
+        if (ItemCount == 0)
+            return;
+
+        var nextIndex = index;
+
+        if (nextIndex < 0)
+            nextIndex = Loop ? ItemCount - 1 : 0;
+        else if (nextIndex >= ItemCount)
+            nextIndex = Loop ? 0 : ItemCount - 1;
+
+        if (nextIndex == CurrentIndex)
+            return;
+
+        CurrentIndex = nextIndex;
+        await NotifyStateChanged();
+    }
+
+    private async Task NotifyStateChanged()
+    {
+        SetApi?.Invoke(_api);
+        _api.NotifySelect();
+
+        if (SelectedIndexChanged.HasDelegate)
+            await SelectedIndexChanged.InvokeAsync(CurrentIndex);
+
+        StateChanged?.Invoke();
+        await RefreshOffThread();
+    }
+
+    private async Task MeasureScrollOffset()
+    {
+        if (!_initialized)
+            return;
+
+        var offset = await CarouselInterop.MeasureOffset(_elementRef, CurrentIndex, IsVertical, Align);
+        await OnCarouselMeasured(offset);
+    }
+
+    [JSInvokable]
+    public async Task OnCarouselMeasured(double offset)
+    {
+        if (Math.Abs(_scrollOffsetPixels - offset) < 0.5)
+            return;
+
+        _scrollOffsetPixels = offset;
+        await InvokeAsync(() =>
+        {
+            StateChanged?.Invoke();
+            StateHasChanged();
+        });
+    }
+
+    private void ConfigureAutoplay()
+    {
+        if (!Autoplay || AutoplayDelay <= TimeSpan.Zero)
+        {
+            StopAutoplay();
+            return;
+        }
+
+        if (_autoplayCancellation is not null)
+            return;
+
+        _autoplayCancellation = new CancellationTokenSource();
+        _ = RunAutoplay(_autoplayCancellation.Token);
+    }
+
+    private async Task RunAutoplay(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(AutoplayDelay);
+
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await InvokeAsync(async () =>
+                {
+                    if (ItemCount <= 1)
+                        return;
+
+                    await Next();
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void StopAutoplay()
+    {
+        if (_autoplayCancellation is null)
+            return;
+
+        _autoplayCancellation.Cancel();
+        _autoplayCancellation.Dispose();
+        _autoplayCancellation = null;
+    }
+
+    private double GetAxisCoordinate(PointerEventArgs args)
+    {
+        return IsVertical ? args.ClientY : args.ClientX;
+    }
+
+    private bool TryGetTouchAxisCoordinate(TouchEventArgs args, out double coordinate)
+    {
+        var point = args.ChangedTouches.Length > 0 ? args.ChangedTouches[0] : args.Touches.Length > 0 ? args.Touches[0] : null;
+
+        if (point is null)
+        {
+            coordinate = 0;
+            return false;
+        }
+
+        coordinate = IsVertical ? point.ClientY : point.ClientX;
+        return true;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+
+        if (!string.IsNullOrWhiteSpace(ResolvedDir))
+            attributes["dir"] = ResolvedDir!;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Orientation);
+        hc.Add(Loop);
+        hc.Add(Align);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
+        hc.Add(Autoplay);
+        hc.Add(AutoplayDelay);
+        hc.Add(SelectedIndexChanged.HasDelegate);
+        hc.Add(CurrentIndex);
+        hc.Add(ItemCount);
+        hc.Add(_scrollOffsetPixels);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        StopAutoplay();
+
+        if (_initialized)
+        {
+            try
+            {
+                await CarouselInterop.Destroy(_elementRef);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        _dotNetReference?.Dispose();
+        await base.DisposeAsync();
+    }
+
+}

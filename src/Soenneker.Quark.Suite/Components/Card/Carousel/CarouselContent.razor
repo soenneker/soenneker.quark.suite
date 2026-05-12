@@ -1,0 +1,137 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildViewportAttributes()" @onpointerdown="HandlePointerDown" @onpointerup="HandlePointerUp" @onpointercancel="HandlePointerCancel" @ontouchstart="HandleTouchStart" @ontouchend="HandleTouchEnd" @ontouchcancel="HandleTouchCancel">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter(Name = "ParentCarousel")]
+    private Carousel? ParentCarousel { get; set; }
+
+    private Carousel? _subscribedCarousel;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        Display ??= Quark.Display.Flex;
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_subscribedCarousel, ParentCarousel))
+            return;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        _subscribedCarousel = ParentCarousel;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged += OnCarouselStateChanged;
+    }
+
+    private Dictionary<string, object> BuildViewportAttributes()
+    {
+        var horizontal = ParentCarousel?.IsVertical != true;
+
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "carousel-content",
+            ["class"] = "overflow-hidden"
+        };
+    }
+
+    private void HandlePointerDown(PointerEventArgs args)
+    {
+        ParentCarousel?.BeginPointerDrag(args);
+    }
+
+    private void HandlePointerUp(PointerEventArgs args)
+    {
+        ParentCarousel?.CompletePointerDrag(args);
+    }
+
+    private void HandlePointerCancel(PointerEventArgs _)
+    {
+        ParentCarousel?.CancelPointerDrag();
+    }
+
+    private void HandleTouchStart(TouchEventArgs args)
+    {
+        ParentCarousel?.BeginTouchDrag(args);
+    }
+
+    private void HandleTouchEnd(TouchEventArgs args)
+    {
+        ParentCarousel?.CompleteTouchDrag(args);
+    }
+
+    private void HandleTouchCancel(TouchEventArgs _)
+    {
+        ParentCarousel?.CancelPointerDrag();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            var horizontal = ParentCarousel?.IsVertical != true;
+
+            if (horizontal)
+            {
+                if (!HasClassToken("-ml-"))
+                    AppendClass(ref cls, "-ml-4");
+            }
+            else
+            {
+                if (!HasClassToken("-mt-"))
+                    AppendClass(ref cls, "-mt-4");
+
+                AppendClass(ref cls, "flex-col");
+            }
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            var horizontal = ParentCarousel?.IsVertical != true;
+            var offset = ParentCarousel?.ScrollOffsetPixels ?? 0;
+
+            var formattedOffset = offset < 0.5 ? "0" : offset.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+            if (horizontal)
+                AppendStyleDecl(ref sty, $"transform: translate3d({(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px, 0px)");
+            else
+                AppendStyleDecl(ref sty, $"transform: translate3d(0px, {(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px)");
+
+            AppendStyleDecl(ref sty, "transition: transform 300ms ease-in-out");
+            AppendStyleDecl(ref sty, "will-change: transform");
+        });
+    }
+
+    private bool HasClassToken(string tokenPart)
+    {
+        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
+    }
+
+    private void OnCarouselStateChanged()
+    {
+        _ = RefreshOffThread();
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        base.Dispose();
+    }
+
+}

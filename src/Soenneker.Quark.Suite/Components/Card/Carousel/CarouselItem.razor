@@ -1,0 +1,61 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()" role="group" aria-roledescription="slide">
+    @ChildContent
+</div>
+
+@code {
+
+    [CascadingParameter(Name = "ParentCarousel")]
+    private Carousel? ParentCarousel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ParentCarousel?.RegisterItem();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "carousel-item";
+
+        MinWidth ??= Quark.MinWidth.Is0;
+        Shrink ??= Quark.Shrink.Is0;
+        Grow ??= Quark.Grow.Is0;
+        if (ParentCarousel?.IsVertical == true)
+        {
+            if (!HasClassToken("pt-"))
+                Padding ??= Quark.Padding.Is4.FromTop;
+        }
+        else if (!HasClassToken("pl-"))
+        {
+            Padding ??= Quark.Padding.Is4.FromLeft;
+        }
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            if (!HasClassToken("basis-"))
+                AppendClass(ref cls, "basis-full");
+        });
+    }
+
+    private bool HasClassToken(string tokenPart)
+    {
+        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
+    }
+
+    public override void Dispose()
+    {
+        ParentCarousel?.UnregisterItem();
+        base.Dispose();
+    }
+
+}
