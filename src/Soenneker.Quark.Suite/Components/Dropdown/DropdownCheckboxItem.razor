@@ -5,26 +5,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 
-<BradixDropdownMenuCheckboxItem Checked="@ResolvedCheckedState"
-                                CheckedChanged="HandleCheckedStateChanged"
-                                CloseOnSelect="@AutoClose"
-                                Disabled="@Disabled"
-                                AdditionalAttributes="@CheckboxAttributes">
-    <Span DataSlot="dropdown-menu-checkbox-item-indicator"
-          PointerEvents="Quark.PointerEvents.None"
-          Position="Quark.Position.Absolute"
-          Display="Quark.Display.Flex"
-          ItemsAlign="Items.Center"
-          Justify="Quark.Justify.Center"
-          Right="Quark.Right.Is2">
+<BradixDropdownMenuCheckboxItem Checked="@ResolvedCheckedState" CheckedChanged="HandleCheckedStateChanged" CloseOnSelect="@AutoClose" Disabled="@Disabled" AdditionalAttributes="@CheckboxAttributes">
+    <Span DataSlot="dropdown-menu-checkbox-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Display="Quark.Display.Flex" ItemsAlign="Items.Center" Justify="Quark.Justify.Center" Right="Quark.Right.Is2">
         <BradixDropdownMenuItemIndicator>
-            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
+            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4"/>
         </BradixDropdownMenuItemIndicator>
     </Span>
     @ChildContent
 </BradixDropdownMenuCheckboxItem>
 
 @code {
+
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
@@ -59,14 +50,13 @@
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is1_5;
         Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.FromRight.Is8.FromLeft.Token("1.5").OnY.Is1;
+        Padding ??= Quark.Padding.FromRight.Is8.FromLeft.Is1_5.OnY.Is1;
         TextSize ??= Quark.TextSize.Sm;
         BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
         TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
         OutlineStyle ??= Quark.OutlineStyle.Hidden;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
-
     }
 
     private IReadOnlyDictionary<string, object> BuildCheckboxAttributes()
@@ -89,4 +79,5 @@
         Checked = next;
         await CheckedChanged.InvokeIfHasDelegate(next);
     }
+
 }

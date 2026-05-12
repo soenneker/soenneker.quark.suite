@@ -29,6 +29,9 @@ public abstract class Element : Component, IElement
     [Parameter]
     public string? AriaCurrent { get; set; }
 
+    [Parameter]
+    public bool? AriaHidden { get; set; }
+
     private RenderFragment? _lastChildContentRef;
     private bool _childContentChanged;
 
@@ -53,6 +56,9 @@ public abstract class Element : Component, IElement
 
         if (AriaCurrent is not null)
             attrs["aria-current"] = AriaCurrent;
+
+        if (AriaHidden.HasValue)
+            attrs["aria-hidden"] = AriaHidden.Value ? "true" : "false";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -66,6 +72,7 @@ public abstract class Element : Component, IElement
         hc.Add(AriaLabelledBy);
         hc.Add(AriaDescribedBy);
         hc.Add(AriaCurrent);
+        hc.Add(AriaHidden);
     }
 
     protected override void OnParametersSet()

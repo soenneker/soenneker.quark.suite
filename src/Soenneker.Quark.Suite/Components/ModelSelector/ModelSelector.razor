@@ -58,7 +58,6 @@
 @code {
     private readonly string _triggerId = BlazorIdGenerator.New("model-selector");
     private bool _open;
-    private ModelSelectorOption? _peekedOption;
 
     [Parameter]
     public string? Value { get; set; }
@@ -113,10 +112,6 @@
 
     private string SelectedLabel => SelectedOption?.Label ?? Placeholder;
 
-    private string PeekedLabel => _peekedOption?.Label ?? SelectedOption?.Label ?? Placeholder;
-
-    private string? PeekedDescription => _peekedOption?.Description ?? SelectedOption?.Description;
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -125,18 +120,9 @@
         Gap ??= Quark.Gap.Is3;
     }
 
-    protected override void OnParametersSet()
-    {
-        _peekedOption ??= SelectedOption ?? Options.FirstOrDefault();
-        base.OnParametersSet();
-    }
-
     private Task HandleOpenChanged(bool open)
     {
         _open = open;
-
-        if (open)
-            _peekedOption = SelectedOption ?? Options.FirstOrDefault();
 
         return Task.CompletedTask;
     }
@@ -145,7 +131,6 @@
 
     private async Task SelectOption(ModelSelectorOption option)
     {
-        _peekedOption = option;
         _open = false;
 
         if (string.Equals(Value, option.Value, StringComparison.Ordinal))

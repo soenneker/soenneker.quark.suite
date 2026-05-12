@@ -38,6 +38,7 @@
     private int EffectiveMax => Max > 0 ? Max : 100;
 
     private double? ResolvedBradixValue => null;
+    private const string IndicatorClass = "size-full flex-1 bg-primary transition-all";
 
     private IReadOnlyDictionary<string, object> IndicatorAttributes => BuildIndicatorAttributes();
 
@@ -56,11 +57,6 @@
 
         var pct = GetClampedValue() * 100.0 / EffectiveMax;
         return $"transform: translateX(-{100 - pct:F0}%);";
-    }
-
-    private string GetIndicatorClass()
-    {
-        return "size-full flex-1 bg-primary transition-all";
     }
 
     protected override void ApplyDefaultParameters()
@@ -92,7 +88,7 @@
         var attributes = new Dictionary<string, object>
         {
             ["data-slot"] = "progress-indicator",
-            ["class"] = GetIndicatorClass(),
+            ["class"] = IndicatorClass,
             ["style"] = GetIndicatorStyle()
         };
 

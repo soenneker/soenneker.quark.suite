@@ -18,4 +18,18 @@ public sealed partial class RenderedShadcnParityTests
         anchor.GetAttribute("href").Should().Be("/docs");
         anchor.GetAttribute("aria-current").Should().Be("page");
     }
+
+    [Test]
+    public void Anchor_preserves_aria_hidden()
+    {
+        var cut = Render<Anchor>(parameters => parameters
+            .Add(p => p.Href, "/docs")
+            .Add(p => p.AriaHidden, true)
+            .Add(p => p.ChildContent, "Docs"));
+
+        var anchor = cut.Find("a");
+
+        anchor.GetAttribute("href").Should().Be("/docs");
+        anchor.GetAttribute("aria-hidden").Should().Be("true");
+    }
 }

@@ -4,17 +4,12 @@
 @inherits Soenneker.Quark.ToggleElement
 @implements IToggle
 
-<BradixToggle Pressed="@Pressed"
-              Disabled="@Disabled"
-              PressedChanged="HandlePressedChanged"
-              OnClick="@OnClick"
-              OnFocus="@OnFocus"
-              OnKeyDown="@OnKeyDown"
-              AdditionalAttributes="@ToggleAttributes">
+<BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="@OnKeyDown" AdditionalAttributes="@ToggleAttributes">
     @ChildContent
 </BradixToggle>
 
 @code {
+
     /// <summary>
     /// Gets or sets whether the toggle is pressed.
     /// </summary>
@@ -66,23 +61,14 @@
         PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
         Opacity ??= Quark.Opacity.Is50.OnDisabled;
 
-        ApplyVariantDefaults();
-
-    }
-
-    private void ApplyVariantDefaults()
-    {
         if (ReferenceEquals(Variant, ToggleVariant.Outline))
         {
             Border ??= Quark.Border.Default;
             BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
             BorderColor ??= Quark.BorderColor.OnFocusVisible.Ring;
-            BackgroundColor ??= Quark.BackgroundColor.Transparent;
         }
-        else
-        {
-            BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        }
+
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
     }
 
     private IReadOnlyDictionary<string, object> ToggleAttributes
@@ -156,20 +142,14 @@
             return ResolveToggleTokenSizeClass(token, includeShrink, isRtl);
 
         var value = size?.ToString();
-        return value is "default" or "sm" or "lg"
-            ? ResolveToggleTokenSizeClass(value, includeShrink, isRtl)
-            : value ?? ResolveToggleTokenSizeClass("default", includeShrink, isRtl);
+        return value is "default" or "sm" or "lg" ? ResolveToggleTokenSizeClass(value, includeShrink, isRtl) : value ?? ResolveToggleTokenSizeClass("default", includeShrink, isRtl);
     }
 
     internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl = false)
     {
         var prefix = includeShrink ? "shrink-0 " : string.Empty;
-        var iconPadding = isRtl
-            ? "has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
-            : "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2";
-        var iconPaddingSm = isRtl
-            ? "has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5"
-            : "has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5";
+        var iconPadding = isRtl ? "has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2" : "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2";
+        var iconPaddingSm = isRtl ? "has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5" : "has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5";
 
         return size switch
         {
@@ -178,4 +158,5 @@
             _ => $"{prefix}h-8 min-w-8 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4"
         };
     }
+
 }

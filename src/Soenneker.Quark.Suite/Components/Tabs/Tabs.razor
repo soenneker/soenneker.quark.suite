@@ -114,22 +114,6 @@
         return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
     }
 
-    private bool IsHorizontalRtl()
-    {
-        if (Vertical)
-            return false;
-
-        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (Attributes is not null && Attributes.TryGetValue("dir", out var dirValue) && string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     public async Task SelectTab(string tabName)
     {
         if (SelectedTab == tabName)
