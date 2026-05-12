@@ -6,7 +6,7 @@
 
 <Div @attributes="BuildAttributes()">
     <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="md:flex-row rdp-months">
-        <Nav Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0.OnX" Top="Quark.Top.Is0" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is1" AriaLabel="" Class="rdp-nav">
+        <Nav Position="Quark.Position.Absolute" Inset="Quark.Inset.OnX.Is0" Top="Quark.Top.Is0" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is1" AriaLabel="" Class="rdp-nav">
             <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@CalendarNavButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="rdp-button_previous" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="@(_ => PrevMonth())">
                 <Icon Name="LucideIcon.ChevronLeft" Size="Quark.Size.Is4" Class="cn-rtl-flip rdp-chevron" aria-hidden="true"/>
             </Button>
@@ -21,10 +21,10 @@
             var weeks = BuildMonthWeeks(month);
 
             <Div Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="rdp-month">
-                <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Padding='Quark.Padding.Token("(--cell-size)").OnX' Class="rdp-month_caption">
+                <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Padding='Quark.Padding.OnX.Token("(--cell-size)")' Class="rdp-month_caption">
                     @if (CaptionLayout == "dropdown")
                     {
-                        <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Token("1.5")' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
+                        <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Is1_5' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
                             <Span data-disabled="false" Position="Quark.Position.Relative" Class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <SelectPrimitive Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" BackgroundColor="Quark.BackgroundColor.Popover" Opacity="Quark.Opacity.Is0" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((month.Month - 1).ToString(CultureInfo.InvariantCulture))" OnChange="OnMonthChanged">
                                     @foreach (var optionMonth in Enumerable.Range(0, 12))
@@ -75,7 +75,7 @@
                     <TbodyPrimitive Class="rdp-weeks">
                         @foreach (var week in weeks)
                         {
-                            <TrPrimitive Margin="Quark.Margin.Is2.FromTop" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" Class="rdp-week">
+                            <TrPrimitive Margin="Quark.Margin.FromTop.Is2" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" Class="rdp-week">
                                 @if (ShowWeekNumber)
                                 {
                                     <TdPrimitive TextSize='Quark.TextSize.Token("[0.8rem]")' TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="rdp-week_number" role="rowheader" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">

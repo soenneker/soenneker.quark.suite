@@ -28,4 +28,18 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("table.rdp-month_grid").GetAttribute("aria-label").Should().Be("abril 2026");
         cut.Find(".rdp-caption_label").TextContent.Should().Be("abril 2026");
     }
+
+    [Test]
+    public void Calendar_month_navigation_is_positioned_in_caption_row()
+    {
+        var cut = Render<Calendar>(parameters => parameters
+            .Add(component => component.DisplayMonth, new DateOnly(2026, 5, 1)));
+
+        string navClass = cut.Find("nav.rdp-nav").GetAttribute("class")!;
+
+        navClass.Should().Contain("absolute");
+        navClass.Should().Contain("top-0");
+        navClass.Should().Contain("inset-x-0");
+        navClass.Should().NotContain("inset-0");
+    }
 }

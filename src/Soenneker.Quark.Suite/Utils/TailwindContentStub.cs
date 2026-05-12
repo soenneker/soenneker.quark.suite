@@ -15,9 +15,9 @@ internal static class TailwindContentStub
     // Layout classes emitted by built-in presets.
     private static readonly CssValue<MaxWidthBuilder> PresetMaxWidth = MaxWidth.Token("[1400px]");
     private static readonly CssValue<MinWidthBuilder> CalendarCellMinWidth = MinWidth.Token("(--cell-size)");
-    private static readonly CssValue<ColStartBuilder> CardActionColStart = ColStart.Token("2");
+    private static readonly CssValue<ColStartBuilder> CardActionColStart = ColStart.Is2;
     private static readonly CssValue<RowSpanBuilder> CardActionRowSpan = RowSpan.Is2;
-    private static readonly CssValue<RowStartBuilder> CardActionRowStart = RowStart.Token("1");
+    private static readonly CssValue<RowStartBuilder> CardActionRowStart = RowStart.Is1;
 
     // Rounded: rounded + corners(tl,tr,bl,br,t,b,l,r) + sizes(none,sm,md,lg,xl,2xl,3xl,full)
     private const string Rounded = "rounded rounded-none rounded-sm rounded-md rounded-lg rounded-xl rounded-2xl rounded-3xl rounded-full rounded-t rounded-t-none rounded-t-sm rounded-t-md rounded-t-lg rounded-t-xl rounded-t-2xl rounded-t-3xl rounded-t-full rounded-b rounded-b-none rounded-b-sm rounded-b-md rounded-b-lg rounded-b-xl rounded-b-2xl rounded-b-3xl rounded-b-full rounded-l rounded-l-none rounded-l-sm rounded-l-md rounded-l-lg rounded-l-xl rounded-l-2xl rounded-l-3xl rounded-l-full rounded-r rounded-r-none rounded-r-sm rounded-r-md rounded-r-lg rounded-r-xl rounded-r-2xl rounded-r-3xl rounded-r-full rounded-tl rounded-tl-none rounded-tl-sm rounded-tl-md rounded-tl-lg rounded-tl-xl rounded-tl-2xl rounded-tl-3xl rounded-tl-full rounded-tr rounded-tr-none rounded-tr-sm rounded-tr-md rounded-tr-lg rounded-tr-xl rounded-tr-2xl rounded-tr-3xl rounded-tr-full rounded-bl rounded-bl-none rounded-bl-sm rounded-bl-md rounded-bl-lg rounded-bl-xl rounded-bl-2xl rounded-bl-3xl rounded-bl-full rounded-br rounded-br-none rounded-br-sm rounded-br-md rounded-br-lg rounded-br-xl rounded-br-2xl rounded-br-3xl rounded-br-full";
