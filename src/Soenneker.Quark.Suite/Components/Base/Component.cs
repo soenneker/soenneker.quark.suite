@@ -298,7 +298,7 @@ public abstract class Component : RenderComponent, IComponent
     {
         base.BuildFinalAttributes(attrs);
 
-        if (DataSlot.HasContent())
+        if (DataSlot.HasContent() && !HasExplicitDataSlotAttribute())
         {
             attrs["data-slot"] = DataSlot!;
             return;
@@ -429,6 +429,25 @@ public abstract class Component : RenderComponent, IComponent
         }
 
         return context;
+    }
+
+    private bool HasExplicitDataSlotAttribute()
+    {
+        return HasDataSlotAttribute(AdditionalAttributes) || HasDataSlotAttribute(Attributes);
+    }
+
+    private static bool HasDataSlotAttribute(IReadOnlyDictionary<string, object>? attributes)
+    {
+        if (attributes is null)
+            return false;
+
+        foreach (var key in attributes.Keys)
+        {
+            if (key.Equals("data-slot", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
     protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
