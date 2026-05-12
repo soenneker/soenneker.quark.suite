@@ -52,7 +52,6 @@
     private ElementReference _elementRef;
     private DotNetObjectReference<Carousel>? _dotNetReference;
     private bool _initialized;
-    private double _scrollOffsetPixels;
     private double? _pointerStart;
     private bool _pointerDragStarted;
 
@@ -63,7 +62,7 @@
     internal bool IsRtl => string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
     internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
     internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
-    internal double ScrollOffsetPixels => _scrollOffsetPixels;
+    internal double ScrollOffsetPixels { get; private set; }
 
     protected override void ApplyDefaultParameters()
     {
@@ -261,10 +260,10 @@
     [JSInvokable]
     public async Task OnCarouselMeasured(double offset)
     {
-        if (Math.Abs(_scrollOffsetPixels - offset) < 0.5)
+        if (Math.Abs(ScrollOffsetPixels - offset) < 0.5)
             return;
 
-        _scrollOffsetPixels = offset;
+        ScrollOffsetPixels = offset;
         await InvokeAsync(() =>
         {
             StateChanged?.Invoke();
@@ -361,7 +360,7 @@
         hc.Add(SelectedIndexChanged.HasDelegate);
         hc.Add(CurrentIndex);
         hc.Add(ItemCount);
-        hc.Add(_scrollOffsetPixels);
+        hc.Add(ScrollOffsetPixels);
     }
 
     public override async ValueTask DisposeAsync()
