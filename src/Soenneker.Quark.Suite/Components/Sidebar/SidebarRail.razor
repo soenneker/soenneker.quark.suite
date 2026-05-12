@@ -4,6 +4,12 @@
 <button @onclick="HandleRailClick" @attributes="BuildAttributes()"></button>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-rail";
+    }
+
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -22,7 +28,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("sidebar-rail");
         attributes["data-sidebar"] = "rail";
         attributes["type"] = "button";
         attributes["aria-label"] = "Toggle Sidebar";

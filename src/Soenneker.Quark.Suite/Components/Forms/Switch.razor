@@ -63,6 +63,12 @@ else
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedSwitchValue => Value.HasContent() ? Value! : "on";
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "switch";
+    }
+
     protected override void OnInitialized()
     {
         Id ??= BlazorIdGenerator.New("quark-switch");
@@ -94,8 +100,7 @@ else
         if (SwitchSize == null)
             return false;
 
-        var s = SwitchSize?.ToString()?.ToLowerInvariant();
-        return s == "sm";
+        return string.Equals(SwitchSize?.ToString(), "sm", StringComparison.OrdinalIgnoreCase);
     }
 
     private Dictionary<string, object> BuildLabelAttributes()
@@ -111,7 +116,7 @@ else
         var sm = IsSmSize();
 
         attributes["id"] = ControlId;
-        attributes["data-slot"] = DataSlot ?? "switch";
+        attributes["data-slot"] = DataSlot!;
         attributes["data-size"] = sm ? "sm" : "default";
 
         if (Disabled)

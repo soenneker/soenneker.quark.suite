@@ -53,6 +53,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "toggle";
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
@@ -61,6 +62,9 @@
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
 
         ApplyVariantDefaults();
 
@@ -71,7 +75,8 @@
         if (ReferenceEquals(Variant, ToggleVariant.Outline))
         {
             Border ??= Quark.Border.Default;
-            BorderColor ??= Quark.BorderColor.Input;
+            BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
+            BorderColor ??= Quark.BorderColor.OnFocusVisible.Ring;
             BackgroundColor ??= Quark.BackgroundColor.Transparent;
         }
         else
@@ -94,16 +99,14 @@
             attributes.Remove("onfocus");
             attributes.Remove("onkeydown");
 
-            attributes["data-slot"] = DataSlot ?? "toggle";
-
             if (!string.IsNullOrWhiteSpace(ResolvedDir))
                 attributes["dir"] = ResolvedDir;
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 var isRtl = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
-                AppendClass(ref cls, "group/toggle hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-                AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "group/toggle hover:bg-muted hover:text-foreground focus-visible:ring-[3px]");
+                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
                 AppendClass(ref cls, GetToggleVariantClass(Variant));
                 AppendClass(ref cls, ResolveToggleSizeClass(ToggleSize, includeShrink: false, isRtl));

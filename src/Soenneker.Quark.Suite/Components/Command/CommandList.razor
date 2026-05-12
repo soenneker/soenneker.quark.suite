@@ -15,25 +15,26 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "command-list";
 
         MaxHeight ??= Quark.Height.Token("72");
         OverflowX ??= Quark.Overflow.X.Hidden;
         OverflowY ??= Quark.Overflow.Y.Auto;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        ScrollPadding ??= Quark.ScrollPadding.Is1.OnY;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("command-list");
         attributes["id"] = ParentCommand?.ListId ?? _orphanListId;
         attributes["role"] = "listbox";
         attributes["aria-label"] = "Suggestions";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "no-scrollbar scroll-py-1");
+            AppendClass(ref cls, "no-scrollbar");
         });
     }
 

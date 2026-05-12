@@ -16,6 +16,12 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-select";
+    }
+
     [Parameter]
     public TValue? SelectedValue { get; set; }
 
@@ -36,12 +42,6 @@
 
     [Parameter]
     public CssValue<SelectSizeBuilder>? SelectSize { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-select");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

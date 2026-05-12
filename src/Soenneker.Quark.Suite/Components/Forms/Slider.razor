@@ -84,6 +84,17 @@
 	[Parameter]
 	public Orientation Orientation { get; set; } = Orientation.Horizontal;
 
+	protected override void ApplyDefaultParameters()
+	{
+		base.ApplyDefaultParameters();
+		DataSlot ??= "slider";
+		Position ??= Quark.Position.Relative;
+		Display ??= Quark.Display.Flex;
+		Width ??= Quark.Width.IsFull;
+		ItemsAlign ??= Items.Center;
+		UserSelect ??= Quark.UserSelect.None;
+	}
+
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
@@ -129,15 +140,7 @@
 
 	public string? GetSizeClass()
 	{
-		var sizeValue = SliderSize?.ToString();
-
-		return sizeValue?.ToLowerInvariant() switch
-		{
-			"default" => null,
-			"sm" => null,
-			"lg" => null,
-			_ => null
-		};
+		return null;
 	}
 
 	public string? GetValidationClass()
@@ -411,40 +414,17 @@
 
 	private string? GetTrackThicknessClass()
 	{
-		var sizeValue = SliderSize?.ToString();
-
-		return sizeValue?.ToLowerInvariant() switch
-		{
-			null or "" or "default" => null,
-			"sm" => null,
-			"lg" => null,
-			_ => null
-		};
+		return null;
 	}
 
 	private string GetThumbSizeClass()
 	{
-		var sizeValue = SliderSize?.ToString();
-
-		return sizeValue?.ToLowerInvariant() switch
-		{
-			null or "" or "default" => "size-3",
-			"sm" => "size-3",
-			"lg" => "size-3",
-			_ => "size-3"
-		};
+		return "size-3";
 	}
 
 	private double GetThumbSizeInPixels()
 	{
-		var sizeValue = SliderSize?.ToString();
-
-		return sizeValue?.ToLowerInvariant() switch
-		{
-			"sm" => 12d,
-			"lg" => 12d,
-			_ => 12d
-		};
+		return 12d;
 	}
 
 	private double GetThumbInBoundsOffset(double percent)
@@ -470,7 +450,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col");
+			AppendClass(ref cls, "touch-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col");
 
 			var sizeClass = GetSizeClass();
 
@@ -483,7 +463,7 @@
 				AppendStyleDecl(ref sty, "--radix-slider-thumb-transform: translateX(-50%)");
 		});
 
-		attributes["data-slot"] = DataSlot ?? "slider";
+		attributes["data-slot"] = DataSlot!;
 
 		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
 			attributes["id"] = CurrentFieldContext.ControlId;

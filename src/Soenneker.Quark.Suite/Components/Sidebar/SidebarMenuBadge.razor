@@ -9,8 +9,10 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-menu-badge";
 
         Position ??= Quark.Position.Absolute;
+        Right ??= Quark.Right.Is1;
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Token("5");
         MinWidth ??= Quark.MinWidth.Token("5");
@@ -21,18 +23,18 @@
         TextSize ??= Quark.TextSize.Xs;
         TextColor ??= Quark.TextColor.Token("sidebar-foreground");
         FontWeight ??= Quark.FontWeight.Medium;
+        FontVariantNumeric ??= Quark.FontVariantNumeric.TabularNums;
+        PointerEvents ??= Quark.PointerEvents.None;
         UserSelect ??= Quark.UserSelect.None;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("sidebar-menu-badge");
         attributes["data-sidebar"] = "menu-badge";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "pointer-events-none right-1 tabular-nums");
             AppendClass(ref cls, "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground");
             AppendClass(ref cls, "peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");

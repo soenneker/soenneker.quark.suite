@@ -5,7 +5,7 @@
     <Div @attributes="BuildAttributes()">
         @if (Heading.HasContent())
         {
-            <Div cmdk-group-heading Padding='Quark.Padding.Is2.OnX.Token("1.5").OnY' TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">@Heading</Div>
+            <Div cmdk-group-heading Padding='Quark.Padding.OnX.Is2.OnY.Token("1.5")' TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">@Heading</Div>
         }
 
         <Div DataSlot="command-group-items">
@@ -26,6 +26,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "command-group";
 
         Overflow ??= Quark.Overflow.Hidden;
         Padding ??= Quark.Padding.Is1;
@@ -36,7 +37,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("command-group");
         attributes["cmdk-group"] = string.Empty;
         attributes["role"] = "presentation";
         if (Heading.HasContent())

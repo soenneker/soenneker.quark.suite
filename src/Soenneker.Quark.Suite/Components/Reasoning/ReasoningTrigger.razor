@@ -7,9 +7,9 @@
     <Icon Name="LucideIcon.ChevronDown"
           Margin='Quark.Margin.Token("0.5").FromLeft'
           Size="Quark.Size.Is4"
-          Opacity="Quark.Opacity.Is0"
+          Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]").Modifier("group-data-[streaming=false]"))'
+          Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
           Transition="Quark.Transition.All"
-          Class="group-hover:opacity-100 group-data-[state=open]:rotate-180 group-data-[state=open]:group-data-[streaming=false]:opacity-100"
           aria-hidden="true" />
 </CollapsibleTrigger>
 
@@ -20,6 +20,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "reasoning-trigger";
 
         Display ??= Quark.Display.Flex;
         Cursor ??= Quark.Cursor.Pointer;
@@ -43,7 +44,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("reasoning-trigger");
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
     }
 }

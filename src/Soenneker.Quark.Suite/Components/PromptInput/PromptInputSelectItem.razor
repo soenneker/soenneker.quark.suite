@@ -11,6 +11,12 @@
 </SelectItem>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-select-item";
+    }
+
     [Parameter]
     public TValue? ItemValue { get; set; }
 
@@ -19,12 +25,6 @@
 
     [Parameter]
     public bool Disabled { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-select-item");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

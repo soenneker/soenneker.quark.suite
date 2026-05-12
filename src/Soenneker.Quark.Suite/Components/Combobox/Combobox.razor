@@ -13,6 +13,13 @@
 </CascadingValue>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "combobox";
+        Position ??= Quark.Position.Relative;
+    }
+
     private readonly string _comboboxId = BlazorIdGenerator.New("quark-combobox");
     private readonly List<ComboboxItem> _items = [];
     private ElementReference _triggerElement;
@@ -371,15 +378,10 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("combobox");
         attributes["data-state"] = Open ? "open" : "closed";
         if (Disabled)
             attributes["data-disabled"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

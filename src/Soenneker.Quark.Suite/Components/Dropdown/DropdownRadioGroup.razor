@@ -10,6 +10,12 @@
 </BradixDropdownMenuRadioGroup>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "dropdown-menu-radio-group";
+    }
+
     [Parameter]
     public string? Value { get; set; }
 
@@ -17,12 +23,6 @@
     public EventCallback<string?> ValueChanged { get; set; }
 
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("dropdown-menu-radio-group");
-    }
 
     private async Task SetValue(string value)
     {

@@ -6,13 +6,18 @@
 </td>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "table-cell-primitive";
+    }
+
     [Parameter]
     public int? Colspan { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("table-cell-primitive");
 
         if (Colspan is > 1)
             attributes["colspan"] = Colspan.Value;

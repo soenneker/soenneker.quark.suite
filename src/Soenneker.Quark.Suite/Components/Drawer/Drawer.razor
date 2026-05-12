@@ -78,14 +78,21 @@
 
     private static Side? ParseDirection(string? direction)
     {
-        return direction?.ToLowerInvariant() switch
-        {
-            "top" => Side.Top,
-            "right" => Side.Right,
-            "bottom" => Side.Bottom,
-            "left" => Side.Left,
-            _ => null
-        };
+        if (string.IsNullOrWhiteSpace(direction))
+            return null;
+
+        ReadOnlySpan<char> value = direction.AsSpan().Trim();
+
+        if (value.Equals("top", StringComparison.OrdinalIgnoreCase))
+            return Side.Top;
+
+        if (value.Equals("right", StringComparison.OrdinalIgnoreCase))
+            return Side.Right;
+
+        if (value.Equals("bottom", StringComparison.OrdinalIgnoreCase))
+            return Side.Bottom;
+
+        return value.Equals("left", StringComparison.OrdinalIgnoreCase) ? Side.Left : null;
     }
 
     protected override void ApplyDefaultParameters()

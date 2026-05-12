@@ -23,11 +23,13 @@
     [Parameter]
     public string? Direction { get; set; }
 
-    private string DirValue => (Direction ?? Dir)?.ToLowerInvariant() switch
+    private string DirValue => ResolveDirValue();
+
+    private string ResolveDirValue()
     {
-        "rtl" => "rtl",
-        _ => "ltr"
-    };
+        ReadOnlySpan<char> value = (Direction ?? Dir).AsSpan().Trim();
+        return value.Equals("rtl", StringComparison.OrdinalIgnoreCase) ? "rtl" : "ltr";
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

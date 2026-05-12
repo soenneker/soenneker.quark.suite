@@ -20,6 +20,12 @@
 </DropdownToggle>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-action-menu-trigger";
+    }
+
     [Parameter]
     public string Label { get; set; } = "More actions";
 
@@ -34,12 +40,6 @@
 
     [Parameter]
     public bool Disabled { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-action-menu-trigger");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

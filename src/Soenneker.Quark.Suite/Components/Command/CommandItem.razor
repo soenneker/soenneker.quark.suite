@@ -4,7 +4,7 @@
 
 <div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmousemove="HandleMouseMove" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
     @ChildContent
-    <Icon Name="LucideIcon.Check" Margin="Quark.Margin.Auto.FromLeft" Opacity="Quark.Opacity.Is0" Class="group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+    <Icon Name="LucideIcon.Check" Margin="Quark.Margin.Auto.FromLeft" Display='Quark.Display.None.Modifier("group-has-data-[slot=command-shortcut]/command-item")' Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.Modifier("group-data-[checked=true]/command-item"))' />
 </div>
 
 @code {
@@ -35,12 +35,13 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "command-item";
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        Padding ??= Quark.Padding.OnX.Is2.OnY.Token("1.5");
         TextSize ??= Quark.TextSize.Sm;
         OutlineStyle ??= Quark.OutlineStyle.Hidden;
         UserSelect ??= Quark.UserSelect.None;
@@ -90,7 +91,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("command-item");
         attributes["cmdk-item"] = string.Empty;
         attributes["id"] = Id!;
         attributes["tabindex"] = Disabled ? -1 : -1;

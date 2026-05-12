@@ -26,6 +26,7 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "item";
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
         FlexWrap ??= Quark.FlexWrap.Wrap;
@@ -35,6 +36,7 @@ else
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
 
         ApplyVariantDefaults();
         ApplySizeDefaults();
@@ -45,18 +47,18 @@ else
     {
         if (ReferenceEquals(Variant, ItemVariant.Outline))
         {
-            BorderColor ??= Quark.BorderColor.Border;
+            BorderColor ??= Quark.BorderColor.Border.OnFocusVisible.Ring;
             return;
         }
 
         if (ReferenceEquals(Variant, ItemVariant.Muted))
         {
-            BorderColor ??= Quark.BorderColor.Transparent;
+            BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
             BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
             return;
         }
 
-        BorderColor ??= Quark.BorderColor.Transparent;
+        BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
     }
 
@@ -69,14 +71,13 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("item");
         attributes["data-variant"] = GetDataVariant(Variant);
         attributes["data-size"] = GetDataSize(ItemSize);
 
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
+            AppendClass(ref cls, "group/item duration-100 focus-visible:ring-[3px] [a]:transition-colors [a]:hover:bg-muted");
 
             if (ReferenceEquals(ItemSize, ItemSize.ExtraSmall))
                 AppendClass(ref cls, "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0");

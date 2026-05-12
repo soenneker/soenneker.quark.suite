@@ -24,12 +24,17 @@ else
     [Parameter]
     public RenderFragment? Loader { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image-preview";
+    }
+
     private IReadOnlyDictionary<string, object> PreviewAttributes => BuildPreviewAttributes();
 
     private Dictionary<string, object> BuildPreviewAttributes()
     {
         var attributes = BuildAttributes();
-        attributes["data-slot"] = DataSlot ?? "image-preview";
         AppendToClassAttr(attributes, "relative z-1 size-full max-w-full overflow-hidden rounded-md");
         return attributes;
     }

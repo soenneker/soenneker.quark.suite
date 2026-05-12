@@ -12,6 +12,12 @@
 </BradixDropdownMenuSub>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "dropdown-menu-sub";
+    }
+
     [Parameter]
     public bool? Open { get; set; }
 
@@ -25,12 +31,6 @@
     public EventCallback<bool> OnOpenChange { get; set; }
 
     private IReadOnlyDictionary<string, object> SubAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("dropdown-menu-sub");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

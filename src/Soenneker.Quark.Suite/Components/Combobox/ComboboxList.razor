@@ -12,16 +12,17 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "combobox-list";
 
         MaxHeight ??= "max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))]";
         OverflowY ??= Quark.Overflow.Y.Auto;
         Padding ??= Quark.Padding.Is1;
+        ScrollPadding ??= Quark.ScrollPadding.Is1.OnY;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("combobox-list");
 
         if (ParentCombobox?.HasVisibleItems != true)
             attributes["data-empty"] = string.Empty;
@@ -32,7 +33,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "no-scrollbar scroll-py-1 overscroll-contain data-empty:p-0");
+            AppendClass(ref cls, "no-scrollbar overscroll-contain data-empty:p-0");
         });
     }
 }

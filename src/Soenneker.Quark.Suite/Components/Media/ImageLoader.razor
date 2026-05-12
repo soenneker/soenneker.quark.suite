@@ -4,13 +4,18 @@
 <div @attributes="BuildAttributes()" />
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image-loader";
+    }
+
     [Parameter]
     public bool Error { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("image-loader");
         AppendToClassAttr(attributes, Error ? "size-full animate-pulse rounded-lg bg-destructive/20" : "size-full animate-pulse rounded-lg bg-input");
     }
 }

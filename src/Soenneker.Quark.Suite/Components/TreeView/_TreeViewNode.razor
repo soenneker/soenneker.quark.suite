@@ -103,6 +103,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "tree-view-node";
 
         Display ??= Quark.Display.Block;
 
@@ -114,7 +115,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("tree-view-node");
 
         if (Nested)
             attributes["role"] = "group";
@@ -173,7 +173,7 @@
 
     private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
     {
-        <Div @key="nodeState.Node" role="treeitem" aria-expanded="@(nodeState.HasChildren ? nodeState.Expanded.ToString().ToLowerInvariant() : null)" aria-selected="@GetAriaSelected(nodeState)" aria-disabled="@(nodeState.Disabled ? "true" : null)" tabindex="@(nodeState.Disabled ? -1 : 0)" @onkeydown="e => OnNodeKeyDown(nodeState, e)">
+        <Div @key="nodeState.Node" role="treeitem" aria-expanded="@(nodeState.HasChildren ? BoolString(nodeState.Expanded) : null)" aria-selected="@GetAriaSelected(nodeState)" aria-disabled="@(nodeState.Disabled ? "true" : null)" tabindex="@(nodeState.Disabled ? -1 : 0)" @onkeydown="e => OnNodeKeyDown(nodeState, e)">
             <div data-slot="tree-view-row" class="flex items-center gap-1" @oncontextmenu="e => OnContextMenuHandler(nodeState, e)" @oncontextmenu:stopPropagation @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
 
                 @if (nodeState.HasChildren)
@@ -276,6 +276,8 @@
     }
 
     private bool DetermineIsDisabled(TNode node) => IsDisabled?.Invoke(node) ?? false;
+
+    private static string BoolString(bool value) => value ? "true" : "false";
 
     private async ValueTask<bool> DetermineHasChildren(TNode node)
     {

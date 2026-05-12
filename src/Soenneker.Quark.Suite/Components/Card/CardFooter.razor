@@ -2,14 +2,15 @@
 @inherits Soenneker.Quark.Element
 @implements ICardFooter
 
-<div @attributes="BuildAttributes()">
+<Div Attributes="@BuildAttributes()">
 	@ChildContent
-</div>
+</Div>
 
 @code {
 	protected override void ApplyDefaultParameters()
 	{
 		base.ApplyDefaultParameters();
+		DataSlot ??= "card-footer";
 		Display ??= Quark.Display.Flex;
 		ItemsAlign ??= Items.Center;
 		Rounded ??= Quark.Rounded.Bottom.Xl;
@@ -21,7 +22,6 @@
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
-		SetDefaultDataSlot("card-footer");
 
 		BuildClassAttribute(attributes, (ref cls) =>
         {

@@ -75,6 +75,14 @@ public abstract class FormControlElementBase : InteractiveElement
             attrs["autofocus"] = true;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        if (IsFormControlSlot)
+            DataSlot ??= "form-control";
+    }
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
@@ -94,7 +102,7 @@ public abstract class FormControlElementBase : InteractiveElement
     protected void ApplyFieldControlAttributes(Dictionary<string, object> attrs, bool isInvalid = false)
     {
         if (IsFormControlSlot)
-            attrs["data-slot"] = DataSlot ?? "form-control";
+            attrs["data-slot"] = DataSlot!;
 
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;

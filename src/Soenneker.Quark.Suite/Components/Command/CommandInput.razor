@@ -64,7 +64,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("command-input");
         attributes["type"] = "text";
         attributes["role"] = "combobox";
         attributes["aria-expanded"] = "true";
@@ -73,18 +72,18 @@
         if (ParentCommand?.ActiveItemId is not null)
             attributes["aria-activedescendant"] = ParentCommand.ActiveItemId;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50");
-        });
     }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "command-input";
 
         Width ??= Quark.Width.IsFull;
         TextSize ??= Quark.TextSize.Sm;
+        OutlineStyle ??= Quark.OutlineStyle.Hidden;
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()

@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<button type="button" disabled="@(!CanScroll)" @onclick="Scroll" @attributes="ButtonAttributes">
+<button type="button" disabled="@(!CanScroll)" @onclick="Scroll" @attributes="BuildAttributes()">
     <Icon Name="LucideIcon.ArrowRight" Size="Quark.Size.Is4" aria-hidden="true" />
 </button>
 
@@ -16,9 +17,24 @@
         return Task.CompletedTask;
     }
 
-    private static readonly IReadOnlyDictionary<string, object> ButtonAttributes = new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "citation-carousel-next",
-        ["class"] = "flex size-6.5 cursor-pointer items-center justify-center rounded-full text-primary outline-0 transition-all hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-accent/50"
-    };
+        base.ApplyDefaultParameters();
+        DataSlot ??= "citation-carousel-next";
+
+        Display ??= Quark.Display.Flex;
+        Size ??= Quark.Size.Token("6.5");
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Rounded ??= Quark.Rounded.Full;
+        TextColor ??= Quark.TextColor.Primary.OnHover.AccentForeground;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Transition ??= Quark.Transition.All;
+        BackgroundColor ??= Quark.BackgroundColor.OnHover.Accent.OnDark.OnHover.Token("accent/50");
+        Ring ??= Quark.Ring.Is2.OnFocusVisible;
+        RingColor ??= Quark.RingColor.Token("ring/50").OnFocusVisible;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Cursor ??= CssValue<CursorBuilder>.For(Quark.Cursor.Pointer, Quark.Cursor.NotAllowed.OnDisabled);
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+    }
 }

@@ -32,6 +32,12 @@
     [Parameter]
     public int? Rows { get; set; } = 2;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-textarea";
+    }
+
     private IReadOnlyDictionary<string, object> TextareaAttributes
     {
         get
@@ -39,7 +45,6 @@
             var attributes = new Dictionary<string, object>(BuildAttributes());
             attributes.TryGetValue("class", out var existingClass);
             attributes["aria-label"] = "Message input";
-            attributes["data-slot"] = DataSlot ?? "prompt-input-textarea";
             attributes["class"] = string.Join(" ", new[]
             {
                 "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent",

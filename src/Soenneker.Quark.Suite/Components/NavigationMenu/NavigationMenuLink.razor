@@ -37,6 +37,7 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "navigation-menu-link";
 
         if (!UsesTriggerStyle)
         {
@@ -48,6 +49,7 @@ else
             TextSize ??= Quark.TextSize.Sm;
             Transition ??= Quark.Transition.All;
             OutlineStyle ??= Quark.OutlineStyle.None;
+            RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
         }
     }
 
@@ -55,7 +57,6 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("navigation-menu-link");
         if (Href.HasContent())
             attributes["href"] = Href!;
 
@@ -66,7 +67,7 @@ else
         {
             if (!UsesTriggerStyle)
             {
-                AppendClass(ref cls, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1");
+                AppendClass(ref cls, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:outline-1");
                 AppendClass(ref cls, "in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted");
                 AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
             }

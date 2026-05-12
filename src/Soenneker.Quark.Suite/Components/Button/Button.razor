@@ -149,15 +149,21 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= ResolveDataSlot() ?? "button";
         Display ??= Quark.Display.InlineFlex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         if (!HasTailwindUtility(Class, "justify-"))
             Justify ??= Quark.Justify.Center;
+        TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        Border ??= Quark.Border.Default;
+        UserSelect ??= Quark.UserSelect.None;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
 
         if (Block)
             Width ??= Quark.Width.IsFull;
@@ -189,10 +195,6 @@ else
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || attributes.ContainsKey("disabled");
 
-        var triggerDataSlot = string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal) ? "button" : TriggerContext?.DataSlot;
-
-        SetDefaultDataSlot(triggerDataSlot ?? "button");
-
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
         var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize ?? "default";
@@ -209,7 +211,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button text-sm border bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
 
             var hasExplicitRadius = Rounded is not null || HasTailwindUtility(Class, "rounded");
 
@@ -217,7 +219,6 @@ else
                 AppendClass(ref cls, "rounded-lg");
 
             AppendClass(ref cls, GetButtonFocusClass(Variant));
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, GetButtonVariantClass(Variant));
@@ -287,6 +288,13 @@ else
             attributes["name"] = Name!;
         if (Form.HasContent())
             attributes["form"] = Form!;
+    }
+
+    private string? ResolveDataSlot()
+    {
+        return string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal)
+            ? "button"
+            : TriggerContext?.DataSlot;
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)

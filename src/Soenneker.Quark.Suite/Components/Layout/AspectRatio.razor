@@ -9,6 +9,12 @@
 </BradixAspectRatio>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "aspect-ratio";
+    }
+
     /// <summary>
     /// Aspect ratio as width/height (e.g. 16/9, 4/3, 1).
     /// Matches Radix AspectRatio ratio prop.
@@ -23,13 +29,6 @@
     private IReadOnlyDictionary<string, object> BuildAspectRatioAttributes()
     {
         return BuildAttributes();
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("aspect-ratio");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

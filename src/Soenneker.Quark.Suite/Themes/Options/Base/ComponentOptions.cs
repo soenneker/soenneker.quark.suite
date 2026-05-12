@@ -104,6 +104,11 @@ public class ComponentOptions
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
 
     /// <summary>
+    /// Gets or sets the CSS scroll-padding configuration.
+    /// </summary>
+    public CssValue<ScrollPaddingBuilder>? ScrollPadding { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS TextColor size (font-size) configuration.
     /// </summary>
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
@@ -279,6 +284,21 @@ public class ComponentOptions
     public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
 
     /// <summary>
+    /// Gets or sets column-start utility classes (col-start-*).
+    /// </summary>
+    public CssValue<ColStartBuilder>? ColStart { get; set; }
+
+    /// <summary>
+    /// Gets or sets row-span utility classes (row-span-*).
+    /// </summary>
+    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+
+    /// <summary>
+    /// Gets or sets row-start utility classes (row-start-*).
+    /// </summary>
+    public CssValue<RowStartBuilder>? RowStart { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS border configuration.
     /// </summary>
     public CssValue<BorderBuilder>? Border { get; set; }
@@ -357,6 +377,11 @@ public class ComponentOptions
     /// Gets or sets the CSS animation configuration.
     /// </summary>
     public CssValue<AnimationBuilder>? Animation { get; set; }
+
+    /// <summary>
+    /// Gets or sets transition-duration utility classes.
+    /// </summary>
+    public CssValue<DurationBuilder>? Duration { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS aspect-ratio configuration.
@@ -460,6 +485,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Left, null);
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, ScrollMargin, null);
+        AddRules(buffer, baseSelector, ScrollPadding, null);
         AddRules(buffer, baseSelector, Size, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
         AddRules(buffer, baseSelector, Width, "width");
@@ -495,6 +521,9 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, SelfAlign, null);
         AddRules(buffer, baseSelector, JustifyItemsAlign, null);
         AddRules(buffer, baseSelector, JustifySelfAlign, null);
+        AddRules(buffer, baseSelector, ColStart, null);
+        AddRules(buffer, baseSelector, RowSpan, null);
+        AddRules(buffer, baseSelector, RowStart, null);
         AddRules(buffer, baseSelector, Border, "border");
         AddRules(buffer, baseSelector, Opacity, "opacity");
         AddRules(buffer, baseSelector, ZIndex, "z-index");
@@ -511,6 +540,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Border, "border-color");
         AddRules(buffer, baseSelector, BackgroundColor, "background-color");
         AddRules(buffer, baseSelector, Animation, "animation");
+        AddRules(buffer, baseSelector, Duration, "transition-duration");
         AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
         AddRules(buffer, baseSelector, Rounded, "border-radius");
@@ -644,7 +674,33 @@ public class ComponentOptions
             return shrink is null ? null : [$"{fallbackProperty}: {shrink}"];
         }
 
+        if (typeof(TBuilder) == typeof(DurationBuilder) &&
+            fallbackProperty.Equals("transition-duration", System.StringComparison.Ordinal))
+        {
+            var duration = ConvertDurationUtility(resolved);
+            return duration is null ? null : [$"{fallbackProperty}: {duration}"];
+        }
+
         return null;
+    }
+
+    private static string? ConvertDurationUtility(string value)
+    {
+        if (!value.StartsWith("duration-", System.StringComparison.Ordinal) || value.Contains(':'))
+            return null;
+
+        var token = value["duration-".Length..];
+
+        if (token.Length == 0)
+            return null;
+
+        if (token.Length >= 2 && token[0] == '[' && token[^1] == ']')
+            return token[1..^1];
+
+        if (token.Length >= 2 && token[0] == '(' && token[^1] == ')')
+            return $"var({token[1..^1]})";
+
+        return token == "0" ? "0s" : token + "ms";
     }
 
     private static IEnumerable<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, System.Func<string, string?> converter)

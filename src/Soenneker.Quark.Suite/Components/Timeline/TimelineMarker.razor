@@ -6,6 +6,12 @@
 </TimelineIcon>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "timeline-marker";
+    }
+
     [CascadingParameter]
     public Timeline? ParentTimeline { get; set; }
 
@@ -13,12 +19,6 @@
     public TimelineSize? TimelineSize { get; set; }
 
     private TimelineSize ComputedSize => TimelineSize ?? ParentTimeline?.TimelineSize ?? Quark.TimelineSize.Medium;
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("timeline-marker");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

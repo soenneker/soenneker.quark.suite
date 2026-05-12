@@ -15,6 +15,12 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-submit";
+    }
+
     [Parameter]
     public string Label { get; set; } = "Send message";
 
@@ -32,12 +38,6 @@
 
     [Parameter]
     public bool Loading { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-submit");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

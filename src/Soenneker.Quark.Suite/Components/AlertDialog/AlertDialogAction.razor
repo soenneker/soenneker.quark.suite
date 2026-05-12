@@ -47,14 +47,12 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("alert-dialog-action");
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
         attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(ButtonSize?.Value);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button border bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, Button.ResolveButtonSizeClass(ButtonSize?.Value));
@@ -70,6 +68,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "alert-dialog-action";
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
@@ -81,6 +80,10 @@
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        Border ??= Quark.Border.Default;
+        UserSelect ??= Quark.UserSelect.None;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

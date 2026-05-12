@@ -31,6 +31,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "drawer-close";
+    }
+
 
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
@@ -45,13 +51,6 @@ else
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     private IReadOnlyDictionary<string, object> CloseAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("drawer-close");
-    }
 
     private async Task HandleBradixCloseClick(MouseEventArgs e)
     {

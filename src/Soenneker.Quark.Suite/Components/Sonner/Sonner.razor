@@ -134,7 +134,7 @@
     public SonnerPosition? ToastPosition { get; set; }
 
     [Parameter]
-    public int? Duration { get; set; }
+    public int? ToastDuration { get; set; }
 
     [Parameter]
     public bool? CloseButton { get; set; }
@@ -272,12 +272,12 @@
 
     private string? GetThemeAttribute()
     {
-        return Theme.Trim().ToLowerInvariant() switch
-        {
-            "dark" => "dark",
-            "light" => "light",
-            _ => null
-        };
+        ReadOnlySpan<char> theme = Theme.AsSpan().Trim();
+
+        if (theme.Equals("dark", StringComparison.OrdinalIgnoreCase))
+            return "dark";
+
+        return theme.Equals("light", StringComparison.OrdinalIgnoreCase) ? "light" : null;
     }
 
     private static string GetToastClass() => "cn-toast";
@@ -613,7 +613,7 @@
             await SonnerService.UnregisterToaster(_registeredToasterId, CancellationToken);
         }
 
-        await SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton, CancellationToken);
+        await SonnerService.RegisterToaster(ToasterId, ToastPosition, ToastDuration, CloseButton, CancellationToken);
         _registeredToasterId = normalizedToasterId;
         _toasterRegistered = true;
     }

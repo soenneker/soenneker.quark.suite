@@ -43,6 +43,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "dialog-close";
+    }
+
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
@@ -63,12 +69,6 @@ else
 
     [Parameter]
     public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Default;
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("dialog-close");
-    }
 
     private async Task HandleBradixCloseClick(MouseEventArgs _)
     {

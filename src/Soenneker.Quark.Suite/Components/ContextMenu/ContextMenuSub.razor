@@ -12,6 +12,12 @@
 </BradixContextMenuSub>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "context-menu-sub";
+    }
+
     [Parameter]
     public bool? Open { get; set; }
 
@@ -25,10 +31,4 @@
     public EventCallback<bool> OnOpenChange { get; set; }
 
     private IReadOnlyDictionary<string, object> SubAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("context-menu-sub");
-    }
 }

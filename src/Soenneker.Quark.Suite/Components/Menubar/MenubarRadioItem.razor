@@ -42,14 +42,13 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("menubar-radio-item");
 
         if (Indented)
             attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7");
+            AppendClass(ref cls, "focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
@@ -57,6 +56,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "menubar-radio-item";
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
@@ -64,6 +64,8 @@
         Rounded ??= Quark.Rounded.Md;
         Padding ??= Quark.Padding.Token("1.5").FromRight.Token("7").FromLeft.Is1.OnY;
         TextSize ??= Quark.TextSize.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
+        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
         OutlineStyle ??= Quark.OutlineStyle.Hidden;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;

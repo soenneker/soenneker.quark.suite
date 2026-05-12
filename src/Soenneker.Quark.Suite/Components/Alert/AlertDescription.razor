@@ -10,16 +10,17 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-
+        DataSlot ??= "alert-description";
+        TextSize ??= Quark.TextSize.Sm;
+        TextWrap ??= Quark.TextWrap.Balance.OnMd.Pretty;
+        TextColor ??= Quark.TextColor.MutedForeground;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("alert-description");
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "text-sm text-balance text-muted-foreground md:text-pretty");
             AppendClass(ref cls, "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
         });
     }

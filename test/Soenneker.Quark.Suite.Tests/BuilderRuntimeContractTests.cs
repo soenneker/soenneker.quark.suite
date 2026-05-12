@@ -139,6 +139,35 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
+    public void Component_duration_property_uses_builder_output()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.Duration, Duration.Is150.OnHover.Token("duration-[375ms]")));
+
+        var box = cut.Find("[data-slot='test-box']");
+        var classes = box.GetAttribute("class")!;
+
+        classes.Should().Contain("duration-150");
+        classes.Should().Contain("hover:duration-[375ms]");
+    }
+
+    [Test]
+    public void Theme_component_options_convert_duration_to_transition_duration()
+    {
+        var theme = new Theme
+        {
+            Divs = new DivOptions
+            {
+                Duration = Duration.Is300
+            }
+        };
+
+        var result = ComponentsCssGenerator.Generate(theme);
+
+        result.Should().Be("[data-slot='div'] {\n  transition-duration: 300ms;\n}");
+    }
+
+    [Test]
     public void Class_merging_deduplicates_identical_tokens()
     {
         CssValue<FlexBuilder> flex = "flex flex-col";

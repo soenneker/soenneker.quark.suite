@@ -8,6 +8,12 @@
 </ol>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "ordered-list";
+    }
+
     /// <summary>
     /// Gets or sets the list variant style.
     /// </summary>
@@ -24,7 +30,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         base.BuildAttributesCore(attrs);
-        SetDefaultDataSlot("ordered-list");
 
         if (ListVariant is null or { IsEmpty: true })
             AppendClassAttribute(attrs, "my-6 ms-6 [&>li]:mt-2");

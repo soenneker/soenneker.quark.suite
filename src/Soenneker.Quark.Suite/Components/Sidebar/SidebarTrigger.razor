@@ -65,6 +65,7 @@
     {
         base.ApplyDefaultParameters();
 
+        DataSlot ??= Unstyled ? UnstyledDataSlot ?? "popover-trigger" : "sidebar-trigger";
         Display ??= Quark.Display.InlineFlex;
         Size ??= Quark.Size.Token("7");
         Shrink ??= Quark.Shrink.Is0;
@@ -78,6 +79,16 @@
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
+
+        if (!Unstyled)
+        {
+            Border ??= Quark.Border.Default;
+            BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
+            RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+            UserSelect ??= Quark.UserSelect.None;
+            PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+            Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        }
     }
 
     private async Task HandleTriggerClick(MouseEventArgs args)
@@ -95,13 +106,11 @@
 
         if (Unstyled)
         {
-            SetDefaultDataSlot(UnstyledDataSlot ?? "popover-trigger");
             attributes["data-variant"] = "ghost";
             attributes["data-size"] = "default";
         }
         else
         {
-            SetDefaultDataSlot("sidebar-trigger");
             attributes["data-sidebar"] = "trigger";
             attributes["data-variant"] = "ghost";
             attributes["data-size"] = "icon-sm";
@@ -127,9 +136,8 @@
             if (Unstyled)
                 return;
 
-            AppendClass(ref cls, "group/button border border-transparent bg-clip-padding select-none active:not-aria-[haspopup]:translate-y-px");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "group/button bg-clip-padding active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "focus-visible:ring-[3px]");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50");

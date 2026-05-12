@@ -103,7 +103,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("timeline-item");
         attributes["data-status"] = Status?.Value ?? TimelineStatus.Completed.Value;
 
         if (Status == TimelineStatus.InProgress)
@@ -113,6 +112,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "timeline-item";
 
         Position ??= Quark.Position.Relative;
         Width ??= Quark.Width.IsFull;
@@ -217,7 +217,7 @@
                     <Div Flex="Quark.Flex.Is1">
                         @ChildContent
                     </Div>
-                    <Icon Name="LucideIcon.ChevronDown" Transition="Quark.Transition.Transform" Class="duration-200 group-data-[state=open]:rotate-180" />
+                    <Icon Name="LucideIcon.ChevronDown" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")' />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                     @DetailContent

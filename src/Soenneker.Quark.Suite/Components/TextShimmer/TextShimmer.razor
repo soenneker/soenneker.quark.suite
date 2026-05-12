@@ -21,8 +21,14 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "text-shimmer";
+    }
+
     [Parameter]
-    public double Duration { get; set; } = 1;
+    public double ShimmerDuration { get; set; } = 1;
 
     [Parameter]
     public double RepeatDelay { get; set; }
@@ -44,7 +50,6 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("text-shimmer");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -53,7 +58,7 @@ else
 
         attributes["style"] = string.Join(";", new[]
         {
-            $"--text-shimmer-duration:{Math.Max(Duration + RepeatDelay, 0.001):0.###}s",
+            $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s",
             $"background-image:{BuildGradient()}",
             "-webkit-text-fill-color:transparent",
             attributes.TryGetValue("style", out var style) ? style?.ToString() : null
@@ -63,7 +68,7 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Duration);
+        hc.Add(ShimmerDuration);
         hc.Add(RepeatDelay);
         hc.Add(Spread);
         hc.Add(Angle);

@@ -22,7 +22,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("menubar-sub-trigger");
         if (Indented)
             attributes["data-inset"] = "true";
 
@@ -31,7 +30,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "gap-1.5 focus:bg-accent focus:text-accent-foreground data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, "data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
@@ -40,11 +39,15 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "menubar-sub-trigger";
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Token("1.5").OnX.Is1.OnY;
+        Padding ??= Quark.Padding.OnX.Token("1.5").OnY.Is1;
         TextSize ??= Quark.TextSize.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
+        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
         OutlineStyle ??= Quark.OutlineStyle.None;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;

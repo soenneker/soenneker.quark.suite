@@ -9,9 +9,11 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-inset";
 
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
         Width ??= Quark.Width.IsFull;
         Flex ??= Quark.Flex.Is1;
         BackgroundColor ??= Quark.BackgroundColor.Background;
@@ -21,11 +23,9 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("sidebar-inset");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex-col");
             AppendClass(ref cls, "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2");
         });
     }

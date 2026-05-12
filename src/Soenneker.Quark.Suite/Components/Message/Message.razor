@@ -14,20 +14,25 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "message";
         Role ??= "article";
         AriaLabel ??= From == "user" ? "User message" : "Assistant message";
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        MaxWidth ??= Quark.MaxWidth.Token("[90%]");
+        ItemsAlign ??= Quark.Items.Start;
+        Gap ??= Quark.Gap.Is2;
+        Margin ??= From == "user" ? Quark.Margin.Auto.FromStart : Quark.Margin.Auto.FromEnd;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("message");
         attributes["data-from"] = From;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/message flex w-full max-w-[90%] items-start gap-2");
-            AppendClass(ref cls, From == "user" ? "ms-auto" : "me-auto");
+            AppendClass(ref cls, "group/message");
         });
     }
 

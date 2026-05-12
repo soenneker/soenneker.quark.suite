@@ -47,6 +47,7 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     CssValue<PaddingBuilder>? Padding { get; set; }
     CssValue<PositionBuilder>? Position { get; set; }
     CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
+    CssValue<ScrollPaddingBuilder>? ScrollPadding { get; set; }
     CssValue<SizeBuilder>? Size { get; set; }
     CssValue<WidthBuilder>? Width { get; set; }
     CssValue<MinWidthBuilder>? MinWidth { get; set; }
@@ -72,6 +73,9 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     CssValue<SelfBuilder>? SelfAlign { get; set; }
     CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
     CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
+    CssValue<ColStartBuilder>? ColStart { get; set; }
+    CssValue<RowSpanBuilder>? RowSpan { get; set; }
+    CssValue<RowStartBuilder>? RowStart { get; set; }
     CssValue<OpacityBuilder>? Opacity { get; set; }
     CssValue<ZIndexBuilder>? ZIndex { get; set; }
     CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
@@ -91,6 +95,7 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     CssValue<ResizeBuilder>? Resize { get; set; }
     CssValue<TransformBuilder>? Transform { get; set; }
     CssValue<AnimationBuilder>? Animation { get; set; }
+    CssValue<DurationBuilder>? Duration { get; set; }
     CssValue<TransitionBuilder>? Transition { get; set; }
 
     EventCallback<ElementReference> OnElementRefReady { get; set; }

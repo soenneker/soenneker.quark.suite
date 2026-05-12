@@ -1,8 +1,9 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 @if (ParentCitation is not null)
 {
-    <HoverCardTrigger Class="@BuildTriggerClass()" Attributes="@TriggerAttributes">
+    <HoverCardTrigger Attributes="@BuildAttributes()">
         @if (ShowFavicon)
         {
             <CitationFavicon Source="@Primary" />
@@ -13,7 +14,7 @@
         }
         @if (MultipleSources)
         {
-            <Span Attributes="@ExtraCountAttributes">+@(ParentCitation.ResolvedCitations.Count - 1)</Span>
+            <Span DataSlot="citation-extra-count" TextSize="Quark.TextSize.Xs" Leading='Quark.Leading.Token("4.5")' FontWeight='Quark.FontWeight.Token("[350]")' TextColor="Quark.TextColor.MutedForeground" Class="tabular-nums">+@(ParentCitation.ResolvedCitations.Count - 1)</Span>
         }
     </HoverCardTrigger>
 }
@@ -31,9 +32,6 @@
     [Parameter]
     public bool ShowSiteName { get; set; } = true;
 
-    [Parameter]
-    public string? Class { get; set; }
-
     private ResolvedCitation Primary => ParentCitation!.ResolvedCitations[0];
 
     private bool MultipleSources => ParentCitation is not null && ParentCitation.ResolvedCitations.Count > 1;
@@ -50,34 +48,44 @@
             builder.AddContent(2, "Source");
     };
 
-    private string BuildTriggerClass()
+    protected override void ApplyDefaultParameters()
     {
-        var classes = new List<string>
-        {
-            "inline-flex h-5.5 max-w-full cursor-default items-center rounded-full bg-secondary opacity-100 transition-colors hover:bg-border data-[state=open]:opacity-100 align-middle"
-        };
+        base.ApplyDefaultParameters();
+        DataSlot ??= "citation-trigger";
+
+        Display ??= Quark.Display.InlineFlex;
+        Height ??= Quark.Height.Token("5.5");
+        MaxWidth ??= Quark.MaxWidth.IsFull;
+        Cursor ??= Quark.Cursor.Default;
+        ItemsAlign ??= Quark.Items.Center;
+        Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        Opacity ??= Quark.Opacity.Is100;
+        Transition ??= Quark.Transition.Colors;
+        VerticalAlign ??= Quark.VerticalAlign.Middle;
 
         if (HasText && ShowFavicon)
-            classes.Add("gap-1 py-1 pr-1.5 pl-1");
+        {
+            Gap ??= Quark.Gap.Is1;
+            Padding ??= Quark.Padding.OnY.Is1.FromLeft.Is1.FromRight.Token("1.5");
+        }
         else if (HasText)
-            classes.Add("px-2 py-1");
+        {
+            Padding ??= Quark.Padding.OnX.Is2.OnY.Is1;
+        }
         else if (ShowFavicon)
-            classes.Add("p-1");
-
-        if (!string.IsNullOrWhiteSpace(Class))
-            classes.Add(Class!);
-
-        return string.Join(" ", classes);
+        {
+            Padding ??= Quark.Padding.Is1;
+        }
     }
 
-    private static readonly IReadOnlyDictionary<string, object> TriggerAttributes = new Dictionary<string, object>
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        ["data-slot"] = "citation-trigger"
-    };
+        base.BuildAttributesCore(attributes);
 
-    private static readonly IReadOnlyDictionary<string, object> ExtraCountAttributes = new Dictionary<string, object>
-    {
-        ["data-slot"] = "citation-extra-count",
-        ["class"] = "text-xs leading-4.5 font-[350] text-muted-foreground tabular-nums"
-    };
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "hover:bg-border data-[state=open]:opacity-100");
+        });
+    }
 }

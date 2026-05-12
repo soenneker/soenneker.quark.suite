@@ -18,6 +18,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image";
+    }
+
     [Parameter]
     public string? Base64 { get; set; }
 
@@ -157,7 +163,6 @@ else
         attributes.Remove("onloadstart");
         attributes.Remove("onabort");
 
-        attributes["data-slot"] = DataSlot ?? "image";
         AppendToClassAttr(attributes, "group/image relative inline-flex aspect-auto max-w-full min-w-64 flex-col overflow-hidden rounded-[20px] border dark:border-muted");
 
         return attributes;
@@ -166,7 +171,6 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("image");
 
         var fluidClass = GetFluidClass();
 

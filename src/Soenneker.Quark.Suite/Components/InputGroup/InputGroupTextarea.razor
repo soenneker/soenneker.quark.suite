@@ -24,18 +24,24 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "input-group-control";
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
-        BorderColor ??= Quark.BorderColor.Input;
+        MinHeight ??= Quark.Height.Token("16");
+        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
         Flex ??= Quark.Flex.Is1;
         Resize ??= Quark.Resize.None;
         Rounded ??= Quark.Rounded.None;
         Border ??= Quark.Border.Is0;
         BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
+        Padding ??= Quark.Padding.OnX.Token("2.5").OnY.Is2;
         Shadow ??= Quark.Shadow.None;
-        Ring ??= Quark.Ring.None;
+        Ring ??= Quark.Ring.None.OnFocusVisible.Aria("invalid");
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
         TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground.Modifier("placeholder");
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
         Transition ??= Quark.Transition.Token("transition-colors");
         OutlineStyle ??= Quark.OutlineStyle.None;
 
@@ -59,7 +65,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("input-group-control");
 
         if (Placeholder is not null)
             attributes["placeholder"] = Placeholder;
@@ -74,10 +79,8 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "field-sizing-content min-h-16 placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50");
-            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-transparent dark:disabled:bg-transparent");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-0 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "focus-visible:ring-0 dark:bg-transparent");
+            AppendClass(ref cls, "field-sizing-content");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
         });
     }
 

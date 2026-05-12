@@ -51,6 +51,29 @@
 </Popover>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "date-time-picker-input";
+
+        Height ??= Quark.Height.Is8;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.OnX.Token("2.5").OnY.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+        Transition ??= Quark.Transition.Colors;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        TextColor ??= Quark.TextColor.MutedForeground.Modifier("placeholder");
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+    }
+
 
     /// <summary>
     /// Gets or sets the selected date-time value.
@@ -237,8 +260,8 @@
         base.BuildAttributesCore(attributes);
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 py-1 text-sm transition-colors outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50");
+            AppendClass(ref cls, "focus-visible:ring-[3px]");
             AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
 
             var sizeClass = GetSizeClass();
@@ -265,7 +288,6 @@
         if (ParentValidation?.Status == ValidationStatus.Error)
             attributes["aria-invalid"] = "true";
 
-        SetDefaultDataSlot("date-time-picker-input");
         attributes["aria-expanded"] = _open ? "true" : "false";
         attributes["aria-controls"] = _panelId;
 

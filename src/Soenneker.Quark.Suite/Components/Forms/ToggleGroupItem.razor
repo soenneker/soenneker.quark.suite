@@ -44,7 +44,6 @@
             attributes.Remove("onkeydown");
             attributes.Remove("onfocus");
 
-            attributes["data-slot"] = DataSlot ?? "toggle-group-item";
             attributes["data-value"] = ResolvedValue;
             attributes["data-variant"] = ReferenceEquals(variant, ToggleVariant.Outline) ? "outline" : "default";
             attributes["data-size"] = GetToggleSizeDataAttribute(size);
@@ -60,7 +59,7 @@
                 AppendClass(ref cls, "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10");
                 AppendClass(ref cls, horizontalEdgeClasses);
                 AppendClass(ref cls, "group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t group/toggle");
-                AppendClass(ref cls, "hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "hover:text-foreground focus-visible:ring-[3px] aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
                 AppendClass(ref cls, Toggle.GetToggleVariantClass(variant));
                 AppendClass(ref cls, Toggle.ResolveToggleSizeClass(size, includeShrink: true, isRtl));
@@ -74,6 +73,7 @@
     {
         base.ApplyDefaultParameters();
 
+        DataSlot ??= "toggle-group-item";
         Display ??= Quark.Display.InlineFlex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
@@ -85,6 +85,10 @@
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        BorderColor ??= Quark.BorderColor.OnFocusVisible.Ring;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

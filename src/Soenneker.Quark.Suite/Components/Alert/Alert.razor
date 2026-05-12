@@ -41,19 +41,27 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-
+        DataSlot ??= "alert";
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Grid;
+        Width ??= Quark.Width.IsFull;
+        Gap ??= Quark.Gap.Token("0.5");
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        Padding ??= Quark.Padding.OnX.Token("2.5").OnY.Is2;
+        TextAlign ??= Quark.TextAlign.Start;
+        TextSize ??= Quark.TextSize.Sm;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("alert");
         attributes["role"] = "alert";
 
         // Build alert classes (and any alert-specific style) during attribute construction.
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-start text-sm");
+            AppendClass(ref cls, "group/alert");
             AppendClass(ref cls, "has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pe-18");
             AppendClass(ref cls, "has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2");
             AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg:not([class*='size-'])]:size-4");
@@ -93,4 +101,3 @@
         hc.Add(ShowDefaultIcon);
     }
 }
-

@@ -4,13 +4,18 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image-actions";
+    }
+
     [Parameter]
     public string Align { get; set; } = "block-end";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("image-actions");
         attributes["data-align"] = Align;
 
         BuildClassAttribute(attributes, (ref cls) =>

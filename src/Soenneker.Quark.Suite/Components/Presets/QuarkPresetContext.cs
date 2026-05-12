@@ -33,6 +33,7 @@ public sealed class QuarkPresetContext
     public CssValue<PaddingBuilder>? Padding { get; set; }
     public CssValue<PositionBuilder>? Position { get; set; }
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
+    public CssValue<ScrollPaddingBuilder>? ScrollPadding { get; set; }
     public CssValue<SizeBuilder>? Size { get; set; }
     public CssValue<WidthBuilder>? Width { get; set; }
     public CssValue<MinWidthBuilder>? MinWidth { get; set; }
@@ -58,6 +59,9 @@ public sealed class QuarkPresetContext
     public CssValue<SelfBuilder>? SelfAlign { get; set; }
     public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
     public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
+    public CssValue<ColStartBuilder>? ColStart { get; set; }
+    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+    public CssValue<RowStartBuilder>? RowStart { get; set; }
     public CssValue<OpacityBuilder>? Opacity { get; set; }
     public CssValue<ZIndexBuilder>? ZIndex { get; set; }
     public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
@@ -76,5 +80,6 @@ public sealed class QuarkPresetContext
     public CssValue<ResizeBuilder>? Resize { get; set; }
     public CssValue<TransformBuilder>? Transform { get; set; }
     public CssValue<AnimationBuilder>? Animation { get; set; }
+    public CssValue<DurationBuilder>? Duration { get; set; }
     public CssValue<TransitionBuilder>? Transition { get; set; }
 }

@@ -4,16 +4,12 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IDropdownItem
 
-<BradixDropdownMenuItem Disabled="@Disabled"
-                        Href="@(IsLink ? Href : null)"
-                        Target="@(IsLink ? Target : null)"
-                        CloseOnSelect="@CloseOnSelect"
-                        OnSelect="HandleSelect"
-                        AdditionalAttributes="@ItemAttributes">
+<BradixDropdownMenuItem Disabled="@Disabled" Href="@(IsLink ? Href : null)" Target="@(IsLink ? Target : null)" CloseOnSelect="@CloseOnSelect" OnSelect="HandleSelect" AdditionalAttributes="@ItemAttributes">
     @ChildContent
 </BradixDropdownMenuItem>
 
 @code {
+
     [Parameter]
     public bool Indented { get; set; }
 
@@ -64,24 +60,25 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "dropdown-menu-item";
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Token("1.5").OnX.Is1.OnY;
+        Padding ??= Quark.Padding.OnX.Token("1.5").OnY.Is1;
         TextSize ??= Quark.TextSize.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
+        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
         OutlineStyle ??= Quark.OutlineStyle.Hidden;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
-
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         var variant = Variant.Equals("destructive", StringComparison.OrdinalIgnoreCase) ? "destructive" : "default";
-        SetDefaultDataSlot("dropdown-menu-item");
         attributes["data-variant"] = variant;
         if (Indented)
             attributes["data-inset"] = "true";
@@ -89,7 +86,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/dropdown-menu-item");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground");
             AppendClass(ref cls, "not-data-[variant=destructive]:focus:**:text-accent-foreground");
             AppendClass(ref cls, "data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7");
             AppendClass(ref cls, "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20");
@@ -126,8 +122,7 @@
 
     private Task HandleSelect()
     {
-        return Clicked.HasDelegate
-            ? Clicked.InvokeAsync(new MouseEventArgs())
-            : Task.CompletedTask;
+        return Clicked.HasDelegate ? Clicked.InvokeAsync(new MouseEventArgs()) : Task.CompletedTask;
     }
+
 }

@@ -717,6 +717,18 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
   }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
   .\!flex {
     display: flex !important;
   }
@@ -2173,12 +2185,6 @@
       background-color: color-mix(in oklab, var(--border) 40%, transparent);
     }
   }
-  .bg-border\/90 {
-    background-color: var(--border);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--border) 90%, transparent);
-    }
-  }
   .bg-card {
     background-color: var(--card);
   }
@@ -2423,8 +2429,14 @@
   .p-0\! {
     padding: calc(var(--spacing) * 0) !important;
   }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
   .p-1 {
     padding: calc(var(--spacing) * 1);
+  }
+  .p-1\.5 {
+    padding: calc(var(--spacing) * 1.5);
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
@@ -2446,6 +2458,15 @@
   }
   .p-10 {
     padding: calc(var(--spacing) * 10);
+  }
+  .p-12 {
+    padding: calc(var(--spacing) * 12);
+  }
+  .p-\[0\.2rem\] {
+    padding: 0.2rem;
+  }
+  .p-\[2px\] {
+    padding: 2px;
   }
   .p-\[3px\] {
     padding: 3px;
@@ -2522,14 +2543,11 @@
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
   }
-  .py-12 {
-    padding-block: calc(var(--spacing) * 12);
-  }
   .py-\[0\.2rem\] {
     padding-block: 0.2rem;
   }
-  .py-\[2px\] {
-    padding-block: 2px;
+  .py-\[0\.3rem\] {
+    padding-block: 0.3rem;
   }
   .ps-2\.5 {
     padding-inline-start: calc(var(--spacing) * 2.5);
@@ -2552,11 +2570,17 @@
   .pt-2 {
     padding-top: calc(var(--spacing) * 2);
   }
+  .pt-2\.5 {
+    padding-top: calc(var(--spacing) * 2.5);
+  }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);
   }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
+  }
+  .pr-1 {
+    padding-right: calc(var(--spacing) * 1);
   }
   .pr-1\.5 {
     padding-right: calc(var(--spacing) * 1.5);
@@ -2575,9 +2599,6 @@
   }
   .pr-8 {
     padding-right: calc(var(--spacing) * 8);
-  }
-  .pr-9 {
-    padding-right: calc(var(--spacing) * 9);
   }
   .pb-0 {
     padding-bottom: calc(var(--spacing) * 0);
@@ -2638,6 +2659,9 @@
   }
   .pl-7 {
     padding-left: calc(var(--spacing) * 7);
+  }
+  .pl-9 {
+    padding-left: calc(var(--spacing) * 9);
   }
   .text-center {
     text-align: center;
@@ -3023,6 +3047,10 @@
   }
   .ring-1 {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-2 {
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .ring-8 {
@@ -3615,11 +3643,6 @@
   .group-data-\[size\=sm\]\/card\:p-3 {
     &:is(:where(.group\/card)[data-size="sm"] *) {
       padding: calc(var(--spacing) * 3);
-    }
-  }
-  .group-data-\[size\=sm\]\/card\:px-3 {
-    &:is(:where(.group\/card)[data-size="sm"] *) {
-      padding-inline: calc(var(--spacing) * 3);
     }
   }
   .group-data-\[size\=sm\]\/card\:text-sm {
@@ -4381,13 +4404,6 @@
       }
     }
   }
-  .hover\:opacity-100 {
-    &:hover {
-      @media (hover: hover) {
-        opacity: 100%;
-      }
-    }
-  }
   .hover\:shadow-\[0_0_0_1px_hsl\(var\(--sidebar-accent\)\)\] {
     &:hover {
       @media (hover: hover) {
@@ -4673,11 +4689,6 @@
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--input) 50%, transparent);
       }
-    }
-  }
-  .disabled\:bg-transparent {
-    &:disabled {
-      background-color: transparent;
     }
   }
   .disabled\:opacity-50 {
@@ -8009,23 +8020,6 @@
       gap: calc(var(--spacing) * 8);
     }
   }
-  .\@md\/field-group\:flex-row {
-    @container field-group (width >= 28rem) {
-      flex-direction: row;
-    }
-  }
-  .\@md\/field-group\:items-center {
-    @container field-group (width >= 28rem) {
-      align-items: center;
-    }
-  }
-  .\@md\/field-group\:\*\:w-auto {
-    @container field-group (width >= 28rem) {
-      :is(& > *) {
-        width: auto;
-      }
-    }
-  }
   .ltr\:-translate-x-1\/2 {
     &:where(:dir(ltr), [dir="ltr"], [dir="ltr"] *) {
       --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
@@ -8161,11 +8155,6 @@
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--input) 30%, transparent);
       }
-    }
-  }
-  .dark\:bg-primary {
-    &:is(.dark *) {
-      background-color: var(--primary);
     }
   }
   .dark\:bg-transparent {
@@ -8372,13 +8361,6 @@
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--input) 80%, transparent);
         }
-      }
-    }
-  }
-  .dark\:disabled\:bg-transparent {
-    &:is(.dark *) {
-      &:disabled {
-        background-color: transparent;
       }
     }
   }

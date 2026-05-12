@@ -54,6 +54,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "attachment";
         Position ??= Quark.Position.Relative;
         Cursor ??= Quark.Cursor.Default;
         Overflow ??= Quark.Overflow.Hidden;
@@ -68,7 +69,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("attachment");
         attributes["data-variant"] = Variant;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -103,15 +103,21 @@
 
     private LucideIcon GetPreviewIcon()
     {
-        var lower = Name.ToLowerInvariant();
-
-        if (lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".png") || lower.EndsWith(".gif") || lower.EndsWith(".webp"))
+        if (Name.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
             return LucideIcon.Image;
 
-        if (lower.EndsWith(".mp4") || lower.EndsWith(".mov") || lower.EndsWith(".webm"))
+        if (Name.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
             return LucideIcon.Video;
 
-        if (lower.EndsWith(".mp3") || lower.EndsWith(".wav") || lower.EndsWith(".m4a"))
+        if (Name.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||
+            Name.EndsWith(".m4a", StringComparison.OrdinalIgnoreCase))
             return LucideIcon.Music;
 
         return LucideIcon.File;

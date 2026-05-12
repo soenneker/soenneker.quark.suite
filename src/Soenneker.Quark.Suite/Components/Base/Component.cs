@@ -35,8 +35,6 @@ public abstract class Component : RenderComponent, IComponent
     [Parameter]
     public string? DataSlot { get; set; }
 
-    protected string? DefaultDataSlot { get; private set; }
-
     [Parameter]
     public CssValue<InsetBuilder>? Inset { get; set; }
 
@@ -128,6 +126,9 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
 
     [Parameter]
+    public CssValue<ScrollPaddingBuilder>? ScrollPadding { get; set; }
+
+    [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; }
 
     [Parameter]
@@ -203,6 +204,15 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
 
     [Parameter]
+    public CssValue<ColStartBuilder>? ColStart { get; set; }
+
+    [Parameter]
+    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+
+    [Parameter]
+    public CssValue<RowStartBuilder>? RowStart { get; set; }
+
+    [Parameter]
     public CssValue<OpacityBuilder>? Opacity { get; set; }
 
     [Parameter]
@@ -260,6 +270,9 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<AnimationBuilder>? Animation { get; set; }
 
     [Parameter]
+    public CssValue<DurationBuilder>? Duration { get; set; }
+
+    [Parameter]
     public CssValue<TransitionBuilder>? Transition { get; set; }
 
     [Parameter]
@@ -271,8 +284,6 @@ public abstract class Component : RenderComponent, IComponent
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
-        DefaultDataSlot = null;
-
         base.BuildOwnedAttributes(attrs);
 
         if (Title.HasContent())
@@ -293,13 +304,6 @@ public abstract class Component : RenderComponent, IComponent
             return;
         }
 
-        if (DefaultDataSlot.HasContent() && !attrs.ContainsKey("data-slot"))
-            attrs["data-slot"] = DefaultDataSlot!;
-    }
-
-    protected void SetDefaultDataSlot(string dataSlot)
-    {
-        DefaultDataSlot ??= dataSlot;
     }
 
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -340,6 +344,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Left ?? preset?.Left);
         AddCss(ref sty, ref cls, Position ?? preset?.Position);
         AddCss(ref sty, ref cls, ScrollMargin ?? preset?.ScrollMargin);
+        AddCss(ref sty, ref cls, ScrollPadding ?? preset?.ScrollPadding);
         AddCss(ref sty, ref cls, Size ?? preset?.Size);
         AddCss(ref sty, ref cls, Width ?? preset?.Width, "width");
         AddCss(ref sty, ref cls, MinWidth ?? preset?.MinWidth, "min-width");
@@ -365,6 +370,9 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, SelfAlign ?? preset?.SelfAlign);
         AddCss(ref sty, ref cls, JustifyItemsAlign ?? preset?.JustifyItemsAlign);
         AddCss(ref sty, ref cls, JustifySelfAlign ?? preset?.JustifySelfAlign);
+        AddCss(ref sty, ref cls, ColStart ?? preset?.ColStart);
+        AddCss(ref sty, ref cls, RowSpan ?? preset?.RowSpan);
+        AddCss(ref sty, ref cls, RowStart ?? preset?.RowStart);
         AddCss(ref sty, ref cls, Opacity ?? preset?.Opacity);
         AddCss(ref sty, ref cls, ZIndex ?? preset?.ZIndex);
         AddCss(ref sty, ref cls, PointerEvents ?? preset?.PointerEvents);
@@ -385,6 +393,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Resize ?? preset?.Resize);
         AddCss(ref sty, ref cls, Transform ?? preset?.Transform);
         AddCss(ref sty, ref cls, Animation ?? preset?.Animation);
+        AddCss(ref sty, ref cls, Duration ?? preset?.Duration);
         AddCss(ref sty, ref cls, Transition ?? preset?.Transition);
 
         if (Container)
@@ -505,6 +514,7 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Left);
         AddIf(ref hc, Position);
         AddIf(ref hc, ScrollMargin);
+        AddIf(ref hc, ScrollPadding);
         AddIf(ref hc, Size);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);
@@ -530,6 +540,9 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, SelfAlign);
         AddIf(ref hc, JustifyItemsAlign);
         AddIf(ref hc, JustifySelfAlign);
+        AddIf(ref hc, ColStart);
+        AddIf(ref hc, RowSpan);
+        AddIf(ref hc, RowStart);
         AddIf(ref hc, Opacity);
         AddIf(ref hc, ZIndex);
         AddIf(ref hc, PointerEvents);
@@ -549,6 +562,7 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Resize);
         AddIf(ref hc, Transform);
         AddIf(ref hc, Animation);
+        AddIf(ref hc, Duration);
         AddIf(ref hc, Transition);
     }
 }

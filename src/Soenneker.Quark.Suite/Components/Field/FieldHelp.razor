@@ -15,26 +15,27 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "field-description";
 
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Normal;
         TextColor ??= Quark.TextColor.MutedForeground;
         Leading ??= Quark.Leading.Normal;
         TextAlign ??= Quark.TextAlign.Start;
+
+        if (ParentIsFieldBody)
+            MinWidth ??= Quark.MinWidth.Is0;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("field-description");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group-has-data-horizontal/field:text-balance");
             AppendClass(ref cls, "last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5");
             AppendClass(ref cls, "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");
-            if (ParentIsFieldBody)
-                AppendClass(ref cls, "min-w-0");
         });
     }
 

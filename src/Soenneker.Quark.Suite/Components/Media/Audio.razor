@@ -7,6 +7,12 @@
 </audio>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "audio";
+    }
+
 
     /// <summary>
     /// Gets or sets whether the audio should autoplay.
@@ -95,7 +101,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("audio");
 
         // Add audio-specific attributes
         if (Source.HasContent())
@@ -148,7 +153,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Source);
         hc.Add(Autoplay);
         hc.Add(Loop);
         hc.Add(Muted);

@@ -7,6 +7,12 @@
 </ul>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "unordered-list";
+    }
+
     /// <summary>
     /// Gets or sets the list variant style.
     /// </summary>
@@ -23,7 +29,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         base.BuildAttributesCore(attrs);
-        SetDefaultDataSlot("unordered-list");
 
         if (ListVariant is null or { IsEmpty: true })
             AppendClassAttribute(attrs, "my-6 ml-6 [&>li]:mt-2");

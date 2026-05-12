@@ -12,10 +12,12 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "breadcrumb-list";
 
         Display ??= Quark.Display.Flex;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Token("1.5");
         TextSize ??= Quark.TextSize.Sm;
         TextColor ??= Quark.TextColor.MutedForeground;
     }
@@ -24,11 +26,10 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("breadcrumb-list");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "gap-1.5 wrap-break-word");
+            AppendClass(ref cls, "wrap-break-word");
 
             if (ParentBreadcrumb?.Large == true)
                 AppendClass(ref cls, "text-base");

@@ -75,6 +75,7 @@
     {
         base.ApplyDefaultParameters();
 
+        DataSlot ??= "sheet-content";
         Position ??= Quark.Position.Fixed;
         ZIndex ??= Quark.ZIndex.Z50;
         Display ??= Quark.Display.Flex;
@@ -102,12 +103,23 @@
             AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10");
         });
 
-        if (!attributes.ContainsKey("data-slot"))
-            SetDefaultDataSlot("sheet-content");
-
         if (!attributes.ContainsKey("data-side"))
-            attributes["data-side"] = Side.ToString().ToLowerInvariant();
+            attributes["data-side"] = GetSideValue(Side);
 
+    }
+
+    private static string GetSideValue(Side side)
+    {
+        if (ReferenceEquals(side, Side.Top))
+            return "top";
+
+        if (ReferenceEquals(side, Side.Bottom))
+            return "bottom";
+
+        if (ReferenceEquals(side, Side.Left))
+            return "left";
+
+        return "right";
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -129,7 +141,7 @@
         });
 
         attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
-        attributes["data-slot"] = DataSlot ?? "sheet-overlay";
+        attributes["data-slot"] = "sheet-overlay";
         attributes["aria-hidden"] = "true";
 
         return attributes;

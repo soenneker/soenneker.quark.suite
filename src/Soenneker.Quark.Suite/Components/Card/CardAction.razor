@@ -2,18 +2,20 @@
 @inherits Soenneker.Quark.Element
 @implements ICardAction
 
-<div @attributes="BuildAttributes()">
+<Div Attributes="@BuildAttributes()">
     @ChildContent
-</div>
+</Div>
 
 @code {
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ApplyDefaultParameters()
     {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("card-action");
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "col-start-2 row-span-2 row-start-1 self-start justify-self-end");
-        });
+        base.ApplyDefaultParameters();
+        DataSlot ??= "card-action";
+
+        ColStart ??= Quark.ColStart.At(2);
+        RowSpan ??= Quark.RowSpan.Is2;
+        RowStart ??= Quark.RowStart.At(1);
+        SelfAlign ??= Self.Start;
+        JustifySelfAlign ??= Quark.JustifySelfAlign.End;
     }
 }

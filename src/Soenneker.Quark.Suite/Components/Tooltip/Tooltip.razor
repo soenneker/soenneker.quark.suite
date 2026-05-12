@@ -11,6 +11,12 @@
 </BradixTooltip>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tooltip";
+    }
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -22,12 +28,6 @@
 
     [Parameter]
     public int? DelayDuration { get; set; }
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("tooltip");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

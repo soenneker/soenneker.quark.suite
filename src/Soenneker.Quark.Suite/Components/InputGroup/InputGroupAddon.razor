@@ -14,6 +14,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "input-group-addon";
 
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Auto;
@@ -26,14 +27,9 @@
         TextColor ??= Quark.TextColor.MutedForeground;
         UserSelect ??= Quark.UserSelect.None;
 
-        ApplyAlignDefaults();
-    }
-
-    private void ApplyAlignDefaults()
-    {
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.InlineEnd))
         {
-            Padding ??= Quark.Padding.Token("1.5").OnY.Is2.FromRight;
+            Padding ??= Quark.Padding.OnY.Token("1.5").FromRight.Is2;
             return;
         }
 
@@ -41,7 +37,7 @@
         {
             Width ??= Quark.Width.IsFull;
             Justify ??= Quark.Justify.Start;
-            Padding ??= Quark.Padding.Token("2.5").OnX.Is2.FromTop;
+            Padding ??= Quark.Padding.OnX.Token("2.5").FromTop.Is2;
             return;
         }
 
@@ -49,11 +45,11 @@
         {
             Width ??= Quark.Width.IsFull;
             Justify ??= Quark.Justify.Start;
-            Padding ??= Quark.Padding.Token("2.5").OnX.Is2.FromBottom;
+            Padding ??= Quark.Padding.OnX.Token("2.5").FromBottom.Is2;
             return;
         }
 
-        Padding ??= Quark.Padding.Token("1.5").OnY.Is2.FromLeft;
+        Padding ??= Quark.Padding.OnY.Token("1.5").FromLeft.Is2;
     }
 
     private static string GetAlignValue(InputGroupAddonAlign align)
@@ -89,7 +85,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["role"] = "group";
-        SetDefaultDataSlot("input-group-addon");
         attributes["data-align"] = GetAlignValue(AddonAlign);
 
         BuildClassAttribute(attributes, (ref cls) =>

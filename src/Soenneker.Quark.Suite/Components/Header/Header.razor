@@ -64,6 +64,12 @@
 </header>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "header";
+    }
+
     private static readonly IReadOnlyList<QuarkPresetToken> DefaultContainerPresets = [QuarkPresets.ContainerWrapper];
 
     [CascadingParameter(Name = "SidebarProvider")]
@@ -135,7 +141,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("header");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

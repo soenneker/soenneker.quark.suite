@@ -6,6 +6,12 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "resizable-panel";
+    }
+
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
 
@@ -83,7 +89,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("resizable-panel");
 
         if (ParentPanelGroup is not null)
             attributes["style"] = ParentPanelGroup.BuildPanelStyle(this, _index);

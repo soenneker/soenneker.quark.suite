@@ -77,8 +77,24 @@ internal static class CitationSourceResolver
         var label = parts.Length > 1 ? parts[^2] : parts[0];
 
         if (label.Length <= 3)
-            return label.ToUpperInvariant();
+        {
+            return string.Create(label.Length, label, static (chars, value) =>
+            {
+                for (var i = 0; i < chars.Length; i++)
+                {
+                    chars[i] = char.ToUpperInvariant(value[i]);
+                }
+            });
+        }
 
-        return char.ToUpperInvariant(label[0]) + label[1..].ToLowerInvariant();
+        return string.Create(label.Length, label, static (chars, value) =>
+        {
+            chars[0] = char.ToUpperInvariant(value[0]);
+
+            for (var i = 1; i < chars.Length; i++)
+            {
+                chars[i] = char.ToLowerInvariant(value[i]);
+            }
+        });
     }
 }

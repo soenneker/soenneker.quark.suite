@@ -3,14 +3,26 @@
 
 <Div @attributes="BuildAttributes()">
     <Div Height="Quark.Height.IsFull"
-         BackgroundColor='Quark.BackgroundColor.Utility("foreground")'
+         BackgroundColor="Quark.BackgroundColor.Foreground.OnDark.Primary"
          Transition='Quark.Transition.Token("transition-[width]")'
          Duration="Quark.Duration.Is200"
-         Class="dark:bg-primary"
          Style="@ProgressStyle"></Div>
 </Div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "attachment-progress";
+        PointerEvents ??= Quark.PointerEvents.None;
+        Position ??= Quark.Position.Absolute;
+        Left ??= Quark.Left.Is0;
+        Right ??= Quark.Right.Is0;
+        Bottom ??= Quark.Bottom.Is0;
+        Height ??= Quark.Height.Token("0.5");
+        BackgroundColor ??= Quark.BackgroundColor.Token("border/90");
+    }
+
     [Parameter]
     public int Value { get; set; }
 
@@ -20,16 +32,11 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("attachment-progress");
         attributes.TryAdd("role", "progressbar");
         attributes["aria-valuemin"] = "0";
         attributes["aria-valuemax"] = "100";
         attributes["aria-valuenow"] = ClampedValue;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-border/90");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

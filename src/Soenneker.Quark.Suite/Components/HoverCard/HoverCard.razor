@@ -12,6 +12,12 @@
 </BradixHoverCard>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "hover-card";
+    }
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -26,13 +32,6 @@
 
     [Parameter]
     public int CloseDelay { get; set; } = 300;
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("hover-card");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

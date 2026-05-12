@@ -24,6 +24,12 @@
 </BradixDropdownMenu>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "dropdown-menu";
+    }
+
     [Parameter]
     public bool Disabled { get; set; }
 
@@ -91,7 +97,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("dropdown-menu");
         attributes["data-state"] = Visible ? "open" : "closed";
 
         BuildClassAttribute(attributes, (ref cls) =>

@@ -4,13 +4,13 @@
 <CommandGroup Heading="@Heading" @attributes="BuildAttributes()">@ChildContent</CommandGroup>
 
 @code {
-    [Parameter] public string? Heading { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ApplyDefaultParameters()
     {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-command-group");
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-command-group";
     }
+
+    [Parameter] public string? Heading { get; set; }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

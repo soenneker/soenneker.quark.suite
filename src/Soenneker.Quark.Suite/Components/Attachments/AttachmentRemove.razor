@@ -28,7 +28,11 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "attachment-remove";
         Position ??= Quark.Position.Absolute;
+        Top ??= Quark.Top.Is1;
+        Right ??= Quark.Right.Is1;
+        ZIndex ??= Quark.ZIndex.Z10;
         Display ??= Quark.Display.Flex;
         Size ??= Quark.Size.Token("4.5");
         Cursor ??= Quark.Cursor.Pointer;
@@ -39,18 +43,18 @@
         TextColor ??= Quark.TextColor.MutedForeground;
         Opacity ??= Quark.Opacity.Is100;
         Transition ??= Quark.Transition.All;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
 
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("attachment-remove");
         attributes.TryAdd("aria-label", "Remove attachment");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "top-1 right-1 z-10 hover:bg-border hover:text-primary active:scale-[.97] disabled:pointer-events-none disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
+            AppendClass(ref cls, "hover:bg-border hover:text-primary active:scale-[.97] disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
         });
     }
 

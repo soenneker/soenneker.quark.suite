@@ -10,6 +10,12 @@
 </DropdownItem>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-action-menu-item";
+    }
+
     [Parameter]
     public bool Disabled { get; set; }
 
@@ -21,12 +27,6 @@
 
     [Parameter]
     public EventCallback<MouseEventArgs> Clicked { get; set; }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-action-menu-item");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

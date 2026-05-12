@@ -7,25 +7,24 @@
 </div>
 
 @code {
-    [Parameter]
-    public CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "grid-item";
+    }
 
     [Parameter]
-    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+    public CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("grid-item");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
 
             if (ColumnSpan is { IsEmpty: false })
                 AppendClass(ref cls, ColumnSpan.Value.ToString());
-
-            if (RowSpan is { IsEmpty: false })
-                AppendClass(ref cls, RowSpan.Value.ToString());
         });
     }
 
@@ -33,6 +32,5 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, ColumnSpan);
-        AddIf(ref hc, RowSpan);
     }
 }

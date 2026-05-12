@@ -2,27 +2,28 @@
 @inherits Soenneker.Quark.Element
 @implements ICardHeader
 
-<div @attributes="BuildAttributes()">
+<Div Attributes="@BuildAttributes()">
     @ChildContent
-</div>
+</Div>
 
 @code {
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "card-header";
         Display ??= Quark.Display.Grid;
         ItemsAlign ??= Items.Start;
         Gap ??= Quark.Gap.Is1;
-
+        Padding ??= Quark.Padding.OnX.Is4.Modifier("group-data-[size=sm]/card").Is3.OnX;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "card-header";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/card-header @container/card-header auto-rows-min rounded-t-xl px-4 group-data-[size=sm]/card:px-3");
+            AppendClass(ref cls, "group/card-header @container/card-header auto-rows-min rounded-t-xl");
             AppendClass(ref cls, "has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]");
             AppendClass(ref cls, "[.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3");
         });

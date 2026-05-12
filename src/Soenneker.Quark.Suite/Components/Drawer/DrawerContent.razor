@@ -12,7 +12,7 @@
     }
 
     <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" AdditionalAttributes="@ContentAttributes">
-        <Div Margin="Quark.Margin.Auto.OnX.Is4.FromTop" Height="Quark.Height.Is1" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" Display="Quark.Display.None" Class="group-data-[vaul-drawer-direction=bottom]/drawer-content:block"></Div>
+        <Div Margin="Quark.Margin.Auto.OnX.Is4.FromTop" Height="Quark.Height.Is1" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" Display='CssValue<DisplayBuilder>.For(Quark.Display.None, Quark.Display.Block.Modifier("group-data-[vaul-drawer-direction=bottom]/drawer-content"))'></Div>
         @ChildContent
     </BradixDialogContent>
 </BradixDialogPortal>
@@ -47,6 +47,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "drawer-content";
 
         Position ??= Quark.Position.Fixed;
         ZIndex ??= Quark.ZIndex.Z50;
@@ -60,7 +61,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("drawer-content");
         attributes["data-vaul-drawer-direction"] = ResolvedSide.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -86,7 +86,7 @@
             if (ParentDrawer?.BlurBackdrop == true)
                 AppendClass(ref cls, "backdrop-blur");
         });
-        attrs["data-slot"] = DataSlot ?? "drawer-overlay";
+        attrs["data-slot"] = "drawer-overlay";
         attrs["aria-hidden"] = "true";
         return attrs;
     }

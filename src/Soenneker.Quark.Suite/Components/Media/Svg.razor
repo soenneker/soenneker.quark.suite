@@ -43,12 +43,15 @@
     [Parameter]
     public bool? Focusable { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "svg";
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        if (!attributes.ContainsKey("data-slot"))
-            SetDefaultDataSlot("svg");
 
         if (Xmlns.HasContent())
             attributes["xmlns"] = Xmlns!;

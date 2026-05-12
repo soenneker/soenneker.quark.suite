@@ -21,6 +21,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "sheet-trigger";
+    }
+
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
@@ -36,13 +42,6 @@ else
     private ElementReference _elementRef;
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("sheet-trigger");
-    }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {

@@ -27,12 +27,17 @@
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        if (TriggerContext?.DataSlot is not null)
+            DataSlot ??= TriggerContext.DataSlot;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        if (TriggerContext?.DataSlot is not null)
-            SetDefaultDataSlot(TriggerContext.DataSlot);
 
         if (TriggerContext?.TriggerId is not null)
             attributes["id"] = TriggerContext.TriggerId;

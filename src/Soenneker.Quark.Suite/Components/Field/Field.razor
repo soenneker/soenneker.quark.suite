@@ -1,5 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Bradix
+@using BradixOrientation = Soenneker.Bradix.Orientation
 @implements IField
 
 <CascadingValue Name="ParentField" Value="@this" IsFixed="true">
@@ -13,18 +15,8 @@
 </CascadingValue>
 
 @code {
-    /// <summary>
-    /// Gets or sets whether the field should be displayed horizontally.
-    /// </summary>
     [Parameter]
-    public bool Horizontal { get; set; }
-
-    /// <summary>
-    /// Gets or sets the shadcn field orientation: vertical, horizontal, or responsive.
-    /// When unset, the legacy <see cref="Horizontal"/> parameter is used.
-    /// </summary>
-    [Parameter]
-    public string? Orientation { get; set; }
+    public BradixOrientation? Orientation { get; set; }
 
     /// <summary>
     /// Gets or sets whether the field should expose disabled state to composed label/title content.
@@ -55,8 +47,8 @@
     private string? DirectionProviderDir { get; set; }
 
     private readonly FieldContext _fieldContext = new();
-    private string ResolvedOrientation => ResolveOrientation();
-    private bool IsHorizontalResolved => ResolvedOrientation == "horizontal";
+    private BradixOrientation _resolvedOrientation = BradixOrientation.Vertical;
+    private bool IsHorizontalResolved => _resolvedOrientation == BradixOrientation.Horizontal;
     private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
 
     protected override void OnInitialized()
@@ -67,6 +59,7 @@
 
     protected override void OnParametersSet()
     {
+        _resolvedOrientation = Orientation == BradixOrientation.Horizontal ? BradixOrientation.Horizontal : BradixOrientation.Vertical;
         _fieldContext.Update(IsHorizontalResolved, IsInvalid);
         base.OnParametersSet();
     }
@@ -74,6 +67,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "field";
 
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
@@ -84,9 +78,8 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("field");
         attributes.TryAdd("role", "group");
-        attributes["data-orientation"] = ResolvedOrientation;
+        attributes["data-orientation"] = _resolvedOrientation.Value;
         if (!string.IsNullOrWhiteSpace(ResolvedDir))
             attributes["dir"] = ResolvedDir!;
 
@@ -102,7 +95,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/field data-[invalid=true]:text-destructive");
-            if (ResolvedOrientation == "horizontal")
+            if (_resolvedOrientation == BradixOrientation.Horizontal)
             {
                 AppendClass(ref cls, "flex-row items-center");
                 AppendClass(ref cls, "*:data-[slot=field-label]:flex-auto");
@@ -117,12 +110,6 @@
                     AppendClass(ref cls, "dark:has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/10");
                 }
             }
-            else if (ResolvedOrientation == "responsive")
-            {
-                AppendClass(ref cls, "flex-col @md/field-group:flex-row @md/field-group:items-center *:w-full @md/field-group:*:w-auto [&>.sr-only]:w-auto");
-                AppendClass(ref cls, "@md/field-group:*:data-[slot=field-label]:flex-auto");
-                AppendClass(ref cls, "@md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
-            }
             else
             {
                 AppendClass(ref cls, "flex-col *:w-full [&>.sr-only]:w-auto");
@@ -130,23 +117,9 @@
         });
     }
 
-    private string ResolveOrientation()
-    {
-        if (Orientation.IsNullOrWhiteSpace())
-            return Horizontal ? "horizontal" : "vertical";
-
-        return Orientation.Trim().ToLowerInvariant() switch
-        {
-            "horizontal" => "horizontal",
-            "responsive" => "responsive",
-            _ => "vertical"
-        };
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Horizontal);
         hc.Add(Orientation);
         hc.Add(Disabled);
         hc.Add(IsInvalid);

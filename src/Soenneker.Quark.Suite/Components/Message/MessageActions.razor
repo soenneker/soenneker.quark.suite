@@ -4,20 +4,23 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "message-actions";
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        Justify ??= From == "user" ? Quark.Justify.End : Quark.Justify.Start;
+    }
+
     [CascadingParameter]
     private MessageContext? MessageContext { get; set; }
 
     private string From => MessageContext?.From ?? "assistant";
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("message-actions");
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex w-full");
-            AppendClass(ref cls, From == "user" ? "justify-end" : "justify-start");
-        });
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(From);
     }
 }

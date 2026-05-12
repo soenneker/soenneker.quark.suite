@@ -73,6 +73,12 @@
 
     internal string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "toggle-group";
+    }
+
     private IReadOnlyDictionary<string, object> GroupAttributes
     {
         get
@@ -89,7 +95,6 @@
             attributes.Remove("role");
             attributes.Remove("aria-orientation");
 
-            attributes["data-slot"] = DataSlot ?? "toggle-group";
             if (ReferenceEquals(Variant, ToggleVariant.Outline))
                 attributes["data-variant"] = "outline";
 

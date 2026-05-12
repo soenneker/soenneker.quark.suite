@@ -13,10 +13,15 @@
 	       MinWidth="Quark.MinWidth.Is0"
 	       Rounded="Quark.Rounded.Lg"
 	       Border="Quark.Border.Default"
-	       BorderColor="Quark.BorderColor.Input"
+	       BorderColor="Quark.BorderColor.Input.OnFocusVisible.Ring"
 	       BackgroundColor="Quark.BackgroundColor.Transparent"
-	       Padding='Quark.Padding.Token("2.5").OnX.Is1.OnY'
+	       Padding='Quark.Padding.OnX.Token("2.5").OnY.Is1'
 	       TextSize="Quark.TextSize.Base.OnMd.Sm"
+	       TextColor='Quark.TextColor.MutedForeground.Modifier("placeholder")'
+	       RingColor='Quark.RingColor.OnFocusVisible.Token("ring/50")'
+	       PointerEvents="Quark.PointerEvents.None.OnDisabled"
+	       Cursor="Quark.Cursor.NotAllowed.OnDisabled"
+	       Opacity="Quark.Opacity.Is50.OnDisabled"
 	       Transition="Quark.Transition.Colors"
 	       OutlineStyle="Quark.OutlineStyle.None"
 	       Attributes="BuildInputAttributes()" />
@@ -27,6 +32,7 @@
 	protected override void ApplyDefaultParameters()
 	{
 		base.ApplyDefaultParameters();
+		DataSlot ??= "table-search";
 		Display ??= Quark.Display.Flex;
 		Width ??= Quark.Width.IsFull;
 		ItemsAlign ??= Items.Center;
@@ -38,7 +44,6 @@
 	{
 		base.BuildAttributesCore(attributes);
 
-		SetDefaultDataSlot("table-search");
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "sm:max-w-sm");
@@ -55,7 +60,7 @@
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+			AppendClass(ref cls, "focus-visible:ring-[3px]");
 		});
 
 		return attributes;

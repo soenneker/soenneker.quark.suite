@@ -73,6 +73,7 @@ public partial class SidebarProvider
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-wrapper";
 
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
@@ -225,7 +226,6 @@ public partial class SidebarProvider
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("sidebar-wrapper");
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {

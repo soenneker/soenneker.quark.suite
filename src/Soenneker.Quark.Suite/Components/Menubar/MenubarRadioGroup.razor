@@ -12,6 +12,12 @@
 </BradixMenubarRadioGroup>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "menubar-radio-group";
+    }
+
     private string? _currentValue;
 
     [Parameter]
@@ -36,13 +42,6 @@
     }
 
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("menubar-radio-group");
-    }
 
     private async Task HandleValueChanged(string? value)
     {

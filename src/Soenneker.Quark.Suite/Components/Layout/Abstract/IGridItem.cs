@@ -10,8 +10,4 @@ public interface IGridItem : IElement
     /// </summary>
     CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
 
-    /// <summary>
-    /// Gets or sets the row span classes to apply.
-    /// </summary>
-    CssValue<RowSpanBuilder>? RowSpan { get; set; }
 }

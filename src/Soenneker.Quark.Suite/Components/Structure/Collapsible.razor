@@ -11,6 +11,12 @@
 </BradixCollapsible>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "collapsible";
+    }
+
     [Parameter]
     public bool? Open { get; set; }
 
@@ -27,13 +33,6 @@
     private Task HandleOpenChanged(bool open)
     {
         return OpenChanged.InvokeAsync(open);
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("collapsible");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

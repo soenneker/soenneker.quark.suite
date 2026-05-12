@@ -21,12 +21,15 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "context-menu-sub-trigger";
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Token("1.5").OnX.Is1.OnY;
+        Padding ??= Quark.Padding.OnX.Token("1.5").OnY.Is1;
         TextSize ??= Quark.TextSize.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
+        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
         OutlineStyle ??= Quark.OutlineStyle.Hidden;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
@@ -36,12 +39,11 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("context-menu-sub-trigger");
         if (Indented)
             attributes["data-inset"] = "true";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground");
+            AppendClass(ref cls, "data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }

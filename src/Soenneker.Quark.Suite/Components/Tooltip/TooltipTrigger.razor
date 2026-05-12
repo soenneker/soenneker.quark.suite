@@ -19,6 +19,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tooltip-trigger";
+    }
+
     private bool _hasPointerMoveOpened;
     private bool _pointerDown;
     private ElementReference _triggerElement;
@@ -81,7 +87,6 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("tooltip-trigger");
 
         if (ParentTriggerContext?.TriggerId is not null)
             attributes["id"] = ParentTriggerContext.TriggerId;

@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
 @if (Citation is not null)
 {
@@ -33,9 +34,6 @@
     public int? Index { get; set; }
 
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
     public bool ShowTitle { get; set; } = true;
 
     [Parameter]
@@ -44,21 +42,13 @@
     [Parameter]
     public bool ShowSource { get; set; } = true;
 
-    [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
-
     private ResolvedCitation? Citation => ParentCitation is null
         ? null
         : ParentCitation.ResolvedCitations[Math.Clamp(Index ?? ParentCitation.ActiveIndex, 0, ParentCitation.ResolvedCitations.Count - 1)];
 
-    private IReadOnlyDictionary<string, object> BuildAttributes()
+    protected override void ApplyDefaultParameters()
     {
-        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
-        attributes["data-slot"] = "citation-item";
-        attributes["class"] = string.Join(" ", new[] { Class, attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null }.Where(x => !string.IsNullOrWhiteSpace(x)));
-        return attributes;
+        base.ApplyDefaultParameters();
+        DataSlot ??= "citation-item";
     }
 }

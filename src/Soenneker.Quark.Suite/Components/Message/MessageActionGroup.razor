@@ -4,10 +4,12 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ApplyDefaultParameters()
     {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("message-action-group");
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "flex items-center gap-1"));
+        base.ApplyDefaultParameters();
+        DataSlot ??= "message-action-group";
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Is1;
     }
 }

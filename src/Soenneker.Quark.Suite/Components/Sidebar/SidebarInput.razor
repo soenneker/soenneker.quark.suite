@@ -7,30 +7,31 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-input";
 
         Height ??= Quark.Height.Is8;
         Width ??= Quark.Width.IsFull;
         MinWidth ??= Quark.MinWidth.Is0;
         Rounded ??= Quark.Rounded.Md;
         Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input;
+        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
         BackgroundColor ??= Quark.BackgroundColor.Background;
-        Padding ??= Quark.Padding.Is3.OnX.Is1.OnY;
+        Padding ??= Quark.Padding.OnX.Is3.OnY.Is1;
         TextSize ??= Quark.TextSize.Sm;
         Shadow ??= Quark.Shadow.None;
+        Ring ??= Quark.Ring.Is2.OnFocusVisible;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        TextColor ??= Quark.TextColor.MutedForeground.Modifier("placeholder");
         OutlineStyle ??= Quark.OutlineStyle.None;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("sidebar-input");
         attributes["data-sidebar"] = "input";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50");
-        });
     }
 }

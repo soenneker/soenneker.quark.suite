@@ -1,3 +1,5 @@
+using Soenneker.Bradix;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -6,9 +8,9 @@ namespace Soenneker.Quark;
 public interface IField : IElement
 {
     /// <summary>
-    /// Gets or sets whether the form controls should be aligned horizontally.
+    /// Gets or sets the field layout orientation.
     /// </summary>
-    bool Horizontal { get; set; }
+    Orientation? Orientation { get; set; }
 
     /// <summary>
     /// Gets or sets whether the field should expose disabled state for composed label and title styling.

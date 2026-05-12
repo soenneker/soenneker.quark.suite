@@ -11,16 +11,16 @@
 </HoverCardContent>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "prompt-input-hover-card-content";
+    }
+
     [Parameter] public bool ForceMount { get; set; }
     [Parameter] public Side Side { get; set; } = Side.Top;
     [Parameter] public Alignment Align { get; set; } = Alignment.Start;
     [Parameter] public int SideOffset { get; set; } = 8;
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("prompt-input-hover-card-content");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

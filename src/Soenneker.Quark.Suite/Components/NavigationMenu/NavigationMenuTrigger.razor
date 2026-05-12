@@ -11,9 +11,12 @@
     {
         <Icon Name="LucideIcon.ChevronDown"
               Position="Quark.Position.Relative"
+              Top='Quark.Top.Token("[1px]")'
               Margin="Quark.Margin.Is1.FromLeft"
               Size="Quark.Size.Is3"
-              Class="top-[1px] transition duration-300 group-data-[state=open]:rotate-180"
+              Transition='Quark.Transition.Token("transition")'
+              Duration="Quark.Duration.Is300"
+              Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
               aria-hidden="true" />
     }
 </BradixNavigationMenuTrigger>
@@ -34,6 +37,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "navigation-menu-trigger";
 
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
@@ -43,22 +47,23 @@
         Height ??= Quark.Height.Is9;
         Width ??= Quark.Width.IsMax;
         Rounded ??= Quark.Rounded.Lg;
-        Padding ??= Quark.Padding.Token("2.5").OnX.Token("1.5").OnY;
+        Padding ??= Quark.Padding.OnX.Token("2.5").OnY.Token("1.5");
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Token("ring/50");
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("navigation-menu-trigger");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "hover:bg-muted focus:bg-muted");
-            AppendClass(ref cls, "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "focus-visible:ring-3 focus-visible:outline-1");
             AppendClass(ref cls, "data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted");
             AppendClass(ref cls, "group/navigation-menu-trigger group");
         });

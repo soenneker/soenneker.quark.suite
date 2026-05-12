@@ -40,13 +40,15 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "alert-dialog-trigger";
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("alert-dialog-trigger");
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentAlertDialog?.Visible == true ? "true" : "false";
@@ -57,8 +59,6 @@ else
         if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
 
-        if (Disabled)
-            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50"));
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

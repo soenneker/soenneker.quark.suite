@@ -29,21 +29,27 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "pagination-link";
 
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
+        Shrink ??= Quark.Shrink.Is0;
+        TextSize ??= Quark.TextSize.Sm;
+        Border ??= Quark.Border.Default;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
         OutlineStyle ??= Quark.OutlineStyle.None;
+        UserSelect ??= Quark.UserSelect.None;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         var resolvedButtonSize = ButtonSize?.Value ?? ButtonSizeType.Icon.Value;
-        SetDefaultDataSlot("pagination-link");
         attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(resolvedButtonSize);
 
         if (Active)
@@ -55,12 +61,11 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             var variant = Active ? ButtonVariant.Outline : ButtonVariant.Ghost;
-            AppendClass(ref cls, "group/button shrink-0 text-sm border bg-clip-padding select-none focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
             if (!Active)
                 AppendClass(ref cls, "border-transparent");
             AppendClass(ref cls, "rounded-lg");
             AppendClass(ref cls, Button.GetButtonFocusClass(variant));
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, Button.GetButtonVariantClass(variant));

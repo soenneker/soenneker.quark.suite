@@ -15,6 +15,12 @@ else
 }
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "select-value";
+    }
+
     [Parameter]
     public string? Placeholder { get; set; }
 
@@ -28,13 +34,6 @@ else
         : builder => builder.AddContent(0, ResolvedPlaceholder);
 
     private IReadOnlyDictionary<string, object> ValueAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("select-value");
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

@@ -11,8 +11,8 @@
                     data-slot="button"
                     data-variant="ghost"
                     data-size="sm"
-                    data-active="@IsItemActive(item).ToString().ToLowerInvariant()"
-                    data-new="@item.IsNew.ToString().ToLowerInvariant()"
+                    data-active="@BoolString(IsItemActive(item))"
+                    data-new="@BoolString(item.IsNew)"
                     aria-current="@(IsItemActive(item) ? "page" : null)"
                     class="@GetHeaderItemClass(item)">
                 @item.Title
@@ -24,7 +24,7 @@
                   data-variant="ghost"
                   data-size="sm"
                   data-active="false"
-                  data-new="@item.IsNew.ToString().ToLowerInvariant()"
+                  data-new="@BoolString(item.IsNew)"
                   class="@($"{GetHeaderItemClass(item)} opacity-75")">
                 @item.Title
             </Span>
@@ -136,6 +136,8 @@ else
     {
         return IsActive?.Invoke(item) ?? false;
     }
+
+    private static string BoolString(bool value) => value ? "true" : "false";
 
     private async Task HandleStackItemClick(NavigationItem item)
     {

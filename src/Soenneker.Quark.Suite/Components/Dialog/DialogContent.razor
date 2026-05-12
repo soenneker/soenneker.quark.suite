@@ -55,6 +55,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "dialog-content";
 
         Position ??= Quark.Position.Fixed;
         Display ??= Quark.Display.Grid;
@@ -81,17 +82,16 @@
 
             if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
             {
-                var size = ParentDialog.DialogSize.Value.ToLowerInvariant();
-                if (size == "sm")
+                var size = ParentDialog.DialogSize.Value;
+                if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
                     AppendClass(ref cls, "sm:max-w-sm");
-                else if (size == "lg")
+                else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
                     AppendClass(ref cls, "sm:max-w-2xl");
-                else if (size == "xl")
+                else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
                     AppendClass(ref cls, "sm:max-w-4xl");
             }
         });
 
-        SetDefaultDataSlot("dialog-content");
 
         if (ParentDialog?.Visible == true)
             attributes["data-open"] = string.Empty;
@@ -111,7 +111,7 @@
                 AppendClass(ref cls, "backdrop-blur");
         });
 
-        attributes["data-slot"] = DataSlot ?? "dialog-overlay";
+        attributes["data-slot"] = "dialog-overlay";
         attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
         attributes["aria-hidden"] = "true";
 

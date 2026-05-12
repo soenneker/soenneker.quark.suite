@@ -1,17 +1,29 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographyElement
 
 @if (ParentCitation is not null)
 {
-    <Span Attributes="@IndexAttributes">@(ParentCitation.ActiveIndex + 1)/@ParentCitation.ResolvedCitations.Count</Span>
+    <span @attributes="BuildAttributes()">@(ParentCitation.ActiveIndex + 1)/@ParentCitation.ResolvedCitations.Count</span>
 }
 
 @code {
     [CascadingParameter]
     private Citation? ParentCitation { get; set; }
 
-    private static readonly IReadOnlyDictionary<string, object> IndexAttributes = new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "citation-carousel-index",
-        ["class"] = "text-xs leading-4.5 font-[350] text-muted-foreground tabular-nums"
-    };
+        base.ApplyDefaultParameters();
+        DataSlot ??= "citation-carousel-index";
+
+        TextSize ??= Quark.TextSize.Xs;
+        Leading ??= Quark.Leading.Token("4.5");
+        FontWeight ??= Quark.FontWeight.Token("[350]");
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "tabular-nums"));
+    }
 }

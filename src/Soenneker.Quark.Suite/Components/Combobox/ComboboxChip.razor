@@ -5,7 +5,7 @@
     @ChildContent
     @if (ShowRemove)
     {
-        <Button Type="@ButtonType.Button" DataSlot="combobox-chip-remove" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" Margin='Quark.Margin.Token("-1").FromLeft' Opacity="Quark.Opacity.Is50" Class="hover:opacity-100" tabindex="-1" aria-label="Remove selection" Disabled="@(ParentCombobox?.Disabled == true)" @onclick="HandleRemoveClick" @onmousedown:preventDefault="true">
+        <Button Type="@ButtonType.Button" DataSlot="combobox-chip-remove" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" Margin='Quark.Margin.Token("-1").FromLeft' Opacity="CssValue<OpacityBuilder>.For(Quark.Opacity.Is50, Quark.Opacity.Is100.OnHover)" tabindex="-1" aria-label="Remove selection" Disabled="@(ParentCombobox?.Disabled == true)" @onclick="HandleRemoveClick" @onmousedown:preventDefault="true">
             <Icon Name="LucideIcon.X" PointerEvents="Quark.PointerEvents.None" />
         </Button>
     }
@@ -32,6 +32,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "combobox-chip";
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Token("[calc(--spacing(5.25))]");
         Width ??= Quark.Width.IsFit;
@@ -40,7 +41,7 @@
         Gap ??= Quark.Gap.Is1;
         Rounded ??= Quark.Rounded.Sm;
         BackgroundColor ??= Quark.BackgroundColor.Muted;
-        Padding ??= Quark.Padding.Token("1.5").OnX;
+        Padding ??= Quark.Padding.OnX.Token("1.5");
         TextSize ??= Quark.TextSize.Xs;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
@@ -52,7 +53,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        SetDefaultDataSlot("combobox-chip");
         attributes["data-value"] = Value;
 
         BuildClassAttribute(attributes, (ref cls) =>

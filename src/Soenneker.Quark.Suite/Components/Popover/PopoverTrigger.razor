@@ -36,16 +36,9 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        SetDefaultDataSlot("popover-trigger");
-
-        if (Disabled)
-            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50"));
+        DataSlot ??= "popover-trigger";
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

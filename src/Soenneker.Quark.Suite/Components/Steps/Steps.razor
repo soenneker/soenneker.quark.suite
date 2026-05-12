@@ -80,10 +80,13 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "steps";
 
         Display ??= Quark.Display.Flex;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Quark.Items.Start;
+        Justify ??= Quark.Justify.Between;
+        Gap ??= Quark.Gap.Is6.Y;
         Margin ??= Quark.Margin.Is0;
         Padding ??= Quark.Padding.Is0;
         Width ??= Quark.Width.IsFull;
@@ -259,13 +262,10 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        SetDefaultDataSlot("steps");
         attributes["role"] = "tablist";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "justify-between");
             AppendClass(ref cls, "list-none");
-            AppendClass(ref cls, "gap-y-6");
 
             if (RenderMode == StepsRenderMode.LazyLoad)
                 attributes["data-render-mode"] = "lazy-load";
