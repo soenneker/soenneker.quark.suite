@@ -75,8 +75,12 @@ else
             AriaHasPopup = "menu",
             AriaControls = DropdownMenu?.ContentId,
             RegisterElement = elementReference => { Menu?.RegisterTrigger(elementReference); },
-            Toggle = DropdownMenu is null ? null : async () =>
+            PreventPointerDownDefault = DropdownMenu?.CurrentOpen != true,
+            OnPointerDownEvent = DropdownMenu is null ? null : async args =>
             {
+                if (Disabled || ParentDropdown?.Disabled == true || args.Button != 0 || args.CtrlKey)
+                    return;
+
                 Menu?.SetFocusFirstItemOnOpen(false);
                 await DropdownMenu.ToggleOpen();
             },

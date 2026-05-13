@@ -24,12 +24,17 @@
     {
         base.BuildAttributesCore(attributes);
 
-        if (ParentCombobox?.HasVisibleItems != true)
+        bool empty = ParentCombobox?.HasVisibleItems != true;
+
+        if (empty)
             attributes["data-empty"] = string.Empty;
 
-        attributes["style"] = attributes.TryGetValue("style", out var style) && style is not null
-            ? $"{style}; padding: 0.25rem;"
-            : "padding: 0.25rem;";
+        if (!empty)
+        {
+            attributes["style"] = attributes.TryGetValue("style", out var style) && style is not null
+                ? $"{style}; padding: 0.25rem;"
+                : "padding: 0.25rem;";
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

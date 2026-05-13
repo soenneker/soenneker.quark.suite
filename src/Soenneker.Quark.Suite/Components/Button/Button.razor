@@ -13,7 +13,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
+    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -30,7 +30,7 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -68,6 +68,8 @@ else
         Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
 
     private bool StopClickPropagation => TriggerContext?.Toggle is not null || InputGroupButton;
+
+    private bool PreventPointerDownDefault => TriggerContext?.PreventPointerDownDefault == true;
 
     private static readonly TriggerContext? NoTriggerContext = null;
 
@@ -316,9 +318,6 @@ else
         if (TriggerContext?.OnPointerLeave is not null)
             attributes["onpointerleave"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerLeave);
 
-        if (TriggerContext?.OnPointerDown is not null)
-            attributes["onpointerdown"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerDown);
-
         if (TriggerContext?.OnPointerUp is not null)
             attributes["onpointerup"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerUp);
 
@@ -479,6 +478,9 @@ else
 
     private Task HandleTriggerPointerDown(PointerEventArgs args)
     {
+        if (TriggerContext?.OnPointerDownEvent is not null)
+            return TriggerContext.OnPointerDownEvent(args);
+
         return TriggerContext?.OnPointerDown?.Invoke() ?? Task.CompletedTask;
     }
 
@@ -590,14 +592,14 @@ else
     {
         return size switch
         {
-            "xs" => includeSizeRadius ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
-            "sm" => includeSizeRadius ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5" : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
-            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
+            "xs" => includeSizeRadius ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
+            "sm" => includeSizeRadius ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5" : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
+            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
             "icon" => "size-8",
             "icon-xs" => includeSizeRadius ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
             "icon-sm" => includeSizeRadius ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg" : "size-7 in-data-[slot=button-group]:rounded-lg",
             "icon-lg" => "size-9",
-            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2"
+            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
         };
     }
 

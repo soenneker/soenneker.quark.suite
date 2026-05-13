@@ -45,6 +45,7 @@
             attributes.Remove("onfocus");
 
             attributes["data-value"] = ResolvedValue;
+            attributes["data-state"] = ParentToggleGroup?.IsItemPressed(ResolvedValue) == true ? "on" : "off";
             attributes["data-variant"] = ReferenceEquals(variant, ToggleVariant.Outline) ? "outline" : "default";
             attributes["data-size"] = GetToggleSizeDataAttribute(size);
             attributes["data-spacing"] = ParentToggleGroup?.Spacing.ToString() ?? "0";
@@ -101,6 +102,7 @@
         hc.Add(ParentToggleGroup?.ToggleSize);
         hc.Add(ParentToggleGroup?.Spacing);
         hc.Add(ParentToggleGroup?.Orientation);
+        hc.Add(ParentToggleGroup?.IsItemPressed(ResolvedValue) == true);
     }
 
     private static string GetToggleSizeDataAttribute(CssValue<ToggleSizeBuilder>? size)

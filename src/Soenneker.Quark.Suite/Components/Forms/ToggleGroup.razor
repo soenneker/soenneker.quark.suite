@@ -73,6 +73,14 @@
 
     internal string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
+    internal bool IsItemPressed(string value)
+    {
+        if (Type == SelectionMode.Multiple)
+            return Values?.Any(x => string.Equals(x, value, StringComparison.Ordinal)) == true;
+
+        return string.Equals(Value, value, StringComparison.Ordinal);
+    }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
