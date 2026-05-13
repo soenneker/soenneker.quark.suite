@@ -233,6 +233,7 @@
             return;
 
         CurrentIndex = nextIndex;
+        await MeasureScrollOffset(notifyStateChanged: false);
         await NotifyStateChanged();
     }
 
@@ -248,22 +249,31 @@
         await RefreshOffThread();
     }
 
-    private async Task MeasureScrollOffset()
+    private async Task MeasureScrollOffset(bool notifyStateChanged = true)
     {
         if (!_initialized)
             return;
 
         var offset = await CarouselInterop.MeasureOffset(_elementRef, CurrentIndex, IsVertical, Align);
-        await OnCarouselMeasured(offset);
+        await ApplyMeasuredOffset(offset, notifyStateChanged);
     }
 
     [JSInvokable]
     public async Task OnCarouselMeasured(double offset)
     {
+        await ApplyMeasuredOffset(offset);
+    }
+
+    private async Task ApplyMeasuredOffset(double offset, bool notifyStateChanged = true)
+    {
         if (Math.Abs(ScrollOffsetPixels - offset) < 0.5)
             return;
 
         ScrollOffsetPixels = offset;
+
+        if (!notifyStateChanged)
+            return;
+
         await InvokeAsync(() =>
         {
             StateChanged?.Invoke();
