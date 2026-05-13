@@ -33,6 +33,18 @@ public sealed class QuarkValidationPlaywrightTests : QuarkPlaywrightTest
             static p => p.Locator("#requiredField"),
             expectedTitle: "Validation - Quark Suite");
 
+        (await page.GetByText("Basic validation with required field and email validation.").CountAsync()).Should().Be(0);
+
+        var complexPreview = page.Locator("#complex-form-validation")
+                                 .Locator("xpath=following::div[@data-slot='preview']/div[contains(@class,'preview')]")
+                                 .First;
+        var complexPreviewClipsContent = await complexPreview.EvaluateAsync<bool>("element => element.scrollHeight > element.clientHeight + 1");
+        complexPreviewClipsContent.Should().BeFalse();
+
+        var clippedPreviewCount = await page.Locator("[data-slot='preview'] > .preview")
+                                            .EvaluateAllAsync<int>("elements => elements.filter(element => element.scrollHeight > element.clientHeight + 1).length");
+        clippedPreviewCount.Should().Be(0);
+
         var required = page.Locator("#requiredField");
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Validate Form" }).First.ClickAsync();
 

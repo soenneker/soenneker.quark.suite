@@ -42,4 +42,19 @@ public sealed partial class RenderedShadcnParityTests
         navClass.Should().Contain("inset-x-0");
         navClass.Should().NotContain("inset-0");
     }
+
+    [Test]
+    public void Calendar_rtl_navigation_chevrons_keep_physical_direction()
+    {
+        var cut = Render<Calendar>(parameters => parameters
+            .Add(component => component.DisplayMonth, new DateOnly(2026, 5, 1))
+            .Add(component => component.Dir, "rtl"));
+
+        string calendarClass = cut.Find("[data-slot='calendar']").GetAttribute("class")!;
+
+        calendarClass.Should().NotContain("rdp-button_next>svg");
+        calendarClass.Should().NotContain("rdp-button_previous>svg");
+        cut.Find(".rdp-button_previous svg").GetAttribute("class").Should().NotContain("cn-rtl-flip");
+        cut.Find(".rdp-button_next svg").GetAttribute("class").Should().NotContain("cn-rtl-flip");
+    }
 }
