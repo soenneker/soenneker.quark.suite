@@ -187,6 +187,33 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Carousel_navigation_buttons_update_track_on_every_enabled_click()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/carousel",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
+            expectedTitle: "Carousel - Quark Suite");
+
+        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
+        var previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
+        var next = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+        var track = demo.Locator("[data-slot='carousel-content'] > div").First;
+
+        for (var i = 0; i < 4; i++)
+            await AssertClickChangesTrackStyle(next, track);
+
+        await Assertions.Expect(next).ToBeDisabledAsync();
+
+        for (var i = 0; i < 4; i++)
+            await AssertClickChangesTrackStyle(previous, track);
+
+        await Assertions.Expect(previous).ToBeDisabledAsync();
+    }
+
+    [Test]
     public async ValueTask Carousel_demo_matches_shadcn_markup_and_keyboard_axis_behavior()
     {
         await using var session = await CreateSession();
@@ -322,5 +349,14 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         style.Should().MatchRegex(shouldBeAtStart
             ? @"transform:\s*translate3d\(0px,\s*0px,\s*0px\)"
             : @"transform:\s*translate3d\(0px,\s*-[1-9]\d*(?:\.\d+)?px,\s*0px\)");
+    }
+
+    private static async Task AssertClickChangesTrackStyle(ILocator button, ILocator track)
+    {
+        var before = await track.GetAttributeAsync("style");
+
+        await button.ClickAsync();
+
+        await Assertions.Expect(track).Not.ToHaveAttributeAsync("style", before ?? string.Empty);
     }
 }

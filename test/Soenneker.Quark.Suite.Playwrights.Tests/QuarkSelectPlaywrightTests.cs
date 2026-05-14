@@ -192,8 +192,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.Keyboard.PressAsync("c");
 
-        var highlightedTexts = await content.Locator("[role='option'][data-highlighted]").AllTextContentsAsync();
-        (await highlightedCourgette.CountAsync() > 0).Should().BeTrue();
+        await Assertions.Expect(highlightedCourgette).ToHaveCountAsync(1);
         await Assertions.Expect(carrot).Not.ToHaveAttributeAsync("data-highlighted", string.Empty);
     }
     private static async Task ClickJustOutside(IPage page, ILocator locator)

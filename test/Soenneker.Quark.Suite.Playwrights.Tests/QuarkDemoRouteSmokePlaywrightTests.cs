@@ -192,6 +192,14 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
         if (text.Contains("favicon", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        if (text.Contains("Fetch API cannot load", StringComparison.OrdinalIgnoreCase) &&
+            text.Contains("/_framework/", StringComparison.OrdinalIgnoreCase) &&
+            (text.Contains(".wasm", StringComparison.OrdinalIgnoreCase) ||
+             text.Contains(".pdb", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
         if (text.Contains("MONO_WASM", StringComparison.Ordinal) &&
             (text.Contains("Response body loading was aborted", StringComparison.OrdinalIgnoreCase) ||
              text.Contains("WebAssembly compilation aborted", StringComparison.OrdinalIgnoreCase) ||

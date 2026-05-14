@@ -113,7 +113,7 @@
     internal void RegisterItem()
     {
         ItemCount++;
-        _ = NotifyStateChanged();
+        _ = NotifyStateChanged(measureScrollOffset: true);
     }
 
     internal void UnregisterItem()
@@ -128,7 +128,7 @@
         else if (CurrentIndex >= ItemCount)
             CurrentIndex = ItemCount - 1;
 
-        _ = NotifyStateChanged();
+        _ = NotifyStateChanged(measureScrollOffset: true);
     }
 
     internal Task Previous()
@@ -237,8 +237,11 @@
         await NotifyStateChanged();
     }
 
-    private async Task NotifyStateChanged()
+    private async Task NotifyStateChanged(bool measureScrollOffset = false)
     {
+        if (measureScrollOffset)
+            await MeasureScrollOffset(notifyStateChanged: false);
+
         SetApi?.Invoke(_api);
         _api.NotifySelect();
 
