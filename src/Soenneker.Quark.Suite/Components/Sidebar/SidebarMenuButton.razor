@@ -11,7 +11,7 @@
 }
 else if (ShouldRenderNavLink)
 {
-    <NavLink href="@To"
+    <NavLink href="@Href"
              Match="@Match"
              ActiveClass="@_activeClass"
              @onclick="HandleActivate"
@@ -19,9 +19,9 @@ else if (ShouldRenderNavLink)
         @ChildContent
     </NavLink>
 }
-else if (To.HasContent())
+else if (Href.HasContent())
 {
-    <Anchor Href="@To"
+    <Anchor Href="@Href"
             Target="@Target"
             @onclick="HandleActivate"
             @attributes="BuildAttributes()">
@@ -53,7 +53,7 @@ else
     public bool Open { get; set; }
 
     [Parameter]
-    public string? To { get; set; }
+    public string? Href { get; set; }
 
     [Parameter]
     public Target? Target { get; set; }
@@ -95,10 +95,10 @@ else
         State?.Open == false;
 
     private bool ShouldRenderNavLink =>
-        To.HasContent() &&
+        Href.HasContent() &&
         Target is null &&
-        !To!.StartsWith('#') &&
-        !Uri.TryCreate(To, UriKind.Absolute, out _);
+        !Href!.StartsWith('#') &&
+        !Uri.TryCreate(Href, UriKind.Absolute, out _);
 
     private static string GetVariantClass(SidebarMenuButtonVariant variant)
     {
@@ -225,7 +225,7 @@ else
         if (ShowCollapsedTooltip)
             attributes["title"] = Tooltip!;
 
-        if (!AsChild && !To.HasContent())
+        if (!AsChild && !Href.HasContent())
             attributes["type"] = "button";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -259,7 +259,7 @@ else
         if (TriggerContext?.Toggle is not null)
             await TriggerContext.Toggle();
 
-        if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
             await SidebarProvider.SetOpenMobile(false);
 
         if (OnClick.HasDelegate)
@@ -292,7 +292,7 @@ else
         hc.Add(ButtonSize);
         hc.Add(Active);
         hc.Add(Open);
-        hc.Add(To);
+        hc.Add(Href);
         hc.Add(Target);
         hc.Add(Tooltip);
         hc.Add(Match);

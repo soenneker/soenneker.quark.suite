@@ -13,7 +13,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
+    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -62,10 +62,10 @@ else
     private bool _ignoreNextKeyboardClick;
     private string? _registeredTriggerId;
 
-    private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
+    private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || Href.HasContent();
 
     private bool PreventLinkDefault =>
-        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
+        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null || (Href.HasContent() && !Href!.StartsWith("#", StringComparison.Ordinal));
 
     private bool StopClickPropagation => TriggerContext?.Toggle is not null || InputGroupButton;
 
@@ -134,7 +134,7 @@ else
     /// Gets or sets the navigation target URL When the button type is Link.
     /// </summary>
     [Parameter]
-    public string? To { get; set; }
+    public string? Href { get; set; }
 
     /// <summary>
     /// Gets or sets the visual style variant (shadcn/ui).
@@ -372,8 +372,8 @@ else
         if (DialogCloseContext is not null)
             await DialogCloseContext.Close(args);
 
-        if (To.HasContent() && !To!.StartsWith("#"))
-            Navigation.NavigateTo(To!);
+        if (Href.HasContent() && !Href!.StartsWith("#"))
+            Navigation.NavigateTo(Href!);
 
         if (CollapseTarget.HasContent())
             await CollapseCoordinator.ToggleTargets(CollapseTarget);
@@ -530,7 +530,7 @@ else
         hc.Add(Value);
         hc.Add(Form);
         hc.Add(AutoFocus);
-        hc.Add(To);
+        hc.Add(Href);
         hc.Add(Name);
         hc.Add(Variant);
         hc.Add(CollapseTarget);

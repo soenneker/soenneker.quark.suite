@@ -1,13 +1,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<PaginationLink To="@To" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="ButtonSize.Default" @attributes="BuildAttributes()" aria-label="Go to previous page">
+<PaginationLink Href="@Href" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="ButtonSize.Default" @attributes="BuildAttributes()" aria-label="Go to previous page">
     <Icon Name="LucideIcon.ChevronLeft" data-icon="inline-start" Class="cn-rtl-flip" />
     <Span Display="Quark.Display.None.OnSm.Block">@Text</Span>
 </PaginationLink>
 
 @code {
-    [Parameter] public string? To { get; set; }
+    [Parameter] public string? Href { get; set; }
     [Parameter] public string Text { get; set; } = "Previous";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -19,7 +19,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(To);
+        hc.Add(Href);
         hc.Add(Text);
         hc.Add(Disabled);
     }

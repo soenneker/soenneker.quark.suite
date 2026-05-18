@@ -11,7 +11,7 @@
 }
 else if (ShouldRenderNavLink)
 {
-    <NavLink href="@To"
+    <NavLink href="@Href"
              Match="@Match"
              ActiveClass="@_activeClass"
              @onclick="HandleActivate"
@@ -21,7 +21,7 @@ else if (ShouldRenderNavLink)
 }
 else
 {
-    <Anchor Href="@To" Target="@Target" @onclick="HandleActivate" @attributes="BuildAttributes()">
+    <Anchor Href="@Href" Target="@Target" @onclick="HandleActivate" @attributes="BuildAttributes()">
         @ChildContent
     </Anchor>
 }
@@ -30,7 +30,7 @@ else
     private const string _activeClass = "bg-sidebar-accent text-sidebar-accent-foreground";
 
     [Parameter]
-    public string? To { get; set; }
+    public string? Href { get; set; }
 
     [Parameter]
     public Target? Target { get; set; }
@@ -77,10 +77,10 @@ else
     }
 
     private bool ShouldRenderNavLink =>
-        To.HasContent() &&
+        Href.HasContent() &&
         Target is null &&
-        !To!.StartsWith('#') &&
-        !Uri.TryCreate(To, UriKind.Absolute, out _);
+        !Href!.StartsWith('#') &&
+        !Uri.TryCreate(Href, UriKind.Absolute, out _);
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -106,7 +106,7 @@ else
 
     private async Task HandleActivate(MouseEventArgs args)
     {
-        if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
             await SidebarProvider.SetOpenMobile(false);
 
         if (OnClick.HasDelegate)
@@ -116,7 +116,7 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(To);
+        hc.Add(Href);
         hc.Add(Target);
         hc.Add(ButtonSize);
         hc.Add(Active);

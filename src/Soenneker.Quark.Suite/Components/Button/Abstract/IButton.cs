@@ -45,7 +45,7 @@ public interface IButton : IElement
     /// <summary>
     /// Gets or sets the URL to navigate to (When Type is Link).
     /// </summary>
-    string? To { get; set; }
+    string? Href { get; set; }
 
     /// <summary>
     /// Gets or sets the name attribute of the button.
