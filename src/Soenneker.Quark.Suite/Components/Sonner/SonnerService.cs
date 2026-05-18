@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -37,8 +36,15 @@ public sealed class SonnerService : ISonnerService
     {
         using (await _sync.Lock(cancellationToken))
         {
-            return _toasts.OrderBy(toast => toast.CreatedAt)
-                         .ToArray();
+            var toasts = new SonnerToast[_toasts.Count];
+
+            for (var i = 0; i < _toasts.Count; i++)
+            {
+                toasts[i] = _toasts[i];
+            }
+
+            Array.Sort(toasts, static (left, right) => left.CreatedAt.CompareTo(right.CreatedAt));
+            return toasts;
         }
     }
 
@@ -96,7 +102,7 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            var existing = _toasts.FirstOrDefault(toast => toast.Id == id);
+            var existing = FindToast(id);
             if (existing is not null)
                 existing.Promise = true;
         }
@@ -130,19 +136,14 @@ public sealed class SonnerService : ISonnerService
         using (await _sync.Lock(cancellationToken))
         {
             _toasters.Remove(normalizedToasterId);
-
-            foreach (var pausedToaster in _pausedToasters.Where(item => item.ToasterId == normalizedToasterId)
-                                                         .ToArray())
-            {
-                _pausedToasters.Remove(pausedToaster);
-            }
+            _pausedToasters.RemoveWhere(item => item.ToasterId == normalizedToasterId);
 
             if (_activeToasterId == normalizedToasterId)
             {
                 if (_toasters.ContainsKey(_defaultToasterId))
                     _activeToasterId = _defaultToasterId;
                 else
-                    _activeToasterId = _toasters.Keys.FirstOrDefault() ?? _defaultToasterId;
+                    _activeToasterId = FirstToasterIdOrDefault();
             }
         }
     }
@@ -254,11 +255,22 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            ids = _toasts.Select(toast => toast.Id)
-                         .ToArray();
+            ids = new string[_toasts.Count];
+
+            for (var i = 0; i < _toasts.Count; i++)
+            {
+                ids[i] = _toasts[i].Id;
+            }
         }
 
-        await Task.WhenAll(ids.Select(toastId => DismissCore(toastId, invokeAutoClose: false, cancellationToken).AsTask()));
+        var tasks = new Task[ids.Length];
+
+        for (var i = 0; i < ids.Length; i++)
+        {
+            tasks[i] = DismissCore(ids[i], invokeAutoClose: false, cancellationToken).AsTask();
+        }
+
+        await Task.WhenAll(tasks);
     }
 
     private async ValueTask<string> CreateOrUpdate(string? title, RenderFragment? content, SonnerToastType type, Action<SonnerToastOptions>? configure, CancellationToken cancellationToken)
@@ -275,7 +287,7 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            previous = _toasts.FirstOrDefault(item => item.Id == id);
+            previous = FindToast(id);
         }
 
         var toasterId = await ResolveToasterId(options.ToasterId, previous?.ToasterId, cancellationToken);
@@ -342,7 +354,7 @@ public sealed class SonnerService : ISonnerService
                 if (_disposed.Value)
                     return;
 
-                var toast = _toasts.FirstOrDefault(item => item.Id == id);
+                var toast = FindToast(id);
 
                 if (toast is null || toast.Removed || toast.Mounted)
                     return;
@@ -415,7 +427,7 @@ public sealed class SonnerService : ISonnerService
             if (_disposed.Value)
                 return;
 
-            toast = _toasts.FirstOrDefault(item => item.Id == id);
+            toast = FindToast(id);
             if (toast is null || toast.Removed)
                 return;
 
@@ -494,7 +506,14 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock())
         {
-            ids = _timers.Keys.ToArray();
+            ids = new string[_timers.Count];
+            var index = 0;
+
+            foreach (var id in _timers.Keys)
+            {
+                ids[index++] = id;
+            }
+
             _toasts.Clear();
         }
 
@@ -550,7 +569,7 @@ public sealed class SonnerService : ISonnerService
             if (_toasters.ContainsKey(_activeToasterId))
                 return _activeToasterId;
 
-            return _toasters.Keys.FirstOrDefault() ?? _defaultToasterId;
+            return FirstToasterIdOrDefault();
         }
     }
 
@@ -564,6 +583,29 @@ public sealed class SonnerService : ISonnerService
         var elapsedMs = (int)Math.Ceiling((now - timerState.StartedAt).TotalMilliseconds);
         var remainingMs = timerState.RemainingMs - elapsedMs;
         return remainingMs > 0 ? remainingMs : 0;
+    }
+
+    private SonnerToast? FindToast(string id)
+    {
+        for (var i = 0; i < _toasts.Count; i++)
+        {
+            var toast = _toasts[i];
+
+            if (toast.Id == id)
+                return toast;
+        }
+
+        return null;
+    }
+
+    private string FirstToasterIdOrDefault()
+    {
+        foreach (var toasterId in _toasters.Keys)
+        {
+            return toasterId;
+        }
+
+        return _defaultToasterId;
     }
 
     private sealed class TimerState

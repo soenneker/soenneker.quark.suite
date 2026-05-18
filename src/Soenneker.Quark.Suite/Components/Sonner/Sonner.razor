@@ -3,7 +3,6 @@
 
 @inject ISonnerService SonnerService
 @inject ISonnerInterop SonnerInterop
-@using System.Linq
 @using Microsoft.JSInterop
 @using Soenneker.Atomics.ValueBools
 
@@ -228,40 +227,60 @@
         if (_disposed.Value)
             return;
 
-        var query = (await SonnerService.GetToasts(CancellationToken))
-            .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
-            .OrderByDescending(toast => toast.CreatedAt);
+        var toasts = await SonnerService.GetToasts(CancellationToken);
+        var toasterId = NormalizeToasterId(ToasterId);
+        var filterPosition = ToastPosition;
+        List<SonnerToast>? topLeft = null;
+        List<SonnerToast>? topCenter = null;
+        List<SonnerToast>? topRight = null;
+        List<SonnerToast>? bottomLeft = null;
+        List<SonnerToast>? bottomCenter = null;
+        List<SonnerToast>? bottomRight = null;
 
-        if (ToastPosition is not null)
-            query = query.Where(toast => toast.Position == ToastPosition)
-                         .OrderByDescending(toast => toast.CreatedAt);
+        for (var i = toasts.Count - 1; i >= 0; i--)
+        {
+            var toast = toasts[i];
 
-        _groups = query.GroupBy(toast => toast.Position)
-                       .OrderBy(group => GetPositionOrder(group.Key))
-                       .Select(group => new ToastGroup(group.Key, group.ToList()))
-                       .ToList();
+            if (!string.Equals(NormalizeToasterId(toast.ToasterId), toasterId, StringComparison.Ordinal))
+                continue;
+
+            if (filterPosition is not null && toast.Position != filterPosition)
+                continue;
+
+            if (ReferenceEquals(toast.Position, SonnerPosition.TopLeft))
+                (topLeft ??= []).Add(toast);
+            else if (ReferenceEquals(toast.Position, SonnerPosition.TopCenter))
+                (topCenter ??= []).Add(toast);
+            else if (ReferenceEquals(toast.Position, SonnerPosition.TopRight))
+                (topRight ??= []).Add(toast);
+            else if (ReferenceEquals(toast.Position, SonnerPosition.BottomLeft))
+                (bottomLeft ??= []).Add(toast);
+            else if (ReferenceEquals(toast.Position, SonnerPosition.BottomCenter))
+                (bottomCenter ??= []).Add(toast);
+            else
+                (bottomRight ??= []).Add(toast);
+        }
+
+        List<ToastGroup>? groups = null;
+
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopLeft, topLeft);
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopCenter, topCenter);
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopRight, topRight);
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomLeft, bottomLeft);
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomCenter, bottomCenter);
+        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomRight, bottomRight);
+
+        _groups = groups ?? [];
 
         CleanupSwipeDismissedIds();
     }
 
-    private static int GetPositionOrder(SonnerPosition position)
+    private static void AddGroupIfNotEmpty(ref List<ToastGroup>? groups, SonnerPosition position, List<SonnerToast>? toasts)
     {
-        if (ReferenceEquals(position, SonnerPosition.TopLeft))
-            return 0;
+        if (toasts is null || toasts.Count == 0)
+            return;
 
-        if (ReferenceEquals(position, SonnerPosition.TopCenter))
-            return 1;
-
-        if (ReferenceEquals(position, SonnerPosition.TopRight))
-            return 2;
-
-        if (ReferenceEquals(position, SonnerPosition.BottomLeft))
-            return 3;
-
-        if (ReferenceEquals(position, SonnerPosition.BottomCenter))
-            return 4;
-
-        return 5;
+        (groups ??= new List<ToastGroup>(6)).Add(new ToastGroup(position, toasts));
     }
 
     private static string GetToasterClass() => "toaster group";
@@ -481,7 +500,20 @@
 
     private static string? GetHotkeyKey(IReadOnlyList<string>? hotkey)
     {
-        return hotkey is null || hotkey.Count == 0 ? null : string.Join("+", hotkey);
+        if (hotkey is null || hotkey.Count == 0)
+            return null;
+
+        using var builder = new PooledStringBuilder(hotkey.Count * 8);
+
+        for (var i = 0; i < hotkey.Count; i++)
+        {
+            if (i != 0)
+                builder.Append('+');
+
+            builder.Append(hotkey[i]);
+        }
+
+        return builder.ToString();
     }
 
     private void OnStateChanged()
@@ -573,11 +605,23 @@
         if (_swipeDismissedToastIds.Count == 0)
             return;
 
-        var currentIds = _groups.SelectMany(group => group.Toasts)
-                                .Select(toast => toast.Id)
-                                .ToHashSet(StringComparer.Ordinal);
+        _swipeDismissedToastIds.RemoveWhere(id => !ContainsCurrentToastId(id));
+    }
 
-        _swipeDismissedToastIds.RemoveWhere(id => !currentIds.Contains(id));
+    private bool ContainsCurrentToastId(string id)
+    {
+        for (var groupIndex = 0; groupIndex < _groups.Count; groupIndex++)
+        {
+            var toasts = _groups[groupIndex].Toasts;
+
+            for (var toastIndex = 0; toastIndex < toasts.Count; toastIndex++)
+            {
+                if (string.Equals(toasts[toastIndex].Id, id, StringComparison.Ordinal))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     protected override async ValueTask OnDisposeAsync()
@@ -625,9 +669,28 @@
 
     private IEnumerable<SonnerPosition> GetActivePositions()
     {
-        return _expandedPositions.Concat(_interactingPositions)
-                                 .Concat(_focusedPositions)
-                                 .Distinct();
+        if (IsPositionActive(SonnerPosition.TopLeft))
+            yield return SonnerPosition.TopLeft;
+
+        if (IsPositionActive(SonnerPosition.TopCenter))
+            yield return SonnerPosition.TopCenter;
+
+        if (IsPositionActive(SonnerPosition.TopRight))
+            yield return SonnerPosition.TopRight;
+
+        if (IsPositionActive(SonnerPosition.BottomLeft))
+            yield return SonnerPosition.BottomLeft;
+
+        if (IsPositionActive(SonnerPosition.BottomCenter))
+            yield return SonnerPosition.BottomCenter;
+
+        if (IsPositionActive(SonnerPosition.BottomRight))
+            yield return SonnerPosition.BottomRight;
+    }
+
+    private bool IsPositionActive(SonnerPosition position)
+    {
+        return _expandedPositions.Contains(position) || _interactingPositions.Contains(position) || _focusedPositions.Contains(position);
     }
 
     private sealed record ToastGroup(SonnerPosition Position, IReadOnlyList<SonnerToast> Toasts);

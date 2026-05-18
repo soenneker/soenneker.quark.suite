@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.Clipboard.Registrars;
@@ -21,7 +20,7 @@ public static class QuarkSuiteRegistrar
     public static IServiceCollection AddQuarkSuiteAsScoped(this IServiceCollection services)
     {
         // Auto-register QuarkOptions if not already registered
-        if (services.All(descriptor => descriptor.ServiceType != typeof(QuarkOptions)))
+        if (!HasQuarkOptionsRegistration(services))
             services.AddDefaultQuarkOptionsAsScoped();
 
         services.AddBradixSuiteAsScoped()
@@ -54,5 +53,16 @@ public static class QuarkSuiteRegistrar
     {
         var quarkOptions = serviceProvider.GetRequiredService<QuarkOptions>();
 
+    }
+
+    private static bool HasQuarkOptionsRegistration(IServiceCollection services)
+    {
+        foreach (ServiceDescriptor descriptor in services)
+        {
+            if (descriptor.ServiceType == typeof(QuarkOptions))
+                return true;
+        }
+
+        return false;
     }
 }

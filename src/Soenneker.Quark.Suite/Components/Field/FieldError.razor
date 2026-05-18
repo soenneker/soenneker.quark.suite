@@ -1,5 +1,4 @@
 @namespace Soenneker.Quark
-@using System.Linq
 @inherits Soenneker.Quark.TypographyElement
 
 @if (HasContent)
@@ -34,19 +33,15 @@
 
     private IDisposable? _registration;
     private FieldContext? _registeredContext;
-    private IReadOnlyList<string> UniqueErrorMessages =>
-        Errors?
-            .Where(message => !message.IsNullOrWhiteSpace())
-            .Select(message => message!.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToArray()
-        ?? [];
+    private IReadOnlyList<string> _uniqueErrorMessages = [];
+    private IReadOnlyList<string> UniqueErrorMessages => _uniqueErrorMessages;
 
     private bool HasContent => ChildContent is not null || UniqueErrorMessages.Count > 0;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        _uniqueErrorMessages = BuildUniqueErrorMessages(Errors);
 
         var contextToRegister = HasContent ? FieldContext : null;
 
@@ -91,5 +86,42 @@
     {
         _registration?.Dispose();
         base.Dispose();
+    }
+
+    private static IReadOnlyList<string> BuildUniqueErrorMessages(IReadOnlyList<string?>? errors)
+    {
+        if (errors is null || errors.Count == 0)
+            return [];
+
+        List<string>? messages = null;
+
+        foreach (string? error in errors)
+        {
+            if (string.IsNullOrWhiteSpace(error))
+                continue;
+
+            string message = error.Trim();
+            if (messages is null)
+            {
+                messages = [message];
+                continue;
+            }
+
+            if (!ContainsOrdinal(messages, message))
+                messages.Add(message);
+        }
+
+        return messages ?? [];
+    }
+
+    private static bool ContainsOrdinal(List<string> values, string value)
+    {
+        foreach (string candidate in values)
+        {
+            if (string.Equals(candidate, value, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 }

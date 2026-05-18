@@ -9,6 +9,7 @@
 
 @code {
     private ElementReference _elementRef;
+    private string _searchText = string.Empty;
 
     [Parameter]
     public EventCallback OnSelect { get; set; }
@@ -30,7 +31,7 @@
 
     internal bool IsVisibleResolved => ParentCommand?.IsItemVisible(this) ?? true;
 
-    internal string SearchText => string.Join(' ', new[] { SearchValue }.Concat(Keywords ?? []));
+    internal string SearchText => _searchText;
 
     protected override void ApplyDefaultParameters()
     {
@@ -62,6 +63,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        _searchText = BuildSearchText();
         ParentCommand?.UpdateItemGroup(this, ParentCommandGroup);
     }
 
@@ -125,7 +127,67 @@
         hc.Add(ParentCommand?.IsItemActive(this));
         hc.Add(ParentCommand?.GetItemOrder(this));
         hc.Add(SearchValue);
+        if (Keywords is not null)
+        {
+            foreach (string keyword in Keywords)
+                hc.Add(keyword);
+        }
+
         hc.Add(Checked);
+    }
+
+    private string BuildSearchText()
+    {
+        bool hasSearchValue = !string.IsNullOrWhiteSpace(SearchValue);
+        int keywordCount = Keywords?.Length ?? 0;
+
+        if (!hasSearchValue && keywordCount == 0)
+            return string.Empty;
+
+        if (keywordCount == 0)
+            return SearchValue!;
+
+        int length = hasSearchValue ? SearchValue!.Length : 0;
+        int parts = hasSearchValue ? 1 : 0;
+
+        foreach (string keyword in Keywords!)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                continue;
+
+            length += keyword.Length;
+            parts++;
+        }
+
+        if (parts == 0)
+            return string.Empty;
+
+        length += parts - 1;
+        return string.Create(length, (SearchValue, Keywords, hasSearchValue), static (span, state) =>
+        {
+            int position = 0;
+            bool wrotePart = false;
+
+            if (state.hasSearchValue)
+            {
+                state.SearchValue.AsSpan().CopyTo(span);
+                position += state.SearchValue!.Length;
+                wrotePart = true;
+            }
+
+            foreach (string keyword in state.Keywords!)
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    continue;
+
+                if (wrotePart)
+                    span[position++] = ' ';
+
+                keyword.AsSpan().CopyTo(span[position..]);
+                position += keyword.Length;
+                wrotePart = true;
+            }
+        });
     }
 
     internal async Task Focus()

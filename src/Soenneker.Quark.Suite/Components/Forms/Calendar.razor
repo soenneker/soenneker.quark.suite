@@ -1,5 +1,4 @@
 @using System.Globalization
-@using System.Linq
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -27,7 +26,7 @@
                         <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Is1_5' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
                             <Span data-disabled="false" Position="Quark.Position.Relative" Class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <SelectPrimitive Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" BackgroundColor="Quark.BackgroundColor.Popover" Opacity="Quark.Opacity.Is0" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((month.Month - 1).ToString(CultureInfo.InvariantCulture))" OnChange="OnMonthChanged">
-                                    @foreach (var optionMonth in Enumerable.Range(0, 12))
+                                    @for (var optionMonth = 0; optionMonth < 12; optionMonth++)
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
@@ -39,7 +38,7 @@
                             </Span>
                             <Span data-disabled="false" Position="Quark.Position.Relative" Class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <SelectPrimitive Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" BackgroundColor="Quark.BackgroundColor.Popover" Opacity="Quark.Opacity.Is0" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@month.Year.ToString(CultureInfo.InvariantCulture)" OnChange="OnYearChanged">
-                                    @foreach (var year in GetSelectableYears())
+                                    @for (var year = GetMinSelectableYear(); year <= GetMaxSelectableYear(); year++)
                                     {
                                         <option value="@year">@year</option>
                                     }
@@ -122,6 +121,27 @@
 
     private static readonly CssValue<ButtonSizeBuilder> CalendarNavButtonSize = "gap-1.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 size-(--cell-size) p-0";
     private static readonly CssValue<ButtonSizeBuilder> CalendarDayButtonSize = "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal";
+    private static readonly string[] PersianMonthNames =
+    [
+        "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+        "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+    ];
+    private static readonly string[] PersianWeekdays =
+    [
+        "یک\u200cشنبه", "دوشنبه", "سه\u200cشنبه", "چهارشنبه", "پنج\u200cشنبه", "جمعه", "شنبه"
+    ];
+    private static readonly string[] ArabicWeekdays =
+    [
+        "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+    ];
+    private static readonly string[] ArabicMonthNames =
+    [
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
+    private static readonly string[] ArabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+    private static readonly string[] PersianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+    private static readonly CultureInfo EnUsCulture = CultureInfo.GetCultureInfo("en-US");
 
     [Parameter]
     public DateOnly? SelectedDate { get; set; }
@@ -220,6 +240,8 @@
     private DateOnly? _lastAppliedDisplayMonth;
     private string[] _dayNames = [];
     private string[] _fullDayNames = [];
+    private CultureInfo _resolvedCulture = CultureInfo.CurrentCulture;
+    private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private bool _initialized;
     private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
     private bool IsMultipleMode => Mode == CalendarSelectionMode.Multiple;
@@ -230,12 +252,16 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _today = DateOnly.FromDateTime(DateTime.Today);
+        _resolvedCulture = ResolveCultureCore();
         InitializeDayNames();
     }
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        _today = DateOnly.FromDateTime(DateTime.Today);
+        _resolvedCulture = ResolveCultureCore();
         InitializeDayNames();
 
         if (!IsRangeMode && SelectedDate is null && DateOnlyValue.HasValue)
@@ -257,7 +283,7 @@
 
         if (!_initialized)
         {
-            var initialDate = IsRangeMode ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? DateOnly.FromDateTime(DateTime.Today) : IsMultipleMode ? EffectiveSelectedDates.FirstOrDefault(DateOnly.FromDateTime(DateTime.Today)) : EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var initialDate = IsRangeMode ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? _today : IsMultipleMode ? GetInitialMultipleDate() : EffectiveSelectedDate ?? _today;
             _displayMonth = new DateOnly(initialDate.Year, initialDate.Month, 1);
             _initialized = true;
         }
@@ -265,81 +291,110 @@
 
     private void InitializeDayNames()
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
         var first = GetFirstDayOfWeek(culture);
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
         var fullNames = culture.DateTimeFormat.DayNames;
-        _dayNames = Enumerable.Range(0, 7).Select(i =>
+
+        var dayNames = new string[7];
+        var fullDayNames = new string[7];
+
+        for (var i = 0; i < dayNames.Length; i++)
         {
             var name = names[((int)first + i) % 7];
-            return name.Length > 2 ? name[..2] : name;
-        }).ToArray();
-        _fullDayNames = Enumerable.Range(0, 7).Select(i => fullNames[((int)first + i) % 7]).ToArray();
+            dayNames[i] = name.Length > 2 ? name[..2] : name;
+            fullDayNames[i] = fullNames[((int)first + i) % 7];
+        }
+
+        _dayNames = dayNames;
+        _fullDayNames = fullDayNames;
     }
 
-    private record Cell(DateOnly Date, bool InMonth, bool Disabled);
-
-    private List<List<Cell>> BuildMonthWeeks(DateOnly month)
+    private DateOnly GetInitialMultipleDate()
     {
-        var culture = ResolveCulture();
+        return EffectiveSelectedDates.Count == 0 ? _today : EffectiveSelectedDates[0];
+    }
+
+    private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
+
+    private List<Cell[]> BuildMonthWeeks(DateOnly month)
+    {
+        var culture = _resolvedCulture;
         var calendar = culture.Calendar;
         DateOnly firstOfMonth;
-        Func<DateOnly, bool> isInDisplayedMonth;
+        var cultureCalendarYear = 0;
+        var cultureCalendarMonth = 0;
 
         if (UseCultureCalendar)
         {
             var displayDate = month.ToDateTime(TimeOnly.MinValue);
-            var calendarYear = calendar.GetYear(displayDate);
-            var calendarMonth = calendar.GetMonth(displayDate);
-            firstOfMonth = DateOnly.FromDateTime(calendar.ToDateTime(calendarYear, calendarMonth, 1, 0, 0, 0, 0));
-            isInDisplayedMonth = date =>
-            {
-                var dateTime = date.ToDateTime(TimeOnly.MinValue);
-                return calendar.GetYear(dateTime) == calendarYear && calendar.GetMonth(dateTime) == calendarMonth;
-            };
+            cultureCalendarYear = calendar.GetYear(displayDate);
+            cultureCalendarMonth = calendar.GetMonth(displayDate);
+            firstOfMonth = DateOnly.FromDateTime(calendar.ToDateTime(cultureCalendarYear, cultureCalendarMonth, 1, 0, 0, 0, 0));
         }
         else
         {
             firstOfMonth = new DateOnly(month.Year, month.Month, 1);
-            isInDisplayedMonth = date => date.Month == month.Month;
         }
 
         var startDow = GetFirstDayOfWeek(culture);
         var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
         var gridStart = firstOfMonth.AddDays(-offset);
-        var weeks = new List<List<Cell>>(6);
-        var currentWeek = new List<Cell>(7);
+        var weeks = new List<Cell[]>(6);
+        var currentWeek = new Cell[7];
+        var lastWeekWithMonthDays = -1;
 
         for (var i = 0; i < 42; i++)
         {
             var d = gridStart.AddDays(i);
-            var inMonth = isInDisplayedMonth(d);
-            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value) || (DisabledDates?.Contains(d) == true);
+            var inMonth = IsInDisplayedMonth(d, month, calendar, cultureCalendarYear, cultureCalendarMonth);
+            var disabled = IsDisabledDate(d);
             if (!ShowOutsideDays && !inMonth)
                 disabled = true;
 
-            currentWeek.Add(new Cell(d, inMonth, disabled));
+            currentWeek[i % 7] = new Cell(d, inMonth, disabled);
 
-            if (currentWeek.Count == 7)
+            if (i % 7 == 6)
             {
+                if (WeekHasMonthDays(currentWeek))
+                    lastWeekWithMonthDays = weeks.Count;
+
                 weeks.Add(currentWeek);
-                currentWeek = new List<Cell>(7);
+                currentWeek = new Cell[7];
             }
         }
 
-        if (!FixedWeeks)
+        if (!FixedWeeks && lastWeekWithMonthDays >= 0 && lastWeekWithMonthDays < weeks.Count - 1)
         {
-            var lastWeekWithMonthDays = weeks.FindLastIndex(week => week.Any(cell => cell.InMonth));
-            if (lastWeekWithMonthDays >= 0)
-                weeks = weeks.Take(lastWeekWithMonthDays + 1).ToList();
+            weeks.RemoveRange(lastWeekWithMonthDays + 1, weeks.Count - lastWeekWithMonthDays - 1);
         }
 
         return weeks;
     }
 
+    private bool IsInDisplayedMonth(DateOnly date, DateOnly month, System.Globalization.Calendar calendar, int cultureCalendarYear, int cultureCalendarMonth)
+    {
+        if (!UseCultureCalendar)
+            return date.Month == month.Month;
+
+        var dateTime = date.ToDateTime(TimeOnly.MinValue);
+        return calendar.GetYear(dateTime) == cultureCalendarYear && calendar.GetMonth(dateTime) == cultureCalendarMonth;
+    }
+
+    private static bool WeekHasMonthDays(Cell[] week)
+    {
+        for (var i = 0; i < week.Length; i++)
+        {
+            if (week[i].InMonth)
+                return true;
+        }
+
+        return false;
+    }
+
     private async Task SelectDate(DateOnly date)
     {
-        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || (DisabledDates?.Contains(date) == true))
+        if (IsDisabledDate(date))
             return;
 
         if (IsRangeMode)
@@ -354,15 +409,7 @@
 
         if (IsMultipleMode)
         {
-            var values = EffectiveSelectedDates.ToList();
-            var existingIndex = values.FindIndex(candidate => candidate == date);
-
-            if (existingIndex >= 0)
-                values.RemoveAt(existingIndex);
-            else
-                values.Add(date);
-
-            SelectedDates = values.ToArray();
+            SelectedDates = ToggleSelectedDate(date);
             await SelectedDatesChanged.InvokeAsync(SelectedDates);
             InvalidateRender();
             Refresh();
@@ -399,14 +446,14 @@
     private bool IsDateSelected(DateOnly date)
     {
         if (IsMultipleMode)
-            return EffectiveSelectedDates.Contains(date);
+            return ContainsDate(EffectiveSelectedDates, date);
 
         return EffectiveSelectedDate.HasValue && date == EffectiveSelectedDate.Value;
     }
 
     private int GetWeekNumber(DateOnly date)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
         return culture.Calendar.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), culture.DateTimeFormat.CalendarWeekRule, GetFirstDayOfWeek(culture));
     }
 
@@ -438,37 +485,34 @@
         Refresh();
     }
 
-    private IEnumerable<int> GetSelectableYears()
+    private int GetMinSelectableYear()
     {
         var currentYear = DateTime.Today.Year;
-        var minYear = Min?.Year ?? (currentYear - 100);
-        var maxYear = Max?.Year ?? currentYear;
+        return Min?.Year ?? (currentYear - 100);
+    }
 
-        return Enumerable.Range(minYear, maxYear - minYear + 1);
+    private int GetMaxSelectableYear()
+    {
+        return Max?.Year ?? DateTime.Today.Year;
     }
 
     private string GetMonthDropdownLabel(int month)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
 
         return GetLocalizedGregorianMonthName(culture, month, abbreviated: !UseFullMonthNames);
     }
 
     private string GetMonthCaption(DateOnly month)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
 
         if (UseCultureCalendar && culture.Calendar.GetType().Name == "PersianCalendar")
         {
             var dateTime = month.ToDateTime(TimeOnly.MinValue);
-            var names = new[]
-            {
-                "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-                "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-            };
             var monthIndex = culture.Calendar.GetMonth(dateTime) - 1;
             var year = ToNativeDigits(culture.Calendar.GetYear(dateTime).ToString(CultureInfo.InvariantCulture), culture);
-            return $"{names[monthIndex]} {year}";
+            return $"{PersianMonthNames[monthIndex]} {year}";
         }
 
         if (!culture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) && TryGetGregorianMonthNames(culture, out _))
@@ -567,7 +611,7 @@
         ])
     };
 
-    private CultureInfo ResolveCulture()
+    private CultureInfo ResolveCultureCore()
     {
         if (CultureName.IsNullOrEmpty())
             return CultureInfo.CurrentCulture;
@@ -584,7 +628,7 @@
 
     private string GetDayLabel(DateOnly date)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
         var day = UseCultureCalendar ? culture.Calendar.GetDayOfMonth(date.ToDateTime(TimeOnly.MinValue)) : date.Day;
 
         return ToNativeDigits(day.ToString(CultureInfo.InvariantCulture), culture);
@@ -605,40 +649,21 @@
 
     private string GetDayAriaLabel(DateOnly date)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
 
         if (UseCultureCalendar && culture.Calendar.GetType().Name == "PersianCalendar")
         {
             var dateTime = date.ToDateTime(TimeOnly.MinValue);
-            var weekdays = new[]
-            {
-                "یک\u200cشنبه", "دوشنبه", "سه\u200cشنبه", "چهارشنبه", "پنج\u200cشنبه", "جمعه", "شنبه"
-            };
-            var months = new[]
-            {
-                "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-                "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-            };
             var day = ToNativeDigits(culture.Calendar.GetDayOfMonth(dateTime).ToString(CultureInfo.InvariantCulture), culture);
-            var month = months[culture.Calendar.GetMonth(dateTime) - 1];
+            var month = PersianMonthNames[culture.Calendar.GetMonth(dateTime) - 1];
             var year = ToNativeDigits(culture.Calendar.GetYear(dateTime).ToString(CultureInfo.InvariantCulture), culture);
 
-            return $"{weekdays[(int)date.DayOfWeek]} {day}-ام {month} {year}";
+            return $"{PersianWeekdays[(int)date.DayOfWeek]} {day}-ام {month} {year}";
         }
 
         if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
         {
-            var weekdays = new[]
-            {
-                "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
-            };
-            var months = new[]
-            {
-                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            };
-
-            return $"{weekdays[(int)date.DayOfWeek]}, {months[date.Month - 1]} {date.Day.ToString(CultureInfo.InvariantCulture)}, {date.Year.ToString(CultureInfo.InvariantCulture)}";
+            return $"{ArabicWeekdays[(int)date.DayOfWeek]}, {ArabicMonthNames[date.Month - 1]} {date.Day.ToString(CultureInfo.InvariantCulture)}, {date.Year.ToString(CultureInfo.InvariantCulture)}";
         }
 
         if (culture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase))
@@ -653,24 +678,23 @@
 
     private string GetDataDay(DateOnly date)
     {
-        var culture = ResolveCulture();
+        var culture = _resolvedCulture;
 
         if (UseCultureCalendar && culture.Calendar.GetType().Name == "PersianCalendar")
-            return date.ToString("M/d/yyyy", CultureInfo.GetCultureInfo("en-US"));
+            return date.ToString("M/d/yyyy", EnUsCulture);
 
         if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
             return $"{ToArabicDigits(date.Day)}\u200f/{ToArabicDigits(date.Month)}\u200f/{ToArabicDigits(date.Year)}";
 
-        return date.ToString("M/d/yyyy", CultureInfo.GetCultureInfo("en-US"));
+        return date.ToString("M/d/yyyy", EnUsCulture);
     }
 
     private static string ToArabicDigits(int value)
     {
         var result = value.ToString(CultureInfo.InvariantCulture);
-        var digits = new[] { "٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩" };
 
-        for (var i = 0; i < digits.Length; i++)
-            result = result.Replace(i.ToString(CultureInfo.InvariantCulture), digits[i], StringComparison.Ordinal);
+        for (var i = 0; i < ArabicDigits.Length; i++)
+            result = result.Replace(i.ToString(CultureInfo.InvariantCulture), ArabicDigits[i], StringComparison.Ordinal);
 
         return result;
     }
@@ -709,7 +733,7 @@
         if (EffectiveSelectedDate.HasValue || EffectiveSelectedRange?.From is not null || EffectiveSelectedDates.Count > 0)
             return false;
 
-        return date == DateOnly.FromDateTime(DateTime.Today);
+        return date == _today;
     }
 
     private static string ToNativeDigits(string value, CultureInfo culture)
@@ -717,7 +741,7 @@
         var nativeDigits = culture.NumberFormat.NativeDigits;
 
         if (culture.Name.StartsWith("fa", StringComparison.OrdinalIgnoreCase))
-            nativeDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+            nativeDigits = PersianDigits;
         else if (nativeDigits.Length != 10 || nativeDigits[0] == "0")
             return value;
 
@@ -729,11 +753,85 @@
         return result;
     }
 
+    private bool IsDisabledDate(DateOnly date)
+    {
+        return (Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || ContainsDisabledDate(date);
+    }
+
+    private bool ContainsDisabledDate(DateOnly date)
+    {
+        if (DisabledDates is null || DisabledDates.Length == 0)
+            return false;
+
+        for (var i = 0; i < DisabledDates.Length; i++)
+        {
+            if (DisabledDates[i] == date)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsDate(IReadOnlyList<DateOnly> dates, DateOnly date)
+    {
+        for (var i = 0; i < dates.Count; i++)
+        {
+            if (dates[i] == date)
+                return true;
+        }
+
+        return false;
+    }
+
+    private DateOnly[] ToggleSelectedDate(DateOnly date)
+    {
+        var selectedDates = EffectiveSelectedDates;
+        var existingIndex = -1;
+
+        for (var i = 0; i < selectedDates.Count; i++)
+        {
+            if (selectedDates[i] == date)
+            {
+                existingIndex = i;
+                break;
+            }
+        }
+
+        if (existingIndex >= 0)
+        {
+            if (selectedDates.Count == 1)
+                return [];
+
+            var values = new DateOnly[selectedDates.Count - 1];
+            var targetIndex = 0;
+
+            for (var i = 0; i < selectedDates.Count; i++)
+            {
+                if (i == existingIndex)
+                    continue;
+
+                values[targetIndex++] = selectedDates[i];
+            }
+
+            return values;
+        }
+
+        var nextValues = new DateOnly[selectedDates.Count + 1];
+
+        for (var i = 0; i < selectedDates.Count; i++)
+        {
+            nextValues[i] = selectedDates[i];
+        }
+
+        nextValues[^1] = date;
+        return nextValues;
+    }
+
     private CalendarDayContext BuildDayContext(Cell day)
     {
         var modifiers = GetModifierNames(day.Date);
 
-        return new CalendarDayContext(day.Date, day.InMonth, day.Disabled, day.Date == DateOnly.FromDateTime(DateTime.Today), IsDateSelected(day.Date), EffectiveSelectedRange?.From == day.Date, EffectiveSelectedRange?.To == day.Date, IsDateInRange(day.Date), modifiers);
+        return new CalendarDayContext(day.Date, day.InMonth, day.Disabled, day.Date == _today, IsDateSelected(day.Date), EffectiveSelectedRange?.From == day.Date, EffectiveSelectedRange?.To == day.Date, IsDateInRange(day.Date), modifiers);
     }
 
     private List<string> GetModifierNames(DateOnly date)

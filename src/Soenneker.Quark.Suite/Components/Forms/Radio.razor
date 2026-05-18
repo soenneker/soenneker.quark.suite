@@ -91,6 +91,25 @@ else
 }
 
 @code {
+    private static readonly IReadOnlyDictionary<string, object> GroupedIndicatorAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "radio-group-indicator",
+        ["class"] = "flex size-4 items-center justify-center"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> GroupedIndicatorDotAttributes = new Dictionary<string, object>
+    {
+        ["aria-hidden"] = "true",
+        ["class"] = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> UngroupedIndicatorDotAttributes = new Dictionary<string, object>
+    {
+        ["aria-hidden"] = "true",
+        ["class"] = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground",
+        ["data-slot"] = "radio-group-indicator"
+    };
+
     /// <summary>
     /// Gets or sets the callback invoked When the radio state changes.
     /// </summary>
@@ -416,33 +435,11 @@ else
         }
     }
 
-    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorAttributes()
-    {
-        return new Dictionary<string, object>
-        {
-            ["data-slot"] = "radio-group-indicator",
-            ["class"] = "flex size-4 items-center justify-center"
-        };
-    }
+    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorAttributes() => GroupedIndicatorAttributes;
 
-    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorDotAttributes()
-    {
-        return new Dictionary<string, object>
-        {
-            ["aria-hidden"] = "true",
-            ["class"] = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"
-        };
-    }
+    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorDotAttributes() => GroupedIndicatorDotAttributes;
 
-    private static IReadOnlyDictionary<string, object> BuildUngroupedIndicatorDotAttributes()
-    {
-        var attributes = new Dictionary<string, object>(BuildGroupedIndicatorDotAttributes())
-        {
-            ["data-slot"] = "radio-group-indicator"
-        };
-
-        return attributes;
-    }
+    private static IReadOnlyDictionary<string, object> BuildUngroupedIndicatorDotAttributes() => UngroupedIndicatorDotAttributes;
 
     private string? GetValidationClass()
     {

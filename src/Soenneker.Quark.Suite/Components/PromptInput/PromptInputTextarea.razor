@@ -1,5 +1,4 @@
 @namespace Soenneker.Quark
-@using System.Linq
 @using Microsoft.JSInterop
 @inherits Soenneker.Quark.Component
 @implements IAsyncDisposable
@@ -45,11 +44,10 @@
             var attributes = new Dictionary<string, object>(BuildAttributes());
             attributes.TryGetValue("class", out var existingClass);
             attributes["aria-label"] = "Message input";
-            attributes["class"] = string.Join(" ", new[]
-            {
-                "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent",
-                existingClass?.ToString()
-            }.Where(x => !string.IsNullOrWhiteSpace(x)));
+            const string baseClass =
+                "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent";
+            string? existingClassString = existingClass?.ToString();
+            attributes["class"] = string.IsNullOrWhiteSpace(existingClassString) ? baseClass : $"{baseClass} {existingClassString}";
 
             return attributes;
         }

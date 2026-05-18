@@ -16,7 +16,7 @@
 
     internal string? Search => _search;
 
-    internal bool HasVisibleItems => _entries.Any(entry => entry.Matches(_search));
+    internal bool HasVisibleItems => HasAnyVisibleEntry();
 
     internal string? ActiveItemId => _activeItem?.Id;
 
@@ -26,7 +26,7 @@
 
     internal void RegisterItem(CommandItem item, CommandGroup? group)
     {
-        var existingEntry = _entries.FirstOrDefault(entry => ReferenceEquals(entry.Item, item));
+        var existingEntry = FindEntry(item);
         if (existingEntry is not null)
         {
             existingEntry.Group = group;
@@ -43,21 +43,21 @@
 
     internal void UpdateItemGroup(CommandItem item, CommandGroup? group)
     {
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        var entry = FindEntry(item);
         if (entry is not null)
             entry.Group = group;
     }
 
     internal void UnregisterItem(CommandItem item)
     {
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        var entry = FindEntry(item);
         if (entry is null)
             return;
 
         _entries.Remove(entry);
 
         if (ReferenceEquals(_activeItem, item))
-            _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
+            _activeItem = GetFirstVisibleEntry()?.Item;
 
         Refresh();
     }
@@ -69,7 +69,7 @@
 
     internal bool IsItemVisible(CommandItem item)
     {
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        var entry = FindEntry(item);
         return entry?.Matches(_search) ?? true;
     }
 
@@ -78,25 +78,57 @@
         if (string.IsNullOrWhiteSpace(_search))
             return null;
 
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        var entry = FindEntry(item);
         if (entry is null || !entry.Matches(_search))
             return null;
 
-        var sortedEntries = _entries
-            .Where(candidate => IsSameEntryGroup(candidate.Group, entry.Group) && candidate.Matches(_search))
-            .OrderBy(candidate => candidate.Item.SearchText, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        int order = 0;
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        bool reachedItem = false;
 
-        var index = sortedEntries.FindIndex(candidate => ReferenceEquals(candidate.Item, item));
-        return index >= 0 ? index : null;
+        foreach (CommandEntry candidate in _entries)
+        {
+            if (!IsSameEntryGroup(candidate.Group, entry.Group) || !candidate.Matches(_search))
+                continue;
+
+            int comparison = comparer.Compare(candidate.Item.SearchText, item.SearchText);
+            if (comparison < 0)
+            {
+                order++;
+                continue;
+            }
+
+            if (comparison == 0)
+            {
+                if (ReferenceEquals(candidate.Item, item))
+                {
+                    reachedItem = true;
+                    continue;
+                }
+
+                if (!reachedItem)
+                    order++;
+            }
+        }
+
+        return order;
     }
 
     internal bool GroupHasVisibleItems(CommandGroup group)
     {
-        if (_entries.Any(entry => entry.Group is null && entry.Matches(_search)))
-            return true;
+        foreach (CommandEntry entry in _entries)
+        {
+            if (entry.Group is null && entry.Matches(_search))
+                return true;
+        }
 
-        return _entries.Any(entry => IsSameGroup(entry.Group, group) && entry.Matches(_search));
+        foreach (CommandEntry entry in _entries)
+        {
+            if (IsSameGroup(entry.Group, group) && entry.Matches(_search))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool IsSameGroup(CommandGroup? entryGroup, CommandGroup group)
@@ -124,7 +156,7 @@
     internal async Task SetSearch(string? value)
     {
         _search = value;
-        _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
+        _activeItem = GetFirstVisibleEntry()?.Item;
         await RefreshOffThread();
     }
 
@@ -142,27 +174,26 @@
 
     internal async Task HandleInputNavigation(string key)
     {
-        var visibleEntries = GetVisibleEntries();
-        if (visibleEntries.Count == 0)
+        int visibleCount = CountVisibleEntries(out int currentIndex);
+        if (visibleCount == 0)
             return;
-
-        var currentIndex = _activeItem is null
-            ? -1
-            : visibleEntries.FindIndex(entry => ReferenceEquals(entry.Item, _activeItem));
 
         var nextIndex = key switch
         {
-            "ArrowDown" => currentIndex < 0 ? 0 : Math.Min(currentIndex + 1, visibleEntries.Count - 1),
-            "ArrowUp" => currentIndex < 0 ? visibleEntries.Count - 1 : Math.Max(currentIndex - 1, 0),
+            "ArrowDown" => currentIndex < 0 ? 0 : Math.Min(currentIndex + 1, visibleCount - 1),
+            "ArrowUp" => currentIndex < 0 ? visibleCount - 1 : Math.Max(currentIndex - 1, 0),
             "Home" => 0,
-            "End" => visibleEntries.Count - 1,
+            "End" => visibleCount - 1,
             _ => -1
         };
 
         if (nextIndex < 0)
             return;
 
-        var nextEntry = visibleEntries[nextIndex];
+        var nextEntry = GetVisibleEntryAt(nextIndex);
+        if (nextEntry is null)
+            return;
+
         _activeItem = nextEntry.Item;
         await RefreshOffThread();
     }
@@ -175,9 +206,74 @@
         await _activeItem.Select();
     }
 
-    private List<CommandEntry> GetVisibleEntries()
+    private CommandEntry? FindEntry(CommandItem item)
     {
-        return _entries.Where(entry => entry.IsVisible && !entry.IsDisabled).ToList();
+        foreach (CommandEntry entry in _entries)
+        {
+            if (ReferenceEquals(entry.Item, item))
+                return entry;
+        }
+
+        return null;
+    }
+
+    private bool HasAnyVisibleEntry()
+    {
+        foreach (CommandEntry entry in _entries)
+        {
+            if (entry.Matches(_search))
+                return true;
+        }
+
+        return false;
+    }
+
+    private CommandEntry? GetFirstVisibleEntry()
+    {
+        foreach (CommandEntry entry in _entries)
+        {
+            if (entry.IsVisible && !entry.IsDisabled)
+                return entry;
+        }
+
+        return null;
+    }
+
+    private int CountVisibleEntries(out int activeIndex)
+    {
+        activeIndex = -1;
+        int count = 0;
+
+        foreach (CommandEntry entry in _entries)
+        {
+            if (!entry.IsVisible || entry.IsDisabled)
+                continue;
+
+            if (ReferenceEquals(entry.Item, _activeItem))
+                activeIndex = count;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    private CommandEntry? GetVisibleEntryAt(int targetIndex)
+    {
+        int index = 0;
+
+        foreach (CommandEntry entry in _entries)
+        {
+            if (!entry.IsVisible || entry.IsDisabled)
+                continue;
+
+            if (index == targetIndex)
+                return entry;
+
+            index++;
+        }
+
+        return null;
     }
 
     protected override void ApplyDefaultParameters()

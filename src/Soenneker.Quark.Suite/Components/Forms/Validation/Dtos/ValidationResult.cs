@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -72,7 +73,6 @@ public sealed class ValidationResult
         var hasError = false;
         List<string>? errorMessages = null;
         List<string>? memberNames = null;
-        HashSet<string>? memberNameSet = null;
 
         for (var i = 0; i < results.Length; i++)
         {
@@ -96,21 +96,17 @@ public sealed class ValidationResult
                 if (string.IsNullOrEmpty(name))
                     continue;
 
-                if (memberNameSet is null)
-                {
-                    memberNameSet = new HashSet<string>(StringComparer.Ordinal);
-                    memberNames = [];
-                }
+                memberNames ??= [];
 
-                if (memberNameSet.Add(name))
-                    memberNames!.Add(name);
+                if (!ContainsOrdinal(memberNames, name))
+                    memberNames.Add(name);
             }
         }
 
         if (!hasError)
             return Success();
 
-        var allErrors = errorMessages is null ? string.Empty : string.Join(" ", errorMessages);
+        var allErrors = BuildErrorText(errorMessages);
 
         return new ValidationResult
         {
@@ -119,6 +115,36 @@ public sealed class ValidationResult
             MemberNames = memberNames is { Count: > 0 } ? memberNames : null
         };
     }
+
+    private static bool ContainsOrdinal(List<string> values, string value)
+    {
+        for (var i = 0; i < values.Count; i++)
+        {
+            if (string.Equals(values[i], value, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string BuildErrorText(List<string>? errorMessages)
+    {
+        if (errorMessages is null || errorMessages.Count == 0)
+            return string.Empty;
+
+        if (errorMessages.Count == 1)
+            return errorMessages[0];
+
+        using var builder = new PooledStringBuilder(errorMessages.Count * 32);
+
+        for (var i = 0; i < errorMessages.Count; i++)
+        {
+            if (i != 0)
+                builder.Append(' ');
+
+            builder.Append(errorMessages[i]);
+        }
+
+        return builder.ToString();
+    }
 }
-
-

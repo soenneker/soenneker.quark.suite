@@ -126,12 +126,23 @@
         if (classes.IsNullOrWhiteSpace())
             return false;
 
-        var values = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var remaining = classes.AsSpan();
+        var target = token.AsSpan();
 
-        foreach (var value in values)
+        while (!remaining.IsEmpty)
         {
-            if (string.Equals(value, token, StringComparison.Ordinal))
+            remaining = remaining.TrimStart();
+
+            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
+            var value = separator < 0 ? remaining : remaining[..separator];
+
+            if (value.SequenceEqual(target))
                 return true;
+
+            if (separator < 0)
+                break;
+
+            remaining = remaining[(separator + 1)..];
         }
 
         return false;

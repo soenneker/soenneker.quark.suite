@@ -86,17 +86,38 @@
         if (PromptInput is null)
             return;
 
-        var browserFiles = EffectiveMultiple ? args.GetMultipleFiles() : [args.File];
-        var attachments = browserFiles.Select(file => new PromptInputAttachmentInfo
+        PromptInputAttachmentInfo[] attachments;
+
+        if (EffectiveMultiple)
         {
-            Id = $"{file.Name}-{file.Size}-{file.LastModified.ToUnixTimeMilliseconds()}",
+            var browserFiles = args.GetMultipleFiles();
+            attachments = new PromptInputAttachmentInfo[browserFiles.Count];
+
+            for (var i = 0; i < browserFiles.Count; i++)
+            {
+                attachments[i] = CreateAttachment(browserFiles[i]);
+            }
+        }
+        else
+        {
+            attachments = [CreateAttachment(args.File)];
+        }
+
+        await PromptInput.AddAttachments(attachments);
+    }
+
+    private static PromptInputAttachmentInfo CreateAttachment(IBrowserFile file)
+    {
+        var lastModified = file.LastModified.ToUnixTimeMilliseconds();
+
+        return new PromptInputAttachmentInfo
+        {
+            Id = $"{file.Name}-{file.Size}-{lastModified}",
             Name = file.Name,
             Size = file.Size,
             Type = file.ContentType,
-            LastModified = file.LastModified.ToUnixTimeMilliseconds()
-        }).ToArray();
-
-        await PromptInput.AddAttachments(attachments);
+            LastModified = lastModified
+        };
     }
 
     [JSInvokable]

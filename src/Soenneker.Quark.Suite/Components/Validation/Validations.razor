@@ -201,14 +201,39 @@
         InvokeAsync(() => StatusChanged.InvokeAsync(args));
     }
 
-    public bool AllValidationsSuccessful => _validations.All(x => x.Status == ValidationStatus.Success);
-    public bool HasFailedValidations => _validations.Any(x => x.Status == ValidationStatus.Error);
+    public bool AllValidationsSuccessful
+    {
+        get
+        {
+            foreach (var validation in _validations)
+            {
+                if (validation.Status != ValidationStatus.Success)
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
+    public bool HasFailedValidations
+    {
+        get
+        {
+            foreach (var validation in _validations)
+            {
+                if (validation.Status == ValidationStatus.Error)
+                    return true;
+            }
+
+            return false;
+        }
+    }
 
     private IReadOnlyCollection<string> FailedValidations
     {
         get
         {
-            var messages = new List<string>();
+            List<string>? messages = null;
             var hasErrorWithoutMessages = false;
 
             foreach (var validation in _validations)
@@ -216,9 +241,8 @@
                 if (validation.Status != ValidationStatus.Error)
                     continue;
 
-                if (validation.Messages is { } validationMessages && validationMessages.Any())
+                if (validation.Messages is { } validationMessages && AddMessages(validationMessages, ref messages))
                 {
-                    messages.AddRange(validationMessages);
                 }
                 else
                 {
@@ -228,11 +252,26 @@
 
             if (hasErrorWithoutMessages)
             {
+                messages ??= [];
                 messages.Add(MissingFieldsErrorMessage ?? "One or more fields have an error.");
             }
 
-            return messages;
+            return messages is not null ? messages : Array.Empty<string>();
         }
+    }
+
+    private static bool AddMessages(IEnumerable<string> source, ref List<string>? destination)
+    {
+        var added = false;
+
+        foreach (var message in source)
+        {
+            destination ??= [];
+            destination.Add(message);
+            added = true;
+        }
+
+        return added;
     }
 
     // shadcn Form root - new-york-v4 ui/form.tsx

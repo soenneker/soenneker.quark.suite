@@ -105,19 +105,46 @@
         if (string.IsNullOrWhiteSpace(className))
             return false;
 
-        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Any(IsExplicitSizeToken);
+        var remaining = className.AsSpan();
+
+        while (!remaining.IsEmpty)
+        {
+            remaining = remaining.TrimStart();
+
+            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
+            var token = separator < 0 ? remaining : remaining[..separator];
+
+            if (IsExplicitSizeToken(token))
+                return true;
+
+            if (separator < 0)
+                break;
+
+            remaining = remaining[(separator + 1)..];
+        }
+
+        return false;
     }
 
-    private static bool IsExplicitSizeToken(string token)
+    private static bool IsExplicitSizeToken(ReadOnlySpan<char> token)
     {
-        var unescaped = token.Replace(@"\:", ":", StringComparison.Ordinal);
-        var separator = unescaped.LastIndexOf(':');
-        var utility = separator >= 0 ? unescaped[(separator + 1)..] : unescaped;
+        var separator = LastUnescapedColonIndex(token);
+        var utility = separator >= 0 ? token[(separator + 1)..] : token;
 
         return utility.StartsWith("size-", StringComparison.Ordinal) ||
                utility.StartsWith("w-", StringComparison.Ordinal) ||
                utility.StartsWith("h-", StringComparison.Ordinal);
+    }
+
+    private static int LastUnescapedColonIndex(ReadOnlySpan<char> token)
+    {
+        for (var i = token.Length - 1; i >= 0; i--)
+        {
+            if (token[i] == ':' && (i == 0 || token[i - 1] != '\\'))
+                return i;
+        }
+
+        return -1;
     }
 
     private static string InjectAttributesIntoSvg(string svg, IReadOnlyDictionary<string, object> attributes)

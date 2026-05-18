@@ -114,9 +114,14 @@
     private DateOnly? _lastSyncedSelectedDate;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datepicker-panel");
 
-    private IReadOnlyDictionary<string, object> PanelAttributes => new Dictionary<string, object>
+    private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "date-picker-panel"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> ContainerAttributes = new Dictionary<string, object>
+    {
+        ["class"] = "relative w-fit"
     };
 
     private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _panelId;
@@ -213,7 +218,10 @@
             if (SelectedDate.HasValue)
                 _displayMonth = new DateOnly(SelectedDate.Value.Year, SelectedDate.Value.Month, 1);
             else
-                _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
+            {
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                _displayMonth = new DateOnly(today.Year, today.Month, 1);
+            }
         }
     }
 
@@ -225,15 +233,7 @@
             SyncDisplayMonthToSelection(SelectedDate);
     }
 
-    private Dictionary<string, object> GetContainerAttributes()
-    {
-        var attrs = new Dictionary<string, object>(2);
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative w-fit");
-        });
-        return attrs;
-    }
+    private static IReadOnlyDictionary<string, object> GetContainerAttributes() => ContainerAttributes;
 
     private Task HandleOpenChanged(bool open)
     {

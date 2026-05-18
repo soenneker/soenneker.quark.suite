@@ -56,7 +56,7 @@
             await OnSubmitMessage.InvokeAsync(new PromptInputMessage
             {
                 Text = value,
-                Files = _attachments.ToArray()
+                Files = CopyAttachments()
             });
     }
 
@@ -70,7 +70,7 @@
 
         foreach (var attachment in attachments)
         {
-            if (_attachments.All(x => !IsSameAttachment(x, attachment)))
+            if (!ContainsSameAttachment(attachment))
                 _attachments.Add(attachment);
         }
 
@@ -97,7 +97,7 @@
     private async Task NotifyAttachmentsChanged()
     {
         if (AttachmentsChanged.HasDelegate)
-            await AttachmentsChanged.InvokeAsync(_attachments.ToArray());
+            await AttachmentsChanged.InvokeAsync(CopyAttachments());
 
         _attachmentsVersion++;
         StateHasChanged();
@@ -108,7 +108,33 @@
         return string.Equals(left.Id, right.Id, StringComparison.Ordinal) ||
                (string.Equals(left.Name, right.Name, StringComparison.Ordinal) &&
                 left.Size == right.Size &&
-                string.Equals(left.Type, right.Type, StringComparison.Ordinal));
+               string.Equals(left.Type, right.Type, StringComparison.Ordinal));
+    }
+
+    private PromptInputAttachmentInfo[] CopyAttachments()
+    {
+        if (_attachments.Count == 0)
+            return [];
+
+        var attachments = new PromptInputAttachmentInfo[_attachments.Count];
+
+        for (var i = 0; i < _attachments.Count; i++)
+        {
+            attachments[i] = _attachments[i];
+        }
+
+        return attachments;
+    }
+
+    private bool ContainsSameAttachment(PromptInputAttachmentInfo attachment)
+    {
+        for (var i = 0; i < _attachments.Count; i++)
+        {
+            if (IsSameAttachment(_attachments[i], attachment))
+                return true;
+        }
+
+        return false;
     }
 
     private Task HandleSubmit()

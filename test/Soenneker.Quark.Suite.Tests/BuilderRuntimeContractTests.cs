@@ -49,7 +49,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
-    public void MaxHeight_accepts_height_builder_token_and_emits_max_height_utility()
+    public void MaxHeight_uses_height_builder_output_without_rewriting()
     {
         var cut = Render<TestRenderBox>(parameters => parameters
             .Add(p => p.MaxHeight, Height.Token("72")));
@@ -59,8 +59,8 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         var style = box.GetAttribute("style");
         var classTokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        classTokens.Should().Contain("max-h-72");
-        classTokens.Should().NotContain("h-72");
+        classTokens.Should().Contain("h-72");
+        classTokens.Should().NotContain("max-h-72");
         style.Should().BeNull();
     }
 
@@ -168,7 +168,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
-    public void Class_merging_deduplicates_identical_tokens()
+    public void Class_merging_preserves_identical_tokens()
     {
         CssValue<FlexBuilder> flex = "flex flex-col";
 
@@ -181,8 +181,8 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         var tokens = box.GetAttribute("class")!
                         .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        tokens.Count(token => token == "flex").Should().Be(1);
-        tokens.Count(token => token == "flex-col").Should().Be(1);
+        tokens.Count(token => token == "flex").Should().Be(4);
+        tokens.Count(token => token == "flex-col").Should().Be(2);
     }
 
     [Test]

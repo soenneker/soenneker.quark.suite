@@ -249,7 +249,15 @@
         if (string.IsNullOrEmpty(Code))
             return 0;
 
-        return Code.Replace("\r\n", "\n").Split('\n').Length;
+        var count = 1;
+
+        for (var i = 0; i < Code.Length; i++)
+        {
+            if (Code[i] == '\n')
+                count++;
+        }
+
+        return count;
     }
 
     private async Task CopyCode()

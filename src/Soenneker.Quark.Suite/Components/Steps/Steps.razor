@@ -313,7 +313,15 @@
 
     private string? GetFirstEnabledStep()
     {
-        return _stepItems.FirstOrDefault(IsStepEnabled);
+        for (var i = 0; i < _stepItems.Count; i++)
+        {
+            var step = _stepItems[i];
+
+            if (IsStepEnabled(step))
+                return step;
+        }
+
+        return null;
     }
 
     private string? GetLastEnabledStep()

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
@@ -79,20 +78,56 @@ internal sealed class FieldContext
 
     public string? BuildDescribedBy(string? existing, bool isInvalid = false)
     {
-        var ids = new List<string>();
+        bool includeDescription = HasDescription;
+        bool includeError = (IsInvalid || isInvalid) && HasError;
 
-        if (!string.IsNullOrWhiteSpace(existing))
+        if (!includeDescription && !includeError)
+            return string.IsNullOrWhiteSpace(existing) ? null : existing;
+
+        string? result = string.IsNullOrWhiteSpace(existing) ? null : existing;
+
+        if (includeDescription && !ContainsToken(result, DescriptionId))
+            result = AppendToken(result, DescriptionId);
+
+        if (includeError && !ContainsToken(result, ErrorId))
+            result = AppendToken(result, ErrorId);
+
+        return result;
+    }
+
+    private static string AppendToken(string? existing, string token)
+    {
+        return string.IsNullOrWhiteSpace(existing) ? token : $"{existing} {token}";
+    }
+
+    private static bool ContainsToken(string? value, string token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        ReadOnlySpan<char> remaining = value.AsSpan();
+
+        while (!remaining.IsEmpty)
         {
-            ids.AddRange(existing.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            int nextSpace = remaining.IndexOf(' ');
+            ReadOnlySpan<char> candidate;
+
+            if (nextSpace < 0)
+            {
+                candidate = remaining.Trim();
+                remaining = [];
+            }
+            else
+            {
+                candidate = remaining[..nextSpace].Trim();
+                remaining = remaining[(nextSpace + 1)..];
+            }
+
+            if (candidate.SequenceEqual(token.AsSpan()))
+                return true;
         }
 
-        if (HasDescription)
-            ids.Add(DescriptionId);
-
-        if ((IsInvalid || isInvalid) && HasError)
-            ids.Add(ErrorId);
-
-        return ids.Count == 0 ? null : string.Join(" ", ids.Distinct(StringComparer.Ordinal));
+        return false;
     }
 
     private sealed class Registration : IDisposable

@@ -1,6 +1,6 @@
 @namespace Soenneker.Quark
 
-@if (Resolved.Count > 0)
+@if (_resolved.Length > 0)
 {
     <CascadingValue Value="this" IsFixed="false">
         <HoverCard OpenDelay="@OpenDelay" CloseDelay="@CloseDelay">
@@ -10,17 +10,17 @@
 }
 
 @code {
-    private IReadOnlyList<ResolvedCitation> Resolved => Citations.Select(CitationSourceResolver.Resolve).ToArray();
+    private ResolvedCitation[] _resolved = [];
 
     internal int ActiveIndex { get; private set; }
 
-    internal ResolvedCitation ActiveCitation => Resolved[Math.Clamp(ActiveIndex, 0, Math.Max(0, Resolved.Count - 1))];
+    internal ResolvedCitation ActiveCitation => _resolved[Math.Clamp(ActiveIndex, 0, Math.Max(0, _resolved.Length - 1))];
 
-    internal IReadOnlyList<ResolvedCitation> ResolvedCitations => Resolved;
+    internal IReadOnlyList<ResolvedCitation> ResolvedCitations => _resolved;
 
     internal bool CanScrollPrev => ActiveIndex > 0;
 
-    internal bool CanScrollNext => ActiveIndex < Resolved.Count - 1;
+    internal bool CanScrollNext => ActiveIndex < _resolved.Length - 1;
 
     [Parameter]
     public IReadOnlyList<CitationSourceInput> Citations { get; set; } = [];
@@ -54,7 +54,24 @@
 
     protected override void OnParametersSet()
     {
-        if (ActiveIndex >= Resolved.Count)
-            ActiveIndex = Math.Max(0, Resolved.Count - 1);
+        _resolved = BuildResolvedCitations(Citations);
+
+        if (ActiveIndex >= _resolved.Length)
+            ActiveIndex = Math.Max(0, _resolved.Length - 1);
+    }
+
+    private static ResolvedCitation[] BuildResolvedCitations(IReadOnlyList<CitationSourceInput> citations)
+    {
+        if (citations.Count == 0)
+            return [];
+
+        var resolved = new ResolvedCitation[citations.Count];
+
+        for (var i = 0; i < resolved.Length; i++)
+        {
+            resolved[i] = CitationSourceResolver.Resolve(citations[i]);
+        }
+
+        return resolved;
     }
 }

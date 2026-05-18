@@ -56,13 +56,12 @@ else
             AppendClass(ref cls, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]");
         });
 
-        attributes["style"] = string.Join(";", new[]
+        BuildStyleAttribute(attributes, (ref sty) =>
         {
-            $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s",
-            $"background-image:{BuildGradient()}",
-            "-webkit-text-fill-color:transparent",
-            attributes.TryGetValue("style", out var style) ? style?.ToString() : null
-        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+            AppendStyleDecl(ref sty, $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s");
+            AppendStyleDecl(ref sty, $"background-image:{BuildGradient()}");
+            AppendStyleDecl(ref sty, "-webkit-text-fill-color:transparent");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

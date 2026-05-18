@@ -307,7 +307,12 @@ else
 
     private string? GetMobileContainerClass()
     {
-        return IsNavigationShell(Shell) ? ClassNames.Combine("z-40", MobileContainerClass) : MobileContainerClass;
+        if (!IsNavigationShell(Shell))
+            return MobileContainerClass;
+
+        return MobileContainerClass.HasContent()
+            ? AppendToClass("z-40", MobileContainerClass!)
+            : "z-40";
     }
 
     private string? GetMobileContainerStyle()
@@ -455,7 +460,7 @@ else
             }
 
             if (cls.Length > 0)
-                attributes["class"] = ClassNames.Combine(cls.ToString());
+                attributes["class"] = cls.ToString();
 
             if (sty.Length > 0)
                 attributes["style"] = sty.ToString();

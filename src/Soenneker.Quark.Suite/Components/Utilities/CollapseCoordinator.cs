@@ -48,37 +48,57 @@ public sealed class CollapseCoordinator : ICollapseCoordinator
         if (snapshot.Length == 0)
             return;
 
-        var tokens = targetExpression.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var tokenStart = -1;
 
-        foreach (var token in tokens)
+        for (var i = 0; i <= targetExpression.Length; i++)
         {
-            if (token.StartsWith(".", StringComparison.Ordinal))
+            if (i < targetExpression.Length && targetExpression[i] != ',' && !char.IsWhiteSpace(targetExpression[i]))
             {
-                var className = token[1..];
-                if (className.Length == 0)
-                    continue;
-
-                foreach (var collapse in snapshot)
-                {
-                    if (collapse.HasCssClass(className))
-                        await collapse.Toggle();
-                }
+                if (tokenStart < 0)
+                    tokenStart = i;
 
                 continue;
             }
 
-            var id = token.StartsWith("#", StringComparison.Ordinal) ? token[1..] : token;
-            if (id.Length == 0)
+            if (tokenStart < 0)
                 continue;
+
+            await ToggleToken(targetExpression[tokenStart..i], snapshot);
+            tokenStart = -1;
+        }
+    }
+
+    private static async ValueTask ToggleToken(string token, Collapse[] snapshot)
+    {
+        if (token.Length == 0)
+            return;
+
+        if (token[0] == '.')
+        {
+            var className = token[1..];
+            if (className.Length == 0)
+                return;
 
             foreach (var collapse in snapshot)
             {
-                if (string.Equals(collapse.Id, id, StringComparison.Ordinal))
-                {
+                if (collapse.HasCssClass(className))
                     await collapse.Toggle();
-                    break;
-                }
             }
+
+            return;
+        }
+
+        var id = token[0] == '#' ? token[1..] : token;
+        if (id.Length == 0)
+            return;
+
+        foreach (var collapse in snapshot)
+        {
+            if (!string.Equals(collapse.Id, id, StringComparison.Ordinal))
+                continue;
+
+            await collapse.Toggle();
+            break;
         }
     }
 }

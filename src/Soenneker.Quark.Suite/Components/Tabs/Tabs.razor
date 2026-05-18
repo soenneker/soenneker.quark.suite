@@ -106,12 +106,24 @@
     {
         if (SelectedTab.HasContent())
         {
-            var matchingTab = _tabs.FirstOrDefault(t => !t.Disabled && string.Equals(t.Name, SelectedTab, StringComparison.Ordinal));
-            if (matchingTab is not null)
-                return matchingTab.Name;
+            for (var i = 0; i < _tabs.Count; i++)
+            {
+                var tab = _tabs[i];
+
+                if (!tab.Disabled && string.Equals(tab.Name, SelectedTab, StringComparison.Ordinal))
+                    return tab.Name;
+            }
         }
 
-        return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
+        for (var i = 0; i < _tabs.Count; i++)
+        {
+            var tab = _tabs[i];
+
+            if (!tab.Disabled && tab.Name.HasContent())
+                return tab.Name;
+        }
+
+        return null;
     }
 
     public async Task SelectTab(string tabName)

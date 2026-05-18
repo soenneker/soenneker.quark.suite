@@ -346,12 +346,12 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, ScrollMargin ?? preset?.ScrollMargin);
         AddCss(ref sty, ref cls, ScrollPadding ?? preset?.ScrollPadding);
         AddCss(ref sty, ref cls, Size ?? preset?.Size);
-        AddCss(ref sty, ref cls, Width ?? preset?.Width, "width");
-        AddCss(ref sty, ref cls, MinWidth ?? preset?.MinWidth, "min-width");
-        AddCss(ref sty, ref cls, MaxWidth ?? preset?.MaxWidth, "max-width");
-        AddCss(ref sty, ref cls, Height ?? preset?.Height, "height");
-        AddCss(ref sty, ref cls, MinHeight ?? preset?.MinHeight, "min-height");
-        AddCss(ref sty, ref cls, MaxHeight ?? preset?.MaxHeight, "max-height");
+        AddCss(ref sty, ref cls, Width ?? preset?.Width);
+        AddCss(ref sty, ref cls, MinWidth ?? preset?.MinWidth);
+        AddCss(ref sty, ref cls, MaxWidth ?? preset?.MaxWidth);
+        AddCss(ref sty, ref cls, Height ?? preset?.Height);
+        AddCss(ref sty, ref cls, MinHeight ?? preset?.MinHeight);
+        AddCss(ref sty, ref cls, MaxHeight ?? preset?.MaxHeight);
         AddCss(ref sty, ref cls, Overflow ?? preset?.Overflow);
         AddCss(ref sty, ref cls, OverflowX ?? preset?.OverflowX);
         AddCss(ref sty, ref cls, OverflowY ?? preset?.OverflowY);

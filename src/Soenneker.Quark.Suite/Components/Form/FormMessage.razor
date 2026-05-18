@@ -7,16 +7,16 @@
         @ChildContent
     </p>
 }
-else if (ShowErrorMessages && ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
+else if (ShowErrorMessages && ParentValidation is { Messages: { } parentMessages } && ParentValidation.Status == ValidationStatus.Error && HasMessages(parentMessages))
 {
     <p @attributes="BuildAttributes()">
-        @foreach (var message in ParentValidation.Messages)
+        @foreach (var message in parentMessages)
         {
             <span>@message</span>
         }
     </p>
 }
-else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
+else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Count > 0) && ParentValidation == null)
 {
     <p @attributes="BuildAttributes()">
         @foreach (var message in _messages!)
@@ -120,7 +120,7 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         {
             hc.Add(ParentValidation.Status);
             if (ParentValidation.Messages is not null)
-                hc.Add(ParentValidation.Messages.Count());
+                hc.Add(CountMessages(ParentValidation.Messages));
         }
 
         hc.Add(FieldContext?.ErrorId);
@@ -136,5 +136,27 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
             ParentValidations._statusChanged -= OnStatusChanged;
             ParentValidations.ClearingAll -= OnClearingAll;
         }
+    }
+
+    private static bool HasMessages(IEnumerable<string>? messages)
+    {
+        if (messages is null)
+            return false;
+
+        using IEnumerator<string> enumerator = messages.GetEnumerator();
+        return enumerator.MoveNext();
+    }
+
+    private static int CountMessages(IEnumerable<string>? messages)
+    {
+        if (messages is null)
+            return 0;
+
+        var count = 0;
+
+        foreach (var _ in messages)
+            count++;
+
+        return count;
     }
 }

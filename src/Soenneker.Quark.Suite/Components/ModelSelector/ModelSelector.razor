@@ -108,7 +108,7 @@
     [Parameter]
     public bool RightAligned { get; set; } = true;
 
-    private ModelSelectorOption? SelectedOption => Options.FirstOrDefault(IsSelected);
+    private ModelSelectorOption? SelectedOption => FindSelectedOption();
 
     private string SelectedLabel => SelectedOption?.Label ?? Placeholder;
 
@@ -128,6 +128,19 @@
     }
 
     private bool IsSelected(ModelSelectorOption option) => string.Equals(Value, option.Value, StringComparison.Ordinal);
+
+    private ModelSelectorOption? FindSelectedOption()
+    {
+        for (var i = 0; i < Options.Count; i++)
+        {
+            var option = Options[i];
+
+            if (IsSelected(option))
+                return option;
+        }
+
+        return null;
+    }
 
     private async Task SelectOption(ModelSelectorOption option)
     {

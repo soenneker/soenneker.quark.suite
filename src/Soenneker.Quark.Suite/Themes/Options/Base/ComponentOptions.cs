@@ -705,24 +705,40 @@ public class ComponentOptions
 
     private static IEnumerable<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, System.Func<string, string?> converter)
     {
-        var tokens = rawValue.Split(' ', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
         var hasFlexDisplay = false;
         string? resolvedValue = null;
+        var tokenStart = -1;
 
-        foreach (var token in tokens)
+        for (var i = 0; i <= rawValue.Length; i++)
         {
+            if (i < rawValue.Length && !char.IsWhiteSpace(rawValue[i]))
+            {
+                if (tokenStart < 0)
+                    tokenStart = i;
+
+                continue;
+            }
+
+            if (tokenStart < 0)
+                continue;
+
+            var token = rawValue.Substring(tokenStart, i - tokenStart);
+
             if (token.Contains(':'))
                 return null;
 
             if (token.Equals("flex", System.StringComparison.Ordinal))
             {
                 hasFlexDisplay = true;
+                tokenStart = -1;
                 continue;
             }
 
             var converted = converter(token);
             if (converted is not null)
                 resolvedValue = converted;
+
+            tokenStart = -1;
         }
 
         if (!hasFlexDisplay || resolvedValue is null)
@@ -733,14 +749,19 @@ public class ComponentOptions
 
     private static IEnumerable<string> SplitDeclarations(string value)
     {
-        var segments = value.Split(';');
+        var segmentStart = 0;
 
-        foreach (var segment in segments)
+        for (var i = 0; i <= value.Length; i++)
         {
-            var trimmed = segment.Trim();
+            if (i < value.Length && value[i] != ';')
+                continue;
 
-            if (trimmed.Length > 0)
-                yield return trimmed;
+            var segment = value.Substring(segmentStart, i - segmentStart).Trim();
+
+            if (segment.Length > 0)
+                yield return segment;
+
+            segmentStart = i + 1;
         }
     }
 

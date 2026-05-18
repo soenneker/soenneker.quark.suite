@@ -49,11 +49,24 @@
         if (string.IsNullOrWhiteSpace(className))
             return false;
 
-        foreach (var token in className.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        var remaining = className.AsSpan();
+        var prefix = utilityPrefix.AsSpan();
+
+        while (!remaining.IsEmpty)
         {
+            remaining = remaining.TrimStart();
+
+            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
+            var token = separator < 0 ? remaining : remaining[..separator];
             var utility = token[(token.LastIndexOf(':') + 1)..];
-            if (utility.StartsWith(utilityPrefix, StringComparison.Ordinal))
+
+            if (utility.StartsWith(prefix, StringComparison.Ordinal))
                 return true;
+
+            if (separator < 0)
+                break;
+
+            remaining = remaining[(separator + 1)..];
         }
 
         return false;

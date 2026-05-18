@@ -2,7 +2,6 @@
 @namespace Soenneker.Quark
 
 @using Soenneker.Blazor.Extensions.EventCallback
-@using System.Linq
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentTreeView" Value="@this" IsFixed="true">
@@ -243,7 +242,22 @@
     private static async Task<IReadOnlyList<TNode>> LoadChildrenCore(TNode node, Func<TNode, Task<IEnumerable<TNode>>> loader)
     {
         var children = await loader(node);
-        return children?.ToList() ?? [];
+
+        if (children is null)
+            return [];
+
+        if (children is IReadOnlyList<TNode> readOnlyList)
+            return readOnlyList;
+
+        var capacity = children is ICollection<TNode> collection ? collection.Count : 0;
+        var list = new List<TNode>(capacity > 0 ? capacity : 4);
+
+        foreach (var child in children)
+        {
+            list.Add(child);
+        }
+
+        return list;
     }
 
     private static int HashSeq(IEnumerable<TNode>? seq)

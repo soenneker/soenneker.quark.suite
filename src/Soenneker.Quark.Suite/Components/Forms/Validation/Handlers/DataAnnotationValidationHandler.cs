@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
@@ -10,7 +9,6 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
 {
     public void Validate(Validation ctx, object value)
     {
-        var messages = new List<string>();
         if (ctx.EditContext is not null)
         {
             var store = new ValidationMessageStore(ctx.EditContext);
@@ -29,14 +27,17 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
                 validationContext,
                 results);
 
+            List<string>? messages = null;
+
             foreach (var r in results)
             {
                 var message = r.ErrorMessage ?? "Invalid";
+                messages ??= new List<string>(results.Count);
                 messages.Add(message);
                 store.Add(field, message);
             }
 
-            if (messages.Any())
+            if (messages is not null)
                 ctx.NotifyValidationStatusChanged(ValidationStatus.Error, messages);
             else
                 ctx.NotifyValidationStatusChanged(ValidationStatus.Success);

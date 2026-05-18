@@ -6,20 +6,20 @@
 </Button>
 
 @code {
+    private static readonly IReadOnlyDictionary<string, object> ActionAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "image-action"
+    };
+
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Secondary;
 
     [Parameter]
     public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = "icon-sm";
 
-    private string BuildClass() => string.Join(" ", new[]
+    private string BuildClass()
     {
-        "pointer-events-auto bg-background/90 shadow-xs backdrop-blur hover:bg-background",
-        Class
-    }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-    private IReadOnlyDictionary<string, object> ActionAttributes => new Dictionary<string, object>
-    {
-        ["data-slot"] = "image-action"
-    };
+        const string baseClass = "pointer-events-auto bg-background/90 shadow-xs backdrop-blur hover:bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
 }

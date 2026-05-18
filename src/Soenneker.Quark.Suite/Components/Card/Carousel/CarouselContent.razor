@@ -8,6 +8,11 @@
 </div>
 
 @code {
+    private static readonly IReadOnlyDictionary<string, object> ViewportAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "carousel-content",
+        ["class"] = "overflow-hidden"
+    };
 
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
@@ -36,16 +41,7 @@
             _subscribedCarousel.StateChanged += OnCarouselStateChanged;
     }
 
-    private Dictionary<string, object> BuildViewportAttributes()
-    {
-        var horizontal = ParentCarousel?.IsVertical != true;
-
-        return new Dictionary<string, object>
-        {
-            ["data-slot"] = "carousel-content",
-            ["class"] = "overflow-hidden"
-        };
-    }
+    private IReadOnlyDictionary<string, object> BuildViewportAttributes() => ViewportAttributes;
 
     private void HandlePointerDown(PointerEventArgs args)
     {

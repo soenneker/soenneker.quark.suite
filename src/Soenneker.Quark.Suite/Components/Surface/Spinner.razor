@@ -85,11 +85,28 @@
         if (string.IsNullOrWhiteSpace(className))
             return false;
 
-        return className.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Any(IsExplicitSizeToken);
+        var remaining = className.AsSpan();
+
+        while (!remaining.IsEmpty)
+        {
+            remaining = remaining.TrimStart();
+
+            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
+            var token = separator < 0 ? remaining : remaining[..separator];
+
+            if (IsExplicitSizeToken(token))
+                return true;
+
+            if (separator < 0)
+                break;
+
+            remaining = remaining[(separator + 1)..];
+        }
+
+        return false;
     }
 
-    private static bool IsExplicitSizeToken(string token)
+    private static bool IsExplicitSizeToken(ReadOnlySpan<char> token)
     {
         var separator = token.LastIndexOf(':');
         var utility = separator >= 0 ? token[(separator + 1)..] : token;

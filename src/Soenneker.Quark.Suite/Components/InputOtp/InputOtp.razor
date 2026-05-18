@@ -22,6 +22,8 @@
     private InputOtpContext _context = new();
     private ElementReference _inputRef;
     private string _uncontrolledValue = string.Empty;
+    private string? _cachedPattern;
+    private Regex? _cachedPatternRegex;
 
     private string CurrentValue => OtpValue ?? _uncontrolledValue;
 
@@ -83,15 +85,37 @@
         if (string.IsNullOrWhiteSpace(Pattern))
             return value;
 
-        var builder = new StringBuilder(value.Length);
+        Regex regex = GetPatternRegex();
+        StringBuilder? builder = null;
 
-        foreach (var character in value)
+        for (int i = 0; i < value.Length; i++)
         {
-            if (Regex.IsMatch(character.ToString(), Pattern, RegexOptions.CultureInvariant))
-                builder.Append(character);
+            char character = value[i];
+            if (regex.IsMatch(value.AsSpan(i, 1)))
+            {
+                builder?.Append(character);
+                continue;
+            }
+
+            if (builder is null)
+            {
+                builder = new StringBuilder(value.Length);
+                if (i > 0)
+                    builder.Append(value, 0, i);
+            }
         }
 
-        return builder.ToString();
+        return builder?.ToString() ?? value;
+    }
+
+    private Regex GetPatternRegex()
+    {
+        if (_cachedPatternRegex is not null && string.Equals(_cachedPattern, Pattern, StringComparison.Ordinal))
+            return _cachedPatternRegex;
+
+        _cachedPattern = Pattern;
+        _cachedPatternRegex = new Regex(Pattern!, RegexOptions.CultureInvariant);
+        return _cachedPatternRegex;
     }
 
     protected override void OnInitialized()

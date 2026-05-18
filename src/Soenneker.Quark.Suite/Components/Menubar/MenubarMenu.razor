@@ -35,45 +35,103 @@
 
     internal async Task FocusFirstItem()
     {
-        var firstItem = _items.FirstOrDefault(i => !i.IsDisabledForNavigation);
+        IMenubarFocusableItem? firstItem = GetFirstEnabledItem();
         if (firstItem is not null)
             await firstItem.Focus();
     }
 
     internal async Task FocusLastItem()
     {
-        var lastItem = _items.LastOrDefault(i => !i.IsDisabledForNavigation);
+        IMenubarFocusableItem? lastItem = GetLastEnabledItem();
         if (lastItem is not null)
             await lastItem.Focus();
     }
 
     internal async Task HandleItemNavigation(IMenubarFocusableItem currentItem, string key)
     {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-            return;
-
-        var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
-        if (currentIndex < 0)
+        int enabledCount = CountEnabledItems(currentItem, out int currentIndex);
+        if (enabledCount == 0 || currentIndex < 0)
             return;
 
         var nextIndex = key switch
         {
             "Home" => 0,
-            "End" => enabledItems.Count - 1,
-            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
-            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
+            "End" => enabledCount - 1,
+            "ArrowDown" => (currentIndex + 1) % enabledCount,
+            "ArrowUp" => (currentIndex - 1 + enabledCount) % enabledCount,
             _ => -1
         };
 
-        if (nextIndex >= 0)
-            await enabledItems[nextIndex].Focus();
+        IMenubarFocusableItem? nextItem = nextIndex >= 0 ? GetEnabledItemAt(nextIndex) : null;
+        if (nextItem is not null)
+            await nextItem.Focus();
     }
 
     internal async Task FocusTrigger()
     {
         if (_trigger is not null)
             await _trigger.Focus();
+    }
+
+    private IMenubarFocusableItem? GetFirstEnabledItem()
+    {
+        foreach (IMenubarFocusableItem item in _items)
+        {
+            if (!item.IsDisabledForNavigation)
+                return item;
+        }
+
+        return null;
+    }
+
+    private IMenubarFocusableItem? GetLastEnabledItem()
+    {
+        IMenubarFocusableItem? last = null;
+
+        foreach (IMenubarFocusableItem item in _items)
+        {
+            if (!item.IsDisabledForNavigation)
+                last = item;
+        }
+
+        return last;
+    }
+
+    private int CountEnabledItems(IMenubarFocusableItem currentItem, out int currentIndex)
+    {
+        currentIndex = -1;
+        int count = 0;
+
+        foreach (IMenubarFocusableItem item in _items)
+        {
+            if (item.IsDisabledForNavigation)
+                continue;
+
+            if (ReferenceEquals(item, currentItem))
+                currentIndex = count;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    private IMenubarFocusableItem? GetEnabledItemAt(int targetIndex)
+    {
+        int index = 0;
+
+        foreach (IMenubarFocusableItem item in _items)
+        {
+            if (item.IsDisabledForNavigation)
+                continue;
+
+            if (index == targetIndex)
+                return item;
+
+            index++;
+        }
+
+        return null;
     }
 
 }

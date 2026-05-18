@@ -81,17 +81,15 @@
     {
         get
         {
-            var firstOrder = _currentOrders.FirstOrDefault();
-
-            if (firstOrder == null)
+            if (_currentOrders.Count == 0)
                 return null;
 
-            var column = GetColumn(firstOrder.Column);
+            var column = GetColumn(_currentOrders[0].Column);
             return column?.Data;
         }
     }
 
-    public string? SortDirection => _currentOrders.FirstOrDefault()?.Dir;
+    public string? SortDirection => _currentOrders.Count == 0 ? null : _currentOrders[0].Dir;
 
     private readonly Debouncer _debouncer = new();
     private readonly List<DataTableOrderRequest> _currentOrders = [];
@@ -299,7 +297,7 @@
             return null;
         }
 
-        var order = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
+        var order = FindOrder(columnIndex);
         return order?.Dir;
     }
 
@@ -328,7 +326,7 @@
             Logger.LogDebug("HandleColumnSort called for column index: {ColumnIndex}", columnIndex);
 
         // Find existing order for this column
-        var existing = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
+        var existing = FindOrder(columnIndex);
         var nextDirection = existing?.Dir switch
         {
             "asc" => "desc",
@@ -400,7 +398,7 @@
 
     private List<DataTableColumnRequest> BuildColumns()
     {
-        var columns = new List<DataTableColumnRequest>();
+        var columns = new List<DataTableColumnRequest>(_registeredColumns.Count);
 
         foreach (var column in _registeredColumns)
         {
@@ -414,6 +412,19 @@
         }
 
         return columns;
+    }
+
+    private DataTableOrderRequest? FindOrder(int columnIndex)
+    {
+        for (var i = 0; i < _currentOrders.Count; i++)
+        {
+            var order = _currentOrders[i];
+
+            if (order.Column == columnIndex)
+                return order;
+        }
+
+        return null;
     }
 
     private async ValueTask OnInteractionInternal()

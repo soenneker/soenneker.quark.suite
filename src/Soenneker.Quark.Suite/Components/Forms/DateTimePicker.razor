@@ -135,6 +135,8 @@
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
+    private CultureInfo _currentCulture = CultureInfo.CurrentCulture;
+    private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _pendingDate;
     private int _hour; // 0-23
     private int _minute; // 0-59
@@ -142,9 +144,15 @@
     private const int _minuteStep = 1;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datetimepicker-panel");
 
-    private IReadOnlyDictionary<string, object> PanelAttributes => new Dictionary<string, object>
+    private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "date-time-picker-panel"
+    };
+
+    private static readonly IReadOnlyDictionary<string, object> ContainerAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "date-time-picker",
+        ["class"] = "q-date-time-picker relative w-full"
     };
 
     private static DateTime? Parse(ChangeEventArgs e)
@@ -165,6 +173,14 @@
             return result;
 
         return null;
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _currentCulture = CultureInfo.CurrentCulture;
+        _today = DateOnly.FromDateTime(DateTime.Today);
+        InitializeDayNames();
     }
 
     private async Task HandleInput(ChangeEventArgs e)
@@ -225,7 +241,6 @@
 
         if (firstRender)
         {
-            InitializeDayNames();
             if (SelectedDateTime.HasValue)
             {
                 _displayMonth = DateOnly.FromDateTime(SelectedDateTime.Value);
@@ -234,7 +249,7 @@
             }
             else
             {
-                _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+                _displayMonth = _today;
                 var now = DateTime.Now;
                 _hour = now.Hour;
                 _minute = now.Minute;
@@ -292,25 +307,21 @@
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
     }
 
-    private static Dictionary<string, object> GetContainerAttributes()
-    {
-        var attrs = new Dictionary<string, object>(2)
-        {
-            ["data-slot"] = "date-time-picker"
-        };
-        RenderComponent.BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-date-time-picker relative w-full");
-        });
-        return attrs;
-    }
+    private static IReadOnlyDictionary<string, object> GetContainerAttributes() => ContainerAttributes;
 
     private void InitializeDayNames()
     {
-        var culture = CultureInfo.CurrentCulture;
+        var culture = _currentCulture;
         var first = culture.DateTimeFormat.FirstDayOfWeek;
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
-        _dayNames = Enumerable.Range(0, 7).Select(i => names[((int)first + i) % 7]).ToArray();
+        var dayNames = new string[7];
+
+        for (var i = 0; i < dayNames.Length; i++)
+        {
+            dayNames[i] = names[((int)first + i) % 7];
+        }
+
+        _dayNames = dayNames;
     }
 
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
@@ -322,7 +333,7 @@
         if (!day.InMonth)
             css += " text-muted-foreground opacity-50";
 
-        if (day.Date == DateOnly.FromDateTime(DateTime.Today))
+        if (day.Date == _today)
             css += " bg-accent text-accent-foreground";
 
         if (SelectedDateTime.HasValue && day.Date == DateOnly.FromDateTime(SelectedDateTime.Value))
@@ -333,21 +344,24 @@
         return css;
     }
 
-    private IEnumerable<Cell> BuildMonthCells()
+    private Cell[] BuildMonthCells()
     {
         var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentCulture;
+        var culture = _currentCulture;
         var startDow = culture.DateTimeFormat.FirstDayOfWeek;
         var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
         var gridStart = firstOfMonth.AddDays(-offset);
+        var cells = new Cell[42];
 
         for (var i = 0; i < 42; i++)
         {
             var d = gridStart.AddDays(i);
             var inMonth = d.Month == _displayMonth.Month;
             var disabled = (Min.HasValue && d < DateOnly.FromDateTime(Min.Value)) || (Max.HasValue && d > DateOnly.FromDateTime(Max.Value));
-            yield return new Cell(d, inMonth, disabled);
+            cells[i] = new Cell(d, inMonth, disabled);
         }
+
+        return cells;
     }
 
     private Task OpenPanel()
@@ -377,7 +391,7 @@
 
     private async Task Commit()
     {
-        var date = _pendingDate ?? (SelectedDateTime.HasValue ? DateOnly.FromDateTime(SelectedDateTime.Value) : DateOnly.FromDateTime(DateTime.Today));
+        var date = _pendingDate ?? (SelectedDateTime.HasValue ? DateOnly.FromDateTime(SelectedDateTime.Value) : _today);
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
 
         if (SelectedDateTime != dt)

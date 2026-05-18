@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Quark.Base;
@@ -55,7 +54,11 @@ public class CompositeValidator : QuarkValidator
         if (_validators.Count == 0)
             return ValidationResult.None();
 
+        if (_validators.Count == 1)
+            return _validators[0].Validate(value);
+
         var results = new ValidationResult[_validators.Count];
+
         for (var i = 0; i < _validators.Count; i++)
         {
             results[i] = _validators[i].Validate(value);
@@ -73,7 +76,19 @@ public class CompositeValidator : QuarkValidator
     /// <returns>A <see cref="ValidationResult"/> containing the combined validation outcome.</returns>
     public override async Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
-        var tasks = _validators.Select(validator => validator.Validate(value, cancellationToken));
+        if (_validators.Count == 0)
+            return ValidationResult.None();
+
+        if (_validators.Count == 1)
+            return await _validators[0].Validate(value, cancellationToken);
+
+        var tasks = new Task<ValidationResult>[_validators.Count];
+
+        for (var i = 0; i < _validators.Count; i++)
+        {
+            tasks[i] = _validators[i].Validate(value, cancellationToken);
+        }
+
         var results = await Task.WhenAll(tasks);
         return ValidationResult.Combine(results);
     }

@@ -60,9 +60,9 @@
 
     internal string ContentId => BlazorIdGenerator.Child(_comboboxId, "listbox");
 
-    internal string? ActiveItemId => _items.FirstOrDefault(item => item.IsActiveItem)?.ItemId;
+    internal string? ActiveItemId => GetActiveItemId();
 
-    internal bool HasVisibleItems => _items.Any(item => !item.Hidden);
+    internal bool HasVisibleItems => HasAnyVisibleItem();
 
     internal bool HasTriggerElement => _hasTriggerElement;
 
@@ -130,7 +130,7 @@
             return false;
 
         if (Multiple)
-            return Values?.Any(selected => string.Equals(selected, value, StringComparison.Ordinal)) == true;
+            return IndexOfSelectedValue(value) >= 0;
 
         return string.Equals(Value, value, StringComparison.Ordinal);
     }
@@ -215,7 +215,7 @@
                 Refresh();
                 break;
             case "Enter":
-                var activeItem = _items.FirstOrDefault(item => item.IsActiveItem && !item.Hidden && !item.Disabled);
+                var activeItem = FindActiveSelectableItem();
                 if (activeItem is not null)
                     await Select(activeItem.Value);
                 break;
@@ -234,11 +234,22 @@
         if (!Multiple || value.IsNullOrEmpty())
             return;
 
-        var list = Values?.ToList() ?? [];
-        if (!list.Remove(value))
+        if (Values is null || Values.Length == 0)
             return;
 
-        Values = list.ToArray();
+        int index = IndexOfSelectedValue(value);
+        if (index < 0)
+            return;
+
+        var next = new string[Values.Length - 1];
+        if (index > 0)
+            Array.Copy(Values, 0, next, 0, index);
+
+        int remaining = Values.Length - index - 1;
+        if (remaining > 0)
+            Array.Copy(Values, index + 1, next, index, remaining);
+
+        Values = next;
         await ValueChangedMultiple.InvokeAsync(Values);
         EnsureActiveItem();
         InvalidateRender();
@@ -270,49 +281,50 @@
 
     private void MoveActiveItem(string key)
     {
-        var visibleItems = _items.Where(item => !item.Hidden && !item.Disabled).ToList();
-        if (visibleItems.Count == 0)
+        int count = CountVisibleSelectableItems(out int currentIndex);
+        if (count == 0)
         {
             SetActiveValue(null);
             return;
         }
 
-        var currentIndex = visibleItems.FindIndex(item => item.IsActiveItem);
         var nextIndex = key switch
         {
             "Home" => 0,
-            "End" => visibleItems.Count - 1,
-            "ArrowUp" when currentIndex < 0 => visibleItems.Count - 1,
+            "End" => count - 1,
+            "ArrowUp" when currentIndex < 0 => count - 1,
             "ArrowDown" when currentIndex < 0 => 0,
-            "ArrowDown" => (currentIndex + 1) % visibleItems.Count,
-            "ArrowUp" => (currentIndex - 1 + visibleItems.Count) % visibleItems.Count,
+            "ArrowDown" => (currentIndex + 1) % count,
+            "ArrowUp" => (currentIndex - 1 + count) % count,
             _ => currentIndex
         };
 
-        SetActiveValue(visibleItems[nextIndex].Value);
+        ComboboxItem? next = GetVisibleSelectableItemAt(nextIndex);
+        if (next is not null)
+            SetActiveValue(next.Value);
     }
 
     private void EnsureActiveItem()
     {
-        var visibleItems = _items.Where(item => !item.Hidden && !item.Disabled).ToList();
-        if (visibleItems.Count == 0)
+        int count = CountVisibleSelectableItems(out _);
+        if (count == 0)
         {
             SetActiveValue(null);
             return;
         }
 
-        if (_items.Any(item => item.IsActiveItem && !item.Hidden && !item.Disabled))
+        if (FindActiveSelectableItem() is not null)
             return;
 
         if (AutoHighlight)
         {
-            SetActiveValue(visibleItems[0].Value);
+            SetActiveValue(GetVisibleSelectableItemAt(0)?.Value);
             return;
         }
 
         if (Value is not null)
         {
-            var selectedItem = visibleItems.FirstOrDefault(item => string.Equals(item.Value, Value, StringComparison.Ordinal));
+            var selectedItem = FindVisibleSelectableItem(Value);
             if (selectedItem is not null)
             {
                 SetActiveValue(selectedItem.Value);
@@ -328,16 +340,31 @@
         if (value.IsNullOrEmpty())
             return;
 
-        var list = Values?.ToList() ?? [];
+        int existingIndex = IndexOfSelectedValue(value);
+        if (existingIndex >= 0)
+        {
+            var next = new string[Values!.Length - 1];
+            if (existingIndex > 0)
+                Array.Copy(Values, 0, next, 0, existingIndex);
 
-        var existing = list.FirstOrDefault(selected => string.Equals(selected, value, StringComparison.Ordinal));
+            int remaining = Values.Length - existingIndex - 1;
+            if (remaining > 0)
+                Array.Copy(Values, existingIndex + 1, next, existingIndex, remaining);
 
-        if (existing is not null)
-            list.Remove(existing);
+            Values = next;
+        }
+        else if (Values is { Length: > 0 })
+        {
+            var next = new string[Values.Length + 1];
+            Array.Copy(Values, next, Values.Length);
+            next[^1] = value;
+            Values = next;
+        }
         else
-            list.Add(value);
+        {
+            Values = [value];
+        }
 
-        Values = list.ToArray();
         Search = "";
         Open = true;
         SetActiveValue(value);
@@ -372,6 +399,101 @@
     {
         foreach (var item in _items)
             item.SetActive(string.Equals(item.Value, value, StringComparison.Ordinal));
+    }
+
+    private string? GetActiveItemId()
+    {
+        foreach (ComboboxItem item in _items)
+        {
+            if (item.IsActiveItem)
+                return item.ItemId;
+        }
+
+        return null;
+    }
+
+    private bool HasAnyVisibleItem()
+    {
+        foreach (ComboboxItem item in _items)
+        {
+            if (!item.Hidden)
+                return true;
+        }
+
+        return false;
+    }
+
+    private ComboboxItem? FindActiveSelectableItem()
+    {
+        foreach (ComboboxItem item in _items)
+        {
+            if (item.IsActiveItem && !item.Hidden && !item.Disabled)
+                return item;
+        }
+
+        return null;
+    }
+
+    private ComboboxItem? FindVisibleSelectableItem(string value)
+    {
+        foreach (ComboboxItem item in _items)
+        {
+            if (!item.Hidden && !item.Disabled && string.Equals(item.Value, value, StringComparison.Ordinal))
+                return item;
+        }
+
+        return null;
+    }
+
+    private int CountVisibleSelectableItems(out int activeIndex)
+    {
+        activeIndex = -1;
+        int count = 0;
+
+        foreach (ComboboxItem item in _items)
+        {
+            if (item.Hidden || item.Disabled)
+                continue;
+
+            if (item.IsActiveItem)
+                activeIndex = count;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    private ComboboxItem? GetVisibleSelectableItemAt(int targetIndex)
+    {
+        int index = 0;
+
+        foreach (ComboboxItem item in _items)
+        {
+            if (item.Hidden || item.Disabled)
+                continue;
+
+            if (index == targetIndex)
+                return item;
+
+            index++;
+        }
+
+        return null;
+    }
+
+    private int IndexOfSelectedValue(string value)
+    {
+        if (Values is null)
+            return -1;
+
+        for (int i = 0; i < Values.Length; i++)
+        {
+            if (string.Equals(Values[i], value, StringComparison.Ordinal))
+                return i;
+        }
+
+        return -1;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

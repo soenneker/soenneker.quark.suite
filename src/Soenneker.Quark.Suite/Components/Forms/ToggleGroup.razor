@@ -76,7 +76,7 @@
     internal bool IsItemPressed(string value)
     {
         if (Type == SelectionMode.Multiple)
-            return Values?.Any(x => string.Equals(x, value, StringComparison.Ordinal)) == true;
+            return ContainsValue(value);
 
         return string.Equals(Value, value, StringComparison.Ordinal);
     }
@@ -136,10 +136,38 @@
 
     private async Task HandleMultipleValuesChanged(IReadOnlyCollection<string> values)
     {
-        Values = values.ToArray();
+        Values = values as string[] ?? CopyValues(values);
         await ValueChangedMultiple.InvokeAsync(Values);
         InvalidateRender();
         Refresh();
+    }
+
+    private bool ContainsValue(string value)
+    {
+        if (Values is null)
+            return false;
+
+        foreach (string candidate in Values)
+        {
+            if (string.Equals(candidate, value, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string[] CopyValues(IReadOnlyCollection<string> values)
+    {
+        if (values.Count == 0)
+            return [];
+
+        var result = new string[values.Count];
+        int index = 0;
+
+        foreach (string value in values)
+            result[index++] = value;
+
+        return result;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

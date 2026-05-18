@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@using System.Linq
 @using System.Threading
 @using Soenneker.Bradix
 @using Microsoft.JSInterop
@@ -75,12 +74,27 @@
     protected override void OnInitialized()
     {
         _api.SelectedIndexAccessor = () => CurrentIndex;
-        _api.ScrollSnapListAccessor = () => ItemCount <= 0 ? Array.Empty<int>() : Enumerable.Range(0, ItemCount).ToArray();
+        _api.ScrollSnapListAccessor = GetScrollSnapList;
         _api.CanScrollPreviousAccessor = () => CanScrollPrevious;
         _api.CanScrollNextAccessor = () => CanScrollNext;
         _api.ScrollPreviousAction = () => _ = Previous();
         _api.ScrollNextAction = () => _ = Next();
         base.OnInitialized();
+    }
+
+    private int[] GetScrollSnapList()
+    {
+        if (ItemCount <= 0)
+            return [];
+
+        var items = new int[ItemCount];
+
+        for (var i = 0; i < items.Length; i++)
+        {
+            items[i] = i;
+        }
+
+        return items;
     }
 
     protected override void OnParametersSet()

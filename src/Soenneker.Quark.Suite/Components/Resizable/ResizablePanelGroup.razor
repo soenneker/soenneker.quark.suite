@@ -1,5 +1,4 @@
 @using System.Globalization
-@using System.Linq
 @using Microsoft.JSInterop
 @using Soenneker.Bradix
 
@@ -125,40 +124,46 @@
         EnsureLayoutState();
 
         var size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
-        var styles = new List<string>
-        {
-            "min-height: 0px",
-            "max-height: 100%",
-            "height: auto",
-            "min-width: 0px",
-            "max-width: 100%",
-            "width: auto",
-            "border: 0px",
-            "padding: 0px",
-            "margin: 0px",
-            "display: flex",
-            $"flex: {size.ToString("0.###", CultureInfo.InvariantCulture)} 1 0px",
-            "overflow: hidden"
-        };
+        var styles = new PooledStringBuilder(256);
 
-        if (IsVertical)
+        try
         {
-            if (panel.MinSize.HasValue)
-                styles.Add($"min-height: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+            AppendStyleDecl(ref styles, "min-height: 0px");
+            AppendStyleDecl(ref styles, "max-height: 100%");
+            AppendStyleDecl(ref styles, "height: auto");
+            AppendStyleDecl(ref styles, "min-width: 0px");
+            AppendStyleDecl(ref styles, "max-width: 100%");
+            AppendStyleDecl(ref styles, "width: auto");
+            AppendStyleDecl(ref styles, "border: 0px");
+            AppendStyleDecl(ref styles, "padding: 0px");
+            AppendStyleDecl(ref styles, "margin: 0px");
+            AppendStyleDecl(ref styles, "display: flex");
+            AppendStyleDecl(ref styles, "flex: ", $"{size.ToString("0.###", CultureInfo.InvariantCulture)} 1 0px");
+            AppendStyleDecl(ref styles, "overflow: hidden");
 
-            if (panel.MaxSize.HasValue)
-                styles.Add($"max-height: {panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+            if (IsVertical)
+            {
+                if (panel.MinSize.HasValue)
+                    AppendStyleDecl(ref styles, "min-height: ", $"{panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+
+                if (panel.MaxSize.HasValue)
+                    AppendStyleDecl(ref styles, "max-height: ", $"{panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+            }
+            else
+            {
+                if (panel.MinSize.HasValue)
+                    AppendStyleDecl(ref styles, "min-width: ", $"{panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+
+                if (panel.MaxSize.HasValue)
+                    AppendStyleDecl(ref styles, "max-width: ", $"{panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+            }
+
+            return styles.ToString();
         }
-        else
+        finally
         {
-            if (panel.MinSize.HasValue)
-                styles.Add($"min-width: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
-
-            if (panel.MaxSize.HasValue)
-                styles.Add($"max-width: {panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+            styles.Dispose();
         }
-
-        return string.Join("; ", styles);
     }
 
     internal string GetSeparatorOrientation()
@@ -259,7 +264,13 @@
             return;
         }
 
-        double totalWeight = _panels.Sum(panel => Math.Max(1, panel.DefaultSize));
+        var totalWeight = 0d;
+
+        for (var i = 0; i < _panels.Count; i++)
+        {
+            totalWeight += Math.Max(1, _panels[i].DefaultSize);
+        }
+
         var nextSizes = new double[_panels.Count];
 
         for (var i = 0; i < _panels.Count; i++)
@@ -359,7 +370,12 @@
         if (sizes.Count == 0)
             return;
 
-        var total = sizes.Sum();
+        var total = 0d;
+
+        for (var i = 0; i < sizes.Count; i++)
+        {
+            total += sizes[i];
+        }
 
         if (total <= 0)
         {

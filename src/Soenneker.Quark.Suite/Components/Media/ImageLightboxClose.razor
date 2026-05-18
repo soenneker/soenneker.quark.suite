@@ -14,14 +14,14 @@
 </DialogClose>
 
 @code {
-    private string BuildClass() => string.Join(" ", new[]
-    {
-        "text-white hover:bg-white/10 hover:text-white",
-        Class
-    }.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-    private IReadOnlyDictionary<string, object> CloseAttributes => new Dictionary<string, object>
+    private static readonly IReadOnlyDictionary<string, object> CloseAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "image-lightbox-close"
     };
+
+    private string BuildClass()
+    {
+        const string baseClass = "text-white hover:bg-white/10 hover:text-white";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
 }

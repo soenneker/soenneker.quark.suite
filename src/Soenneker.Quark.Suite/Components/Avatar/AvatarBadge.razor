@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@using Soenneker.Extensions.String
 
 <span @attributes="BuildAttributes()">
     @ChildContent
@@ -41,29 +40,47 @@
 
     private bool HasBackgroundClass()
     {
-        if (Class.IsNullOrWhiteSpace())
+        if (string.IsNullOrWhiteSpace(Class))
             return false;
 
-        var tokens = Class.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var span = Class.AsSpan();
+        var tokenStart = -1;
 
-        for (var i = 0; i < tokens.Length; i++)
+        for (var i = 0; i <= span.Length; i++)
         {
-            var token = tokens[i];
-            var importantIndex = token.LastIndexOf('!');
+            if (i < span.Length && !char.IsWhiteSpace(span[i]))
+            {
+                if (tokenStart < 0)
+                    tokenStart = i;
 
-            if (importantIndex >= 0)
-                token = token[(importantIndex + 1)..];
+                continue;
+            }
 
-            var prefixIndex = token.LastIndexOf(':');
+            if (tokenStart < 0)
+                continue;
 
-            if (prefixIndex >= 0)
-                token = token[(prefixIndex + 1)..];
-
-            if (token.StartsWith("bg-", StringComparison.Ordinal))
+            if (IsBackgroundToken(span[tokenStart..i]))
                 return true;
+
+            tokenStart = -1;
         }
 
         return false;
+    }
+
+    private static bool IsBackgroundToken(ReadOnlySpan<char> token)
+    {
+        var importantIndex = token.LastIndexOf('!');
+
+        if (importantIndex >= 0)
+            token = token[(importantIndex + 1)..];
+
+        var prefixIndex = token.LastIndexOf(':');
+
+        if (prefixIndex >= 0)
+            token = token[(prefixIndex + 1)..];
+
+        return token.StartsWith("bg-", StringComparison.Ordinal);
     }
 
 }

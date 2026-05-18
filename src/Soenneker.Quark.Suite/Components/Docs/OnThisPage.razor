@@ -117,7 +117,7 @@
 
         if (_items.Count == 0)
             _activeId = null;
-        else if (_activeId is not null && !_items.Any(item => item.Id == _activeId))
+        else if (_activeId is not null && !ContainsItem(_activeId))
             _activeId = null;
 
         if (TrackActiveHeading && _items.Count > 0)
@@ -197,6 +197,17 @@
         builder.Append(id);
 
         return builder.ToStringAndDispose();
+    }
+
+    private bool ContainsItem(string id)
+    {
+        foreach (var item in _items)
+        {
+            if (string.Equals(item.Id, id, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 
     private static void AppendClass(ref PooledStringBuilder builder, string? className)
