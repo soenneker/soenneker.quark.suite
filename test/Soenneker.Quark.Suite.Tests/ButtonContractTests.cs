@@ -27,14 +27,14 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void ButtonSize_supports_tokens_and_builder_values()
     {
-        ButtonSize.Default.Value.Should().Be("default");
-        ButtonSize.Xs.Value.Should().Be("xs");
-        ButtonSize.Sm.Value.Should().Be("sm");
-        ButtonSize.Lg.Value.Should().Be("lg");
-        ButtonSize.Icon.Value.Should().Be("icon");
-        ButtonSize.IconXs.Value.Should().Be("icon-xs");
-        ButtonSize.IconSm.Value.Should().Be("icon-sm");
-        ButtonSize.IconLg.Value.Should().Be("icon-lg");
+        ButtonSize.Default.Should().Be("default");
+        ButtonSize.Xs.Should().Be("xs");
+        ButtonSize.Sm.Should().Be("sm");
+        ButtonSize.Lg.Should().Be("lg");
+        ButtonSize.Icon.Should().Be("icon");
+        ButtonSize.IconXs.Should().Be("icon-xs");
+        ButtonSize.IconSm.Should().Be("icon-sm");
+        ButtonSize.IconLg.Should().Be("icon-lg");
 
         typeof(ButtonSize).GetMethods()
             .Where(method => method.Name == "op_Implicit" && method.ReturnType.Name.StartsWith("CssValue", System.StringComparison.Ordinal))
@@ -46,7 +46,7 @@ public sealed partial class RenderedShadcnParityTests
     public void Button_accepts_responsive_button_size_builder()
     {
         var cut = Render<Button>(parameters => parameters
-            .Add(p => p.ButtonSize, ButtonSizes.Xs.OnLg.Sm.On2xl.Lg)
+            .Add(p => p.ButtonSize, ButtonSize.Xs.OnLg.Sm.On2xl.Lg)
             .Add(p => p.ChildContent, "Responsive"));
 
         var button = cut.Find("button");
