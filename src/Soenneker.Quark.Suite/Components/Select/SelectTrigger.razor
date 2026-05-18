@@ -24,7 +24,7 @@
         Display ??= Quark.Display.Flex;
         if (Context?.FillFieldWidth() == true)
             Width ??= Quark.Width.IsFull;
-        else if (!HasTailwindUtility(Class, "w-"))
+        else
             Width ??= Quark.Width.IsFit;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Between;
@@ -42,34 +42,6 @@
         RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
         Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
         Opacity ??= Quark.Opacity.Is50.OnDisabled;
-    }
-
-    private static bool HasTailwindUtility(string? className, string utilityPrefix)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return false;
-
-        var remaining = className.AsSpan();
-        var prefix = utilityPrefix.AsSpan();
-
-        while (!remaining.IsEmpty)
-        {
-            remaining = remaining.TrimStart();
-
-            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
-            var token = separator < 0 ? remaining : remaining[..separator];
-            var utility = token[(token.LastIndexOf(':') + 1)..];
-
-            if (utility.StartsWith(prefix, StringComparison.Ordinal))
-                return true;
-
-            if (separator < 0)
-                break;
-
-            remaining = remaining[(separator + 1)..];
-        }
-
-        return false;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

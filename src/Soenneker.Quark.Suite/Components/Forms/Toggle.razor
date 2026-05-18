@@ -140,11 +140,13 @@
 
     internal static string ResolveToggleSizeClass(CssValue<ToggleSizeBuilder>? size, bool includeShrink, bool isRtl = false)
     {
-        if (size?.TryGetThemeToken(out var token) == true && token is not null)
-            return ResolveToggleTokenSizeClass(token, includeShrink, isRtl);
-
         var value = size?.ToString();
-        return value is "default" or "sm" or "lg" ? ResolveToggleTokenSizeClass(value, includeShrink, isRtl) : value ?? ResolveToggleTokenSizeClass("default", includeShrink, isRtl);
+
+        if (string.IsNullOrWhiteSpace(value))
+            return ResolveToggleTokenSizeClass("default", includeShrink, isRtl);
+
+        var resolved = ResolveToggleTokenSizeClass(value, includeShrink, isRtl);
+        return string.IsNullOrEmpty(resolved) ? value : resolved;
     }
 
     internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl = false)
@@ -157,7 +159,8 @@
         {
             "sm" => $"{prefix}h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] {iconPaddingSm} [&_svg:not([class*='size-'])]:size-3.5",
             "lg" => $"{prefix}{(includeShrink ? string.Empty : "h-9 ")}min-w-9 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4",
-            _ => $"{prefix}h-8 min-w-8 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4"
+            "default" => $"{prefix}h-8 min-w-8 rounded-lg text-sm px-2.5 {iconPadding} [&_svg:not([class*='size-'])]:size-4",
+            _ => string.Empty
         };
     }
 

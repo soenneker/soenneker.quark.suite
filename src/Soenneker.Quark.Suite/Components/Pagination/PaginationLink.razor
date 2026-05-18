@@ -18,7 +18,7 @@
     /// Gets or sets the button size variant used for pagination links.
     /// </summary>
     [Parameter]
-    public ButtonSize ButtonSize { get; set; } = ButtonSizeType.Icon;
+    public CssValue<ButtonSizeBuilder> ButtonSize { get; set; } = ButtonSizeType.Icon;
 
     /// <summary>
     /// Gets or sets the link target (href). When set, the link navigates; otherwise behaves as button.
@@ -49,9 +49,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        var resolvedButtonSize = ButtonSize?.Value ?? ButtonSizeType.Icon.Value;
-        attributes["data-size"] = Button.ResolveButtonSizeDataAttribute(resolvedButtonSize);
-
         if (Active)
         {
             attributes["data-active"] = "true";
@@ -68,8 +65,8 @@
             AppendClass(ref cls, Button.GetButtonFocusClass(variant));
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, Button.GetButtonVariantClass(variant));
-            AppendClass(ref cls, Button.ResolveButtonSizeClass(resolvedButtonSize, false));
+            AppendClass(ref cls, variant.Class);
+            AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
 
             if (Disabled)
                 AppendClass(ref cls, "opacity-50 pointer-events-none");

@@ -77,7 +77,7 @@ else
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = "default";
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Quark.ButtonSizes.Default;
 
     /// <summary>
     /// Gets or sets whether the button should span the full width of its container.
@@ -155,8 +155,7 @@ else
         Display ??= Quark.Display.InlineFlex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
-        if (!HasTailwindUtility(Class, "justify-"))
-            Justify ??= Quark.Justify.Center;
+        Justify ??= Quark.Justify.Center;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
@@ -199,8 +198,7 @@ else
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
-        var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize ?? "default";
-        attributes["data-size"] = GetButtonSizeDataAttribute(effectiveSize);
+        var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize;
 
         if (isLink)
         {
@@ -215,17 +213,12 @@ else
         {
             AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
 
-            var hasExplicitRadius = Rounded is not null || HasTailwindUtility(Class, "rounded");
-
-            if (!hasExplicitRadius && !HasSizeSpecificRadius(effectiveSize))
-                AppendClass(ref cls, "rounded-lg");
-
             AppendClass(ref cls, GetButtonFocusClass(Variant));
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, GetButtonVariantClass(Variant));
-            if (!InputGroupButton)
-                AppendClass(ref cls, GetButtonSizeClass(effectiveSize, !hasExplicitRadius));
+            AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
+            if (!InputGroupButton && effectiveSize is not null)
+                AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
 
             if (isLink && isDisabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
@@ -294,9 +287,7 @@ else
 
     private string? ResolveDataSlot()
     {
-        return string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal)
-            ? "button"
-            : TriggerContext?.DataSlot;
+        return string.Equals(TriggerContext?.DataSlot, "tooltip-trigger", StringComparison.Ordinal) ? "button" : TriggerContext?.DataSlot;
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
@@ -549,98 +540,7 @@ else
         hc.Add(DialogCloseContext?.AriaLabel);
     }
 
-    internal static string GetButtonVariantClass(ButtonVariant? variant)
-    {
-        if (ReferenceEquals(variant, ButtonVariant.Destructive))
-            return "border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
-
-        if (ReferenceEquals(variant, ButtonVariant.Outline))
-            return "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
-
-        if (ReferenceEquals(variant, ButtonVariant.Secondary))
-            return "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
-
-        if (ReferenceEquals(variant, ButtonVariant.Ghost))
-            return "border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
-
-        if (ReferenceEquals(variant, ButtonVariant.Link))
-            return "border-transparent text-primary underline-offset-4 hover:underline";
-
-        return "border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
-    }
-
-    internal static string GetButtonSizeClass(CssValue<ButtonSizeBuilder>? size, bool includeSizeRadius = true)
-    {
-        if (size?.TryGetThemeToken(out var token) == true && !string.IsNullOrWhiteSpace(token))
-            return ResolveButtonSizeClass(token, includeSizeRadius);
-
-        var raw = size?.ToString();
-
-        if (!string.IsNullOrWhiteSpace(raw))
-        {
-            if (IsKnownButtonSize(raw))
-                return ResolveButtonSizeClass(raw, includeSizeRadius);
-
-            if (raw.Contains('-') || raw.Contains(' ') || raw.Contains(':') || raw.Contains('[') || raw.Contains('('))
-                return raw;
-
-            var mapped = ResolveButtonSizeClass(raw, includeSizeRadius);
-
-            if (!string.IsNullOrWhiteSpace(mapped))
-                return mapped;
-        }
-
-        return ResolveButtonSizeClass("default", includeSizeRadius);
-    }
-
-    internal static string ResolveButtonSizeClass(string? size, bool includeSizeRadius = true)
-    {
-        return size switch
-        {
-            "xs" => includeSizeRadius ? "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
-            "sm" => includeSizeRadius ? "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5" : "h-7 gap-1 px-2.5 text-[0.8rem] leading-normal in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5 [&_svg[data-slot=icon]]:size-3.5",
-            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-            "icon" => "size-8",
-            "icon-xs" => includeSizeRadius ? "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3" : "size-6 in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 [&_svg[data-slot=icon]]:size-3",
-            "icon-sm" => includeSizeRadius ? "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg" : "size-7 in-data-[slot=button-group]:rounded-lg",
-            "icon-lg" => "size-9",
-            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
-        };
-    }
-
-    private static bool IsKnownButtonSize(string? size)
-    {
-        return size is "default" or "xs" or "sm" or "lg" or "icon" or "icon-xs" or "icon-sm" or "icon-lg";
-    }
-
-    private static bool HasTailwindUtility(string? className, string utilityPrefix)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return false;
-
-        var remaining = className.AsSpan();
-        var prefix = utilityPrefix.AsSpan();
-
-        while (!remaining.IsEmpty)
-        {
-            remaining = remaining.TrimStart();
-
-            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
-            var token = separator < 0 ? remaining : remaining[..separator];
-            var modifierIndex = token.LastIndexOf(':');
-            var utility = modifierIndex >= 0 ? token[(modifierIndex + 1)..] : token;
-
-            if (utility.StartsWith(prefix, StringComparison.Ordinal))
-                return true;
-
-            if (separator < 0)
-                break;
-
-            remaining = remaining[(separator + 1)..];
-        }
-
-        return false;
-    }
+    internal static string GetButtonSizeClass(CssValue<ButtonSizeBuilder>? size) => size?.ToString() ?? ButtonSizeEnum.Default.Class;
 
     internal static string GetButtonFocusClass(ButtonVariant? variant)
     {
@@ -650,51 +550,23 @@ else
         return "focus-visible:border-ring focus-visible:ring-ring/50";
     }
 
-    internal static string GetInputGroupButtonSizeClass(string? size)
+    internal static string GetInputGroupButtonSizeClass(CssValue<ButtonSizeBuilder>? size)
     {
-        return size switch
-        {
-            "default" => "h-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-            "sm" => string.Empty,
-            "xs" => "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
-            "icon-xs" => "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0",
-            "icon-sm" => "size-8 p-0 has-[>svg]:p-0",
-            _ => string.Empty
-        };
-    }
+        var value = size?.ToString();
 
-    internal static string GetButtonSizeDataAttribute(CssValue<ButtonSizeBuilder>? size)
-    {
-        if (size?.TryGetThemeToken(out var token) == true && !string.IsNullOrWhiteSpace(token))
-            return ResolveButtonSizeDataAttribute(token);
+        if (value == "default")
+            return "h-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2";
 
-        var raw = size?.ToString();
+        if (value == "xs")
+            return "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5";
 
-        if (!string.IsNullOrWhiteSpace(raw))
-            return ResolveButtonSizeDataAttribute(raw);
+        if (value == "icon-xs")
+            return "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0";
 
-        return ResolveButtonSizeDataAttribute("default");
-    }
+        if (value == "icon-sm")
+            return "size-8 p-0 has-[>svg]:p-0";
 
-    private static bool HasSizeSpecificRadius(CssValue<ButtonSizeBuilder>? size)
-    {
-        var value = GetButtonSizeDataAttribute(size);
-        return value is "xs" or "sm" or "icon-xs" or "icon-sm";
-    }
-
-    internal static string ResolveButtonSizeDataAttribute(string? size)
-    {
-        return size switch
-        {
-            "xs" => "xs",
-            "sm" => "sm",
-            "lg" => "lg",
-            "icon" => "icon",
-            "icon-xs" => "icon-xs",
-            "icon-sm" => "icon-sm",
-            "icon-lg" => "icon-lg",
-            _ => "default"
-        };
+        return value ?? string.Empty;
     }
 
 }

@@ -525,16 +525,11 @@
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is { IsEmpty: false })
+        if (BackgroundColor is { IsEmpty: false } && BackgroundColor.Value.IsCssStyle)
         {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
-
             var result = BackgroundColor.ToString();
-            if (!result.HasContent())
-                return;
 
-            if (BackgroundColor.Value.IsCssStyle)
+            if (result.HasContent())
                 AppendStyleDecl(ref sty, $"background-color: {result}");
         }
     }

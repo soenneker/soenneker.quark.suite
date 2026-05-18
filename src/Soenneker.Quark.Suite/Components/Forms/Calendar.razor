@@ -6,10 +6,10 @@
 <Div @attributes="BuildAttributes()">
     <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="md:flex-row rdp-months">
         <Nav Position="Quark.Position.Absolute" Inset="Quark.Inset.OnX.Is0" Top="Quark.Top.Is0" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is1" AriaLabel="" Class="rdp-nav">
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@CalendarNavButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="rdp-button_previous" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="@(_ => PrevMonth())">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="@(_ => PrevMonth())">
                 <Icon Name="LucideIcon.ChevronLeft" Size="Quark.Size.Is4" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@CalendarNavButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="rdp-button_next" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="@(_ => NextMonth())">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="@(_ => NextMonth())">
                 <Icon Name="LucideIcon.ChevronRight" Size="Quark.Size.Is4" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
         </Nav>
@@ -91,7 +91,7 @@
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
                                     <TdPrimitive Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@CalendarDayButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
+                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@($"{CalendarDayButtonSize} {buttonCss}")" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
                                             @if (DayContent is not null)
                                             {
                                                 @DayContent(dayContext)
@@ -119,8 +119,9 @@
         DataSlot ??= "calendar";
     }
 
-    private static readonly CssValue<ButtonSizeBuilder> CalendarNavButtonSize = "gap-1.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 size-(--cell-size) p-0";
-    private static readonly CssValue<ButtonSizeBuilder> CalendarDayButtonSize = "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal";
+    private static readonly CssValue<ButtonSizeBuilder>? NoButtonSize = null;
+    private const string CalendarNavButtonSize = "gap-1.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 size-(--cell-size) p-0";
+    private const string CalendarDayButtonSize = "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal";
     private static readonly string[] PersianMonthNames =
     [
         "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
