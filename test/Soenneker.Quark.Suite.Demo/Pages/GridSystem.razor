@@ -6,113 +6,118 @@
     <Div Space="Space.Y.Is3">
         <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance">
             Quark's grid system is a thin, typed layer over CSS grid and Tailwind grid utilities.
-            It gives layouts a consistent vocabulary without hiding how the browser lays out tracks and items.
+            The examples below are live layouts; resize the viewport to see the responsive builders change columns and spans.
         </Paragraph>
     </Div>
 
-    <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Core model</H2>
-            <Paragraph Leading="Leading.Relaxed">
-                Use <Code>Grid</Code> for two-dimensional layout. <Code>Grid</Code> renders a normal <Code>div</Code>, sets <Code>display: grid</Code> by default, and accepts typed builders for columns, rows, gaps, alignment, spacing, color, border, sizing, and the rest of the shared Element API.
-            </Paragraph>
-            <Paragraph Leading="Leading.Relaxed">
-                The container defines tracks with <Code>Columns</Code> and <Code>Rows</Code>. Children flow into those tracks in source order unless a child changes its placement. Use normal child components for simple cells and <Code>GridItem</Code> when a child needs grid-specific behavior such as a column span.
-            </Paragraph>
-            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is4"&gt;
-    &lt;Div&gt;One&lt;/Div&gt;
-    &lt;Div&gt;Two&lt;/Div&gt;
-    &lt;Div&gt;Three&lt;/Div&gt;
-&lt;/Grid&gt;</PreCode>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Columns and breakpoints</H2>
-            <Paragraph Leading="Leading.Relaxed">
-                Grid column builders read left to right. Start with the smallest layout, then chain breakpoint changes as the viewport gets wider. <Code>GridCols.Is1.OnMd.Is2.OnXl.Is4</Code> produces a single column by default, two columns at <Code>md</Code>, and four columns at <Code>xl</Code>.
-            </Paragraph>
-
-            <Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3">
+    <Div Space="Space.Y.Is8" Width="Width.IsFull">
+        <DemoSection Title="Responsive Columns"
+                     Description="One column by default, two at md, and four at xl."
+                     Code="@ResponsiveColumnsCode"
+                     CodeLanguage="razor"
+                     PreviewAlign="start"
+                     PreviewClass="preview relative flex w-full justify-start p-4"
+                     PreviewInnerClass="w-full">
+            <Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is4" Width="Width.IsFull">
                 <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                    <Strong>Default</Strong>
-                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">1 column</Paragraph>
+                    <Strong>Pipeline</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">32 active deals</Paragraph>
                 </Div>
                 <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                    <Strong>md</Strong>
-                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">2 columns</Paragraph>
+                    <Strong>Booked</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">$84.2k this month</Paragraph>
                 </Div>
                 <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                    <Strong>xl</Strong>
-                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">4 columns</Paragraph>
+                    <Strong>Conversion</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">18.4% qualified</Paragraph>
                 </Div>
                 <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                    <Strong>Flow</Strong>
-                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">source order</Paragraph>
+                    <Strong>Response</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">1h 12m median</Paragraph>
                 </Div>
             </Grid>
+        </DemoSection>
 
-            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3"&gt;
-    ...
-&lt;/Grid&gt;</PreCode>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Gaps and density</H2>
-            <Paragraph Leading="Leading.Relaxed">
-                <Code>Gap</Code> controls the space between grid cells. Use smaller gaps for dense application surfaces and larger gaps for content groups. Padding belongs on the grid when every cell needs outer breathing room, or on each child when the cells are independent surfaces.
-            </Paragraph>
-            <Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is2" Border="Border.Is1" Rounded="Rounded.Xl" Padding="Padding.Is3">
-                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Compact</Div>
-                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Shared gap</Div>
-                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Outer padding</Div>
-            </Grid>
-            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3"
-      Gap="Gap.Is2"
-      Border="Border.Is1"
-      Rounded="Rounded.Xl"
-      Padding="Padding.Is3"&gt;
-    ...
-&lt;/Grid&gt;</PreCode>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Spans</H2>
-            <Paragraph Leading="Leading.Relaxed">
-                Spans should be used for intentional hierarchy, not just decoration. A featured item can take more tracks at larger breakpoints while staying one column on smaller screens. This keeps the layout readable on mobile and more expressive on desktop.
-            </Paragraph>
-            <Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3">
-                <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                    <Strong>Featured area</Strong>
-                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Spans two columns from <Code>md</Code> upward.</Paragraph>
+        <DemoSection Title="Dashboard Spans"
+                     Description="GridItem spans create hierarchy without breaking the mobile stack."
+                     Code="@DashboardSpansCode"
+                     CodeLanguage="razor"
+                     PreviewAlign="start"
+                     PreviewClass="preview relative flex w-full justify-start p-4"
+                     PreviewInnerClass="w-full">
+            <Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is4" Width="Width.IsFull">
+                <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" RowSpan="RowSpan.Is1.OnMd.Is2" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm" Class="min-h-48">
+                    <Strong>Revenue trend</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Primary panel spans two of four tracks from md upward.</Paragraph>
+                    <Div Margin="Margin.Is4.FromTop" Display="Display.Flex" ItemsAlign="Items.End" Gap="Gap.Is2" Class="h-24">
+                        <Div BackgroundColor='BackgroundColor.Token("primary/25")' Rounded="Rounded.Sm" Width='Width.Token("12%")' Class="h-10"></Div>
+                        <Div BackgroundColor='BackgroundColor.Token("primary/35")' Rounded="Rounded.Sm" Width='Width.Token("12%")' Class="h-16"></Div>
+                        <Div BackgroundColor='BackgroundColor.Token("primary/45")' Rounded="Rounded.Sm" Width='Width.Token("12%")' Class="h-12"></Div>
+                        <Div BackgroundColor='BackgroundColor.Token("primary/60")' Rounded="Rounded.Sm" Width='Width.Token("12%")' Class="h-20"></Div>
+                        <Div BackgroundColor='BackgroundColor.Token("primary/80")' Rounded="Rounded.Sm" Width='Width.Token("12%")' Class="h-24"></Div>
+                    </Div>
                 </GridItem>
-                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Metric</Div>
-                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Status</Div>
+                <GridItem Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">
+                    <Strong>Open value</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm">$240k</Paragraph>
+                </GridItem>
+                <GridItem Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">
+                    <Strong>Next actions</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm">14 due today</Paragraph>
+                </GridItem>
             </Grid>
-            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3"&gt;
-    &lt;GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2"&gt;
-        Featured area
-    &lt;/GridItem&gt;
-    &lt;Div&gt;Metric&lt;/Div&gt;
-    &lt;Div&gt;Status&lt;/Div&gt;
-&lt;/Grid&gt;</PreCode>
-        </Section>
+        </DemoSection>
 
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Rows and inline grids</H2>
-            <Paragraph Leading="Leading.Relaxed">
-                <Code>Rows</Code> mirrors <Code>Columns</Code> when a layout needs explicit row tracks. Most page layouts only need columns because rows can grow naturally from content, but row builders are useful for calendars, dashboards, and fixed-format panels.
-            </Paragraph>
-            <Paragraph Leading="Leading.Relaxed">
-                Set <Code>Inline</Code> when the grid should participate in text or toolbar flow as <Code>inline-grid</Code>. Keep that for small controls and badge-like layouts; full page and panel layouts should normally use the default block grid.
-            </Paragraph>
-            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is2" Rows="GridRows.Is3" Gap="Gap.Is2"&gt;
-    ...
-&lt;/Grid&gt;
+        <DemoSection Title="Responsive Form Grid"
+                     Description="Fields stay single-column on small screens and pair up when horizontal space exists."
+                     Code="@FormGridCode"
+                     CodeLanguage="razor"
+                     PreviewAlign="start"
+                     PreviewClass="preview relative flex w-full justify-start p-4"
+                     PreviewInnerClass="w-full">
+            <Grid Columns="GridCols.Is1.OnMd.Is2" Gap="Gap.Is4" Width="Width.IsFull">
+                <Div Space="Space.Y.Is2">
+                    <Strong>Company</Strong>
+                    <Div Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Card">Acme Systems</Div>
+                </Div>
+                <Div Space="Space.Y.Is2">
+                    <Strong>Owner</Strong>
+                    <Div Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Card">Jordan Lee</Div>
+                </Div>
+                <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" Space="Space.Y.Is2">
+                    <Strong>Notes</Strong>
+                    <Div Border="Border.Is1" Rounded="Rounded.Lg" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Card" Class="min-h-24">Enterprise renewal with procurement review next week.</Div>
+                </GridItem>
+            </Grid>
+        </DemoSection>
 
-&lt;Grid Inline="true" Columns="GridCols.Is2" Gap="Gap.Is1"&gt;
-    ...
-&lt;/Grid&gt;</PreCode>
-        </Section>
+        <DemoSection Title="Rows And Inline Grid"
+                     Description="Rows are useful for fixed-format panels; inline grids fit compact toolbar content."
+                     Code="@RowsAndInlineCode"
+                     CodeLanguage="razor"
+                     PreviewAlign="start"
+                     PreviewClass="preview relative flex w-full justify-start p-4"
+                     PreviewInnerClass="w-full">
+            <Div Space="Space.Y.Is4" Width="Width.IsFull">
+                <Grid Columns="GridCols.Is2" Rows="GridRows.Is3" Gap="Gap.Is2" Width="Width.IsFull">
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">A1</Div>
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">A2</Div>
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">B1</Div>
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">B2</Div>
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">C1</Div>
+                    <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is3">C2</Div>
+                </Grid>
+
+                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                    <Span TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Status</Span>
+                    <Grid Inline="true" Columns="GridCols.Is3" Gap="Gap.Is1">
+                        <Div Rounded="Rounded.Sm" BackgroundColor='BackgroundColor.Token("primary/20")' Padding="Padding.OnX.Is2">New</Div>
+                        <Div Rounded="Rounded.Sm" BackgroundColor='BackgroundColor.Token("primary/30")' Padding="Padding.OnX.Is2">Won</Div>
+                        <Div Rounded="Rounded.Sm" BackgroundColor='BackgroundColor.Token("primary/40")' Padding="Padding.OnX.Is2">Lost</Div>
+                    </Grid>
+                </Div>
+            </Div>
+        </DemoSection>
 
         <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">When to use grid</H2>
@@ -128,3 +133,81 @@
         </Section>
     </Div>
 </Div>
+
+@code {
+    private const string ResponsiveColumnsCode = @"<Grid Columns=""GridCols.Is1.OnMd.Is2.OnXl.Is4"" Gap=""Gap.Is4"" Width=""Width.IsFull"">
+    <Div Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Shadow=""Shadow.Sm"">
+        <Strong>Pipeline</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">32 active deals</Paragraph>
+    </Div>
+    <Div Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Shadow=""Shadow.Sm"">
+        <Strong>Booked</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">$84.2k this month</Paragraph>
+    </Div>
+    <Div Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Shadow=""Shadow.Sm"">
+        <Strong>Conversion</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">18.4% qualified</Paragraph>
+    </Div>
+    <Div Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Shadow=""Shadow.Sm"">
+        <Strong>Response</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">1h 12m median</Paragraph>
+    </Div>
+</Grid>";
+
+    private const string DashboardSpansCode = @"<Grid Columns=""GridCols.Is1.OnMd.Is4"" Gap=""Gap.Is4"" Width=""Width.IsFull"">
+    <GridItem ColumnSpan=""ColumnSpan.Is1.OnMd.Is2"" RowSpan=""RowSpan.Is1.OnMd.Is2"" Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor=""BackgroundColor.Card"" Padding=""Padding.Is4"" Shadow=""Shadow.Sm"" Class=""min-h-48"">
+        <Strong>Revenue trend</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">Primary panel spans two of four tracks from md upward.</Paragraph>
+        <Div Margin=""Margin.Is4.FromTop"" Display=""Display.Flex"" ItemsAlign=""Items.End"" Gap=""Gap.Is2"" Class=""h-24"">
+            <Div BackgroundColor='BackgroundColor.Token(""primary/25"")' Rounded=""Rounded.Sm"" Width='Width.Token(""12%"")' Class=""h-10""></Div>
+            <Div BackgroundColor='BackgroundColor.Token(""primary/35"")' Rounded=""Rounded.Sm"" Width='Width.Token(""12%"")' Class=""h-16""></Div>
+            <Div BackgroundColor='BackgroundColor.Token(""primary/45"")' Rounded=""Rounded.Sm"" Width='Width.Token(""12%"")' Class=""h-12""></Div>
+            <Div BackgroundColor='BackgroundColor.Token(""primary/60"")' Rounded=""Rounded.Sm"" Width='Width.Token(""12%"")' Class=""h-20""></Div>
+            <Div BackgroundColor='BackgroundColor.Token(""primary/80"")' Rounded=""Rounded.Sm"" Width='Width.Token(""12%"")' Class=""h-24""></Div>
+        </Div>
+    </GridItem>
+    <GridItem Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor='BackgroundColor.Token(""muted/40"")' Padding=""Padding.Is4"">
+        <Strong>Open value</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"">$240k</Paragraph>
+    </GridItem>
+    <GridItem Rounded=""Rounded.Lg"" Border=""Border.Is1"" BackgroundColor='BackgroundColor.Token(""muted/40"")' Padding=""Padding.Is4"">
+        <Strong>Next actions</Strong>
+        <Paragraph Margin=""Margin.Is2.FromTop"" TextSize=""TextSize.Sm"">14 due today</Paragraph>
+    </GridItem>
+</Grid>";
+
+    private const string FormGridCode = @"<Grid Columns=""GridCols.Is1.OnMd.Is2"" Gap=""Gap.Is4"" Width=""Width.IsFull"">
+    <Div Space=""Space.Y.Is2"">
+        <Strong>Company</Strong>
+        <Div Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Card"">Acme Systems</Div>
+    </Div>
+    <Div Space=""Space.Y.Is2"">
+        <Strong>Owner</Strong>
+        <Div Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Card"">Jordan Lee</Div>
+    </Div>
+    <GridItem ColumnSpan=""ColumnSpan.Is1.OnMd.Is2"" Space=""Space.Y.Is2"">
+        <Strong>Notes</Strong>
+        <Div Border=""Border.Is1"" Rounded=""Rounded.Lg"" Padding=""Padding.Is3"" BackgroundColor=""BackgroundColor.Card"" Class=""min-h-24"">Enterprise renewal with procurement review next week.</Div>
+    </GridItem>
+</Grid>";
+
+    private const string RowsAndInlineCode = @"<Div Space=""Space.Y.Is4"" Width=""Width.IsFull"">
+    <Grid Columns=""GridCols.Is2"" Rows=""GridRows.Is3"" Gap=""Gap.Is2"" Width=""Width.IsFull"">
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">A1</Div>
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">A2</Div>
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">B1</Div>
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">B2</Div>
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">C1</Div>
+        <Div Rounded=""Rounded.Md"" BackgroundColor='BackgroundColor.Token(""muted/50"")' Padding=""Padding.Is3"">C2</Div>
+    </Grid>
+
+    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
+        <Span TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">Status</Span>
+        <Grid Inline=""true"" Columns=""GridCols.Is3"" Gap=""Gap.Is1"">
+            <Div Rounded=""Rounded.Sm"" BackgroundColor='BackgroundColor.Token(""primary/20"")' Padding=""Padding.OnX.Is2"">New</Div>
+            <Div Rounded=""Rounded.Sm"" BackgroundColor='BackgroundColor.Token(""primary/30"")' Padding=""Padding.OnX.Is2"">Won</Div>
+            <Div Rounded=""Rounded.Sm"" BackgroundColor='BackgroundColor.Token(""primary/40"")' Padding=""Padding.OnX.Is2"">Lost</Div>
+        </Grid>
+    </Div>
+</Div>";
+}

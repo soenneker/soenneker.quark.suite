@@ -19,8 +19,6 @@
              Gap='Gap.Token("6")'
              class="w-full max-w-none px-0 py-6 text-neutral-800 dark:text-neutral-300 sm:max-w-[40rem] lg:py-8">
             <Div Flex=@("flex flex-col") Gap="Gap.Is2">
-                <H1 ScrollMargin="ScrollMargin.Is24.FromTop" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight" TextAlign="TextAlign.Start">Themes</H1>
-
                 <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance md:max-w-[80%]">
                     Generate Quark theme CSS at compile time from a strongly typed Theme definition.
                 </Paragraph>
@@ -32,7 +30,7 @@
                     <Paragraph Leading="Leading.Relaxed">
                         Theme generation lives in the Soenneker.Quark.Gen.Themes package. Reference it as a build-time dependency in the app that owns the theme.
                     </Paragraph>
-                    <PreCode Language="bash">dotnet add package Soenneker.Quark.Gen.Themes</PreCode>
+                    <CodeEditor Text="@InstallGeneratorCode" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -40,50 +38,7 @@
                     <Paragraph Leading="Leading.Relaxed">
                         Add GenerateQuarkThemeCss to a class with exactly one public static method or property returning Theme. The factory can optionally take IServiceProvider.
                     </Paragraph>
-                    <PreCode Language="csharp">using Soenneker.Quark;
-using Soenneker.Quark.Gen.Themes;
-using Soenneker.Quark.Tokens;
-
-[GenerateQuarkThemeCss("wwwroot/css/quark-theme.css")]
-public static class AppTheme
-{
-    public static Theme Build() => new()
-    {
-        Name = "App",
-        Tokens = new ThemeTokens
-        {
-            Light =
-            {
-                Primary = "oklch(0.623 0.214 259.815)",
-                PrimaryForeground = "oklch(0.985 0 0)"
-            },
-            Dark =
-            {
-                Primary = "oklch(0.809 0.105 251.813)",
-                PrimaryForeground = "oklch(0.205 0 0)"
-            }
-        },
-        Anchors = new AnchorOptions
-        {
-            Selector = "a",
-            DecorationLine = DecorationLine.None,
-            TextColor = "#2563ba"
-        },
-        Buttons = new ButtonOptions
-        {
-            BackgroundColor = "#2563eb",
-            TextColor = "#ffffff",
-            Rounded = "0.5rem",
-            Padding = "0.5rem 1rem"
-        },
-        Cards = new CardOptions
-        {
-            BackgroundColor = "#ffffff",
-            Rounded = "0.75rem",
-            BoxShadow = "0 0.25rem 0.75rem rgba(0,0,0,0.08)"
-        }
-    };
-}</PreCode>
+                    <CodeEditor Text="@CreateThemeCode" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -91,8 +46,7 @@ public static class AppTheme
                     <Paragraph Leading="Leading.Relaxed">
                         The generator writes the requested CSS file and, by default, a minified sibling. Reference the generated stylesheet after Quark's base styles.
                     </Paragraph>
-                    <PreCode Language="html">&lt;link rel="stylesheet" href="_content/Soenneker.Quark.Suite/css/quark-tailwind.css" /&gt;
-&lt;link rel="stylesheet" href="css/quark-theme.css" /&gt;</PreCode>
+                    <CodeEditor Text="@UseCssCode" Language="html" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -100,7 +54,7 @@ public static class AppTheme
                     <Paragraph Leading="Leading.Relaxed">
                         The same Theme also emits tailwind/quark-theme.generated.css unless TailwindThemeOutputFilePath is overridden. Import that file into the Tailwind input when the app should replace the baked-in shadcn theme variables during the Tailwind build.
                     </Paragraph>
-                    <PreCode Language="css">@("@import \"./quark-theme.generated.css\";")</PreCode>
+                    <CodeEditor Text="@TailwindThemeOutputCode" Language="css" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -108,13 +62,69 @@ public static class AppTheme
                     <Paragraph Leading="Leading.Relaxed">
                         BuildUnminified, BuildMinified, and TailwindThemeOutputFilePath can be set on the attribute when an app needs different output behavior.
                     </Paragraph>
-                    <PreCode Language="csharp">[GenerateQuarkThemeCss(
-    "wwwroot/css/quark-theme.css",
-    BuildUnminified = true,
-    BuildMinified = true,
-    TailwindThemeOutputFilePath = "tailwind/quark-theme.generated.css")]</PreCode>
+                    <CodeEditor Text="@GeneratedOptionsCode" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
             </Div>
         </Div>
     </Div>
 </Div>
+
+@code {
+    private const string InstallGeneratorCode = "dotnet add package Soenneker.Quark.Gen.Themes";
+
+    private const string CreateThemeCode = @"using Soenneker.Quark;
+using Soenneker.Quark.Gen.Themes;
+using Soenneker.Quark.Tokens;
+
+[GenerateQuarkThemeCss(""wwwroot/css/quark-theme.css"")]
+public static class AppTheme
+{
+    public static Theme Build() => new()
+    {
+        Name = ""App"",
+        Tokens = new ThemeTokens
+        {
+            Light =
+            {
+                Primary = ""oklch(0.623 0.214 259.815)"",
+                PrimaryForeground = ""oklch(0.985 0 0)""
+            },
+            Dark =
+            {
+                Primary = ""oklch(0.809 0.105 251.813)"",
+                PrimaryForeground = ""oklch(0.205 0 0)""
+            }
+        },
+        Anchors = new AnchorOptions
+        {
+            Selector = ""a"",
+            DecorationLine = DecorationLine.None,
+            TextColor = ""#2563ba""
+        },
+        Buttons = new ButtonOptions
+        {
+            BackgroundColor = ""#2563eb"",
+            TextColor = ""#ffffff"",
+            Rounded = ""0.5rem"",
+            Padding = ""0.5rem 1rem""
+        },
+        Cards = new CardOptions
+        {
+            BackgroundColor = ""#ffffff"",
+            Rounded = ""0.75rem"",
+            BoxShadow = ""0 0.25rem 0.75rem rgba(0,0,0,0.08)""
+        }
+    };
+}";
+
+    private const string UseCssCode = @"<link rel=""stylesheet"" href=""_content/Soenneker.Quark.Suite/css/quark-tailwind.css"" />
+<link rel=""stylesheet"" href=""css/quark-theme.css"" />";
+
+    private const string TailwindThemeOutputCode = @"@import ""./quark-theme.generated.css"";";
+
+    private const string GeneratedOptionsCode = @"[GenerateQuarkThemeCss(
+    ""wwwroot/css/quark-theme.css"",
+    BuildUnminified = true,
+    BuildMinified = true,
+    TailwindThemeOutputFilePath = ""tailwind/quark-theme.generated.css"")]";
+}
