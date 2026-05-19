@@ -26,4 +26,9 @@ public interface ITextInput : IInput
     /// Gets or sets the input mode hint for mobile keyboards.
     /// </summary>
     TextInputMode? InputMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the edit mask pattern used for native input validation.
+    /// </summary>
+    string? EditMask { get; set; }
 }

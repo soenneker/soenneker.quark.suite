@@ -40,7 +40,12 @@ public interface IValidation : IDisposable
     /// <summary>
     /// Initialize or update the pattern and seed value used for pattern-based validation.
     /// </summary>
-    Task InitializeInputPattern<T>(string pattern, T value);
+    Task InitializeInputPattern<T>(string pattern, T value, bool enablePatternValidation = false);
+
+    /// <summary>
+    /// Clears the input-provided pattern used for pattern-based validation.
+    /// </summary>
+    void ClearInputPattern();
 
     /// <summary>
     /// Initialize or update the expression used to bind a model field for data-annotation validation.

@@ -19,6 +19,7 @@
     private object? _lastKnownValue;
     private string? _patternString;
     private bool _hasPattern;
+    private bool _hasInputPattern;
     private bool _initialized;
     private FieldIdentifier _fieldIdentifier;
     private bool _hasFieldIdentifier;
@@ -182,12 +183,14 @@
         _initialized = true;
     }
 
-    public async Task InitializeInputPattern<T>(string pattern, T value)
+    public async Task InitializeInputPattern<T>(string pattern, T value, bool enablePatternValidation = false)
     {
         _lastKnownValue = value;
 
         if (pattern.HasContent())
         {
+            _hasInputPattern = _hasInputPattern || enablePatternValidation;
+
             if (!_hasPattern || _patternString != pattern)
             {
                 _patternString = pattern;
@@ -201,6 +204,24 @@
             }
 
             _hasPattern = true;
+        }
+    }
+
+    public void ClearInputPattern()
+    {
+        _hasInputPattern = false;
+
+        if (PatternString.HasContent())
+        {
+            _patternString = PatternString;
+            Pattern = new Regex(PatternString);
+            _hasPattern = true;
+        }
+        else
+        {
+            _hasPattern = false;
+            _patternString = null;
+            Pattern = null;
         }
     }
 
@@ -323,7 +344,7 @@
             if (Validator is not null || Action is not null || AsyncFunc is not null)
                 return ValidationHandlerType.Validator;
 
-            if (UsePattern && _hasPattern)
+            if ((UsePattern || _hasInputPattern) && _hasPattern)
                 return ValidationHandlerType.Pattern;
 
             if (EditContext is not null && _hasFieldIdentifier)

@@ -68,6 +68,12 @@
     public TextInputMode? InputMode { get; set; }
 
     /// <summary>
+    /// Gets or sets the edit mask pattern used for native input validation.
+    /// </summary>
+    [Parameter]
+    public string? EditMask { get; set; }
+
+    /// <summary>
     /// Gets or sets the size of the text input.
     /// </summary>
     [Parameter]
@@ -110,6 +116,7 @@
     public Validation? ParentValidation { get; set; }
 
     private Input? _inputComponent;
+    private string? _registeredEditMask;
 
     public object? ValidationValue => Value;
 
@@ -133,6 +140,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (ParentValidation is not null && _registeredEditMask != EditMask)
+        {
+            if (EditMask.HasContent())
+                await ParentValidation.InitializeInputPattern(EditMask, Value ?? string.Empty, enablePatternValidation: true);
+            else
+                ParentValidation.ClearInputPattern();
+
+            _registeredEditMask = EditMask;
+        }
+
         if (firstRender && ParentValidation is not null && ValueExpression is not null)
         {
             await ParentValidation.InitializeInputExpression(ValueExpression);
@@ -198,6 +215,7 @@
         // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
         if (MaxLength > 0) attributes["maxlength"] = MaxLength;
         if (InputMode is not null) attributes["inputmode"] = InputMode.Value;
+        if (EditMask.HasContent()) attributes["pattern"] = EditMask;
 
         return attributes;
     }
@@ -209,6 +227,7 @@
         hc.Add(MaxLength);
         hc.Add(Type);
         hc.Add(InputMode);
+        hc.Add(EditMask);
         AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
