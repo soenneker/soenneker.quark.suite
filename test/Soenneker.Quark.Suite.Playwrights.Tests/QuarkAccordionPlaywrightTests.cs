@@ -100,6 +100,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(firstContent).ToBeVisibleAsync();
+        await AssertAccordionIconVisibleAsync(firstTrigger, rotated: true);
 
         await secondTrigger.ClickAsync();
 
@@ -107,6 +108,8 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(firstContent).Not.ToBeVisibleAsync();
         await Assertions.Expect(secondContent).ToBeVisibleAsync();
+        await AssertAccordionIconVisibleAsync(firstTrigger, rotated: false);
+        await AssertAccordionIconVisibleAsync(secondTrigger, rotated: true);
 
         await secondTrigger.ClickAsync();
 
@@ -114,6 +117,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(secondContent).Not.ToBeVisibleAsync();
         await Assertions.Expect(firstContent).Not.ToBeVisibleAsync();
         await Assertions.Expect(secondContent).Not.ToBeVisibleAsync();
+        await AssertAccordionIconVisibleAsync(secondTrigger, rotated: false);
     }
 
     [Test]
@@ -202,5 +206,16 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
         await page.WaitForFunctionAsync(
             "(expectedId) => document.activeElement?.id === expectedId",
             id);
+    }
+
+    private static async Task AssertAccordionIconVisibleAsync(ILocator trigger, bool rotated)
+    {
+        var icon = trigger.Locator("[data-slot='accordion-trigger-icon']").First;
+        await Assertions.Expect(icon).ToBeVisibleAsync();
+
+        if (!rotated)
+            return;
+
+        await Assertions.Expect(icon).ToHaveCSSAsync("rotate", "180deg");
     }
 }
