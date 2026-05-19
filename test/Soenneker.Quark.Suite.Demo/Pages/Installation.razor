@@ -32,15 +32,11 @@
                     <Paragraph Leading="Leading.Relaxed">
                         Install Quark Suite and the build-time generators that produce the local Tailwind stylesheet and icon assets used by your app.
                     </Paragraph>
-                    <PreCode Language="bash">dotnet add package Soenneker.Quark.Suite
-dotnet add package Soenneker.Quark.Gen.Tailwind
-dotnet add package Soenneker.Quark.Gen.Tailwind.Manifest
-dotnet add package Soenneker.Lucide.Icons
-dotnet add package Soenneker.Quark.Gen.Lucide</PreCode>
+                    <CodeEditor Text="@InstallPackagesCode" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                     <Paragraph Leading="Leading.Relaxed">
                         Theme generation is optional. Add it when the app owns custom shadcn-compatible theme tokens.
                     </Paragraph>
-                    <PreCode Language="bash">dotnet add package Soenneker.Quark.Gen.Themes</PreCode>
+                    <CodeEditor Text="@ThemePackageCode" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -48,9 +44,7 @@ dotnet add package Soenneker.Quark.Gen.Lucide</PreCode>
                     <Paragraph Leading="Leading.Relaxed">
                         Enable the Tailwind generator in the app project so the Quark stylesheet is built with the classes used by your Razor files.
                     </Paragraph>
-                    <PreCode Language="xml">&lt;PropertyGroup&gt;
-    &lt;TailwindGeneratorBuildEnabled&gt;true&lt;/TailwindGeneratorBuildEnabled&gt;
-&lt;/PropertyGroup&gt;</PreCode>
+                    <CodeEditor Text="@BuildGenerationCode" Language="xml" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -58,7 +52,7 @@ dotnet add package Soenneker.Quark.Gen.Lucide</PreCode>
                     <Paragraph Leading="Leading.Relaxed">
                         Register Quark Suite during application startup so components and supporting services are available through dependency injection.
                     </Paragraph>
-                    <PreCode Language="csharp">builder.Services.AddQuarkSuiteAsScoped();</PreCode>
+                    <CodeEditor Text="@RegisterServicesCode" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
@@ -66,18 +60,18 @@ dotnet add package Soenneker.Quark.Gen.Lucide</PreCode>
                     <Paragraph Leading="Leading.Relaxed">
                         Reference the generated stylesheet from `index.html`. The generator writes the CSS file into the app's `wwwroot/css` folder.
                     </Paragraph>
-                    <PreCode Language="html">&lt;link href="css/quark-tailwind.min.css" rel="stylesheet" /&gt;</PreCode>
+                    <CodeEditor Text="@StylesCode" Language="html" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
                     <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">What the packages do</H2>
                     <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem><Strong>Soenneker.Quark.Suite:</Strong> the component library and shared Quark primitives.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Soenneker.Quark.Gen.Tailwind:</Strong> runs at build time and emits `wwwroot/css/quark-tailwind.css` and `wwwroot/css/quark-tailwind.min.css` for the app.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Soenneker.Quark.Gen.Tailwind.Manifest:</Strong> scans the app for builder-derived Tailwind classes so generated CSS includes the utilities used by Razor components.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Soenneker.Lucide.Icons:</Strong> provides the Lucide icon SVG catalog used by Quark icon components.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Soenneker.Quark.Gen.Lucide:</Strong> generates the app-local Lucide icon map and service registration code used by `Icon`.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Soenneker.Quark.Gen.Themes:</Strong> optionally generates theme CSS from Quark theme definitions.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.suite" Target="Target.Blank">Soenneker.Quark.Suite</Anchor>:</Strong> the component library and shared Quark primitives.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind" Target="Target.Blank">Soenneker.Quark.Gen.Tailwind</Anchor>:</Strong> runs at build time and emits `wwwroot/css/quark-tailwind.css` and `wwwroot/css/quark-tailwind.min.css` for the app.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind.manifest" Target="Target.Blank">Soenneker.Quark.Gen.Tailwind.Manifest</Anchor>:</Strong> scans the app for builder-derived Tailwind classes so generated CSS includes the utilities used by Razor components.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.lucide.icons" Target="Target.Blank">Soenneker.Lucide.Icons</Anchor>:</Strong> provides the Lucide icon SVG catalog used by Quark icon components.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.lucide" Target="Target.Blank">Soenneker.Quark.Gen.Lucide</Anchor>:</Strong> generates the app-local Lucide icon map and service registration code used by `Icon`.</UnorderedListItem>
+                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.themes" Target="Target.Blank">Soenneker.Quark.Gen.Themes</Anchor>:</Strong> optionally generates theme CSS from Quark theme definitions.</UnorderedListItem>
                     </UnorderedList>
                 </Section>
 
@@ -86,13 +80,36 @@ dotnet add package Soenneker.Quark.Gen.Lucide</PreCode>
                     <Paragraph Leading="Leading.Relaxed">
                         Import the Quark namespace and compose components directly in Razor.
                     </Paragraph>
-                    <PreCode Language="razor">@("@using Soenneker.Quark")
-
-&lt;Button Variant="ButtonVariant.Default"&gt;
-    Save changes
-&lt;/Button&gt;</PreCode>
+                    <CodeEditor Text="@UseComponentsCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
             </Div>
         </Div>
     </Div>
 </Div>
+
+@code {
+    private const string InstallPackagesCode =
+@"dotnet add package Soenneker.Quark.Suite
+dotnet add package Soenneker.Quark.Gen.Tailwind
+dotnet add package Soenneker.Quark.Gen.Tailwind.Manifest
+dotnet add package Soenneker.Lucide.Icons
+dotnet add package Soenneker.Quark.Gen.Lucide";
+
+    private const string ThemePackageCode = "dotnet add package Soenneker.Quark.Gen.Themes";
+
+    private const string BuildGenerationCode =
+@"<PropertyGroup>
+    <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
+</PropertyGroup>";
+
+    private const string RegisterServicesCode = "builder.Services.AddQuarkSuiteAsScoped();";
+
+    private const string StylesCode = @"<link href=""css/quark-tailwind.min.css"" rel=""stylesheet"" />";
+
+    private const string UseComponentsCode =
+@"@using Soenneker.Quark
+
+<Button Variant=""ButtonVariant.Default"">
+    Save changes
+</Button>";
+}

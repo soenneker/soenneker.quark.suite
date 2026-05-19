@@ -2,148 +2,129 @@
 
 <PageTitle>Grid System - Quark Suite</PageTitle>
 
-<Div data-slot="docs"
-     Display="Display.Flex"
-     ItemsAlign="Items.Stretch"
-     ScrollMargin="ScrollMargin.Is24.FromTop"
-     Width="Width.IsFull"
-     Padding="Padding.Is8.FromBottom"
-     class="text-[1.05rem] sm:text-[15px]">
-    <Div Flex="Flex.Is1" FlexDirection="FlexDirection.Col" MinWidth="MinWidth.Is0">
-        <Div Height='Height.Token("h-(--top-spacing)")' Shrink="Shrink.Is0"></Div>
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <Div Space="Space.Y.Is3">
+        <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance">
+            Quark's grid system is a thin, typed layer over CSS grid and Tailwind grid utilities.
+            It gives layouts a consistent vocabulary without hiding how the browser lays out tracks and items.
+        </Paragraph>
+    </Div>
 
-        <Div Margin="Margin.Auto.OnX"
-             Width="Width.IsFull"
-             MinWidth="MinWidth.Is0"
-             Flex=@("flex flex-1 flex-col")
-             Gap='Gap.Token("6")'
-             class="w-full max-w-none px-0 py-6 text-neutral-800 dark:text-neutral-300 sm:max-w-[44rem] lg:py-8">
-            <Div Flex=@("flex flex-col") Gap="Gap.Is2">
-                <H1 ScrollMargin="ScrollMargin.Is24.FromTop" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight" TextAlign="TextAlign.Start">Grid System</H1>
-
-                <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance md:max-w-[85%]">
-                    Quark's grid system is a thin, typed layer over CSS grid and Tailwind grid utilities.
-                    It gives layouts a consistent vocabulary without hiding how the browser lays out tracks and items.
-                </Paragraph>
-            </Div>
-
-            <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Core model</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Use `Grid` for two-dimensional layout. `Grid` renders a normal `div`, sets `display: grid` by default, and accepts typed builders for columns, rows, gaps, alignment, spacing, color, border, sizing, and the rest of the shared Element API.
-                    </Paragraph>
-                    <Paragraph Leading="Leading.Relaxed">
-                        The container defines tracks with `Columns` and `Rows`. Children flow into those tracks in source order unless a child changes its placement. Use normal child components for simple cells and `GridItem` when a child needs grid-specific behavior such as a column span.
-                    </Paragraph>
-                    <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is4"&gt;
+    <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Core model</H2>
+            <Paragraph Leading="Leading.Relaxed">
+                Use <Code>Grid</Code> for two-dimensional layout. <Code>Grid</Code> renders a normal <Code>div</Code>, sets <Code>display: grid</Code> by default, and accepts typed builders for columns, rows, gaps, alignment, spacing, color, border, sizing, and the rest of the shared Element API.
+            </Paragraph>
+            <Paragraph Leading="Leading.Relaxed">
+                The container defines tracks with <Code>Columns</Code> and <Code>Rows</Code>. Children flow into those tracks in source order unless a child changes its placement. Use normal child components for simple cells and <Code>GridItem</Code> when a child needs grid-specific behavior such as a column span.
+            </Paragraph>
+            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is4"&gt;
     &lt;Div&gt;One&lt;/Div&gt;
     &lt;Div&gt;Two&lt;/Div&gt;
     &lt;Div&gt;Three&lt;/Div&gt;
 &lt;/Grid&gt;</PreCode>
-                </Section>
+        </Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Columns and breakpoints</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Grid column builders read left to right. Start with the smallest layout, then chain breakpoint changes as the viewport gets wider. `GridCols.Is1.OnMd.Is2.OnXl.Is4` produces a single column by default, two columns at `md`, and four columns at `xl`.
-                    </Paragraph>
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Columns and breakpoints</H2>
+            <Paragraph Leading="Leading.Relaxed">
+                Grid column builders read left to right. Start with the smallest layout, then chain breakpoint changes as the viewport gets wider. <Code>GridCols.Is1.OnMd.Is2.OnXl.Is4</Code> produces a single column by default, two columns at <Code>md</Code>, and four columns at <Code>xl</Code>.
+            </Paragraph>
 
-                    <Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3">
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                            <Strong>Default</Strong>
-                            <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">1 column</Paragraph>
-                        </Div>
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                            <Strong>md</Strong>
-                            <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">2 columns</Paragraph>
-                        </Div>
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                            <Strong>xl</Strong>
-                            <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">4 columns</Paragraph>
-                        </Div>
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                            <Strong>Flow</Strong>
-                            <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">source order</Paragraph>
-                        </Div>
-                    </Grid>
+            <Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3">
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                    <Strong>Default</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">1 column</Paragraph>
+                </Div>
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                    <Strong>md</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">2 columns</Paragraph>
+                </Div>
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                    <Strong>xl</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">4 columns</Paragraph>
+                </Div>
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                    <Strong>Flow</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">source order</Paragraph>
+                </Div>
+            </Grid>
 
-                    <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3"&gt;
+            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is2.OnXl.Is4" Gap="Gap.Is3"&gt;
     ...
 &lt;/Grid&gt;</PreCode>
-                </Section>
+        </Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Gaps and density</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        `Gap` controls the space between grid cells. Use smaller gaps for dense application surfaces and larger gaps for content groups. Padding belongs on the grid when every cell needs outer breathing room, or on each child when the cells are independent surfaces.
-                    </Paragraph>
-                    <Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is2" Border="Border.Is1" Rounded="Rounded.Xl" Padding="Padding.Is3">
-                        <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Compact</Div>
-                        <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Shared gap</Div>
-                        <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Outer padding</Div>
-                    </Grid>
-                    <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3"
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Gaps and density</H2>
+            <Paragraph Leading="Leading.Relaxed">
+                <Code>Gap</Code> controls the space between grid cells. Use smaller gaps for dense application surfaces and larger gaps for content groups. Padding belongs on the grid when every cell needs outer breathing room, or on each child when the cells are independent surfaces.
+            </Paragraph>
+            <Grid Columns="GridCols.Is1.OnMd.Is3" Gap="Gap.Is2" Border="Border.Is1" Rounded="Rounded.Xl" Padding="Padding.Is3">
+                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Compact</Div>
+                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Shared gap</Div>
+                <Div Rounded="Rounded.Md" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is3">Outer padding</Div>
+            </Grid>
+            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is3"
       Gap="Gap.Is2"
       Border="Border.Is1"
       Rounded="Rounded.Xl"
       Padding="Padding.Is3"&gt;
     ...
 &lt;/Grid&gt;</PreCode>
-                </Section>
+        </Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Spans</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Spans should be used for intentional hierarchy, not just decoration. A featured item can take more tracks at larger breakpoints while staying one column on smaller screens. This keeps the layout readable on mobile and more expressive on desktop.
-                    </Paragraph>
-                    <Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3">
-                        <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
-                            <Strong>Featured area</Strong>
-                            <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Spans two columns from `md` upward.</Paragraph>
-                        </GridItem>
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Metric</Div>
-                        <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Status</Div>
-                    </Grid>
-                    <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3"&gt;
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Spans</H2>
+            <Paragraph Leading="Leading.Relaxed">
+                Spans should be used for intentional hierarchy, not just decoration. A featured item can take more tracks at larger breakpoints while staying one column on smaller screens. This keeps the layout readable on mobile and more expressive on desktop.
+            </Paragraph>
+            <Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3">
+                <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                    <Strong>Featured area</Strong>
+                    <Paragraph Margin="Margin.Is2.FromTop" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Spans two columns from <Code>md</Code> upward.</Paragraph>
+                </GridItem>
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Metric</Div>
+                <Div Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("muted/40")' Padding="Padding.Is4">Status</Div>
+            </Grid>
+            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is1.OnMd.Is4" Gap="Gap.Is3"&gt;
     &lt;GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2"&gt;
         Featured area
     &lt;/GridItem&gt;
     &lt;Div&gt;Metric&lt;/Div&gt;
     &lt;Div&gt;Status&lt;/Div&gt;
 &lt;/Grid&gt;</PreCode>
-                </Section>
+        </Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Rows and inline grids</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        `Rows` mirrors `Columns` when a layout needs explicit row tracks. Most page layouts only need columns because rows can grow naturally from content, but row builders are useful for calendars, dashboards, and fixed-format panels.
-                    </Paragraph>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Set `Inline` when the grid should participate in text or toolbar flow as `inline-grid`. Keep that for small controls and badge-like layouts; full page and panel layouts should normally use the default block grid.
-                    </Paragraph>
-                    <PreCode Language="razor">&lt;Grid Columns="GridCols.Is2" Rows="GridRows.Is3" Gap="Gap.Is2"&gt;
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Rows and inline grids</H2>
+            <Paragraph Leading="Leading.Relaxed">
+                <Code>Rows</Code> mirrors <Code>Columns</Code> when a layout needs explicit row tracks. Most page layouts only need columns because rows can grow naturally from content, but row builders are useful for calendars, dashboards, and fixed-format panels.
+            </Paragraph>
+            <Paragraph Leading="Leading.Relaxed">
+                Set <Code>Inline</Code> when the grid should participate in text or toolbar flow as <Code>inline-grid</Code>. Keep that for small controls and badge-like layouts; full page and panel layouts should normally use the default block grid.
+            </Paragraph>
+            <PreCode Language="razor">&lt;Grid Columns="GridCols.Is2" Rows="GridRows.Is3" Gap="Gap.Is2"&gt;
     ...
 &lt;/Grid&gt;
 
 &lt;Grid Inline="true" Columns="GridCols.Is2" Gap="Gap.Is1"&gt;
     ...
 &lt;/Grid&gt;</PreCode>
-                </Section>
+        </Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">When to use grid</H2>
-                    <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem>Use `Grid` when both rows and columns matter, or when cards, fields, metrics, or panels need predictable tracks.</UnorderedListItem>
-                        <UnorderedListItem>Use `Stack` for one-dimensional flows where items simply move vertically or horizontally.</UnorderedListItem>
-                        <UnorderedListItem>Use `Container` for page width and gutters, then place `Grid` inside it when the content needs tracks.</UnorderedListItem>
-                        <UnorderedListItem>Use raw `Class` for unusual CSS grid values that are not worth promoting to a typed builder.</UnorderedListItem>
-                    </UnorderedList>
-                    <Paragraph Leading="Leading.Relaxed">
-                        For focused component examples, see the <Anchor Href="components/grids" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Grid component page</Anchor>.
-                    </Paragraph>
-                </Section>
-            </Div>
-        </Div>
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">When to use grid</H2>
+            <UnorderedList Class="list-inside list-disc space-y-2">
+                <UnorderedListItem>Use <Code>Grid</Code> when both rows and columns matter, or when cards, fields, metrics, or panels need predictable tracks.</UnorderedListItem>
+                <UnorderedListItem>Use <Code>Stack</Code> for one-dimensional flows where items simply move vertically or horizontally.</UnorderedListItem>
+                <UnorderedListItem>Use <Code>Container</Code> for page width and gutters, then place <Code>Grid</Code> inside it when the content needs tracks.</UnorderedListItem>
+                <UnorderedListItem>Use raw <Code>Class</Code> for unusual CSS grid values that are not worth promoting to a typed builder.</UnorderedListItem>
+            </UnorderedList>
+            <Paragraph Leading="Leading.Relaxed">
+                For focused component examples, see the <Anchor Href="components/grids" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Grid component page</Anchor>.
+            </Paragraph>
+        </Section>
     </Div>
 </Div>

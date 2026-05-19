@@ -1,14 +1,30 @@
 @using System.Linq.Expressions
 @using System.Text.Json
 @using Microsoft.JSInterop
+@using Soenneker.Blazor.Utils.Clipboard.Abstract
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
 @inject ICodeEditorInterop CodeEditorInterop
 @inject IThemeInterop ThemeInterop
+@inject IClipboardUtil ClipboardUtil
 
-<div @ref="_container" @attributes="BuildContainerAttributes()"></div>
+<div class="group/code-editor relative w-full min-w-0">
+    @if (ShowCopyButton)
+    {
+        <button type="button"
+                class="absolute top-2 right-2 z-10 inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-border bg-background/95 text-muted-foreground shadow-xs transition-all hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                title="@_copyButtonLabel"
+                aria-label="@_copyButtonLabel"
+                @onclick="CopyText">
+            <Span ScreenReader="Quark.ScreenReader.Only">@_copyButtonLabel</Span>
+            <Icon Name="LucideIcon.Copy" />
+        </button>
+    }
+
+    <div @ref="_container" @attributes="BuildContainerAttributes()"></div>
+</div>
 
 @code {
     /// <summary>
@@ -54,6 +70,12 @@
     public bool Minimap { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether a copy-to-clipboard button is shown over the editor.
+    /// </summary>
+    [Parameter]
+    public bool ShowCopyButton { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the editor height should automatically adjust to content.
     /// </summary>
     [Parameter]
@@ -80,14 +102,18 @@
     private int? _lastMaxLines;
     private bool _initialized;
     private bool _valueChanged;
+    private bool _copyStateChanged;
     private bool _themeIsAuto;
+    private string _copyButtonLabel = "Copy";
     private DotNetObjectReference<CodeEditor>? _themeCallbackRef;
+    private const string AutoDarkTheme = "vs-dark";
+    private static readonly string AutoLightTheme = new(['q', 'u', 'a', 'r', 'k', 'L', 'i', 'g', 'h', 't']);
 
     [JSInvokable]
     public async Task OnThemeChanged(bool isDark)
     {
         if (_themeIsAuto && _initialized)
-            await CodeEditorInterop.SetTheme(isDark ? "vs-dark" : "vs");
+            await CodeEditorInterop.SetTheme(GetAutoTheme(isDark));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -102,7 +128,7 @@
             {
                 await ThemeInterop.Initialize();
                 var isDark = await ThemeInterop.GetIsDark();
-                effectiveTheme = isDark ? "vs-dark" : "vs";
+                effectiveTheme = GetAutoTheme(isDark);
                 _themeCallbackRef = DotNetObjectReference.Create(this);
                 await CodeEditorInterop.RegisterThemeChangedCallback(_themeCallbackRef);
             }
@@ -146,6 +172,7 @@
         }
 
         _valueChanged = false;
+        _copyStateChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -179,7 +206,7 @@
             if (!string.Equals(Theme, _lastTheme, StringComparison.OrdinalIgnoreCase))
             {
                 var effectiveTheme = string.Equals(Theme, "auto", StringComparison.OrdinalIgnoreCase)
-                    ? (await ThemeInterop.GetIsDark() ? "vs-dark" : "vs")
+                    ? GetAutoTheme(await ThemeInterop.GetIsDark())
                     : Theme;
                 await CodeEditorInterop.SetTheme(effectiveTheme);
                 _lastTheme = Theme;
@@ -200,7 +227,7 @@
 
     protected override bool ShouldRender()
     {
-        return _valueChanged || base.ShouldRender();
+        return _valueChanged || _copyStateChanged || base.ShouldRender();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
@@ -258,8 +285,40 @@
         hc.Add(Theme);
         hc.Add(WordWrap);
         hc.Add(Minimap);
+        hc.Add(ShowCopyButton);
         hc.Add(AutoHeight);
         hc.Add(MinLines);
         hc.Add(MaxLines);
     }
+
+    private async Task CopyText()
+    {
+        try
+        {
+            var value = _initialized
+                ? await CodeEditorInterop.GetValue(_container)
+                : Text;
+
+            if (string.IsNullOrEmpty(value))
+                return;
+
+            await ClipboardUtil.WriteText(value);
+            _copyButtonLabel = "Copied!";
+            _copyStateChanged = true;
+            StateHasChanged();
+
+            await Task.Delay(1500);
+
+            _copyButtonLabel = "Copy";
+            _copyStateChanged = true;
+            StateHasChanged();
+        }
+        catch
+        {
+            _copyButtonLabel = "Copy";
+            _copyStateChanged = true;
+        }
+    }
+
+    private static string GetAutoTheme(bool isDark) => isDark ? AutoDarkTheme : AutoLightTheme;
 }

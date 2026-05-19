@@ -3,245 +3,208 @@
 <PageTitle>Code Editor - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Div Space="Space.Y.Is6">
-        <DemoSection Title="CodeEditor" Description="Monaco-based editor with Language, Theme, WordWrap, Minimap, AutoHeight." Code="@(@"<Div Class=""grid gap-6 lg:grid-cols-[1fr_3fr]"">
-<Div>
-    <Card>
-        <CardBody>
-            <H4>Options</H4>
-            <Div Margin=""Margin.Is2.FromBottom"">
-                <Label Form=""true"">Language</Label>
-                <Select TValue=""string"" SelectedValue=""_language"" SelectedValueChanged=""v => _language = v"">
-                    <SelectItem ItemValue=""@(""csharp"")"">CSharp</SelectItem>
-                    <SelectItem ItemValue=""@(""json"")"">JSON</SelectItem>
-                    <SelectItem ItemValue=""@(""xml"")"">XML</SelectItem>
-                    <SelectItem ItemValue=""@(""javascript"")"">JavaScript</SelectItem>
-                    <SelectItem ItemValue=""@(""typescript"")"">TypeScript</SelectItem>
-                    <SelectItem ItemValue=""@(""html"")"">HTML</SelectItem>
-                    <SelectItem ItemValue=""@(""css"")"">CSS</SelectItem>
-                    <SelectItem ItemValue=""@(""sql"")"">SQL</SelectItem>
-                    <SelectItem ItemValue=""@(""yaml"")"">YAML</SelectItem>
-                    <SelectItem ItemValue=""@(""markdown"")"">Markdown</SelectItem>
-                </Select>
-            </Div>
-
-            <Div Margin=""Margin.Is2.FromBottom"">
-                <Label Form=""true"">Theme</Label>
-                <Select TValue=""string"" SelectedValue=""_theme"" SelectedValueChanged=""v => _theme = v"">
-                    <SelectItem ItemValue=""@(""auto"")"">auto (follow app)</SelectItem>
-                    <SelectItem ItemValue=""@(""vs"")"">vs (light)</SelectItem>
-                    <SelectItem ItemValue=""@(""vs-dark"")"">vs-dark</SelectItem>
-                    <SelectItem ItemValue=""@(""hc-black"")"">hc-black</SelectItem>
-                </Select>
-            </Div>
-
-            <Div Margin=""Margin.Is2.FromBottom"">
-                <Check Checked=""_wordWrap"" CheckedChanged=""v => _wordWrap = v"">Word Wrap</Check>
-            </Div>
-            <Div Margin=""Margin.Is2.FromBottom"">
-                <Check Checked=""_minimap"" CheckedChanged=""v => _minimap = v"">Minimap</Check>
-            </Div>
-            <Div Margin=""Margin.Is2.FromBottom"">
-                <Check Checked=""_autoHeight"" CheckedChanged=""v => _autoHeight = v"">Auto Height</Check>
-            </Div>
-            @if (!_autoHeight)
-            {
-                <Div Margin=""Margin.Is2.FromBottom"">
-                    <Label Form=""true"">Height (px)</Label>
-                    <NumericInput Value=""@((decimal)_editorHeight)"" ValueChanged=""v => _editorHeight = (int)v.GetValueOrDefault(300)"" />
-                </Div>
-            }
-            else
-            {
-                <Div Margin=""Margin.Is2.FromBottom"">
-                    <Label Form=""true"">Min Lines</Label>
-                    <NumericInput Value=""@((decimal?)_minLines)"" ValueChanged=""v => _minLines = (int?)v"" />
-                </Div>
-                <Div Margin=""Margin.Is2.FromBottom"">
-                    <Label Form=""true"">Max Lines</Label>
-                    <NumericInput Value=""@((decimal?)_maxLines)"" ValueChanged=""v => _maxLines = (int?)v"" />
-                </Div>
-            }
-        </CardBody>
-    </Card>
-</Div>
-<Div MinWidth=""MinWidth.Is0"">
-    <CodeEditor @bind-Text=""_text""
-                Language=""@_language""
-                Theme=""@_theme""
-                WordWrap=""@_wordWrap""
-                Minimap=""@_minimap""
-                AutoHeight=""@_autoHeight""
-                MinLines=""@_minLines""
-                MaxLines=""@_maxLines""
-                Style=""@(!_autoHeight ? $""height: {_editorHeight}px"" : null)"" />
-    <Div Margin=""Margin.Is3.FromTop"">
-        <H5>Value</H5>
-        <PreCode Class=""rounded-md border bg-muted p-4 text-sm"">@_text</PreCode>
-    </Div>
-</Div>
-</Div>")"
-    CodeLanguage="razor">
-        <Div Class="grid gap-6 lg:grid-cols-[1fr_3fr]">
-        <Div>
-            <Card>
-                <CardBody>
-                    <H4>Options</H4>
-                    <Div Margin="Margin.Is2.FromBottom">
-                        <Label Form="true">Language</Label>
-                        <Select TValue="string" SelectedValue="_language" SelectedValueChanged="v => _language = v">
-                            <SelectItem ItemValue="@("csharp")">CSharp</SelectItem>
-                            <SelectItem ItemValue="@("json")">JSON</SelectItem>
-                            <SelectItem ItemValue="@("xml")">XML</SelectItem>
-                            <SelectItem ItemValue="@("javascript")">JavaScript</SelectItem>
-                            <SelectItem ItemValue="@("typescript")">TypeScript</SelectItem>
-                            <SelectItem ItemValue="@("html")">HTML</SelectItem>
-                            <SelectItem ItemValue="@("css")">CSS</SelectItem>
-                            <SelectItem ItemValue="@("sql")">SQL</SelectItem>
-                            <SelectItem ItemValue="@("yaml")">YAML</SelectItem>
-                            <SelectItem ItemValue="@("markdown")">Markdown</SelectItem>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="CodeEditor"
+                     Description="Monaco-based editor with language, theme, wrapping, minimap, and auto-height controls."
+                     Code="@EditorDemoCode"
+                     CodeLanguage="razor"
+                     PreviewClass="@EditorPreviewClass">
+            <Div Class="grid w-full gap-4">
+                <Div Class="grid gap-3 rounded-lg border bg-muted/30 p-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
+                    <Field>
+                        <FieldLabel>Language</FieldLabel>
+                        <Select TValue="string" @bind-SelectedValue="_language">
+                            <SelectTrigger Width="Width.IsFull">
+                                <SelectValue Placeholder="Language" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    @foreach (var option in LanguageOptions)
+                                    {
+                                        <SelectItem TValue="string" ItemValue="@option.Value" Text="@option.Label" />
+                                    }
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
-                    </Div>
+                    </Field>
 
-                    <Div Margin="Margin.Is2.FromBottom">
-                        <Label Form="true">Theme</Label>
-                        <Select TValue="string" SelectedValue="_theme" SelectedValueChanged="v => _theme = v">
-                            <SelectItem ItemValue="@("auto")">auto (follow app)</SelectItem>
-                            <SelectItem ItemValue="@("vs")">vs (light)</SelectItem>
-                            <SelectItem ItemValue="@("vs-dark")">vs-dark</SelectItem>
-                            <SelectItem ItemValue="@("hc-black")">hc-black</SelectItem>
+                    <Field>
+                        <FieldLabel>Theme</FieldLabel>
+                        <Select TValue="string" @bind-SelectedValue="_theme">
+                            <SelectTrigger Width="Width.IsFull">
+                                <SelectValue Placeholder="Theme" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    @foreach (var option in ThemeOptions)
+                                    {
+                                        <SelectItem TValue="string" ItemValue="@option.Value" Text="@option.Label" />
+                                    }
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
-                    </Div>
+                    </Field>
 
-                    <Div Margin="Margin.Is2.FromBottom">
-                        <Check Checked="_wordWrap" CheckedChanged="v => _wordWrap = v">Word Wrap</Check>
+                    <Div Class="grid grid-cols-3 gap-2 self-end sm:col-span-2 lg:col-span-1 lg:min-w-64">
+                        <Field Class="items-start gap-2 rounded-md border bg-background p-2">
+                            <Check Checked="_wordWrap" CheckedChanged="v => _wordWrap = v">Wrap</Check>
+                        </Field>
+                        <Field Class="items-start gap-2 rounded-md border bg-background p-2">
+                            <Check Checked="_minimap" CheckedChanged="v => _minimap = v">Map</Check>
+                        </Field>
+                        <Field Class="items-start gap-2 rounded-md border bg-background p-2">
+                            <Check Checked="_autoHeight" CheckedChanged="v => _autoHeight = v">Auto</Check>
+                        </Field>
                     </Div>
-                    <Div Margin="Margin.Is2.FromBottom">
-                        <Check Checked="_minimap" CheckedChanged="v => _minimap = v">Minimap</Check>
-                    </Div>
-                    <Div Margin="Margin.Is2.FromBottom">
-                        <Check Checked="_autoHeight" CheckedChanged="v => _autoHeight = v">Auto Height</Check>
-                    </Div>
-                    @if (!_autoHeight)
-                    {
-                        <Div Margin="Margin.Is2.FromBottom">
-                            <Label Form="true">Height (px)</Label>
-                            <NumericInput Value="@((decimal)_editorHeight)" ValueChanged="v => _editorHeight = (int)v.GetValueOrDefault(300)" />
-                        </Div>
-                    }
-                    else
-                    {
-                        <Div Margin="Margin.Is2.FromBottom">
-                            <Label Form="true">Min Lines</Label>
-                            <NumericInput Value="@((decimal?)_minLines)" ValueChanged="v => _minLines = (int?)v" />
-                        </Div>
-                        <Div Margin="Margin.Is2.FromBottom">
-                            <Label Form="true">Max Lines</Label>
-                            <NumericInput Value="@((decimal?)_maxLines)" ValueChanged="v => _maxLines = (int?)v" />
-                        </Div>
-                    }
-                </CardBody>
-            </Card>
-        </Div>
-        <Div MinWidth="MinWidth.Is0">
-            <CodeEditor @bind-Text="_text"
-                        Language="@_language"
-                        Theme="@_theme"
-                        WordWrap="@_wordWrap"
-                        Minimap="@_minimap"
-                        AutoHeight="@_autoHeight"
-                        MinLines="@_minLines"
-                        MaxLines="@_maxLines"
-                        Style="@(!_autoHeight ? $"height: {_editorHeight}px" : null)" />
-            <Div Margin="Margin.Is3.FromTop">
-                <H5>Value</H5>
-                <PreCode Rounded="Rounded.Md" Border="Border.Is1" BackgroundColor="BackgroundColor.Muted" Padding="Padding.Is4" TextSize="TextSize.Sm">@_text</PreCode>
+                </Div>
+
+                <CodeEditor @bind-Text="_text"
+                            Language="@_language"
+                            Theme="@_theme"
+                            WordWrap="@_wordWrap"
+                            Minimap="@_minimap"
+                            AutoHeight="@_autoHeight"
+                            MinLines="8"
+                            MaxLines="18"
+                            Style="@(!_autoHeight ? "height: 320px" : null)" />
             </Div>
-        </Div>
-        </Div>
         </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Auto height examples" Description="Editors that adjust height by content." Code="@(@"<Div Class=""grid gap-6 lg:grid-cols-2"">
-<Div>
-    <Card>
-        <CardBody>
-            <H5 Margin=""Margin.Is3.FromBottom"">Min 3 lines, Max 10 lines</H5>
-            <CodeEditor @bind-Text=""_autoHeightText1""
-                        Language=""javascript""
-                        Theme=""@_theme""
-                        AutoHeight=""true""
-                        MinLines=""3""
-                        MaxLines=""10"" />
-        </CardBody>
-    </Card>
-</Div>
-<Div>
-    <Card>
-        <CardBody>
-            <H5 Margin=""Margin.Is3.FromBottom"">Min 5 lines, No Max</H5>
-            <CodeEditor @bind-Text=""_autoHeightText2""
-                        Language=""json""
-                        Theme=""@_theme""
-                        AutoHeight=""true""
-                        MinLines=""5""
-                        MaxLines=""null"" />
-        </CardBody>
-    </Card>
-</Div>
-    </Div>")"
-CodeLanguage="razor">
-            <Div Class="grid gap-6 lg:grid-cols-2">
-        <Div>
-            <Card>
-                <CardBody>
-                    <H5 Margin="Margin.Is3.FromBottom">Min 3 lines, Max 10 lines</H5>
-                    <CodeEditor @bind-Text="_autoHeightText1"
-                                Language="javascript"
-                                Theme="@_theme"
-                                AutoHeight="true"
-                                MinLines="3"
-                                MaxLines="10" />
-                </CardBody>
-            </Card>
-        </Div>
-        <Div>
-            <Card>
-                <CardBody>
-                    <H5 Margin="Margin.Is3.FromBottom">Min 5 lines, No Max</H5>
-                    <CodeEditor @bind-Text="_autoHeightText2"
-                                Language="json"
-                                Theme="@_theme"
-                                AutoHeight="true"
-                                MinLines="5"
-                                MaxLines="null" />
-                </CardBody>
-            </Card>
-        </Div>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Read-only"
+                     Description="Use read-only editors for code examples that should keep Monaco syntax highlighting and theme behavior."
+                     Code="@ReadOnlyDemoCode"
+                     CodeLanguage="razor"
+                     PreviewClass="@ReadOnlyPreviewClass">
+            <CodeEditor Text="@ReadOnlyText"
+                        Language="csharp"
+                        ReadOnly="true"
+                        AutoHeight="true"
+                        MinLines="5"
+                        MaxLines="12"
+                        Minimap="false" />
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Auto height"
+                     Description="Auto-height editors can clamp content with minimum and maximum line counts."
+                     Code="@AutoHeightDemoCode"
+                     CodeLanguage="razor"
+                     PreviewClass="@AutoHeightPreviewClass">
+            <Div Class="grid w-full gap-4 md:grid-cols-2">
+                <CodeEditor @bind-Text="_autoHeightText1"
+                            Language="javascript"
+                            Theme="@_theme"
+                            AutoHeight="true"
+                            MinLines="4"
+                            MaxLines="10"
+                            Minimap="false" />
+
+                <CodeEditor @bind-Text="_autoHeightText2"
+                            Language="json"
+                            Theme="@_theme"
+                            AutoHeight="true"
+                            MinLines="6"
+                            MaxLines="null"
+                            Minimap="false" />
             </Div>
-            </DemoSection>
-        </Section>
-    </Div>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
+    private static readonly SelectOption[] LanguageOptions =
+    [
+        new("csharp", "C#"),
+        new("json", "JSON"),
+        new("xml", "XML"),
+        new("javascript", "JavaScript"),
+        new("typescript", "TypeScript"),
+        new("html", "HTML"),
+        new("css", "CSS"),
+        new("sql", "SQL"),
+        new("yaml", "YAML"),
+        new("markdown", "Markdown")
+    ];
+
+    private static readonly SelectOption[] ThemeOptions =
+    [
+        new("auto", "Auto"),
+        new("vs", "Light"),
+        new("vs-dark", "Dark"),
+        new("hc-black", "High contrast")
+    ];
+
+    private const string EditorPreviewClass = "preview relative flex min-h-[30rem] w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
+    private const string ReadOnlyPreviewClass = "preview relative flex min-h-72 w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
+    private const string AutoHeightPreviewClass = "preview relative flex min-h-80 w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
+
     private string _language = "csharp";
     private string _theme = "auto";
-    private bool _wordWrap = false;
-    private bool _minimap = true;
-    private bool _autoHeight = true;
-    private int _editorHeight = 300;
-    private int? _minLines = 3;
-    private int? _maxLines = 30;
-    private string _text = "// Hello, Monaco!\npublic class Example { }";
+    private bool _wordWrap = true;
+    private bool _minimap;
 
-    private string _autoHeightText1 = @"// Try adding more lines!
-console.log('Hello');";
+    private bool _autoHeight = true;
+    private string _text = @"using System;
+
+namespace Demo;
+
+public sealed class Example
+{
+    public string Message { get; set; } = ""Hello, Monaco!"";
+
+    public void Save()
+    {
+        Console.WriteLine(Message);
+    }
+}";
+
+    private const string ReadOnlyText = @"builder.Services.AddQuarkSuiteAsScoped();
+
+app.UseStaticFiles();
+app.MapRazorComponents<App>()
+   .AddInteractiveWebAssemblyRenderMode();";
+
+    private string _autoHeightText1 = @"const message = 'Try adding more lines';
+
+console.log(message);";
 
     private string _autoHeightText2 = @"{
-  ""name"": ""example"",
-  ""value"": ""test""
+  ""name"": ""quark-demo"",
+  ""features"": [
+    ""syntax-highlighting"",
+    ""auto-height""
+  ]
 }";
+
+    private const string EditorDemoCode =
+@"<CodeEditor @bind-Text=""_text""
+            Language=""@_language""
+            Theme=""@_theme""
+            WordWrap=""@_wordWrap""
+            Minimap=""@_minimap""
+            AutoHeight=""@_autoHeight""
+            MinLines=""8""
+            MaxLines=""18"" />";
+
+    private const string ReadOnlyDemoCode =
+@"<CodeEditor Text=""@ReadOnlyText""
+            Language=""csharp""
+            ReadOnly=""true""
+            AutoHeight=""true""
+            MinLines=""5""
+            MaxLines=""12""
+            Minimap=""false"" />";
+
+    private const string AutoHeightDemoCode =
+@"<CodeEditor @bind-Text=""_autoHeightText1""
+            Language=""javascript""
+            AutoHeight=""true""
+            MinLines=""4""
+            MaxLines=""10""
+            Minimap=""false"" />";
+
+    private readonly record struct SelectOption(string Value, string Label);
 }
-
-

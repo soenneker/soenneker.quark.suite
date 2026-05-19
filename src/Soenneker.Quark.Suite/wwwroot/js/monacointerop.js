@@ -2,6 +2,7 @@ const editors = new WeakMap();
 const activeEditors = new Set();
 let configured = false;
 let domObserver = null;
+let themesDefined = false;
 
 function removeEditorState(state) {
     if (!state) {
@@ -76,6 +77,30 @@ function ensureDomObserver() {
     });
 }
 
+function ensureThemesDefined() {
+    if (themesDefined || !globalThis.monaco?.editor) {
+        return;
+    }
+
+    const lightThemeName = String.fromCharCode(113, 117, 97, 114, 107, 76, 105, 103, 104, 116);
+
+    monaco.editor.defineTheme(lightThemeName, {
+        base: 'vs',
+        inherit: true,
+        rules: [],
+        colors: {
+            'editor.background': '#f5f5f5',
+            'editorGutter.background': '#f5f5f5',
+            'editorLineNumber.foreground': '#737373',
+            'editorLineNumber.activeForeground': '#171717',
+            'editorIndentGuide.background1': '#d4d4d4',
+            'editorIndentGuide.activeBackground1': '#a3a3a3'
+        }
+    });
+
+    themesDefined = true;
+}
+
 export function ensureConfigured(basePath) {
     if (configured) return;
     if (typeof require !== 'function') return;
@@ -94,6 +119,7 @@ export function createEditor(container, optionsJson) {
     return new Promise((resolve, reject) => {
         require(['vs/editor/editor.main'], () => {
             try {
+                ensureThemesDefined();
                 cleanupDetachedEditors();
 
                 if (!container || !container.isConnected) {
@@ -145,6 +171,7 @@ export function setLanguage(container, language) {
 }
 
 export function setTheme(theme) {
+    ensureThemesDefined();
     monaco.editor.setTheme(theme);
 }
 

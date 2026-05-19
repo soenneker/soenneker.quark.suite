@@ -38,6 +38,7 @@ public static class DocsNavigation
         new("Card", ComponentRoute("card")),
         new("Carousel", ComponentRoute("carousel")),
         new("Checkbox", ComponentRoute("checkbox")),
+        new("CodeEditor", ComponentRoute("codeeditors"), IsNew: true),
         new("Collapsible", ComponentRoute("collapsible")),
         new("Combobox", ComponentRoute("combobox")),
         new("Command", ComponentRoute("command")),

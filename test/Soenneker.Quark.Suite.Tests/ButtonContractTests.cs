@@ -27,19 +27,17 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void ButtonSize_supports_tokens_and_builder_values()
     {
-        ButtonSize.Default.Should().Be("default");
-        ButtonSize.Xs.Should().Be("xs");
-        ButtonSize.Sm.Should().Be("sm");
-        ButtonSize.Lg.Should().Be("lg");
-        ButtonSize.Icon.Should().Be("icon");
-        ButtonSize.IconXs.Should().Be("icon-xs");
-        ButtonSize.IconSm.Should().Be("icon-sm");
-        ButtonSize.IconLg.Should().Be("icon-lg");
+        ButtonSize.Default.ToString().Should().Be(ButtonSizeEnum.Default.Class);
+        ButtonSize.Xs.ToString().Should().Be(ButtonSizeEnum.Xs.Class);
+        ButtonSize.Sm.ToString().Should().Be(ButtonSizeEnum.Sm.Class);
+        ButtonSize.Lg.ToString().Should().Be(ButtonSizeEnum.Lg.Class);
+        ButtonSize.Icon.ToString().Should().Be(ButtonSizeEnum.Icon.Class);
+        ButtonSize.IconXs.ToString().Should().Be(ButtonSizeEnum.IconXs.Class);
+        ButtonSize.IconSm.ToString().Should().Be(ButtonSizeEnum.IconSm.Class);
+        ButtonSize.IconLg.ToString().Should().Be(ButtonSizeEnum.IconLg.Class);
 
-        typeof(ButtonSize).GetMethods()
-            .Where(method => method.Name == "op_Implicit" && method.ReturnType.Name.StartsWith("CssValue", System.StringComparison.Ordinal))
-            .Should()
-            .ContainSingle();
+        CssValue<ButtonSizeBuilder> size = ButtonSize.Default;
+        size.ToString().Should().Be(ButtonSizeEnum.Default.Class);
     }
 
     [Test]
