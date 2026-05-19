@@ -86,10 +86,13 @@
         hc.Add(Rows);
     }
 
-    protected override async ValueTask OnDisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (!_registered)
+        {
+            await base.DisposeAsync();
             return;
+        }
 
         try
         {
@@ -98,5 +101,7 @@
         catch (JSDisconnectedException)
         {
         }
+
+        await base.DisposeAsync();
     }
 }

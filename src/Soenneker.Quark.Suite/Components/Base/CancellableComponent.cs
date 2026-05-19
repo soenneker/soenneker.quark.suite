@@ -67,10 +67,4 @@ public abstract class CancellableComponent : Component, ICancellableComponent
         await base.DisposeAsync();
     }
 
-    public override void Dispose()
-    {
-        _cancellationTokenSource.Dispose();
-
-        base.Dispose();
-    }
 }

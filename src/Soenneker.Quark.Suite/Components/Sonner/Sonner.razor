@@ -624,7 +624,7 @@
         return false;
     }
 
-    protected override async ValueTask OnDisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         _disposed.Value = true;
 
@@ -641,6 +641,7 @@
 
         SonnerService.StateChanged -= OnStateChanged;
         _dotNetReference?.Dispose();
+        await base.DisposeAsync();
     }
 
     private async Task RegisterToaster()

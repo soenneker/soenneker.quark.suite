@@ -165,12 +165,6 @@ public abstract class OverlayElement : InteractiveElement
         await base.DisposeAsync();
     }
 
-    public override void Dispose()
-    {
-        DeactivateOverlayBehavior().GetAwaiter().GetResult();
-        base.Dispose();
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);

@@ -13,7 +13,7 @@ namespace Soenneker.Quark;
 /// Minimal suite-level render base that owns render invalidation, render-key computation,
 /// attribute caching, attribute merging, and helper utilities.
 /// </summary>
-public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IDisposable
+public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement
 {
     private bool _shouldRender = true;
     private int _lastRenderKey;
@@ -33,31 +33,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// to suite-specific services or options.
     /// </summary>
     protected virtual bool AlwaysRender => true;
-
-    protected virtual void OnDispose()
-    {
-    }
-
-    protected virtual ValueTask OnDisposeAsync() => ValueTask.CompletedTask;
-
-    public virtual void Dispose()
-    {
-        if (IsDisposed)
-            return;
-
-        OnDispose();
-        base.DisposeAsync().AsTask().GetAwaiter().GetResult();
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        if (IsDisposed)
-            return;
-
-        await OnDisposeAsync();
-        await base.DisposeAsync();
-        OnDispose();
-    }
 
     public void Refresh()
     {

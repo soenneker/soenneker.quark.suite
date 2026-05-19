@@ -73,16 +73,16 @@
         attributes.TryAdd("role", "alert");
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
 
         if (ParentValidations is not null)
         {
             ParentValidations._statusChanged -= OnStatusChanged;
             ParentValidations.ClearingAll -= OnClearingAll;
         }
-    }
+        }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

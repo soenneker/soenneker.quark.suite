@@ -145,14 +145,9 @@
         hc.Add(ParentPanelGroup?.GetHandleValue(_index));
     }
 
-    public override void Dispose()
-    {
-        _registeredParentPanelGroup?.UnregisterHandle(this);
-        base.Dispose();
-    }
-
     public override async ValueTask DisposeAsync()
     {
+        _registeredParentPanelGroup?.UnregisterHandle(this);
         await ResizableInterop.UnregisterHandle(ElementRef);
         await base.DisposeAsync();
     }

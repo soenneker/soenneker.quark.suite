@@ -149,11 +149,11 @@ public abstract class FormControlElementBase : InteractiveElement
         hc.Add(IsFormControlSlot);
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
         if (_subscribedFieldContext is not null)
             _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
 
-        base.Dispose();
+        await base.DisposeAsync();
     }
 }

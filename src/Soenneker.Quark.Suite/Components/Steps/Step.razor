@@ -157,9 +157,10 @@
         base.OnParametersSet();
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
         ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
+        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
