@@ -18,6 +18,7 @@ public static class DocsNavigation
         new("Components", "components"),
         new("Installation", "installation"),
         new("Properties", "properties"),
+        new("Grid System", "grid-system"),
         new("Themes", "themes"),
         new("Validation", ComponentRoute("validation"))
     ];
