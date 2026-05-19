@@ -1,5 +1,5 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.InteractiveElement
 @implements IDiv
 
 <div @ref="ElementRef" @attributes="BuildAttributes()">
@@ -11,5 +11,13 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "div";
+    }
+
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
+    {
+        base.BuildOwnedAttributes(attrs);
+
+        if (OnClick.HasDelegate)
+            attrs["onclick"] = OnClick;
     }
 }

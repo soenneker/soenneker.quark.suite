@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -91,6 +92,19 @@ public sealed partial class RenderedShadcnParityTests
         var overlayClasses = overlay.Find("[data-slot='overlay-container']").GetAttribute("class")!;
 
         overlayClasses.Should().Contain("relative");
+    }
+
+    [Test]
+    public void Div_invokes_on_click_callback()
+    {
+        MouseEventArgs? received = null;
+        var cut = Render<Div>(parameters => parameters
+            .Add(p => p.OnClick, args => received = args)
+            .Add(p => p.ChildContent, "Clickable"));
+
+        cut.Find("div[data-slot='div']").Click();
+
+        received.Should().NotBeNull();
     }
 
     [Test]
