@@ -121,6 +121,7 @@ public static class DocsNavigation
         new("Nav", ComponentRoute("navs"), IsNew: true),
         new("Paragraph", ComponentRoute("paragraphs")),
         new("Section", ComponentRoute("sections")),
+        new("Simple Icons", ComponentRoute("simple-icons"), IsNew: true),
         new("Small", ComponentRoute("small")),
         new("Span", ComponentRoute("spans")),
         new("Strong", ComponentRoute("strong")),

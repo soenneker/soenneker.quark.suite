@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Soenneker.Extensions.Configuration.Logging;
 using Soenneker.Extensions.Serilog.LogEventLevels;
 using Soenneker.Quark.Gen.Lucide.Generated;
+using Soenneker.Quark.Gen.SimpleIcons.Generated;
 
 namespace Soenneker.Quark.Suite.Demo;
 
@@ -43,6 +44,7 @@ public sealed class Program
 
             builder.Services.AddQuarkSuiteAsScoped();
             builder.Services.AddLucideIconsAsScoped();
+            builder.Services.AddSimpleIconsAsScoped();
 
             // Register demo services
             builder.Services.AddScoped<Services.EmployeeService>();

@@ -11,6 +11,8 @@
 
         <LucideIncludeSvgProvider>false</LucideIncludeSvgProvider>
         <LucideIncludeServiceCollectionExtensions>false</LucideIncludeServiceCollectionExtensions>
+        <SimpleIconsIncludeSvgProvider>false</SimpleIconsIncludeSvgProvider>
+        <SimpleIconsIncludeServiceCollectionExtensions>false</SimpleIconsIncludeServiceCollectionExtensions>
         <Configurations>Debug;Release</Configurations>
     </PropertyGroup>
 
@@ -69,6 +71,14 @@
             ..\..\..\soenneker.quark.gen.presets\src\Soenneker.Quark.Gen.Presets\Soenneker.Quark.Gen.Presets.csproj
         </LocalQuarkGenPresetsProject>
 
+        <LocalQuarkGenSimpleIconsProject Condition="'$(LocalQuarkGenSimpleIconsProject)' == ''">
+            ..\..\..\soenneker.quark.gen.simpleicons\src\Soenneker.Quark.Gen.SimpleIcons\Soenneker.Quark.Gen.SimpleIcons.csproj
+        </LocalQuarkGenSimpleIconsProject>
+
+        <LocalQuarkGenSimpleIconsAbstractionsProject Condition="'$(LocalQuarkGenSimpleIconsAbstractionsProject)' == ''">
+            ..\..\..\soenneker.quark.gen.simpleicons.abstractions\src\Soenneker.Quark.Gen.SimpleIcons.Abstractions\Soenneker.Quark.Gen.SimpleIcons.Abstractions.csproj
+        </LocalQuarkGenSimpleIconsAbstractionsProject>
+
         <LocalClipboardProject Condition="'$(LocalClipboardProject)' == ''">
             ..\..\..\..\Blazor\soenneker.blazor.utils.clipboard\src\Soenneker.Blazor.Utils.Clipboard\Soenneker.Blazor.Utils.Clipboard.csproj
         </LocalClipboardProject>
@@ -102,6 +112,8 @@
         <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.126" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.143" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.12" />
+        <PackageReference Include="Soenneker.SimpleIcons.Enums.Icons" Version="4.0.5" />
+        <PackageReference Include="Soenneker.SimpleIcons.Icons" Version="4.0.2" />
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.48" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2537" />
     </ItemGroup>
@@ -112,6 +124,12 @@
         <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.92" />
 
         <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="Soenneker.Quark.Gen.SimpleIcons.Abstractions" Version="4.0.2" />
+        <PackageReference Include="Soenneker.Quark.Gen.SimpleIcons" Version="4.0.4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -136,7 +154,11 @@
         <ProjectReference Include="$(LocalQuarkBuildersProject)" />
 
         <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+        <ProjectReference Include="$(LocalQuarkGenSimpleIconsAbstractionsProject)" />
+        <ProjectReference Include="$(LocalQuarkGenSimpleIconsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
+
+    <Import Project="..\..\..\soenneker.quark.gen.simpleicons\src\Soenneker.Quark.Gen.SimpleIcons\Soenneker.Quark.Gen.SimpleIcons.targets" Condition="'$(UseLocalProjects)' == 'true' and Exists('..\..\..\soenneker.quark.gen.simpleicons\src\Soenneker.Quark.Gen.SimpleIcons\Soenneker.Quark.Gen.SimpleIcons.targets')" />
 
     <!-- Tailwind manifest pack -->
     <Target Name="PackGeneratedTailwindManifest">

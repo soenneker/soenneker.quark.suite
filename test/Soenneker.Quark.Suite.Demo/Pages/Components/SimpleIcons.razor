@@ -1,0 +1,174 @@
+@page "/components/simple-icons"
+
+<PageTitle>Simple Icons - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is4">
+        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+            Use the <Code Inline="true">SimpleIcon</Code> primitive to render generated Simple Icons SVGs with Quark sizing, colors, and standard element attributes.
+        </Paragraph>
+    </Div>
+
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Description="Brand icons rendered through the Simple Icons primitive. Requires Soenneker.Quark.Gen.SimpleIcons and ISimpleIconsSvgProvider." Code="@BasicSimpleIconsCode" CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is4">
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is6" aria-label="GitHub"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Google" Size="Size.Is6" aria-label="Google"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Figma" Size="Size.Is6" aria-label="Figma"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Docker" Size="Size.Is6" aria-label="Docker"/>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sizes" Description="Use Quark size values." Code="@SizesCode" CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap='Gap.Token("6")'>
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is4" aria-label="GitHub small"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is6" aria-label="GitHub medium"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is8" aria-label="GitHub large"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is12" aria-label="GitHub extra large"/>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Themed" Description="Simple Icons use currentColor, so text color utilities control the mark color." Code="@ThemedCode" CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is4">
+                    <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is7" TextColor="TextColor.Primary" aria-label="GitHub"/>
+                    <SimpleIcon Name="@SimpleIconEnum.React" Size="Size.Is7" TextColor='TextColor.Token("sky-500")' aria-label="React"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Typescript" Size="Size.Is7" TextColor='TextColor.Token("blue-600")' aria-label="TypeScript"/>
+                    <SimpleIcon Name="@SimpleIconEnum.Tailwindcss" Size="Size.Is7" TextColor='TextColor.Token("cyan-500")' aria-label="Tailwind CSS"/>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="In Buttons" Description="Pair brand marks with button text for provider and integration actions." Code="@ButtonsCode" CodeLanguage="razor">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is3">
+                    <Button Variant="ButtonVariant.Outline">
+                        <SimpleIcon Name="@SimpleIconEnum.Github" Size="Size.Is4" Margin="Margin.Is2.FromEnd" aria-hidden="true"/>
+                        GitHub
+                    </Button>
+                    <Button Variant="ButtonVariant.Outline">
+                        <SimpleIcon Name="@SimpleIconEnum.Google" Size="Size.Is4" Margin="Margin.Is2.FromEnd" aria-hidden="true"/>
+                        Google
+                    </Button>
+                    <Button Variant="ButtonVariant.Outline">
+                        <SimpleIcon Name="@SimpleIconEnum.Vercel" Size="Size.Is4" Margin="Margin.Is2.FromEnd" aria-hidden="true"/>
+                        Vercel
+                    </Button>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Common Brands" Description="A small grid of frequently used Simple Icons." Code="@CommonBrandsCode" CodeLanguage="razor">
+                <Grid Columns="GridCols.Is3.OnSm.Is4.OnMd.Is6" Gap="Gap.Is4">
+                    @foreach (var brand in CommonBrands)
+                    {
+                        <Div Display="Display.Flex"
+                             FlexDirection="FlexDirection.Col"
+                             ItemsAlign="Items.Center"
+                             Gap="Gap.Is2"
+                             Padding="Padding.Is3"
+                             Rounded="Rounded.Lg"
+                             Border="Border.Is1"
+                             BorderColor="BorderColor.Border"
+                             BackgroundColor="BackgroundColor.Background">
+                            <SimpleIcon Name="@brand.Icon" Size="Size.Is6" aria-hidden="true"/>
+                            <Small TextColor="TextColor.MutedForeground">@brand.Label</Small>
+                        </Div>
+                    }
+                </Grid>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+
+    private static readonly BrandIcon[] CommonBrands =
+    [
+        new(SimpleIconEnum.Github, "GitHub"),
+        new(SimpleIconEnum.Gitlab, "GitLab"),
+        new(SimpleIconEnum.Google, "Google"),
+        new(SimpleIconEnum.Figma, "Figma"),
+        new(SimpleIconEnum.Docker, "Docker"),
+        new(SimpleIconEnum.React, "React"),
+        new(SimpleIconEnum.Typescript, "TypeScript"),
+        new(SimpleIconEnum.Tailwindcss, "Tailwind"),
+        new(SimpleIconEnum.Vercel, "Vercel"),
+        new(SimpleIconEnum.Stripe, "Stripe"),
+        new(SimpleIconEnum.Instagram, "Instagram"),
+        new(SimpleIconEnum.X, "X")
+    ];
+
+    private sealed record BrandIcon(SimpleIconEnum Icon, string Label);
+
+    private const string SimpleIconGeneratorHints = "SimpleIcon.Github SimpleIcon.Google SimpleIcon.Figma SimpleIcon.Docker SimpleIcon.React SimpleIcon.Typescript SimpleIcon.Tailwindcss SimpleIcon.Vercel SimpleIcon.Gitlab SimpleIcon.Stripe SimpleIcon.Instagram SimpleIcon.X";
+
+    private const string BasicSimpleIconsCode = @"<Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"">
+    <SimpleIcon Name=""Github"" Size=""Size.Is6"" aria-label=""GitHub"" />
+    <SimpleIcon Name=""Google"" Size=""Size.Is6"" aria-label=""Google"" />
+    <SimpleIcon Name=""Figma"" Size=""Size.Is6"" aria-label=""Figma"" />
+    <SimpleIcon Name=""Docker"" Size=""Size.Is6"" aria-label=""Docker"" />
+</Div>";
+
+    private const string SizesCode = @"<Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap='Gap.Token(""6"")'>
+    <SimpleIcon Name=""Github"" Size=""Size.Is4"" />
+    <SimpleIcon Name=""Github"" Size=""Size.Is6"" />
+    <SimpleIcon Name=""Github"" Size=""Size.Is8"" />
+    <SimpleIcon Name=""Github"" Size=""Size.Is12"" />
+</Div>";
+
+    private const string ThemedCode = @"<Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"">
+    <SimpleIcon Name=""Github"" Size=""Size.Is7"" TextColor=""TextColor.Primary"" aria-label=""GitHub"" />
+    <SimpleIcon Name=""React"" Size=""Size.Is7"" TextColor='TextColor.Token(""sky-500"")' aria-label=""React"" />
+    <SimpleIcon Name=""Typescript"" Size=""Size.Is7"" TextColor='TextColor.Token(""blue-600"")' aria-label=""TypeScript"" />
+    <SimpleIcon Name=""Tailwindcss"" Size=""Size.Is7"" TextColor='TextColor.Token(""cyan-500"")' aria-label=""Tailwind CSS"" />
+</Div>";
+
+    private const string ButtonsCode = @"<Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" Gap=""Gap.Is3"">
+    <Button Variant=""ButtonVariant.Outline"">
+        <SimpleIcon Name=""Github"" Size=""Size.Is4"" Margin=""Margin.Is2.FromEnd"" aria-hidden=""true"" />
+        GitHub
+    </Button>
+    <Button Variant=""ButtonVariant.Outline"">
+        <SimpleIcon Name=""Google"" Size=""Size.Is4"" Margin=""Margin.Is2.FromEnd"" aria-hidden=""true"" />
+        Google
+    </Button>
+    <Button Variant=""ButtonVariant.Outline"">
+        <SimpleIcon Name=""Vercel"" Size=""Size.Is4"" Margin=""Margin.Is2.FromEnd"" aria-hidden=""true"" />
+        Vercel
+    </Button>
+</Div>";
+
+    private const string CommonBrandsCode = @"<Grid Columns=""GridCols.Is3.OnSm.Is4.OnMd.Is6"" Gap=""Gap.Is4"">
+    <Div Display=""Display.Flex""
+         FlexDirection=""FlexDirection.Col""
+         ItemsAlign=""Items.Center""
+         Gap=""Gap.Is2""
+         Padding=""Padding.Is3""
+         Rounded=""Rounded.Lg""
+         Border=""Border.Is1""
+         BorderColor=""BorderColor.Border""
+         BackgroundColor=""BackgroundColor.Background"">
+        <SimpleIcon Name=""Github"" Size=""Size.Is6"" aria-hidden=""true"" />
+        <Small TextColor=""TextColor.MutedForeground"">GitHub</Small>
+    </Div>
+    <Div Display=""Display.Flex""
+         FlexDirection=""FlexDirection.Col""
+         ItemsAlign=""Items.Center""
+         Gap=""Gap.Is2""
+         Padding=""Padding.Is3""
+         Rounded=""Rounded.Lg""
+         Border=""Border.Is1""
+         BorderColor=""BorderColor.Border""
+         BackgroundColor=""BackgroundColor.Background"">
+        <SimpleIcon Name=""React"" Size=""Size.Is6"" aria-hidden=""true"" />
+        <Small TextColor=""TextColor.MutedForeground"">React</Small>
+    </Div>
+</Grid>";
+
+}

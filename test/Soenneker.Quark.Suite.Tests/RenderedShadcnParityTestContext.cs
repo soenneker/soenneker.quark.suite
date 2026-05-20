@@ -8,6 +8,7 @@ using Soenneker.Blazor.Utils.Clipboard.Enums;
 using Soenneker.Blazor.MockJsRuntime.Registrars;
 using Soenneker.Bradix;
 using Soenneker.Quark.Gen.Lucide.Abstractions;
+using Soenneker.Quark.Gen.SimpleIcons.Abstractions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -232,6 +233,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddBradixSuiteAsScoped();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
+        Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
         Services.AddScoped<ITreeViewInterop, FakeTreeViewInterop>();
@@ -256,6 +258,14 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public string? GetSvg(string iconName)
         {
             return "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"></svg>";
+        }
+    }
+
+    private sealed class FakeSimpleIconsSvgProvider : ISimpleIconsSvgProvider
+    {
+        public string? GetSvg(string iconName)
+        {
+            return "<svg role=\"img\" viewBox=\"0 0 24 24\"><title>GitHub</title><path d=\"M1 1h22v22H1z\" /></svg>";
         }
     }
 
