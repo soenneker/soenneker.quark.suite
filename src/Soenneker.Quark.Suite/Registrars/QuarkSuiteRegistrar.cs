@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Soenneker.Blazor.C15t.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.Clipboard.Registrars;
 using Soenneker.Bradix;
@@ -41,6 +42,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkCodeEditorAsScoped()
                 .AddQuarkScoreAsScoped()
                 .AddQuarkOnThisPageAsScoped()
+                .AddC15tAsScoped()
                 .AddClipboardAsScoped();
 
         return services;

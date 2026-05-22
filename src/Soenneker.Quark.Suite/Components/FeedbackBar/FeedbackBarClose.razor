@@ -1,9 +1,25 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<FeedbackBarAction AsChild="true" Tooltip="@Tooltip" TooltipSide="@TooltipSide" Class="@ActionClass">
-    <div data-slot="feedback-bar-close">@ChildContent</div>
-</FeedbackBarAction>
+@if (Tooltip.HasContent())
+{
+    <div @attributes="BuildAttributes()">
+        <TooltipProvider DelayDuration="200">
+            <Tooltip>
+                <TooltipTrigger AsChild="true">
+                    @ChildContent
+                </TooltipTrigger>
+                <TooltipContent Side="@TooltipSide" Class="rounded-full">
+                    @Tooltip
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    </div>
+}
+else
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
 
 @code {
     [Parameter]
@@ -12,17 +28,17 @@
     [Parameter]
     public Soenneker.Bradix.Side TooltipSide { get; set; } = Soenneker.Bradix.Side.Top;
 
-    private string ActionClass => CombineClass("flex h-full items-center justify-center border-l px-2", Class);
-
-    private static string CombineClass(string first, string? second)
-    {
-        return string.IsNullOrWhiteSpace(second) ? first : $"{first} {second}";
-    }
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "feedback-bar-close";
+
+        Display ??= Quark.Display.Flex;
+        Height ??= Quark.Height.IsFull;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Border ??= Quark.Border.FromLeft.Default;
+        Padding ??= Quark.Padding.OnX.Is2;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

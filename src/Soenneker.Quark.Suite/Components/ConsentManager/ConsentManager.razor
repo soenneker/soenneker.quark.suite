@@ -1,0 +1,272 @@
+@namespace Soenneker.Quark
+@using System.Threading
+@using Soenneker.Blazor.C15t.Abstract
+@using Soenneker.Blazor.C15t.Models
+@inject IC15tConsentService ConsentService
+
+@ChildContent
+
+@if (IsBannerVisible)
+{
+    <div class="@BannerClass" role="dialog" aria-live="polite" aria-labelledby="@_titleId" aria-describedby="@_descriptionId">
+        <div class="px-5 pt-5 pb-4">
+            <h2 id="@_titleId" class="text-base leading-none font-semibold tracking-normal">@Title</h2>
+            <p id="@_descriptionId" class="text-muted-foreground mt-3 text-sm leading-5">
+                @Description
+            </p>
+        </div>
+        <div class="border-t bg-muted/20 flex items-center justify-between gap-3 px-4 py-3">
+            <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="RejectNonNecessary">
+                @RejectAllText
+            </Button>
+            <div class="flex items-center gap-3">
+                <Button Variant="ButtonVariant.Secondary" ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">
+                    @AcceptAllText
+                </Button>
+                <Button ButtonSize="ButtonSize.Sm" OnClick="OpenPreferences">
+                    @CustomizeText
+                </Button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_preferencesOpen)
+{
+    <div class="fixed inset-0 z-50 bg-black/35" @onclick="ClosePreferences"></div>
+    <div class="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border bg-background text-foreground shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="@_preferencesTitleId">
+        <div class="space-y-2 px-5 pt-5 pb-4">
+            <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 id="@_preferencesTitleId" class="text-lg leading-none font-semibold tracking-normal">@PreferencesTitle</h2>
+                    <p class="text-muted-foreground text-sm leading-5">@PreferencesDescription</p>
+                </div>
+                <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" OnClick="ClosePreferences" aria-label="Close">
+                    <Icon Name="LucideIcon.X" />
+                </Button>
+            </div>
+        </div>
+        <div class="max-h-[55vh] space-y-3 overflow-y-auto px-5 pb-4">
+            @foreach (string category in Categories)
+            {
+                bool disabled = IsNecessary(category);
+                <div class="rounded-lg border p-4">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="text-sm font-medium capitalize">@category</div>
+                            <div class="text-muted-foreground text-sm leading-5">@GetCategoryDescription(category)</div>
+                        </div>
+                        <Switch Id="@($"{_componentId}-{category}")"
+                                Checked="@IsSelected(category)"
+                                CheckedChanged="@((bool value) => SetSelected(category, value))"
+                                Disabled="@disabled" />
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t bg-muted/20 px-5 py-4 sm:flex-row sm:justify-end">
+            <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="RejectNonNecessary">@RejectAllText</Button>
+            <Button Variant="ButtonVariant.Secondary" ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">@AcceptAllText</Button>
+            <Button ButtonSize="ButtonSize.Sm" OnClick="SaveCustom">@SavePreferencesText</Button>
+        </div>
+    </div>
+}
+
+@code {
+    private readonly string _componentId = $"consent-manager-{Guid.NewGuid():N}";
+    private string _titleId => $"{_componentId}-title";
+    private string _descriptionId => $"{_componentId}-description";
+    private string _preferencesTitleId => $"{_componentId}-preferences-title";
+
+    private C15tConsentState? _state;
+    private bool _initialized;
+    private bool _bannerVisible;
+    private bool _preferencesOpen;
+
+    /// <summary>
+    /// Content rendered underneath the consent manager UI.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// c15t runtime options.
+    /// </summary>
+    [Parameter]
+    public C15tOptions? Options { get; set; }
+
+    /// <summary>
+    /// Consent categories rendered in the preferences dialog.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyList<string> Categories { get; set; } = ["necessary", "functionality", "experience", "measurement", "marketing"];
+
+    /// <summary>
+    /// Initializes c15t after first render.
+    /// </summary>
+    [Parameter]
+    public bool AutoInitialize { get; set; } = true;
+
+    /// <summary>
+    /// Shows the banner after initialization when consent has not been captured.
+    /// </summary>
+    [Parameter]
+    public bool ShowBannerOnInitialize { get; set; } = true;
+
+    /// <summary>
+    /// Resets persisted consents after initialization. Intended for demos and testing.
+    /// </summary>
+    [Parameter]
+    public bool ResetConsentsOnInitialize { get; set; }
+
+    /// <summary>
+    /// Raised after c15t state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<C15tConsentState?> StateChanged { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "We value your privacy";
+
+    [Parameter]
+    public string Description { get; set; } = "This site uses cookies to improve your browsing experience, analyze site traffic, and show personalized content.";
+
+    [Parameter]
+    public string PreferencesTitle { get; set; } = "Privacy preferences";
+
+    [Parameter]
+    public string PreferencesDescription { get; set; } = "Manage which optional categories are allowed. Necessary cookies are always enabled.";
+
+    [Parameter]
+    public string RejectAllText { get; set; } = "Reject All";
+
+    [Parameter]
+    public string AcceptAllText { get; set; } = "Accept All";
+
+    [Parameter]
+    public string CustomizeText { get; set; } = "Customize";
+
+    [Parameter]
+    public string SavePreferencesText { get; set; } = "Save Preferences";
+
+    [Parameter]
+    public string PositionClass { get; set; } = "fixed bottom-6 left-6";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private bool IsBannerVisible => _bannerVisible && !_preferencesOpen;
+
+    private string BannerClass =>
+        $"z-50 w-[calc(100vw-2rem)] max-w-[26rem] overflow-hidden rounded-xl border bg-background text-foreground shadow-lg {PositionClass} {Class}".Trim();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !AutoInitialize || _initialized)
+            return;
+
+        await Initialize();
+    }
+
+    /// <summary>
+    /// Initializes c15t and updates the consent manager UI.
+    /// </summary>
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
+    {
+        if (_initialized)
+            return;
+
+        _state = await ConsentService.Initialize(Options, cancellationToken);
+
+        if (ResetConsentsOnInitialize)
+            _state = await ConsentService.ResetConsents(cancellationToken);
+
+        _initialized = true;
+        _bannerVisible = ShowBannerOnInitialize && !HasConsentInfo();
+
+        if (_bannerVisible)
+            _state = await ConsentService.ShowBanner(cancellationToken);
+
+        await NotifyStateChanged();
+        StateHasChanged();
+    }
+
+    private async Task AcceptAll()
+    {
+        _state = await ConsentService.AcceptAll();
+        _bannerVisible = false;
+        _preferencesOpen = false;
+        await NotifyStateChanged();
+    }
+
+    private async Task RejectNonNecessary()
+    {
+        _state = await ConsentService.RejectNonNecessary();
+        _bannerVisible = false;
+        _preferencesOpen = false;
+        await NotifyStateChanged();
+    }
+
+    private async Task SaveCustom()
+    {
+        _state = await ConsentService.SaveCustom();
+        _bannerVisible = false;
+        _preferencesOpen = false;
+        await NotifyStateChanged();
+    }
+
+    private async Task OpenPreferences()
+    {
+        _state = await ConsentService.OpenDialog();
+        _preferencesOpen = true;
+        await NotifyStateChanged();
+    }
+
+    private async Task ClosePreferences()
+    {
+        _preferencesOpen = false;
+        _state = await ConsentService.CloseUi();
+        await NotifyStateChanged();
+    }
+
+    private async Task SetSelected(string category, bool value)
+    {
+        if (IsNecessary(category))
+            return;
+
+        _state = await ConsentService.SetSelectedConsent(category, value);
+        await NotifyStateChanged();
+    }
+
+    private bool IsSelected(string category)
+    {
+        if (IsNecessary(category))
+            return true;
+
+        return _state?.SelectedConsents?.TryGetValue(category, out bool selected) == true && selected;
+    }
+
+    private bool HasConsentInfo()
+    {
+        return _state?.ExtensionData?.TryGetValue("consentInfo", out var consentInfo) == true && consentInfo.ValueKind is not System.Text.Json.JsonValueKind.Null and not System.Text.Json.JsonValueKind.Undefined;
+    }
+
+    private static bool IsNecessary(string category) =>
+        string.Equals(category, "necessary", StringComparison.OrdinalIgnoreCase);
+
+    private static string GetCategoryDescription(string category) => category switch
+    {
+        "necessary" => "Required for security and core site functionality.",
+        "functionality" => "Remembers preferences and enables optional site features.",
+        "experience" => "Personalizes embedded content and product experiences.",
+        "measurement" => "Helps us understand traffic and improve the product.",
+        "marketing" => "Allows personalized content and campaign measurement.",
+        _ => "Optional consent category."
+    };
+
+    private async Task NotifyStateChanged()
+    {
+        if (StateChanged.HasDelegate)
+            await StateChanged.InvokeAsync(_state);
+    }
+}

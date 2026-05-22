@@ -8,27 +8,18 @@
                      Description="A bottom-sticking conversation viewport for stacked message turns."
                      Code="@BasicCode"
                      CodeLanguage="razor">
-            <Div Height='Height.Token("[28rem]")' MaxWidth="MaxWidth.Is2xl" Overflow="Overflow.Hidden" Rounded="Rounded.Lg" Border="Border.Default" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Card">
+            <Div Class="h-[412px]" style="width: 674px;">
                 <Thread>
                     <ThreadContent>
                         @foreach (var turn in _turns)
                         {
-                            @if (turn.From == "user")
-                            {
-                                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.End">
-                                    <Div MaxWidth='MaxWidth.Token("[80%]")' Rounded="Rounded.Lg" BackgroundColor="BackgroundColor.Primary" Padding="Padding.Is4.OnX.Is2.OnY" TextColor="TextColor.PrimaryForeground">
-                                        <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" Class="whitespace-pre-line">@turn.Text</Paragraph>
-                                    </Div>
-                                </Div>
-                            }
-                            else
-                            {
-                                <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Start">
-                                    <Div MaxWidth='MaxWidth.Token("[80%]")' Rounded="Rounded.Lg" BackgroundColor="BackgroundColor.Muted" Padding="Padding.Is4.OnX.Is2.OnY" TextColor="TextColor.Foreground">
-                                        <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" Class="whitespace-pre-line">@turn.Text</Paragraph>
-                                    </Div>
-                                </Div>
-                            }
+                            <Message From="@turn.From">
+                                <MessageStack>
+                                    <MessageContent>
+                                        <MessageMarkdown Class="whitespace-pre-line">@turn.Text</MessageMarkdown>
+                                    </MessageContent>
+                                </MessageStack>
+                            </Message>
                         }
                     </ThreadContent>
                     <ThreadScrollToBottom />
@@ -56,27 +47,18 @@
     private sealed record ChatTurn(string From, string Text);
 
     private const string BasicCode =
-@"<Div Height='Height.Token(""[28rem]"")' MaxWidth=""MaxWidth.Is2xl"" Overflow=""Overflow.Hidden"" Rounded=""Rounded.Lg"" Border=""Border.Default"" BorderColor=""BorderColor.Border"" BackgroundColor=""BackgroundColor.Card"">
+@"<Div Class=""h-[412px]"" style=""width: 674px;"">
     <Thread>
         <ThreadContent>
             @foreach (var turn in _turns)
             {
-                @if (turn.From == ""user"")
-                {
-                    <Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.End"">
-                        <Div MaxWidth='MaxWidth.Token(""[80%]"")' Rounded=""Rounded.Lg"" BackgroundColor=""BackgroundColor.Primary"" Padding=""Padding.Is4.OnX.Is2.OnY"" TextColor=""TextColor.PrimaryForeground"">
-                            <Paragraph Margin=""Margin.Is0"" TextSize=""TextSize.Sm"" Class=""whitespace-pre-line"">@turn.Text</Paragraph>
-                        </Div>
-                    </Div>
-                }
-                else
-                {
-                    <Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.Start"">
-                        <Div MaxWidth='MaxWidth.Token(""[80%]"")' Rounded=""Rounded.Lg"" BackgroundColor=""BackgroundColor.Muted"" Padding=""Padding.Is4.OnX.Is2.OnY"" TextColor=""TextColor.Foreground"">
-                            <Paragraph Margin=""Margin.Is0"" TextSize=""TextSize.Sm"" Class=""whitespace-pre-line"">@turn.Text</Paragraph>
-                        </Div>
-                    </Div>
-                }
+                <Message From=""@turn.From"">
+                    <MessageStack>
+                        <MessageContent>
+                            <MessageMarkdown Class=""whitespace-pre-line"">@turn.Text</MessageMarkdown>
+                        </MessageContent>
+                    </MessageStack>
+                </Message>
             }
         </ThreadContent>
         <ThreadScrollToBottom />

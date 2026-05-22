@@ -44,6 +44,8 @@ public static class DocsNavigation
         new("Combobox", ComponentRoute("combobox")),
         new("Command", ComponentRoute("command")),
         new("Context Menu", ComponentRoute("context-menu")),
+        new("Consent Manager", ComponentRoute("consent-manager"), IsNew: true),
+        new("Copy Button", ComponentRoute("copy-button"), IsNew: true),
         new("Data Table", ComponentRoute("data-table")),
         new("Container", ComponentRoute("container")),
         new("Currency Input", ComponentRoute("currency-inputs"), IsNew: true),

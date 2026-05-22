@@ -18,8 +18,12 @@
 
     <Popover Open="@_open" OpenChanged="HandleOpenChanged">
         <PopoverTrigger AsChild="true">
-            <Button Id="@_triggerId" Variant="ButtonVariant.Ghost" Role="button" AriaLabel="@AriaLabel" Class="@GetTriggerClass()">
+            <Button Id="@_triggerId" DataSlot="model-selector-trigger" Variant="ButtonVariant.Ghost" Role="button" AriaLabel="@AriaLabel" Class="@GetTriggerClass()">
                 <Span DataSlot="model-selector-trigger-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
+                    @if (SelectedOption is not null)
+                    {
+                        <Icon Name="@GetModelIcon(SelectedOption)" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
+                    }
                     <Span DataSlot="model-selector-trigger-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm">@SelectedLabel</Span>
                 </Span>
                 <Span DataSlot="model-selector-trigger-chevron" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Class="data-[state=open]:rotate-180">
@@ -115,6 +119,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "model-selector";
 
         Display ??= Quark.Display.Grid;
         Gap ??= Quark.Gap.Is3;

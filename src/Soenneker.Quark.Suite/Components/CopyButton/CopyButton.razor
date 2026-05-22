@@ -1,0 +1,266 @@
+@namespace Soenneker.Quark
+@using System.Threading
+@using Soenneker.Blazor.Utils.Clipboard.Abstract
+@implements IDisposable
+@inject IClipboardUtil ClipboardUtil
+
+<Button Type="@ButtonType.Button"
+        Variant="@Variant"
+        ButtonSize="@ButtonSize"
+        Disabled="@Disabled"
+        Class="@ButtonClass"
+        AriaLabel="@ResolvedAriaLabel"
+        Title="@ResolvedTitle"
+        Attributes="@Attributes"
+        OnClick="Copy">
+    <span class="@IconWrapClass" aria-hidden="true">
+        <span class="@GetIconLayerClass(CopyButtonState.Idle)">
+            <Icon Name="@IdleIcon" Class="size-4" />
+        </span>
+        <span class="@GetIconLayerClass(CopyButtonState.Done)">
+            <Icon Name="@DoneIcon" Class="size-4" />
+        </span>
+        <span class="@GetIconLayerClass(CopyButtonState.Error)">
+            <Icon Name="@ErrorIcon" Class="size-4" />
+        </span>
+    </span>
+    @if (ChildContent is not null)
+    {
+        <span>@ChildContent</span>
+    }
+</Button>
+
+@code {
+    private CopyButtonState _state = CopyButtonState.Idle;
+    private bool _copying;
+    private CancellationTokenSource? _resetCancellationTokenSource;
+
+    /// <summary>
+    /// Text to copy to the clipboard.
+    /// </summary>
+    [Parameter]
+    public string? Text { get; set; }
+
+    /// <summary>
+    /// Function used to resolve text immediately before copying.
+    /// </summary>
+    [Parameter]
+    public Func<string?>? TextProvider { get; set; }
+
+    /// <summary>
+    /// Optional label content rendered after the icon.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Visual style variant.
+    /// </summary>
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
+
+    /// <summary>
+    /// Button size.
+    /// </summary>
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.IconSm;
+
+    /// <summary>
+    /// Indicates whether the button is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Idle icon.
+    /// </summary>
+    [Parameter]
+    public LucideIcon IdleIcon { get; set; } = LucideIcon.Copy;
+
+    /// <summary>
+    /// Success icon.
+    /// </summary>
+    [Parameter]
+    public LucideIcon DoneIcon { get; set; } = LucideIcon.Check;
+
+    /// <summary>
+    /// Error icon.
+    /// </summary>
+    [Parameter]
+    public LucideIcon ErrorIcon { get; set; } = LucideIcon.X;
+
+    /// <summary>
+    /// Button label used for accessible names and tooltips.
+    /// </summary>
+    [Parameter]
+    public string CopyLabel { get; set; } = "Copy";
+
+    /// <summary>
+    /// Label used after a successful copy.
+    /// </summary>
+    [Parameter]
+    public string DoneLabel { get; set; } = "Copied";
+
+    /// <summary>
+    /// Label used after a failed copy.
+    /// </summary>
+    [Parameter]
+    public string ErrorLabel { get; set; } = "Copy failed";
+
+    /// <summary>
+    /// How long the success or error state remains visible.
+    /// </summary>
+    [Parameter]
+    public int ResetDelay { get; set; } = 1600;
+
+    /// <summary>
+    /// Additional button classes.
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Additional attributes applied to the underlying button.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    /// <summary>
+    /// Raised after text is copied successfully.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnCopySuccess { get; set; }
+
+    /// <summary>
+    /// Raised when copying fails.
+    /// </summary>
+    [Parameter]
+    public EventCallback<Exception?> OnCopyError { get; set; }
+
+    private string ResolvedLabel => _state switch
+    {
+        CopyButtonState.Done => DoneLabel,
+        CopyButtonState.Error => ErrorLabel,
+        _ => CopyLabel
+    };
+
+    private string ResolvedAriaLabel => ResolvedLabel;
+    private string ResolvedTitle => ResolvedLabel;
+
+    private string ButtonClass
+    {
+        get
+        {
+            var cls = "relative overflow-hidden";
+
+            if (ChildContent is not null)
+                cls += " gap-1.5 px-2.5";
+
+            if (!string.IsNullOrWhiteSpace(Class))
+                cls += $" {Class}";
+
+            return cls;
+        }
+    }
+
+    private string IconWrapClass =>
+        ChildContent is null
+            ? "relative grid size-4 place-items-center overflow-hidden"
+            : "relative grid size-4 shrink-0 place-items-center overflow-hidden";
+
+    private async Task Copy()
+    {
+        if (Disabled || _copying)
+            return;
+
+        _copying = true;
+
+        try
+        {
+            string? value = TextProvider?.Invoke() ?? Text;
+
+            if (string.IsNullOrEmpty(value))
+                throw new InvalidOperationException("No text was provided to copy.");
+
+            bool copied = await ClipboardUtil.TryWriteText(value);
+
+            if (!copied)
+                throw new InvalidOperationException("Clipboard write failed.");
+
+            await SetState(CopyButtonState.Done);
+
+            if (OnCopySuccess.HasDelegate)
+                await OnCopySuccess.InvokeAsync(value);
+        }
+        catch (Exception exception)
+        {
+            await SetState(CopyButtonState.Error);
+
+            if (OnCopyError.HasDelegate)
+                await OnCopyError.InvokeAsync(exception);
+        }
+        finally
+        {
+            _copying = false;
+            ScheduleReset();
+        }
+    }
+
+    private void ScheduleReset()
+    {
+        _resetCancellationTokenSource?.Cancel();
+        _resetCancellationTokenSource?.Dispose();
+
+        if (ResetDelay <= 0)
+            return;
+
+        _resetCancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = _resetCancellationTokenSource.Token;
+
+        _ = ResetLater(cancellationToken);
+    }
+
+    private async Task ResetLater(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Delay(ResetDelay, cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            await SetState(CopyButtonState.Idle);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task SetState(CopyButtonState state)
+    {
+        _state = state;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string GetIconLayerClass(CopyButtonState state)
+    {
+        const string baseClass = "absolute inset-0 grid place-items-center transition-all duration-200 ease-out";
+
+        return _state == state
+            ? $"{baseClass} scale-100 rotate-0 opacity-100"
+            : $"{baseClass} scale-75 -rotate-12 opacity-0";
+    }
+
+    public void Dispose()
+    {
+        _resetCancellationTokenSource?.Cancel();
+        _resetCancellationTokenSource?.Dispose();
+    }
+
+    private enum CopyButtonState
+    {
+        Idle,
+        Done,
+        Error
+    }
+}
