@@ -35,7 +35,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Calendar>(parameters => parameters
             .Add(component => component.DisplayMonth, new DateOnly(2026, 5, 1)));
 
-        string navClass = cut.Find("nav.rdp-nav").GetAttribute("class")!;
+        var navClass = cut.Find("nav.rdp-nav").GetAttribute("class")!;
 
         navClass.Should().Contain("absolute");
         navClass.Should().Contain("top-0");
@@ -50,7 +50,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(component => component.DisplayMonth, new DateOnly(2026, 5, 1))
             .Add(component => component.Dir, "rtl"));
 
-        string calendarClass = cut.Find("[data-slot='calendar']").GetAttribute("class")!;
+        var calendarClass = cut.Find("[data-slot='calendar']").GetAttribute("class")!;
 
         calendarClass.Should().NotContain("rdp-button_next>svg");
         calendarClass.Should().NotContain("rdp-button_previous>svg");

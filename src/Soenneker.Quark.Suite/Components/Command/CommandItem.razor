@@ -129,7 +129,7 @@
         hc.Add(SearchValue);
         if (Keywords is not null)
         {
-            foreach (string keyword in Keywords)
+            foreach (var keyword in Keywords)
                 hc.Add(keyword);
         }
 
@@ -138,8 +138,8 @@
 
     private string BuildSearchText()
     {
-        bool hasSearchValue = !string.IsNullOrWhiteSpace(SearchValue);
-        int keywordCount = Keywords?.Length ?? 0;
+        var hasSearchValue = !string.IsNullOrWhiteSpace(SearchValue);
+        var keywordCount = Keywords?.Length ?? 0;
 
         if (!hasSearchValue && keywordCount == 0)
             return string.Empty;
@@ -147,10 +147,10 @@
         if (keywordCount == 0)
             return SearchValue!;
 
-        int length = hasSearchValue ? SearchValue!.Length : 0;
-        int parts = hasSearchValue ? 1 : 0;
+        var length = hasSearchValue ? SearchValue!.Length : 0;
+        var parts = hasSearchValue ? 1 : 0;
 
-        foreach (string keyword in Keywords!)
+        foreach (var keyword in Keywords!)
         {
             if (string.IsNullOrWhiteSpace(keyword))
                 continue;
@@ -165,8 +165,8 @@
         length += parts - 1;
         return string.Create(length, (SearchValue, Keywords, hasSearchValue), static (span, state) =>
         {
-            int position = 0;
-            bool wrotePart = false;
+            var position = 0;
+            var wrotePart = false;
 
             if (state.hasSearchValue)
             {
@@ -175,7 +175,7 @@
                 wrotePart = true;
             }
 
-            foreach (string keyword in state.Keywords!)
+            foreach (var keyword in state.Keywords!)
             {
                 if (string.IsNullOrWhiteSpace(keyword))
                     continue;

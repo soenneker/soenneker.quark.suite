@@ -54,6 +54,7 @@ public static class DocsNavigation
         new("Dropdown Menu", ComponentRoute("dropdown-menu")),
         new("Empty", ComponentRoute("empty")),
         new("Field", ComponentRoute("field")),
+        new("Floating Window", ComponentRoute("floating-window"), IsNew: true),
         new("Grid", ComponentRoute("grids")),
         new("Header", ComponentRoute("headers")),
         new("Hover Card", ComponentRoute("hover-card")),

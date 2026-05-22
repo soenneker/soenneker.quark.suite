@@ -1,0 +1,194 @@
+@page "/components/floating-window"
+
+<PageTitle>Floating Window - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection
+                         Description="A draggable, resizable window that floats above the page without making the rest of the interface inert."
+                         Code="@BasicCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@FloatingWindowPreviewClass">
+                <Div Class="flex flex-wrap items-center gap-2">
+                    <Button Variant="ButtonVariant.Outline" OnClick="OpenBasicWindow">Open Window</Button>
+                    <Button Variant="ButtonVariant.Ghost" OnClick="CenterBasicWindow">Center</Button>
+                </Div>
+
+                <FloatingWindow @ref="_basicWindow"
+                                Title="Workspace"
+                                @bind-Visible="_basicVisible"
+                                Options="@BasicOptions">
+                    <Div Space="Space.Y.Is4">
+                        <Div Space="Space.Y.Is1">
+                            <H4>Lead queue</H4>
+                            <Paragraph Class="text-sm text-muted-foreground">
+                                Drag the title bar or resize from the edges.
+                            </Paragraph>
+                        </Div>
+                        <Div Class="grid gap-2">
+                            <Div Class="flex items-center justify-between rounded-md border border-border px-3 py-2">
+                                <Span TextSize="TextSize.Sm">New companies</Span>
+                                <Badge>128</Badge>
+                            </Div>
+                            <Div Class="flex items-center justify-between rounded-md border border-border px-3 py-2">
+                                <Span TextSize="TextSize.Sm">Ready for review</Span>
+                                <Badge Variant="BadgeVariant.Secondary">34</Badge>
+                            </Div>
+                        </Div>
+                    </Div>
+                </FloatingWindow>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Header"
+                         Description="Use `HeaderContent` when the title bar needs actions or custom layout."
+                         Code="@CustomHeaderCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@FloatingWindowPreviewClass">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _customHeaderVisible = true)">Open Custom Header</Button>
+
+                <FloatingWindow Title="Inspector"
+                                @bind-Visible="_customHeaderVisible"
+                                InitialX="160"
+                                InitialY="180"
+                                Options="@CustomHeaderOptions">
+                    <HeaderContent>
+                        <Div Class="flex min-w-0 flex-1 items-center justify-between gap-3">
+                            <Div Class="min-w-0">
+                                <Div Class="truncate text-sm font-semibold">Inspector</Div>
+                                <Div Class="truncate text-xs text-muted-foreground">Live account details</Div>
+                            </Div>
+                            <Badge Variant="BadgeVariant.Outline">Live</Badge>
+                        </Div>
+                    </HeaderContent>
+                    <ChildContent>
+                        <Div Class="grid gap-3">
+                            <Field>
+                                <Label For="floating-window-company">Company</Label>
+                                <Input Id="floating-window-company" Value="Acme Industries" />
+                            </Field>
+                            <Field>
+                                <Label For="floating-window-owner">Owner</Label>
+                                <Input Id="floating-window-owner" Value="Maya Chen" />
+                            </Field>
+                        </Div>
+                    </ChildContent>
+                </FloatingWindow>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Fixed Size"
+                         Description="Disable auto sizing when you want the window to open with explicit dimensions."
+                         Code="@FixedSizeCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@FloatingWindowPreviewClass">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _fixedSizeVisible = true)">Open Fixed Size</Button>
+
+                <FloatingWindow Title="Notes"
+                                @bind-Visible="_fixedSizeVisible"
+                                Options="@FixedSizeOptions">
+                    <TextArea Value="Call after the weekly sync. Ask about current enrichment coverage and routing rules." Class="min-h-32" />
+                </FloatingWindow>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private FloatingWindow? _basicWindow;
+    private bool _basicVisible;
+    private bool _customHeaderVisible;
+    private bool _fixedSizeVisible;
+
+    private static readonly FloatingWindowOptions BasicOptions = new()
+    {
+        InitialX = 120,
+        InitialY = 120,
+        MinWidth = 280,
+        MinHeight = 220
+    };
+
+    private static readonly FloatingWindowOptions CustomHeaderOptions = new()
+    {
+        MinWidth = 320,
+        MinHeight = 240
+    };
+
+    private static readonly FloatingWindowOptions FixedSizeOptions = new()
+    {
+        AutoSizeToContent = false,
+        Width = 420,
+        Height = 260,
+        InitialX = 220,
+        InitialY = 140
+    };
+
+    private Task OpenBasicWindow()
+    {
+        _basicVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task CenterBasicWindow()
+    {
+        if (_basicWindow is not null)
+            await _basicWindow.Center();
+    }
+
+    private const string FloatingWindowPreviewClass =
+        "preview relative flex min-h-72 w-full items-center justify-center overflow-hidden p-10";
+
+    private const string BasicCode =
+@"<Button Variant=""ButtonVariant.Outline"" OnClick=""OpenBasicWindow"">Open Window</Button>
+
+<FloatingWindow @ref=""_basicWindow""
+                Title=""Workspace""
+                @bind-Visible=""_basicVisible""
+                Options=""@BasicOptions"">
+    <Div Space=""Space.Y.Is4"">
+        <H4>Lead queue</H4>
+        <Paragraph Class=""text-sm text-muted-foreground"">
+            Drag the title bar or resize from the edges.
+        </Paragraph>
+    </Div>
+</FloatingWindow>";
+
+    private const string CustomHeaderCode =
+@"<FloatingWindow Title=""Inspector"" @bind-Visible=""_customHeaderVisible"">
+    <HeaderContent>
+        <Div Class=""flex min-w-0 flex-1 items-center justify-between gap-3"">
+            <Div Class=""min-w-0"">
+                <Div Class=""truncate text-sm font-semibold"">Inspector</Div>
+                <Div Class=""truncate text-xs text-muted-foreground"">Live account details</Div>
+            </Div>
+            <Badge Variant=""BadgeVariant.Outline"">Live</Badge>
+        </Div>
+    </HeaderContent>
+
+    <Div Class=""grid gap-3"">
+        <Field>
+            <Label For=""floating-window-company"">Company</Label>
+            <Input Id=""floating-window-company"" Value=""Acme Industries"" />
+        </Field>
+    </Div>
+</FloatingWindow>";
+
+    private const string FixedSizeCode =
+@"<FloatingWindow Title=""Notes""
+                @bind-Visible=""_fixedSizeVisible""
+                Options=""@FixedSizeOptions"">
+    <TextArea Value=""Call after the weekly sync."" Class=""min-h-32"" />
+</FloatingWindow>
+
+@code {
+    private static readonly FloatingWindowOptions FixedSizeOptions = new()
+    {
+        AutoSizeToContent = false,
+        Width = 420,
+        Height = 260
+    };
+}";
+}

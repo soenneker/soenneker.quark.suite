@@ -78,13 +78,13 @@ internal sealed class FieldContext
 
     public string? BuildDescribedBy(string? existing, bool isInvalid = false)
     {
-        bool includeDescription = HasDescription;
-        bool includeError = (IsInvalid || isInvalid) && HasError;
+        var includeDescription = HasDescription;
+        var includeError = (IsInvalid || isInvalid) && HasError;
 
         if (!includeDescription && !includeError)
             return string.IsNullOrWhiteSpace(existing) ? null : existing;
 
-        string? result = string.IsNullOrWhiteSpace(existing) ? null : existing;
+        var result = string.IsNullOrWhiteSpace(existing) ? null : existing;
 
         if (includeDescription && !ContainsToken(result, DescriptionId))
             result = AppendToken(result, DescriptionId);
@@ -105,11 +105,11 @@ internal sealed class FieldContext
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-        ReadOnlySpan<char> remaining = value.AsSpan();
+        var remaining = value.AsSpan();
 
         while (!remaining.IsEmpty)
         {
-            int nextSpace = remaining.IndexOf(' ');
+            var nextSpace = remaining.IndexOf(' ');
             ReadOnlySpan<char> candidate;
 
             if (nextSpace < 0)

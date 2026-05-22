@@ -33,6 +33,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkThemeAsScoped()
                 .AddQuarkCarouselAsScoped()
                 .AddQuarkPromptInputAsScoped()
+                .AddQuarkFloatingWindowAsScoped()
                 .AddQuarkResizableAsScoped()
                 .AddQuarkTreeViewAsScoped()
                 .AddQuarkThreadsAsScoped()
@@ -57,7 +58,7 @@ public static class QuarkSuiteRegistrar
 
     private static bool HasQuarkOptionsRegistration(IServiceCollection services)
     {
-        foreach (ServiceDescriptor descriptor in services)
+        foreach (var descriptor in services)
         {
             if (descriptor.ServiceType == typeof(QuarkOptions))
                 return true;

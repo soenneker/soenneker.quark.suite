@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Tests.Unit;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -29,5 +30,26 @@ public sealed class QuarkSuiteTests : UnitTest
         tokens.Popover.Should().Be("#171717");
         tokens.Destructive.Should().Be("#ff6568");
         tokens.DestructiveForeground.Should().Be("#df2225");
+    }
+
+    [Test]
+    public void FloatingWindow_contract_exposes_visibility_and_imperative_methods()
+    {
+        typeof(IFloatingWindow).GetProperty(nameof(IFloatingWindow.Visible))!.PropertyType.Should().Be(typeof(bool));
+        typeof(IFloatingWindow).GetProperty(nameof(IFloatingWindow.VisibleChanged)).Should().NotBeNull();
+        typeof(IFloatingWindow).GetMethod(nameof(IFloatingWindow.Show)).Should().NotBeNull();
+        typeof(IFloatingWindow).GetMethod(nameof(IFloatingWindow.Hide)).Should().NotBeNull();
+        typeof(IFloatingWindow).GetMethod(nameof(IFloatingWindow.Toggle)).Should().NotBeNull();
+        typeof(IFloatingWindow).GetMethod(nameof(IFloatingWindow.Center)).Should().NotBeNull();
+    }
+
+    [Test]
+    public void FloatingWindow_registrar_registers_interop()
+    {
+        var services = new ServiceCollection();
+
+        services.AddQuarkFloatingWindowAsScoped();
+
+        services.Should().Contain(x => x.ServiceType == typeof(IFloatingWindowInterop) && x.ImplementationType == typeof(FloatingWindowInterop));
     }
 }

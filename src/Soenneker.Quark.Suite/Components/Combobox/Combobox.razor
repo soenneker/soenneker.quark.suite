@@ -237,7 +237,7 @@
         if (Values is null || Values.Length == 0)
             return;
 
-        int index = IndexOfSelectedValue(value);
+        var index = IndexOfSelectedValue(value);
         if (index < 0)
             return;
 
@@ -245,7 +245,7 @@
         if (index > 0)
             Array.Copy(Values, 0, next, 0, index);
 
-        int remaining = Values.Length - index - 1;
+        var remaining = Values.Length - index - 1;
         if (remaining > 0)
             Array.Copy(Values, index + 1, next, index, remaining);
 
@@ -281,7 +281,7 @@
 
     private void MoveActiveItem(string key)
     {
-        int count = CountVisibleSelectableItems(out int currentIndex);
+        var count = CountVisibleSelectableItems(out var currentIndex);
         if (count == 0)
         {
             SetActiveValue(null);
@@ -299,14 +299,14 @@
             _ => currentIndex
         };
 
-        ComboboxItem? next = GetVisibleSelectableItemAt(nextIndex);
+        var next = GetVisibleSelectableItemAt(nextIndex);
         if (next is not null)
             SetActiveValue(next.Value);
     }
 
     private void EnsureActiveItem()
     {
-        int count = CountVisibleSelectableItems(out _);
+        var count = CountVisibleSelectableItems(out _);
         if (count == 0)
         {
             SetActiveValue(null);
@@ -340,14 +340,14 @@
         if (value.IsNullOrEmpty())
             return;
 
-        int existingIndex = IndexOfSelectedValue(value);
+        var existingIndex = IndexOfSelectedValue(value);
         if (existingIndex >= 0)
         {
             var next = new string[Values!.Length - 1];
             if (existingIndex > 0)
                 Array.Copy(Values, 0, next, 0, existingIndex);
 
-            int remaining = Values.Length - existingIndex - 1;
+            var remaining = Values.Length - existingIndex - 1;
             if (remaining > 0)
                 Array.Copy(Values, existingIndex + 1, next, existingIndex, remaining);
 
@@ -403,7 +403,7 @@
 
     private string? GetActiveItemId()
     {
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (item.IsActiveItem)
                 return item.ItemId;
@@ -414,7 +414,7 @@
 
     private bool HasAnyVisibleItem()
     {
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (!item.Hidden)
                 return true;
@@ -425,7 +425,7 @@
 
     private ComboboxItem? FindActiveSelectableItem()
     {
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (item.IsActiveItem && !item.Hidden && !item.Disabled)
                 return item;
@@ -436,7 +436,7 @@
 
     private ComboboxItem? FindVisibleSelectableItem(string value)
     {
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (!item.Hidden && !item.Disabled && string.Equals(item.Value, value, StringComparison.Ordinal))
                 return item;
@@ -448,9 +448,9 @@
     private int CountVisibleSelectableItems(out int activeIndex)
     {
         activeIndex = -1;
-        int count = 0;
+        var count = 0;
 
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (item.Hidden || item.Disabled)
                 continue;
@@ -466,9 +466,9 @@
 
     private ComboboxItem? GetVisibleSelectableItemAt(int targetIndex)
     {
-        int index = 0;
+        var index = 0;
 
-        foreach (ComboboxItem item in _items)
+        foreach (var item in _items)
         {
             if (item.Hidden || item.Disabled)
                 continue;
@@ -487,7 +487,7 @@
         if (Values is null)
             return -1;
 
-        for (int i = 0; i < Values.Length; i++)
+        for (var i = 0; i < Values.Length; i++)
         {
             if (string.Equals(Values[i], value, StringComparison.Ordinal))
                 return i;

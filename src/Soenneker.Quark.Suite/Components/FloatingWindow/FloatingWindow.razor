@@ -1,0 +1,421 @@
+@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
+@using Soenneker.Extensions.CancellationTokens
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IFloatingWindow
+
+@inject IFloatingWindowInterop WindowInterop
+
+<div @attributes="BuildAttributes()">
+    <Div DataSlot="floating-window-shell" Display="Quark.Display.Flex" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Overflow="Quark.Overflow.Hidden" Class="quark-floating-window-shell min-h-0 rounded-[inherit]">
+        @if (MergedOptions.ShowTitleBar)
+        {
+            <Div DataSlot="floating-window-titlebar" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is3" UserSelect="Quark.UserSelect.None" Border="Quark.Border.Is1.FromBottom" BorderColor="Quark.BorderColor.Border" BackgroundColor='Quark.BackgroundColor.Token("muted/55")' Padding='Quark.Padding.OnX.Is3.OnY.Token("2.5")' MinHeight="Quark.Height.Is11" Attributes="@TitleBarAttributes" Class="quark-floating-window-titlebar">
+                @if (HeaderContent is not null)
+                {
+                    @HeaderContent
+                }
+                else
+                {
+                    <Div DataSlot="floating-window-title" MinWidth="Quark.MinWidth.Is0" Overflow="Quark.Overflow.Hidden" TextOverflow="Quark.TextOverflow.Ellipsis" Whitespace="Quark.Whitespace.Nowrap" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Semibold" Leading="Quark.Leading.Is5" Class="quark-floating-window-title">@WindowTitle</Div>
+                }
+
+                @if (MergedOptions.ShowCloseButton)
+                {
+                    <Button DataSlot="floating-window-close" Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Close" Border="Quark.Border.Is0" BackgroundColor="Quark.BackgroundColor.Transparent.OnHover.Accent" TextColor="Quark.TextColor.MutedForeground.OnHover.AccentForeground" Class="quark-floating-window-close" OnClick="OnCloseClick">
+                        <Svg Size="Quark.Size.Is4" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke="Quark.Stroke.Current" StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round" aria-hidden="true">
+                            <path d="M18 6 6 18"/>
+                            <path d="m6 6 12 12"/>
+                        </Svg>
+                        <Span ScreenReader="Quark.ScreenReader.Only">Close</Span>
+                    </Button>
+                }
+            </Div>
+        }
+
+        <Div DataSlot="floating-window-content" Flex="Quark.Flex.Is1" Overflow="Quark.Overflow.Auto" Padding="Quark.Padding.Is4" MinHeight="Quark.Height.Is0" Class="quark-floating-window-content">
+            @ChildContent
+        </Div>
+    </Div>
+
+    @if (MergedOptions.Resizable)
+    {
+        <div class="quark-floating-window-resize-handle absolute z-[1] -top-1 left-2 right-2 h-2 cursor-ns-resize" data-direction="n"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -right-1 top-2 bottom-2 w-2 cursor-ew-resize" data-direction="e"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -bottom-1 left-2 right-2 h-2 cursor-ns-resize" data-direction="s"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -left-1 top-2 bottom-2 w-2 cursor-ew-resize" data-direction="w"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -top-1 -right-1 size-3 cursor-nesw-resize" data-direction="ne"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -top-1 -left-1 size-3 cursor-nwse-resize" data-direction="nw"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -right-1 -bottom-1 size-3 cursor-nwse-resize" data-direction="se"></div>
+        <div class="quark-floating-window-resize-handle absolute z-[1] -bottom-1 -left-1 size-3 cursor-nesw-resize" data-direction="sw"></div>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    [Parameter]
+    public IReadOnlyDictionary<string, object>? TitleBarAttributes { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnShow { get; set; }
+
+    [Parameter]
+    public EventCallback OnHide { get; set; }
+
+    [Parameter]
+    public EventCallback OnDragStart { get; set; }
+
+    [Parameter]
+    public EventCallback OnDragEnd { get; set; }
+
+    [Parameter]
+    public FloatingWindowOptions Options { get; set; } = new();
+
+    [Parameter]
+    public bool? Draggable { get; set; }
+
+    [Parameter]
+    public bool? Resizable { get; set; }
+
+    [Parameter]
+    public bool? ShowCloseButton { get; set; }
+
+    [Parameter]
+    public bool? ShowTitleBar { get; set; }
+
+    [Parameter]
+    public bool? Enabled { get; set; }
+
+    [Parameter]
+    public int? InitialX { get; set; }
+
+    [Parameter]
+    public int? InitialY { get; set; }
+
+    [Parameter]
+    public bool? UseCdn { get; set; }
+
+    [Parameter]
+    public bool? AutoSizeToContent { get; set; }
+
+    [Parameter]
+    public bool? DynamicAutoSizeToContent { get; set; }
+
+    [Parameter]
+    public bool? RecenterOnResize { get; set; }
+
+    public bool IsVisible => _visible;
+
+    private bool _initialized;
+    private bool _visible;
+    private bool _appliedVisible;
+    private readonly CancellationTokenSource _disposeCts = new();
+    private DotNetObjectReference<FloatingWindow>? _dotNetRef;
+
+    private string WindowTitle => Title ?? "Window";
+
+    private FloatingWindowOptions MergedOptions => new()
+    {
+        Draggable = Draggable ?? Options.Draggable,
+        Resizable = Resizable ?? Options.Resizable,
+        ShowCloseButton = ShowCloseButton ?? Options.ShowCloseButton,
+        ShowTitleBar = ShowTitleBar ?? Options.ShowTitleBar,
+        Enabled = Enabled ?? Options.Enabled,
+        Width = Options.Width,
+        Height = Options.Height,
+        InitialX = InitialX ?? Options.InitialX,
+        InitialY = InitialY ?? Options.InitialY,
+        MinWidth = Options.MinWidth,
+        MinHeight = Options.MinHeight,
+        MaxWidth = Options.MaxWidth,
+        MaxHeight = Options.MaxHeight,
+        ConstrainToViewport = Options.ConstrainToViewport,
+        CenterOnShow = Options.CenterOnShow,
+        FocusOnShow = Options.FocusOnShow,
+        UseCdn = UseCdn ?? Options.UseCdn,
+        AutoSizeToContent = AutoSizeToContent ?? Options.AutoSizeToContent,
+        DynamicAutoSizeToContent = DynamicAutoSizeToContent ?? Options.DynamicAutoSizeToContent,
+        RecenterOnResize = RecenterOnResize ?? Options.RecenterOnResize,
+        ZIndex = Options.ZIndex
+    };
+
+    public FloatingWindow()
+    {
+        Id = BlazorIdGenerator.New("quark-fw");
+    }
+
+    [JSInvokable]
+    public async Task InvokeOnShow()
+    {
+        _visible = true;
+        Visible = true;
+        _appliedVisible = true;
+
+        if (VisibleChanged.HasDelegate)
+            await VisibleChanged.InvokeAsync(true);
+
+        await OnShow.InvokeIfHasDelegate();
+        await RefreshOffThread();
+    }
+
+    [JSInvokable]
+    public async Task InvokeOnHide()
+    {
+        _visible = false;
+        Visible = false;
+        _appliedVisible = false;
+
+        if (VisibleChanged.HasDelegate)
+            await VisibleChanged.InvokeAsync(false);
+
+        await OnHide.InvokeIfHasDelegate();
+        await RefreshOffThread();
+    }
+
+    [JSInvokable]
+    public Task InvokeOnDragStart() => OnDragStart.InvokeIfHasDelegate();
+
+    [JSInvokable]
+    public Task InvokeOnDragEnd() => OnDragEnd.InvokeIfHasDelegate();
+
+    [JSInvokable]
+    public async Task OnContentResized()
+    {
+        if (MergedOptions.RecenterOnResize)
+            await Center();
+    }
+
+    private async Task OnCloseClick()
+    {
+        await Hide();
+    }
+
+    protected override void OnParametersSet()
+    {
+        _visible = Visible;
+        base.OnParametersSet();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        DataSlot ??= "floating-window";
+        Role ??= "dialog";
+        AriaLabel ??= WindowTitle;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Border;
+        Rounded ??= Quark.Rounded.Lg;
+        Shadow ??= Quark.Shadow.Xl;
+        TextColor ??= Quark.TextColor.Foreground;
+        Overflow ??= Quark.Overflow.Visible;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
+    {
+        base.BuildAttributesCore(attrs);
+
+        attrs["data-state"] = _visible ? "open" : "closed";
+        attrs["aria-modal"] = "false";
+
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-floating-window");
+            AppendClass(ref cls, "hidden min-w-[12.5rem] min-h-[9.375rem] box-border fixed isolate flex-col outline-none");
+            AppendClass(ref cls, "transition-[opacity,transform] duration-150 ease-out");
+            AppendClass(ref cls, "data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=closed]:scale-95");
+            AppendClass(ref cls, "data-[state=open]:flex data-[state=open]:opacity-100 data-[state=open]:scale-100");
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await WindowInterop.Initialize(MergedOptions.UseCdn, _disposeCts.Token);
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await Task.Delay(10, _disposeCts.Token);
+            await WindowInterop.Create(Id!, MergedOptions, _disposeCts.Token);
+            await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
+            _initialized = true;
+            _appliedVisible = false;
+
+            if (Visible)
+            {
+                await Show(_disposeCts.Token);
+                _appliedVisible = true;
+            }
+
+            return;
+        }
+
+        if (_initialized && Visible != _appliedVisible)
+        {
+            if (Visible)
+                await Show(_disposeCts.Token);
+            else
+                await Hide(_disposeCts.Token);
+
+            _appliedVisible = Visible;
+        }
+    }
+
+    public async ValueTask Show(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.Show(Id!, linked);
+    }
+
+    public async ValueTask Hide(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.Hide(Id!, linked);
+    }
+
+    public async ValueTask Toggle(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.Toggle(Id!, linked);
+    }
+
+    public async ValueTask Close(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.Close(Id!, linked);
+    }
+
+    public async ValueTask<(int x, int y)> GetPosition(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return (0, 0);
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            return await WindowInterop.GetPosition(Id!, linked);
+    }
+
+    public async ValueTask SetPosition(int x, int y, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.SetPosition(Id!, x, y, linked);
+    }
+
+    public async ValueTask<FloatingWindowSize> GetSize(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return new FloatingWindowSize();
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            return await WindowInterop.GetSize(Id!, linked);
+    }
+
+    public async ValueTask SetSize(int width, int height, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.SetSize(Id!, width, height, linked);
+    }
+
+    public async ValueTask Center(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            return;
+
+        var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
+
+        using (cts)
+            await WindowInterop.CenterInViewport(Id!, linked);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_initialized)
+                await WindowInterop.Destroy(Id!, CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+
+        _dotNetRef?.Dispose();
+        await _disposeCts.CancelAsync();
+        _disposeCts.Dispose();
+        await base.DisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HeaderContent);
+        hc.Add(TitleBarAttributes);
+        hc.Add(Visible);
+        hc.Add(_visible);
+        hc.Add(VisibleChanged.HasDelegate);
+        hc.Add(OnShow.HasDelegate);
+        hc.Add(OnHide.HasDelegate);
+        hc.Add(OnDragStart.HasDelegate);
+        hc.Add(OnDragEnd.HasDelegate);
+        hc.Add(Options);
+        hc.Add(Draggable);
+        hc.Add(Resizable);
+        hc.Add(ShowCloseButton);
+        hc.Add(ShowTitleBar);
+        hc.Add(Enabled);
+        hc.Add(InitialX);
+        hc.Add(InitialY);
+        hc.Add(UseCdn);
+        hc.Add(AutoSizeToContent);
+        hc.Add(DynamicAutoSizeToContent);
+        hc.Add(RecenterOnResize);
+    }
+
+}

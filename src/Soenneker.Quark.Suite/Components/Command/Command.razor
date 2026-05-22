@@ -82,16 +82,16 @@
         if (entry is null || !entry.Matches(_search))
             return null;
 
-        int order = 0;
+        var order = 0;
         var comparer = StringComparer.OrdinalIgnoreCase;
-        bool reachedItem = false;
+        var reachedItem = false;
 
-        foreach (CommandEntry candidate in _entries)
+        foreach (var candidate in _entries)
         {
             if (!IsSameEntryGroup(candidate.Group, entry.Group) || !candidate.Matches(_search))
                 continue;
 
-            int comparison = comparer.Compare(candidate.Item.SearchText, item.SearchText);
+            var comparison = comparer.Compare(candidate.Item.SearchText, item.SearchText);
             if (comparison < 0)
             {
                 order++;
@@ -116,13 +116,13 @@
 
     internal bool GroupHasVisibleItems(CommandGroup group)
     {
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (entry.Group is null && entry.Matches(_search))
                 return true;
         }
 
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (IsSameGroup(entry.Group, group) && entry.Matches(_search))
                 return true;
@@ -174,7 +174,7 @@
 
     internal async Task HandleInputNavigation(string key)
     {
-        int visibleCount = CountVisibleEntries(out int currentIndex);
+        var visibleCount = CountVisibleEntries(out var currentIndex);
         if (visibleCount == 0)
             return;
 
@@ -208,7 +208,7 @@
 
     private CommandEntry? FindEntry(CommandItem item)
     {
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (ReferenceEquals(entry.Item, item))
                 return entry;
@@ -219,7 +219,7 @@
 
     private bool HasAnyVisibleEntry()
     {
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (entry.Matches(_search))
                 return true;
@@ -230,7 +230,7 @@
 
     private CommandEntry? GetFirstVisibleEntry()
     {
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (entry.IsVisible && !entry.IsDisabled)
                 return entry;
@@ -242,9 +242,9 @@
     private int CountVisibleEntries(out int activeIndex)
     {
         activeIndex = -1;
-        int count = 0;
+        var count = 0;
 
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (!entry.IsVisible || entry.IsDisabled)
                 continue;
@@ -260,9 +260,9 @@
 
     private CommandEntry? GetVisibleEntryAt(int targetIndex)
     {
-        int index = 0;
+        var index = 0;
 
-        foreach (CommandEntry entry in _entries)
+        foreach (var entry in _entries)
         {
             if (!entry.IsVisible || entry.IsDisabled)
                 continue;
