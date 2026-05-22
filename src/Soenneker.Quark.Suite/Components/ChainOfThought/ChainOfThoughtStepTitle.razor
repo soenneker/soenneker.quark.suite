@@ -1,0 +1,71 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (StepContext?.HasContent == true)
+{
+    <CollapsibleTrigger Attributes="@BuildAttributes()">
+        @TitleContent
+        <Icon Name="LucideIcon.ChevronDown"
+              Margin="Quark.Margin.FromLeft.Auto"
+              Size="Quark.Size.Is4"
+              Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]"))'
+              Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
+              Transition="Quark.Transition.All"
+              aria-hidden="true" />
+    </CollapsibleTrigger>
+}
+else
+{
+    <div @attributes="BuildAttributes()">
+        @TitleContent
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    private ChainOfThoughtStepContext? StepContext { get; set; }
+
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    private RenderFragment TitleContent => @<text>
+        @if (Icon is not null)
+        {
+            @Icon
+        }
+        else
+        {
+            <Span Size="Quark.Size.Is4" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" aria-hidden="true" />
+        }
+        <Span Class="min-w-0 truncate">@ChildContent</Span>
+    </text>;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "chain-of-thought-step-title";
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        Cursor ??= StepContext?.HasContent == true ? Quark.Cursor.Pointer : Quark.Cursor.Default;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is2;
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Transition ??= Quark.Transition.Colors;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        if (StepContext?.HasContent == true)
+            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(StepContext?.HasContent == true);
+    }
+}

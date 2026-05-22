@@ -1,0 +1,47 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CollapsibleTrigger Attributes="@BuildAttributes()">
+    @if (Icon is not null)
+    {
+        @Icon
+    }
+    else
+    {
+        <Icon Name="LucideIcon.Brain" Size="Quark.Size.Is4" aria-hidden="true" />
+    }
+    <Span TextSize="Quark.TextSize.Sm" Leading="Quark.Leading.Is6">@(ChildContent ?? DefaultLabel)</Span>
+    <Icon Name="LucideIcon.ChevronDown"
+          Margin='Quark.Margin.FromLeft.Is0_5'
+          Size="Quark.Size.Is4"
+          Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]"))'
+          Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
+          Transition="Quark.Transition.All"
+          aria-hidden="true" />
+</CollapsibleTrigger>
+
+@code {
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    private static RenderFragment DefaultLabel => builder => builder.AddContent(0, "Chain of Thought");
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "chain-of-thought-trigger";
+
+        Display ??= Quark.Display.Flex;
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is1_25;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Transition ??= Quark.Transition.Colors;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
+    }
+}

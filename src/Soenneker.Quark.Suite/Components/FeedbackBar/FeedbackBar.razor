@@ -1,0 +1,28 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "feedback-bar";
+
+        Display ??= Quark.Display.InlineFlex;
+        Height ??= Quark.Height.Is12;
+        Width ??= Quark.Width.IsFull;
+        MaxWidth ??= "max-w-110";
+        Rounded ??= "rounded-[12px]";
+        Border ??= Quark.Border.Default;
+        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes.TryAdd("role", "group");
+        attributes.TryAdd("aria-label", "Feedback bar");
+    }
+}

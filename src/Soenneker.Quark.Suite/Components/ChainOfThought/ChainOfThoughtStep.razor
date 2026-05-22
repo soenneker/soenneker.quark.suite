@@ -1,0 +1,59 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (HasContent)
+{
+    <Collapsible DefaultOpen="@ResolvedDefaultOpen" Attributes="@BuildStepAttributes()">
+        <CascadingValue Value="@Context" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </Collapsible>
+}
+else
+{
+    <div @attributes="BuildStepAttributes()">
+        <CascadingValue Value="@Context" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public ChainOfThoughtStatus Status { get; set; } = ChainOfThoughtStatus.Running;
+
+    [Parameter]
+    public bool HasContent { get; set; }
+
+    [Parameter]
+    public bool AutoCloseOnComplete { get; set; } = true;
+
+    private bool ResolvedDefaultOpen => HasContent && (!AutoCloseOnComplete || Status != ChainOfThoughtStatus.Completed);
+
+    private ChainOfThoughtStepContext Context => new(HasContent);
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "chain-of-thought-step";
+
+        Display ??= Quark.Display.Block;
+        Padding ??= Quark.Padding.OnY.Is1;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildStepAttributes()
+    {
+        var attributes = BuildAttributes();
+        attributes["data-status"] = Status.ToString().ToLowerInvariant();
+        attributes["data-has-content"] = HasContent ? "true" : "false";
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Status);
+        hc.Add(HasContent);
+        hc.Add(AutoCloseOnComplete);
+    }
+}

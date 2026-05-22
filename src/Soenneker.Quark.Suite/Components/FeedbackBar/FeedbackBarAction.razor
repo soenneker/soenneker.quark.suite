@@ -1,0 +1,82 @@
+@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (Tooltip.HasContent())
+{
+    <TooltipProvider DelayDuration="200">
+        <Tooltip>
+            <TooltipTrigger AsChild="true">
+                @RenderAction()
+            </TooltipTrigger>
+            <TooltipContent Side="@TooltipSide" Class="rounded-full">
+                @Tooltip
+                @if (Shortcut.HasContent())
+                {
+                    <Kbd Class="rounded-md!">@Shortcut</Kbd>
+                }
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+}
+else
+{
+    @RenderAction()
+}
+
+@code {
+    [Parameter]
+    public bool AsChild { get; set; }
+
+    [Parameter]
+    public string? Tooltip { get; set; }
+
+    [Parameter]
+    public Side TooltipSide { get; set; } = Side.Top;
+
+    [Parameter]
+    public string? Shortcut { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "feedback-bar-action";
+    }
+
+    private RenderFragment RenderAction() => builder =>
+    {
+        if (AsChild)
+        {
+            builder.OpenComponent<CascadingValue<IReadOnlyDictionary<string, object>>>(0);
+            builder.AddComponentParameter(1, "Name", SlotAttributes.Name);
+            builder.AddComponentParameter(2, "Value", BuildSlotAttributes());
+            builder.AddComponentParameter(3, "IsFixed", false);
+            builder.AddComponentParameter(4, "ChildContent", ChildContent);
+            builder.CloseComponent();
+            return;
+        }
+
+        builder.OpenElement(5, "div");
+        builder.AddMultipleAttributes(6, BuildAttributes());
+        builder.AddContent(7, ChildContent);
+        builder.CloseElement();
+    };
+
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        var attributes = new Dictionary<string, object>(BuildAttributes());
+        attributes.Remove("type");
+        attributes.Remove("disabled");
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
+        hc.Add(Tooltip);
+        hc.Add(TooltipSide);
+        hc.Add(Shortcut);
+    }
+}

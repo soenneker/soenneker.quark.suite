@@ -1,0 +1,71 @@
+@page "/components/chain-of-thought"
+
+<PageTitle>Chain of Thought - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Code="@DefaultCode" CodeLanguage="razor">
+        <Div Class="w-full max-w-2xl">
+            <ChainOfThought AutoCloseOnAllComplete="false">
+                <ChainOfThoughtTrigger>
+                    Chain of Thought
+                </ChainOfThoughtTrigger>
+                <ChainOfThoughtContent>
+                    <ChainOfThoughtStep Status="ChainOfThoughtStatus.Completed" HasContent="true" AutoCloseOnComplete="false">
+                        <ChainOfThoughtStepTitle Icon="@WebIcon">Web search</ChainOfThoughtStepTitle>
+                        <ChainOfThoughtStepContent>
+                            <Div Class="mt-1 space-y-2">
+                                <Div Class="-mx-1 mt-1 no-scrollbar flex gap-1.5 overflow-x-auto overscroll-x-contain px-1 pb-0.5 sm:mx-0 sm:flex-wrap sm:overflow-x-visible sm:px-0 sm:pb-0">
+                                    @foreach (var query in SearchQueries)
+                                    {
+                                        <Span Class="inline-flex h-6.5 shrink-0 items-center gap-1 rounded-full bg-muted px-2 text-xs leading-4.5 whitespace-nowrap text-muted-foreground sm:max-w-[187.8px] sm:whitespace-normal">
+                                            <Icon Name="LucideIcon.Globe" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" Class="text-muted-foreground/50" />
+                                            <Span Class="min-w-0 sm:truncate">@query</Span>
+                                        </Span>
+                                    }
+                                </Div>
+                            </Div>
+                        </ChainOfThoughtStepContent>
+                    </ChainOfThoughtStep>
+                    <ChainOfThoughtStep Status="ChainOfThoughtStatus.Completed">
+                        <ChainOfThoughtStepTitle Icon="@SourcesIcon">Gathered 8 sources</ChainOfThoughtStepTitle>
+                    </ChainOfThoughtStep>
+                    <ChainOfThoughtStep Status="ChainOfThoughtStatus.Running" HasContent="true">
+                        <ChainOfThoughtStepTitle Icon="@AnalyzeIcon">Analyze results</ChainOfThoughtStepTitle>
+                        <ChainOfThoughtStepContent>
+                            <Paragraph TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
+                                Compare source titles, remove duplicates, and preserve the strongest references for the final answer.
+                            </Paragraph>
+                        </ChainOfThoughtStepContent>
+                    </ChainOfThoughtStep>
+                    <ChainOfThoughtComplete Label="Task complete" />
+                </ChainOfThoughtContent>
+            </ChainOfThought>
+        </Div>
+    </DemoSection>
+</Div>
+
+@code {
+    private static readonly string[] SearchQueries =
+    [
+        "trending movies April 2026 box office",
+        "popular movies April 2026",
+        "highest grossing movies April 2026",
+        "box office for April 2026"
+    ];
+
+    private static RenderFragment WebIcon => @<Icon Name="LucideIcon.Search" Size="Quark.Size.Is4" />;
+    private static RenderFragment SourcesIcon => @<Icon Name="LucideIcon.Lightbulb" Size="Quark.Size.Is4" />;
+    private static RenderFragment AnalyzeIcon => @<Icon Name="LucideIcon.Sparkles" Size="Quark.Size.Is4" />;
+
+    private const string DefaultCode =
+@"<ChainOfThought AutoCloseOnAllComplete=""false"">
+    <ChainOfThoughtTrigger>Chain of Thought</ChainOfThoughtTrigger>
+    <ChainOfThoughtContent>
+        <ChainOfThoughtStep Status=""ChainOfThoughtStatus.Completed"" HasContent=""true"" AutoCloseOnComplete=""false"">
+            <ChainOfThoughtStepTitle>Web search</ChainOfThoughtStepTitle>
+            <ChainOfThoughtStepContent>...</ChainOfThoughtStepContent>
+        </ChainOfThoughtStep>
+        <ChainOfThoughtComplete Label=""Task complete"" />
+    </ChainOfThoughtContent>
+</ChainOfThought>";
+}

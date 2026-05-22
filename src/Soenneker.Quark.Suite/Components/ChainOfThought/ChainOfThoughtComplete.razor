@@ -1,0 +1,41 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (Icon is not null)
+    {
+        @Icon
+    }
+    else
+    {
+        <Icon Name="LucideIcon.CircleCheck" Size="Quark.Size.Is4" aria-hidden="true" />
+    }
+    <Span Class="min-w-0 truncate">@Label</Span>
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Task complete";
+
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "chain-of-thought-complete";
+
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is2;
+        Padding ??= Quark.Padding.OnY.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+    }
+}
