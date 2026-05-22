@@ -8,8 +8,7 @@ public static class FloatingWindowRegistrar
 {
     public static IServiceCollection AddQuarkFloatingWindowAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
-                .TryAddScoped<IFloatingWindowInterop, FloatingWindowInterop>();
+        services.AddModuleImportUtilAsScoped().TryAddScoped<IFloatingWindowInterop, FloatingWindowInterop>();
 
         return services;
     }
