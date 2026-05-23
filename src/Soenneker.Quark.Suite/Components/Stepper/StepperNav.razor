@@ -1,0 +1,27 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<nav @attributes="BuildAttributes()">@ChildContent</nav>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentStepper))]
+    internal Stepper? ParentStepper { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper-nav";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-state"] = ParentStepper?.ActiveStep ?? 1;
+        attributes["data-orientation"] = ParentStepper?.ResolvedOrientation ?? "horizontal";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/stepper-nav inline-flex data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col");
+        });
+    }
+}

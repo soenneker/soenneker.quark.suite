@@ -3,589 +3,182 @@
 <PageTitle>Timeline - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
-    <Div Space="Space.Y.Is6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Deployment Checklist"
-                         Description="A compact centered timeline using the shorthand item API for status-driven release steps."
-                         Code="@TimelineDeploymentCode"
-                         CodeLanguage="razor">
-                <Timeline TimelineAlignment="TimelineAlign.Center">
-                    <TimelineItem Title="Schema changes applied" Time="8:45 AM" Description="Production migrations completed without manual intervention.">
-                        <IconContent>
-                            <TimelineIcon>
-                                <Icon Name="LucideIcon.DatabaseZap" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                    </TimelineItem>
-                    <TimelineItem Title="API pods recycled" Time="8:52 AM" Description="New image rolled out across all regions.">
-                        <IconContent>
-                            <TimelineIcon>
-                                <Icon Name="LucideIcon.RefreshCw" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                    </TimelineItem>
-                    <TimelineItem Title="Background jobs warming" Time="8:58 AM" Description="Queue latency is falling back toward the steady-state baseline." Status="TimelineStatus.InProgress" IconColor="TimelineColor.Secondary">
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.InProgress" Color="TimelineColor.Secondary">
-                                <Icon Name="LucideIcon.LoaderCircle" Size="Quark.Size.Is3" Animation="Animation.Spin" />
-                            </TimelineIcon>
-                        </IconContent>
-                    </TimelineItem>
-                    <TimelineItem Title="Smoke tests finished" Time="Pending" Description="Final synthetic checks will close the rollout." Status="TimelineStatus.Pending" ShowConnector="false">
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.Pending">
-                                <Icon Name="LucideIcon.FlaskConical" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                    </TimelineItem>
-                </Timeline>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Timeline"
+                     Description="A vertical ReUI timeline with dates, titles, indicators, separators, and content."
+                     Code="@TimelineBasicCode"
+                     CodeLanguage="razor">
+            <Timeline Value="2">
+                <TimelineItem Step="1">
+                    <TimelineHeader>
+                        <TimelineDate>March 2024</TimelineDate>
+                        <TimelineTitle>Project Initialized</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>Successfully set up the project repository and initial architecture.</TimelineContent>
+                </TimelineItem>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Team Activity Feed"
-                         Description="A left-aligned activity feed with custom icons, connector color overrides, and readable timestamps."
-                         Code="@TimelineActivityCode"
-                         CodeLanguage="razor">
-                <Timeline TimelineAlignment="TimelineAlign.Left">
-                    <TimelineItem ConnectorColor="TimelineColor.Primary">
-                        <IconContent>
-                            <TimelineIcon>
-                                <Icon Name="LucideIcon.GitBranch" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Feature branch opened</TimelineTitle>
-                                    <TimelineTime>9:12 AM</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>`feat/usage-analytics` was created from `develop` for the dashboard milestone.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
+                <TimelineItem Step="2">
+                    <TimelineHeader>
+                        <TimelineDate>April 2024</TimelineDate>
+                        <TimelineTitle>Beta Release</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>Launched the beta version for early testers and feedback.</TimelineContent>
+                </TimelineItem>
 
-                    <TimelineItem IconColor="TimelineColor.Accent" ConnectorColor="TimelineColor.Accent" ConnectorStyle="TimelineConnectorStyle.Dashed">
-                        <IconContent>
-                            <TimelineIcon Color="TimelineColor.Accent">
-                                <Icon Name="LucideIcon.MessageSquare" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Design feedback posted</TimelineTitle>
-                                    <TimelineTime>10:03 AM</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>Review notes requested tighter spacing and a lighter empty-state treatment.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
+                <TimelineItem Step="3">
+                    <TimelineHeader>
+                        <TimelineDate>June 2024</TimelineDate>
+                        <TimelineTitle>Official Launch</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>The platform is now live for all users worldwide.</TimelineContent>
+                </TimelineItem>
+            </Timeline>
+        </DemoSection>
+    </Section>
 
-                    <TimelineItem ShowConnector="false" Status="TimelineStatus.InProgress" IconColor="TimelineColor.Secondary">
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.InProgress" Color="TimelineColor.Secondary">
-                                <Icon Name="LucideIcon.LoaderCircle" Size="Quark.Size.Is3" Animation="Animation.Spin" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Staging environment syncing</TimelineTitle>
-                                    <TimelineTime>Now</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>The deployment pipeline is rebuilding assets and republishing the review app.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
-                </Timeline>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Custom Indicators"
+                     Description="Indicators can contain normal Quark content while keeping the ReUI timeline structure."
+                     Code="@TimelineIndicatorsCode"
+                     CodeLanguage="razor">
+            <Timeline Value="3">
+                <TimelineItem Step="1">
+                    <TimelineHeader>
+                        <TimelineDate>Mar 15, 2024</TimelineDate>
+                        <TimelineTitle>Order Placed</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator Class="bg-background text-primary">
+                        <Icon Name="LucideIcon.ShoppingCart" Size="Quark.Size.Is3" />
+                    </TimelineIndicator>
+                    <TimelineSeparator />
+                    <TimelineContent>Your order has been received and is being processed.</TimelineContent>
+                </TimelineItem>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Quarterly Roadmap"
-                         Description="Alternate alignment works well for milestone planning when dates need to stay visually separated from content."
-                         Code="@TimelineRoadmapCode"
-                         CodeLanguage="razor">
-                <Timeline TimelineAlignment="TimelineAlign.Alternate">
-                    <TimelineItem>
-                        <TimeContent>
-                            <TimelineTime Class="text-right pr-4">Q1</TimelineTime>
-                        </TimeContent>
-                        <IconContent>
-                            <TimelineIcon>
-                                <Icon Name="LucideIcon.ShieldCheck" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineTitle>Authentication cleanup</TimelineTitle>
-                                <TimelineDescription>Consolidate sign-in flows and remove the legacy callback handler.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
+                <TimelineItem Step="2">
+                    <TimelineHeader>
+                        <TimelineDate>Mar 16, 2024</TimelineDate>
+                        <TimelineTitle>Payment Confirmed</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator Class="bg-background text-primary">
+                        <Icon Name="LucideIcon.CreditCard" Size="Quark.Size.Is3" />
+                    </TimelineIndicator>
+                    <TimelineSeparator />
+                    <TimelineContent>Transaction successful. Preparing for shipment.</TimelineContent>
+                </TimelineItem>
 
-                    <TimelineItem IconColor="TimelineColor.Secondary" ConnectorStyle="TimelineConnectorStyle.Dashed">
-                        <TimeContent>
-                            <TimelineTime Class="text-left pl-4">Q2</TimelineTime>
-                        </TimeContent>
-                        <IconContent>
-                            <TimelineIcon Color="TimelineColor.Secondary">
-                                <Icon Name="LucideIcon.Activity" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineTitle>Usage analytics</TimelineTitle>
-                                <TimelineDescription>Ship tenant-level reporting with export support for product and support teams.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
+                <TimelineItem Step="3">
+                    <TimelineHeader>
+                        <TimelineDate>Mar 18, 2024</TimelineDate>
+                        <TimelineTitle>Shipped</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator Class="bg-background text-primary">
+                        <Icon Name="LucideIcon.PackageCheck" Size="Quark.Size.Is3" />
+                    </TimelineIndicator>
+                    <TimelineSeparator />
+                    <TimelineContent>Your package is on its way. Track your delivery.</TimelineContent>
+                </TimelineItem>
+            </Timeline>
+        </DemoSection>
+    </Section>
 
-                    <TimelineItem Status="TimelineStatus.InProgress" IconColor="TimelineColor.Accent" ConnectorStyle="TimelineConnectorStyle.Dotted">
-                        <TimeContent>
-                            <TimelineTime Class="text-right pr-4">Q3</TimelineTime>
-                        </TimeContent>
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.InProgress" Color="TimelineColor.Accent">
-                                <Icon Name="LucideIcon.Workflow" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineTitle>Workflow automation</TimelineTitle>
-                                <TimelineDescription>Introduce approval rules and reminder jobs for long-running requests.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Horizontal Orientation"
+                     Description="The same primitives switch layout through the ReUI orientation attribute."
+                     Code="@TimelineHorizontalCode"
+                     CodeLanguage="razor">
+            <Timeline Orientation="horizontal" Value="2" Class="max-w-3xl">
+                <TimelineItem Step="1">
+                    <TimelineHeader>
+                        <TimelineDate>Week 1</TimelineDate>
+                        <TimelineTitle>Planning</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>Scope definition and resource planning.</TimelineContent>
+                </TimelineItem>
 
-                    <TimelineItem ShowConnector="false" Status="TimelineStatus.Pending">
-                        <TimeContent>
-                            <TimelineTime Class="text-left pl-4">Q4</TimelineTime>
-                        </TimeContent>
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.Pending">
-                                <Icon Name="LucideIcon.PlugZap" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineTitle>Public API launch</TimelineTitle>
-                                <TimelineDescription>Document partner onboarding and graduate the integration surface from beta.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
-                </Timeline>
-            </DemoSection>
-        </Section>
+                <TimelineItem Step="2">
+                    <TimelineHeader>
+                        <TimelineDate>Week 2</TimelineDate>
+                        <TimelineTitle>Design</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>UI/UX design and prototyping.</TimelineContent>
+                </TimelineItem>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Operations Handoff"
-                         Description="Right alignment with connected rails keeps recent operational updates near the edge of a dashboard panel."
-                         Code="@TimelineOperationsCode"
-                         CodeLanguage="razor">
-                <Timeline TimelineAlignment="TimelineAlign.Right" ConnectorFit="TimelineConnectorFit.Connected">
-                    <TimelineItem IconColor="TimelineColor.Secondary">
-                        <IconContent>
-                            <TimelineIcon Color="TimelineColor.Secondary">
-                                <Icon Name="LucideIcon.Bell" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Pager alert triggered</TimelineTitle>
-                                    <TimelineTime>01:14</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>Latency crossed the warning threshold for the reporting queue.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
-
-                    <TimelineItem IconColor="TimelineColor.Accent" ConnectorColor="TimelineColor.Accent">
-                        <IconContent>
-                            <TimelineIcon Color="TimelineColor.Accent">
-                                <Icon Name="LucideIcon.Search" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Primary cause identified</TimelineTitle>
-                                    <TimelineTime>01:21</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>A retry storm was traced back to a single downstream timeout policy.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
-
-                    <TimelineItem ShowConnector="false" Status="TimelineStatus.Pending">
-                        <IconContent>
-                            <TimelineIcon Status="TimelineStatus.Pending">
-                                <Icon Name="LucideIcon.Ellipsis" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Postmortem scheduled</TimelineTitle>
-                                    <TimelineTime>Tomorrow</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>Action items will be reviewed with platform and application owners.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                    </TimelineItem>
-                </Timeline>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Expandable Release Notes"
-                         Description="Collapsible items let you keep the summary readable while preserving detailed implementation notes."
-                         Code="@TimelineExpandableCode"
-                         CodeLanguage="razor">
-                <Div class="mb-4 flex items-center justify-between gap-3 rounded-md border border-dashed px-4 py-3">
-                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Parent render count: @_timelineRenderCount
-                    </Paragraph>
-                    <Button Id="timeline-rerender" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="TriggerTimelineRerender">
-                        Re-render timeline
-                    </Button>
-                </Div>
-                <Timeline TimelineAlignment="TimelineAlign.Left">
-                    <TimelineItem IsCollapsible="true" DefaultOpen="true">
-                        <IconContent>
-                            <TimelineIcon>
-                                <Icon Name="LucideIcon.CircleCheck" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>v3.4.0 shipped</TimelineTitle>
-                                    <TimelineTime>Apr 5</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>Search relevance tuning and dashboard caching landed in the same release.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                        <DetailContent>
-                            <TimelineContent>
-                                <TimelineDescription Class="max-w-none">
-                                    Cache hit rates improved after introducing a tenant-aware key strategy. Search ranking now boosts exact slug matches
-                                    ahead of partial title hits, which reduced support escalations for stale result ordering.
-                                </TimelineDescription>
-                            </TimelineContent>
-                        </DetailContent>
-                    </TimelineItem>
-
-                    <TimelineItem ShowConnector="false" IsCollapsible="true" DefaultOpen="false" IconColor="TimelineColor.Destructive" Status="TimelineStatus.InProgress">
-                        <IconContent>
-                            <TimelineIcon Color="TimelineColor.Destructive" Status="TimelineStatus.InProgress">
-                                <Icon Name="LucideIcon.Wrench" Size="Quark.Size.Is3" />
-                            </TimelineIcon>
-                        </IconContent>
-                        <ChildContent>
-                            <TimelineContent>
-                                <TimelineHeader>
-                                    <TimelineTitle>Hotfix under review</TimelineTitle>
-                                    <TimelineTime>Draft</TimelineTime>
-                                </TimelineHeader>
-                                <TimelineDescription>The patch narrows retry behavior for webhook failures without changing success-path throughput.</TimelineDescription>
-                            </TimelineContent>
-                        </ChildContent>
-                        <DetailContent>
-                            <TimelineContent>
-                                <TimelineDescription Class="max-w-none">
-                                    Proposed changes cap retries for 4xx responses, preserve exponential backoff for transient 5xx failures,
-                                    and add structured logging around final delivery attempts so operations can triage noisy tenants faster.
-                                </TimelineDescription>
-                            </TimelineContent>
-                        </DetailContent>
-                    </TimelineItem>
-                </Timeline>
-            </DemoSection>
-        </Section>
-    </Div>
+                <TimelineItem Step="3">
+                    <TimelineHeader>
+                        <TimelineDate>Week 4</TimelineDate>
+                        <TimelineTitle>Development</TimelineTitle>
+                    </TimelineHeader>
+                    <TimelineIndicator />
+                    <TimelineSeparator />
+                    <TimelineContent>Core features implementation.</TimelineContent>
+                </TimelineItem>
+            </Timeline>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
-    private int _timelineRenderCount;
-
-    private const string TimelineDeploymentCode =
-@"<Timeline TimelineAlignment=""TimelineAlign.Center"">
-    <TimelineItem Title=""Schema changes applied"" Time=""8:45 AM"" Description=""Production migrations completed without manual intervention."">
-        <IconContent>
-            <TimelineIcon>
-                <Icon Name=""LucideIcon.DatabaseZap"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-    </TimelineItem>
-    <TimelineItem Title=""API pods recycled"" Time=""8:52 AM"" Description=""New image rolled out across all regions."">
-        <IconContent>
-            <TimelineIcon>
-                <Icon Name=""LucideIcon.RefreshCw"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-    </TimelineItem>
-    <TimelineItem Title=""Background jobs warming"" Time=""8:58 AM"" Description=""Queue latency is falling back toward the steady-state baseline."" Status=""TimelineStatus.InProgress"" IconColor=""TimelineColor.Secondary"">
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.InProgress"" Color=""TimelineColor.Secondary"">
-                <Icon Name=""LucideIcon.LoaderCircle"" Size=""Quark.Size.Is3"" Animation=""Animation.Spin"" />
-            </TimelineIcon>
-        </IconContent>
-    </TimelineItem>
-    <TimelineItem Title=""Smoke tests finished"" Time=""Pending"" Description=""Final synthetic checks will close the rollout."" Status=""TimelineStatus.Pending"" ShowConnector=""false"">
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.Pending"">
-                <Icon Name=""LucideIcon.FlaskConical"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-    </TimelineItem>
-</Timeline>";
-
-    private const string TimelineActivityCode =
-@"<Timeline TimelineAlignment=""TimelineAlign.Left"">
-    <TimelineItem ConnectorColor=""TimelineColor.Primary"">
-        <IconContent>
-            <TimelineIcon>
-                <Icon Name=""LucideIcon.GitBranch"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Feature branch opened</TimelineTitle>
-                    <TimelineTime>9:12 AM</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>`feat/usage-analytics` was created from `develop` for the dashboard milestone.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
+    private const string TimelineBasicCode = """
+<Timeline Value="2">
+    <TimelineItem Step="1">
+        <TimelineHeader>
+            <TimelineDate>March 2024</TimelineDate>
+            <TimelineTitle>Project Initialized</TimelineTitle>
+        </TimelineHeader>
+        <TimelineIndicator />
+        <TimelineSeparator />
+        <TimelineContent>Successfully set up the project repository and initial architecture.</TimelineContent>
     </TimelineItem>
 
-    <TimelineItem IconColor=""TimelineColor.Accent"" ConnectorColor=""TimelineColor.Accent"" ConnectorStyle=""TimelineConnectorStyle.Dashed"">
-        <IconContent>
-            <TimelineIcon Color=""TimelineColor.Accent"">
-                <Icon Name=""LucideIcon.MessageSquare"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Design feedback posted</TimelineTitle>
-                    <TimelineTime>10:03 AM</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>Review notes requested tighter spacing and a lighter empty-state treatment.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
+    <TimelineItem Step="2">
+        <TimelineHeader>
+            <TimelineDate>April 2024</TimelineDate>
+            <TimelineTitle>Beta Release</TimelineTitle>
+        </TimelineHeader>
+        <TimelineIndicator />
+        <TimelineSeparator />
+        <TimelineContent>Launched the beta version for early testers and feedback.</TimelineContent>
     </TimelineItem>
+</Timeline>
+""";
 
-    <TimelineItem ShowConnector=""false"" Status=""TimelineStatus.InProgress"" IconColor=""TimelineColor.Secondary"">
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.InProgress"" Color=""TimelineColor.Secondary"">
-                <Icon Name=""LucideIcon.LoaderCircle"" Size=""Quark.Size.Is3"" Animation=""Animation.Spin"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Staging environment syncing</TimelineTitle>
-                    <TimelineTime>Now</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>The deployment pipeline is rebuilding assets and republishing the review app.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
+    private const string TimelineIndicatorsCode = """
+<Timeline Value="3">
+    <TimelineItem Step="1">
+        <TimelineHeader>
+            <TimelineDate>Mar 15, 2024</TimelineDate>
+            <TimelineTitle>Order Placed</TimelineTitle>
+        </TimelineHeader>
+        <TimelineIndicator Class="bg-background text-primary">
+            <Icon Name="LucideIcon.ShoppingCart" Size="Quark.Size.Is3" />
+        </TimelineIndicator>
+        <TimelineSeparator />
+        <TimelineContent>Your order has been received and is being processed.</TimelineContent>
     </TimelineItem>
-</Timeline>";
+</Timeline>
+""";
 
-    private const string TimelineRoadmapCode =
-@"<Timeline TimelineAlignment=""TimelineAlign.Alternate"">
-    <TimelineItem>
-        <TimeContent>
-            <TimelineTime Class=""text-right pr-4"">Q1</TimelineTime>
-        </TimeContent>
-        <IconContent>
-            <TimelineIcon>
-                <Icon Name=""LucideIcon.ShieldCheck"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineTitle>Authentication cleanup</TimelineTitle>
-                <TimelineDescription>Consolidate sign-in flows and remove the legacy callback handler.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
+    private const string TimelineHorizontalCode = """
+<Timeline Orientation="horizontal" Value="2">
+    <TimelineItem Step="1">
+        <TimelineHeader>
+            <TimelineDate>Week 1</TimelineDate>
+            <TimelineTitle>Planning</TimelineTitle>
+        </TimelineHeader>
+        <TimelineIndicator />
+        <TimelineSeparator />
+        <TimelineContent>Scope definition and resource planning.</TimelineContent>
     </TimelineItem>
-
-    <TimelineItem IconColor=""TimelineColor.Secondary"" ConnectorStyle=""TimelineConnectorStyle.Dashed"">
-        <TimeContent>
-            <TimelineTime Class=""text-left pl-4"">Q2</TimelineTime>
-        </TimeContent>
-        <IconContent>
-            <TimelineIcon Color=""TimelineColor.Secondary"">
-                <Icon Name=""LucideIcon.Activity"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineTitle>Usage analytics</TimelineTitle>
-                <TimelineDescription>Ship tenant-level reporting with export support for product and support teams.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-
-    <TimelineItem Status=""TimelineStatus.InProgress"" IconColor=""TimelineColor.Accent"" ConnectorStyle=""TimelineConnectorStyle.Dotted"">
-        <TimeContent>
-            <TimelineTime Class=""text-right pr-4"">Q3</TimelineTime>
-        </TimeContent>
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.InProgress"" Color=""TimelineColor.Accent"">
-                <Icon Name=""LucideIcon.Workflow"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineTitle>Workflow automation</TimelineTitle>
-                <TimelineDescription>Introduce approval rules and reminder jobs for long-running requests.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-
-    <TimelineItem ShowConnector=""false"" Status=""TimelineStatus.Pending"">
-        <TimeContent>
-            <TimelineTime Class=""text-left pl-4"">Q4</TimelineTime>
-        </TimeContent>
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.Pending"">
-                <Icon Name=""LucideIcon.PlugZap"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineTitle>Public API launch</TimelineTitle>
-                <TimelineDescription>Document partner onboarding and graduate the integration surface from beta.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-</Timeline>";
-
-    private const string TimelineOperationsCode =
-@"<Timeline TimelineAlignment=""TimelineAlign.Right"" ConnectorFit=""TimelineConnectorFit.Connected"">
-    <TimelineItem IconColor=""TimelineColor.Secondary"">
-        <IconContent>
-            <TimelineIcon Color=""TimelineColor.Secondary"">
-                <Icon Name=""LucideIcon.Bell"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Pager alert triggered</TimelineTitle>
-                    <TimelineTime>01:14</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>Latency crossed the warning threshold for the reporting queue.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-
-    <TimelineItem IconColor=""TimelineColor.Accent"" ConnectorColor=""TimelineColor.Accent"">
-        <IconContent>
-            <TimelineIcon Color=""TimelineColor.Accent"">
-                <Icon Name=""LucideIcon.Search"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Primary cause identified</TimelineTitle>
-                    <TimelineTime>01:21</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>A retry storm was traced back to a single downstream timeout policy.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-
-    <TimelineItem ShowConnector=""false"" Status=""TimelineStatus.Pending"">
-        <IconContent>
-            <TimelineIcon Status=""TimelineStatus.Pending"">
-                <Icon Name=""LucideIcon.Ellipsis"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Postmortem scheduled</TimelineTitle>
-                    <TimelineTime>Tomorrow</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>Action items will be reviewed with platform and application owners.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-    </TimelineItem>
-</Timeline>";
-
-    private const string TimelineExpandableCode =
-@"<Div class=""mb-4 flex items-center justify-between gap-3 rounded-md border border-dashed px-4 py-3"">
-    <Paragraph Margin=""Margin.Is0"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">
-        Parent render count: @_timelineRenderCount
-    </Paragraph>
-    <Button Id=""timeline-rerender"" Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"" OnClick=""TriggerTimelineRerender"">
-        Re-render timeline
-    </Button>
-</Div>
-<Timeline TimelineAlignment=""TimelineAlign.Left"">
-    <TimelineItem IsCollapsible=""true"" DefaultOpen=""true"">
-        <IconContent>
-            <TimelineIcon>
-                <Icon Name=""LucideIcon.CircleCheck"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>v3.4.0 shipped</TimelineTitle>
-                    <TimelineTime>Apr 5</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>Search relevance tuning and dashboard caching landed in the same release.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-        <DetailContent>
-            <TimelineContent>
-                <TimelineDescription Class=""max-w-none"">
-                    Cache hit rates improved after introducing a tenant-aware key strategy. Search ranking now boosts exact slug matches
-                    ahead of partial title hits, which reduced support escalations for stale result ordering.
-                </TimelineDescription>
-            </TimelineContent>
-        </DetailContent>
-    </TimelineItem>
-
-    <TimelineItem ShowConnector=""false"" IsCollapsible=""true"" DefaultOpen=""false"" IconColor=""TimelineColor.Destructive"" Status=""TimelineStatus.InProgress"">
-        <IconContent>
-            <TimelineIcon Color=""TimelineColor.Destructive"" Status=""TimelineStatus.InProgress"">
-                <Icon Name=""LucideIcon.Wrench"" Size=""Quark.Size.Is3"" />
-            </TimelineIcon>
-        </IconContent>
-        <ChildContent>
-            <TimelineContent>
-                <TimelineHeader>
-                    <TimelineTitle>Hotfix under review</TimelineTitle>
-                    <TimelineTime>Draft</TimelineTime>
-                </TimelineHeader>
-                <TimelineDescription>The patch narrows retry behavior for webhook failures without changing success-path throughput.</TimelineDescription>
-            </TimelineContent>
-        </ChildContent>
-        <DetailContent>
-            <TimelineContent>
-                <TimelineDescription Class=""max-w-none"">
-                    Proposed changes cap retries for 4xx responses, preserve exponential backoff for transient 5xx failures,
-                    and add structured logging around final delivery attempts so operations can triage noisy tenants faster.
-                </TimelineDescription>
-            </TimelineContent>
-        </DetailContent>
-    </TimelineItem>
-</Timeline>";
-
-    private Task TriggerTimelineRerender()
-    {
-        _timelineRenderCount++;
-        return Task.CompletedTask;
-    }
+</Timeline>
+""";
 }

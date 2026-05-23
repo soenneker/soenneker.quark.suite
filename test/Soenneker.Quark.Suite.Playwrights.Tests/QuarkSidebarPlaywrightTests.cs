@@ -15,6 +15,41 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Sidebar_visible_rail_trigger_toggles_desktop_sidebar()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var runtimeErrors = CaptureRuntimeErrors(page);
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/sidebar",
+            static p => p.Locator("#sidebar-composed-demo"),
+            expectedTitle: "Sidebar - Quark Suite");
+
+        var demo = page.Locator("#sidebar-composed-demo");
+        var sidebar = demo.Locator("[data-slot='sidebar'][data-state]").First;
+        var rail = demo.Locator("[data-slot='sidebar-rail']");
+        var railTrigger = rail.Locator("[data-sidebar='rail-trigger']");
+
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "expanded");
+        await Assertions.Expect(rail).ToHaveAttributeAsync("aria-expanded", "true");
+        (await rail.GetAttributeAsync("tabindex")).Should().NotBe("-1");
+        await Assertions.Expect(railTrigger).ToBeVisibleAsync();
+
+        await railTrigger.ClickAsync();
+
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "collapsed");
+        await Assertions.Expect(rail).ToHaveAttributeAsync("aria-expanded", "false");
+
+        await railTrigger.ClickAsync();
+
+        await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "expanded");
+        await Assertions.Expect(rail).ToHaveAttributeAsync("aria-expanded", "true");
+        runtimeErrors.ConsoleErrors.Should().BeEmpty();
+        runtimeErrors.PageErrors.Should().BeEmpty();
+    }
+
+    [Test]
     public async ValueTask Sidebar_mobile_demo_opens_full_screen_sheet_and_closes_from_internal_trigger()
     {
         await using var session = await CreateSession();

@@ -32,29 +32,6 @@ public sealed class OnThisPageInterop : IOnThisPageInterop, IAsyncDisposable
         }
     }
 
-    public async ValueTask<string> CreateActiveObserver(object options, DotNetObjectReference<OnThisPage> callbackReference,
-        CancellationToken cancellationToken = default)
-    {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
-
-        using (source)
-        {
-            var module = await GetModule(linked);
-            return await module.InvokeAsync<string>("createActiveObserver", linked, options, callbackReference);
-        }
-    }
-
-    public async ValueTask DisposeObserver(string observerId, CancellationToken cancellationToken = default)
-    {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
-
-        using (source)
-        {
-            var module = await GetModule(linked);
-            await module.InvokeVoidAsync("disposeObserver", linked, observerId);
-        }
-    }
-
     public async ValueTask DisposeAsync()
     {
         await _cancellationScope.DisposeAsync();

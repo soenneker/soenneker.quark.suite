@@ -1,0 +1,128 @@
+@page "/components/tag-input"
+
+<PageTitle>Tag Input - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection
+            Description="A shadcn-style tag input for collecting multiple short text values."
+            Code="@BasicCode"
+            PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsMd">
+                <FieldLabel For="tag-input-basic">Topics</FieldLabel>
+                <TagInput Id="tag-input-basic"
+                          Placeholder="Enter a topic"
+                          Values="_basicTags"
+                          ValuesChanged="OnBasicTagsChanged"
+                          ShowCounter="true"
+                          MaxTags="5" />
+                <FieldDescription>Add a tag with Enter or comma.</FieldDescription>
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Autocomplete"
+                     Description="Autocomplete suggestions can be used as hints or as a strict tag source."
+                     Code="@AutocompleteCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsMd">
+                <FieldLabel For="tag-input-autocomplete">Interests</FieldLabel>
+                <TagInput Id="tag-input-autocomplete"
+                          Placeholder="Add interest"
+                          Values="_autocompleteTags"
+                          ValuesChanged="OnAutocompleteTagsChanged"
+                          EnableAutocomplete="true"
+                          AutocompleteOptions="_autocompleteOptions"
+                          ClearAll="true" />
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="List Layout"
+                     Description="Render tags outside the field when a stacked layout reads better."
+                     Code="@ListCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsMd">
+                <FieldLabel For="tag-input-list">Skills</FieldLabel>
+                <TagInput Id="tag-input-list"
+                          Placeholder="Add skill"
+                          Values="_listTags"
+                          ValuesChanged="OnListTagsChanged"
+                          InlineTags="false"
+                          Direction="TagInputDirection.Column"
+                          InputFieldPosition="TagInputFieldPosition.Top"
+                          Variant="TagInputVariant.Outline"
+                          AddTagsOnBlur="true" />
+            </Field>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private string[] _basicTags = ["Sports", "Programming", "Travel"];
+    private string[] _autocompleteTags = ["Sports", "Programming", "Travel"];
+    private string[] _listTags = ["Blazor", "Accessibility", "Design systems"];
+
+    private readonly string[] _autocompleteOptions =
+    [
+        "Sports",
+        "Programming",
+        "Travel",
+        "Music",
+        "Cooking",
+        "Reading",
+        "Design",
+        "Photography"
+    ];
+
+    private Task OnBasicTagsChanged(string[] values)
+    {
+        _basicTags = values;
+        return Task.CompletedTask;
+    }
+
+    private Task OnAutocompleteTagsChanged(string[] values)
+    {
+        _autocompleteTags = values;
+        return Task.CompletedTask;
+    }
+
+    private Task OnListTagsChanged(string[] values)
+    {
+        _listTags = values;
+        return Task.CompletedTask;
+    }
+
+    private const string BasicCode =
+        """
+        <TagInput Placeholder="Enter a topic"
+                  Values="_tags"
+                  ValuesChanged="OnTagsChanged"
+                  ShowCounter="true"
+                  MaxTags="5" />
+        """;
+
+    private const string AutocompleteCode =
+        """
+        <TagInput Placeholder="Add interest"
+                  Values="_tags"
+                  ValuesChanged="OnTagsChanged"
+                  EnableAutocomplete="true"
+                  AutocompleteOptions="_autocompleteOptions"
+                  ClearAll="true" />
+        """;
+
+    private const string ListCode =
+        """
+        <TagInput Placeholder="Add skill"
+                  Values="_tags"
+                  ValuesChanged="OnTagsChanged"
+                  InlineTags="false"
+                  Direction="TagInputDirection.Column"
+                  InputFieldPosition="TagInputFieldPosition.Top"
+                  Variant="TagInputVariant.Outline"
+                  AddTagsOnBlur="true" />
+        """;
+}

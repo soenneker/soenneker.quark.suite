@@ -1,0 +1,132 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+@inject IScrollspyInterop ScrollspyInterop
+
+<div @ref="_element" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference _element;
+    private DotNetObjectReference<Scrollspy>? _dotNetRef;
+    private bool _initialized;
+    private bool _disposed;
+    private int _configurationHash;
+
+    [Parameter]
+    public string? TargetSelector { get; set; }
+
+    [Parameter]
+    public int Offset { get; set; }
+
+    [Parameter]
+    public bool Smooth { get; set; } = true;
+
+    [Parameter]
+    public string DataAttribute { get; set; } = "scrollspy";
+
+    [Parameter]
+    public bool History { get; set; } = true;
+
+    [Parameter]
+    public int ThrottleTime { get; set; } = 0;
+
+    [Parameter]
+    public EventCallback<string> OnUpdate { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var configurationHash = GetConfigurationHash();
+
+        if (firstRender || configurationHash != _configurationHash)
+        {
+            await Initialize();
+            _configurationHash = configurationHash;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "scrollspy";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+    }
+
+    private async ValueTask Initialize()
+    {
+        if (_disposed)
+            return;
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+
+        await ScrollspyInterop.Initialize(_element, new
+        {
+            targetSelector = TargetSelector,
+            offset = Offset,
+            smooth = Smooth,
+            dataAttribute = DataAttribute,
+            history = History,
+            throttleTime = ThrottleTime
+        }, _dotNetRef);
+
+        _initialized = true;
+    }
+
+    private int GetConfigurationHash()
+    {
+        var hc = new HashCode();
+        hc.Add(TargetSelector);
+        hc.Add(Offset);
+        hc.Add(Smooth);
+        hc.Add(DataAttribute);
+        hc.Add(History);
+        hc.Add(ThrottleTime);
+        return hc.ToHashCode();
+    }
+
+    [JSInvokable]
+    public async Task HandleUpdate(string id)
+    {
+        if (OnUpdate.HasDelegate)
+            await OnUpdate.InvokeAsync(id);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        try
+        {
+            if (_initialized)
+                await ScrollspyInterop.Destroy(_element);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
+        {
+        }
+
+        _dotNetRef?.Dispose();
+        await base.DisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(TargetSelector);
+        hc.Add(Offset);
+        hc.Add(Smooth);
+        hc.Add(DataAttribute);
+        hc.Add(History);
+        hc.Add(ThrottleTime);
+    }
+}

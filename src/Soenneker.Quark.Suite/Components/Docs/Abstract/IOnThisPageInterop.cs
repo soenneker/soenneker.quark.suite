@@ -14,14 +14,4 @@ public interface IOnThisPageInterop
     /// </summary>
     ValueTask<OnThisPageTocItem[]> GetItems(object options, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Creates active heading tracking and returns the observer id.
-    /// </summary>
-    ValueTask<string> CreateActiveObserver(object options, DotNetObjectReference<OnThisPage> callbackReference,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Disposes an active heading observer by id.
-    /// </summary>
-    ValueTask DisposeObserver(string observerId, CancellationToken cancellationToken = default);
 }

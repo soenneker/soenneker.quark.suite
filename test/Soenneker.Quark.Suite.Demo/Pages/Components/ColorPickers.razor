@@ -1,0 +1,78 @@
+@page "/components/color-picker"
+
+<PageTitle>Color Picker - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection
+            Description="A shadcn-style color picker with an HSL canvas, hue slider, alpha control, eyedropper affordance, presets, and multiple output formats."
+            Code="@BasicCode"
+            PreviewClass="preview relative flex min-h-96 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Accent color</FieldLabel>
+                <ColorPicker Inline="true"
+                             @bind-Value="_accentColor"
+                             @bind-Format="_format" />
+                <FieldDescription>Current value: @_accentColor</FieldDescription>
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Popover"
+                     Description="Use the compact trigger when the picker belongs inside a form."
+                     Code="@PopoverCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Brand color</FieldLabel>
+                <ColorPicker @bind-Value="_brandColor"
+                             Format="ColorPickerFormat.Css"
+                             TriggerClass="w-full" />
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="No Alpha"
+                     Description="Hide the alpha channel for opaque-only color fields."
+                     Code="@NoAlphaCode"
+                     PreviewClass="preview relative flex min-h-96 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Solid color</FieldLabel>
+                <ColorPicker Inline="true"
+                             ShowAlpha="false"
+                             ShowEyedropper="false"
+                             @bind-Value="_solidColor" />
+            </Field>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private string? _accentColor = "#8b5cf6";
+    private string? _brandColor = "rgba(59, 130, 246, 0.85)";
+    private string? _solidColor = "#22c55e";
+    private ColorPickerFormat _format = ColorPickerFormat.Hex;
+
+    private const string BasicCode =
+        """
+        <ColorPicker Inline="true"
+                     @bind-Value="_color"
+                     @bind-Format="_format" />
+        """;
+
+    private const string PopoverCode =
+        """
+        <ColorPicker @bind-Value="_color"
+                     Format="ColorPickerFormat.Css"
+                     TriggerClass="w-full" />
+        """;
+
+    private const string NoAlphaCode =
+        """
+        <ColorPicker Inline="true"
+                     ShowAlpha="false"
+                     ShowEyedropper="false"
+                     @bind-Value="_color" />
+        """;
+}

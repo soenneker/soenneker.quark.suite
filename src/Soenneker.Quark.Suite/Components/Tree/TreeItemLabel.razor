@@ -1,0 +1,60 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    @if (ShowToggleIcon && ParentTreeItem?.Folder == true)
+    {
+        if (ParentTreeItem.ToggleIconType == TreeToggleIconType.PlusMinus)
+        {
+            <Icon Name="@(ParentTreeItem.Expanded ? LucideIcon.Minus : LucideIcon.Plus)" Class="text-muted-foreground size-3.5" />
+        }
+        else
+        {
+            <Icon Name="LucideIcon.ChevronDown" Class="@GetChevronClass()" />
+        }
+    }
+    @ChildContent
+</span>
+
+@code {
+    [CascadingParameter(Name = "ParentTreeItem")]
+    public TreeItem? ParentTreeItem { get; set; }
+
+    [Parameter]
+    public bool ShowToggleIcon { get; set; } = true;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tree-item-label";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "bg-background hover:bg-accent flex items-center gap-1 rounded-sm px-2 py-1.5 text-sm transition-colors in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground not-in-data-[folder=true]:ps-7 in-focus-visible:ring-3 in-focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0");
+        });
+    }
+
+    private string GetChevronClass()
+    {
+        var cls = "text-muted-foreground size-4 transition-transform";
+
+        if (ParentTreeItem?.Expanded != true)
+            cls += " -rotate-90";
+
+        return cls;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ShowToggleIcon);
+        hc.Add(ParentTreeItem?.Expanded);
+        hc.Add(ParentTreeItem?.Folder);
+        hc.Add(ParentTreeItem?.ToggleIconType);
+    }
+}

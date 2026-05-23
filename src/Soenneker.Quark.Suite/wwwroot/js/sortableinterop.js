@@ -7,6 +7,18 @@ export function ensureAvailable() {
   }
 }
 
+export async function waitForAvailable(timeoutMs = 5000) {
+  const startedAt = performance.now();
+
+  while (!window.Sortable) {
+    if (performance.now() - startedAt >= timeoutMs) {
+      throw new Error("SortableJS failed to load.");
+    }
+
+    await new Promise(resolve => window.setTimeout(resolve, 25));
+  }
+}
+
 export function initializeList(element, disabled, sort, animation, forceFallback, itemSelector, handleSelector, filterSelector, group, notifyOnReorder, dotNetRef) {
   if (!element) {
     return;

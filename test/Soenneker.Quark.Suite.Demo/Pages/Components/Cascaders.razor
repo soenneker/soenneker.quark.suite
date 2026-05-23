@@ -1,0 +1,244 @@
+@page "/components/cascader"
+
+<PageTitle>Cascader - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection
+            Description="A shadcn-style cascading dropdown for selecting hierarchical data."
+            Code="@BasicCode"
+            PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Location</FieldLabel>
+                <Cascader Options="_locations"
+                          Placeholder="Please select"
+                          OnChange="OnLocationChanged" />
+                <FieldDescription>@LocationSummary</FieldDescription>
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Default Value"
+                     Description="Seed the selection from a value path."
+                     Code="@DefaultValueCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Landmark</FieldLabel>
+                <Cascader Options="_locations"
+                          DefaultValue='new[] { "usa", "new_york", "statue_of_liberty" }'
+                          Placeholder="Please select" />
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Hover To Expand"
+                     Description="Child columns can expand on hover for faster scanning."
+                     Code="@HoverCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Category</FieldLabel>
+                <Cascader Options="_categories"
+                          ExpandTrigger="CascaderExpandTrigger.Hover"
+                          Placeholder="Select category"
+                          TriggerClass="w-full">
+                    <OptionTemplate Context="option">
+                        <Span Display="Display.InlineFlex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                            @if (option.Value is "electronics" or "computers" or "phones")
+                            {
+                                <Icon Name="LucideIcon.Smartphone" Class="size-4" aria-hidden="true" />
+                            }
+                            else if (option.Value is "fashion")
+                            {
+                                <Icon Name="LucideIcon.Shirt" Class="size-4" aria-hidden="true" />
+                            }
+                            @option.Label
+                        </Span>
+                    </OptionTemplate>
+                </Cascader>
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Disabled Options"
+                     Description="Disable specific branches without disabling the whole control."
+                     Code="@DisabledOptionsCode"
+                     PreviewClass="preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                <FieldLabel>Restricted location</FieldLabel>
+                <Cascader Options="_disabledLocations"
+                          Placeholder="Some options disabled" />
+            </Field>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private string[] _locationValue = [];
+
+    private string LocationSummary => _locationValue.Length == 0
+        ? "No location selected."
+        : $"Selected: {string.Join(" / ", _locationValue)}";
+
+    private Task OnLocationChanged(CascaderSelectionChangedEventArgs args)
+    {
+        _locationValue = args.Value;
+        return Task.CompletedTask;
+    }
+
+    private readonly CascaderOption[] _locations =
+    [
+        new()
+        {
+            Value = "usa",
+            Label = "USA",
+            Children =
+            [
+                new()
+                {
+                    Value = "new_york",
+                    Label = "New York",
+                    Children = [new() { Value = "statue_of_liberty", Label = "Statue of Liberty" }]
+                },
+                new()
+                {
+                    Value = "san_francisco",
+                    Label = "San Francisco",
+                    Children = [new() { Value = "golden_gate", Label = "Golden Gate Bridge" }]
+                }
+            ]
+        },
+        new()
+        {
+            Value = "france",
+            Label = "France",
+            Children =
+            [
+                new()
+                {
+                    Value = "paris",
+                    Label = "Paris",
+                    Children = [new() { Value = "eiffel_tower", Label = "Eiffel Tower" }]
+                },
+                new()
+                {
+                    Value = "lyon",
+                    Label = "Lyon",
+                    Children = [new() { Value = "basilica_of_fourviere", Label = "Basilica of Fourviere" }]
+                }
+            ]
+        }
+    ];
+
+    private readonly CascaderOption[] _disabledLocations =
+    [
+        new()
+        {
+            Value = "usa",
+            Label = "USA",
+            Children =
+            [
+                new()
+                {
+                    Value = "new_york",
+                    Label = "New York",
+                    Disabled = true,
+                    Children = [new() { Value = "statue_of_liberty", Label = "Statue of Liberty" }]
+                },
+                new()
+                {
+                    Value = "san_francisco",
+                    Label = "San Francisco",
+                    Children = [new() { Value = "golden_gate", Label = "Golden Gate Bridge" }]
+                }
+            ]
+        },
+        new()
+        {
+            Value = "france",
+            Label = "France",
+            Disabled = true,
+            Children = [new() { Value = "paris", Label = "Paris" }]
+        }
+    ];
+
+    private readonly CascaderOption[] _categories =
+    [
+        new()
+        {
+            Value = "electronics",
+            Label = "Electronics",
+            Children =
+            [
+                new()
+                {
+                    Value = "computers",
+                    Label = "Computers",
+                    Children =
+                    [
+                        new()
+                        {
+                            Value = "laptops",
+                            Label = "Laptops",
+                            Children =
+                            [
+                                new() { Value = "gaming_laptops", Label = "Gaming Laptops" },
+                                new() { Value = "ultrabooks", Label = "Ultrabooks" }
+                            ]
+                        }
+                    ]
+                },
+                new()
+                {
+                    Value = "phones",
+                    Label = "Phones",
+                    Children =
+                    [
+                        new() { Value = "android", Label = "Android" },
+                        new() { Value = "ios", Label = "iOS" }
+                    ]
+                }
+            ]
+        },
+        new()
+        {
+            Value = "fashion",
+            Label = "Fashion",
+            Children =
+            [
+                new() { Value = "shirts", Label = "Shirts" },
+                new() { Value = "shoes", Label = "Shoes" }
+            ]
+        }
+    ];
+
+    private const string BasicCode =
+        """
+        <Cascader Options="_locations"
+                  Placeholder="Please select"
+                  OnChange="OnLocationChanged" />
+        """;
+
+    private const string DefaultValueCode =
+        """
+        <Cascader Options="_locations"
+                  DefaultValue='new[] { "usa", "new_york", "statue_of_liberty" }'
+                  Placeholder="Please select" />
+        """;
+
+    private const string HoverCode =
+        """
+        <Cascader Options="_categories"
+                  ExpandTrigger="CascaderExpandTrigger.Hover"
+                  Placeholder="Select category"
+                  TriggerClass="w-full" />
+        """;
+
+    private const string DisabledOptionsCode =
+        """
+        <Cascader Options="_disabledLocations"
+                  Placeholder="Some options disabled" />
+        """;
+}

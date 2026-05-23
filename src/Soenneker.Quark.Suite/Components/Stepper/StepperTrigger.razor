@@ -1,0 +1,83 @@
+@namespace Soenneker.Quark
+@using Microsoft.AspNetCore.Components.Web
+@inherits Soenneker.Quark.Element
+
+<button @ref="_button" @onclick="HandleClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    private ElementReference _button;
+
+    [CascadingParameter(Name = nameof(ParentStepper))]
+    internal Stepper? ParentStepper { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentStepperItem))]
+    internal StepperItemContext? ParentStepperItem { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    private int Step => ParentStepperItem?.Step ?? 0;
+    private bool Selected => ParentStepper?.ActiveStep == Step;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Step > 0)
+            ParentStepper?.RegisterTrigger(Step, _button);
+
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper-trigger";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["type"] = "button";
+        attributes["role"] = "tab";
+        attributes["id"] = $"stepper-tab-{Step}";
+        attributes["aria-selected"] = Selected ? "true" : "false";
+        attributes["aria-controls"] = $"stepper-panel-{Step}";
+        attributes["tabindex"] = Selected ? 0 : -1;
+        attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
+        attributes["data-loading"] = ParentStepperItem?.Loading == true ? "true" : "false";
+
+        if (ParentStepperItem?.Disabled == true)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 inline-flex cursor-pointer items-center outline-none focus-visible:z-10 focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-60");
+            AppendClass(ref cls, "style-vega:gap-3 style-vega:rounded-full style-maia:gap-3 style-maia:rounded-full style-nova:gap-2.5 style-nova:rounded-full style-lyra:gap-2.5 style-lyra:rounded-none style-mira:gap-2 style-mira:rounded-full");
+        });
+    }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(args);
+
+        if (ParentStepper is not null && Step > 0)
+            await ParentStepper.SetActiveStep(Step);
+    }
+
+    private Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        return ParentStepper is not null && Step > 0
+            ? ParentStepper.HandleTriggerKeyDown(Step, args)
+            : Task.CompletedTask;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Step);
+        hc.Add(Selected);
+        hc.Add(ParentStepperItem);
+    }
+}

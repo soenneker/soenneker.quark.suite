@@ -335,21 +335,6 @@ public sealed class Theme
     public TabsOptions? Tabs { get; set; }
 
     /// <summary>
-    /// Gets or sets the steps component styling options.
-    /// </summary>
-    public StepsOptions? Steps { get; set; }
-
-    /// <summary>
-    /// Gets or sets the step panel component styling options.
-    /// </summary>
-    public StepPanelOptions? StepPanels { get; set; }
-
-    /// <summary>
-    /// Gets or sets the step content component styling options.
-    /// </summary>
-    public StepContentOptions? StepContents { get; set; }
-
-    /// <summary>
     /// Gets or sets the pagination link component styling options.
     /// </summary>
     public PaginationLinkOptions? PaginationLinks { get; set; }
@@ -671,26 +656,6 @@ public sealed class Theme
     /// </summary>
     public TabOptions? Tab { get; set; }
 
-    /// <summary>
-    /// Gets or sets the step component styling options.
-    /// </summary>
-    public StepOptions? Step { get; set; }
-
-    /// <summary>
-    /// Gets or sets the step marker component styling options.
-    /// </summary>
-    public StepMarkerOptions? StepMarkers { get; set; }
-
-    /// <summary>
-    /// Gets or sets the step caption component styling options.
-    /// </summary>
-    public StepCaptionOptions? StepCaptions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the steps content component styling options.
-    /// </summary>
-    public StepsContentOptions? StepsContents { get; set; }
-
     // Table sub-components
     /// <summary>
     /// Gets or sets the table header cell component styling options.
@@ -724,19 +689,19 @@ public sealed class Theme
 
     // Collection components
     /// <summary>
-    /// Gets or sets the tree view component styling options.
+    /// Gets or sets the tree component styling options.
     /// </summary>
-    public TreeViewOptions? TreeViews { get; set; }
+    public TreeOptions? Trees { get; set; }
 
     /// <summary>
-    /// Gets or sets the tree view node component styling options.
+    /// Gets or sets the tree item component styling options.
     /// </summary>
-    public TreeViewNodeOptions? TreeViewNodes { get; set; }
+    public TreeItemOptions? TreeItems { get; set; }
 
     /// <summary>
-    /// Gets or sets the tree view node content component styling options.
+    /// Gets or sets the tree item label component styling options.
     /// </summary>
-    public TreeViewNodeContentOptions? TreeViewNodeContents { get; set; }
+    public TreeItemLabelOptions? TreeItemLabels { get; set; }
 
     // Forms sub-components
     /// <summary>
@@ -880,12 +845,6 @@ public sealed class Theme
             yield return SonnerToaster;
         if (Tabs != null)
             yield return Tabs;
-        if (Steps != null)
-            yield return Steps;
-        if (StepPanels != null)
-            yield return StepPanels;
-        if (StepContents != null)
-            yield return StepContents;
         if (PaginationLinks != null)
             yield return PaginationLinks;
         if (PaginationItems != null)
@@ -1008,14 +967,6 @@ public sealed class Theme
             yield return Sonner;
         if (Tab != null)
             yield return Tab;
-        if (Step != null)
-            yield return Step;
-        if (StepMarkers != null)
-            yield return StepMarkers;
-        if (StepCaptions != null)
-            yield return StepCaptions;
-        if (StepsContents != null)
-            yield return StepsContents;
         if (Ths != null)
             yield return Ths;
         if (TableBottomBars != null)
@@ -1028,12 +979,12 @@ public sealed class Theme
             yield return TableRights;
         if (Tables != null)
             yield return Tables;
-        if (TreeViews != null)
-            yield return TreeViews;
-        if (TreeViewNodes != null)
-            yield return TreeViewNodes;
-        if (TreeViewNodeContents != null)
-            yield return TreeViewNodeContents;
+        if (Trees != null)
+            yield return Trees;
+        if (TreeItems != null)
+            yield return TreeItems;
+        if (TreeItemLabels != null)
+            yield return TreeItemLabels;
         if (ValidationsContainers != null)
             yield return ValidationsContainers;
     }

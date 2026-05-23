@@ -3,19 +3,20 @@
 <Button Type="@ButtonType.Button"
         Variant="ButtonVariant.Ghost"
         ButtonSize="ButtonSize.Icon"
-        data-slot="button"
+        DataSlot="button"
+        data-state="@ThemeState"
         Size="Quark.Size.Is8"
-        Class="group/toggle extend-touch-target"
+        Class="group/toggle extend-touch-target relative overflow-hidden"
         OnClick="@(_ => HandleClick())"
         aria-label="@AriaLabel">
-    <Svg Size='Size.Is4_5' NativeWidth="24" NativeHeight="24" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round" aria-hidden="true">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-        <path d="M12 3l0 18" />
-        <path d="M12 9l4.65 -4.65" />
-        <path d="M12 14.3l7.37 -7.37" />
-        <path d="M12 19.6l8.85 -8.85" />
-    </Svg>
+    <Span Class="relative grid size-4.5 place-items-center overflow-hidden" aria-hidden="true">
+        <Span Class="@SunClass">
+            <Icon Name="LucideIcon.Sun" Class="size-4.5" />
+        </Span>
+        <Span Class="@MoonClass">
+            <Icon Name="LucideIcon.Moon" Class="size-4.5" />
+        </Span>
+    </Span>
     <Span ScreenReader="Quark.ScreenReader.Only">@AriaLabel</Span>
 </Button>
 
@@ -29,8 +30,23 @@
     [Parameter]
     public EventCallback OnClick { get; set; }
 
+    private string ThemeState => IsDark ? "dark" : "light";
+
+    private string SunClass => GetIconClass(!IsDark, "-rotate-90");
+
+    private string MoonClass => GetIconClass(IsDark, "rotate-90");
+
     private Task HandleClick()
     {
         return OnClick.InvokeAsync();
+    }
+
+    private static string GetIconClass(bool active, string inactiveRotation)
+    {
+        const string baseClass = "absolute inset-0 grid place-items-center transition-all duration-300 ease-out";
+
+        return active
+            ? $"{baseClass} rotate-0 scale-100 opacity-100"
+            : $"{baseClass} {inactiveRotation} scale-0 opacity-0";
     }
 }

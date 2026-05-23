@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    private const string _baseClass =
+        "inline-flex w-full touch-none cursor-grab select-none items-start justify-between gap-2 rounded-md text-left outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
+
+    [Parameter]
+    public bool ShowCursor { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "kanban-item-handle";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-sortable-handle"] = string.Empty;
+        attributes["data-kanban-item-handle"] = string.Empty;
+        attributes.TryAdd("aria-label", AriaLabel ?? "Drag item");
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, _baseClass);
+
+            if (!ShowCursor)
+                AppendClass(ref cls, "cursor-default active:cursor-default");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ShowCursor);
+        hc.Add(OnClick.HasDelegate);
+    }
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
+    }
+}

@@ -1,0 +1,863 @@
+@namespace Soenneker.Quark
+@using System.Linq
+@inherits Soenneker.Quark.FormControlElementBase
+
+<div @attributes="BuildAttributes()">
+    @if (!InlineTags && IsInputOnTop)
+    {
+        @RenderInputContainer()
+    }
+
+    @if (!InlineTags)
+    {
+        @RenderTagList()
+    }
+
+    @if (InlineTags)
+    {
+        @RenderInputContainer()
+    }
+    else if (!IsInputOnTop)
+    {
+        @RenderInputContainer()
+    }
+
+    @if (ShouldRenderAutocomplete)
+    {
+        <div @attributes="BuildAutocompleteAttributes()">
+            @foreach (var option in FilteredAutocompleteOptions)
+            {
+                var index = GetAutocompleteIndex(option);
+                <button type="button" @onclick="() => AddAutocompleteTag(option)" @attributes="BuildAutocompleteItemAttributes(index)">
+                    @option
+                </button>
+            }
+        </div>
+    }
+
+    @if (ShowCounter || ClearAll)
+    {
+        <div @attributes="BuildFooterAttributes()">
+            @if (ShowCounter)
+            {
+                <span data-slot="tag-input-counter">@Values.Length@CounterMaxText</span>
+            }
+
+            @if (ClearAll && Values.Length > 0 && !ReadOnly && !Disabled)
+            {
+                <button type="button" @onclick="ClearTags" @attributes="BuildClearAllAttributes()">Clear All</button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private ElementReference _inputRef;
+    private string _inputValue = string.Empty;
+    private int? _activeTagIndexInternal;
+    private int _activeAutocompleteIndex = -1;
+    private bool _preventDefaultKeys;
+    private bool _isFocused;
+
+    [Parameter]
+    public string[] Values { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<string[]> ValuesChanged { get; set; }
+
+    [Parameter]
+    public int? ActiveTagIndex { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> ActiveTagIndexChanged { get; set; }
+
+    [Parameter]
+    public int? MaxTags { get; set; }
+
+    [Parameter]
+    public int? MinTags { get; set; }
+
+    [Parameter]
+    public int? MaxLength { get; set; }
+
+    [Parameter]
+    public int? MinLength { get; set; }
+
+    [Parameter]
+    public bool AllowDuplicates { get; set; }
+
+    [Parameter]
+    public bool AddOnPaste { get; set; } = true;
+
+    [Parameter]
+    public bool AddTagsOnBlur { get; set; }
+
+    [Parameter]
+    public bool SortTags { get; set; }
+
+    [Parameter]
+    public bool ShowCounter { get; set; }
+
+    [Parameter]
+    public bool ClearAll { get; set; }
+
+    [Parameter]
+    public bool InlineTags { get; set; } = true;
+
+    [Parameter]
+    public bool EnableAutocomplete { get; set; }
+
+    [Parameter]
+    public bool RestrictTagsToAutocompleteOptions { get; set; }
+
+    [Parameter]
+    public bool TruncateTags { get; set; }
+
+    [Parameter]
+    public int TruncateLength { get; set; } = 20;
+
+    [Parameter]
+    public string Delimiter { get; set; } = ",";
+
+    [Parameter]
+    public string[] DelimiterList { get; set; } = [","];
+
+    [Parameter]
+    public string[] AutocompleteOptions { get; set; } = [];
+
+    [Parameter]
+    public Func<string, bool>? ValidateTag { get; set; }
+
+    [Parameter]
+    public Func<string, string>? GenerateTagId { get; set; }
+
+    [Parameter]
+    public Func<string, string, bool>? AutocompleteFilter { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnTagAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnTagRemove { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnInputChange { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnTagClick { get; set; }
+
+    [Parameter]
+    public EventCallback OnClearAll { get; set; }
+
+    [Parameter]
+    public TagInputVariant Variant { get; set; } = TagInputVariant.Secondary;
+
+    [Parameter]
+    public TagInputSize TagSize { get; set; } = TagInputSize.Md;
+
+    [Parameter]
+    public TagInputDirection Direction { get; set; } = TagInputDirection.Row;
+
+    [Parameter]
+    public TagInputFieldPosition InputFieldPosition { get; set; } = TagInputFieldPosition.Bottom;
+
+    [Parameter]
+    public string? PlaceholderWhenFull { get; set; }
+
+    [Parameter]
+    public string? InputClass { get; set; }
+
+    [Parameter]
+    public string? TagClass { get; set; }
+
+    [Parameter]
+    public string? TagListClass { get; set; }
+
+    [Parameter]
+    public string? AutocompleteClass { get; set; }
+
+    private int? CurrentActiveTagIndex => ActiveTagIndex ?? _activeTagIndexInternal;
+
+    private bool IsFull => MaxTags is not null && Values.Length >= MaxTags.Value;
+
+    private bool IsInputOnTop => ReferenceEquals(InputFieldPosition, TagInputFieldPosition.Top);
+
+    private string EffectivePlaceholder => IsFull && PlaceholderWhenFull.HasContent()
+        ? PlaceholderWhenFull!
+        : Placeholder ?? string.Empty;
+
+    private string CounterMaxText => MaxTags is null ? string.Empty : $"/{MaxTags.Value}";
+
+    private IReadOnlyList<string> FilteredAutocompleteOptions
+    {
+        get
+        {
+            if (!EnableAutocomplete || AutocompleteOptions.Length == 0)
+                return [];
+
+            var input = _inputValue.Trim();
+            var options = AutocompleteOptions
+                .Where(option => option.HasContent())
+                .Where(option => AllowDuplicates || !ContainsTag(option))
+                .Where(option => AutocompleteFilter?.Invoke(option, input) ?? option.Contains(input, StringComparison.OrdinalIgnoreCase))
+                .Take(8)
+                .ToArray();
+
+            return options;
+        }
+    }
+
+    private bool ShouldRenderAutocomplete => _isFocused && !Disabled && !ReadOnly && FilteredAutocompleteOptions.Count > 0;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tag-input";
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+    }
+
+    private RenderFragment RenderInputContainer() => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddMultipleAttributes(1, BuildInputContainerAttributes());
+
+        if (InlineTags)
+            builder.AddContent(2, RenderTagList());
+
+        builder.OpenElement(3, "input");
+        builder.AddAttribute(4, "value", _inputValue);
+        builder.AddAttribute(5, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput));
+        builder.AddAttribute(6, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown));
+        builder.AddAttribute(7, "onkeydown:preventDefault", _preventDefaultKeys);
+        builder.AddAttribute(8, "onfocus", EventCallback.Factory.Create<FocusEventArgs>(this, HandleFocus));
+        builder.AddAttribute(9, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, HandleBlur));
+        builder.AddMultipleAttributes(10, BuildInputAttributes());
+        builder.AddElementReferenceCapture(11, element => _inputRef = element);
+        builder.CloseElement();
+
+        builder.CloseElement();
+    };
+
+    private RenderFragment RenderTagList() => builder =>
+    {
+        if (Values.Length == 0)
+            return;
+
+        builder.OpenElement(0, "div");
+        builder.AddMultipleAttributes(1, BuildTagListAttributes());
+
+        for (var i = 0; i < Values.Length; i++)
+        {
+            var tag = Values[i];
+            builder.OpenElement(2, "span");
+            builder.AddMultipleAttributes(3, BuildTagAttributes(i));
+
+            builder.OpenElement(4, "span");
+            builder.AddAttribute(5, "data-slot", "tag-input-tag-text");
+            builder.AddContent(6, GetDisplayTag(tag));
+            builder.CloseElement();
+
+            if (!ReadOnly && !Disabled)
+            {
+                builder.OpenElement(7, "button");
+                builder.AddMultipleAttributes(8, BuildRemoveButtonAttributes(tag));
+                builder.OpenComponent<Icon>(9);
+                builder.AddAttribute(10, nameof(Icon.Name), LucideIcon.X);
+                builder.AddAttribute(11, nameof(Icon.Class), "size-3");
+                builder.CloseComponent();
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        _inputValue = args.Value?.ToString() ?? string.Empty;
+        _activeAutocompleteIndex = -1;
+        await SetActiveTagIndex(null);
+        if (OnInputChange.HasDelegate)
+            await OnInputChange.InvokeAsync(_inputValue);
+
+        if (AddOnPaste && ContainsSplitDelimiter(_inputValue))
+            await AddTags(_inputValue);
+
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        _preventDefaultKeys = ShouldPreventKey(args.Key);
+
+        if (Disabled || ReadOnly)
+            return;
+
+        switch (args.Key)
+        {
+            case "Enter":
+                if (ShouldRenderAutocomplete && _activeAutocompleteIndex >= 0 && _activeAutocompleteIndex < FilteredAutocompleteOptions.Count)
+                    await AddAutocompleteTag(FilteredAutocompleteOptions[_activeAutocompleteIndex]);
+                else
+                    await AddTagsFromInput();
+                break;
+            case "Backspace":
+                if (_inputValue.Length == 0)
+                    await HandleBackspace();
+                break;
+            case "Delete":
+                if (_inputValue.Length == 0 && CurrentActiveTagIndex is not null)
+                    await RemoveTagAt(CurrentActiveTagIndex.Value, moveToPrevious: false);
+                break;
+            case "ArrowLeft":
+                if (_inputValue.Length == 0)
+                    await MoveActiveTag(-1);
+                break;
+            case "ArrowRight":
+                if (_inputValue.Length == 0)
+                    await MoveActiveTag(1);
+                break;
+            case "Home":
+                if (_inputValue.Length == 0 && Values.Length > 0)
+                    await SetActiveTagIndex(0);
+                break;
+            case "End":
+                if (_inputValue.Length == 0 && Values.Length > 0)
+                    await SetActiveTagIndex(Values.Length - 1);
+                break;
+            case "ArrowDown":
+                MoveAutocomplete(1);
+                break;
+            case "ArrowUp":
+                MoveAutocomplete(-1);
+                break;
+            default:
+                if (IsDelimiterKey(args.Key))
+                    await AddTagsFromInput();
+                break;
+        }
+
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override async Task HandleFocus(FocusEventArgs args)
+    {
+        _isFocused = true;
+        await base.HandleFocus(args);
+    }
+
+    protected override async Task HandleBlur(FocusEventArgs args)
+    {
+        _isFocused = false;
+
+        if (AddTagsOnBlur && _inputValue.HasContent() && !Disabled && !ReadOnly)
+            await AddTagsFromInput();
+
+        await base.HandleBlur(args);
+    }
+
+    private bool ShouldPreventKey(string key)
+    {
+        if (Disabled || ReadOnly)
+            return false;
+
+        return key is "Enter" or "ArrowUp" or "ArrowDown" ||
+               (key is "Backspace" or "Delete" or "ArrowLeft" or "ArrowRight" or "Home" or "End" && _inputValue.Length == 0) ||
+               IsDelimiterKey(key);
+    }
+
+    private bool IsDelimiterKey(string key)
+    {
+        if (key == "Enter")
+            return true;
+
+        if (DelimiterList.Any(delimiter => string.Equals(delimiter, key, StringComparison.Ordinal)))
+            return true;
+
+        return Delimiter.HasContent() && string.Equals(Delimiter, key, StringComparison.Ordinal);
+    }
+
+    private async Task AddTagsFromInput()
+    {
+        if (!_inputValue.HasContent())
+            return;
+
+        await AddTags(_inputValue);
+    }
+
+    private async Task AddTags(string raw)
+    {
+        var nextTags = Values.ToList();
+        var delimiters = GetSplitDelimiters();
+        var candidates = raw.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var added = new List<string>();
+
+        foreach (var candidate in candidates)
+        {
+            if (!CanAddTag(candidate, nextTags))
+                continue;
+
+            nextTags.Add(candidate);
+            added.Add(candidate);
+
+            if (MaxTags is not null && nextTags.Count >= MaxTags.Value)
+                break;
+        }
+
+        if (added.Count == 0)
+            return;
+
+        if (SortTags)
+            nextTags.Sort(StringComparer.OrdinalIgnoreCase);
+
+        Values = nextTags.ToArray();
+        _inputValue = string.Empty;
+        _activeAutocompleteIndex = -1;
+        await ValuesChanged.InvokeAsync(Values);
+        foreach (var tag in added)
+        {
+            if (OnTagAdd.HasDelegate)
+                await OnTagAdd.InvokeAsync(tag);
+        }
+
+        await SetActiveTagIndex(null);
+    }
+
+    private string[] GetSplitDelimiters()
+    {
+        var delimiters = new List<string>();
+
+        if (Delimiter.HasContent())
+            delimiters.Add(Delimiter);
+
+        foreach (var delimiter in DelimiterList)
+        {
+            if (delimiter.HasContent() && !delimiters.Contains(delimiter))
+                delimiters.Add(delimiter);
+        }
+
+        return delimiters.Count == 0 ? [","] : delimiters.ToArray();
+    }
+
+    private bool ContainsSplitDelimiter(string value)
+    {
+        if (!value.HasContent())
+            return false;
+
+        foreach (var delimiter in GetSplitDelimiters())
+        {
+            if (value.Contains(delimiter, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool CanAddTag(string tag, IReadOnlyList<string> currentTags)
+    {
+        if (!tag.HasContent())
+            return false;
+
+        if (MaxTags is not null && currentTags.Count >= MaxTags.Value)
+            return false;
+
+        if (MaxLength is not null && tag.Length > MaxLength.Value)
+            return false;
+
+        if (MinLength is not null && tag.Length < MinLength.Value)
+            return false;
+
+        if (!AllowDuplicates && currentTags.Any(existing => string.Equals(existing, tag, StringComparison.OrdinalIgnoreCase)))
+            return false;
+
+        if (RestrictTagsToAutocompleteOptions && !AutocompleteOptions.Any(option => string.Equals(option, tag, StringComparison.OrdinalIgnoreCase)))
+            return false;
+
+        return ValidateTag?.Invoke(tag) ?? true;
+    }
+
+    private async Task AddAutocompleteTag(string tag)
+    {
+        await AddTags(tag);
+        _isFocused = true;
+        await _inputRef.FocusAsync();
+    }
+
+    private async Task RemoveTagAt(int index, bool moveToPrevious)
+    {
+        if (index < 0 || index >= Values.Length)
+            return;
+
+        if (MinTags is not null && Values.Length <= MinTags.Value)
+            return;
+
+        var removed = Values[index];
+        Values = Values.Where((_, i) => i != index).ToArray();
+        await ValuesChanged.InvokeAsync(Values);
+        if (OnTagRemove.HasDelegate)
+            await OnTagRemove.InvokeAsync(removed);
+
+        if (Values.Length == 0)
+            await SetActiveTagIndex(null);
+        else
+            await SetActiveTagIndex(Math.Clamp(moveToPrevious ? index - 1 : index, 0, Values.Length - 1));
+    }
+
+    private async Task HandleBackspace()
+    {
+        if (CurrentActiveTagIndex is { } index)
+            await RemoveTagAt(index, moveToPrevious: true);
+        else if (Values.Length > 0)
+            await SetActiveTagIndex(Values.Length - 1);
+    }
+
+    private async Task MoveActiveTag(int delta)
+    {
+        if (Values.Length == 0)
+        {
+            await SetActiveTagIndex(null);
+            return;
+        }
+
+        var next = CurrentActiveTagIndex is null
+            ? delta < 0 ? Values.Length - 1 : 0
+            : Math.Clamp(CurrentActiveTagIndex.Value + delta, 0, Values.Length - 1);
+
+        await SetActiveTagIndex(next);
+    }
+
+    private void MoveAutocomplete(int delta)
+    {
+        if (!ShouldRenderAutocomplete)
+            return;
+
+        var count = FilteredAutocompleteOptions.Count;
+        if (count == 0)
+        {
+            _activeAutocompleteIndex = -1;
+            return;
+        }
+
+        _activeAutocompleteIndex = _activeAutocompleteIndex < 0
+            ? delta > 0 ? 0 : count - 1
+            : (_activeAutocompleteIndex + delta + count) % count;
+    }
+
+    private async Task SetActiveTagIndex(int? index)
+    {
+        _activeTagIndexInternal = index;
+        if (ActiveTagIndexChanged.HasDelegate)
+            await ActiveTagIndexChanged.InvokeAsync(index);
+    }
+
+    private async Task ClearTags()
+    {
+        if (Disabled || ReadOnly)
+            return;
+
+        Values = [];
+        _inputValue = string.Empty;
+        await ValuesChanged.InvokeAsync(Values);
+        await SetActiveTagIndex(null);
+        if (OnClearAll.HasDelegate)
+            await OnClearAll.InvokeAsync();
+    }
+
+    private bool ContainsTag(string tag) => Values.Any(value => string.Equals(value, tag, StringComparison.OrdinalIgnoreCase));
+
+    private int GetAutocompleteIndex(string option)
+    {
+        var options = FilteredAutocompleteOptions;
+        for (var i = 0; i < options.Count; i++)
+        {
+            if (string.Equals(options[i], option, StringComparison.Ordinal))
+                return i;
+        }
+
+        return -1;
+    }
+
+    private string GetDisplayTag(string tag)
+    {
+        if (!TruncateTags || tag.Length <= TruncateLength)
+            return tag;
+
+        return $"{tag[..Math.Max(0, TruncateLength)]}...";
+    }
+
+    private async Task HandleTagClick(string tag, int index)
+    {
+        await SetActiveTagIndex(index);
+        if (OnTagClick.HasDelegate)
+            await OnTagClick.InvokeAsync(tag);
+        await _inputRef.FocusAsync();
+    }
+
+    private Dictionary<string, object> BuildInputContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = InlineTags ? "tag-input-inline-container" : "tag-input-field-container",
+            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => _inputRef.FocusAsync())
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50");
+            AppendClass(ref cls, "has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40");
+
+            if (Disabled)
+                AppendClass(ref cls, "cursor-not-allowed opacity-50");
+
+            if (InputClass.HasContent())
+                AppendClass(ref cls, InputClass!);
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildTagListAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "tag-input-list",
+            ["role"] = "list"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, ReferenceEquals(Direction, TagInputDirection.Column)
+                ? "flex w-full flex-col gap-1"
+                : "flex flex-wrap items-center gap-1");
+
+            if (!InlineTags)
+                AppendClass(ref cls, "mb-2");
+
+            if (TagListClass.HasContent())
+                AppendClass(ref cls, TagListClass!);
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildTagAttributes(int index)
+    {
+        var tag = Values[index];
+        var attributes = new Dictionary<string, object>(6)
+        {
+            ["data-slot"] = "tag-input-tag",
+            ["data-active"] = CurrentActiveTagIndex == index ? "true" : "false",
+            ["role"] = "listitem",
+            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, index))
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "inline-flex max-w-full items-center gap-1 border font-medium transition-colors data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-1");
+            AppendClass(ref cls, GetTagVariantClass());
+            AppendClass(ref cls, GetTagSizeClass());
+
+            if (TagClass.HasContent())
+                AppendClass(ref cls, TagClass!);
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildRemoveButtonAttributes(string tag)
+    {
+        var attributes = new Dictionary<string, object>(6)
+        {
+            ["data-slot"] = "tag-input-tag-remove",
+            ["aria-label"] = $"Remove {tag}",
+            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => RemoveTagAt(Array.IndexOf(Values, tag), moveToPrevious: true))
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>(16)
+        {
+            ["data-slot"] = "tag-input-input",
+            ["type"] = "text",
+            ["autocomplete"] = "off",
+            ["placeholder"] = Values.Length == 0 || !InlineTags ? EffectivePlaceholder : string.Empty,
+            ["aria-expanded"] = ShouldRenderAutocomplete ? "true" : "false",
+            ["aria-autocomplete"] = EnableAutocomplete ? "list" : "none"
+        };
+
+        if (Disabled || IsFull)
+            attributes["disabled"] = true;
+
+        if (ReadOnly)
+            attributes["readonly"] = true;
+
+        if (Name.HasContent())
+            attributes["name"] = Name!;
+
+        if (Id.HasContent())
+            attributes["id"] = Id!;
+
+        if (AriaLabel.HasContent())
+            attributes["aria-label"] = AriaLabel!;
+
+        if (AriaDescribedBy.HasContent())
+            attributes["aria-describedby"] = AriaDescribedBy!;
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "min-w-24 flex-1 bg-transparent px-1 py-1 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildAutocompleteAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "tag-input-autocomplete",
+            ["role"] = "listbox"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+
+            if (AutocompleteClass.HasContent())
+                AppendClass(ref cls, AutocompleteClass!);
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildAutocompleteItemAttributes(int index)
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "tag-input-autocomplete-item",
+            ["data-active"] = index == _activeAutocompleteIndex ? "true" : "false",
+            ["role"] = "option"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildFooterAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "tag-input-footer"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildClearAllAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "tag-input-clear-all"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "font-medium text-foreground underline-offset-4 hover:underline");
+        });
+
+        return attributes;
+    }
+
+    private string GetTagVariantClass()
+    {
+        if (ReferenceEquals(Variant, TagInputVariant.Primary))
+            return "border-transparent bg-primary text-primary-foreground";
+
+        if (ReferenceEquals(Variant, TagInputVariant.Destructive))
+            return "border-transparent bg-destructive/10 text-destructive dark:bg-destructive/20";
+
+        if (ReferenceEquals(Variant, TagInputVariant.Outline))
+            return "border-border bg-background text-foreground";
+
+        if (ReferenceEquals(Variant, TagInputVariant.Default))
+            return "border-transparent bg-primary text-primary-foreground";
+
+        return "border-transparent bg-secondary text-secondary-foreground";
+    }
+
+    private string GetTagSizeClass()
+    {
+        if (ReferenceEquals(TagSize, TagInputSize.Sm))
+            return "h-5 rounded-md px-1.5 text-xs";
+
+        if (ReferenceEquals(TagSize, TagInputSize.Lg))
+            return "h-8 rounded-lg px-2.5 text-sm";
+
+        return "h-6 rounded-md px-2 text-xs";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-disabled"] = Disabled ? "true" : "false";
+        attributes["data-readonly"] = ReadOnly ? "true" : "false";
+        attributes["data-inline-tags"] = InlineTags ? "true" : "false";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_inputValue);
+        hc.Add(_activeTagIndexInternal);
+        hc.Add(_activeAutocompleteIndex);
+        hc.Add(_isFocused);
+        hc.Add(Values.Length);
+        foreach (var value in Values)
+            hc.Add(value);
+        hc.Add(ActiveTagIndex);
+        hc.Add(MaxTags);
+        hc.Add(MinTags);
+        hc.Add(MaxLength);
+        hc.Add(MinLength);
+        hc.Add(AllowDuplicates);
+        hc.Add(AddOnPaste);
+        hc.Add(AddTagsOnBlur);
+        hc.Add(SortTags);
+        hc.Add(ShowCounter);
+        hc.Add(ClearAll);
+        hc.Add(InlineTags);
+        hc.Add(EnableAutocomplete);
+        hc.Add(RestrictTagsToAutocompleteOptions);
+        hc.Add(TruncateTags);
+        hc.Add(TruncateLength);
+        hc.Add(Delimiter);
+        hc.Add(PlaceholderWhenFull);
+        hc.Add(Variant);
+        hc.Add(TagSize);
+        hc.Add(Direction);
+        hc.Add(InputFieldPosition);
+    }
+}

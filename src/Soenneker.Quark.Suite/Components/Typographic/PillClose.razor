@@ -1,0 +1,38 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button type="button" @onclick="OnClick" @attributes="BuildAttributes()">
+    <Icon Name="LucideIcon.X" Class="size-3" aria-hidden="true" />
+    <span class="sr-only">@Label</span>
+</button>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Remove";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "pill-close";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+        hc.Add(OnClick.HasDelegate);
+    }
+}

@@ -1,0 +1,423 @@
+@namespace Soenneker.Quark
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
+@inherits Soenneker.Quark.FormControlElementBase
+
+<div @attributes="BuildRootAttributes()">
+    <Popover Open="@_open" OpenChanged="HandleOpenChanged">
+        <PopoverTrigger AsChild Disabled="@Disabled">
+            <Button Type="@ButtonType.Button"
+                    Variant="ButtonVariant.Outline"
+                    Disabled="@Disabled"
+                    Class="@TriggerClassValue"
+                    AriaLabel="@Placeholder">
+                <Span Class="truncate flex-1 text-left font-normal">@DisplayValueOrPlaceholder</Span>
+                <Span Class="flex items-center gap-1 shrink-0">
+                    @if (AllowClear && HasSelection && !Disabled && !ReadOnly)
+                    {
+                        <span role="button"
+                              tabindex="0"
+                              aria-label="Clear selection"
+                              class="inline-flex cursor-pointer opacity-50 hover:opacity-100"
+                              @onclick="ClearSelection"
+                              @onclick:stopPropagation="true">
+                            <Icon Name="LucideIcon.X" Class="size-4" aria-hidden="true" />
+                        </span>
+                    }
+                    <Icon Name="LucideIcon.ChevronDown" Class="size-4 opacity-50" aria-hidden="true" />
+                </Span>
+            </Button>
+        </PopoverTrigger>
+
+        <PopoverContent Align="Alignment.Start"
+                        UseDefaultLayout="false"
+                        Class="@PopupClassValue">
+            @RenderColumns()
+        </PopoverContent>
+    </Popover>
+</div>
+
+@code {
+    private bool _open;
+    private string[] _internalValue = [];
+    private string[] _expandedPath = [];
+    private int _focusedColumn;
+    private int _focusedIndex;
+    private bool _preventKeyDefault;
+
+    [Parameter]
+    public IReadOnlyList<CascaderOption> Options { get; set; } = [];
+
+    [Parameter]
+    public string[]? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string[]?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string[]? DefaultValue { get; set; }
+
+    [Parameter]
+    public EventCallback<CascaderSelectionChangedEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public bool AllowClear { get; set; } = true;
+
+    [Parameter]
+    public CascaderExpandTrigger ExpandTrigger { get; set; } = CascaderExpandTrigger.Click;
+
+    [Parameter]
+    public Func<IReadOnlyList<string>, IReadOnlyList<CascaderOption>, string>? DisplayRender { get; set; }
+
+    [Parameter]
+    public RenderFragment<CascaderOption>? OptionTemplate { get; set; }
+
+    [Parameter]
+    public string? TriggerClass { get; set; }
+
+    [Parameter]
+    public string? PopupClass { get; set; }
+
+    private string[] CurrentValue => Value ?? _internalValue;
+
+    private bool HasSelection => CurrentValue.Length > 0 && SelectedOptions.Count > 0;
+
+    private IReadOnlyList<CascaderOption> SelectedOptions => GetSelectedOptions(CurrentValue);
+
+    private string DisplayValueOrPlaceholder => HasSelection ? DisplayValue : Placeholder ?? "Please select";
+
+    private string DisplayValue
+    {
+        get
+        {
+            var selectedOptions = SelectedOptions;
+            var labels = selectedOptions.Select(option => option.DisplayLabel).ToArray();
+            return DisplayRender?.Invoke(labels, selectedOptions) ?? string.Join(" / ", labels);
+        }
+    }
+
+    private string TriggerClassValue
+    {
+        get
+        {
+            var cls = "w-[200px] justify-between gap-2 whitespace-nowrap cursor-pointer font-normal";
+
+            if (!HasSelection)
+                cls = AppendToClass(cls, "text-muted-foreground");
+
+            if (TriggerClass is not null)
+                cls = AppendToClass(cls, TriggerClass);
+
+            return cls;
+        }
+    }
+
+    private string PopupClassValue => PopupClass is null ? "w-auto p-0" : AppendToClass("w-auto p-0", PopupClass);
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "cascader";
+        Placeholder ??= "Please select";
+    }
+
+    protected override void OnInitialized()
+    {
+        _internalValue = DefaultValue ?? [];
+        base.OnInitialized();
+    }
+
+    private RenderFragment RenderColumns() => builder =>
+    {
+        var columns = GetColumns();
+
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "data-slot", "cascader-content");
+        builder.AddAttribute(2, "class", "flex");
+        builder.AddAttribute(3, "role", "listbox");
+        builder.AddAttribute(4, "aria-label", Placeholder);
+
+        for (var columnIndex = 0; columnIndex < columns.Count; columnIndex++)
+        {
+            var column = columns[columnIndex];
+
+            builder.OpenElement(5, "div");
+            builder.AddAttribute(6, "data-slot", "cascader-column");
+            builder.AddAttribute(7, "role", "group");
+            builder.AddAttribute(8, "aria-label", $"Level {columnIndex + 1}");
+            var columnClass = "min-w-[120px] max-h-[300px] overflow-auto py-1 shrink-0";
+
+            if (columnIndex != columns.Count - 1)
+                columnClass = AppendToClass(columnClass, "border-r border-border");
+
+            builder.AddAttribute(9, "class", columnClass);
+
+            for (var itemIndex = 0; itemIndex < column.Count; itemIndex++)
+            {
+                var option = column[itemIndex];
+                var capturedColumnIndex = columnIndex;
+                var capturedItemIndex = itemIndex;
+                var isExpanded = _expandedPath.Length > columnIndex && string.Equals(_expandedPath[columnIndex], option.Value, StringComparison.Ordinal);
+                var isSelected = CurrentValue.Length > columnIndex && string.Equals(CurrentValue[columnIndex], option.Value, StringComparison.Ordinal);
+
+                builder.OpenElement(10, "div");
+                builder.AddAttribute(11, "data-slot", "cascader-option");
+                builder.AddAttribute(12, "data-value", option.Value);
+                builder.AddAttribute(13, "role", "option");
+                builder.AddAttribute(14, "aria-selected", isSelected ? "true" : "false");
+                builder.AddAttribute(15, "aria-disabled", option.Disabled ? "true" : "false");
+
+                if (option.HasChildren)
+                    builder.AddAttribute(16, "aria-expanded", isExpanded ? "true" : "false");
+
+                builder.AddAttribute(17, "tabindex", _focusedColumn == columnIndex && _focusedIndex == itemIndex && _open ? 0 : -1);
+                builder.AddAttribute(18, "class", GetOptionClass(isSelected, isExpanded, option.Disabled));
+                builder.AddAttribute(19, "onclick", EventCallback.Factory.Create(this, () => SelectOption(option, capturedColumnIndex)));
+                builder.AddAttribute(20, "onmouseenter", EventCallback.Factory.Create(this, () => ExpandOnHover(option, capturedColumnIndex)));
+                builder.AddAttribute(21, "onfocus", EventCallback.Factory.Create(this, () => SetFocused(capturedColumnIndex, capturedItemIndex)));
+                builder.AddAttribute(22, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, args => HandleOptionKeyDown(args, option, capturedColumnIndex, capturedItemIndex)));
+                builder.AddAttribute(23, "onkeydown:preventDefault", _preventKeyDefault);
+
+                builder.OpenElement(24, "span");
+                builder.AddAttribute(25, "class", "truncate");
+                if (OptionTemplate is not null)
+                    builder.AddContent(26, OptionTemplate(option));
+                else
+                    builder.AddContent(27, option.Label);
+                builder.CloseElement();
+
+                if (option.HasChildren)
+                {
+                    builder.OpenComponent<Icon>(28);
+                    builder.AddAttribute(29, nameof(Icon.Name), LucideIcon.ChevronRight);
+                    builder.AddAttribute(30, nameof(Icon.Class), "size-4 ml-2 shrink-0 opacity-50 cn-rtl-flip");
+                    builder.AddAttribute(31, "aria-hidden", "true");
+                    builder.CloseComponent();
+                }
+
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
+    private async Task HandleOpenChanged(bool open)
+    {
+        _open = open;
+
+        if (open)
+        {
+            var currentValue = CurrentValue;
+            _expandedPath = currentValue.Length > 1 ? currentValue[..^1] : currentValue;
+            _focusedColumn = 0;
+            _focusedIndex = 0;
+        }
+        else
+        {
+            _expandedPath = [];
+        }
+
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    private async Task SelectOption(CascaderOption option, int columnIndex)
+    {
+        if (Disabled || ReadOnly || option.Disabled)
+            return;
+
+        var nextPath = _expandedPath.Take(columnIndex).Append(option.Value).ToArray();
+
+        if (option.HasChildren)
+        {
+            _expandedPath = nextPath;
+            _focusedColumn = columnIndex + 1;
+            _focusedIndex = 0;
+            InvalidateRender();
+            await RefreshOffThread();
+            return;
+        }
+
+        await SetSelection(nextPath, close: true);
+    }
+
+    private async Task ExpandOnHover(CascaderOption option, int columnIndex)
+    {
+        if (ExpandTrigger != CascaderExpandTrigger.Hover || !option.HasChildren || option.Disabled)
+            return;
+
+        _expandedPath = _expandedPath.Take(columnIndex).Append(option.Value).ToArray();
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    private Task SetFocused(int columnIndex, int itemIndex)
+    {
+        _focusedColumn = columnIndex;
+        _focusedIndex = itemIndex;
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleOptionKeyDown(KeyboardEventArgs args, CascaderOption option, int columnIndex, int itemIndex)
+    {
+        _preventKeyDefault = args.Key is "ArrowDown" or "ArrowUp" or "ArrowRight" or "ArrowLeft" or "Enter" or "Escape" or "Backspace";
+
+        var columns = GetColumns();
+        var column = columns[columnIndex];
+
+        switch (args.Key)
+        {
+            case "ArrowDown":
+                _focusedIndex = Math.Min(itemIndex + 1, column.Count - 1);
+                break;
+            case "ArrowUp":
+                _focusedIndex = Math.Max(itemIndex - 1, 0);
+                break;
+            case "ArrowRight":
+                if (option.HasChildren)
+                    await SelectOption(option, columnIndex);
+                break;
+            case "Enter":
+                await SelectOption(option, columnIndex);
+                break;
+            case "ArrowLeft":
+            case "Backspace":
+                if (columnIndex > 0)
+                {
+                    _expandedPath = _expandedPath.Take(columnIndex - 1).ToArray();
+                    _focusedColumn = columnIndex - 1;
+                    _focusedIndex = 0;
+                }
+                break;
+            case "Escape":
+                _open = false;
+                _expandedPath = [];
+                break;
+        }
+
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    private async Task ClearSelection()
+    {
+        if (Disabled || ReadOnly)
+            return;
+
+        await SetSelection([], close: true);
+    }
+
+    private async Task SetSelection(string[] value, bool close)
+    {
+        if (Value is null)
+            _internalValue = value;
+
+        if (close)
+        {
+            _open = false;
+            _expandedPath = [];
+        }
+
+        await ValueChanged.InvokeIfHasDelegate(value);
+
+        if (OnChange.HasDelegate)
+        {
+            await OnChange.InvokeAsync(new CascaderSelectionChangedEventArgs
+            {
+                Value = value,
+                SelectedOptions = GetSelectedOptions(value)
+            });
+        }
+
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    private IReadOnlyList<IReadOnlyList<CascaderOption>> GetColumns()
+    {
+        var columns = new List<IReadOnlyList<CascaderOption>> { Options };
+        var currentOptions = Options;
+
+        foreach (var value in _expandedPath)
+        {
+            var found = currentOptions.FirstOrDefault(option => string.Equals(option.Value, value, StringComparison.Ordinal));
+
+            if (found?.HasChildren != true)
+                break;
+
+            columns.Add(found.Children);
+            currentOptions = found.Children;
+        }
+
+        return columns;
+    }
+
+    private IReadOnlyList<CascaderOption> GetSelectedOptions(IReadOnlyList<string> values)
+    {
+        var result = new List<CascaderOption>(values.Count);
+        var currentOptions = Options;
+
+        foreach (var value in values)
+        {
+            var found = currentOptions.FirstOrDefault(option => string.Equals(option.Value, value, StringComparison.Ordinal));
+
+            if (found is null)
+                break;
+
+            result.Add(found);
+            currentOptions = found.Children;
+        }
+
+        return result;
+    }
+
+    private string GetOptionClass(bool isSelected, bool isExpanded, bool disabled)
+    {
+        var cls = "flex items-center justify-between px-3 py-1.5 cursor-pointer text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none";
+
+        if (isSelected)
+            cls = AppendToClass(cls, "bg-accent text-accent-foreground");
+
+        if (isExpanded)
+            cls = AppendToClass(cls, "bg-accent/50");
+
+        if (disabled)
+            cls = AppendToClass(cls, "opacity-50 cursor-not-allowed");
+
+        return cls;
+    }
+
+    private Dictionary<string, object> BuildRootAttributes()
+    {
+        var attributes = BuildAttributes();
+        ApplyFieldControlAttributes(attributes);
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_open);
+        foreach (var value in _internalValue)
+            hc.Add(value);
+        foreach (var value in _expandedPath)
+            hc.Add(value);
+        hc.Add(_focusedColumn);
+        hc.Add(_focusedIndex);
+        hc.Add(Options.Count);
+        foreach (var value in Value ?? [])
+            hc.Add(value);
+        foreach (var value in DefaultValue ?? [])
+            hc.Add(value);
+        hc.Add(AllowClear);
+        hc.Add(ExpandTrigger);
+        hc.Add(TriggerClass);
+        hc.Add(PopupClass);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+    }
+}

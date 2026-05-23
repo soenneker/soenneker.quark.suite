@@ -1,0 +1,159 @@
+@page "/components/kanban"
+@using System.Linq
+
+<PageTitle>Kanban - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <DemoSection Title="Kanban"
+                 Description="A multi-column drag-and-drop board composed from Kanban primitives and backed by the existing Sortable component."
+                 Code="@KanbanCode"
+                 CodeLanguage="razor">
+        <Kanban Class="h-[40rem]">
+            <KanbanBoard Id="kanban-board-demo" ListId="kanban-board" HandleOnly="true" OnReorder="HandleColumnReorder">
+                @foreach (var column in _columns)
+                {
+                    <KanbanColumn @key="column.Id" Value="@column.Id">
+                        <KanbanColumnHandle>
+                            <Span Class="min-w-0 truncate">@column.Title</Span>
+                            <Span Class="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted-foreground">@column.Tasks.Count</Span>
+                            <Icon Name="LucideIcon.GripVertical" Class="text-muted-foreground" />
+                        </KanbanColumnHandle>
+
+                        <KanbanColumnContent Value="@column.Id" HandleOnly="true" OnReorder="HandleTaskMove">
+                            @foreach (var task in column.Tasks)
+                            {
+                                <KanbanItem @key="task.Id" Value="@task.Id">
+                                    <KanbanItemHandle>
+                                        <Div Space="Space.Y.Is3" Width="Width.IsFull">
+                                            <Div Space="Space.Y.Is1">
+                                                <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is2">
+                                                    <Strong Class="text-sm leading-5">@task.Title</Strong>
+                                                    <Icon Name="LucideIcon.GripVertical" Class="mt-0.5 text-muted-foreground opacity-60 transition-opacity group-hover/kanban-item:opacity-100" />
+                                                </Div>
+                                                <Paragraph Class="m-0 text-xs leading-5 text-muted-foreground">@task.Description</Paragraph>
+                                            </Div>
+
+                                            <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is2">
+                                                <Pill>@task.Priority</Pill>
+                                                <Small Class="text-muted-foreground">@task.Owner</Small>
+                                            </Div>
+                                        </Div>
+                                    </KanbanItemHandle>
+                                </KanbanItem>
+                            }
+                        </KanbanColumnContent>
+                    </KanbanColumn>
+                }
+            </KanbanBoard>
+        </Kanban>
+    </DemoSection>
+</Div>
+
+@code {
+private const string KanbanCode =
+@"<Kanban Class=""h-[40rem]"">
+    <KanbanBoard ListId=""kanban-board"" HandleOnly=""true"" OnReorder=""HandleColumnReorder"">
+        @foreach (var column in _columns)
+        {
+            <KanbanColumn @key=""column.Id"" Value=""@column.Id"">
+                <KanbanColumnHandle>
+                    <Span Class=""min-w-0 truncate"">@column.Title</Span>
+                    <Span Class=""rounded-md bg-background px-1.5 py-0.5 text-xs text-muted-foreground"">@column.Tasks.Count</Span>
+                    <Icon Name=""LucideIcon.GripVertical"" Class=""text-muted-foreground"" />
+                </KanbanColumnHandle>
+
+                <KanbanColumnContent Value=""@column.Id"" HandleOnly=""true"" OnReorder=""HandleTaskMove"">
+                    @foreach (var task in column.Tasks)
+                    {
+                        <KanbanItem @key=""task.Id"" Value=""@task.Id"">
+                            <KanbanItemHandle>
+                                ...
+                            </KanbanItemHandle>
+                        </KanbanItem>
+                    }
+                </KanbanColumnContent>
+            </KanbanColumn>
+        }
+    </KanbanBoard>
+</Kanban>";
+
+    private readonly List<KanbanColumnModel> _columns =
+    [
+        new("backlog", "Backlog",
+        [
+            new("research", "Research board interactions", "Confirm column and item drag behavior across pointer and keyboard input.", "High", "AM"),
+            new("metrics", "Define adoption metrics", "Pick the board events that should feed component usage reporting.", "Medium", "KL"),
+            new("copy", "Tighten empty states", "Make zero-task columns feel intentional without adding visual noise.", "Low", "RC")
+        ]),
+        new("todo", "Todo",
+        [
+            new("automation", "Automation hooks", "Map the events needed for saved board workflows and status changes.", "High", "ND"),
+            new("shortcuts", "Shortcut hints", "Add concise keyboard affordances where the handle receives focus.", "Medium", "JS"),
+            new("badges", "Priority badges", "Validate Pill sizing against dense cards and long priority labels.", "Low", "AM")
+        ]),
+        new("in-progress", "In Progress",
+        [
+            new("timeline", "Timeline labels", "Update milestone copy and align badge treatment with the docs pages.", "Medium", "JS"),
+            new("filters", "Filter persistence", "Store board filters in the query string for shared review links.", "Low", "ND"),
+            new("drag-state", "Drag state polish", "Keep column spacing stable while a card is being moved.", "High", "KL")
+        ]),
+        new("review", "Review",
+        [
+            new("storybook", "Demo coverage", "Show multiple columns, cross-column drops, and card handles in the example.", "High", "RC"),
+            new("docs", "Usage notes", "Trim examples so the public API is clear without hiding the composition model.", "Medium", "AM")
+        ]),
+        new("done", "Done",
+        [
+            new("accessibility", "Keyboard reorder pass", "Validate focus movement and screen reader announcements after a drag.", "High", "RC"),
+            new("tokens", "Theme token pass", "Check card, column, and overlay colors across light and dark themes.", "Medium", "JS"),
+            new("tests", "Render tests", "Assert the Kanban primitives render the expected sortable attributes.", "Medium", "ND")
+        ])
+    ];
+
+    private Task HandleColumnReorder(SortableReorderEventArgs args)
+    {
+        TryMove(_columns, args.OldIndex, args.NewIndex);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTaskMove(SortableReorderEventArgs args)
+    {
+        var sourceColumn = _columns.FirstOrDefault(column => column.Id == args.FromListId);
+        var targetColumn = _columns.FirstOrDefault(column => column.Id == args.ToListId);
+
+        if (sourceColumn is null || targetColumn is null)
+            return Task.CompletedTask;
+
+        if (sourceColumn == targetColumn)
+        {
+            TryMove(sourceColumn.Tasks, args.OldIndex, args.NewIndex);
+            return Task.CompletedTask;
+        }
+
+        if (args.OldIndex < 0 || args.OldIndex >= sourceColumn.Tasks.Count)
+            return Task.CompletedTask;
+
+        var targetIndex = Math.Clamp(args.NewIndex, 0, targetColumn.Tasks.Count);
+        var task = sourceColumn.Tasks[args.OldIndex];
+        sourceColumn.Tasks.RemoveAt(args.OldIndex);
+        targetColumn.Tasks.Insert(targetIndex, task);
+
+        return Task.CompletedTask;
+    }
+
+    private static bool TryMove<T>(List<T> items, int oldIndex, int newIndex)
+    {
+        if (oldIndex < 0 || newIndex < 0 || oldIndex >= items.Count || newIndex >= items.Count || oldIndex == newIndex)
+            return false;
+
+        var item = items[oldIndex];
+        items.RemoveAt(oldIndex);
+        items.Insert(newIndex, item);
+
+        return true;
+    }
+
+    private sealed record KanbanColumnModel(string Id, string Title, List<KanbanTaskModel> Tasks);
+
+    private sealed record KanbanTaskModel(string Id, string Title, string Description, string Priority, string Owner);
+}

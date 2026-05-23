@@ -1,0 +1,49 @@
+@page "/components/theme-toggle-button"
+@inject Services.ThemeService ThemeService
+@implements IDisposable
+
+<PageTitle>Theme Toggle Button - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection
+            Description="Toggle light and dark mode with animated icon feedback."
+            Code="@BasicCode"
+            CodeLanguage="razor"
+            PreviewClass="preview flex min-h-[14rem] w-full items-center justify-center"
+            PreviewInnerClass="demo-section-preview-inner flex w-full items-center justify-center">
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is3">
+                <ThemeToggleButton IsDark="ThemeService.IsDark"
+                                   AriaLabel="Toggle theme"
+                                   OnClick="ToggleTheme" />
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private const string BasicCode =
+@"<ThemeToggleButton IsDark=""ThemeService.IsDark""
+                   AriaLabel=""Toggle theme""
+                   OnClick=""ToggleTheme"" />";
+
+    protected override void OnInitialized()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    private async Task ToggleTheme()
+    {
+        await ThemeService.Toggle();
+    }
+
+    private void OnThemeChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+}

@@ -1,0 +1,111 @@
+@page "/components/marquee"
+
+<PageTitle>Marquee Component - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection
+                Description="Smooth infinite scroll for logos, sponsors, or short announcement strips."
+                Code="@DemoCode"
+                CodeLanguage="razor">
+                <Marquee>
+                    @foreach (string logo in Logos)
+                    {
+                        <Div Class="rounded-full border bg-background px-5 py-2 text-sm font-semibold text-muted-foreground shadow-sm">
+                            @logo
+                        </Div>
+                    }
+                </Marquee>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Reverse"
+                         Description="Run the same seamless loop in the opposite direction."
+                         Code="@ReverseCode"
+                         CodeLanguage="razor">
+                <Marquee Reverse="true" ScrollDuration="32">
+                    @foreach (string update in Updates)
+                    {
+                        <Div Class="rounded-md border bg-muted/40 px-4 py-2 text-sm text-foreground">
+                            @update
+                        </Div>
+                    }
+                </Marquee>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="No Fade"
+                         Description="Disable the edge mask when the marquee sits in a clipped surface."
+                         Code="@NoFadeCode"
+                         CodeLanguage="razor">
+                <Marquee ShowFade="false" ScrollDuration="28" ItemGap="0.75rem">
+                    @foreach (string item in CompactItems)
+                    {
+                        <Badge Variant="BadgeVariant.Secondary">@item</Badge>
+                    }
+                </Marquee>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private static readonly string[] Logos =
+    [
+        "Acme",
+        "Northstar",
+        "Velocity",
+        "Capsule",
+        "Orbit",
+        "Summit"
+    ];
+
+    private static readonly string[] Updates =
+    [
+        "Realtime sync",
+        "Audit logs",
+        "Usage insights",
+        "Role controls",
+        "Faster search"
+    ];
+
+    private static readonly string[] CompactItems =
+    [
+        "Design",
+        "Build",
+        "Ship",
+        "Measure",
+        "Iterate"
+    ];
+
+    private const string DemoCode =
+@"<Marquee>
+    @foreach (string logo in Logos)
+    {
+        <Div Class=""rounded-full border bg-background px-5 py-2 text-sm font-semibold text-muted-foreground shadow-sm"">
+            @logo
+        </Div>
+    }
+</Marquee>";
+
+    private const string ReverseCode =
+@"<Marquee Reverse=""true"" ScrollDuration=""32"">
+    @foreach (string update in Updates)
+    {
+        <Div Class=""rounded-md border bg-muted/40 px-4 py-2 text-sm text-foreground"">
+            @update
+        </Div>
+    }
+</Marquee>";
+
+    private const string NoFadeCode =
+@"<Marquee ShowFade=""false"" ScrollDuration=""28"" ItemGap=""0.75rem"">
+    @foreach (string item in CompactItems)
+    {
+        <Badge Variant=""BadgeVariant.Secondary"">@item</Badge>
+    }
+</Marquee>";
+}

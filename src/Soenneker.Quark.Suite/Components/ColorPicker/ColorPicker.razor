@@ -1,0 +1,640 @@
+@namespace Soenneker.Quark
+@using System.Globalization
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
+@inherits Soenneker.Quark.FormControlElementBase
+@inject IColorPickerInterop ColorPickerInterop
+
+@if (Inline)
+{
+    <div @attributes="BuildRootAttributes()">
+        @RenderPanel()
+    </div>
+}
+else
+{
+    <div @attributes="BuildRootAttributes()">
+        <Popover>
+            <PopoverTrigger AsChild="true" Disabled="@Disabled">
+                <Button Type="@ButtonType.Button"
+                        Variant="ButtonVariant.Outline"
+                        Disabled="@Disabled"
+                        Class="@TriggerClassValue"
+                        AriaLabel="@AriaLabelValue">
+                    <span class="size-5 shrink-0 rounded-md border border-border shadow-xs" style="@SwatchStyle"></span>
+                    <span class="truncate font-mono text-xs">@FormattedValue</span>
+                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" aria-hidden="true" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent Align="Alignment.Start"
+                            UseDefaultLayout="false"
+                            Class="@PopupClassValue">
+                @RenderPanel()
+            </PopoverContent>
+        </Popover>
+    </div>
+}
+
+@code {
+    private double _hue = 262;
+    private double _saturation = 83;
+    private double _lightness = 58;
+    private double _alpha = 1;
+    private ColorPickerFormat _format = ColorPickerFormat.Hex;
+    private string? _lastValue;
+    private ElementReference _canvasRef;
+    private DotNetObjectReference<ColorPicker>? _dotNetRef;
+    private bool _canvasRegistered;
+    private bool? _lastCanvasDisabled;
+
+    [Parameter]
+    public string? Value { get; set; } = "#8b5cf6";
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public ColorPickerFormat Format { get; set; } = ColorPickerFormat.Hex;
+
+    [Parameter]
+    public EventCallback<ColorPickerFormat> FormatChanged { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    [Parameter]
+    public bool ShowAlpha { get; set; } = true;
+
+    [Parameter]
+    public bool ShowEyedropper { get; set; } = true;
+
+    [Parameter]
+    public string? TriggerClass { get; set; }
+
+    [Parameter]
+    public string? PopupClass { get; set; }
+
+    private string AriaLabelValue => AriaLabel ?? "Choose color";
+
+    private string FormattedValue => FormatColor(_format);
+
+    private string BaseHex => HslToHex(_hue, _saturation, _lightness);
+
+    private string SwatchStyle => $"background: {CssColorValue};";
+
+    private string CssColorValue => $"rgba({Rgb.R}, {Rgb.G}, {Rgb.B}, {_alpha.ToString("0.##", CultureInfo.InvariantCulture)})";
+
+    private (int R, int G, int B) Rgb => HslToRgb(_hue, _saturation, _lightness);
+
+    private string TriggerClassValue
+    {
+        get
+        {
+            var cls = "w-[220px] justify-start gap-2 px-3";
+            return TriggerClass is null ? cls : AppendToClass(cls, TriggerClass);
+        }
+    }
+
+    private string PopupClassValue
+    {
+        get
+        {
+            var cls = "w-80 p-3";
+            return PopupClass is null ? cls : AppendToClass(cls, PopupClass);
+        }
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "color-picker";
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        _format = Format;
+
+        if (!string.Equals(_lastValue, Value, StringComparison.OrdinalIgnoreCase) && TryParseColor(Value, out var parsed))
+        {
+            _hue = parsed.H;
+            _saturation = parsed.S;
+            _lightness = parsed.L;
+            _alpha = parsed.A;
+            _lastValue = Value;
+        }
+    }
+
+    private RenderFragment RenderPanel() => builder =>
+    {
+        var sequence = 0;
+
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-panel");
+        builder.AddAttribute(sequence++, "class", "grid gap-3");
+
+        RenderCanvas(builder, ref sequence);
+        RenderSlider(builder, ref sequence, "Hue", "color-picker-hue", 0, 360, 1, _hue, EventCallback.Factory.Create<ChangeEventArgs>(this, HandleHueChanged), HueSliderStyle);
+
+        if (ShowAlpha)
+            RenderSlider(builder, ref sequence, "Alpha", "color-picker-alpha", 0, 1, 0.01, _alpha, EventCallback.Factory.Create<ChangeEventArgs>(this, HandleAlphaChanged), AlphaSliderStyle);
+
+        RenderFormatButtons(builder, ref sequence);
+        RenderValueEditor(builder, ref sequence);
+        RenderPresetSwatches(builder, ref sequence);
+
+        builder.CloseElement();
+    };
+
+    private void RenderCanvas(RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-canvas");
+        builder.AddAttribute(sequence++, "class", "relative h-44 overflow-hidden rounded-md border border-border shadow-inner cursor-crosshair touch-none");
+        builder.AddAttribute(sequence++, "style", CanvasStyle);
+        builder.AddAttribute(sequence++, "role", "grid");
+        builder.AddAttribute(sequence++, "aria-label", "Saturation and lightness");
+        builder.AddAttribute(sequence++, "data-hue", _hue.ToString("0.##", CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "data-alpha", _alpha.ToString("0.##", CultureInfo.InvariantCulture));
+        builder.AddElementReferenceCapture(sequence++, value => _canvasRef = value);
+
+        for (var lightnessIndex = 0; lightnessIndex <= 10; lightnessIndex++)
+        {
+            for (var saturationIndex = 0; saturationIndex <= 10; saturationIndex++)
+            {
+                var saturation = saturationIndex * 10d;
+                var lightness = 100 - (lightnessIndex * 10d);
+
+                builder.OpenElement(sequence++, "button");
+                builder.AddAttribute(sequence++, "type", "button");
+                builder.AddAttribute(sequence++, "data-slot", "color-picker-canvas-cell");
+                builder.AddAttribute(sequence++, "aria-label", $"Saturation {saturation:0}, lightness {lightness:0}");
+                builder.AddAttribute(sequence++, "class", "absolute opacity-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring");
+                builder.AddAttribute(sequence++, "style", $"left:{saturationIndex * 10}%;top:{lightnessIndex * 10}%;width:10%;height:10%;");
+                builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetSaturationLightness(saturation, lightness)));
+                builder.CloseElement();
+            }
+        }
+
+        builder.OpenElement(sequence++, "span");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-thumb");
+        builder.AddAttribute(sequence++, "class", "pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0_/_0.35)]");
+        builder.AddAttribute(sequence++, "style", ThumbStyle);
+        builder.CloseElement();
+
+        builder.CloseElement();
+    }
+
+    private void RenderSlider(RenderTreeBuilder builder, ref int sequence, string label, string slot, double min, double max, double step, double value,
+        EventCallback<ChangeEventArgs> callback, string style)
+    {
+        builder.OpenElement(sequence++, "label");
+        builder.AddAttribute(sequence++, "class", "grid gap-1.5 text-xs font-medium");
+        builder.AddContent(sequence++, label);
+
+        builder.OpenElement(sequence++, "input");
+        builder.AddAttribute(sequence++, "data-slot", slot);
+        builder.AddAttribute(sequence++, "type", "range");
+        builder.AddAttribute(sequence++, "min", min.ToString(CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "max", max.ToString(CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "step", step.ToString(CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "value", value.ToString(CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "class", "h-4 w-full cursor-pointer appearance-none rounded-full border border-border bg-transparent accent-foreground");
+        builder.AddAttribute(sequence++, "style", style);
+        builder.AddAttribute(sequence++, "oninput", callback);
+        builder.CloseElement();
+
+        builder.CloseElement();
+    }
+
+    private void RenderFormatButtons(RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-format-tabs");
+        builder.AddAttribute(sequence++, "class", "grid grid-cols-4 gap-1 rounded-lg bg-muted p-1");
+
+        foreach (var format in Enum.GetValues<ColorPickerFormat>())
+        {
+            var selected = _format == format;
+
+            builder.OpenElement(sequence++, "button");
+            builder.AddAttribute(sequence++, "type", "button");
+            builder.AddAttribute(sequence++, "data-slot", "color-picker-format");
+            builder.AddAttribute(sequence++, "data-active", selected ? "true" : "false");
+            builder.AddAttribute(sequence++, "class", selected
+                ? "rounded-md bg-background px-2 py-1 text-xs font-medium shadow-sm"
+                : "rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground");
+            builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetFormat(format)));
+            builder.AddContent(sequence++, GetFormatLabel(format));
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    }
+
+    private void RenderValueEditor(RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-output");
+        builder.AddAttribute(sequence++, "class", "flex gap-2");
+
+        builder.OpenElement(sequence++, "input");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-value");
+        builder.AddAttribute(sequence++, "value", FormattedValue);
+        builder.AddAttribute(sequence++, "class", "flex h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-1 font-mono text-xs shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+        builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleValueInputChanged));
+        builder.CloseElement();
+
+        if (ShowEyedropper)
+        {
+            builder.OpenElement(sequence++, "button");
+            builder.AddAttribute(sequence++, "type", "button");
+            builder.AddAttribute(sequence++, "data-slot", "color-picker-eyedropper");
+            builder.AddAttribute(sequence++, "aria-label", "Pick color from screen");
+            builder.AddAttribute(sequence++, "class", "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground shadow-xs hover:bg-accent hover:text-accent-foreground");
+            builder.OpenComponent<Icon>(sequence++);
+            builder.AddAttribute(sequence++, nameof(Icon.Name), LucideIcon.Pipette);
+            builder.AddAttribute(sequence++, nameof(Icon.Class), "size-4");
+            builder.CloseComponent();
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    }
+
+    private void RenderPresetSwatches(RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-presets");
+        builder.AddAttribute(sequence++, "class", "grid grid-cols-8 gap-1");
+
+        foreach (var preset in ColorPresets)
+        {
+            builder.OpenElement(sequence++, "button");
+            builder.AddAttribute(sequence++, "type", "button");
+            builder.AddAttribute(sequence++, "data-slot", "color-picker-preset");
+            builder.AddAttribute(sequence++, "aria-label", $"Select {preset}");
+            builder.AddAttribute(sequence++, "class", "size-7 rounded-md border border-border shadow-xs focus:outline-none focus:ring-2 focus:ring-ring");
+            builder.AddAttribute(sequence++, "style", $"background:{preset};");
+            builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetFromInput(preset)));
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    }
+
+    private string CanvasStyle => $"background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl({_hue:0} 100% 50%));";
+
+    private string ThumbStyle =>
+        $"left:clamp(0.5rem, {_saturation.ToString("0.##", CultureInfo.InvariantCulture)}%, calc(100% - 0.5rem));top:clamp(0.5rem, {(100 - _lightness).ToString("0.##", CultureInfo.InvariantCulture)}%, calc(100% - 0.5rem));background:{CssColorValue};";
+
+    private string HueSliderStyle => "background: linear-gradient(to right, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ef4444);";
+
+    private string AlphaSliderStyle => $"background: linear-gradient(45deg, #d4d4d8 25%, transparent 25%), linear-gradient(-45deg, #d4d4d8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d4d4d8 75%), linear-gradient(-45deg, transparent 75%, #d4d4d8 75%), linear-gradient(to right, transparent, {BaseHex}); background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px, 100% 100%; background-position: 0 0, 0 4px, 4px -4px, -4px 0, 0 0;";
+
+    private async Task HandleHueChanged(ChangeEventArgs args)
+    {
+        _hue = ParseDouble(args.Value, _hue, 0, 360);
+        await CommitColor();
+    }
+
+    private async Task HandleAlphaChanged(ChangeEventArgs args)
+    {
+        _alpha = ParseDouble(args.Value, _alpha, 0, 1);
+        await CommitColor();
+    }
+
+    private async Task SetSaturationLightness(double saturation, double lightness)
+    {
+        _saturation = Math.Clamp(saturation, 0, 100);
+        _lightness = Math.Clamp(lightness, 0, 100);
+        await CommitColor();
+    }
+
+    [JSInvokable]
+    public async Task SetCanvasColor(double saturation, double lightness)
+    {
+        await SetSaturationLightness(saturation, lightness);
+    }
+
+    private async Task SetFormat(ColorPickerFormat format)
+    {
+        _format = format;
+        Format = format;
+        await FormatChanged.InvokeIfHasDelegate(format);
+        await CommitColor();
+    }
+
+    private async Task HandleValueInputChanged(ChangeEventArgs args)
+    {
+        await SetFromInput(args.Value?.ToString());
+    }
+
+    private async Task SetFromInput(string? input)
+    {
+        if (!TryParseColor(input, out var parsed))
+            return;
+
+        _hue = parsed.H;
+        _saturation = parsed.S;
+        _lightness = parsed.L;
+        _alpha = parsed.A;
+        await CommitColor();
+    }
+
+    private async Task CommitColor()
+    {
+        var next = FormatColor(_format);
+        Value = next;
+        _lastValue = next;
+        await ValueChanged.InvokeIfHasDelegate(next);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private string FormatColor(ColorPickerFormat format)
+    {
+        var rgb = Rgb;
+        var alpha = _alpha.ToString("0.##", CultureInfo.InvariantCulture);
+
+        return format switch
+        {
+            ColorPickerFormat.Rgb => $"rgb({rgb.R}, {rgb.G}, {rgb.B})",
+            ColorPickerFormat.Css => $"rgba({rgb.R}, {rgb.G}, {rgb.B}, {alpha})",
+            ColorPickerFormat.Hsl => $"hsl({Math.Round(_hue):0} {_saturation:0}% {_lightness:0}% / {alpha})",
+            _ => HslToHex(_hue, _saturation, _lightness)
+        };
+    }
+
+    private static string GetFormatLabel(ColorPickerFormat format) => format switch
+    {
+        ColorPickerFormat.Css => "CSS",
+        ColorPickerFormat.Hex => "HEX",
+        ColorPickerFormat.Rgb => "RGB",
+        ColorPickerFormat.Hsl => "HSL",
+        _ => format.ToString().ToUpperInvariant()
+    };
+
+    private static double ParseDouble(object? value, double fallback, double min, double max)
+    {
+        if (!double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed))
+            return fallback;
+
+        return Math.Clamp(parsed, min, max);
+    }
+
+    private static bool TryParseColor(string? value, out (double H, double S, double L, double A) color)
+    {
+        color = default;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var input = value.Trim();
+
+        if (TryParseHex(input, out color))
+            return true;
+
+        if (TryParseRgb(input, out color))
+            return true;
+
+        return TryParseHsl(input, out color);
+    }
+
+    private static bool TryParseHex(string input, out (double H, double S, double L, double A) color)
+    {
+        color = default;
+        var hex = input.TrimStart('#');
+
+        if (hex.Length == 3)
+            hex = string.Concat(hex.Select(ch => $"{ch}{ch}"));
+
+        if (hex.Length is not 6 and not 8 || !Regex.IsMatch(hex, "^[0-9a-fA-F]+$"))
+            return false;
+
+        var r = int.Parse(hex[0..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        var g = int.Parse(hex[2..4], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        var b = int.Parse(hex[4..6], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        var a = hex.Length == 8 ? int.Parse(hex[6..8], NumberStyles.HexNumber, CultureInfo.InvariantCulture) / 255d : 1d;
+        color = RgbToHsl(r, g, b, a);
+        return true;
+    }
+
+    private static bool TryParseRgb(string input, out (double H, double S, double L, double A) color)
+    {
+        color = default;
+        var match = Regex.Match(input, @"rgba?\(([^)]+)\)", RegexOptions.IgnoreCase);
+
+        if (!match.Success)
+            return false;
+
+        var parts = match.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length < 3)
+            return false;
+
+        if (!int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var r) ||
+            !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var g) ||
+            !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var b))
+            return false;
+
+        var alpha = parts.Length > 3 && double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedAlpha)
+            ? parsedAlpha
+            : 1d;
+
+        color = RgbToHsl(Math.Clamp(r, 0, 255), Math.Clamp(g, 0, 255), Math.Clamp(b, 0, 255), Math.Clamp(alpha, 0, 1));
+        return true;
+    }
+
+    private static bool TryParseHsl(string input, out (double H, double S, double L, double A) color)
+    {
+        color = default;
+        var match = Regex.Match(input, @"hsla?\(([^)]+)\)", RegexOptions.IgnoreCase);
+
+        if (!match.Success)
+            return false;
+
+        var raw = match.Groups[1].Value.Replace("/", " ", StringComparison.Ordinal);
+        var parts = raw.Split([' ', ','], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length < 3)
+            return false;
+
+        if (!double.TryParse(parts[0].TrimEnd('d', 'e', 'g'), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) ||
+            !double.TryParse(parts[1].TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var s) ||
+            !double.TryParse(parts[2].TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var l))
+            return false;
+
+        var alpha = parts.Length > 3 && double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedAlpha)
+            ? parsedAlpha
+            : 1d;
+
+        color = (NormalizeHue(h), Math.Clamp(s, 0, 100), Math.Clamp(l, 0, 100), Math.Clamp(alpha, 0, 1));
+        return true;
+    }
+
+    private static string HslToHex(double h, double s, double l)
+    {
+        var rgb = HslToRgb(h, s, l);
+        return $"#{rgb.R:x2}{rgb.G:x2}{rgb.B:x2}";
+    }
+
+    private static (int R, int G, int B) HslToRgb(double h, double s, double l)
+    {
+        h = NormalizeHue(h) / 360d;
+        s = Math.Clamp(s, 0, 100) / 100d;
+        l = Math.Clamp(l, 0, 100) / 100d;
+
+        if (s == 0)
+        {
+            var gray = (int)Math.Round(l * 255);
+            return (gray, gray, gray);
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+
+        var r = HueToRgb(p, q, h + 1d / 3d);
+        var g = HueToRgb(p, q, h);
+        var b = HueToRgb(p, q, h - 1d / 3d);
+
+        return ((int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
+    }
+
+    private static (double H, double S, double L, double A) RgbToHsl(int r, int g, int b, double alpha)
+    {
+        var rd = r / 255d;
+        var gd = g / 255d;
+        var bd = b / 255d;
+        var max = Math.Max(rd, Math.Max(gd, bd));
+        var min = Math.Min(rd, Math.Min(gd, bd));
+        var l = (max + min) / 2d;
+        double h = 0;
+        double s = 0;
+
+        if (Math.Abs(max - min) > double.Epsilon)
+        {
+            var d = max - min;
+            s = l > 0.5 ? d / (2d - max - min) : d / (max + min);
+
+            if (Math.Abs(max - rd) < double.Epsilon)
+                h = (gd - bd) / d + (gd < bd ? 6 : 0);
+            else if (Math.Abs(max - gd) < double.Epsilon)
+                h = (bd - rd) / d + 2;
+            else
+                h = (rd - gd) / d + 4;
+
+            h *= 60;
+        }
+
+        return (NormalizeHue(h), s * 100, l * 100, alpha);
+    }
+
+    private static double HueToRgb(double p, double q, double t)
+    {
+        if (t < 0)
+            t += 1;
+        if (t > 1)
+            t -= 1;
+        if (t < 1d / 6d)
+            return p + (q - p) * 6 * t;
+        if (t < 1d / 2d)
+            return q;
+        if (t < 2d / 3d)
+            return p + (q - p) * (2d / 3d - t) * 6;
+
+        return p;
+    }
+
+    private static double NormalizeHue(double hue)
+    {
+        var normalized = hue % 360d;
+        return normalized < 0 ? normalized + 360d : normalized;
+    }
+
+    private Dictionary<string, object> BuildRootAttributes()
+    {
+        var attributes = BuildAttributes();
+        ApplyFieldControlAttributes(attributes);
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Format);
+        hc.Add(_format);
+        hc.Add(_hue);
+        hc.Add(_saturation);
+        hc.Add(_lightness);
+        hc.Add(_alpha);
+        hc.Add(Inline);
+        hc.Add(ShowAlpha);
+        hc.Add(ShowEyedropper);
+        hc.Add(TriggerClass);
+        hc.Add(PopupClass);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            var canvasDisabled = Disabled || ReadOnly;
+
+            if (!_canvasRegistered || _lastCanvasDisabled != canvasDisabled)
+            {
+                _dotNetRef ??= DotNetObjectReference.Create(this);
+                _canvasRegistered = await ColorPickerInterop.RegisterCanvas(_canvasRef, _dotNetRef, canvasDisabled);
+
+                if (_canvasRegistered)
+                    _lastCanvasDisabled = canvasDisabled;
+            }
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await ColorPickerInterop.UnregisterCanvas(_canvasRef);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+
+        _dotNetRef?.Dispose();
+        await base.DisposeAsync();
+    }
+
+    private static readonly string[] ColorPresets =
+    [
+        "#ef4444",
+        "#f97316",
+        "#f59e0b",
+        "#eab308",
+        "#22c55e",
+        "#06b6d4",
+        "#3b82f6",
+        "#8b5cf6",
+        "#ec4899",
+        "#111827",
+        "#64748b",
+        "#ffffff",
+        "#000000",
+        "#14b8a6",
+        "#a855f7",
+        "#f43f5e"
+    ];
+}

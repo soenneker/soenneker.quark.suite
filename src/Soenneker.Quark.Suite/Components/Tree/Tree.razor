@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentTree" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public int Indent { get; set; } = 20;
+
+    [Parameter]
+    public TreeToggleIconType ToggleIconType { get; set; } = TreeToggleIconType.Chevron;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tree";
+        Display ??= Quark.Display.Flex;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["role"] = "tree";
+        attributes["aria-label"] = AriaLabel ?? "Tree";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex flex-col");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, $"--tree-indent:{Indent}px");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Indent);
+        hc.Add(ToggleIconType);
+    }
+}

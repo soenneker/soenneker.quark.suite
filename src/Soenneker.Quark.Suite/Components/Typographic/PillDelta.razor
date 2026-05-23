@@ -1,0 +1,38 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    <Icon Name="@IconName" Class="size-3" aria-hidden="true" />
+    @ChildContent
+</span>
+
+@code {
+    [Parameter]
+    public PillDeltaDirection Direction { get; set; } = PillDeltaDirection.Up;
+
+    private LucideIcon IconName => Direction == PillDeltaDirection.Down ? LucideIcon.ArrowDown : LucideIcon.ArrowUp;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "pill-delta";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-direction"] = Direction == PillDeltaDirection.Down ? "down" : "up";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "inline-flex shrink-0 items-center gap-0.5 font-semibold");
+            AppendClass(ref cls, Direction == PillDeltaDirection.Down ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Direction);
+    }
+}

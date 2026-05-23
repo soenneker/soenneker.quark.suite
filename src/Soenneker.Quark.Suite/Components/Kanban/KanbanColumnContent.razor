@@ -1,0 +1,76 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<SortableList Id="@Id"
+              ListId="@Value"
+              Group="@Group"
+              Sort="@Sort"
+              Disabled="@Disabled"
+              AnimationMs="@AnimationMs"
+              ForceFallback="@ForceFallback"
+              HandleOnly="@HandleOnly"
+              HandleSelector="@HandleSelector"
+              ItemSelector="[data-kanban-item]"
+              DataSlot="@DataSlot"
+              Role="@Role"
+              Class="@GetClass()"
+              OnReorder="@OnReorder">
+    @ChildContent
+</SortableList>
+
+@code {
+    private const string _baseClass = "flex min-h-20 flex-1 flex-col gap-2 overflow-y-auto rounded-lg p-0.5";
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public string Group { get; set; } = "kanban-items";
+
+    [Parameter]
+    public bool Sort { get; set; } = true;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public int AnimationMs { get; set; } = 150;
+
+    [Parameter]
+    public bool ForceFallback { get; set; }
+
+    [Parameter]
+    public bool HandleOnly { get; set; }
+
+    [Parameter]
+    public string? HandleSelector { get; set; } = "[data-kanban-item-handle]";
+
+    [Parameter]
+    public EventCallback<SortableReorderEventArgs> OnReorder { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "kanban-column-content";
+        Role ??= "list";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Group);
+        hc.Add(Sort);
+        hc.Add(Disabled);
+        hc.Add(AnimationMs);
+        hc.Add(ForceFallback);
+        hc.Add(HandleOnly);
+        hc.Add(HandleSelector);
+        hc.Add(OnReorder.HasDelegate);
+    }
+
+    private string GetClass()
+    {
+        return $"{_baseClass} {Class}".Trim();
+    }
+}

@@ -236,8 +236,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
-        Services.AddScoped<ITreeViewInterop, FakeTreeViewInterop>();
-        Services.AddScoped<IStepsInterop, FakeStepsInterop>();
+        Services.AddScoped<IScrollspyInterop, FakeScrollspyInterop>();
         Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
         Services.AddScoped<ICarouselInterop, FakeCarouselInterop>();
@@ -248,6 +247,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<Demo.Services.ThemeService>();
         Services.AddScoped<ICodeEditorInterop, FakeCodeEditorInterop>();
         Services.AddScoped<ITablesInterop, FakeTablesInterop>();
+        Services.AddScoped<IColorPickerInterop, FakeColorPickerInterop>();
         Services.AddScoped<IClipboardUtil, FakeClipboardUtil>();
         Services.AddScoped<ISonnerService, SonnerService>();
         Services.AddScoped<ISonnerInterop, FakeSonnerInterop>();
@@ -276,15 +276,12 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
-    private sealed class FakeTreeViewInterop : ITreeViewInterop
+    private sealed class FakeScrollspyInterop : IScrollspyInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask InitializeTree(ElementReference tree, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
-
-        public ValueTask DestroyTree(ElementReference tree, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
-
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 
     private sealed class FakeSortableInterop : ISortableInterop
@@ -296,15 +293,6 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
-
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
-    }
-
-    private sealed class FakeStepsInterop : IStepsInterop
-    {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
-
-        public ValueTask FocusById(string id, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -428,6 +416,16 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeTablesInterop : ITablesInterop
     {
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeColorPickerInterop : IColorPickerInterop
+    {
+        public ValueTask<bool> RegisterCanvas(ElementReference canvas, DotNetObjectReference<ColorPicker> callbackReference, bool disabled,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+
+        public ValueTask UnregisterCanvas(ElementReference canvas, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

@@ -1,0 +1,118 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<style>
+@@keyframes quark-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% - var(--marquee-gap))); }
+}
+
+[data-slot="marquee"][data-pause-on-hover="true"]:hover [data-slot="marquee-track"] {
+    animation-play-state: paused;
+}
+</style>
+
+<div @attributes="BuildAttributes()">
+    <div data-slot="marquee-track"
+         class="@GetTrackClass()"
+         style="@GetTrackStyle()">
+        @ChildContent
+    </div>
+    <div data-slot="marquee-track"
+         aria-hidden="true"
+         class="@GetTrackClass()"
+         style="@GetTrackStyle()">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    private const string _baseClass = "group/marquee relative flex w-full overflow-hidden";
+    private const string _trackClass = "flex w-max min-w-full shrink-0 items-center justify-around";
+
+    /// <summary>
+    /// Gets or sets the animation duration in seconds.
+    /// </summary>
+    [Parameter]
+    public double ScrollDuration { get; set; } = 40;
+
+    /// <summary>
+    /// Gets or sets the gap between repeated content groups.
+    /// </summary>
+    [Parameter]
+    public string ItemGap { get; set; } = "1rem";
+
+    /// <summary>
+    /// Gets or sets whether scrolling runs in reverse.
+    /// </summary>
+    [Parameter]
+    public bool Reverse { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the marquee pauses when hovered.
+    /// </summary>
+    [Parameter]
+    public bool PauseOnHover { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether edge gradient fades are rendered.
+    /// </summary>
+    [Parameter]
+    public bool ShowFade { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the fade width at each edge.
+    /// </summary>
+    [Parameter]
+    public string FadeWidth { get; set; } = "10%";
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "marquee";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-reverse"] = Reverse ? "true" : "false";
+        attributes["data-pause-on-hover"] = PauseOnHover ? "true" : "false";
+        attributes["data-fade"] = ShowFade ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, _baseClass);
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, $"--marquee-duration:{Math.Max(ScrollDuration, 0.001):0.###}s");
+            AppendStyleDecl(ref sty, $"--marquee-gap:{ItemGap}");
+
+            if (ShowFade)
+                AppendStyleDecl(ref sty, $"mask-image:linear-gradient(to right, transparent, black {FadeWidth}, black calc(100% - {FadeWidth}), transparent)");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ScrollDuration);
+        hc.Add(ItemGap);
+        hc.Add(Reverse);
+        hc.Add(PauseOnHover);
+        hc.Add(ShowFade);
+        hc.Add(FadeWidth);
+    }
+
+    private string GetTrackClass() => $"{_trackClass} {ClassForGap()}";
+
+    private string GetTrackStyle()
+    {
+        var direction = Reverse ? "reverse" : "normal";
+        return $"gap:var(--marquee-gap);animation:quark-marquee var(--marquee-duration) linear infinite;animation-direction:{direction};";
+    }
+
+    private string ClassForGap() => "[&>*]:mx-[calc(var(--marquee-gap)/2)]";
+}

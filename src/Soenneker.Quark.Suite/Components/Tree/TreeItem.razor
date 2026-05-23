@@ -1,0 +1,101 @@
+@namespace Soenneker.Quark
+@using Microsoft.AspNetCore.Components.Web
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentTreeItem" Value="@this">
+    <button @attributes="BuildAttributes()" @onclick="HandleClick" @onkeydown="HandleKeyDown">
+        @ChildContent
+    </button>
+</CascadingValue>
+
+@code {
+    [CascadingParameter(Name = "ParentTree")]
+    public Tree? ParentTree { get; set; }
+
+    [Parameter]
+    public int Level { get; set; }
+
+    [Parameter]
+    public bool Folder { get; set; }
+
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    [Parameter]
+    public bool Selected { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Click { get; set; }
+
+    [Parameter]
+    public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
+
+    internal TreeToggleIconType ToggleIconType => ParentTree?.ToggleIconType ?? TreeToggleIconType.Chevron;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "tree-item";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["type"] = "button";
+        attributes["role"] = "treeitem";
+        attributes["data-folder"] = Folder ? "true" : "false";
+        attributes["data-selected"] = Selected ? "true" : "false";
+        attributes["aria-selected"] = Selected ? "true" : "false";
+        attributes["tabindex"] = Disabled ? "-1" : "0";
+
+        if (Folder)
+            attributes["aria-expanded"] = Expanded ? "true" : "false";
+
+        if (Disabled)
+        {
+            attributes["data-disabled"] = "true";
+            attributes["aria-disabled"] = "true";
+            attributes["disabled"] = "disabled";
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "z-10 ps-[var(--tree-padding)] text-left outline-hidden select-none not-last:pb-0.5 focus:z-20 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, $"--tree-padding:{Level * (ParentTree?.Indent ?? 20)}px");
+        });
+    }
+
+    private Task HandleClick(MouseEventArgs args)
+    {
+        if (Disabled || !Click.HasDelegate)
+            return Task.CompletedTask;
+
+        return Click.InvokeAsync(args);
+    }
+
+    private Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (Disabled || !KeyDown.HasDelegate)
+            return Task.CompletedTask;
+
+        return KeyDown.InvokeAsync(args);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Level);
+        hc.Add(Folder);
+        hc.Add(Expanded);
+        hc.Add(Selected);
+        hc.Add(Disabled);
+    }
+}

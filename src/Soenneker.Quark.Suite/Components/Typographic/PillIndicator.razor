@@ -1,0 +1,75 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    @if (Pulse)
+    {
+        <span data-slot="pill-indicator-pulse" class="@GetPulseClass()"></span>
+    }
+</span>
+
+@code {
+    [Parameter]
+    public PillIndicatorVariant Variant { get; set; } = PillIndicatorVariant.Success;
+
+    [Parameter]
+    public bool Pulse { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "pill-indicator";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-variant"] = GetVariantValue();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "relative inline-flex size-2 shrink-0 rounded-full");
+            AppendClass(ref cls, GetVariantClass());
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Variant);
+        hc.Add(Pulse);
+    }
+
+    private string GetPulseClass()
+    {
+        return $"absolute inset-0 rounded-full {GetVariantClass()} animate-ping opacity-75";
+    }
+
+    private string GetVariantValue()
+    {
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Error))
+            return "error";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Warning))
+            return "warning";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Info))
+            return "info";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Neutral))
+            return "neutral";
+
+        return "success";
+    }
+
+    private string GetVariantClass()
+    {
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Error))
+            return "bg-red-500";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Warning))
+            return "bg-amber-500";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Info))
+            return "bg-blue-500";
+        if (ReferenceEquals(Variant, PillIndicatorVariant.Neutral))
+            return "bg-muted-foreground";
+
+        return "bg-green-500";
+    }
+}

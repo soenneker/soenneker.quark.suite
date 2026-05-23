@@ -17,55 +17,15 @@
                         <SidebarHeader>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <Dropdown Side="Side.Right">
-                                        <DropdownToggle AsChild="true">
-                                            <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" ButtonSize="SidebarMenuButtonSize.Lg">
-                                                <Span class="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                                    <Icon Name="LucideIcon.BriefcaseBusiness" Class="size-4" />
-                                                </Span>
-                                                <Div class="grid flex-1 text-left text-sm leading-tight">
-                                                    <Span class="truncate font-semibold">Acme Inc</Span>
-                                                    <Span class="truncate text-xs">Enterprise</Span>
-                                                </Div>
-                                                <Icon Name="LucideIcon.ChevronsUpDown" Class="ml-auto size-4" />
-                                            </SidebarMenuButton>
-                                        </DropdownToggle>
-                                        <DropdownMenu Align="Alignment.Start">
-                                            <DropdownGroup>
-                                                <DropdownLabel>Teams</DropdownLabel>
-                                                <DropdownItem Class="gap-2 !p-2">
-                                                    <Div class="flex size-6 items-center justify-center rounded-md border">
-                                                        <Icon Name="LucideIcon.BriefcaseBusiness" Class="size-3.5 shrink-0" />
-                                                    </Div>
-                                                    Acme Inc
-                                                    <DropdownShortcut>⌘1</DropdownShortcut>
-                                                </DropdownItem>
-                                                <DropdownItem Class="gap-2 !p-2">
-                                                    <Div class="flex size-6 items-center justify-center rounded-md border">
-                                                        <Icon Name="LucideIcon.GalleryVerticalEnd" Class="size-3.5 shrink-0" />
-                                                    </Div>
-                                                    Acme Corp.
-                                                    <DropdownShortcut>⌘2</DropdownShortcut>
-                                                </DropdownItem>
-                                                <DropdownItem Class="gap-2 !p-2">
-                                                    <Div class="flex size-6 items-center justify-center rounded-md border">
-                                                        <Icon Name="LucideIcon.AudioWaveform" Class="size-3.5 shrink-0" />
-                                                    </Div>
-                                                    Evil Corp.
-                                                    <DropdownShortcut>⌘3</DropdownShortcut>
-                                                </DropdownItem>
-                                            </DropdownGroup>
-                                            <DropdownDivider />
-                                            <DropdownGroup>
-                                                <DropdownItem Class="gap-2 !p-2">
-                                                    <Div class="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                                                        <Icon Name="LucideIcon.Plus" Class="size-3.5 shrink-0" />
-                                                    </Div>
-                                                    <Div class="font-medium text-muted-foreground">Add team</Div>
-                                                </DropdownItem>
-                                            </DropdownGroup>
-                                        </DropdownMenu>
-                                    </Dropdown>
+                                    <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" ButtonSize="SidebarMenuButtonSize.Lg" Tooltip="Acme Inc">
+                                        <Span class="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-white transition-opacity group-data-[collapsible=icon]:size-4 group-data-[collapsible=icon]:group-hover:opacity-0">
+                                            <Icon Name="LucideIcon.BriefcaseBusiness" Class="size-4" />
+                                        </Span>
+                                        <Div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                            <Span class="truncate font-semibold">Acme Inc</Span>
+                                            <Span class="truncate text-xs">Enterprise</Span>
+                                        </Div>
+                                    </SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarHeader>
@@ -133,14 +93,11 @@
                                 </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarFooter>
+
+                        <SidebarRail ShowTrigger="true" />
                     </Sidebar>
 
                     <SidebarInset>
-                        <header class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-                            <div class="flex items-center gap-2 px-4">
-                                <SidebarTrigger />
-                            </div>
-                        </header>
                     </SidebarInset>
                 </SidebarProvider>
             </Div>
@@ -192,7 +149,7 @@
                      Description="This page exercises the core menu composition: button-as-child links, group action, menu action, badge, submenu, footer, and rail."
                      Code="@ComposedMenuCode"
                      CodeLanguage="razor">
-            <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+            <Div id="sidebar-composed-demo" Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
                 <SidebarProvider Open="_composedSidebarOpen" OpenChanged="OnComposedSidebarOpenChanged" Class="h-[31rem]">
                     <Sidebar Collapsible="SidebarCollapsible.None">
                         <SidebarHeader>
@@ -297,12 +254,11 @@
                             </SidebarMenu>
                         </SidebarFooter>
 
-                        <SidebarRail />
+                        <SidebarRail ShowTrigger="true" />
                     </Sidebar>
 
                     <SidebarInset>
                         <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
-                            <SidebarTrigger />
                             <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Icon collapse, nested submenu, and hover action are all active here.</Paragraph>
                         </Div>
                         <Div class="p-6">
@@ -702,7 +658,7 @@
                     </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>...</SidebarFooter>
-                <SidebarRail />
+                <SidebarRail ShowTrigger="true" />
             </Sidebar>
             <SidebarInset>...</SidebarInset>
         </SidebarProvider>

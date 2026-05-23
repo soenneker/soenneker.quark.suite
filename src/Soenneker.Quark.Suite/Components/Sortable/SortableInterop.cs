@@ -32,7 +32,7 @@ public sealed class SortableInterop : ISortableInterop
     {
         await _resourceLoader.LoadScript(_sortableScriptPath, cancellationToken: token);
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("ensureAvailable", token);
+        await module.InvokeVoidAsync("waitForAvailable", token, 5000);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)

@@ -2,32 +2,36 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="this" IsFixed="true">
-    <ol @attributes="BuildAttributes()">
+    <div @attributes="BuildAttributes()">
         @if (ChildContent != null)
         {
             @ChildContent
         }
-    </ol>
+    </div>
 </CascadingValue>
 
 @code {
-    private int _itemCounter;
+    [Parameter]
+    public int DefaultValue { get; set; } = 1;
 
     [Parameter]
-    public TimelineAlign TimelineAlignment { get; set; } = TimelineAlign.Center;
+    public int? Value { get; set; }
 
     [Parameter]
-    public TimelineSize TimelineSize { get; set; } = TimelineSize.Medium;
+    public EventCallback<int> ValueChanged { get; set; }
 
     [Parameter]
-    public TimelineConnectorFit ConnectorFit { get; set; } = TimelineConnectorFit.Spaced;
+    public string Orientation { get; set; } = "vertical";
 
-    internal int RegisterItem() => _itemCounter++;
+    internal int ActiveStep => Value ?? DefaultValue;
 
-    protected override void OnParametersSet()
+    internal async Task SetActiveStep(int step)
     {
-        _itemCounter = 0;
-        base.OnParametersSet();
+        if (Value is null)
+            DefaultValue = step;
+
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(step);
     }
 
     protected override void ApplyDefaultParameters()
@@ -35,35 +39,34 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "timeline";
 
-        Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= ResolveGap();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-align"] = TimelineAlignment?.Value ?? TimelineAlign.Center.Value;
         attributes["aria-label"] = AriaLabel ?? "Timeline";
+        attributes["data-orientation"] = NormalizeOrientation();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/timeline");
+            AppendClass(ref cls, "data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(TimelineAlignment);
-        hc.Add(TimelineSize);
-        hc.Add(ConnectorFit);
+        hc.Add(DefaultValue);
+        hc.Add(Value);
+        hc.Add(Orientation);
     }
 
-    private GapBuilder ResolveGap()
+    private string NormalizeOrientation()
     {
-        if (ReferenceEquals(TimelineSize, TimelineSize.Small))
-            return Quark.Gap.Is2;
-
-        if (ReferenceEquals(TimelineSize, TimelineSize.Large))
-            return Quark.Gap.Is6;
-
-        return Quark.Gap.Is4;
+        return string.Equals(Orientation, "horizontal", StringComparison.OrdinalIgnoreCase)
+            ? "horizontal"
+            : "vertical";
     }
 }

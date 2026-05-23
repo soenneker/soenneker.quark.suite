@@ -1,0 +1,84 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentStepperItem" Value="ItemContext" IsFixed="false">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentStepper))]
+    internal Stepper? ParentStepper { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public int Step { get; set; }
+
+    [Parameter]
+    public bool Completed { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    internal string State => Completed || Step < (ParentStepper?.ActiveStep ?? 1)
+        ? "completed"
+        : Step == ParentStepper?.ActiveStep
+            ? "active"
+            : "inactive";
+
+    private bool IsLoading => Loading && Step == ParentStepper?.ActiveStep;
+
+    private StepperItemContext ItemContext => new(Step, State, Disabled, IsLoading);
+
+    protected override void OnInitialized()
+    {
+        ParentStepper?.RegisterStep(Step, Disabled);
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ParentStepper?.RegisterStep(Step, Disabled);
+        base.OnParametersSet();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        ParentStepper?.UnregisterStep(Step);
+        await base.DisposeAsync();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper-item";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-state"] = State;
+
+        if (IsLoading)
+            attributes["data-loading"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/step flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Step);
+        hc.Add(Completed);
+        hc.Add(Disabled);
+        hc.Add(Loading);
+        hc.Add(ParentStepper?.ActiveStep);
+    }
+}

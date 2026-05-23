@@ -1,6 +1,5 @@
 @using System.Threading
 @using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.JSInterop
 @implements IAsyncDisposable
 @inject NavigationManager Navigation
 @inject IOnThisPageInterop OnThisPageInterop
@@ -13,14 +12,24 @@
             <Paragraph Margin="Margin.FromBottom.Is4" TextSize="@_tocTextSize" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">
                 @Title
             </Paragraph>
-            <Nav Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is2" TextSize="@_tocTextSize" AriaLabel="@Title" Class="@NavClass">
-                @foreach (var item in _items)
-                {
-                    <Anchor @key="item.Id" Href="@GetLinkHref(item.Id)" Display="Display.Block" Leading="@_linkLeading" TextColor="TextColor.MutedForeground" Transition="Transition.Colors" Class="@GetLinkClass(item)" aria-current='@(item.Id == _activeId ? "location" : null)'>
-                        @item.Title
-                    </Anchor>
-                }
-            </Nav>
+            <Scrollspy Offset="96" Smooth="true" History="true" Class="contents">
+                <Nav Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is2" TextSize="@_tocTextSize" AriaLabel="@Title" Class="@NavClass">
+                    @foreach (var item in _items)
+                    {
+                        <Anchor @key="item.Id"
+                                Href="@GetLinkHref(item.Id)"
+                                Display="Display.Block"
+                                Leading="@_linkLeading"
+                                TextColor="TextColor.MutedForeground"
+                                Transition="Transition.Colors"
+                                Class="@GetLinkClass(item)"
+                                data-scrollspy-anchor="@item.Id"
+                                data-scrollspy-offset="96">
+                            @item.Title
+                        </Anchor>
+                    }
+                </Nav>
+            </Scrollspy>
         </Div>
     </Aside>
 }
@@ -38,14 +47,10 @@
     private static readonly LeadingBuilder _linkLeading = Leading.Is6;
 
     private const string _defaultLinkClass = "hover:text-foreground";
-    private const string _defaultActiveLinkClass = "font-medium !text-foreground";
     private const string _defaultAsideClass = "top-[calc(var(--header-height)+1rem)]";
 
-    private DotNetObjectReference<OnThisPage>? _dotNetRef;
     private CancellationTokenSource? _refreshCts;
     private IReadOnlyList<OnThisPageTocItem> _items = [];
-    private string? _activeId;
-    private string? _observerId;
     private bool _disposed;
 
     [Parameter]
@@ -61,9 +66,6 @@
     public string Title { get; set; } = "On This Page";
 
     [Parameter]
-    public bool TrackActiveHeading { get; set; } = true;
-
-    [Parameter]
     public bool HideWhenEmpty { get; set; } = true;
 
     [Parameter]
@@ -77,9 +79,6 @@
 
     [Parameter]
     public string? LinkClass { get; set; }
-
-    [Parameter]
-    public string? ActiveLinkClass { get; set; }
 
     private bool ShouldHide => HideWhenEmpty && _items.Count == 0;
 
@@ -102,38 +101,12 @@
         if (_disposed)
             return;
 
-        _dotNetRef ??= DotNetObjectReference.Create(this);
-
         var options = BuildOptions();
         var items = await OnThisPageInterop.GetItems(options);
 
-        if (_observerId is not null)
-        {
-            await OnThisPageInterop.DisposeObserver(_observerId);
-            _observerId = null;
-        }
-
         _items = items;
 
-        if (_items.Count == 0)
-            _activeId = null;
-        else if (_activeId is not null && !ContainsItem(_activeId))
-            _activeId = null;
-
-        if (TrackActiveHeading && _items.Count > 0)
-            _observerId = await OnThisPageInterop.CreateActiveObserver(options, _dotNetRef);
-
         await InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task SetActiveId(string? id)
-    {
-        if (string.Equals(_activeId, id, StringComparison.Ordinal))
-            return Task.CompletedTask;
-
-        _activeId = id;
-        return InvokeAsync(StateHasChanged);
     }
 
     private object BuildOptions()
@@ -161,11 +134,7 @@
             _ => null
         });
 
-        if (item.Id == _activeId)
-        {
-            AppendClass(ref builder, _defaultActiveLinkClass);
-            AppendClass(ref builder, ActiveLinkClass);
-        }
+        AppendClass(ref builder, "data-[active=true]:font-medium data-[active=true]:!text-foreground");
 
         return builder.ToStringAndDispose();
     }
@@ -197,17 +166,6 @@
         builder.Append(id);
 
         return builder.ToStringAndDispose();
-    }
-
-    private bool ContainsItem(string id)
-    {
-        foreach (var item in _items)
-        {
-            if (string.Equals(item.Id, id, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
     }
 
     private static void AppendClass(ref PooledStringBuilder builder, string? className)
@@ -266,16 +224,6 @@
             _refreshCts.Dispose();
         }
 
-        try
-        {
-            if (_observerId is not null)
-                await OnThisPageInterop.DisposeObserver(_observerId);
-        }
-        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
-        {
-        }
-
-        _dotNetRef?.Dispose();
     }
 
 }

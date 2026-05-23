@@ -1,0 +1,31 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div class="absolute">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentStepperItem))]
+    internal StepperItemContext? ParentStepperItem { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper-indicator";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "border-background bg-accent text-accent-foreground data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex size-6 shrink-0 items-center justify-center overflow-hidden");
+            AppendClass(ref cls, "style-vega:rounded-full style-vega:text-xs style-maia:rounded-full style-maia:text-xs style-nova:rounded-full style-nova:text-xs style-lyra:rounded-none style-lyra:text-[0.625rem] style-mira:rounded-sm style-mira:text-[0.625rem]");
+        });
+    }
+}

@@ -1,7 +1,25 @@
 @namespace Soenneker.Quark
+@using Soenneker.Quark.Dtos
 @inherits Soenneker.Quark.Element
 
-<button @onclick="HandleRailClick" @attributes="BuildAttributes()"></button>
+<button @onclick="HandleRailClick" @attributes="BuildAttributes()">
+    @if (ShowTrigger)
+    {
+        <span @attributes="BuildTriggerAttributes()">
+            @if (ChildContent is null)
+            {
+                <Svg Size="Quark.Size.Is4" Class="cn-rtl-flip" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <path d="M9 3v18"></path>
+                </Svg>
+            }
+            else
+            {
+                @ChildContent
+            }
+        </span>
+    }
+</button>
 
 @code {
     protected override void ApplyDefaultParameters()
@@ -12,6 +30,18 @@
 
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public SidebarContextState? State { get; set; }
+
+    [Parameter]
+    public bool ShowTrigger { get; set; }
+
+    [Parameter]
+    public string TriggerTop { get; set; } = "1rem";
+
+    [Parameter]
+    public string? TriggerClass { get; set; }
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
@@ -32,16 +62,52 @@
         attributes["type"] = "button";
         attributes["aria-label"] = "Toggle Sidebar";
         attributes["title"] = "Toggle Sidebar";
-        attributes["tabindex"] = -1;
+        attributes["aria-expanded"] = State?.Open == true ? "true" : "false";
+
+        if (!ShowTrigger)
+            attributes["tabindex"] = -1;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2");
-            AppendClass(ref cls, "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize");
-            AppendClass(ref cls, "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize");
+            AppendClass(ref cls, "absolute inset-y-0 z-20 hidden w-4 cursor-default transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2");
             AppendClass(ref cls, "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full");
             AppendClass(ref cls, "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2");
             AppendClass(ref cls, "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2");
+
+            if (ShowTrigger)
+                AppendClass(ref cls, "focus-visible:outline-none focus-visible:[&>[data-sidebar=rail-trigger]]:ring-2 focus-visible:[&>[data-sidebar=rail-trigger]]:ring-sidebar-ring");
         });
+    }
+
+    private Dictionary<string, object> BuildTriggerAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-sidebar"] = "rail-trigger",
+            ["aria-hidden"] = "true",
+            ["style"] = $"top: {TriggerTop}; --sidebar-rail-trigger-offset: {(State?.Open == true ? "2.75rem" : "1rem")};"
+        };
+
+        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "absolute flex size-7 items-center justify-center rounded-md border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xs transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0");
+            AppendClass(ref cls, "group-data-[side=left]:right-(--sidebar-rail-trigger-offset) group-data-[side=right]:left-(--sidebar-rail-trigger-offset)");
+            AppendClass(ref cls, "group-data-[state=collapsed]:pointer-events-none group-data-[state=collapsed]:opacity-0 group-hover:pointer-events-auto! group-hover:opacity-100!");
+
+            if (TriggerClass.HasContent())
+                AppendClass(ref cls, TriggerClass!);
+        });
+
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(State?.Open);
+        hc.Add(ShowTrigger);
+        hc.Add(TriggerTop);
+        hc.Add(TriggerClass);
+        hc.Add(ChildContent is not null);
     }
 }

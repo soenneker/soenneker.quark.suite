@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()"></div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentStepperItem))]
+    internal StepperItemContext? ParentStepperItem { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper-separator";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "bg-muted style-vega:rounded-full style-vega:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-vega:group-data-[orientation=vertical]/stepper-nav:h-12 style-vega:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-maia:rounded-full style-maia:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-maia:group-data-[orientation=vertical]/stepper-nav:h-12 style-maia:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-nova:rounded-sm style-nova:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-nova:group-data-[orientation=vertical]/stepper-nav:h-12 style-nova:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-lyra:rounded-none style-lyra:group-data-[orientation=horizontal]/stepper-nav:h-px style-lyra:group-data-[orientation=vertical]/stepper-nav:h-12 style-lyra:group-data-[orientation=vertical]/stepper-nav:w-px style-mira:rounded-sm style-mira:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-mira:group-data-[orientation=vertical]/stepper-nav:h-12 style-mira:group-data-[orientation=vertical]/stepper-nav:w-0.5 m-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1");
+        });
+    }
+}

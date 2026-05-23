@@ -36,11 +36,11 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkPromptInputAsScoped()
                 .AddQuarkFloatingWindowAsScoped()
                 .AddQuarkResizableAsScoped()
-                .AddQuarkTreeViewAsScoped()
                 .AddQuarkThreadsAsScoped()
-                .AddQuarkStepsAsScoped()
+                .AddQuarkScrollspyAsScoped()
                 .AddQuarkCodeEditorAsScoped()
                 .AddQuarkScoreAsScoped()
+                .AddQuarkColorPickerAsScoped()
                 .AddQuarkOnThisPageAsScoped()
                 .AddC15tAsScoped()
                 .AddClipboardAsScoped();

@@ -1,0 +1,412 @@
+@page "/components/tree"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Tree - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Description="A composable tree for hierarchical navigation and file-style lists."
+                     PreviewClass="@TreePreviewClass"
+                     PreviewAlign="start"
+                     Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs">
+                <Tree Indent="20" AriaLabel="CRM navigation">
+                    @foreach (var item in GetVisibleCrmNodes())
+                    {
+                        <TreeItem @key="item.Node.Id"
+                                  Level="@item.Level"
+                                  Folder="@item.Node.HasChildren"
+                                  Expanded="@_expandedCrm.Contains(item.Node.Id)"
+                                  Selected="@(_selectedCrmId == item.Node.Id)"
+                                  Click="@(_ => OnCrmNodeClick(item.Node))"
+                                  KeyDown="@(e => OnCrmNodeKeyDown(item.Node, e))">
+                            <TreeItemLabel>@item.Node.Name</TreeItemLabel>
+                        </TreeItem>
+                    }
+                </Tree>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Indented Lines"
+                     Description="Add guide lines with CSS while keeping the same primitive structure."
+                     PreviewClass="@TreePreviewClass"
+                     PreviewAlign="start"
+                     Code="@IndentedCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs">
+                <Tree Indent="20"
+                      ToggleIconType="TreeToggleIconType.PlusMinus"
+                      Class="relative before:absolute before:inset-0 before:-ms-1.25 before:bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)))]"
+                      AriaLabel="Project tree">
+                    @foreach (var item in GetVisibleProjectNodes())
+                    {
+                        <TreeItem @key="item.Node.Id"
+                                  Level="@item.Level"
+                                  Folder="@item.Node.HasChildren"
+                                  Expanded="@_expandedProject.Contains(item.Node.Id)"
+                                  Selected="@(_selectedProjectId == item.Node.Id)"
+                                  Click="@(_ => OnProjectNodeClick(item.Node))"
+                                  KeyDown="@(e => OnProjectNodeKeyDown(item.Node, e))">
+                            <TreeItemLabel Class="relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10 before:bg-background">
+                                <Span Margin="Margin.Is1.FromStart" Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                                    <Icon Name="@(item.Node.HasChildren ? (_expandedProject.Contains(item.Node.Id) ? LucideIcon.FolderOpen : LucideIcon.Folder) : LucideIcon.File)" Class="text-muted-foreground size-4" />
+                                    @item.Node.Name
+                                </Span>
+                            </TreeItemLabel>
+                        </TreeItem>
+                    }
+                </Tree>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="File Explorer"
+                     Description="Compose icons and custom labels for file-system navigation."
+                     PreviewClass="@TreePreviewClass"
+                     PreviewAlign="start"
+                     Code="@FileExplorerCode"
+                     CodeLanguage="razor">
+            <Card CardSize="CardSize.Sm" Class="mx-auto w-full max-w-[18rem]">
+                <CardHeader>
+                    <CardTitle>Explorer</CardTitle>
+                    <CardDescription>app</CardDescription>
+                </CardHeader>
+                <CardBody>
+                    <Tree Indent="20" AriaLabel="File explorer">
+                        @foreach (var item in GetVisibleFileNodes())
+                        {
+                            <TreeItem @key="item.Node.Id"
+                                      Level="@item.Level"
+                                      Folder="@item.Node.HasChildren"
+                                      Expanded="@_expandedFiles.Contains(item.Node.Id)"
+                                      Selected="@(_selectedFileId == item.Node.Id)"
+                                      Click="@(_ => OnFileNodeClick(item.Node))"
+                                      KeyDown="@(e => OnFileNodeKeyDown(item.Node, e))">
+                                <TreeItemLabel>
+                                    <Icon Name="@GetFileIcon(item.Node)" Class="@GetFileIconClass(item.Node)" />
+                                    @item.Node.Name
+                                </TreeItemLabel>
+                            </TreeItem>
+                        }
+                    </Tree>
+                </CardBody>
+            </Card>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Permissions"
+                     Description="Use tree labels with checkboxes for nested permission editors."
+                     PreviewClass="@TreePreviewClass"
+                     PreviewAlign="start"
+                     Code="@PermissionsCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs">
+                <Tree Indent="22" ToggleIconType="TreeToggleIconType.PlusMinus" AriaLabel="Permissions">
+                    @foreach (var item in GetVisiblePermissionNodes())
+                    {
+                        <TreeItem @key="item.Node.Id"
+                                  Level="@item.Level"
+                                  Folder="@item.Node.HasChildren"
+                                  Expanded="@_expandedPermissions.Contains(item.Node.Id)"
+                                  Selected="@_checkedPermissions.Contains(item.Node.Id)"
+                                  Click="@(_ => OnPermissionNodeClick(item.Node))"
+                                  KeyDown="@(e => OnPermissionNodeKeyDown(item.Node, e))">
+                            <TreeItemLabel>
+                                <Check TValue="bool"
+                                       Checked="@_checkedPermissions.Contains(item.Node.Id)"
+                                       CheckedChanged="@(value => OnPermissionCheckedChanged(item.Node, value))" />
+                                @item.Node.Name
+                            </TreeItemLabel>
+                        </TreeItem>
+                    }
+                </Tree>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private const string TreePreviewClass = "preview relative flex min-h-72 w-full justify-center p-6 data-[align=start]:items-start";
+
+    private readonly Dictionary<string, TreeDemoNode> _crmNodes = new(StringComparer.Ordinal)
+    {
+        ["crm"] = new("crm", "CRM", ["leads", "accounts", "activities", "support"]),
+        ["leads"] = new("leads", "Leads", ["new-lead", "contacted-lead", "qualified-lead"]),
+        ["new-lead"] = new("new-lead", "New Lead"),
+        ["contacted-lead"] = new("contacted-lead", "Contacted Lead"),
+        ["qualified-lead"] = new("qualified-lead", "Qualified Lead"),
+        ["accounts"] = new("accounts", "Accounts", ["acme-corp", "globex-inc"]),
+        ["acme-corp"] = new("acme-corp", "Acme Corp", ["acme-contacts", "acme-opportunities"]),
+        ["acme-contacts"] = new("acme-contacts", "Contacts", ["john-smith", "jane-doe"]),
+        ["john-smith"] = new("john-smith", "John Smith"),
+        ["jane-doe"] = new("jane-doe", "Jane Doe"),
+        ["acme-opportunities"] = new("acme-opportunities", "Opportunities", ["website-redesign", "annual-maintenance"]),
+        ["website-redesign"] = new("website-redesign", "Website Redesign"),
+        ["annual-maintenance"] = new("annual-maintenance", "Annual Maintenance"),
+        ["globex-inc"] = new("globex-inc", "Globex Inc", ["globex-contacts", "globex-opportunities"]),
+        ["globex-contacts"] = new("globex-contacts", "Contacts", ["alice-johnson"]),
+        ["alice-johnson"] = new("alice-johnson", "Alice Johnson"),
+        ["globex-opportunities"] = new("globex-opportunities", "Opportunities", ["cloud-migration"]),
+        ["cloud-migration"] = new("cloud-migration", "Cloud Migration"),
+        ["activities"] = new("activities", "Activities", ["calls", "meetings", "emails"]),
+        ["calls"] = new("calls", "Calls"),
+        ["meetings"] = new("meetings", "Meetings"),
+        ["emails"] = new("emails", "Emails"),
+        ["support"] = new("support", "Support", ["open-tickets", "closed-tickets"]),
+        ["open-tickets"] = new("open-tickets", "Open Tickets"),
+        ["closed-tickets"] = new("closed-tickets", "Closed Tickets")
+    };
+
+    private readonly Dictionary<string, TreeDemoNode> _projectNodes = new(StringComparer.Ordinal)
+    {
+        ["project"] = new("project", "quark", ["src", "tests", "docs"]),
+        ["src"] = new("src", "src", ["components", "theme", "utilities"]),
+        ["components"] = new("components", "components", ["tree", "button", "card"]),
+        ["tree"] = new("tree", "tree"),
+        ["button"] = new("button", "button"),
+        ["card"] = new("card", "card"),
+        ["theme"] = new("theme", "theme"),
+        ["utilities"] = new("utilities", "utilities"),
+        ["tests"] = new("tests", "tests", ["playwright", "rendering"]),
+        ["playwright"] = new("playwright", "playwright"),
+        ["rendering"] = new("rendering", "rendering"),
+        ["docs"] = new("docs", "docs")
+    };
+
+    private readonly Dictionary<string, TreeDemoNode> _fileNodes = new(StringComparer.Ordinal)
+    {
+        ["app"] = new("app", "app", ["components", "lib", "app-tsx", "layout-tsx", "package-json"]),
+        ["components"] = new("components", "components", ["ui", "login-form"]),
+        ["ui"] = new("ui", "ui", ["button-tsx", "card-tsx", "dialog-tsx"]),
+        ["button-tsx"] = new("button-tsx", "button.tsx"),
+        ["card-tsx"] = new("card-tsx", "card.tsx"),
+        ["dialog-tsx"] = new("dialog-tsx", "dialog.tsx"),
+        ["login-form"] = new("login-form", "login-form.tsx"),
+        ["lib"] = new("lib", "lib", ["utils-ts", "api-ts"]),
+        ["utils-ts"] = new("utils-ts", "utils.ts"),
+        ["api-ts"] = new("api-ts", "api.ts"),
+        ["app-tsx"] = new("app-tsx", "app.tsx"),
+        ["layout-tsx"] = new("layout-tsx", "layout.tsx"),
+        ["package-json"] = new("package-json", "package.json")
+    };
+
+    private readonly Dictionary<string, TreeDemoNode> _permissionNodes = new(StringComparer.Ordinal)
+    {
+        ["permissions"] = new("permissions", "Workspace", ["contacts", "billing", "settings"]),
+        ["contacts"] = new("contacts", "Contacts", ["contacts-read", "contacts-write", "contacts-delete"]),
+        ["contacts-read"] = new("contacts-read", "Read contacts"),
+        ["contacts-write"] = new("contacts-write", "Create and edit contacts"),
+        ["contacts-delete"] = new("contacts-delete", "Delete contacts"),
+        ["billing"] = new("billing", "Billing", ["billing-read", "billing-write"]),
+        ["billing-read"] = new("billing-read", "View invoices"),
+        ["billing-write"] = new("billing-write", "Manage payment methods"),
+        ["settings"] = new("settings", "Settings", ["settings-read", "settings-write"]),
+        ["settings-read"] = new("settings-read", "View settings"),
+        ["settings-write"] = new("settings-write", "Change settings")
+    };
+
+    private readonly HashSet<string> _expandedCrm = new(StringComparer.Ordinal) { "crm", "leads", "accounts", "activities" };
+    private readonly HashSet<string> _expandedProject = new(StringComparer.Ordinal) { "project", "src", "components", "tests" };
+    private readonly HashSet<string> _expandedFiles = new(StringComparer.Ordinal) { "app", "components", "ui", "lib" };
+    private readonly HashSet<string> _expandedPermissions = new(StringComparer.Ordinal) { "permissions", "contacts", "billing", "settings" };
+    private readonly HashSet<string> _checkedPermissions = new(StringComparer.Ordinal) { "contacts-read", "billing-read" };
+
+    private string? _selectedCrmId = "qualified-lead";
+    private string? _selectedProjectId = "tree";
+    private string? _selectedFileId = "button-tsx";
+
+    private IEnumerable<VisibleTreeNode> GetVisibleCrmNodes() => GetVisibleNodes(_crmNodes, "crm", _expandedCrm);
+    private IEnumerable<VisibleTreeNode> GetVisibleProjectNodes() => GetVisibleNodes(_projectNodes, "project", _expandedProject);
+    private IEnumerable<VisibleTreeNode> GetVisibleFileNodes() => GetVisibleNodes(_fileNodes, "app", _expandedFiles);
+    private IEnumerable<VisibleTreeNode> GetVisiblePermissionNodes() => GetVisibleNodes(_permissionNodes, "permissions", _expandedPermissions);
+
+    private static IEnumerable<VisibleTreeNode> GetVisibleNodes(IReadOnlyDictionary<string, TreeDemoNode> nodes, string rootId, ISet<string> expanded)
+    {
+        foreach (var node in Walk(rootId, 0))
+            yield return node;
+
+        IEnumerable<VisibleTreeNode> Walk(string id, int level)
+        {
+            if (!nodes.TryGetValue(id, out var node))
+                yield break;
+
+            yield return new VisibleTreeNode(node, level);
+
+            if (!node.HasChildren || !expanded.Contains(node.Id))
+                yield break;
+
+            foreach (var childId in node.Children)
+            {
+                foreach (var child in Walk(childId, level + 1))
+                    yield return child;
+            }
+        }
+    }
+
+    private Task OnCrmNodeClick(TreeDemoNode node)
+    {
+        ToggleOrSelect(node, _expandedCrm, ref _selectedCrmId);
+        return Task.CompletedTask;
+    }
+
+    private Task OnProjectNodeClick(TreeDemoNode node)
+    {
+        ToggleOrSelect(node, _expandedProject, ref _selectedProjectId);
+        return Task.CompletedTask;
+    }
+
+    private Task OnFileNodeClick(TreeDemoNode node)
+    {
+        ToggleOrSelect(node, _expandedFiles, ref _selectedFileId);
+        return Task.CompletedTask;
+    }
+
+    private Task OnPermissionNodeClick(TreeDemoNode node)
+    {
+        if (node.HasChildren)
+            ToggleExpanded(node, _expandedPermissions);
+        else
+            SetPermission(node, !_checkedPermissions.Contains(node.Id));
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnPermissionCheckedChanged(TreeDemoNode node, bool value)
+    {
+        SetPermission(node, value);
+        return Task.CompletedTask;
+    }
+
+    private Task OnCrmNodeKeyDown(TreeDemoNode node, KeyboardEventArgs args) => HandleTreeKey(node, args, _expandedCrm, () => _selectedCrmId = node.Id);
+    private Task OnProjectNodeKeyDown(TreeDemoNode node, KeyboardEventArgs args) => HandleTreeKey(node, args, _expandedProject, () => _selectedProjectId = node.Id);
+    private Task OnFileNodeKeyDown(TreeDemoNode node, KeyboardEventArgs args) => HandleTreeKey(node, args, _expandedFiles, () => _selectedFileId = node.Id);
+    private Task OnPermissionNodeKeyDown(TreeDemoNode node, KeyboardEventArgs args) => HandleTreeKey(node, args, _expandedPermissions, () => SetPermission(node, !_checkedPermissions.Contains(node.Id)));
+
+    private static void ToggleOrSelect(TreeDemoNode node, ISet<string> expanded, ref string? selectedId)
+    {
+        if (node.HasChildren)
+            ToggleExpanded(node, expanded);
+
+        selectedId = node.Id;
+    }
+
+    private static void ToggleExpanded(TreeDemoNode node, ISet<string> expanded)
+    {
+        if (!expanded.Add(node.Id))
+            expanded.Remove(node.Id);
+    }
+
+    private Task HandleTreeKey(TreeDemoNode node, KeyboardEventArgs args, ISet<string> expanded, Action select)
+    {
+        if (!node.HasChildren && args.Key is "Enter" or " " or "Spacebar")
+            select();
+        else if (node.HasChildren && args.Key is "Enter" or " " or "Spacebar" or "ArrowRight" or "ArrowLeft")
+        {
+            if (args.Key == "ArrowRight")
+                expanded.Add(node.Id);
+            else if (args.Key == "ArrowLeft")
+                expanded.Remove(node.Id);
+            else
+                ToggleExpanded(node, expanded);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void SetPermission(TreeDemoNode node, bool value)
+    {
+        if (value)
+            _checkedPermissions.Add(node.Id);
+        else
+            _checkedPermissions.Remove(node.Id);
+
+        foreach (var childId in node.Children)
+        {
+            if (_permissionNodes.TryGetValue(childId, out var child))
+                SetPermission(child, value);
+        }
+    }
+
+    private static LucideIcon GetFileIcon(TreeDemoNode node)
+    {
+        if (node.HasChildren)
+            return LucideIcon.Folder;
+
+        return node.Name.EndsWith(".json", StringComparison.Ordinal) ? LucideIcon.Braces : LucideIcon.File;
+    }
+
+    private static string GetFileIconClass(TreeDemoNode node)
+    {
+        if (node.HasChildren)
+            return "text-muted-foreground size-4";
+
+        return node.Name.EndsWith(".json", StringComparison.Ordinal) ? "text-amber-600 size-4" : "text-muted-foreground size-4";
+    }
+
+    private sealed record TreeDemoNode(string Id, string Name, IReadOnlyList<string>? Children = null)
+    {
+        public IReadOnlyList<string> Children { get; } = Children ?? [];
+        public bool HasChildren => Children.Count > 0;
+    }
+
+    private sealed record VisibleTreeNode(TreeDemoNode Node, int Level);
+
+    private const string BasicCode =
+@"<Tree Indent=""20"" AriaLabel=""CRM navigation"">
+    @foreach (var item in GetVisibleNodes())
+    {
+        <TreeItem Level=""@item.Level""
+                  Folder=""@item.Node.HasChildren""
+                  Expanded=""@expanded.Contains(item.Node.Id)""
+                  Selected=""@(selectedId == item.Node.Id)""
+                  Click=""@(_ => OnNodeClick(item.Node))"">
+            <TreeItemLabel>@item.Node.Name</TreeItemLabel>
+        </TreeItem>
+    }
+</Tree>";
+
+    private const string IndentedCode =
+@"<Tree Indent=""20""
+      ToggleIconType=""TreeToggleIconType.PlusMinus""
+      Class=""relative before:absolute before:inset-0 before:-ms-1.25 before:bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)))]"">
+    <TreeItem Level=""@item.Level"" Folder=""@item.Node.HasChildren"" Expanded=""@expanded.Contains(item.Node.Id)"">
+        <TreeItemLabel Class=""relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10 before:bg-background"">
+            <Icon Name=""LucideIcon.Folder"" />
+            @item.Node.Name
+        </TreeItemLabel>
+    </TreeItem>
+</Tree>";
+
+    private const string FileExplorerCode =
+@"<Tree Indent=""20"" AriaLabel=""File explorer"">
+    <TreeItem Level=""0"" Folder=""true"" Expanded=""true"">
+        <TreeItemLabel>
+            <Icon Name=""LucideIcon.Folder"" />
+            components
+        </TreeItemLabel>
+    </TreeItem>
+    <TreeItem Level=""1"">
+        <TreeItemLabel>
+            <Icon Name=""LucideIcon.File"" />
+            button.tsx
+        </TreeItemLabel>
+    </TreeItem>
+</Tree>";
+
+    private const string PermissionsCode =
+@"<Tree Indent=""22"" ToggleIconType=""TreeToggleIconType.PlusMinus"">
+    <TreeItem Level=""@item.Level""
+              Folder=""@item.Node.HasChildren""
+              Selected=""@checkedIds.Contains(item.Node.Id)"">
+        <TreeItemLabel>
+            <Check TValue=""bool"" Checked=""@checkedIds.Contains(item.Node.Id)"" />
+            @item.Node.Name
+        </TreeItemLabel>
+    </TreeItem>
+</Tree>";
+}

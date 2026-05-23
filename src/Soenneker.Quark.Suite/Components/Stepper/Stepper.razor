@@ -1,0 +1,122 @@
+@namespace Soenneker.Quark
+@using Microsoft.AspNetCore.Components.Web
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentStepper" Value="this" IsFixed="false">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    private readonly SortedDictionary<int, ElementReference> _triggers = [];
+    private readonly HashSet<int> _disabledSteps = [];
+
+    [Parameter]
+    public int DefaultValue { get; set; } = 1;
+
+    [Parameter]
+    public int? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Orientation { get; set; } = "horizontal";
+
+    internal int ActiveStep => Value ?? DefaultValue;
+
+    internal string ResolvedOrientation => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
+
+    internal async Task SetActiveStep(int step)
+    {
+        if (_disabledSteps.Contains(step))
+            return;
+
+        if (Value is null)
+            DefaultValue = step;
+
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(step);
+
+        InvalidateRender();
+        Refresh();
+    }
+
+    internal void RegisterStep(int step, bool disabled)
+    {
+        if (disabled)
+            _disabledSteps.Add(step);
+        else
+            _disabledSteps.Remove(step);
+    }
+
+    internal void UnregisterStep(int step)
+    {
+        _disabledSteps.Remove(step);
+        _triggers.Remove(step);
+    }
+
+    internal void RegisterTrigger(int step, ElementReference element)
+    {
+        _triggers[step] = element;
+    }
+
+    internal async Task HandleTriggerKeyDown(int step, KeyboardEventArgs args)
+    {
+        var steps = _triggers.Keys.Where(candidate => !_disabledSteps.Contains(candidate)).ToArray();
+        if (steps.Length == 0)
+            return;
+
+        var currentIndex = Array.IndexOf(steps, step);
+        if (currentIndex < 0)
+            return;
+
+        var target = args.Key switch
+        {
+            "ArrowRight" or "ArrowDown" => steps[(currentIndex + 1) % steps.Length],
+            "ArrowLeft" or "ArrowUp" => steps[(currentIndex - 1 + steps.Length) % steps.Length],
+            "Home" => steps[0],
+            "End" => steps[^1],
+            "Enter" or " " => step,
+            _ => 0
+        };
+
+        if (target == 0)
+            return;
+
+        if (args.Key is "Enter" or " ")
+            await SetActiveStep(target);
+
+        if (_triggers.TryGetValue(target, out var trigger))
+            await trigger.FocusAsync();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "stepper";
+        Width ??= Quark.Width.IsFull;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["role"] = "tablist";
+        attributes["aria-orientation"] = ResolvedOrientation;
+        attributes["data-orientation"] = ResolvedOrientation;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "w-full");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DefaultValue);
+        hc.Add(Value);
+        hc.Add(Orientation);
+    }
+}
