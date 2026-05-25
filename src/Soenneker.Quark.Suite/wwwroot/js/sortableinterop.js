@@ -38,17 +38,7 @@ export function initializeList(element, disabled, sort, animation, forceFallback
         return;
       }
 
-      const reorderArgs = {
-        oldIndex: evt.oldIndex ?? -1,
-        newIndex: evt.newIndex ?? -1,
-        oldDraggableIndex: evt.oldDraggableIndex ?? -1,
-        newDraggableIndex: evt.newDraggableIndex ?? -1,
-        itemId: evt.item?.getAttribute("data-sortable-id"),
-        fromListId: evt.from?.getAttribute("data-sortable-list-id"),
-        toListId: evt.to?.getAttribute("data-sortable-list-id"),
-      };
-
-      window.setTimeout(() => dotNetRef.invokeMethodAsync("HandleReorder", reorderArgs), Math.max(0, animation ?? 0));
+      notifyReorder(dotNetRef, createPointerReorderArgs(evt, itemSelector || "[data-sortable-item]"));
     },
   };
 
@@ -178,7 +168,10 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
     liveRegion.textContent = `${itemId || "Item"} moved from position ${oldIndex + 1} to ${newIndex + 1}.`;
 
     if (notifyOnReorder) {
-      await dotNetRef.invokeMethodAsync("HandleReorder", {
+      const orderedItems = reorderItems(items, oldIndex, newIndex);
+      const orderedItemIds = getItemIds(orderedItems);
+
+      await notifyReorder(dotNetRef, {
         oldIndex,
         newIndex,
         oldDraggableIndex: oldIndex,
@@ -186,6 +179,8 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
         itemId,
         fromListId: listId,
         toListId: listId,
+        fromItemIds: orderedItemIds,
+        toItemIds: orderedItemIds,
       });
     } else {
       const reference = newIndex > oldIndex ? items[newIndex].nextSibling : items[newIndex];
@@ -217,7 +212,46 @@ function unregisterKeyboardReorder(element) {
 }
 
 function getEnabledItems(element, itemSelector) {
-  return Array.from(element.querySelectorAll(itemSelector)).filter(item => !isDisabledItem(item));
+  return Array.from(element.children).filter(item => item.matches(itemSelector) && !isDisabledItem(item));
+}
+
+function createPointerReorderArgs(evt, itemSelector) {
+  return {
+    oldIndex: evt.oldIndex ?? -1,
+    newIndex: evt.newIndex ?? -1,
+    oldDraggableIndex: evt.oldDraggableIndex ?? -1,
+    newDraggableIndex: evt.newDraggableIndex ?? -1,
+    itemId: evt.item?.getAttribute("data-sortable-id"),
+    fromListId: evt.from?.getAttribute("data-sortable-list-id"),
+    toListId: evt.to?.getAttribute("data-sortable-list-id"),
+    fromItemIds: getDirectItemIds(evt.from, itemSelector),
+    toItemIds: getDirectItemIds(evt.to, itemSelector),
+  };
+}
+
+function getDirectItemIds(element, itemSelector) {
+  if (!element) {
+    return [];
+  }
+
+  return getItemIds(Array.from(element.children).filter(item => item.matches(itemSelector) && !isDisabledItem(item)));
+}
+
+function getItemIds(items) {
+  return items
+    .map(item => item.getAttribute("data-sortable-id"))
+    .filter(id => id);
+}
+
+function reorderItems(items, oldIndex, newIndex) {
+  const orderedItems = [...items];
+  const [item] = orderedItems.splice(oldIndex, 1);
+  orderedItems.splice(newIndex, 0, item);
+  return orderedItems;
+}
+
+function notifyReorder(dotNetRef, reorderArgs) {
+  return dotNetRef.invokeMethodAsync("HandleReorder", reorderArgs);
 }
 
 function isDisabledItem(item) {

@@ -112,13 +112,14 @@ private const string KanbanCode =
 
     private Task HandleColumnReorder(SortableReorderEventArgs args)
     {
-        TryMove(_columns, args.OldIndex, args.NewIndex);
+        TryMoveById(_columns, column => column.Id, args.ItemId, args.ToItemIds, args.NewDraggableIndex, args.NewIndex);
         return Task.CompletedTask;
     }
 
     private Task HandleTaskMove(SortableReorderEventArgs args)
     {
-        var sourceColumn = _columns.FirstOrDefault(column => column.Id == args.FromListId);
+        var sourceColumn = _columns.FirstOrDefault(column => column.Tasks.Any(task => string.Equals(task.Id, args.ItemId, StringComparison.Ordinal))) ??
+                           _columns.FirstOrDefault(column => column.Id == args.FromListId);
         var targetColumn = _columns.FirstOrDefault(column => column.Id == args.ToListId);
 
         if (sourceColumn is null || targetColumn is null)
@@ -126,31 +127,59 @@ private const string KanbanCode =
 
         if (sourceColumn == targetColumn)
         {
-            TryMove(sourceColumn.Tasks, args.OldIndex, args.NewIndex);
+            TryMoveById(sourceColumn.Tasks, task => task.Id, args.ItemId, args.ToItemIds, args.NewDraggableIndex, args.NewIndex);
             return Task.CompletedTask;
         }
 
-        if (args.OldIndex < 0 || args.OldIndex >= sourceColumn.Tasks.Count)
+        var sourceIndex = sourceColumn.Tasks.FindIndex(task => string.Equals(task.Id, args.ItemId, StringComparison.Ordinal));
+
+        if (sourceIndex < 0)
             return Task.CompletedTask;
 
-        var targetIndex = Math.Clamp(args.NewIndex, 0, targetColumn.Tasks.Count);
-        var task = sourceColumn.Tasks[args.OldIndex];
-        sourceColumn.Tasks.RemoveAt(args.OldIndex);
+        var targetIndex = Math.Clamp(ResolveTargetIndex(args.ItemId, args.ToItemIds, args.NewDraggableIndex, args.NewIndex), 0, targetColumn.Tasks.Count);
+        var task = sourceColumn.Tasks[sourceIndex];
+        sourceColumn.Tasks.RemoveAt(sourceIndex);
         targetColumn.Tasks.Insert(targetIndex, task);
 
         return Task.CompletedTask;
     }
 
-    private static bool TryMove<T>(List<T> items, int oldIndex, int newIndex)
+    private static bool TryMoveById<T>(List<T> items, Func<T, string> idSelector, string? itemId, IReadOnlyList<string> orderedIds, int newDraggableIndex, int newIndex)
     {
-        if (oldIndex < 0 || newIndex < 0 || oldIndex >= items.Count || newIndex >= items.Count || oldIndex == newIndex)
+        if (string.IsNullOrWhiteSpace(itemId))
+            return false;
+
+        var oldIndex = items.FindIndex(item => string.Equals(idSelector(item), itemId, StringComparison.Ordinal));
+
+        if (oldIndex < 0)
+            return false;
+
+        var requestedTargetIndex = ResolveTargetIndex(itemId, orderedIds, newDraggableIndex, newIndex);
+
+        if (oldIndex == requestedTargetIndex)
             return false;
 
         var item = items[oldIndex];
         items.RemoveAt(oldIndex);
-        items.Insert(newIndex, item);
+        var targetIndex = Math.Clamp(requestedTargetIndex, 0, items.Count);
+        items.Insert(targetIndex, item);
 
         return true;
+    }
+
+    private static int ResolveTargetIndex(string? itemId, IReadOnlyList<string> orderedIds, int newDraggableIndex, int newIndex)
+    {
+        if (!string.IsNullOrWhiteSpace(itemId))
+        {
+            for (var i = 0; i < orderedIds.Count; i++)
+            {
+                if (string.Equals(orderedIds[i], itemId, StringComparison.Ordinal))
+                    return i;
+            }
+        }
+
+        var fallbackIndex = newDraggableIndex >= 0 ? newDraggableIndex : newIndex;
+        return Math.Max(0, fallbackIndex);
     }
 
     private sealed record KanbanColumnModel(string Id, string Title, List<KanbanTaskModel> Tasks);

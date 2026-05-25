@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -18,4 +20,14 @@ public sealed class SortableReorderEventArgs
     public string? FromListId { get; set; }
 
     public string? ToListId { get; set; }
+
+    /// <summary>
+    /// Item ids in the source list after the drop.
+    /// </summary>
+    public List<string> FromItemIds { get; set; } = [];
+
+    /// <summary>
+    /// Item ids in the target list after the drop.
+    /// </summary>
+    public List<string> ToItemIds { get; set; } = [];
 }
