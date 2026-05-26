@@ -5,6 +5,7 @@ using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,15 +24,31 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
-    private const string _cdnLoaderPath = "/min/vs/loader.js";
-    private const string _cdnBasePath = "/min";
+    private const string _cdnModulePath = "/+esm";
     
-    private const string _localCssPath = "/css/monaco-editor/editor.main.css";
-    private const string _localLoaderPath = "/js/monaco-editor/loader.js";
-    private const string _localBasePath = "/js/monaco-editor/min";
+    private const string _localContentPath = "_content/Soenneker.Quark.Suite";
+    private const string _localCssPath = $"{_localContentPath}/css/monaco-editor/editor.main.css";
+    private const string _localModulePath = $"{_localContentPath}/js/monaco-editor/monaco.editor.main.esm.js";
     
     private const string _cssIntegrity = "sha256-22wc1geUOoYbR8dmDQ7wLvZPcXMZTXxLi85cmIFW5fg=";
-    private const string _loaderIntegrity = "sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=";
+
+    private static readonly IReadOnlyDictionary<string, string> _cdnWorkerUrls = new Dictionary<string, string>
+    {
+        ["editor"] = $"{_cdnBaseUrl}/esm/vs/editor/editor.worker.js/+esm",
+        ["json"] = $"{_cdnBaseUrl}/esm/vs/language/json/json.worker.js/+esm",
+        ["css"] = $"{_cdnBaseUrl}/esm/vs/language/css/css.worker.js/+esm",
+        ["html"] = $"{_cdnBaseUrl}/esm/vs/language/html/html.worker.js/+esm",
+        ["typescript"] = $"{_cdnBaseUrl}/esm/vs/language/typescript/ts.worker.js/+esm"
+    };
+
+    private static readonly IReadOnlyDictionary<string, string> _localWorkerUrls = new Dictionary<string, string>
+    {
+        ["editor"] = $"{_localContentPath}/js/monaco-editor/workers/editor.worker.esm.js",
+        ["json"] = $"{_localContentPath}/js/monaco-editor/workers/json.worker.esm.js",
+        ["css"] = $"{_localContentPath}/js/monaco-editor/workers/css.worker.esm.js",
+        ["html"] = $"{_localContentPath}/js/monaco-editor/workers/html.worker.esm.js",
+        ["typescript"] = $"{_localContentPath}/js/monaco-editor/workers/ts.worker.esm.js"
+    };
 
     private readonly QuarkOptions _quarkOptions;
 
@@ -46,38 +63,36 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private async ValueTask InitializeResources(CancellationToken token)
     {
         string cssUrl;
-        string loaderUrl;
-        string monacoBaseUrl;
+        string moduleUrl;
+        IReadOnlyDictionary<string, string> workerUrls;
         bool useIntegrity;
 
         if (_quarkOptions.CodeEditorUseCdn)
         {
             cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
-            loaderUrl = $"{_cdnBaseUrl}{_cdnLoaderPath}";
-            monacoBaseUrl = $"{_cdnBaseUrl}{_cdnBasePath}";
+            moduleUrl = $"{_cdnBaseUrl}{_cdnModulePath}";
+            workerUrls = _cdnWorkerUrls;
             useIntegrity = true;
         }
         else
         {
             cssUrl = _localCssPath;
-            loaderUrl = _localLoaderPath;
-            monacoBaseUrl = _localBasePath;
+            moduleUrl = _localModulePath;
+            workerUrls = _localWorkerUrls;
             useIntegrity = false;
         }
 
         if (useIntegrity)
         {
             await _resourceLoader.LoadStyle(cssUrl, integrity: _cssIntegrity, cancellationToken: token);
-            await _resourceLoader.LoadScript(loaderUrl, integrity: _loaderIntegrity, cancellationToken: token);
         }
         else
         {
             await _resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
-            await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
         }
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("ensureConfigured", token, monacoBaseUrl);
+        await module.InvokeVoidAsync("ensureConfigured", token, moduleUrl, workerUrls);
     }
 
     /// <summary>

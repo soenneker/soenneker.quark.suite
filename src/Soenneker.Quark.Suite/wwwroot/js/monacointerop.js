@@ -1,8 +1,92 @@
 const editors = new WeakMap();
 const activeEditors = new Set();
 let configured = false;
+let configuration = null;
+let monacoModule = null;
+let monacoPromise = null;
 let domObserver = null;
 let themesDefined = false;
+const workerObjectUrls = new Map();
+
+function toAbsoluteUrl(url, parameterName) {
+    if (typeof url !== 'string' || url.trim().length === 0) {
+        throw new Error(`${parameterName} must be a non-empty string.`);
+    }
+
+    return new URL(url, document.baseURI).href;
+}
+
+function normalizeWorkerUrls(workerUrls) {
+    const urls = workerUrls || {};
+    const editor = toAbsoluteUrl(urls.editor, 'workerUrls.editor');
+
+    return {
+        editor,
+        json: toAbsoluteUrl(urls.json || editor, 'workerUrls.json'),
+        css: toAbsoluteUrl(urls.css || editor, 'workerUrls.css'),
+        html: toAbsoluteUrl(urls.html || editor, 'workerUrls.html'),
+        typescript: toAbsoluteUrl(urls.typescript || editor, 'workerUrls.typescript')
+    };
+}
+
+function getWorkerKey(label) {
+    switch ((label || '').toLowerCase()) {
+        case 'json':
+            return 'json';
+        case 'css':
+        case 'less':
+        case 'scss':
+            return 'css';
+        case 'handlebars':
+        case 'html':
+        case 'razor':
+            return 'html';
+        case 'javascript':
+        case 'typescript':
+            return 'typescript';
+        default:
+            return 'editor';
+    }
+}
+
+function createWorkerBootstrapUrl(workerUrl) {
+    const url = toAbsoluteUrl(workerUrl, 'workerUrl');
+
+    if (globalThis.location) {
+        const worker = new URL(url);
+
+        if (worker.origin === globalThis.location.origin) {
+            return url;
+        }
+    }
+
+    let objectUrl = workerObjectUrls.get(url);
+
+    if (!objectUrl) {
+        const source = `import ${JSON.stringify(url)};`;
+        objectUrl = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+        workerObjectUrls.set(url, objectUrl);
+    }
+
+    return objectUrl;
+}
+
+function configureWorkers(workerUrls) {
+    const normalizedWorkerUrls = normalizeWorkerUrls(workerUrls);
+    const previousEnvironment = globalThis.MonacoEnvironment || {};
+
+    globalThis.MonacoEnvironment = {
+        ...previousEnvironment,
+        globalAPI: true,
+        getWorker: undefined,
+        getWorkerUrl: (_moduleId, label) => {
+            const key = getWorkerKey(label);
+            return createWorkerBootstrapUrl(normalizedWorkerUrls[key] || normalizedWorkerUrls.editor);
+        }
+    };
+
+    return normalizedWorkerUrls;
+}
 
 function removeEditorState(state) {
     if (!state) {
@@ -78,7 +162,9 @@ function ensureDomObserver() {
 }
 
 function ensureThemesDefined() {
-    if (themesDefined || !globalThis.monaco?.editor) {
+    const monaco = monacoModule || globalThis.monaco;
+
+    if (themesDefined || !monaco?.editor) {
         return;
     }
 
@@ -101,56 +187,79 @@ function ensureThemesDefined() {
     themesDefined = true;
 }
 
-export function ensureConfigured(basePath) {
-    if (configured) return;
-    if (typeof require !== 'function') return;
+async function ensureMonacoLoaded() {
+    if (!configured || !configuration) {
+        throw new Error('Monaco not configured. Call ensureConfigured first.');
+    }
 
-    require.config({ paths: { 'vs': basePath + '/vs' } });
+    if (!monacoPromise) {
+        monacoPromise = import(configuration.moduleUrl)
+            .then((module) => {
+                monacoModule = globalThis.monaco?.editor ? globalThis.monaco : module;
+                globalThis.monaco = monacoModule;
+                ensureThemesDefined();
+                return monacoModule;
+            })
+            .catch((error) => {
+                monacoPromise = null;
+                throw error;
+            });
+    }
+
+    return monacoPromise;
+}
+
+export function ensureConfigured(moduleUrl, workerUrls) {
+    const normalizedModuleUrl = toAbsoluteUrl(moduleUrl, 'moduleUrl');
+
+    if (configured) {
+        if (configuration?.moduleUrl !== normalizedModuleUrl) {
+            throw new Error('Monaco is already configured with a different module URL.');
+        }
+
+        return;
+    }
+
+    configuration = {
+        moduleUrl: normalizedModuleUrl,
+        workerUrls: configureWorkers(workerUrls)
+    };
     configured = true;
 }
 
-export function createEditor(container, optionsJson) {
+export async function createEditor(container, optionsJson) {
     const options = optionsJson ? JSON.parse(optionsJson) : {};
 
     if (!configured) {
         throw new Error('Monaco not configured. Call ensureConfigured first.');
     }
 
-    return new Promise((resolve, reject) => {
-        require(['vs/editor/editor.main'], () => {
-            try {
-                ensureThemesDefined();
-                cleanupDetachedEditors();
+    if (!container || !container.isConnected) {
+        return;
+    }
 
-                if (!container || !container.isConnected) {
-                    resolve();
-                    return;
-                }
+    const monaco = await ensureMonacoLoaded();
+    ensureThemesDefined();
+    cleanupDetachedEditors();
 
-                const existingState = editors.get(container);
+    const existingState = editors.get(container);
 
-                if (existingState) {
-                    disposeEditorState(existingState);
-                    removeEditorState(existingState);
-                }
+    if (existingState) {
+        disposeEditorState(existingState);
+        removeEditorState(existingState);
+    }
 
-                const editor = monaco.editor.create(container, options);
-                const state = {
-                    container,
-                    editor,
-                    contentChangeDisposable: null,
-                    ownsModel: !options.model
-                };
+    const editor = monaco.editor.create(container, options);
+    const state = {
+        container,
+        editor,
+        contentChangeDisposable: null,
+        ownsModel: !options.model
+    };
 
-                editors.set(container, state);
-                activeEditors.add(state);
-                ensureDomObserver();
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        });
-    });
+    editors.set(container, state);
+    activeEditors.add(state);
+    ensureDomObserver();
 }
 
 export function setValue(container, value) {
@@ -161,7 +270,8 @@ export function getValue(container) {
     return getEditor(container).getValue();
 }
 
-export function setLanguage(container, language) {
+export async function setLanguage(container, language) {
+    const monaco = await ensureMonacoLoaded();
     const editor = getEditor(container);
     const model = editor.getModel();
 
@@ -170,7 +280,8 @@ export function setLanguage(container, language) {
     }
 }
 
-export function setTheme(theme) {
+export async function setTheme(theme) {
+    const monaco = await ensureMonacoLoaded();
     ensureThemesDefined();
     monaco.editor.setTheme(theme);
 }
@@ -193,7 +304,8 @@ export function layoutEditor(container) {
     state.editor.layout();
 }
 
-export function updateContentHeight(container, minLines, maxLines) {
+export async function updateContentHeight(container, minLines, maxLines) {
+    const monaco = await ensureMonacoLoaded();
     const editor = getEditor(container);
     const model = editor.getModel();
 
@@ -209,7 +321,7 @@ export function updateContentHeight(container, minLines, maxLines) {
     editor.layout();
 }
 
-export function addContentChangeListener(container, minLines, maxLines) {
+export async function addContentChangeListener(container, minLines, maxLines) {
     const state = getEditorState(container);
     const editor = state.editor;
     const model = editor.getModel();
@@ -220,7 +332,7 @@ export function addContentChangeListener(container, minLines, maxLines) {
         state.contentChangeDisposable.dispose();
     }
 
-    updateContentHeight(container, minLines, maxLines);
+    await updateContentHeight(container, minLines, maxLines);
 
     state.contentChangeDisposable = model.onDidChangeContent(() => {
         updateContentHeight(container, minLines, maxLines);
