@@ -6,52 +6,26 @@
 @inherits Soenneker.Quark.FormControlElementBase
 @implements ICurrencyInput
 
-<Div DataSlot="currency-input" Position="Quark.Position.Relative" Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MaxWidth='Quark.MaxWidth.Is48' Class="sm:max-w-56">
+<Div DataSlot="currency-input" Position="Quark.Position.Relative" Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MaxWidth="Quark.MaxWidth.Is48" Class="sm:max-w-56">
     @if (ShowSymbol && !SymbolAtEnd)
     {
-        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Bottom="Quark.Bottom.Is0" Left="Quark.Left.Is0" ZIndex="Quark.ZIndex.Z10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromLeft.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
+        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Bottom="Quark.Bottom.Is0" Left="Quark.Left.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromLeft.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
             @EffectiveSymbol
         </Span>
     }
 
-    <Input Id="@Id"
-           Name="@Name"
-           Type="text"
-           Value="@DisplayValue"
-           ValueChanged="@HandleValueChanged"
-           InputSize="@InputSize"
-           PlainText="@PlainText"
-           FloatingLabel="@FloatingLabel"
-           Label="@Label"
-           Placeholder="@Placeholder"
-           Disabled="@Disabled"
-           ReadOnly="@ReadOnly"
-           Required="@Required"
-           Class="@InputClass"
-           Style="@InputStyle"
-           AriaLabel="@AriaLabel"
-           AriaDescribedBy="@AriaDescribedBy"
-           OnClick="@OnClick"
-           OnDoubleClick="@OnDoubleClick"
-           OnMouseOver="@OnMouseOver"
-           OnMouseOut="@OnMouseOut"
-           OnKeyDown="@OnKeyDown"
-           OnInput="HandleInput"
-           OnChange="HandleChange"
-           OnFocus="HandleInputFocus"
-           OnBlur="HandleInputBlur"
-           @attributes="BuildInputAttributes()"
-           ValidationValueSelector="@(() => (object?)Value)" />
+    <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="@HandleValueChanged" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="@OnKeyDown" OnInput="HandleInput" OnChange="HandleChange" OnFocus="HandleInputFocus" OnBlur="HandleInputBlur" @attributes="BuildInputAttributes()" ValidationValueSelector="@(() => (object?)Value)"/>
 
     @if (ShowSymbol && SymbolAtEnd)
     {
-        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Right="Quark.Right.Is0" Bottom="Quark.Bottom.Is0" ZIndex="Quark.ZIndex.Z10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromRight.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
+        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Right="Quark.Right.Is0" Bottom="Quark.Bottom.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromRight.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
             @EffectiveSymbol
         </Span>
     }
 </Div>
 
 @code {
+
     [Parameter]
     public decimal? Value { get; set; }
 
@@ -262,10 +236,7 @@
         {
             foreach (var pair in Attributes)
             {
-                if (pair.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase) ||
-                    pair.Key.Equals("onblur", StringComparison.OrdinalIgnoreCase) ||
-                    pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
-                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                if (pair.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("onblur", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -305,8 +276,7 @@
             normalized = normalized.Replace(currencyDecimalSeparator, ".", StringComparison.Ordinal);
 
         var numberDecimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
-        if (!string.Equals(numberDecimalSeparator, ".", StringComparison.Ordinal) &&
-            !string.Equals(numberDecimalSeparator, currencyDecimalSeparator, StringComparison.Ordinal))
+        if (!string.Equals(numberDecimalSeparator, ".", StringComparison.Ordinal) && !string.Equals(numberDecimalSeparator, currencyDecimalSeparator, StringComparison.Ordinal))
         {
             normalized = normalized.Replace(numberDecimalSeparator, ".", StringComparison.Ordinal);
         }
@@ -395,7 +365,7 @@
 
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-        }
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
@@ -421,4 +391,5 @@
         hc.Add(_isFocused);
         hc.Add(_editingValue);
     }
+
 }
