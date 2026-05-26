@@ -20,12 +20,15 @@
                 @RejectAllText
             </Button>
             <div class="flex items-center gap-3">
-                <Button Variant="ButtonVariant.Secondary" ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">
+                <Button ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">
                     @AcceptAllText
                 </Button>
-                <Button ButtonSize="ButtonSize.Sm" OnClick="OpenPreferences">
-                    @CustomizeText
-                </Button>
+                @if (ShowCustomizeButton)
+                {
+                    <Button Variant="ButtonVariant.Secondary" ButtonSize="ButtonSize.Sm" OnClick="OpenPreferences">
+                        @CustomizeText
+                    </Button>
+                }
             </div>
         </div>
     </div>
@@ -145,6 +148,12 @@
 
     [Parameter]
     public string CustomizeText { get; set; } = "Customize";
+
+    /// <summary>
+    /// Shows the banner button that opens detailed privacy preferences.
+    /// </summary>
+    [Parameter]
+    public bool ShowCustomizeButton { get; set; } = true;
 
     [Parameter]
     public string SavePreferencesText { get; set; } = "Save Preferences";
