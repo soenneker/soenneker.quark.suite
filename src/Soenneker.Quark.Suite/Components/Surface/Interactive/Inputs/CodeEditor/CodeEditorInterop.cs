@@ -25,10 +25,12 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
     private const string _cdnModulePath = "/+esm";
+    private const string _cdnCodiconPath = "/esm/vs/base/browser/ui/codicons/codicon/codicon.ttf";
     
     private const string _localContentPath = "_content/Soenneker.Quark.Suite";
     private const string _localCssPath = $"{_localContentPath}/css/monaco-editor/editor.main.css";
     private const string _localModulePath = $"{_localContentPath}/js/monaco-editor/monaco.editor.main.esm.js";
+    private const string _localCodiconPath = $"{_localContentPath}/js/monaco-editor/codicon.ttf";
     
     private const string _cssIntegrity = "sha256-22wc1geUOoYbR8dmDQ7wLvZPcXMZTXxLi85cmIFW5fg=";
 
@@ -64,6 +66,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     {
         string cssUrl;
         string moduleUrl;
+        string codiconUrl;
         IReadOnlyDictionary<string, string> workerUrls;
         bool useIntegrity;
 
@@ -71,6 +74,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
             moduleUrl = $"{_cdnBaseUrl}{_cdnModulePath}";
+            codiconUrl = $"{_cdnBaseUrl}{_cdnCodiconPath}";
             workerUrls = _cdnWorkerUrls;
             useIntegrity = true;
         }
@@ -78,6 +82,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             cssUrl = _localCssPath;
             moduleUrl = _localModulePath;
+            codiconUrl = _localCodiconPath;
             workerUrls = _localWorkerUrls;
             useIntegrity = false;
         }
@@ -92,7 +97,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("ensureConfigured", token, moduleUrl, workerUrls);
+        await module.InvokeVoidAsync("ensureConfigured", token, moduleUrl, workerUrls, codiconUrl);
     }
 
     /// <summary>
