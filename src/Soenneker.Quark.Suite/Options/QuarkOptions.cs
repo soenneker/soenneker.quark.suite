@@ -26,7 +26,7 @@ public sealed class QuarkOptions
     public bool AlwaysRender { get; set; }
 
     /// <summary>
-    /// Gets or sets whether to use CDN for CodeEditor resources. If false, local paths will be used.
+    /// Gets or sets whether to use CDN for CodeEditor CSS. Monaco modules and workers are served from bundled static assets.
     /// </summary>
-    public bool CodeEditorUseCdn { get; set; } = true;
+    public bool CodeEditorUseCdn { get; set; }
 }

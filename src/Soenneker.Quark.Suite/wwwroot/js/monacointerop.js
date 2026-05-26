@@ -88,37 +88,6 @@ function configureWorkers(workerUrls) {
     return normalizedWorkerUrls;
 }
 
-function rewriteCodiconFontUrl(style, codiconUrl) {
-    if (!codiconUrl || style?.tagName !== 'STYLE' || !style.textContent?.includes('codicon.ttf')) {
-        return;
-    }
-
-    const fontUrl = toAbsoluteUrl(codiconUrl, 'codiconUrl').replace(/"/g, '%22');
-    style.textContent = style.textContent.replace(/url\((['"]?)\.\/codicon\.ttf\1\)/g, `url("${fontUrl}")`);
-}
-
-async function importWithCodiconFontRewrite(moduleUrl, codiconUrl) {
-    if (!codiconUrl || typeof Node === 'undefined') {
-        return await import(moduleUrl);
-    }
-
-    const originalAppendChild = Node.prototype.appendChild;
-    const patchedAppendChild = function (child) {
-        rewriteCodiconFontUrl(child, codiconUrl);
-        return originalAppendChild.call(this, child);
-    };
-
-    Node.prototype.appendChild = patchedAppendChild;
-
-    try {
-        return await import(moduleUrl);
-    } finally {
-        if (Node.prototype.appendChild === patchedAppendChild) {
-            Node.prototype.appendChild = originalAppendChild;
-        }
-    }
-}
-
 function removeEditorState(state) {
     if (!state) {
         return;
@@ -224,7 +193,7 @@ async function ensureMonacoLoaded() {
     }
 
     if (!monacoPromise) {
-        monacoPromise = importWithCodiconFontRewrite(configuration.moduleUrl, configuration.codiconUrl)
+        monacoPromise = import(configuration.moduleUrl)
             .then((module) => {
                 monacoModule = globalThis.monaco?.editor ? globalThis.monaco : module;
                 globalThis.monaco = monacoModule;
@@ -240,7 +209,7 @@ async function ensureMonacoLoaded() {
     return monacoPromise;
 }
 
-export function ensureConfigured(moduleUrl, workerUrls, codiconUrl) {
+export function ensureConfigured(moduleUrl, workerUrls) {
     const normalizedModuleUrl = toAbsoluteUrl(moduleUrl, 'moduleUrl');
 
     if (configured) {
@@ -253,7 +222,6 @@ export function ensureConfigured(moduleUrl, workerUrls, codiconUrl) {
 
     configuration = {
         moduleUrl: normalizedModuleUrl,
-        codiconUrl,
         workerUrls: configureWorkers(workerUrls)
     };
     configured = true;

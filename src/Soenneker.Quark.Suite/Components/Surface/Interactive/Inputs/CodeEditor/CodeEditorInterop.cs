@@ -24,24 +24,12 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
-    private const string _cdnModulePath = "/+esm";
-    private const string _cdnCodiconPath = "/esm/vs/base/browser/ui/codicons/codicon/codicon.ttf";
     
     private const string _localContentPath = "_content/Soenneker.Quark.Suite";
-    private const string _localCssPath = $"{_localContentPath}/css/monaco-editor/editor.main.css";
+    private const string _localCssPath = $"{_localContentPath}/js/monaco-editor/monaco.editor.main.esm.css";
     private const string _localModulePath = $"{_localContentPath}/js/monaco-editor/monaco.editor.main.esm.js";
-    private const string _localCodiconPath = $"{_localContentPath}/js/monaco-editor/codicon.ttf";
     
     private const string _cssIntegrity = "sha256-22wc1geUOoYbR8dmDQ7wLvZPcXMZTXxLi85cmIFW5fg=";
-
-    private static readonly IReadOnlyDictionary<string, string> _cdnWorkerUrls = new Dictionary<string, string>
-    {
-        ["editor"] = $"{_cdnBaseUrl}/esm/vs/editor/editor.worker.js/+esm",
-        ["json"] = $"{_cdnBaseUrl}/esm/vs/language/json/json.worker.js/+esm",
-        ["css"] = $"{_cdnBaseUrl}/esm/vs/language/css/css.worker.js/+esm",
-        ["html"] = $"{_cdnBaseUrl}/esm/vs/language/html/html.worker.js/+esm",
-        ["typescript"] = $"{_cdnBaseUrl}/esm/vs/language/typescript/ts.worker.js/+esm"
-    };
 
     private static readonly IReadOnlyDictionary<string, string> _localWorkerUrls = new Dictionary<string, string>
     {
@@ -64,30 +52,9 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        string cssUrl;
-        string moduleUrl;
-        string codiconUrl;
-        IReadOnlyDictionary<string, string> workerUrls;
-        bool useIntegrity;
+        string cssUrl = _quarkOptions.CodeEditorUseCdn ? $"{_cdnBaseUrl}{_cdnCssPath}" : _localCssPath;
 
         if (_quarkOptions.CodeEditorUseCdn)
-        {
-            cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
-            moduleUrl = $"{_cdnBaseUrl}{_cdnModulePath}";
-            codiconUrl = $"{_cdnBaseUrl}{_cdnCodiconPath}";
-            workerUrls = _cdnWorkerUrls;
-            useIntegrity = true;
-        }
-        else
-        {
-            cssUrl = _localCssPath;
-            moduleUrl = _localModulePath;
-            codiconUrl = _localCodiconPath;
-            workerUrls = _localWorkerUrls;
-            useIntegrity = false;
-        }
-
-        if (useIntegrity)
         {
             await _resourceLoader.LoadStyle(cssUrl, integrity: _cssIntegrity, cancellationToken: token);
         }
@@ -97,7 +64,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("ensureConfigured", token, moduleUrl, workerUrls, codiconUrl);
+        await module.InvokeVoidAsync("ensureConfigured", token, _localModulePath, _localWorkerUrls);
     }
 
     /// <summary>
