@@ -212,6 +212,14 @@
     {
         var attributes = new Dictionary<string, object>();
 
+        if (AdditionalAttributes is not null)
+        {
+            foreach (var attribute in AdditionalAttributes)
+            {
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
         // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
         if (MaxLength > 0) attributes["maxlength"] = MaxLength;
         if (InputMode is not null) attributes["inputmode"] = InputMode.Value;

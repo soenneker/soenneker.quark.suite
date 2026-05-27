@@ -427,13 +427,29 @@
 
     private CalendarDateRange BuildNextRange(DateOnly date)
     {
-        if (SelectedRange?.From is null || SelectedRange.To is not null)
+        if (SelectedRange?.From is null)
             return new CalendarDateRange(date, null);
 
-        if (date < SelectedRange.From.Value)
-            return new CalendarDateRange(date, SelectedRange.From.Value);
+        var from = SelectedRange.From.Value;
 
-        return new CalendarDateRange(SelectedRange.From.Value, date);
+        if (SelectedRange.To is null)
+            return date < from ? new CalendarDateRange(date, from) : new CalendarDateRange(from, date);
+
+        var to = SelectedRange.To.Value;
+
+        if (to < from)
+            (from, to) = (to, from);
+
+        if (date <= from)
+            return new CalendarDateRange(date, to);
+
+        if (date >= to)
+            return new CalendarDateRange(from, date);
+
+        var daysFromStart = date.DayNumber - from.DayNumber;
+        var daysToEnd = to.DayNumber - date.DayNumber;
+
+        return daysFromStart <= daysToEnd ? new CalendarDateRange(date, to) : new CalendarDateRange(from, date);
     }
 
     private bool IsDateInRange(DateOnly date)

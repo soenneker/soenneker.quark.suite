@@ -14,6 +14,9 @@
 
 @code {
     private ElementReference _elementRef;
+    private bool _hasPendingNativeTimeValue;
+    private string? _pendingNativeTimeValue;
+    private bool _suppressNextRender;
 
     [CascadingParameter]
     internal InputGroupContext? InputGroupContext { get; set; }
@@ -115,6 +118,17 @@
         base.OnParametersSet();
     }
 
+    protected override bool ShouldRender()
+    {
+        if (_suppressNextRender)
+        {
+            _suppressNextRender = false;
+            return false;
+        }
+
+        return base.ShouldRender();
+    }
+
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         _ = RefreshOffThread();
@@ -126,6 +140,12 @@
     /// <param name="e">The change event arguments.</param>
     protected virtual async Task HandleInput(ChangeEventArgs e)
     {
+        if (IsNativeTimeInput())
+        {
+            TrackPendingNativeTimeValue(e);
+            return;
+        }
+
         var newValue = e.Value?.ToString();
         var valueChanged = false;
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
@@ -157,6 +177,12 @@
     /// <param name="e">The change event arguments.</param>
     protected virtual async Task HandleChange(ChangeEventArgs e)
     {
+        if (IsNativeTimeInput())
+        {
+            TrackPendingNativeTimeValue(e);
+            return;
+        }
+
         var newValue = e.Value?.ToString();
         var valueChanged = false;
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
@@ -180,6 +206,41 @@
             InvalidateRender();
             Refresh();
         }
+    }
+
+    private void TrackPendingNativeTimeValue(ChangeEventArgs e)
+    {
+        var newValue = e.Value?.ToString();
+
+        if (!string.Equals(Value, newValue, StringComparison.Ordinal))
+        {
+            Value = newValue;
+            _pendingNativeTimeValue = newValue;
+            _hasPendingNativeTimeValue = true;
+        }
+
+        _suppressNextRender = true;
+    }
+
+    private async Task HandleInputBlur(FocusEventArgs e)
+    {
+        if (IsNativeTimeInput() && _hasPendingNativeTimeValue)
+        {
+            _hasPendingNativeTimeValue = false;
+            var value = _pendingNativeTimeValue;
+            _pendingNativeTimeValue = null;
+
+            await ValueChanged.InvokeIfHasDelegate(value);
+            await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
+
+            if (ParentValidation is not null)
+            {
+                ParentValidation.MarkTouched();
+                await ParentValidation.NotifyInputChanged(ValidationValue);
+            }
+        }
+
+        await OnBlur.InvokeIfHasDelegate(e);
     }
 
     private bool ShouldShowInvalid()
@@ -262,6 +323,8 @@
     /// <returns>The input type string.</returns>
     protected virtual string? GetInputType() => Type;
 
+    private bool IsNativeTimeInput() => string.Equals(GetInputType(), "time", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     /// Builds the attributes dictionary for the input component.
     /// </summary>
@@ -273,6 +336,9 @@
 
         if (!string.IsNullOrWhiteSpace(inputType) && !string.Equals(inputType, "text", StringComparison.OrdinalIgnoreCase))
             attributes["type"] = inputType;
+
+        if (IsNativeTimeInput() || OnBlur.HasDelegate)
+            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur);
 
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 

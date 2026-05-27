@@ -1,6 +1,5 @@
 const storageKey = "quark-theme";
 const root = document.documentElement;
-const media = window.matchMedia("(prefers-color-scheme: dark)");
 const themeChangedRefs = new Map();
 let themeChangedListener = null;
 
@@ -50,7 +49,7 @@ export function resolveIsDark() {
     const stored = localStorage.getItem(storageKey);
     if (stored === "dark") return true;
     if (stored === "light") return false;
-    return media.matches;
+    return false;
 }
 
 export function initialize() {

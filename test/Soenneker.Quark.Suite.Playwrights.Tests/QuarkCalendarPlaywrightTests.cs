@@ -73,4 +73,25 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
     }
+
+    [Test]
+    public async ValueTask Date_picker_time_input_accepts_24_hour_keyboard_entry()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/date-picker",
+            static p => p.Locator("#time-picker-optional"),
+            expectedTitle: "Date Pickers - Quark Suite");
+
+        var timeInput = page.Locator("#time-picker-optional");
+        await Assertions.Expect(timeInput).ToHaveAttributeAsync("type", "time");
+        await Assertions.Expect(timeInput).ToHaveAttributeAsync("step", "1");
+
+        await timeInput.ClickAsync(new LocatorClickOptions { Position = new Position { X = 15, Y = 15 } });
+        await page.Keyboard.TypeAsync("19");
+
+        await Assertions.Expect(timeInput).ToHaveValueAsync("19:30:00");
+    }
 }

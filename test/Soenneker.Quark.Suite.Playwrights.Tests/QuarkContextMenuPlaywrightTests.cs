@@ -45,6 +45,30 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Context_menu_basic_demo_disables_forward_item()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/context-menu",
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
+            expectedTitle: "Context Menus - Quark Suite");
+
+        var basicTrigger = page.Locator("[data-testid='context-menu-demo-trigger']");
+        await basicTrigger.ScrollIntoViewIfNeededAsync();
+        await basicTrigger.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
+
+        var menu = page.Locator("[role='menu'][data-state='open']:visible").First;
+        var forward = menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Forward", Exact = true });
+
+        await Assertions.Expect(forward).ToHaveAttributeAsync("aria-disabled", "true");
+        await Assertions.Expect(forward).ToHaveAttributeAsync("data-disabled", string.Empty);
+        var opacity = await forward.EvaluateAsync<double>("element => Number.parseFloat(window.getComputedStyle(element).opacity)");
+        opacity.Should().BeApproximately(0.5, 0.01);
+    }
+
+    [Test]
     public async ValueTask Context_menu_escape_portal_layer_and_console_behavior_match_radix()
     {
         await using var session = await CreateSession();

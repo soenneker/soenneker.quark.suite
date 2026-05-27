@@ -65,7 +65,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Docs_layout_toggle_expands_shell_without_hiding_or_coloring_sidebar()
+    public async ValueTask Docs_layout_defaults_to_expanded_shell_and_can_collapse_without_hiding_or_coloring_sidebar()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -80,19 +80,21 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
         var brand = page.Locator("header a[aria-label='Quark Suite']").First;
         var toggle = page.Locator("header button[title='Toggle sidebar']").First;
 
-        var initialSidebar = await sidebar.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
-        var initialBrand = await brand.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
-
-        await toggle.ClickAsync();
         await Assertions.Expect(toggle).ToHaveAttributeAsync("aria-pressed", "true");
-        await Assertions.Expect(sidebar).ToBeVisibleAsync();
 
         var expandedSidebar = await sidebar.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
         var expandedBrand = await brand.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
+
+        await toggle.ClickAsync();
+        await Assertions.Expect(toggle).ToHaveAttributeAsync("aria-pressed", "false");
+        await Assertions.Expect(sidebar).ToBeVisibleAsync();
+
+        var collapsedSidebar = await sidebar.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
+        var collapsedBrand = await brand.EvaluateAsync<LayoutRectProbe>("element => ({ left: element.getBoundingClientRect().left })");
         var backgroundColor = await sidebar.EvaluateAsync<string>("element => getComputedStyle(element).backgroundColor");
 
-        expandedSidebar.left.Should().BeLessThan(initialSidebar.left - 100);
-        expandedBrand.left.Should().BeLessThan(initialBrand.left - 100);
+        expandedSidebar.left.Should().BeLessThan(collapsedSidebar.left - 100);
+        expandedBrand.left.Should().BeLessThan(collapsedBrand.left - 100);
         backgroundColor.Should().Be("rgba(0, 0, 0, 0)");
     }
 

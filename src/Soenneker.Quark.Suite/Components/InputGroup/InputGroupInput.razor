@@ -12,6 +12,9 @@
 
 @code {
     private ElementReference _elementRef;
+    private bool _hasPendingNativeTimeValue;
+    private string? _pendingNativeTimeValue;
+    private bool _suppressNextRender;
 
     [CascadingParameter]
     internal InputGroupContext? InputGroupContext { get; set; }
@@ -47,6 +50,12 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
+        if (IsNativeTimeInput())
+        {
+            TrackPendingNativeTimeValue(e);
+            return;
+        }
+
         var value = e.Value?.ToString();
         Value = value;
         await ValueChanged.InvokeIfHasDelegate(value);
@@ -54,9 +63,48 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
+        if (IsNativeTimeInput())
+        {
+            TrackPendingNativeTimeValue(e);
+            return;
+        }
+
         var value = e.Value?.ToString();
         Value = value;
         await ValueChanged.InvokeIfHasDelegate(value);
+    }
+
+    private void TrackPendingNativeTimeValue(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        Value = value;
+        _pendingNativeTimeValue = value;
+        _hasPendingNativeTimeValue = true;
+        _suppressNextRender = true;
+    }
+
+    private async Task HandleInputBlur(FocusEventArgs e)
+    {
+        if (_hasPendingNativeTimeValue)
+        {
+            _hasPendingNativeTimeValue = false;
+            var value = _pendingNativeTimeValue;
+            _pendingNativeTimeValue = null;
+            await ValueChanged.InvokeIfHasDelegate(value);
+        }
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    protected override bool ShouldRender()
+    {
+        if (_suppressNextRender)
+        {
+            _suppressNextRender = false;
+            return false;
+        }
+
+        return base.ShouldRender();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -75,6 +123,9 @@
         if (!string.IsNullOrWhiteSpace(inputType) && !string.Equals(inputType, "text", StringComparison.OrdinalIgnoreCase))
             attributes["type"] = inputType;
 
+        if (IsNativeTimeInput() || OnBlur.HasDelegate)
+            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur);
+
         if (Placeholder is not null)
             attributes["placeholder"] = Placeholder;
         if (Disabled)
@@ -91,6 +142,8 @@
             AppendClass(ref cls, "dark:bg-transparent dark:disabled:bg-transparent dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
         });
     }
+
+    private bool IsNativeTimeInput() => string.Equals(Type, "time", StringComparison.OrdinalIgnoreCase);
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

@@ -102,4 +102,25 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();
     }
+
+    [Test]
+    public async ValueTask Quark_suite_defaults_to_light_theme_when_no_preference_exists()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.EmulateMediaAsync(new PageEmulateMediaOptions { ColorScheme = ColorScheme.Dark });
+        await page.AddInitScriptAsync("localStorage.removeItem('quark-theme');");
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/headers",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First,
+            expectedTitle: "Header - Quark Suite");
+
+        var isDark = await page.Locator("html").EvaluateAsync<bool>("element => element.classList.contains('dark')");
+        var storedTheme = await page.EvaluateAsync<string?>("() => localStorage.getItem('quark-theme')");
+
+        isDark.Should().BeFalse();
+        storedTheme.Should().Be("light");
+    }
 }

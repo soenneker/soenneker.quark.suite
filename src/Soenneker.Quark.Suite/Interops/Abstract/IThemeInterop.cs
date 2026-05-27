@@ -24,7 +24,7 @@ public interface IThemeInterop : IAsyncDisposable
     ValueTask<bool> Toggle(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets whether dark mode is currently active (from storage or system preference).
+    /// Gets whether dark mode is currently active from storage, otherwise the light default.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>

@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +33,38 @@ public sealed partial class RenderedShadcnParityTests
 
         input.Input("12");
         cut.WaitForAssertion(() => cut.Instance.Status.Should().Be(ValidationStatus.Success));
+    }
+
+    [Test]
+    public void TextInput_time_passes_native_attributes_and_defers_value_binding_until_blur()
+    {
+        string? value = "10:30:00";
+        var changes = new List<string?>();
+
+        var cut = Render<TextInput>(parameters => parameters
+            .Add(component => component.Type, "time")
+            .Add(component => component.Value, value)
+            .Add(component => component.ValueChanged, next =>
+            {
+                value = next;
+                changes.Add(next);
+                return Task.CompletedTask;
+            })
+            .AddUnmatched("step", "1"));
+
+        var input = cut.Find("input");
+        input.GetAttribute("type").Should().Be("time");
+        input.GetAttribute("step").Should().Be("1");
+
+        input.Input("01:30:00");
+        input.Change("19:30:00");
+
+        changes.Should().BeEmpty();
+
+        input.Blur();
+
+        changes.Should().ContainSingle().Which.Should().Be("19:30:00");
+        value.Should().Be("19:30:00");
     }
 
     private sealed class FakeValidationInterop : IValidationInterop
