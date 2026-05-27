@@ -80,6 +80,7 @@
     private string _titleId => $"{_componentId}-title";
     private string _descriptionId => $"{_componentId}-description";
     private string _preferencesTitleId => $"{_componentId}-preferences-title";
+    private const string _defaultPositionClass = "fixed bottom-6";
 
     private C15tConsentState? _state;
     private bool _initialized;
@@ -158,8 +159,17 @@
     [Parameter]
     public string SavePreferencesText { get; set; } = "Save Preferences";
 
+    /// <summary>
+    /// Controls whether the banner appears on the left or right side of the view.
+    /// </summary>
     [Parameter]
-    public string PositionClass { get; set; } = "fixed bottom-6 left-6";
+    public ConsentManagerSide Side { get; set; } = ConsentManagerSide.Right;
+
+    /// <summary>
+    /// Positioning classes for the banner. Horizontal placement is supplied by <see cref="Side"/> unless this already contains a horizontal offset.
+    /// </summary>
+    [Parameter]
+    public string PositionClass { get; set; } = _defaultPositionClass;
 
     [Parameter]
     public string? Class { get; set; }
@@ -167,7 +177,20 @@
     private bool IsBannerVisible => _bannerVisible && !_preferencesOpen;
 
     private string BannerClass =>
-        $"z-50 w-[calc(100vw-2rem)] max-w-[26rem] overflow-hidden rounded-xl border bg-background text-foreground shadow-lg {PositionClass} {Class}".Trim();
+        $"z-50 w-[calc(100vw-2rem)] max-w-[26rem] overflow-hidden rounded-xl border bg-background text-foreground shadow-lg {ResolvedPositionClass} {Class}".Trim();
+
+    private string ResolvedPositionClass
+    {
+        get
+        {
+            string positionClass = string.IsNullOrWhiteSpace(PositionClass) ? _defaultPositionClass : PositionClass;
+
+            if (HasHorizontalPositionClass(positionClass))
+                return positionClass;
+
+            return $"{positionClass} {GetSideClass(Side)}";
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -262,6 +285,59 @@
 
     private static bool IsNecessary(string category) =>
         string.Equals(category, "necessary", StringComparison.OrdinalIgnoreCase);
+
+    private static string GetSideClass(ConsentManagerSide? side) =>
+        ReferenceEquals(side, ConsentManagerSide.Left) ? "left-6" : "right-6";
+
+    private static bool HasHorizontalPositionClass(string positionClass)
+    {
+        foreach (string token in positionClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            ReadOnlySpan<char> utility = token.AsSpan();
+            int variantSeparatorIndex = utility.LastIndexOf(':');
+
+            if (variantSeparatorIndex >= 0 && variantSeparatorIndex + 1 < utility.Length)
+                utility = utility[(variantSeparatorIndex + 1)..];
+
+            if (utility.StartsWith("!", StringComparison.Ordinal))
+                utility = utility[1..];
+
+            if (utility.StartsWith("-", StringComparison.Ordinal))
+                utility = utility[1..];
+
+            if (IsDirectionalUtility(utility, 'l', 'e', 'f', 't') ||
+                IsDirectionalUtility(utility, 'r', 'i', 'g', 'h', 't') ||
+                IsDirectionalUtility(utility, 's', 't', 'a', 'r', 't') ||
+                IsDirectionalUtility(utility, 'e', 'n', 'd') ||
+                IsInsetXUtility(utility))
+                return true;
+
+            if (IsInsetUtility(utility))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsDirectionalUtility(ReadOnlySpan<char> utility, char first, char second, char third) =>
+        utility.Length > 3 && utility[0] == first && utility[1] == second && utility[2] == third && utility[3] == '-';
+
+    private static bool IsDirectionalUtility(ReadOnlySpan<char> utility, char first, char second, char third, char fourth) =>
+        utility.Length > 4 && utility[0] == first && utility[1] == second && utility[2] == third && utility[3] == fourth && utility[4] == '-';
+
+    private static bool IsDirectionalUtility(ReadOnlySpan<char> utility, char first, char second, char third, char fourth, char fifth) =>
+        utility.Length > 5 && utility[0] == first && utility[1] == second && utility[2] == third && utility[3] == fourth && utility[4] == fifth && utility[5] == '-';
+
+    private static bool IsInsetXUtility(ReadOnlySpan<char> utility) =>
+        utility.Length > 8 && utility[0] == 'i' && utility[1] == 'n' && utility[2] == 's' && utility[3] == 'e' && utility[4] == 't' && utility[5] == '-' && utility[6] == 'x' && utility[7] == '-';
+
+    private static bool IsInsetUtility(ReadOnlySpan<char> utility)
+    {
+        if (utility.Length <= 6 || utility[0] != 'i' || utility[1] != 'n' || utility[2] != 's' || utility[3] != 'e' || utility[4] != 't' || utility[5] != '-')
+            return false;
+
+        return utility.Length <= 7 || utility[6] != 'y' || utility[7] != '-';
+    }
 
     private static string GetCategoryDescription(string category) => category switch
     {

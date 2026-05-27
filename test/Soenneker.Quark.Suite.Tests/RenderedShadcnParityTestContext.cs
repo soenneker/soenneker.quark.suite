@@ -2,6 +2,8 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.C15t.Abstract;
+using Soenneker.Blazor.C15t.Models;
 using Soenneker.Blazor.Utils.Clipboard.Abstract;
 using Soenneker.Blazor.Utils.Clipboard.Dtos;
 using Soenneker.Blazor.Utils.Clipboard.Enums;
@@ -10,6 +12,7 @@ using Soenneker.Bradix;
 using Soenneker.Quark.Gen.Lucide.Abstractions;
 using Soenneker.Quark.Gen.SimpleIcons.Abstractions;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -251,6 +254,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IClipboardUtil, FakeClipboardUtil>();
         Services.AddScoped<ISonnerService, SonnerService>();
         Services.AddScoped<ISonnerInterop, FakeSonnerInterop>();
+        Services.AddScoped<IC15tConsentService, FakeC15tConsentService>();
     }
 
     private sealed class FakeLucideIconSvgProvider : ILucideIconSvgProvider
@@ -482,5 +486,69 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
-}
+    private sealed class FakeC15tConsentService : IC15tConsentService
+    {
+        public C15tConsentState CurrentState { get; private set; } = new();
 
+        public bool HasConsent(string category) =>
+            CurrentState.Consents?.TryGetValue(category, out bool value) == true && value;
+
+        public ValueTask<C15tConsentState?> Initialize(C15tOptions? options = null, CancellationToken cancellationToken = default) =>
+            CurrentStateResult();
+
+        public ValueTask<C15tConsentState?> Refresh(CancellationToken cancellationToken = default) =>
+            CurrentStateResult();
+
+        public ValueTask<C15tConsentState?> AcceptAll(CancellationToken cancellationToken = default) =>
+            CurrentStateResult();
+
+        public ValueTask<C15tConsentState?> RejectNonNecessary(CancellationToken cancellationToken = default) =>
+            CurrentStateResult();
+
+        public ValueTask<C15tConsentState?> SaveCustom(CancellationToken cancellationToken = default) =>
+            CurrentStateResult();
+
+        public ValueTask<C15tConsentState?> SetConsent(string category, bool value, CancellationToken cancellationToken = default)
+        {
+            CurrentState.Consents ??= [];
+            CurrentState.Consents[category] = value;
+            return CurrentStateResult();
+        }
+
+        public ValueTask<C15tConsentState?> SetSelectedConsent(string category, bool value, CancellationToken cancellationToken = default)
+        {
+            CurrentState.SelectedConsents ??= [];
+            CurrentState.SelectedConsents[category] = value;
+            return CurrentStateResult();
+        }
+
+        public ValueTask<C15tConsentState?> OpenDialog(CancellationToken cancellationToken = default)
+        {
+            CurrentState.IsPrivacyDialogOpen = true;
+            return CurrentStateResult();
+        }
+
+        public ValueTask<C15tConsentState?> ShowBanner(CancellationToken cancellationToken = default)
+        {
+            CurrentState.ShowPopup = true;
+            return CurrentStateResult();
+        }
+
+        public ValueTask<C15tConsentState?> CloseUi(CancellationToken cancellationToken = default)
+        {
+            CurrentState.ShowPopup = false;
+            CurrentState.IsPrivacyDialogOpen = false;
+            return CurrentStateResult();
+        }
+
+        public ValueTask<C15tConsentState?> ResetConsents(CancellationToken cancellationToken = default)
+        {
+            CurrentState = new C15tConsentState();
+            return CurrentStateResult();
+        }
+
+        private ValueTask<C15tConsentState?> CurrentStateResult() =>
+            ValueTask.FromResult<C15tConsentState?>(CurrentState);
+    }
+
+}
