@@ -64,11 +64,22 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             expectedTitle: "Combobox - Quark Suite");
 
         await page.GetByText("Popup", new PageGetByTextOptions { Exact = true }).ScrollIntoViewIfNeededAsync();
-        var popupTrigger = page.Locator("[data-slot='popover-trigger']").Filter(new LocatorFilterOptions { HasText = "Select country" }).First;
+        var popupTrigger = page.Locator("button[role='combobox']").Filter(new LocatorFilterOptions { HasText = "Select country" }).First;
+        await popupTrigger.ScrollIntoViewIfNeededAsync();
 
         await Assertions.Expect(popupTrigger).ToContainTextAsync("Select country");
         await popupTrigger.ClickAsync();
+        var popupContent = page.Locator("[data-slot='combobox-content'][data-state='open']").First;
+        await Assertions.Expect(popupContent).ToHaveAttributeAsync("data-side", "bottom");
         await Assertions.Expect(page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Select country", Exact = true })).ToBeVisibleAsync();
+
+        await popupContent.Locator("input[placeholder='Search']").First.FillAsync("arg");
+        await Assertions.Expect(popupContent).ToHaveAttributeAsync("data-side", "bottom");
+        var popupTriggerBox = await popupTrigger.BoundingBoxAsync();
+        var popupContentBox = await popupContent.BoundingBoxAsync();
+        popupTriggerBox.Should().NotBeNull();
+        popupContentBox.Should().NotBeNull();
+        popupContentBox!.Y.Should().BeGreaterThan(popupTriggerBox!.Y + popupTriggerBox.Height - 1);
 
         await page.Keyboard.PressAsync("Escape");
 
