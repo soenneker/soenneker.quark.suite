@@ -9,6 +9,9 @@
     [Parameter]
     public bool HideScrollbar { get; set; } = true;
 
+    [Parameter]
+    public bool ShowFade { get; set; }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -24,14 +27,18 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-sidebar"] = "content";
+        attributes["data-fade"] = ShowFade ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "min-h-0 flex-col group-data-[collapsible=icon]:overflow-hidden");
-            AppendClass(ref cls, "group-data-[shell=navigation]:w-full group-data-[shell=navigation]:px-4 group-data-[shell=navigation]:pb-6 group-data-[shell=navigation]:lg:mx-auto group-data-[shell=navigation]:lg:w-(--sidebar-menu-width) group-data-[shell=navigation]:lg:px-2");
+            AppendClass(ref cls, "group-data-[shell=navigation]:w-full group-data-[shell=navigation]:overflow-x-hidden group-data-[shell=navigation]:px-4 group-data-[shell=navigation]:pb-6 group-data-[shell=navigation]:lg:mx-auto group-data-[shell=navigation]:lg:w-(--sidebar-menu-width) group-data-[shell=navigation]:lg:px-2");
 
             if (HideScrollbar)
                 AppendClass(ref cls, "no-scrollbar");
+
+            if (ShowFade)
+                AppendClass(ref cls, "[mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)]");
         });
     }
 
@@ -39,5 +46,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(HideScrollbar);
+        hc.Add(ShowFade);
     }
 }
