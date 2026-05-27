@@ -8,18 +8,18 @@
 
 @if (IsBannerVisible)
 {
-    <div class="@BannerClass" role="dialog" aria-live="polite" aria-labelledby="@_titleId" aria-describedby="@_descriptionId">
-        <div class="px-5 pt-5 pb-4">
-            <h2 id="@_titleId" class="text-base leading-none font-semibold tracking-normal">@Title</h2>
-            <p id="@_descriptionId" class="text-muted-foreground mt-3 text-sm leading-5">
+    <Div Class="@BannerPositionClass" Role="dialog" aria-live="polite" AriaLabelledBy="@_titleId" AriaDescribedBy="@_descriptionId" ZIndex="ZIndex.Is50" Width='Width.Token("[calc(100vw-2rem)]")' MaxWidth='MaxWidth.Token("[26rem]")' Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Default" BackgroundColor="BackgroundColor.Background" TextColor="TextColor.Foreground" Shadow="Shadow.Lg">
+        <Div Padding="Padding.Is5.OnX.FromTop.Is5.FromBottom.Is4">
+            <H2 Id="@_titleId" TextSize="TextSize.Base" Leading="Leading.None" FontWeight="FontWeight.Semibold" Tracking="Tracking.Normal" Border="Border.Is0" Padding="Padding.FromBottom.Is0" Transition="Transition.None">@Title</H2>
+            <Div Id="@_descriptionId" TextColor="TextColor.MutedForeground" Margin="Margin.FromTop.Is3" TextSize="TextSize.Sm" Leading="Leading.Is5">
                 @Description
-            </p>
-        </div>
-        <div class="border-t bg-muted/20 flex items-center justify-between gap-3 px-4 py-3">
+            </Div>
+        </Div>
+        <Div Border="Border.FromTop.Default" BackgroundColor='BackgroundColor.Utility("bg-muted/20")' Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is3" Padding="Padding.Is4.OnX.Is3.OnY">
             <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="RejectNonNecessary">
                 @RejectAllText
             </Button>
-            <div class="flex items-center gap-3">
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3">
                 <Button ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">
                     @AcceptAllText
                 </Button>
@@ -29,50 +29,47 @@
                         @CustomizeText
                     </Button>
                 }
-            </div>
-        </div>
-    </div>
+            </Div>
+        </Div>
+    </Div>
 }
 
 @if (_preferencesOpen)
 {
-    <div class="fixed inset-0 z-50 bg-black/35" @onclick="ClosePreferences"></div>
-    <div class="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border bg-background text-foreground shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="@_preferencesTitleId">
-        <div class="space-y-2 px-5 pt-5 pb-4">
-            <div class="flex items-start justify-between gap-4">
-                <div class="space-y-1">
-                    <h2 id="@_preferencesTitleId" class="text-lg leading-none font-semibold tracking-normal">@PreferencesTitle</h2>
-                    <p class="text-muted-foreground text-sm leading-5">@PreferencesDescription</p>
-                </div>
+    <Div Position="Position.Fixed" Inset="Inset.Is0" ZIndex="ZIndex.Is50" BackgroundColor='BackgroundColor.Utility("bg-black/35")' OnClick="ClosePreferences"></Div>
+    <Div Position="Position.Fixed" Top="Top.Is1of2" Left='Left.Token("1/2")' ZIndex="ZIndex.Is50" Width='Width.Token("[calc(100vw-2rem)]")' MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Default" BackgroundColor="BackgroundColor.Background" TextColor="TextColor.Foreground" Shadow="Shadow.TwoXl" Class="-translate-x-1/2 -translate-y-1/2" Role="dialog" aria-modal="true" AriaLabelledBy="@_preferencesTitleId">
+        <Div Space="Space.Y.Is2" Padding="Padding.Is5.OnX.FromTop.Is5.FromBottom.Is4">
+            <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is4">
+                <Div Space="Space.Y.Is1">
+                    <H2 Id="@_preferencesTitleId" TextSize="TextSize.Lg" Leading="Leading.None" FontWeight="FontWeight.Semibold" Tracking="Tracking.Normal" Border="Border.Is0" Padding="Padding.FromBottom.Is0" Transition="Transition.None">@PreferencesTitle</H2>
+                    <Div TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm" Leading="Leading.Is5">@PreferencesDescription</Div>
+                </Div>
                 <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" OnClick="ClosePreferences" aria-label="Close">
-                    <Icon Name="LucideIcon.X" />
+                    <Icon Name="LucideIcon.X"/>
                 </Button>
-            </div>
-        </div>
-        <div class="max-h-[55vh] space-y-3 overflow-y-auto px-5 pb-4">
+            </Div>
+        </Div>
+        <Div Space="Space.Y.Is3" OverflowY="Overflow.Y.Auto" Padding="Padding.Is5.OnX.FromBottom.Is4" Class="max-h-[55vh]">
             @foreach (string category in Categories)
             {
                 bool disabled = IsNecessary(category);
-                <div class="rounded-lg border p-4">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="space-y-1">
-                            <div class="text-sm font-medium capitalize">@category</div>
-                            <div class="text-muted-foreground text-sm leading-5">@GetCategoryDescription(category)</div>
-                        </div>
-                        <Switch Id="@($"{_componentId}-{category}")"
-                                Checked="@IsSelected(category)"
-                                CheckedChanged="@((bool value) => SetSelected(category, value))"
-                                Disabled="@disabled" />
-                    </div>
-                </div>
+                <Div Rounded="Rounded.Lg" Border="Border.Default" Padding="Padding.Is4">
+                    <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is4">
+                        <Div Space="Space.Y.Is1">
+                            <Div TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextTransform="TextTransform.Capitalize">@category</Div>
+                            <Div TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm" Leading="Leading.Is5">@GetCategoryDescription(category)</Div>
+                        </Div>
+                        <Switch Id="@($"{_componentId}-{category}")" Checked="@IsSelected(category)" CheckedChanged="@((bool value) => SetSelected(category, value))" Disabled="@disabled"/>
+                    </Div>
+                </Div>
             }
-        </div>
-        <div class="flex flex-col-reverse gap-2 border-t bg-muted/20 px-5 py-4 sm:flex-row sm:justify-end">
+        </Div>
+        <Div Display="Display.Flex" FlexDirection="FlexDirection.ColReverse.OnSm.Row" Gap="Gap.Is2" Border="Border.FromTop.Default" BackgroundColor='BackgroundColor.Utility("bg-muted/20")' Padding="Padding.Is5.OnX.Is4.OnY" Justify="Justify.End.OnSm">
             <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="RejectNonNecessary">@RejectAllText</Button>
             <Button Variant="ButtonVariant.Secondary" ButtonSize="ButtonSize.Sm" OnClick="AcceptAll">@AcceptAllText</Button>
             <Button ButtonSize="ButtonSize.Sm" OnClick="SaveCustom">@SavePreferencesText</Button>
-        </div>
-    </div>
+        </Div>
+    </Div>
 }
 
 @code {
@@ -176,8 +173,8 @@
 
     private bool IsBannerVisible => _bannerVisible && !_preferencesOpen;
 
-    private string BannerClass =>
-        $"z-50 w-[calc(100vw-2rem)] max-w-[26rem] overflow-hidden rounded-xl border bg-background text-foreground shadow-lg {ResolvedPositionClass} {Class}".Trim();
+    private string BannerPositionClass =>
+        $"{ResolvedPositionClass} {Class}".Trim();
 
     private string ResolvedPositionClass
     {
@@ -305,11 +302,7 @@
             if (utility.StartsWith("-", StringComparison.Ordinal))
                 utility = utility[1..];
 
-            if (IsDirectionalUtility(utility, 'l', 'e', 'f', 't') ||
-                IsDirectionalUtility(utility, 'r', 'i', 'g', 'h', 't') ||
-                IsDirectionalUtility(utility, 's', 't', 'a', 'r', 't') ||
-                IsDirectionalUtility(utility, 'e', 'n', 'd') ||
-                IsInsetXUtility(utility))
+            if (IsDirectionalUtility(utility, 'l', 'e', 'f', 't') || IsDirectionalUtility(utility, 'r', 'i', 'g', 'h', 't') || IsDirectionalUtility(utility, 's', 't', 'a', 'r', 't') || IsDirectionalUtility(utility, 'e', 'n', 'd') || IsInsetXUtility(utility))
                 return true;
 
             if (IsInsetUtility(utility))
@@ -354,4 +347,5 @@
         if (StateChanged.HasDelegate)
             await StateChanged.InvokeAsync(_state);
     }
+
 }

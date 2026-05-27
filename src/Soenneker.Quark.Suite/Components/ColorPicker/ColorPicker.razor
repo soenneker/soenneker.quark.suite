@@ -22,16 +22,22 @@ else
                 <Button Type="@ButtonType.Button"
                         Variant="ButtonVariant.Outline"
                         Disabled="@Disabled"
-                        Class="@TriggerClassValue"
+                        Width='Quark.Width.Token("[220px]")'
+                        Justify="Quark.Justify.Start"
+                        Gap="Quark.Gap.Is2"
+                        Padding="Quark.Padding.Is3.OnX"
+                        Class="@TriggerClass"
                         AriaLabel="@AriaLabelValue">
-                    <span class="size-5 shrink-0 rounded-md border border-border shadow-xs" style="@SwatchStyle"></span>
-                    <span class="truncate font-mono text-xs">@FormattedValue</span>
-                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" aria-hidden="true" />
+                    <Span Size="Quark.Size.Is5" Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Border" Shadow="Quark.Shadow.Xs" Style="@SwatchStyle"></Span>
+                    <Span Truncate="Quark.Truncate.Default" FontFamily="Quark.FontFamily.Mono" TextSize="Quark.TextSize.Xs">@FormattedValue</Span>
+                    <Icon Name="LucideIcon.ChevronDown" Margin="Quark.Margin.Auto.FromLeft" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" aria-hidden="true" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent Align="Alignment.Start"
                             UseDefaultLayout="false"
-                            Class="@PopupClassValue">
+                            Width='Quark.Width.Token("80")'
+                            Padding="Quark.Padding.Is3"
+                            Class="@PopupClass">
                 @RenderPanel()
             </PopoverContent>
         </Popover>
@@ -49,6 +55,7 @@ else
     private DotNetObjectReference<ColorPicker>? _dotNetRef;
     private bool _canvasRegistered;
     private bool? _lastCanvasDisabled;
+    private static readonly CssValue<SizeBuilder> EyedropperIconSize = Quark.Size.Is4;
 
     [Parameter]
     public string? Value { get; set; } = "#8b5cf6";
@@ -88,24 +95,6 @@ else
     private string CssColorValue => $"rgba({Rgb.R}, {Rgb.G}, {Rgb.B}, {_alpha.ToString("0.##", CultureInfo.InvariantCulture)})";
 
     private (int R, int G, int B) Rgb => HslToRgb(_hue, _saturation, _lightness);
-
-    private string TriggerClassValue
-    {
-        get
-        {
-            var cls = "w-[220px] justify-start gap-2 px-3";
-            return TriggerClass is null ? cls : AppendToClass(cls, TriggerClass);
-        }
-    }
-
-    private string PopupClassValue
-    {
-        get
-        {
-            var cls = "w-80 p-3";
-            return PopupClass is null ? cls : AppendToClass(cls, PopupClass);
-        }
-    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -258,7 +247,7 @@ else
             builder.AddAttribute(sequence++, "class", "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground shadow-xs hover:bg-accent hover:text-accent-foreground");
             builder.OpenComponent<Icon>(sequence++);
             builder.AddAttribute(sequence++, nameof(Icon.Name), LucideIcon.Pipette);
-            builder.AddAttribute(sequence++, nameof(Icon.Class), "size-4");
+            builder.AddAttribute(sequence++, nameof(Icon.Size), (object) EyedropperIconSize);
             builder.CloseComponent();
             builder.CloseElement();
         }

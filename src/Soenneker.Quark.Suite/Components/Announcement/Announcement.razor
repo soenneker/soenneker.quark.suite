@@ -3,24 +3,18 @@
 
 @if (Href.HasContent())
 {
-    <a href="@Href"
-       target="@Target?.Value"
-       @onclick="HandleClick"
-       @attributes="BuildAttributes()">
+    <a href="@Href" target="@Target?.Value" @onclick="HandleClick" @attributes="BuildAttributes()">
         @RenderContent()
     </a>
 }
 else
 {
-    <span @onclick="HandleClick"
-          @attributes="BuildAttributes()">
+    <span @onclick="HandleClick" @attributes="BuildAttributes()">
         @RenderContent()
     </span>
 }
 
 @code {
-    private const string _baseClass =
-        "group/announcement inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-1 text-sm font-medium shadow-sm outline-none transition-all hover:shadow-md focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
     /// <summary>
     /// Gets or sets the compact label shown before the announcement text.
@@ -70,7 +64,21 @@ else
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+
         DataSlot ??= "announcement";
+        Display ??= Quark.Display.InlineFlex;
+        MaxWidth ??= Quark.MaxWidth.IsFull;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is1;
+        Rounded ??= Quark.Rounded.Full;
+        Border ??= Quark.Border.Default;
+        Padding ??= Quark.Padding.OnX.Is2.OnY.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Shadow ??= Quark.Shadow.Sm;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Transition ??= Quark.Transition.All;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -85,11 +93,25 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, _baseClass);
-            AppendClass(ref cls, Themed
-                ? "border-primary/20 bg-primary/5 text-primary shadow-primary/5 hover:bg-primary/10 dark:bg-primary/10 dark:hover:bg-primary/15"
-                : "border-border bg-background text-foreground hover:bg-muted/50");
+            AppendClass(ref cls, "group/announcement");
+            AppendClass(ref cls, "hover:shadow-md focus-visible:border-ring focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0");
+            AppendClass(ref cls, Themed ? "shadow-primary/5 hover:bg-primary/10 dark:bg-primary/10 dark:hover:bg-primary/15" : "hover:bg-muted/50");
         });
+    }
+
+    protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        ApplyBorderColor(ref sty, ref cls, BorderColor ?? (Themed ? Quark.BorderColor.Utility("border-primary/20") : Quark.BorderColor.Border));
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        ApplyBackgroundColor(ref sty, ref cls, BackgroundColor ?? (Themed ? Quark.BackgroundColor.Utility("bg-primary/5") : Quark.BackgroundColor.Background));
+    }
+
+    protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
+    {
+        base.ApplyTextColor(ref sty, ref cls, value ?? (Themed ? Quark.TextColor.Primary : Quark.TextColor.Foreground));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -107,41 +129,35 @@ else
 
     private RenderFragment RenderContent() =>
         @<text>
-            @if (TagContent is not null)
-            {
-                <span data-slot="announcement-tag" class="@GetTagClass()">@TagContent</span>
-            }
-            else if (TagText.HasContent())
-            {
-                <span data-slot="announcement-tag" class="@GetTagClass()">@TagText</span>
-            }
+             @if (TagContent is not null)
+             {
+                 <Span DataSlot="announcement-tag" Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="@(Themed ? Quark.BackgroundColor.Primary : Quark.BackgroundColor.Muted)" Padding='Quark.Padding.OnX.Is2.OnY.Token("0.5")' TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Semibold" TextColor="@(Themed ? Quark.TextColor.PrimaryForeground : Quark.TextColor.MutedForeground)">@TagContent</Span>
+             }
+             else if (TagText.HasContent())
+             {
+                 <Span DataSlot="announcement-tag" Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="@(Themed ? Quark.BackgroundColor.Primary : Quark.BackgroundColor.Muted)" Padding='Quark.Padding.OnX.Is2.OnY.Token("0.5")' TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Semibold" TextColor="@(Themed ? Quark.TextColor.PrimaryForeground : Quark.TextColor.MutedForeground)">@TagText</Span>
+             }
 
-            @if (IconContent is not null)
-            {
-                <span data-slot="announcement-icon" class="inline-flex shrink-0 items-center">
-                    @IconContent
-                </span>
-            }
+             @if (IconContent is not null)
+             {
+                 <Span DataSlot="announcement-icon" Display="Quark.Display.InlineFlex" Shrink="Quark.Shrink.Is0" ItemsAlign="Quark.Items.Center">
+                     @IconContent
+                 </Span>
+             }
 
-            <span data-slot="announcement-text" class="min-w-0 truncate">
-                @ChildContent
-            </span>
+             <Span DataSlot="announcement-text" MinWidth="Quark.MinWidth.Is0" Truncate="Quark.Truncate.Default">
+                 @ChildContent
+             </Span>
 
-            @if (ShowChevron)
-            {
-                <Icon Name="LucideIcon.ChevronRight" data-slot="announcement-chevron" Class="size-3.5 shrink-0 transition-transform group-hover/announcement:translate-x-0.5 cn-rtl-flip" aria-hidden="true" />
-            }
-        </text>;
-
-    private string GetTagClass()
-    {
-        return Themed
-            ? "shrink-0 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground"
-            : "shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground";
-    }
+             @if (ShowChevron)
+             {
+                 <Icon Name="LucideIcon.ChevronRight" DataSlot="announcement-chevron" Size="Quark.Size.Is3_5" Shrink="Quark.Shrink.Is0" Transition="Quark.Transition.Transform" Class="group-hover/announcement:translate-x-0.5 cn-rtl-flip" aria-hidden="true"/>
+             }
+    </text>;
 
     private Task HandleClick(MouseEventArgs args)
     {
         return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
     }
+
 }

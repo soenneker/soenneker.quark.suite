@@ -1,12 +1,18 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<span @attributes="BuildAttributes()">
+<Span Attributes="@BuildAttributes()">
     @if (Pulse)
     {
-        <span data-slot="pill-indicator-pulse" class="@GetPulseClass()"></span>
+        <Span DataSlot="pill-indicator-pulse"
+              Position="Quark.Position.Absolute"
+              Inset="Quark.Inset.Is0"
+              Rounded="Quark.Rounded.Full"
+              BackgroundColor="@GetBackgroundColor()"
+              Animation="Quark.Animation.Ping"
+              Opacity="Quark.Opacity.Is75"></Span>
     }
-</span>
+</Span>
 
 @code {
     [Parameter]
@@ -19,18 +25,18 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-indicator";
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.InlineFlex;
+        Size ??= Quark.Size.Is2;
+        Shrink ??= Quark.Shrink.Is0;
+        Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= GetBackgroundColor();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-variant"] = GetVariantValue();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative inline-flex size-2 shrink-0 rounded-full");
-            AppendClass(ref cls, GetVariantClass());
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -38,11 +44,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
         hc.Add(Pulse);
-    }
-
-    private string GetPulseClass()
-    {
-        return $"absolute inset-0 rounded-full {GetVariantClass()} animate-ping opacity-75";
     }
 
     private string GetVariantValue()
@@ -59,17 +60,17 @@
         return "success";
     }
 
-    private string GetVariantClass()
+    private CssValue<BackgroundColorBuilder> GetBackgroundColor()
     {
         if (ReferenceEquals(Variant, PillIndicatorVariant.Error))
-            return "bg-red-500";
+            return Quark.BackgroundColor.Utility("bg-red-500");
         if (ReferenceEquals(Variant, PillIndicatorVariant.Warning))
-            return "bg-amber-500";
+            return Quark.BackgroundColor.Utility("bg-amber-500");
         if (ReferenceEquals(Variant, PillIndicatorVariant.Info))
-            return "bg-blue-500";
+            return Quark.BackgroundColor.Utility("bg-blue-500");
         if (ReferenceEquals(Variant, PillIndicatorVariant.Neutral))
-            return "bg-muted-foreground";
+            return Quark.BackgroundColor.Utility("bg-muted-foreground");
 
-        return "bg-green-500";
+        return Quark.BackgroundColor.Utility("bg-green-500");
     }
 }

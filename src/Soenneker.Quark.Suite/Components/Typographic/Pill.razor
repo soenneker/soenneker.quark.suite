@@ -10,12 +10,12 @@
 }
 else
 {
-    <span @attributes="BuildAttributes()">@ChildContent</span>
+    <Span Attributes="@BuildAttributes()">@ChildContent</Span>
 }
 
 @code {
-    private const string _shadcnPillBase =
-        "group/pill inline-flex h-7 w-fit max-w-full shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border bg-background px-2.5 py-1 text-xs font-medium whitespace-nowrap shadow-xs transition-all hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[slot=pill-close]:pr-1 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3.5 [&>svg]:shrink-0";
+    private const string _shadcnPillStateClass =
+        "group/pill focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[slot=pill-close]:pr-1 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3.5 [&>svg]:shrink-0";
 
     [Parameter]
     public bool AsChild { get; set; }
@@ -26,18 +26,24 @@ else
         DataSlot ??= "pill";
 
         Display ??= Quark.Display.InlineFlex;
+        Height ??= Quark.Height.Is7;
+        Width ??= Quark.Width.IsFit;
+        MaxWidth ??= Quark.MaxWidth.IsFull;
+        Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is1_5;
+        Overflow ??= Quark.Overflow.Hidden;
         Rounded ??= Quark.Rounded.Full;
         Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Token("0.5");
+        BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
+        BackgroundColor ??= Quark.BackgroundColor.Background.OnHover.Utility("bg-muted/50");
+        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
         TextSize ??= Quark.TextSize.Xs;
-        FontWeight ??= Quark.FontWeight.Semibold;
-        Width ??= Quark.Width.IsFit;
+        FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
-        Shrink ??= Quark.Shrink.Is0;
-        Transition ??= Quark.Transition.Token("transition-[color,shadow]");
+        Shadow ??= Quark.Shadow.Xs;
+        Transition ??= Quark.Transition.All;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -46,7 +52,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, _shadcnPillBase);
+            AppendClass(ref cls, _shadcnPillStateClass);
         });
     }
 

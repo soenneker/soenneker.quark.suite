@@ -2,9 +2,9 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentTree" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
+    <Div Attributes="@BuildAttributes()">
         @ChildContent
-    </div>
+    </Div>
 </CascadingValue>
 
 @code {
@@ -19,6 +19,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "tree";
         Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,11 +28,6 @@
 
         attributes["role"] = "tree";
         attributes["aria-label"] = AriaLabel ?? "Tree";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex flex-col");
-        });
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {

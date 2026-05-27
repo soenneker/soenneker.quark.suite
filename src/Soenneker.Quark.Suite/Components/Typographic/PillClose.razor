@@ -2,8 +2,8 @@
 @inherits Soenneker.Quark.Element
 
 <button type="button" @onclick="OnClick" @attributes="BuildAttributes()">
-    <Icon Name="LucideIcon.X" Class="size-3" aria-hidden="true" />
-    <span class="sr-only">@Label</span>
+    <Icon Name="LucideIcon.X" Size="Quark.Size.Is3" aria-hidden="true" />
+    <Span ScreenReader="Quark.ScreenReader.Only">@Label</Span>
 </button>
 
 @code {
@@ -17,16 +17,18 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-close";
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring");
-        });
+        Display ??= Quark.Display.InlineFlex;
+        Size ??= Quark.Size.Is5;
+        Shrink ??= Quark.Shrink.Is0;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Rounded ??= Quark.Rounded.Full;
+        TextColor ??= Quark.TextColor.MutedForeground.OnHover.Foreground;
+        BackgroundColor ??= Quark.BackgroundColor.OnHover.Muted;
+        Transition ??= Quark.Transition.Colors;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Ring ??= Quark.Ring.Is2.OnFocusVisible;
+        RingColor ??= Quark.RingColor.Ring.OnFocusVisible;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

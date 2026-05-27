@@ -1,10 +1,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<span @attributes="BuildAttributes()">
-    <Icon Name="@IconName" Class="size-3" aria-hidden="true" />
+<Span Attributes="@BuildAttributes()">
+    <Icon Name="@IconName" Size="Quark.Size.Is3" aria-hidden="true" />
     @ChildContent
-</span>
+</Span>
 
 @code {
     [Parameter]
@@ -16,6 +16,12 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-delta";
+        Display ??= Quark.Display.InlineFlex;
+        Shrink ??= Quark.Shrink.Is0;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is0_5;
+        FontWeight ??= Quark.FontWeight.Semibold;
+        TextColor ??= GetTextColor();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -23,11 +29,13 @@
         base.BuildAttributesCore(attributes);
         attributes["data-direction"] = Direction == PillDeltaDirection.Down ? "down" : "up";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "inline-flex shrink-0 items-center gap-0.5 font-semibold");
-            AppendClass(ref cls, Direction == PillDeltaDirection.Down ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400");
-        });
+    }
+
+    private CssValue<TextColorBuilder> GetTextColor()
+    {
+        return Direction == PillDeltaDirection.Down
+            ? Quark.TextColor.Utility("text-red-600").OnDark.Utility("text-red-400")
+            : Quark.TextColor.Utility("text-green-600").OnDark.Utility("text-green-400");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

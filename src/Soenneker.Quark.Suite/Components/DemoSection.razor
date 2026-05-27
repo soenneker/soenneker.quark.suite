@@ -95,17 +95,29 @@
                 <Div Position="Quark.Position.Relative">
                     @if (!ShouldShowCollapsedCodeOverlay)
                     {
-                        <button data-slot="copy-button"
-                                type="button"
-                                class="absolute top-3 right-2 z-10 inline-flex size-7 shrink-0 items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-                                title="@_copyButtonLabel"
-                                @onclick="CopyCode">
+                        <Button DataSlot="copy-button"
+                                Type="@ButtonType.Button"
+                                Variant="ButtonVariant.Outline"
+                                ButtonSize="@NoButtonSize"
+                                Position="Quark.Position.Absolute"
+                                Top="Quark.Top.Is3"
+                                Right="Quark.Right.Is2"
+                                ZIndex="Quark.ZIndex.Is10"
+                                Size="Quark.Size.Is7"
+                                Gap="Quark.Gap.Is2"
+                                Rounded="Quark.Rounded.Lg"
+                                Padding="Quark.Padding.Is0"
+                                BorderColor="Quark.BorderColor.Border"
+                                BackgroundColor="Quark.BackgroundColor.Background"
+                                TextColor="Quark.TextColor.MutedForeground.OnHover.Foreground"
+                                Title="@_copyButtonLabel"
+                                OnClick="CopyCode">
                             <Span ScreenReader="Quark.ScreenReader.Only">@_copyButtonLabel</Span>
                             <Svg NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round">
                                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
                                 <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 1.818.785 2 1.5"/>
                             </Svg>
-                        </button>
+                        </Button>
                     }
 
                     <Div BackgroundColor='Quark.BackgroundColor.Utility("bg-muted/25")'>
@@ -134,17 +146,20 @@
                             <Div Position="Quark.Position.Absolute"
                                  Inset="Quark.Inset.Is0"
                                  Class="bg-gradient-to-t from-background via-background/90 via-35% to-background/10 backdrop-blur-[1px]"></Div>
-                            <button data-slot="button"
-                                    type="button"
-                                    class="pointer-events-auto relative z-10 inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground shadow-none transition-all hover:bg-muted"
-                                    @onclick="ShowCode"
-                                    @onkeydown="@(e =>
-                                                {
-                                                    if (e.Key == "Enter" || e.Key == " ")
-                                                        ShowCode();
-                                                })">
+                            <Button Type="@ButtonType.Button"
+                                    Variant="ButtonVariant.Outline"
+                                    ButtonSize="ButtonSize.Sm"
+                                    PointerEvents="Quark.PointerEvents.Auto"
+                                    Position="Quark.Position.Relative"
+                                    ZIndex="Quark.ZIndex.Is10"
+                                    Rounded="Quark.Rounded.Lg"
+                                    BorderColor="Quark.BorderColor.Input"
+                                    BackgroundColor="Quark.BackgroundColor.Background.OnHover.Muted"
+                                    TextColor="Quark.TextColor.Foreground"
+                                    Shadow="Quark.Shadow.None"
+                                    OnClick="ShowCode">
                                 View Code
-                            </button>
+                            </Button>
                         </Div>
                     }
                 </Div>
@@ -222,6 +237,7 @@
     private bool ShouldRenderIntroDescription => Title is null;
     private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 4 : 1;
     private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 4 : null;
+    private static readonly CssValue<ButtonSizeBuilder>? NoButtonSize = null;
     private string ResolvedPreviewClass => string.IsNullOrWhiteSpace(PreviewClass)
         ? "preview relative flex min-h-72 w-full justify-center p-2 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0"
         : PreviewClass;

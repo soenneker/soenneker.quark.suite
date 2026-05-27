@@ -1,20 +1,20 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<span @attributes="BuildAttributes()">
+<Span Attributes="@BuildAttributes()">
     @if (ShowToggleIcon && ParentTreeItem?.Folder == true)
     {
         if (ParentTreeItem.ToggleIconType == TreeToggleIconType.PlusMinus)
         {
-            <Icon Name="@(ParentTreeItem.Expanded ? LucideIcon.Minus : LucideIcon.Plus)" Class="text-muted-foreground size-3.5" />
+            <Icon Name="@(ParentTreeItem.Expanded ? LucideIcon.Minus : LucideIcon.Plus)" Size="Quark.Size.Is3_5" TextColor="Quark.TextColor.MutedForeground" />
         }
         else
         {
-            <Icon Name="LucideIcon.ChevronDown" Class="@GetChevronClass()" />
+            <Icon Name="LucideIcon.ChevronDown" TextColor="Quark.TextColor.MutedForeground" Size="Quark.Size.Is4" Transition="Quark.Transition.Transform" Class="@GetChevronClass()" />
         }
     }
     @ChildContent
-</span>
+</Span>
 
 @code {
     [CascadingParameter(Name = "ParentTreeItem")]
@@ -27,6 +27,14 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree-item-label";
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is1;
+        Rounded ??= Quark.Rounded.Sm;
+        Padding ??= Quark.Padding.OnX.Is2.OnY.Token("1.5");
+        TextSize ??= Quark.TextSize.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.Background.OnHover.Accent;
+        Transition ??= Quark.Transition.Colors;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -35,13 +43,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-background hover:bg-accent flex items-center gap-1 rounded-sm px-2 py-1.5 text-sm transition-colors in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground not-in-data-[folder=true]:ps-7 in-focus-visible:ring-3 in-focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0");
+            AppendClass(ref cls, "in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground not-in-data-[folder=true]:ps-7 in-focus-visible:ring-3 in-focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0");
         });
     }
 
     private string GetChevronClass()
     {
-        var cls = "text-muted-foreground size-4 transition-transform";
+        var cls = "";
 
         if (ParentTreeItem?.Expanded != true)
             cls += " -rotate-90";

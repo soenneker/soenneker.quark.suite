@@ -9,10 +9,17 @@
             <Button Type="@ButtonType.Button"
                     Variant="ButtonVariant.Outline"
                     Disabled="@Disabled"
-                    Class="@TriggerClassValue"
+                    Width='Quark.Width.Token("[200px]")'
+                    Justify="Quark.Justify.Between"
+                    Gap="Quark.Gap.Is2"
+                    Whitespace="Quark.Whitespace.Nowrap"
+                    Cursor="Quark.Cursor.Pointer"
+                    FontWeight="Quark.FontWeight.Normal"
+                    TextColor="@TriggerTextColor"
+                    Class="@TriggerClass"
                     AriaLabel="@Placeholder">
-                <Span Class="truncate flex-1 text-left font-normal">@DisplayValueOrPlaceholder</Span>
-                <Span Class="flex items-center gap-1 shrink-0">
+                <Span Truncate="Quark.Truncate.Default" Flex="Quark.Flex.Is1" TextAlign="Quark.TextAlign.Start" FontWeight="Quark.FontWeight.Normal">@DisplayValueOrPlaceholder</Span>
+                <Span Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Shrink="Quark.Shrink.Is0">
                     @if (AllowClear && HasSelection && !Disabled && !ReadOnly)
                     {
                         <span role="button"
@@ -21,17 +28,19 @@
                               class="inline-flex cursor-pointer opacity-50 hover:opacity-100"
                               @onclick="ClearSelection"
                               @onclick:stopPropagation="true">
-                            <Icon Name="LucideIcon.X" Class="size-4" aria-hidden="true" />
+                            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
                         </span>
                     }
-                    <Icon Name="LucideIcon.ChevronDown" Class="size-4 opacity-50" aria-hidden="true" />
+                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" aria-hidden="true" />
                 </Span>
             </Button>
         </PopoverTrigger>
 
         <PopoverContent Align="Alignment.Start"
                         UseDefaultLayout="false"
-                        Class="@PopupClassValue">
+                        Width="Quark.Width.Auto"
+                        Padding="Quark.Padding.Is0"
+                        Class="@PopupClass">
             @RenderColumns()
         </PopoverContent>
     </Popover>
@@ -44,6 +53,11 @@
     private int _focusedColumn;
     private int _focusedIndex;
     private bool _preventKeyDefault;
+    private static readonly CssValue<TruncateBuilder> OptionLabelTruncate = Quark.Truncate.Default;
+    private static readonly CssValue<SizeBuilder> OptionChevronSize = Quark.Size.Is4;
+    private static readonly CssValue<MarginBuilder> OptionChevronMargin = Quark.Margin.FromLeft.Is2;
+    private static readonly CssValue<ShrinkBuilder> OptionChevronShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<OpacityBuilder> OptionChevronOpacity = Quark.Opacity.Is50;
 
     [Parameter]
     public IReadOnlyList<CascaderOption> Options { get; set; } = [];
@@ -96,23 +110,7 @@
         }
     }
 
-    private string TriggerClassValue
-    {
-        get
-        {
-            var cls = "w-[200px] justify-between gap-2 whitespace-nowrap cursor-pointer font-normal";
-
-            if (!HasSelection)
-                cls = AppendToClass(cls, "text-muted-foreground");
-
-            if (TriggerClass is not null)
-                cls = AppendToClass(cls, TriggerClass);
-
-            return cls;
-        }
-    }
-
-    private string PopupClassValue => PopupClass is null ? "w-auto p-0" : AppendToClass("w-auto p-0", PopupClass);
+    private CssValue<TextColorBuilder>? TriggerTextColor => HasSelection ? (CssValue<TextColorBuilder>?) null : Quark.TextColor.MutedForeground;
 
     protected override void ApplyDefaultParameters()
     {
@@ -178,20 +176,24 @@
                 builder.AddAttribute(22, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, args => HandleOptionKeyDown(args, option, capturedColumnIndex, capturedItemIndex)));
                 builder.AddAttribute(23, "onkeydown:preventDefault", _preventKeyDefault);
 
-                builder.OpenElement(24, "span");
-                builder.AddAttribute(25, "class", "truncate");
+                builder.OpenComponent<Span>(24);
+                builder.AddAttribute(25, nameof(Span.Truncate), (object) OptionLabelTruncate);
                 if (OptionTemplate is not null)
                     builder.AddContent(26, OptionTemplate(option));
                 else
                     builder.AddContent(27, option.Label);
-                builder.CloseElement();
+                builder.CloseComponent();
 
                 if (option.HasChildren)
                 {
                     builder.OpenComponent<Icon>(28);
                     builder.AddAttribute(29, nameof(Icon.Name), LucideIcon.ChevronRight);
-                    builder.AddAttribute(30, nameof(Icon.Class), "size-4 ml-2 shrink-0 opacity-50 cn-rtl-flip");
-                    builder.AddAttribute(31, "aria-hidden", "true");
+                    builder.AddAttribute(30, nameof(Icon.Size), (object) OptionChevronSize);
+                    builder.AddAttribute(31, nameof(Icon.Margin), (object) OptionChevronMargin);
+                    builder.AddAttribute(32, nameof(Icon.Shrink), (object) OptionChevronShrink);
+                    builder.AddAttribute(33, nameof(Icon.Opacity), (object) OptionChevronOpacity);
+                    builder.AddAttribute(34, nameof(Icon.Class), "cn-rtl-flip");
+                    builder.AddAttribute(35, "aria-hidden", "true");
                     builder.CloseComponent();
                 }
 

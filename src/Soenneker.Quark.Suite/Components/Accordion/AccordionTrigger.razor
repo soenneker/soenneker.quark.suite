@@ -4,24 +4,17 @@
 @implements IAccordionTrigger
 
 <BradixAccordionHeader @attributes="HeaderAttributes">
-    <BradixAccordionTrigger OnClick="@OnClick"
-                            OnKeyDown="@OnKeyDown"
-                            @attributes="TriggerAttributes">
+    <BradixAccordionTrigger OnClick="@OnClick" OnKeyDown="@OnKeyDown" @attributes="TriggerAttributes">
         @ChildContent
         @if (ShowChevron)
         {
-            <Icon Name="LucideIcon.ChevronDown"
-                  data-slot="accordion-trigger-icon"
-                  Size="Quark.Size.Is4"
-                  Shrink="Quark.Shrink.Is0"
-                  TextColor="Quark.TextColor.MutedForeground"
-                  PointerEvents="Quark.PointerEvents.None"
-                  Class="transition-transform group-aria-expanded/accordion-trigger:rotate-180" />
+            <Icon Name="LucideIcon.ChevronDown" data-slot="accordion-trigger-icon" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" TextColor="Quark.TextColor.MutedForeground" PointerEvents="Quark.PointerEvents.None" Transition="Quark.Transition.Transform" Class="group-aria-expanded/accordion-trigger:rotate-180"/>
         }
     </BradixAccordionTrigger>
 </BradixAccordionHeader>
 
 @code {
+
     [Parameter]
     public bool ShowChevron { get; set; } = true;
 
@@ -48,7 +41,6 @@
         RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
         PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
         Opacity ??= Quark.Opacity.Is50.OnDisabled;
-
     }
 
     private IReadOnlyDictionary<string, object> HeaderAttributes
@@ -103,6 +95,5 @@
         hc.Add(Disabled);
         hc.Add(ParentAccordionItem?.ForceMount == true);
     }
+
 }
-
-
