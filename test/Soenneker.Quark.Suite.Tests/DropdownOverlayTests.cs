@@ -42,6 +42,24 @@ public sealed class DropdownOverlayTests : BunitContext
         _overlayInterop.ScrollLockActivations.Should().Be(1);
     }
 
+    [Test]
+    public void Visible_dialog_does_not_use_quark_overlay_scroll_lock()
+    {
+        Render<Dialog>(parameters => parameters
+            .Add(component => component.Visible, true));
+
+        _overlayInterop.ScrollLockActivations.Should().Be(0);
+    }
+
+    [Test]
+    public void Visible_command_dialog_does_not_use_quark_overlay_scroll_lock()
+    {
+        Render<CommandDialog>(parameters => parameters
+            .Add(component => component.Visible, true));
+
+        _overlayInterop.ScrollLockActivations.Should().Be(0);
+    }
+
     private sealed class SpyOverlayInterop : IOverlayInterop
     {
         public int ScrollLockActivations { get; private set; }

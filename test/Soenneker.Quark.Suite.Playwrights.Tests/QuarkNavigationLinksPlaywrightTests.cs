@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
@@ -99,6 +100,60 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Docs_sidebar_scrolls_independently_and_keeps_position_between_component_pages()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        await page.SetViewportSizeAsync(2048, 960);
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/button",
+            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation'] [data-sidebar='content'][data-fade='true']").First,
+            expectedTitle: "Buttons - Quark Suite");
+
+        var sidebar = page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First;
+        var sidebarContent = sidebar.Locator("[data-sidebar='content'][data-fade='true']").First;
+        var commandLink = sidebar.Locator("a[data-sidebar='menu-button'][href='components/command']").First;
+
+        await Assertions.Expect(sidebar).ToHaveCSSAsync("position", "sticky");
+
+        var contentProbe = await sidebarContent.EvaluateAsync<SidebarContentScrollProbe>(
+            @"element => {
+                const style = getComputedStyle(element);
+                return {
+                    clientHeight: element.clientHeight,
+                    maskImage: style.maskImage || style.webkitMaskImage,
+                    overflowY: style.overflowY,
+                    scrollHeight: element.scrollHeight
+                };
+            }");
+
+        contentProbe.overflowY.Should().Be("auto");
+        contentProbe.scrollHeight.Should().BeGreaterThan(contentProbe.clientHeight);
+        contentProbe.maskImage.Should().Contain("linear-gradient");
+
+        await sidebarContent.EvaluateAsync("element => { element.scrollTop = 700; }");
+        await page.EvaluateAsync("() => window.scrollTo(0, 900)");
+
+        var beforeNavigation = await sidebarContent.EvaluateAsync<ScrollPositionProbe>(
+            "element => ({ pageScrollY: window.scrollY, sidebarScrollTop: element.scrollTop })");
+
+        beforeNavigation.sidebarScrollTop.Should().BeGreaterThan(600);
+        beforeNavigation.pageScrollY.Should().BeGreaterThan(500);
+
+        await commandLink.ClickAsync();
+        await page.WaitForURLAsync(new Regex("/components/command$"));
+        await page.WaitForFunctionAsync("() => window.scrollY === 0");
+
+        var afterNavigation = await sidebarContent.EvaluateAsync<ScrollPositionProbe>(
+            "element => ({ pageScrollY: window.scrollY, sidebarScrollTop: element.scrollTop })");
+
+        afterNavigation.sidebarScrollTop.Should().BeGreaterThan(500);
+        afterNavigation.pageScrollY.Should().Be(0);
+        (await page.TitleAsync()).Should().Be("Command - Quark Suite");
+    }
+
+    [Test]
     public async ValueTask Components_index_title_aligns_with_component_grid_and_uses_docs_heading_weight()
     {
         await using var session = await CreateSession();
@@ -179,5 +234,23 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     private sealed class LayoutRectProbe
     {
         public double left { get; set; }
+    }
+
+    private sealed class SidebarContentScrollProbe
+    {
+        public double clientHeight { get; set; }
+
+        public string? maskImage { get; set; }
+
+        public string? overflowY { get; set; }
+
+        public double scrollHeight { get; set; }
+    }
+
+    private sealed class ScrollPositionProbe
+    {
+        public double pageScrollY { get; set; }
+
+        public double sidebarScrollTop { get; set; }
     }
 }

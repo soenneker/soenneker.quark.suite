@@ -248,8 +248,14 @@ else
             AppendClass(ref cls, IsNavigationShell(Shell) ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex" : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
 
             if (IsNavigationShell(Shell))
-                AppendClass(ref cls, "relative shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
+                AppendClass(ref cls, "sticky self-start shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
         });
+
+        if (IsNavigationShell(Shell))
+        {
+            const string navigationShellStyle = "top: var(--header-height, 0px); height: calc(100svh - var(--header-height, 0px)); max-height: calc(100svh - var(--header-height, 0px));";
+            attributes["style"] = CombineStyleDecls(navigationShellStyle, attributes.TryGetValue("style", out object? style) ? style?.ToString() : null)!;
+        }
 
         return attributes;
     }
