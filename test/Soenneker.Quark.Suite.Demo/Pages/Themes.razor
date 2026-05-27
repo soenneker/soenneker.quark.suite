@@ -50,17 +50,17 @@
                 </Section>
 
                 <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Tailwind theme output</H2>
+                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Tailwind theme input</H2>
                     <Paragraph Leading="Leading.Relaxed">
-                        The same Theme also emits tailwind/quark-theme.generated.css unless TailwindThemeOutputFilePath is overridden. Import that file into the Tailwind input when the app should replace the baked-in shadcn theme variables during the Tailwind build.
+                        Tailwind theme input is owned by Soenneker.Quark.Gen.Tailwind. It seeds tailwind/quark-shadcn.theme.json with shadcn/ui defaults and generates tailwind/quark-theme.generated.css for the Tailwind build.
                     </Paragraph>
-                    <CodeEditor Text="@TailwindThemeOutputCode" Language="css" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+                    <CodeEditor Text="@TailwindThemeInputCode" Language="json" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
 
                 <Section Space="Space.Y.Is4">
                     <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Generated options</H2>
                     <Paragraph Leading="Leading.Relaxed">
-                        BuildUnminified, BuildMinified, and TailwindThemeOutputFilePath can be set on the attribute when an app needs different output behavior.
+                        BuildUnminified and BuildMinified can be set on the attribute when an app needs different runtime CSS output behavior.
                     </Paragraph>
                     <CodeEditor Text="@GeneratedOptionsCode" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
                 </Section>
@@ -120,11 +120,15 @@ public static class AppTheme
     private const string UseCssCode = @"<link rel=""stylesheet"" href=""_content/Soenneker.Quark.Suite/css/quark-tailwind.css"" />
 <link rel=""stylesheet"" href=""css/quark-theme.css"" />";
 
-    private const string TailwindThemeOutputCode = @"@import ""./quark-theme.generated.css"";";
+    private const string TailwindThemeInputCode = @"{
+  ""baseColor"": ""Neutral"",
+  ""theme"": ""Neutral"",
+  ""chartColor"": ""Neutral"",
+  ""radius"": ""Default""
+}";
 
     private const string GeneratedOptionsCode = @"[GenerateQuarkThemeCss(
     ""wwwroot/css/quark-theme.css"",
     BuildUnminified = true,
-    BuildMinified = true,
-    TailwindThemeOutputFilePath = ""tailwind/quark-theme.generated.css"")]";
+    BuildMinified = true)]";
 }
