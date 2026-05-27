@@ -42,6 +42,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkScoreAsScoped()
                 .AddQuarkColorPickerAsScoped()
                 .AddQuarkOnThisPageAsScoped()
+                .AddQuarkDateTimesAsScoped()
                 .AddC15tAsScoped()
                 .AddClipboardAsScoped();
 

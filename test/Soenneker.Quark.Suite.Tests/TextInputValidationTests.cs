@@ -38,7 +38,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void TextInput_time_passes_native_attributes_and_defers_value_binding_until_blur()
     {
-        string? value = "10:30:00";
+        var value = "10:30:00";
         var changes = new List<string?>();
 
         var cut = Render<TextInput>(parameters => parameters

@@ -50,9 +50,9 @@
             </Div>
         </Div>
         <Div Space="Space.Y.Is3" OverflowY="Overflow.Y.Auto" Padding="Padding.Is5.OnX.FromBottom.Is4" Class="max-h-[55vh]">
-            @foreach (string category in Categories)
+            @foreach (var category in Categories)
             {
-                bool disabled = IsNecessary(category);
+                var disabled = IsNecessary(category);
                 <Div Rounded="Rounded.Lg" Border="Border.Default" Padding="Padding.Is4">
                     <Div Display="Display.Flex" ItemsAlign="Items.Start" Justify="Justify.Between" Gap="Gap.Is4">
                         <Div Space="Space.Y.Is1">
@@ -180,7 +180,7 @@
     {
         get
         {
-            string positionClass = string.IsNullOrWhiteSpace(PositionClass) ? _defaultPositionClass : PositionClass;
+            var positionClass = string.IsNullOrWhiteSpace(PositionClass) ? _defaultPositionClass : PositionClass;
 
             if (HasHorizontalPositionClass(positionClass))
                 return positionClass;
@@ -272,7 +272,7 @@
         if (IsNecessary(category))
             return true;
 
-        return _state?.SelectedConsents?.TryGetValue(category, out bool selected) == true && selected;
+        return _state?.SelectedConsents?.TryGetValue(category, out var selected) == true && selected;
     }
 
     private bool HasConsentInfo()
@@ -288,10 +288,10 @@
 
     private static bool HasHorizontalPositionClass(string positionClass)
     {
-        foreach (string token in positionClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        foreach (var token in positionClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
         {
-            ReadOnlySpan<char> utility = token.AsSpan();
-            int variantSeparatorIndex = utility.LastIndexOf(':');
+            var utility = token.AsSpan();
+            var variantSeparatorIndex = utility.LastIndexOf(':');
 
             if (variantSeparatorIndex >= 0 && variantSeparatorIndex + 1 < utility.Length)
                 utility = utility[(variantSeparatorIndex + 1)..];

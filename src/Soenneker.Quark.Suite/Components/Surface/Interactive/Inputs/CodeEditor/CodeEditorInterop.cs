@@ -52,7 +52,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        string cssUrl = _quarkOptions.CodeEditorUseCdn ? $"{_cdnBaseUrl}{_cdnCssPath}" : _localCssPath;
+        var cssUrl = _quarkOptions.CodeEditorUseCdn ? $"{_cdnBaseUrl}{_cdnCssPath}" : _localCssPath;
 
         if (_quarkOptions.CodeEditorUseCdn)
         {

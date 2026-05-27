@@ -1,0 +1,25 @@
+@namespace Soenneker.Quark
+@inherits DateTimeComponentBase
+@implements IDateNow
+
+<time @attributes="BuildAttributes()">@RenderContent()</time>
+
+@code {
+    protected override QuarkDateTimeUpdateKind UpdateKind => QuarkDateTimeUpdateKind.Now;
+
+    protected override DateTimeOffset? GetEffectiveValue(DateTimeOffset now)
+    {
+        return now;
+    }
+
+    protected override string FormatValue(DateTimeOffset? value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
+    {
+        return Formatter.Format(value ?? now, options);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "date-now";
+    }
+}

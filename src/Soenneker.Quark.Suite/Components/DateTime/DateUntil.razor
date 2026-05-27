@@ -1,0 +1,45 @@
+@namespace Soenneker.Quark
+@inherits DateTimeComponentBase
+@implements IDateUntil
+
+<time @attributes="BuildAttributes()">@RenderContent()</time>
+
+@code {
+    /// <summary>
+    /// Gets or sets the target date/time value.
+    /// </summary>
+    [Parameter]
+    public DateTimeOffset? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text rendered after the target date/time has passed.
+    /// </summary>
+    [Parameter]
+    public string? ExpiredText { get; set; } = "expired";
+
+    protected override QuarkDateTimeUpdateKind UpdateKind => QuarkDateTimeUpdateKind.Until;
+
+    protected override string? ExpiredTextCore => ExpiredText;
+
+    protected override DateTimeOffset? GetEffectiveValue(DateTimeOffset now)
+    {
+        return Value;
+    }
+
+    protected override string FormatValue(DateTimeOffset? value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
+    {
+        return value.HasValue ? Formatter.FormatUntil(value.Value, now, options) : options.NullText ?? string.Empty;
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "date-until";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+    }
+}

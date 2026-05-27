@@ -255,6 +255,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ISonnerService, SonnerService>();
         Services.AddScoped<ISonnerInterop, FakeSonnerInterop>();
         Services.AddScoped<IC15tConsentService, FakeC15tConsentService>();
+        Services.AddScoped<IQuarkDateTimeFormatter, QuarkDateTimeFormatter>();
+        Services.AddScoped<IQuarkBrowserTimeZoneService, FakeBrowserTimeZoneService>();
     }
 
     private sealed class FakeLucideIconSvgProvider : ILucideIconSvgProvider
@@ -549,6 +551,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         private ValueTask<C15tConsentState?> CurrentStateResult() =>
             ValueTask.FromResult<C15tConsentState?>(CurrentState);
+    }
+
+    private sealed class FakeBrowserTimeZoneService : IQuarkBrowserTimeZoneService
+    {
+        public ValueTask<string?> GetTimeZoneId(CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>("UTC");
     }
 
 }
