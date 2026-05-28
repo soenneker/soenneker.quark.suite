@@ -475,7 +475,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Float, "float");
         AddRules(buffer, baseSelector, VerticalAlign, "vertical-align");
         AddRules(buffer, baseSelector, TextOverflow, "text-overflow");
-        AddRules(buffer, baseSelector, Shadow, "shadow");
+        AddRules(buffer, baseSelector, Shadow, "box-shadow");
         AddRules(buffer, baseSelector, Margin, "margin");
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Inset, null);
@@ -598,7 +598,10 @@ public class ComponentOptions
             return null;
 
         if (!value.IsCssStyle)
-            return TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
+        {
+            IEnumerable<string>? declarations = TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
+            return declarations;
+        }
 
         return [$"{fallbackProperty}: {rawValue.Trim()}"];
     }
@@ -621,6 +624,40 @@ public class ComponentOptions
             };
 
             return decoration is null ? null : [$"{fallbackProperty}: {decoration}"];
+        }
+
+        if (typeof(TBuilder) == typeof(TextColorBuilder) &&
+            fallbackProperty.Equals("color", System.StringComparison.Ordinal))
+        {
+            var color = ConvertColorUtility(resolved, "text-");
+            return color is null ? null : [$"{fallbackProperty}: {color}"];
+        }
+
+        if (typeof(TBuilder) == typeof(BackgroundColorBuilder) &&
+            fallbackProperty.Equals("background-color", System.StringComparison.Ordinal))
+        {
+            var color = ConvertColorUtility(resolved, "bg-");
+            return color is null ? null : [$"{fallbackProperty}: {color}"];
+        }
+
+        if (typeof(TBuilder) == typeof(PaddingBuilder) &&
+            fallbackProperty.Equals("padding", System.StringComparison.Ordinal))
+        {
+            return ConvertPaddingUtilities(resolved);
+        }
+
+        if (typeof(TBuilder) == typeof(RoundedBuilder) &&
+            fallbackProperty.Equals("border-radius", System.StringComparison.Ordinal))
+        {
+            var radius = ConvertRoundedUtility(resolved);
+            return radius is null ? null : [$"{fallbackProperty}: {radius}"];
+        }
+
+        if (typeof(TBuilder) == typeof(ShadowBuilder) &&
+            fallbackProperty.Equals("box-shadow", System.StringComparison.Ordinal))
+        {
+            var shadow = ConvertShadowUtility(resolved);
+            return shadow is null ? null : [$"{fallbackProperty}: {shadow}"];
         }
 
         if (typeof(TBuilder) == typeof(FlexDirectionBuilder) &&
@@ -682,6 +719,182 @@ public class ComponentOptions
         }
 
         return null;
+    }
+
+    private static string? ConvertColorUtility(string value, string prefix)
+    {
+        if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
+            return null;
+
+        string token = value.Substring(prefix.Length);
+
+        return token switch
+        {
+            "black" => "#000",
+            "white" => "#fff",
+            "transparent" => "transparent",
+            "inherit" => "inherit",
+            "current" => "currentColor",
+            "background" => "var(--background)",
+            "foreground" => "var(--foreground)",
+            "card" => "var(--card)",
+            "card-foreground" => "var(--card-foreground)",
+            "popover" => "var(--popover)",
+            "popover-foreground" => "var(--popover-foreground)",
+            "primary" => "var(--primary)",
+            "primary-foreground" => "var(--primary-foreground)",
+            "secondary" => "var(--secondary)",
+            "secondary-foreground" => "var(--secondary-foreground)",
+            "muted" => "var(--muted)",
+            "muted-foreground" => "var(--muted-foreground)",
+            "accent" => "var(--accent)",
+            "accent-foreground" => "var(--accent-foreground)",
+            "destructive" => "var(--destructive)",
+            "destructive-foreground" => "var(--destructive-foreground)",
+            "border" => "var(--border)",
+            _ => IsPaletteColorToken(token) ? $"var(--color-{token})" : null
+        };
+    }
+
+    private static bool IsPaletteColorToken(string token)
+    {
+        int dash = token.LastIndexOf('-');
+        if (dash <= 0 || dash == token.Length - 1)
+            return false;
+
+        string family = token.Substring(0, dash);
+        string shade = token.Substring(dash + 1);
+
+        return IsPaletteColorFamily(family) && IsPaletteColorShade(shade);
+    }
+
+    private static bool IsPaletteColorFamily(string family)
+    {
+        return family is "slate" or "gray" or "zinc" or "neutral" or "stone" or "red" or "orange" or "amber"
+            or "yellow" or "lime" or "green" or "emerald" or "teal" or "cyan" or "sky" or "blue"
+            or "indigo" or "violet" or "purple" or "fuchsia" or "pink" or "rose";
+    }
+
+    private static bool IsPaletteColorShade(string shade)
+    {
+        return shade is "50" or "100" or "200" or "300" or "400" or "500" or "600" or "700" or "800" or "900" or "950";
+    }
+
+    private static IEnumerable<string>? ConvertPaddingUtilities(string value)
+    {
+        string[] tokens = value.Split(' ');
+        var declarations = new List<string>(tokens.Length * 2);
+
+        for (var i = 0; i < tokens.Length; i++)
+        {
+            string token = tokens[i].Trim();
+            if (token.Length == 0)
+                continue;
+
+            if (token.Contains(':'))
+                return null;
+
+            string? spacing = ConvertSpacingToken(token);
+            if (spacing is null)
+                return null;
+
+            if (token.StartsWith("px-", System.StringComparison.Ordinal))
+            {
+                declarations.Add($"padding-left: {spacing}");
+                declarations.Add($"padding-right: {spacing}");
+            }
+            else if (token.StartsWith("py-", System.StringComparison.Ordinal))
+            {
+                declarations.Add($"padding-top: {spacing}");
+                declarations.Add($"padding-bottom: {spacing}");
+            }
+            else if (token.StartsWith("pt-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-top: {spacing}");
+            else if (token.StartsWith("pr-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-right: {spacing}");
+            else if (token.StartsWith("pb-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-bottom: {spacing}");
+            else if (token.StartsWith("pl-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-left: {spacing}");
+            else if (token.StartsWith("ps-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-inline-start: {spacing}");
+            else if (token.StartsWith("pe-", System.StringComparison.Ordinal))
+                declarations.Add($"padding-inline-end: {spacing}");
+            else if (token.StartsWith("p-", System.StringComparison.Ordinal))
+                declarations.Add($"padding: {spacing}");
+            else
+                return null;
+        }
+
+        return declarations.Count == 0 ? null : declarations;
+    }
+
+    private static string? ConvertSpacingToken(string utility)
+    {
+        int dash = utility.IndexOf('-');
+        if (dash < 0 || dash == utility.Length - 1)
+            return null;
+
+        string token = utility.Substring(dash + 1);
+
+        return token switch
+        {
+            "0" => "0",
+            "0.5" => "0.125rem",
+            "1" => "0.25rem",
+            "1.5" => "0.375rem",
+            "2" => "0.5rem",
+            "2.5" => "0.625rem",
+            "3" => "0.75rem",
+            "3.5" => "0.875rem",
+            "4" => "1rem",
+            "5" => "1.25rem",
+            "6" => "1.5rem",
+            "7" => "1.75rem",
+            "8" => "2rem",
+            "9" => "2.25rem",
+            "10" => "2.5rem",
+            "12" => "3rem",
+            "14" => "3.5rem",
+            "16" => "4rem",
+            "20" => "5rem",
+            "px" => "1px",
+            _ => null
+        };
+    }
+
+    private static string? ConvertRoundedUtility(string value)
+    {
+        return value switch
+        {
+            "rounded-none" => "0",
+            "rounded-sm" => "0.125rem",
+            "rounded" => "0.25rem",
+            "rounded-md" => "0.375rem",
+            "rounded-lg" => "0.5rem",
+            "rounded-xl" => "0.75rem",
+            "rounded-2xl" => "1rem",
+            "rounded-3xl" => "1.5rem",
+            "rounded-full" => "9999px",
+            _ => null
+        };
+    }
+
+    private static string? ConvertShadowUtility(string value)
+    {
+        return value switch
+        {
+            "shadow-none" => "none",
+            "shadow-xs" => "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+            "shadow-sm" => "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            "shadow" => "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            "shadow-md" => "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+            "shadow-lg" => "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            "shadow-xl" => "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+            "shadow-2xl" => "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+            "shadow-inner" => "inset 0 2px 4px 0 rgb(0 0 0 / 0.05)",
+            _ => null
+        };
     }
 
     private static string? ConvertDurationUtility(string value)
