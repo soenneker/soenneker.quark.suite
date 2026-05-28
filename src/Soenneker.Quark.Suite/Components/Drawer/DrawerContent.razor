@@ -11,8 +11,11 @@
         <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
     }
 
-    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" AdditionalAttributes="@ContentAttributes">
-        <Div Margin="Quark.Margin.OnX.Auto.FromTop.Is4" Height="Quark.Height.Is1" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" Display='CssValue<DisplayBuilder>.For(Quark.Display.None, Quark.Display.Block.Modifier("group-data-[vaul-drawer-direction=bottom]/drawer-content"))'></Div>
+    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" OnElementReferenceCaptured="HandleElementReferenceCaptured" AdditionalAttributes="@ContentAttributes">
+        @if (ResolvedSide == Soenneker.Bradix.Side.Bottom)
+        {
+            <Div DataSlot="drawer-handle" Margin="Quark.Margin.OnX.Auto.FromTop.Is4" Height="Quark.Height.Is2" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted"></Div>
+        }
         @ChildContent
     </BradixDialogContent>
 </BradixDialogPortal>
@@ -66,10 +69,10 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/drawer-content text-sm text-popover-foreground");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t");
             AppendClass(ref cls, "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r");
             AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b");
+            AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[50vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b");
             AppendClass(ref cls, "data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm");
             AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-[vaul-drawer-direction=bottom]:data-open:slide-in-from-bottom-10 data-[vaul-drawer-direction=left]:data-open:slide-in-from-left-10 data-[vaul-drawer-direction=right]:data-open:slide-in-from-right-10 data-[vaul-drawer-direction=top]:data-open:slide-in-from-top-10");
             AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0 data-[vaul-drawer-direction=bottom]:data-closed:slide-out-to-bottom-10 data-[vaul-drawer-direction=left]:data-closed:slide-out-to-left-10 data-[vaul-drawer-direction=right]:data-closed:slide-out-to-right-10 data-[vaul-drawer-direction=top]:data-closed:slide-out-to-top-10");
@@ -94,6 +97,12 @@
     private Task HandleBackdropPointerDownOutside()
     {
         return ParentDrawer?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
+    }
+
+    private async Task HandleElementReferenceCaptured(ElementReference element)
+    {
+        if (ParentDrawer is not null)
+            await ParentDrawer.SetOverlayContentElement(element);
     }
 
     private async Task HandleOpenAutoFocus(BradixAutoFocusEventArgs args)

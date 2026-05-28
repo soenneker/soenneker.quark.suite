@@ -30,9 +30,19 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Move Goal", Exact = true });
         var content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Calories/day" }).First;
+        var handle = content.Locator("[data-slot='drawer-handle']");
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(content).ToHaveAttributeAsync("data-vaul-drawer-direction", "bottom");
         await Assertions.Expect(content).ToContainTextAsync("350");
+        await Assertions.Expect(handle).ToBeVisibleAsync();
+
+        var contentBox = await content.BoundingBoxAsync();
+        contentBox.Should().NotBeNull();
+        contentBox!.Height.Should().BeLessThanOrEqualTo(page.ViewportSize!.Height * 0.5f + 1);
+
+        var handleBox = await handle.BoundingBoxAsync();
+        handleBox.Should().NotBeNull();
+        handleBox!.Height.Should().BeInRange(7, 9);
 
         await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Increase", Exact = true }).ClickAsync();
         await Assertions.Expect(content).ToContainTextAsync("360");
@@ -44,6 +54,8 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToBeFocusedAsync();
+        (await page.EvaluateAsync<string>("() => document.body.style.overflow")).Should().BeEmpty();
+        (await page.EvaluateAsync<string>("() => document.body.style.paddingRight")).Should().BeEmpty();
     }
 
     [Test]
@@ -85,5 +97,31 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();
+    }
+
+    [Test]
+    public async ValueTask Drawer_scrollable_demo_opens_from_right_with_full_lorem_content()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/drawer",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Scrollable Content", Exact = true }),
+            expectedTitle: "Drawer - Quark Suite");
+
+        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Scrollable Content", Exact = true }).ClickAsync();
+
+        var content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Excepteur sint occaecat" }).First;
+        await Assertions.Expect(content).ToBeVisibleAsync();
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-vaul-drawer-direction", "right");
+        await Assertions.Expect(content).ToContainTextAsync("mollit anim id est laborum.");
+
+        var contentBox = await content.BoundingBoxAsync();
+        contentBox.Should().NotBeNull();
+        contentBox!.Height.Should().BeGreaterThan(contentBox.Width);
+
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
 }
