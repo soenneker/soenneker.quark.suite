@@ -147,6 +147,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         resourceLoaderModule.SetupVoid("loadScript", _ => true).SetVoidResult();
         resourceLoaderModule.SetupVoid("loadStyle", _ => true).SetVoidResult();
 
+        var creditCardsModule = JSInterop.SetupModule("_content/Soenneker.Blazor.CreditCards/js/creditcardsinterop.js");
+        creditCardsModule.SetupVoid("create", _ => true).SetVoidResult();
+        creditCardsModule.SetupVoid("updateCardStyle", _ => true).SetVoidResult();
+        creditCardsModule.SetupVoid("dispose", _ => true).SetVoidResult();
+
         var jsVariableModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.JsVariable/js/jsvariableinterop.js");
         jsVariableModule.Setup<bool>("isVariableAvailable", _ => true).SetResult(true);
         jsVariableModule.SetupVoid("waitForVariable", _ => true).SetVoidResult();
@@ -243,6 +248,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
         Services.AddScoped<ICarouselInterop, FakeCarouselInterop>();
+        Services.AddQuarkPaymentCardAsScoped();
         Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();

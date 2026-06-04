@@ -43,6 +43,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkColorPickerAsScoped()
                 .AddQuarkOnThisPageAsScoped()
                 .AddQuarkDateTimesAsScoped()
+                .AddQuarkPaymentCardAsScoped()
                 .AddC15tAsScoped()
                 .AddClipboardAsScoped();
 

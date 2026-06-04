@@ -1,0 +1,80 @@
+@using System.Collections.Generic
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.CreditCards
+@using Soenneker.Blazor.Utils.Ids
+
+@namespace Soenneker.Quark
+@inherits CancellableElement
+@implements IPaymentCard
+
+<div @attributes="BuildAttributes()">
+    <CreditCard @ref="_creditCard"
+                CardAttributes="CardAttributes"
+                CardNumber="@CardNumber"
+                CardHolderName="@CardHolderName"
+                ExpiryDate="@ExpiryDate"
+                Cvc="@Cvc"
+                Type="@Type"
+                FlipEnabled="@FlipEnabled"
+                OnClick="@OnClick" />
+</div>
+
+@code {
+    private CreditCard? _creditCard;
+
+    [Parameter]
+    public Dictionary<string, object?>? CardAttributes { get; set; }
+
+    [Parameter]
+    public string? CardNumber { get; set; }
+
+    [Parameter]
+    public string? CardHolderName { get; set; }
+
+    [Parameter]
+    public string? ExpiryDate { get; set; }
+
+    [Parameter]
+    public string? Cvc { get; set; }
+
+    [Parameter]
+    public string? Type { get; set; }
+
+    [Parameter]
+    public bool FlipEnabled { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    public PaymentCard()
+    {
+        Id = BlazorIdGenerator.New("payment-card");
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "payment-card";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
+    {
+        base.BuildAttributesCore(attrs);
+        AppendToClassAttr(attrs, "quark-payment-card-container");
+    }
+
+    public Task OnAnyInput(string cardNumber, string cardholderName, string expiryDate, string cvc) =>
+        _creditCard?.OnAnyInput(cardNumber, cardholderName, expiryDate, cvc) ?? Task.CompletedTask;
+
+    public void Flip() => _creditCard?.Flip();
+
+    public async ValueTask SetLast4(string last4, string type = "unknown", string issuer = "standard", string program = "standard",
+        CancellationToken cancellationToken = default)
+    {
+        if (_creditCard is not null)
+            await _creditCard.SetLast4(last4, type, issuer, program, cancellationToken);
+    }
+
+    public void ResetCardDetection() => _creditCard?.ResetCardDetection();
+}

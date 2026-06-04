@@ -1,0 +1,88 @@
+@page "/components/payment-card"
+
+<PageTitle>Payment Card - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection
+                Description="Animated payment card display with issuer detection and live form updates."
+                Code="@BasicCode"
+                CodeLanguage="razor"
+                PreviewClass="preview relative min-h-[30rem] w-full p-6 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start">
+                <Div Class="grid w-full max-w-3xl gap-6 md:grid-cols-[20rem_1fr] md:items-center">
+                    <PaymentCard CardNumber="@_cardNumber" CardHolderName="@_cardHolderName" ExpiryDate="@_expiryDate" Cvc="@_cvc" />
+
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel For="payment-card-number">Number</FieldLabel>
+                            <Input Id="payment-card-number" @bind-Value="_cardNumber" />
+                        </Field>
+                        <Field>
+                            <FieldLabel For="payment-card-name">Name</FieldLabel>
+                            <Input Id="payment-card-name" @bind-Value="_cardHolderName" />
+                        </Field>
+                        <Div Class="grid gap-4 sm:grid-cols-2">
+                            <Field>
+                                <FieldLabel For="payment-card-expiry">Expiry</FieldLabel>
+                                <Input Id="payment-card-expiry" @bind-Value="_expiryDate" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="payment-card-cvc">CVC</FieldLabel>
+                                <Input Id="payment-card-cvc" @bind-Value="_cvc" />
+                            </Field>
+                        </Div>
+                    </FieldGroup>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection
+                Title="Last Four"
+                Description="Use SetLast4 when only a saved payment method fingerprint is available."
+                Code="@LastFourCode"
+                CodeLanguage="razor"
+                PreviewClass="preview relative flex min-h-[18rem] w-full justify-center p-8 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start">
+                <PaymentCard @ref="_maskedCard" FlipEnabled="false" />
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private PaymentCard? _maskedCard;
+    private string _cardNumber = "4111111111111111";
+    private string _cardHolderName = "Jordan Lee";
+    private string _expiryDate = "08/29";
+    private string _cvc = "123";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _maskedCard is not null)
+            await _maskedCard.SetLast4("4242", "visa", "visa", "standard");
+    }
+
+    private const string BasicCode =
+@"
+<PaymentCard CardNumber=""@_cardNumber""
+             CardHolderName=""@_cardHolderName""
+             ExpiryDate=""@_expiryDate""
+             Cvc=""@_cvc"" />
+";
+
+    private const string LastFourCode =
+@"
+<PaymentCard @ref=""_maskedCard"" FlipEnabled=""false"" />
+
+@code {
+    private PaymentCard? _maskedCard;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _maskedCard is not null)
+            await _maskedCard.SetLast4(""4242"", ""visa"", ""visa"", ""standard"");
+    }
+}
+";
+}

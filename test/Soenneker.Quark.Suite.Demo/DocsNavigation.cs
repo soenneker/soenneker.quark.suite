@@ -39,6 +39,7 @@ public static class DocsNavigation
         new("Calendar", ComponentRoute("calendar")),
         new("Card", ComponentRoute("card")),
         new("Carousel", ComponentRoute("carousel")),
+        new("Payment Card", ComponentRoute("payment-card"), IsNew: true),
         new("Cascader", ComponentRoute("cascader"), IsNew: true),
         new("Chain of Thought", ComponentRoute("chain-of-thought"), IsNew: true),
         new("Checkbox", ComponentRoute("checkbox")),
