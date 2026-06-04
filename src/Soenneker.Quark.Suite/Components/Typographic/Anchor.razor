@@ -34,6 +34,13 @@
     [Parameter]
     public bool PreventDefault { get; set; }
 
+    /// <summary>
+    /// Gets or sets Blazor enhanced navigation for this link.
+    /// When set, renders the <c>data-enhance-nav</c> attribute.
+    /// </summary>
+    [Parameter]
+    public bool? EnhanceNav { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -44,6 +51,9 @@
         if (Target is not null)
             attributes["target"] = Target.Value;
 
+        if (EnhanceNav is not null)
+            attributes["data-enhance-nav"] = EnhanceNav.Value ? "true" : "false";
+
         SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
     }
 
@@ -53,6 +63,7 @@
         hc.Add(Href);
         hc.Add(Target);
         hc.Add(PreventDefault);
+        hc.Add(EnhanceNav);
         hc.Add(OnClick.HasDelegate);
         hc.Add(SlotAttributeOverrides?.Count ?? 0);
     }
