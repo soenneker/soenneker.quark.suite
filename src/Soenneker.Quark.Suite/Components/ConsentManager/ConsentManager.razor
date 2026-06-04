@@ -77,7 +77,7 @@
     private string _titleId => $"{_componentId}-title";
     private string _descriptionId => $"{_componentId}-description";
     private string _preferencesTitleId => $"{_componentId}-preferences-title";
-    private const string _defaultPositionClass = "fixed bottom-6";
+    private const string _defaultPositionClass = "fixed bottom-6 max-sm:bottom-24";
 
     private C15tConsentState? _state;
     private bool _initialized;
@@ -157,10 +157,10 @@
     public string SavePreferencesText { get; set; } = "Save Preferences";
 
     /// <summary>
-    /// Controls whether the banner appears on the left or right side of the view.
+    /// Controls whether the banner appears on the left, right, or center of the view.
     /// </summary>
     [Parameter]
-    public ConsentManagerSide Side { get; set; } = ConsentManagerSide.Right;
+    public ConsentManagerSide Side { get; set; } = ConsentManagerSide.Center;
 
     /// <summary>
     /// Positioning classes for the banner. Horizontal placement is supplied by <see cref="Side"/> unless this already contains a horizontal offset.
@@ -283,8 +283,16 @@
     private static bool IsNecessary(string category) =>
         string.Equals(category, "necessary", StringComparison.OrdinalIgnoreCase);
 
-    private static string GetSideClass(ConsentManagerSide? side) =>
-        ReferenceEquals(side, ConsentManagerSide.Left) ? "left-6" : "right-6";
+    private static string GetSideClass(ConsentManagerSide? side)
+    {
+        if (ReferenceEquals(side, ConsentManagerSide.Left))
+            return "left-6";
+
+        if (ReferenceEquals(side, ConsentManagerSide.Right))
+            return "right-6";
+
+        return "left-1/2 -translate-x-1/2";
+    }
 
     private static bool HasHorizontalPositionClass(string positionClass)
     {
