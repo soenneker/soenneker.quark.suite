@@ -14,6 +14,11 @@ public interface IAnchor : IElement
     /// Where to display the linked URL
     /// </summary>
     Target? Target { get; set; }
+
+    /// <summary>
+    /// Controls Blazor enhanced navigation for this link.
+    /// </summary>
+    bool? EnhanceNav { get; set; }
 }
 
 
