@@ -22,11 +22,6 @@ public sealed class TablesInterop : ITablesInterop
         return ValueTask.CompletedTask;
     }
 
-    /// <summary>
-    /// Initializes table functionality by loading required CSS resources.
-    /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the initialization operation.</returns>
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -35,6 +30,10 @@ public sealed class TablesInterop : ITablesInterop
             await _styleInitializer.Init(linked);
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _styleInitializer.DisposeAsync();

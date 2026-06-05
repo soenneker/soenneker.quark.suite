@@ -10,6 +10,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class FormControlElement : FormControlElementBase
 {
+    /// <summary>
+    /// Gets or sets value.
+    /// </summary>
     [Parameter]
     public string? Value { get; set; }
 

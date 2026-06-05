@@ -1,5 +1,8 @@
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the alert variant classes.
+/// </summary>
 public static class AlertVariantClasses
 {
     /// <summary>

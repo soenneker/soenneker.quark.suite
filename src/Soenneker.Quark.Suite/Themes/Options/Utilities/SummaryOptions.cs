@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class SummaryOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the SummaryOptions class.
-    /// </summary>
     public SummaryOptions()
     {
         Selector = "[data-slot='summary']";

@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class SpanOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the SpanOptions class.
-    /// </summary>
     public SpanOptions()
     {
         Selector = "[data-slot='span']";

@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class KbdOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the KbdOptions class.
-    /// </summary>
     public KbdOptions()
     {
         Selector = "[data-slot='kbd']";

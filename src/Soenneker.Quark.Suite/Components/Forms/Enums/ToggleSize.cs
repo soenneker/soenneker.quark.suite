@@ -23,5 +23,10 @@ public sealed partial class ToggleSize
     /// </summary>
     public static readonly ToggleSize Lg = new("lg");
 
+    /// <summary>
+    /// Executes the operator css value&lt;toggle size builder&gt; operation.
+    /// </summary>
+    /// <param name="size">The size.</param>
+    /// <returns>The result of the operation.</returns>
     public static implicit operator CssValue<ToggleSizeBuilder>(ToggleSize size) => size.Value;
 }

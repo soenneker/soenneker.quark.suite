@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class FormTextOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the FormTextOptions class.
-    /// </summary>
     public FormTextOptions()
     {
         Selector = "[data-slot='form-text']";

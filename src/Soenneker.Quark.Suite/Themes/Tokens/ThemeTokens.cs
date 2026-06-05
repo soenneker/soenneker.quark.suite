@@ -29,27 +29,93 @@ public sealed class ThemeTokens
 /// </summary>
 public sealed class ThemeTokenScheme
 {
+    /// <summary>
+    /// Gets or sets background.
+    /// </summary>
     public string Background { get; set; } = "";
+    /// <summary>
+    /// Gets or sets foreground.
+    /// </summary>
     public string Foreground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets card.
+    /// </summary>
     public string Card { get; set; } = "";
+    /// <summary>
+    /// Gets or sets card foreground.
+    /// </summary>
     public string CardForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets popover.
+    /// </summary>
     public string Popover { get; set; } = "";
+    /// <summary>
+    /// Gets or sets popover foreground.
+    /// </summary>
     public string PopoverForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets primary.
+    /// </summary>
     public string Primary { get; set; } = "";
+    /// <summary>
+    /// Gets or sets primary foreground.
+    /// </summary>
     public string PrimaryForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets secondary.
+    /// </summary>
     public string Secondary { get; set; } = "";
+    /// <summary>
+    /// Gets or sets secondary foreground.
+    /// </summary>
     public string SecondaryForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets muted.
+    /// </summary>
     public string Muted { get; set; } = "";
+    /// <summary>
+    /// Gets or sets muted foreground.
+    /// </summary>
     public string MutedForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets accent.
+    /// </summary>
     public string Accent { get; set; } = "";
+    /// <summary>
+    /// Gets or sets accent foreground.
+    /// </summary>
     public string AccentForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets destructive.
+    /// </summary>
     public string Destructive { get; set; } = "";
+    /// <summary>
+    /// Gets or sets destructive foreground.
+    /// </summary>
     public string DestructiveForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets border.
+    /// </summary>
     public string Border { get; set; } = "";
+    /// <summary>
+    /// Gets or sets input.
+    /// </summary>
     public string Input { get; set; } = "";
+    /// <summary>
+    /// Gets or sets ring.
+    /// </summary>
     public string Ring { get; set; } = "";
+    /// <summary>
+    /// Gets or sets radius.
+    /// </summary>
     public string Radius { get; set; } = "";
+    /// <summary>
+    /// Gets or sets series.
+    /// </summary>
     public ThemeSeriesTokens Series { get; set; } = new();
+    /// <summary>
+    /// Gets or sets sidebar.
+    /// </summary>
     public ThemeSidebarTokens Sidebar { get; set; } = new();
 
     /// <summary>
@@ -176,10 +242,25 @@ public sealed class ThemeTokenScheme
 /// </summary>
 public sealed class ThemeSeriesTokens
 {
+    /// <summary>
+    /// Gets or sets first.
+    /// </summary>
     public string First { get; set; } = "";
+    /// <summary>
+    /// Gets or sets second.
+    /// </summary>
     public string Second { get; set; } = "";
+    /// <summary>
+    /// Gets or sets third.
+    /// </summary>
     public string Third { get; set; } = "";
+    /// <summary>
+    /// Gets or sets fourth.
+    /// </summary>
     public string Fourth { get; set; } = "";
+    /// <summary>
+    /// Gets or sets fifth.
+    /// </summary>
     public string Fifth { get; set; } = "";
 }
 
@@ -188,12 +269,36 @@ public sealed class ThemeSeriesTokens
 /// </summary>
 public sealed class ThemeSidebarTokens
 {
+    /// <summary>
+    /// Gets or sets background.
+    /// </summary>
     public string Background { get; set; } = "";
+    /// <summary>
+    /// Gets or sets foreground.
+    /// </summary>
     public string Foreground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets primary.
+    /// </summary>
     public string Primary { get; set; } = "";
+    /// <summary>
+    /// Gets or sets primary foreground.
+    /// </summary>
     public string PrimaryForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets accent.
+    /// </summary>
     public string Accent { get; set; } = "";
+    /// <summary>
+    /// Gets or sets accent foreground.
+    /// </summary>
     public string AccentForeground { get; set; } = "";
+    /// <summary>
+    /// Gets or sets border.
+    /// </summary>
     public string Border { get; set; } = "";
+    /// <summary>
+    /// Gets or sets ring.
+    /// </summary>
     public string Ring { get; set; } = "";
 }

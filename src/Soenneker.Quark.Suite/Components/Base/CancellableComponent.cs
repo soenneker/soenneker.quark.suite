@@ -7,10 +7,6 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="ICancellableComponent"/>
 public abstract class CancellableComponent : Component, ICancellableComponent
 {
-    /// <summary>
-    /// Gets the current cancellation token for in-flight work.
-    /// Returns <see cref="CancellationToken.None"/> after disposal.
-    /// </summary>
     public CancellationToken CancellationToken =>
         IsDisposed ? CancellationToken.None
             : _cancellationTokenSource.TryGet()
@@ -22,9 +18,6 @@ public abstract class CancellableComponent : Component, ICancellableComponent
     {
     }
 
-    /// <summary>
-    /// Optionally link to an external token so parent cancellation flows into this component.
-    /// </summary>
     protected CancellableComponent(CancellationToken linkedToken)
     {
         _cancellationTokenSource = new AtomicResource<CancellationTokenSource>(
@@ -44,22 +37,18 @@ public abstract class CancellableComponent : Component, ICancellableComponent
             });
     }
 
-    /// <summary>
-    /// Cancels any in-flight work. No-op if nothing has started.
-    /// </summary>
-    /// <returns>A task representing the cancellation operation.</returns>
     public Task Cancel()
     {
         var cts = _cancellationTokenSource.TryGet();
         return cts is null ? Task.CompletedTask : cts.CancelAsync();
     }
 
-    /// <summary>
-    /// Cancels current work and swaps in a fresh token/source for new work.
-    /// </summary>
-    /// <returns>A value task representing the reset operation.</returns>
     public ValueTask ResetCancellation() => _cancellationTokenSource.Reset();
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
         await _cancellationTokenSource.DisposeAsync();

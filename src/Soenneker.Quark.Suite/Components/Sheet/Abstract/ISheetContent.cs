@@ -7,6 +7,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISheetContent : IElement
 {
+    /// <summary>
+    /// Gets or sets side.
+    /// </summary>
     Side Side { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether show close button.
+    /// </summary>
     bool ShowCloseButton { get; set; }
 }

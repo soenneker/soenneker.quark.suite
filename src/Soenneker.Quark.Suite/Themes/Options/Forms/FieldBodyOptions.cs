@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class FieldBodyOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the FieldBodyOptions class.
-    /// </summary>
     public FieldBodyOptions()
     {
         Selector = "[data-slot='field-content']";

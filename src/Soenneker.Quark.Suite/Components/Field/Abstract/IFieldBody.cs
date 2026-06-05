@@ -5,5 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IFieldBody : IComponent
 {
+    /// <summary>
+    /// Gets or sets columns.
+    /// </summary>
     CssValue<GridColsBuilder>? Columns { get; set; }
 }

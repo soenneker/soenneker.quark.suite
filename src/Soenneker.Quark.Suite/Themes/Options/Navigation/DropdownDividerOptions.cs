@@ -1,6 +1,9 @@
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the dropdown divider options.
+/// </summary>
 public sealed class DropdownDividerOptions : ComponentOptions
 {
     public DropdownDividerOptions()

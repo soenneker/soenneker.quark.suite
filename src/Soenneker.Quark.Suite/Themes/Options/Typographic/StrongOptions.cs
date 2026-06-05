@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class StrongOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the StrongOptions class.
-    /// </summary>
     public StrongOptions()
     {
         Selector = "[data-slot='strong']";

@@ -13,10 +13,6 @@ public class CompositeValidator : QuarkValidator
 {
     private readonly List<IQuarkValidator> _validators;
 
-    /// <summary>
-    /// Initializes a new instance of the CompositeValidator class.
-    /// </summary>
-    /// <param name="validators">The validators to combine.</param>
     public CompositeValidator(params IQuarkValidator[] validators)
     {
         _validators = validators?.Length > 0 ? [..validators] : [];

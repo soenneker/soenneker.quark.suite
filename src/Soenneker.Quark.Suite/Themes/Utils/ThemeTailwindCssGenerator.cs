@@ -9,6 +9,11 @@ namespace Soenneker.Quark;
 /// </summary>
 public static class ThemeTailwindCssGenerator
 {
+    /// <summary>
+    /// Executes the generate operation.
+    /// </summary>
+    /// <param name="theme">The theme.</param>
+    /// <returns>The result of the operation.</returns>
     public static string Generate(Theme theme)
     {
         if (theme is null)

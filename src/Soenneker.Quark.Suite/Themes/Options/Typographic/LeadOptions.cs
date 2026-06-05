@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class LeadOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the LeadOptions class.
-    /// </summary>
     public LeadOptions()
     {
         Selector = "[data-slot='lead']";

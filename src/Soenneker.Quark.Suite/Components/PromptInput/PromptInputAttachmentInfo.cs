@@ -2,18 +2,39 @@ using System;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the prompt input attachment info record.
+/// </summary>
 public sealed record PromptInputAttachmentInfo
 {
+    /// <summary>
+    /// Gets or sets id.
+    /// </summary>
     public string Id { get; init; } = Guid.NewGuid().ToString("N");
 
+    /// <summary>
+    /// Gets or sets name.
+    /// </summary>
     public string Name { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets size.
+    /// </summary>
     public long Size { get; init; }
 
+    /// <summary>
+    /// Gets or sets type.
+    /// </summary>
     public string? Type { get; init; }
 
+    /// <summary>
+    /// Gets or sets last modified.
+    /// </summary>
     public long LastModified { get; init; }
 
+    /// <summary>
+    /// Gets or sets description.
+    /// </summary>
     public string Description => !string.IsNullOrWhiteSpace(Type)
         ? $"{FormatSize(Size)} {Type}"
         : FormatSize(Size);

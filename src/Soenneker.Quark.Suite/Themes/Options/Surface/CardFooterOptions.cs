@@ -1,6 +1,9 @@
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the card footer options.
+/// </summary>
 public sealed class CardFooterOptions : ComponentOptions
 {
     public CardFooterOptions()

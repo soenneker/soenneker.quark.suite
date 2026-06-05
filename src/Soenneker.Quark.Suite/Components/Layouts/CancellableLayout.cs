@@ -16,9 +16,6 @@ public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayou
     {
     }
 
-    /// <summary>
-    /// Optionally link to an external token so parent cancellation flows into this component.
-    /// </summary>
     protected CancellableLayout(CancellationToken linkedToken)
     {
         _atomic = new AtomicResource<CancellationTokenSource>(
@@ -48,5 +45,9 @@ public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayou
 
     public ValueTask ResetCancellation() => _atomic.Reset();
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual ValueTask DisposeAsync() => _atomic.DisposeAsync();
 }

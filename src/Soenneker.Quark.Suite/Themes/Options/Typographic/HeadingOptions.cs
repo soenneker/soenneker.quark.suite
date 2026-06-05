@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class HeadingOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the HeadingOptions class.
-    /// </summary>
     public HeadingOptions()
     {
         Selector = "[data-slot='heading']";

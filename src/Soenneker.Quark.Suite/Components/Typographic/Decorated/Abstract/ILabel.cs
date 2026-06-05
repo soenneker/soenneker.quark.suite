@@ -13,5 +13,8 @@ public interface ILabel : IElement
     /// </summary>
     string? For { get; set; }
 
+    /// <summary>
+    /// Gets or sets on mouse down.
+    /// </summary>
     EventCallback<MouseEventArgs> OnMouseDown { get; set; }
 }

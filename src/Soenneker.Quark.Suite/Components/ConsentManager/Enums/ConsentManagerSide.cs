@@ -8,7 +8,16 @@ namespace Soenneker.Quark;
 [EnumValue]
 public sealed partial class ConsentManagerSide
 {
+    /// <summary>
+    /// The left.
+    /// </summary>
     public static readonly ConsentManagerSide Left = new(0);
+    /// <summary>
+    /// The right.
+    /// </summary>
     public static readonly ConsentManagerSide Right = new(1);
+    /// <summary>
+    /// The center.
+    /// </summary>
     public static readonly ConsentManagerSide Center = new(2);
 }

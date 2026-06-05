@@ -34,12 +34,19 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// </summary>
     protected virtual bool AlwaysRender => true;
 
+    /// <summary>
+    /// Executes the refresh operation.
+    /// </summary>
     public void Refresh()
     {
         InvalidateRender();
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Executes the refresh off thread operation.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task RefreshOffThread()
     {
         InvalidateRender();

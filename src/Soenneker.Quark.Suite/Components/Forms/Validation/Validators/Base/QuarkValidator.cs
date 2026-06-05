@@ -8,23 +8,13 @@ namespace Soenneker.Quark.Base;
 /// </summary>
 public abstract class QuarkValidator : IQuarkValidator
 {
-    /// <summary>
-    /// Validates the value synchronously. Override this method to implement custom validation logic.
-    /// </summary>
     public abstract ValidationResult Validate(object value);
 
-    /// <summary>
-    /// Validates the value asynchronously. Override this method to implement custom async validation logic.
-    /// </summary>
     public virtual Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Validate(value));
     }
 
-    /// <summary>
-    /// Validates the value with enhanced context. Override this method to implement custom validation logic
-    /// with access to rich validation context including custom error messages and member names.
-    /// </summary>
     public virtual ValidationResult Validate(ValidatorEventArgs args)
     {
         var result = Validate(args.Value);
@@ -37,10 +27,6 @@ public abstract class QuarkValidator : IQuarkValidator
         return result;
     }
 
-    /// <summary>
-    /// Validates the value asynchronously with enhanced context. Override this method to implement 
-    /// custom async validation logic with access to rich validation context.
-    /// </summary>
     public virtual Task<ValidationResult> Validate(ValidatorEventArgs args, CancellationToken cancellationToken = default)
     {
         return Validate(args.Value, cancellationToken);

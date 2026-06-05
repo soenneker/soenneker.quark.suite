@@ -13,27 +13,51 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class InteractiveElement : Element
 {
+    /// <summary>
+    /// Gets or sets ring offset.
+    /// </summary>
     [Parameter]
     public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
 
+    /// <summary>
+    /// Gets or sets on click.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
+    /// <summary>
+    /// Gets or sets on double click.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
+    /// <summary>
+    /// Gets or sets on mouse over.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
 
+    /// <summary>
+    /// Gets or sets on mouse out.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
 
+    /// <summary>
+    /// Gets or sets on key down.
+    /// </summary>
     [Parameter]
     public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
 
+    /// <summary>
+    /// Gets or sets on focus.
+    /// </summary>
     [Parameter]
     public EventCallback<FocusEventArgs> OnFocus { get; set; }
 
+    /// <summary>
+    /// Gets or sets on blur.
+    /// </summary>
     [Parameter]
     public EventCallback<FocusEventArgs> OnBlur { get; set; }
 

@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class H3Options : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the H3Options class.
-    /// </summary>
     public H3Options()
     {
         Selector = "[data-slot='h3']";

@@ -10,18 +10,11 @@ public sealed class RequiredValidator : QuarkValidator
 {
     private readonly string _errorMessage;
 
-    /// <summary>
-    /// Initializes a new instance of the RequiredValidator class.
-    /// </summary>
     public RequiredValidator()
     {
         _errorMessage = "This field is required.";
     }
 
-    /// <summary>
-    /// Initializes a new instance of the RequiredValidator class with a custom error message.
-    /// </summary>
-    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public RequiredValidator(string errorMessage)
     {
         _errorMessage = errorMessage;

@@ -5,5 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISheetClose : IElement
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether auto close.
+    /// </summary>
     bool AutoClose { get; set; }
 }

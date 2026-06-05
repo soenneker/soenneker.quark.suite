@@ -1,6 +1,9 @@
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the legend options.
+/// </summary>
 public sealed class LegendOptions : ComponentOptions
 {
     public LegendOptions()

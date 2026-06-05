@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ValidationErrorOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the ValidationErrorOptions class.
-    /// </summary>
     public ValidationErrorOptions()
     {
         Selector = "[data-slot='field-error']";

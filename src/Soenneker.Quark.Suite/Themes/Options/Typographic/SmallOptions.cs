@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class SmallOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the SmallOptions class.
-    /// </summary>
     public SmallOptions()
     {
         Selector = "[data-slot='small']";

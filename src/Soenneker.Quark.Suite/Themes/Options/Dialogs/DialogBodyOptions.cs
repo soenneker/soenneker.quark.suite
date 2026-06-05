@@ -1,6 +1,9 @@
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the dialog body options.
+/// </summary>
 public sealed class DialogBodyOptions : ComponentOptions
 {
     public DialogBodyOptions()

@@ -9,12 +9,21 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class ToggleElement : FormControlElement
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether checked.
+    /// </summary>
     [Parameter]
     public bool Checked { get; set; }
 
+    /// <summary>
+    /// Gets or sets checked changed.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> CheckedChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets checked expression.
+    /// </summary>
     [Parameter]
     public Expression<Func<bool>>? CheckedExpression { get; set; }
 

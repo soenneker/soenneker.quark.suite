@@ -13,18 +13,11 @@ public class EmailValidator : QuarkValidator
     
     private readonly string _errorMessage;
 
-    /// <summary>
-    /// Initializes a new instance of the EmailValidator class.
-    /// </summary>
     public EmailValidator()
     {
         _errorMessage = "Please enter a valid email address.";
     }
 
-    /// <summary>
-    /// Initializes a new instance of the EmailValidator class with a custom error message.
-    /// </summary>
-    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public EmailValidator(string errorMessage)
     {
         _errorMessage = errorMessage;

@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class LabelOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the LabelOptions class.
-    /// </summary>
     public LabelOptions()
     {
         Selector = "[data-slot='label']";

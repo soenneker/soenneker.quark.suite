@@ -10,21 +10,12 @@ public sealed class MaxLengthValidator : QuarkValidator
     private readonly int _maxLength;
     private readonly string _errorMessage;
 
-    /// <summary>
-    /// Initializes a new instance of the MaxLengthValidator class.
-    /// </summary>
-    /// <param name="maxLength">The maximum allowed length.</param>
     public MaxLengthValidator(int maxLength)
     {
         _maxLength = maxLength;
         _errorMessage = $"The field must be no more than {maxLength} characters long.";
     }
 
-    /// <summary>
-    /// Initializes a new instance of the MaxLengthValidator class with a custom error message.
-    /// </summary>
-    /// <param name="maxLength">The maximum allowed length.</param>
-    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public MaxLengthValidator(int maxLength, string errorMessage)
     {
         _maxLength = maxLength;

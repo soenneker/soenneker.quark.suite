@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ParagraphOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the ParagraphOptions class.
-    /// </summary>
     public ParagraphOptions()
     {
         Selector = "[data-slot='paragraph']";

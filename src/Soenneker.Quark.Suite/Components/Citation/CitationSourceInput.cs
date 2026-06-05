@@ -3,14 +3,33 @@ using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the citation source input.
+/// </summary>
 public sealed class CitationSourceInput
 {
+    /// <summary>
+    /// Gets or sets url.
+    /// </summary>
     public string Url { get; set; } = "";
 
+    /// <summary>
+    /// Gets or sets title.
+    /// </summary>
     public RenderFragment? Title { get; set; }
 
+    /// <summary>
+    /// Gets or sets description.
+    /// </summary>
     public RenderFragment? Description { get; set; }
 
+    /// <summary>
+    /// Executes the create operation.
+    /// </summary>
+    /// <param name="url">The url.</param>
+    /// <param name="title">The title.</param>
+    /// <param name="description">The description.</param>
+    /// <returns>The result of the operation.</returns>
     public static CitationSourceInput Create(string url, string? title = null, string? description = null)
     {
         return new CitationSourceInput
@@ -22,16 +41,34 @@ public sealed class CitationSourceInput
     }
 }
 
+/// <summary>
+/// Represents the resolved citation.
+/// </summary>
 public sealed class ResolvedCitation
 {
+    /// <summary>
+    /// Gets or sets url.
+    /// </summary>
     public string Url { get; init; } = "";
 
+    /// <summary>
+    /// Gets or sets title.
+    /// </summary>
     public RenderFragment? Title { get; init; }
 
+    /// <summary>
+    /// Gets or sets description.
+    /// </summary>
     public RenderFragment? Description { get; init; }
 
+    /// <summary>
+    /// Gets or sets site name.
+    /// </summary>
     public string SiteName { get; init; } = "Source";
 
+    /// <summary>
+    /// Gets or sets favicon src.
+    /// </summary>
     public string FaviconSrc { get; init; } = "";
 }
 

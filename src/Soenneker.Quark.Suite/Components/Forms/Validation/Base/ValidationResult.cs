@@ -54,6 +54,9 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
         _ = InvokeAsync(StateHasChanged);
     }
 
+    /// <summary>
+    /// Releases resources used by the current instance.
+    /// </summary>
     public void Dispose()
     {
         DetachValidationStatusChangedListener();

@@ -67,11 +67,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         await module.InvokeVoidAsync("ensureConfigured", token, _localModulePath, _localWorkerUrls);
     }
 
-    /// <summary>
-    /// Initializes the code editor by loading required resources.
-    /// </summary>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the initialization operation.</returns>
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -80,13 +75,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
             await _initializer.Init(linked);
     }
 
-    /// <summary>
-    /// Creates a new Monaco editor instance in the specified container.
-    /// </summary>
-    /// <param name="container">The element reference to the container where the editor will be created.</param>
-    /// <param name="optionsJson">JSON string containing the editor options.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the editor creation operation.</returns>
     public async ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -111,13 +99,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Sets the value of the editor content.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="value">The new value to set.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the set value operation.</returns>
     public async ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -130,12 +111,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Gets the current value of the editor content.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task that contains the editor content, or null if not available.</returns>
     public async ValueTask<string?> GetValue(ElementReference container, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -148,13 +123,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Sets the programming language for syntax highlighting.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="language">The language identifier (e.g., "csharp", "javascript", "typescript").</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the set language operation.</returns>
     public async ValueTask SetLanguage(ElementReference container, string language, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -167,12 +135,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Sets the editor theme (e.g., "vs-dark", "vs-light").
-    /// </summary>
-    /// <param name="theme">The theme identifier.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the set theme operation.</returns>
     public async ValueTask SetTheme(string theme, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -185,12 +147,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Disposes the editor instance in the specified container.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the dispose operation.</returns>
     public async ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -202,14 +158,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Updates the content height of the editor based on the number of lines.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="minLines">The minimum number of lines to display.</param>
-    /// <param name="maxLines">The maximum number of lines to display.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the update content height operation.</returns>
     public async ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -222,14 +170,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <summary>
-    /// Adds a content change listener that automatically adjusts the editor height based on content.
-    /// </summary>
-    /// <param name="container">The element reference to the editor container.</param>
-    /// <param name="minLines">The minimum number of lines to display.</param>
-    /// <param name="maxLines">The maximum number of lines to display.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A value task representing the add content change listener operation.</returns>
     public async ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -268,6 +208,10 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _initializer.DisposeAsync();

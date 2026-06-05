@@ -8,9 +8,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public class ValidatorEventArgs : EventArgs
 {
-    /// <summary>
-    /// A default <see cref="ValidatorEventArgs"/> constructor.
-    /// </summary>
     public ValidatorEventArgs(object value)
     {
         Value = value;

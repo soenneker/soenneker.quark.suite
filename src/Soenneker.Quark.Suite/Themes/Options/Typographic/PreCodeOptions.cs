@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class PreCodeOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the PreCodeOptions class.
-    /// </summary>
     public PreCodeOptions()
     {
         Selector = "[data-slot='pre-code']";

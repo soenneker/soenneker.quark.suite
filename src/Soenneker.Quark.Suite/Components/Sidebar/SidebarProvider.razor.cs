@@ -10,6 +10,9 @@ using Soenneker.Quark.Dtos;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the sidebar provider.
+/// </summary>
 public partial class SidebarProvider
 {
     private const string _defaultCookieKey = "sidebar_state";
@@ -31,42 +34,81 @@ public partial class SidebarProvider
     [Inject]
     private IOverlayInterop OverlayInterop { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether default open.
+    /// </summary>
     [Parameter]
     public bool DefaultOpen { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether open.
+    /// </summary>
     [Parameter]
     public bool? Open { get; set; }
 
+    /// <summary>
+    /// Gets or sets open changed.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether open mobile.
+    /// </summary>
     [Parameter]
     public bool? OpenMobile { get; set; }
 
+    /// <summary>
+    /// Gets or sets open mobile changed.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> OpenMobileChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the instance is mobile.
+    /// </summary>
     [Parameter]
     public bool? IsMobile { get; set; }
 
+    /// <summary>
+    /// Gets or sets cookie key.
+    /// </summary>
     [Parameter]
     public string CookieKey { get; set; } = _defaultCookieKey;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether persist state.
+    /// </summary>
     [Parameter]
     public bool PersistState { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets keyboard shortcut key.
+    /// </summary>
     [Parameter]
     public string KeyboardShortcutKey { get; set; } = _defaultShortcutKey;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether close mobile on navigation.
+    /// </summary>
     [Parameter]
     public bool CloseMobileOnNavigation { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets sidebar width.
+    /// </summary>
     [Parameter]
     public string SidebarWidth { get; set; } = "16rem";
 
+    /// <summary>
+    /// Gets or sets sidebar width icon.
+    /// </summary>
     [Parameter]
     public string SidebarWidthIcon { get; set; } = "3rem";
 
+    /// <summary>
+    /// Gets or sets sidebar width mobile.
+    /// </summary>
     [Parameter]
     public string SidebarWidthMobile { get; set; } = "18rem";
 
@@ -86,12 +128,28 @@ public partial class SidebarProvider
         base.OnInitialized();
     }
 
+    /// <summary>
+    /// Gets open.
+    /// </summary>
+    /// <returns>A value indicating whether the operation succeeded.</returns>
     public bool GetOpen() => Open ?? _openInternal;
 
+    /// <summary>
+    /// Gets open mobile.
+    /// </summary>
+    /// <returns>A value indicating whether the operation succeeded.</returns>
     public bool GetOpenMobile() => OpenMobile ?? _openMobileInternal;
 
+    /// <summary>
+    /// Gets is mobile.
+    /// </summary>
+    /// <returns>A value indicating whether the operation succeeded.</returns>
     public bool GetIsMobile() => IsMobile ?? _isMobileDetected;
 
+    /// <summary>
+    /// Gets state.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
     public SidebarContextState GetState()
     {
         return new SidebarContextState
@@ -142,6 +200,11 @@ public partial class SidebarProvider
         }
     }
 
+    /// <summary>
+    /// Sets open.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SetOpen(bool value)
     {
         if (Open is null)
@@ -154,6 +217,11 @@ public partial class SidebarProvider
         await RefreshOffThread();
     }
 
+    /// <summary>
+    /// Sets open mobile.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SetOpenMobile(bool value)
     {
         if (OpenMobile is null)
@@ -165,11 +233,20 @@ public partial class SidebarProvider
         await RefreshOffThread();
     }
 
+    /// <summary>
+    /// Executes the toggle sidebar operation.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task ToggleSidebar()
     {
         return GetIsMobile() ? SetOpenMobile(!GetOpenMobile()) : SetOpen(!GetOpen());
     }
 
+    /// <summary>
+    /// Executes the on mobile change operation.
+    /// </summary>
+    /// <param name="isMobile">The is mobile.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [JSInvokable]
     public async Task OnMobileChange(bool isMobile)
     {
@@ -181,6 +258,10 @@ public partial class SidebarProvider
             await RefreshOffThread();
     }
 
+    /// <summary>
+    /// Executes the on toggle shortcut operation.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [JSInvokable]
     public Task OnToggleShortcut()
     {
@@ -274,6 +355,10 @@ public partial class SidebarProvider
         hc.Add(_openMobileInternal);
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
         if (_module is not null)

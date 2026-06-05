@@ -492,11 +492,18 @@ public sealed class SonnerService : ISonnerService
         }
     }
 
+    /// <summary>
+    /// Releases resources used by the current instance.
+    /// </summary>
     public void Dispose()
     {
         DisposeAsync().AsTask().GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         string[] ids;

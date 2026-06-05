@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class DetailsOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the DetailsOptions class.
-    /// </summary>
     public DetailsOptions()
     {
         Selector = "[data-slot='details']";

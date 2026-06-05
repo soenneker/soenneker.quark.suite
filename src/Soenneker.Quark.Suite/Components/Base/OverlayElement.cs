@@ -14,36 +14,69 @@ public abstract class OverlayElement : InteractiveElement
     [Inject]
     protected IOverlayInterop OverlayInterop { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether visible.
+    /// </summary>
     [Parameter]
     public bool Visible { get; set; }
 
+    /// <summary>
+    /// Gets or sets visible changed.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> VisibleChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether show backdrop.
+    /// </summary>
     [Parameter]
     public bool ShowBackdrop { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether blur backdrop.
+    /// </summary>
     [Parameter]
     public bool BlurBackdrop { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether close on backdrop click.
+    /// </summary>
     [Parameter]
     public bool CloseOnBackdropClick { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether close on escape.
+    /// </summary>
     [Parameter]
     public bool CloseOnEscape { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets on show.
+    /// </summary>
     [Parameter]
     public EventCallback OnShow { get; set; }
 
+    /// <summary>
+    /// Gets or sets on hide.
+    /// </summary>
     [Parameter]
     public EventCallback OnHide { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether trap focus.
+    /// </summary>
     [Parameter]
     public bool TrapFocus { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether lock scroll.
+    /// </summary>
     [Parameter]
     public bool LockScroll { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets initial focus selector.
+    /// </summary>
     [Parameter]
     public string? InitialFocusSelector { get; set; }
 
@@ -159,6 +192,10 @@ public abstract class OverlayElement : InteractiveElement
         }
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
         await DeactivateOverlayBehavior();

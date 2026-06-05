@@ -10,8 +10,22 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IScrollspyInterop
 {
+    /// <summary>
+    /// Executes the initialize operation.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="callbackReference">The callback reference.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Executes the destroy operation.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default);
 }

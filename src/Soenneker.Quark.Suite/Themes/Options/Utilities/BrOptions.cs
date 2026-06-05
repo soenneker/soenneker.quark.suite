@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BrOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the BrOptions class.
-    /// </summary>
     public BrOptions()
     {
         Selector = "[data-slot='br']";

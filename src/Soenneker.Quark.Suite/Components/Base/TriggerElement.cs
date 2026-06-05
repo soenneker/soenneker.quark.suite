@@ -9,9 +9,15 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class TriggerElement : InteractiveElement
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether disabled.
+    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether auto focus.
+    /// </summary>
     [Parameter]
     public bool AutoFocus { get; set; }
 

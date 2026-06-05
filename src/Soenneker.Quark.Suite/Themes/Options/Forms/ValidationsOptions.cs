@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ValidationsOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the ValidationsOptions class.
-    /// </summary>
     public ValidationsOptions()
     {
         Selector = ":root";

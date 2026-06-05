@@ -10,6 +10,11 @@ namespace Soenneker.Quark;
 /// </summary>
 public static class SonnerRegistrar
 {
+    /// <summary>
+    /// Adds quark sonner as scoped.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The result of the operation.</returns>
     public static IServiceCollection AddQuarkSonnerAsScoped(this IServiceCollection services)
     {
         services.AddModuleImportUtilAsScoped();

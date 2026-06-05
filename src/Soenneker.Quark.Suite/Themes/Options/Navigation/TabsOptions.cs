@@ -1,6 +1,9 @@
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents the tabs options.
+/// </summary>
 public sealed class TabsOptions : ComponentOptions
 {
     public TabsOptions()

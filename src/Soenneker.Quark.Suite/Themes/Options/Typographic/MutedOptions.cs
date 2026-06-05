@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class MutedOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the MutedOptions class.
-    /// </summary>
     public MutedOptions()
     {
         Selector = "[data-slot='muted']";

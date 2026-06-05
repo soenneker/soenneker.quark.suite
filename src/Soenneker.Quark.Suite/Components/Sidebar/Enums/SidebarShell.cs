@@ -8,6 +8,12 @@ namespace Soenneker.Quark;
 [EnumValue]
 public sealed partial class SidebarShell
 {
+    /// <summary>
+    /// The default.
+    /// </summary>
     public static readonly SidebarShell Default = new(0);
+    /// <summary>
+    /// The navigation.
+    /// </summary>
     public static readonly SidebarShell Navigation = new(1);
 }

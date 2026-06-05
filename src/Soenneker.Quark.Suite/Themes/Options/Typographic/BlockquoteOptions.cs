@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BlockquoteOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the BlockquoteOptions class.
-    /// </summary>
     public BlockquoteOptions()
     {
         Selector = "[data-slot='blockquote']";

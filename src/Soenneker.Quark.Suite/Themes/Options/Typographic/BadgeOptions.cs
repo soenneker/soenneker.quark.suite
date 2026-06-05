@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BadgeOptions : ComponentOptions
 {
-    /// <summary>
-    /// Initializes a new instance of the BadgeOptions class.
-    /// </summary>
     public BadgeOptions()
     {
         Selector = "[data-slot='badge']";

@@ -20,27 +20,51 @@ public abstract class FormControlElementBase : InteractiveElement
 
     private FieldContext? _subscribedFieldContext;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether disabled.
+    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Gets or sets name.
+    /// </summary>
     [Parameter]
     public string? Name { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether read only.
+    /// </summary>
     [Parameter]
     public bool ReadOnly { get; set; }
 
+    /// <summary>
+    /// Gets or sets placeholder.
+    /// </summary>
     [Parameter]
     public string? Placeholder { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether required.
+    /// </summary>
     [Parameter]
     public bool Required { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether auto focus.
+    /// </summary>
     [Parameter]
     public bool AutoFocus { get; set; }
 
+    /// <summary>
+    /// Gets or sets accent color.
+    /// </summary>
     [Parameter]
     public CssValue<AccentColorBuilder>? AccentColor { get; set; }
 
+    /// <summary>
+    /// Gets or sets caret color.
+    /// </summary>
     [Parameter]
     public CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
@@ -149,6 +173,10 @@ public abstract class FormControlElementBase : InteractiveElement
         hc.Add(IsFormControlSlot);
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
         if (_subscribedFieldContext is not null)

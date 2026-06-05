@@ -8,6 +8,12 @@ namespace Soenneker.Quark;
 [EnumValue]
 public sealed partial class StackOrientation
 {
+    /// <summary>
+    /// The vertical.
+    /// </summary>
     public static readonly StackOrientation Vertical = new(0);
+    /// <summary>
+    /// The horizontal.
+    /// </summary>
     public static readonly StackOrientation Horizontal = new(1);
 }
