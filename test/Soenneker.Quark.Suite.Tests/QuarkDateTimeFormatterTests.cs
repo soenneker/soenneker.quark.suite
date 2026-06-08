@@ -79,9 +79,9 @@ public sealed class QuarkDateTimeFormatterTests
         var now = Utc(2026, 5, 27, 15, 42);
 
         _formatter.FormatCalendar(now, now, Options()).Should().Be("Just now");
-        _formatter.FormatCalendar(Utc(2026, 5, 27, 18, 15), now, Options()).Should().Be("Today at 6:15 PM");
-        _formatter.FormatCalendar(Utc(2026, 5, 28, 9, 0), now, Options()).Should().Be("Tomorrow at 9:00 AM");
-        _formatter.FormatCalendar(Utc(2026, 5, 26, 18, 15), now, Options()).Should().Be("Yesterday at 6:15 PM");
+        FormatCalendar(Utc(2026, 5, 27, 18, 15), now).Should().Be("Today at 6:15 PM");
+        FormatCalendar(Utc(2026, 5, 28, 9, 0), now).Should().Be("Tomorrow at 9:00 AM");
+        FormatCalendar(Utc(2026, 5, 26, 18, 15), now).Should().Be("Yesterday at 6:15 PM");
     }
 
     [Test]
@@ -89,15 +89,15 @@ public sealed class QuarkDateTimeFormatterTests
     {
         var now = Utc(2026, 5, 27, 15, 42);
 
-        _formatter.FormatCalendar(Utc(2026, 5, 22, 14, 0), now, Options()).Should().Be("Last Friday at 2:00 PM");
-        _formatter.FormatCalendar(Utc(2026, 6, 1, 10, 30), now, Options()).Should().Be("Next Monday at 10:30 AM");
+        FormatCalendar(Utc(2026, 5, 22, 14, 0), now).Should().Be("Last Friday at 2:00 PM");
+        FormatCalendar(Utc(2026, 6, 1, 10, 30), now).Should().Be("Next Monday at 10:30 AM");
     }
 
     [Test]
     public void Calendar_handles_month_and_year_boundaries()
     {
-        _formatter.FormatCalendar(Utc(2026, 2, 1, 9, 0), Utc(2026, 1, 31, 12, 0), Options()).Should().Be("Tomorrow at 9:00 AM");
-        _formatter.FormatCalendar(Utc(2027, 1, 1, 9, 0), Utc(2026, 12, 31, 12, 0), Options()).Should().Be("Tomorrow at 9:00 AM");
+        FormatCalendar(Utc(2026, 2, 1, 9, 0), Utc(2026, 1, 31, 12, 0)).Should().Be("Tomorrow at 9:00 AM");
+        FormatCalendar(Utc(2027, 1, 1, 9, 0), Utc(2026, 12, 31, 12, 0)).Should().Be("Tomorrow at 9:00 AM");
     }
 
     [Test]
@@ -105,8 +105,8 @@ public sealed class QuarkDateTimeFormatterTests
     {
         var now = Utc(2026, 5, 27, 15, 42);
 
-        _formatter.FormatCalendar(Utc(2026, 1, 12, 16, 0), now, Options()).Should().Be("Jan 12 at 4:00 PM");
-        _formatter.FormatCalendar(Utc(2025, 1, 12, 16, 0), now, Options()).Should().Be("Jan 12, 2025 at 4:00 PM");
+        FormatCalendar(Utc(2026, 1, 12, 16, 0), now).Should().Be("Jan 12 at 4:00 PM");
+        FormatCalendar(Utc(2025, 1, 12, 16, 0), now).Should().Be("Jan 12, 2025 at 4:00 PM");
     }
 
     [Test]
@@ -154,5 +154,15 @@ public sealed class QuarkDateTimeFormatterTests
     private static DateTimeOffset Utc(int year, int month, int day, int hour, int minute)
     {
         return new DateTimeOffset(year, month, day, hour, minute, 0, TimeSpan.Zero);
+    }
+
+    private string FormatCalendar(DateTimeOffset value, DateTimeOffset now)
+    {
+        return NormalizeSpaces(_formatter.FormatCalendar(value, now, Options()));
+    }
+
+    private static string NormalizeSpaces(string value)
+    {
+        return value.Replace('\u202F', ' ').Replace('\u00A0', ' ');
     }
 }

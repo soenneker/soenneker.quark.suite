@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -25,6 +26,7 @@ public sealed class DateTimeComponentRenderTests : BunitContext
             .Add(component => component.Value, new DateTimeOffset(2026, 1, 1, 15, 30, 0, TimeSpan.Zero))
             .Add(component => component.Format, "MMM d, yyyy h:mm tt")
             .Add(component => component.TimeZone, "UTC")
+            .Add(component => component.Culture, CultureInfo.GetCultureInfo("en-US"))
             .Add(component => component.Class, "text-primary")
             .Add(component => component.Attributes, new Dictionary<string, object>
             {
