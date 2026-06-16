@@ -7,6 +7,7 @@
 <Button Type="@ButtonType.Button"
         Variant="@Variant"
         ButtonSize="@ButtonSize"
+        InputGroupButton="@InputGroupButton"
         Disabled="@Disabled"
         Class="@ButtonClass"
         AriaLabel="@ResolvedAriaLabel"
@@ -70,6 +71,12 @@
     /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Indicates whether the button is rendered inside an input group.
+    /// </summary>
+    [Parameter]
+    public bool InputGroupButton { get; set; }
 
     /// <summary>
     /// Idle icon.
@@ -152,6 +159,9 @@
         get
         {
             var cls = "relative overflow-hidden";
+
+            if (InputGroupButton)
+                cls += $" {Button.GetInputGroupButtonSizeClass(ButtonSize)}";
 
             if (ChildContent is not null)
                 cls += " gap-1.5 px-2.5";
