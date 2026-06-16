@@ -49,6 +49,63 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Preset_background_color_applies_expected_class()
+    {
+        var background = new QuarkPresetToken("bg-primary", static context => context.BackgroundColor = BackgroundColor.Primary);
+
+        var cut = Render<Div>(parameters => parameters
+                                            .Add(component => component.Preset, background));
+
+        cut.Find("div").GetAttribute("class")!.Should().Contain("bg-primary");
+    }
+
+    [Test]
+    public void Explicit_component_background_color_overrides_preset_background_color()
+    {
+        var background = new QuarkPresetToken("bg-primary", static context => context.BackgroundColor = BackgroundColor.Primary);
+
+        var cut = Render<Div>(parameters => parameters
+                                            .Add(component => component.Preset, background)
+                                            .Add(component => component.BackgroundColor, BackgroundColor.Secondary));
+
+        var className = cut.Find("div").GetAttribute("class")!;
+
+        className.Should().Contain("bg-secondary");
+        className.Should().NotContain("bg-primary");
+    }
+
+    [Test]
+    public void Preset_border_color_applies_through_component_override()
+    {
+        var border = new QuarkPresetToken("border-primary", static context => context.BorderColor = BorderColor.Primary);
+
+        var cut = Render<Announcement>(parameters => parameters
+                                                 .Add(component => component.Preset, border)
+                                                 .Add(component => component.ChildContent, "Preset border"));
+
+        var className = cut.Find("[data-slot='announcement']").GetAttribute("class")!;
+
+        className.Should().Contain("border-primary");
+        className.Should().NotContain("border-border");
+    }
+
+    [Test]
+    public void Explicit_component_border_color_overrides_preset_border_color()
+    {
+        var border = new QuarkPresetToken("border-primary", static context => context.BorderColor = BorderColor.Primary);
+
+        var cut = Render<Announcement>(parameters => parameters
+                                                 .Add(component => component.Preset, border)
+                                                 .Add(component => component.BorderColor, BorderColor.Secondary)
+                                                 .Add(component => component.ChildContent, "Explicit border"));
+
+        var className = cut.Find("[data-slot='announcement']").GetAttribute("class")!;
+
+        className.Should().Contain("border-secondary");
+        className.Should().NotContain("border-primary");
+    }
+
+    [Test]
     public void Multiple_presets_compose_in_order()
     {
         var displayPreset = new QuarkPresetToken("display-grid", static context => context.Display = Display.Grid);

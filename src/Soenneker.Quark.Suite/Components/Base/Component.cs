@@ -382,9 +382,8 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Cursor ?? preset?.Cursor);
         AddCss(ref sty, ref cls, ScreenReader ?? preset?.ScreenReader);
         AddCss(ref sty, ref cls, Border ?? preset?.Border);
-        AddCss(ref sty, ref cls, BorderColor ?? preset?.BorderColor);
-        ApplyBorderColor(ref sty, ref cls);
-        ApplyBackgroundColor(ref sty, ref cls);
+        ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
+        ApplyBackgroundColor(ref sty, ref cls, preset?.BackgroundColor);
         AddCss(ref sty, ref cls, Rounded ?? preset?.Rounded);
         AddCss(ref sty, ref cls, RingColor ?? preset?.RingColor);
         AddCss(ref sty, ref cls, Ring ?? preset?.Ring);
@@ -458,14 +457,14 @@ public abstract class Component : RenderComponent, IComponent
         return false;
     }
 
-    protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        ApplyBorderColor(ref sty, ref cls, BorderColor);
+        base.ApplyBorderColor(ref sty, ref cls, BorderColor ?? value);
     }
 
-    protected virtual void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
     {
-        ApplyBackgroundColor(ref sty, ref cls, BackgroundColor);
+        base.ApplyBackgroundColor(ref sty, ref cls, BackgroundColor ?? value);
     }
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
