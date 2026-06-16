@@ -16,6 +16,10 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// </summary>
     bool Container { get; set; }
     /// <summary>
+    /// Gets or sets preset.
+    /// </summary>
+    QuarkPresetToken? Preset { get; set; }
+    /// <summary>
     /// Gets or sets presets.
     /// </summary>
     IReadOnlyList<QuarkPresetToken>? Presets { get; set; }

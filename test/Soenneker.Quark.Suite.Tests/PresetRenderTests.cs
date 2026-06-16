@@ -9,7 +9,7 @@ public sealed partial class RenderedShadcnParityTests
     public void Single_preset_applies_expected_classes()
     {
         var cut = Render<Div>(parameters => parameters
-            .Add(component => component.Presets, new[] { QuarkPresets.ContainerWrapper }));
+            .Add(component => component.Preset, QuarkPresets.ContainerWrapper));
 
         cut.Markup.Should().Contain("mx-auto");
         cut.Markup.Should().Contain("w-full");
@@ -19,10 +19,26 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Singular_preset_composes_before_plural_presets()
+    {
+        var full = new QuarkPresetToken("width-full", static context => context.Width = Width.IsFull);
+        var fit = new QuarkPresetToken("width-fit", static context => context.Width = Width.IsFit);
+
+        var cut = Render<Div>(parameters => parameters
+            .Add(component => component.Preset, full)
+            .Add(component => component.Presets, new[] { fit }));
+
+        var className = cut.Find("div").GetAttribute("class")!;
+
+        className.Should().Contain("w-fit");
+        className.Should().NotContain("w-full");
+    }
+
+    [Test]
     public void Explicit_component_values_override_preset_values()
     {
         var cut = Render<Div>(parameters => parameters
-                                            .Add(component => component.Presets, new[] { QuarkPresets.ContainerWrapper })
+                                            .Add(component => component.Preset, QuarkPresets.ContainerWrapper)
                                             .Add(component => component.Width, Width.IsFit));
 
         var className = cut.Find("div").GetAttribute("class")!;
@@ -84,7 +100,7 @@ public sealed partial class RenderedShadcnParityTests
     public void Container_wrapper_preset_emits_shadcn_class()
     {
         var cut = Render<Div>(parameters => parameters
-            .Add(component => component.Presets, new[] { QuarkPresets.ContainerWrapper }));
+            .Add(component => component.Preset, QuarkPresets.ContainerWrapper));
 
         cut.Find("div").GetAttribute("class")!.Should().Contain("container-wrapper");
     }
@@ -93,7 +109,7 @@ public sealed partial class RenderedShadcnParityTests
     public void Class_still_appends_normally()
     {
         var cut = Render<Div>(parameters => parameters
-                                            .Add(component => component.Presets, new[] { QuarkPresets.ContainerWrapper })
+                                            .Add(component => component.Preset, QuarkPresets.ContainerWrapper)
                                             .Add(component => component.Class, "custom-class"));
 
         var className = cut.Find("div").GetAttribute("class")!;

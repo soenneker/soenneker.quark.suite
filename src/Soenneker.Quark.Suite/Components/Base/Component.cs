@@ -23,6 +23,9 @@ public abstract class Component : RenderComponent, IComponent
     public bool Container { get; set; }
 
     [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+
+    [Parameter]
     public IReadOnlyList<QuarkPresetToken>? Presets { get; set; }
 
     [Parameter]
@@ -415,12 +418,18 @@ public abstract class Component : RenderComponent, IComponent
 
     private QuarkPresetContext? BuildPresetContext()
     {
+        var preset = Preset;
         var presets = Presets;
 
-        if (presets is null || presets.Count == 0)
+        if (preset is null && (presets is null || presets.Count == 0))
             return null;
 
         var context = new QuarkPresetContext();
+
+        preset?.Apply(context);
+
+        if (presets is null)
+            return context;
 
         for (var i = 0; i < presets.Count; i++)
         {
@@ -489,6 +498,8 @@ public abstract class Component : RenderComponent, IComponent
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Container);
+        hc.Add(Preset);
+
         if (Presets is { Count: > 0 })
         {
             for (var i = 0; i < Presets.Count; i++)
