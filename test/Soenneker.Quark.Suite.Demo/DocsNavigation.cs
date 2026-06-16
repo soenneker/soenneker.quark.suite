@@ -53,7 +53,7 @@ public static class DocsNavigation
         new("Container", ComponentRoute("container")),
         new("Context Menu", ComponentRoute("context-menu")),
         new("Copy Button", ComponentRoute("copy-button"), IsNew: true),
-        new("Copy Input", ComponentRoute("copy-input"), IsNew: true),
+        new("Copy Field", ComponentRoute("copy-field"), IsNew: true),
         new("Currency Input", ComponentRoute("currency-inputs"), IsNew: true),
         new("Data Table", ComponentRoute("data-table")),
         new("Date Time", ComponentRoute("date-time"), IsNew: true),
