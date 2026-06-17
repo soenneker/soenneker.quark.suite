@@ -1,5 +1,5 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.InteractiveElement
 @implements IGrid
 
 <div @attributes="BuildAttributes()">
@@ -22,6 +22,14 @@
         DataSlot ??= "grid";
 
         Display ??= Inline ? Quark.Display.InlineGrid : Quark.Display.Grid;
+    }
+
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
+    {
+        base.BuildOwnedAttributes(attrs);
+
+        if (OnClick.HasDelegate)
+            attrs["onclick"] = OnClick;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

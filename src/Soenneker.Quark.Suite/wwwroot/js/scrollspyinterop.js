@@ -59,7 +59,9 @@ export function initialize(element, options, dotNetRef) {
     }
 
     if (history && (force || previousId !== sectionId)) {
-      window.history.replaceState({}, "", `#${sectionId}`);
+      const url = new URL(window.location.href);
+      url.hash = sectionId;
+      window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
     }
 
     previousId = sectionId;
