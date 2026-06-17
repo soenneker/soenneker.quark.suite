@@ -13,6 +13,8 @@ namespace Soenneker.Quark;
 ///<remarks>Do not use the <c>new</c> keyword to Shadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
 public abstract class Component : RenderComponent, IComponent
 {
+    private HashSet<string>? _explicitParameters;
+
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
 
@@ -284,6 +286,29 @@ public abstract class Component : RenderComponent, IComponent
 
     protected override bool AlwaysRender => QuarkOptions.AlwaysRender;
 
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        _explicitParameters ??= new HashSet<string>(StringComparer.Ordinal);
+        _explicitParameters.Clear();
+
+        foreach (var parameter in parameters)
+        {
+            _explicitParameters.Add(parameter.Name);
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+
+    protected bool HasExplicitParameter(string parameterName) => _explicitParameters?.Contains(parameterName) == true;
+
+    protected CssValue<T>? ResolvePresetValue<T>(CssValue<T>? value, CssValue<T>? presetValue, string parameterName) where T : class, ICssBuilder
+    {
+        if (HasExplicitParameter(parameterName))
+            return value;
+
+        return presetValue ?? value;
+    }
+
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
         base.BuildOwnedAttributes(attrs);
@@ -316,86 +341,86 @@ public abstract class Component : RenderComponent, IComponent
         if (Style.HasContent())
             AppendStyleDecl(ref sty, Style!);
 
-        AddCss(ref sty, ref cls, Display ?? preset?.Display);
-        AddCss(ref sty, ref cls, Visibility ?? preset?.Visibility);
-        AddCss(ref sty, ref cls, Float ?? preset?.Float);
-        AddCss(ref sty, ref cls, VerticalAlign ?? preset?.VerticalAlign);
-        AddCss(ref sty, ref cls, TextAlign ?? preset?.TextAlign);
-        ApplyTextColor(ref sty, ref cls, TextColor ?? preset?.TextColor);
-        AddCss(ref sty, ref cls, TextSize ?? preset?.TextSize);
-        AddCss(ref sty, ref cls, DecorationLine ?? preset?.DecorationLine);
-        AddCss(ref sty, ref cls, TextTransform ?? preset?.TextTransform);
-        AddCss(ref sty, ref cls, FontFamily ?? preset?.FontFamily);
-        AddCss(ref sty, ref cls, FontWeight ?? preset?.FontWeight);
-        AddCss(ref sty, ref cls, FontStyle ?? preset?.FontStyle);
-        AddCss(ref sty, ref cls, Leading ?? preset?.Leading);
-        AddCss(ref sty, ref cls, Tracking ?? preset?.Tracking);
-        AddCss(ref sty, ref cls, Whitespace ?? preset?.Whitespace);
-        AddCss(ref sty, ref cls, TextWrap ?? preset?.TextWrap);
-        AddCss(ref sty, ref cls, TextBreak ?? preset?.TextBreak);
-        AddCss(ref sty, ref cls, TextOverflow ?? preset?.TextOverflow);
-        AddCss(ref sty, ref cls, Truncate ?? preset?.Truncate);
-        AddCss(ref sty, ref cls, LineClamp ?? preset?.LineClamp);
-        AddCss(ref sty, ref cls, FontVariantNumeric ?? preset?.FontVariantNumeric);
-        AddCss(ref sty, ref cls, Margin ?? preset?.Margin);
-        AddCss(ref sty, ref cls, Padding ?? preset?.Padding);
-        AddCss(ref sty, ref cls, Inset ?? preset?.Inset);
-        AddCss(ref sty, ref cls, Top ?? preset?.Top);
-        AddCss(ref sty, ref cls, Right ?? preset?.Right);
-        AddCss(ref sty, ref cls, Bottom ?? preset?.Bottom);
-        AddCss(ref sty, ref cls, Left ?? preset?.Left);
-        AddCss(ref sty, ref cls, Position ?? preset?.Position);
-        AddCss(ref sty, ref cls, ScrollMargin ?? preset?.ScrollMargin);
-        AddCss(ref sty, ref cls, ScrollPadding ?? preset?.ScrollPadding);
-        AddCss(ref sty, ref cls, Size ?? preset?.Size);
-        AddCss(ref sty, ref cls, Width ?? preset?.Width);
-        AddCss(ref sty, ref cls, MinWidth ?? preset?.MinWidth);
-        AddCss(ref sty, ref cls, MaxWidth ?? preset?.MaxWidth);
-        AddCss(ref sty, ref cls, Height ?? preset?.Height);
-        AddCss(ref sty, ref cls, MinHeight ?? preset?.MinHeight);
-        AddCss(ref sty, ref cls, MaxHeight ?? preset?.MaxHeight);
-        AddCss(ref sty, ref cls, Overflow ?? preset?.Overflow);
-        AddCss(ref sty, ref cls, OverflowX ?? preset?.OverflowX);
-        AddCss(ref sty, ref cls, OverflowY ?? preset?.OverflowY);
-        AddCss(ref sty, ref cls, Overscroll ?? preset?.Overscroll);
-        AddCss(ref sty, ref cls, Flex ?? preset?.Flex);
-        AddCss(ref sty, ref cls, FlexDirection ?? preset?.FlexDirection);
-        AddCss(ref sty, ref cls, FlexWrap ?? preset?.FlexWrap);
-        AddCss(ref sty, ref cls, Grow ?? preset?.Grow);
-        AddCss(ref sty, ref cls, Shrink ?? preset?.Shrink);
-        AddCss(ref sty, ref cls, Gap ?? preset?.Gap);
-        AddCss(ref sty, ref cls, Space ?? preset?.Space);
-        AddCss(ref sty, ref cls, Divide ?? preset?.Divide);
-        AddCss(ref sty, ref cls, ContentAlign ?? preset?.ContentAlign);
-        AddCss(ref sty, ref cls, ItemsAlign ?? preset?.ItemsAlign);
-        AddCss(ref sty, ref cls, Justify ?? preset?.Justify);
-        AddCss(ref sty, ref cls, SelfAlign ?? preset?.SelfAlign);
-        AddCss(ref sty, ref cls, JustifyItemsAlign ?? preset?.JustifyItemsAlign);
-        AddCss(ref sty, ref cls, JustifySelfAlign ?? preset?.JustifySelfAlign);
-        AddCss(ref sty, ref cls, ColStart ?? preset?.ColStart);
-        AddCss(ref sty, ref cls, RowSpan ?? preset?.RowSpan);
-        AddCss(ref sty, ref cls, RowStart ?? preset?.RowStart);
-        AddCss(ref sty, ref cls, Opacity ?? preset?.Opacity);
-        AddCss(ref sty, ref cls, ZIndex ?? preset?.ZIndex);
-        AddCss(ref sty, ref cls, PointerEvents ?? preset?.PointerEvents);
-        AddCss(ref sty, ref cls, UserSelect ?? preset?.UserSelect);
-        AddCss(ref sty, ref cls, Cursor ?? preset?.Cursor);
-        AddCss(ref sty, ref cls, ScreenReader ?? preset?.ScreenReader);
-        AddCss(ref sty, ref cls, Border ?? preset?.Border);
+        AddCss(ref sty, ref cls, ResolvePresetValue(Display, preset?.Display, nameof(Display)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Visibility, preset?.Visibility, nameof(Visibility)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Float, preset?.Float, nameof(Float)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(VerticalAlign, preset?.VerticalAlign, nameof(VerticalAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextAlign, preset?.TextAlign, nameof(TextAlign)));
+        ApplyTextColor(ref sty, ref cls, preset?.TextColor);
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextSize, preset?.TextSize, nameof(TextSize)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(DecorationLine, preset?.DecorationLine, nameof(DecorationLine)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextTransform, preset?.TextTransform, nameof(TextTransform)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FontFamily, preset?.FontFamily, nameof(FontFamily)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FontWeight, preset?.FontWeight, nameof(FontWeight)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FontStyle, preset?.FontStyle, nameof(FontStyle)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Leading, preset?.Leading, nameof(Leading)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Tracking, preset?.Tracking, nameof(Tracking)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Whitespace, preset?.Whitespace, nameof(Whitespace)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextWrap, preset?.TextWrap, nameof(TextWrap)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextBreak, preset?.TextBreak, nameof(TextBreak)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(TextOverflow, preset?.TextOverflow, nameof(TextOverflow)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Truncate, preset?.Truncate, nameof(Truncate)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(LineClamp, preset?.LineClamp, nameof(LineClamp)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FontVariantNumeric, preset?.FontVariantNumeric, nameof(FontVariantNumeric)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Margin, preset?.Margin, nameof(Margin)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Padding, preset?.Padding, nameof(Padding)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Inset, preset?.Inset, nameof(Inset)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Top, preset?.Top, nameof(Top)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Right, preset?.Right, nameof(Right)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Bottom, preset?.Bottom, nameof(Bottom)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Left, preset?.Left, nameof(Left)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Position, preset?.Position, nameof(Position)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ScrollMargin, preset?.ScrollMargin, nameof(ScrollMargin)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ScrollPadding, preset?.ScrollPadding, nameof(ScrollPadding)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Size, preset?.Size, nameof(Size)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Width, preset?.Width, nameof(Width)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(MinWidth, preset?.MinWidth, nameof(MinWidth)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(MaxWidth, preset?.MaxWidth, nameof(MaxWidth)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Height, preset?.Height, nameof(Height)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(MinHeight, preset?.MinHeight, nameof(MinHeight)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(MaxHeight, preset?.MaxHeight, nameof(MaxHeight)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Overflow, preset?.Overflow, nameof(Overflow)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(OverflowX, preset?.OverflowX, nameof(OverflowX)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(OverflowY, preset?.OverflowY, nameof(OverflowY)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Overscroll, preset?.Overscroll, nameof(Overscroll)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Flex, preset?.Flex, nameof(Flex)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FlexDirection, preset?.FlexDirection, nameof(FlexDirection)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(FlexWrap, preset?.FlexWrap, nameof(FlexWrap)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Grow, preset?.Grow, nameof(Grow)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Shrink, preset?.Shrink, nameof(Shrink)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Gap, preset?.Gap, nameof(Gap)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Space, preset?.Space, nameof(Space)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Divide, preset?.Divide, nameof(Divide)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ContentAlign, preset?.ContentAlign, nameof(ContentAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ItemsAlign, preset?.ItemsAlign, nameof(ItemsAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Justify, preset?.Justify, nameof(Justify)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(SelfAlign, preset?.SelfAlign, nameof(SelfAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(JustifyItemsAlign, preset?.JustifyItemsAlign, nameof(JustifyItemsAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(JustifySelfAlign, preset?.JustifySelfAlign, nameof(JustifySelfAlign)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ColStart, preset?.ColStart, nameof(ColStart)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(RowSpan, preset?.RowSpan, nameof(RowSpan)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(RowStart, preset?.RowStart, nameof(RowStart)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Opacity, preset?.Opacity, nameof(Opacity)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ZIndex, preset?.ZIndex, nameof(ZIndex)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(PointerEvents, preset?.PointerEvents, nameof(PointerEvents)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(UserSelect, preset?.UserSelect, nameof(UserSelect)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Cursor, preset?.Cursor, nameof(Cursor)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(ScreenReader, preset?.ScreenReader, nameof(ScreenReader)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Border, preset?.Border, nameof(Border)));
         ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
         ApplyBackgroundColor(ref sty, ref cls, preset?.BackgroundColor);
-        AddCss(ref sty, ref cls, Rounded ?? preset?.Rounded);
-        AddCss(ref sty, ref cls, RingColor ?? preset?.RingColor);
-        AddCss(ref sty, ref cls, Ring ?? preset?.Ring);
+        AddCss(ref sty, ref cls, ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(RingColor, preset?.RingColor, nameof(RingColor)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Ring, preset?.Ring, nameof(Ring)));
         AddCss(ref sty, ref cls, OutlineStyle);
-        AddCss(ref sty, ref cls, Shadow ?? preset?.Shadow);
-        AddCss(ref sty, ref cls, BackdropFilter ?? preset?.BackdropFilter);
-        AddCss(ref sty, ref cls, Filter ?? preset?.Filter);
-        AddCss(ref sty, ref cls, Resize ?? preset?.Resize);
-        AddCss(ref sty, ref cls, Transform ?? preset?.Transform);
-        AddCss(ref sty, ref cls, Animation ?? preset?.Animation);
-        AddCss(ref sty, ref cls, Duration ?? preset?.Duration);
-        AddCss(ref sty, ref cls, Transition ?? preset?.Transition);
+        AddCss(ref sty, ref cls, ResolvePresetValue(Shadow, preset?.Shadow, nameof(Shadow)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropFilter, preset?.BackdropFilter, nameof(BackdropFilter)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Filter, preset?.Filter, nameof(Filter)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Resize, preset?.Resize, nameof(Resize)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Transform, preset?.Transform, nameof(Transform)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Animation, preset?.Animation, nameof(Animation)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Duration, preset?.Duration, nameof(Duration)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Transition, preset?.Transition, nameof(Transition)));
 
         if (Container)
             AppendClass(ref cls, "container");
@@ -415,7 +440,7 @@ public abstract class Component : RenderComponent, IComponent
         return Task.CompletedTask;
     }
 
-    private QuarkPresetContext? BuildPresetContext()
+    protected QuarkPresetContext? BuildPresetContext()
     {
         var preset = Preset;
         var presets = Presets;
@@ -459,17 +484,17 @@ public abstract class Component : RenderComponent, IComponent
 
     protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        base.ApplyBorderColor(ref sty, ref cls, BorderColor ?? value);
+        base.ApplyBorderColor(ref sty, ref cls, ResolvePresetValue(BorderColor, value, nameof(BorderColor)));
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
     {
-        base.ApplyBackgroundColor(ref sty, ref cls, BackgroundColor ?? value);
+        base.ApplyBackgroundColor(ref sty, ref cls, ResolvePresetValue(BackgroundColor, value, nameof(BackgroundColor)));
     }
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        base.ApplyTextColor(ref sty, ref cls, value);
+        base.ApplyTextColor(ref sty, ref cls, ResolvePresetValue(TextColor, value, nameof(TextColor)));
     }
 
     protected new void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)

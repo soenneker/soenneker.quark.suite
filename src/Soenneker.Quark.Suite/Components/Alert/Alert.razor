@@ -67,18 +67,18 @@
             AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg:not([class*='size-'])]:size-4");
 
             if (IsDestructiveVariant())
-                AppendClass(ref cls, "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current");
+            {
+                AppendClass(ref cls, "bg-card");
+                AppendClass(ref cls, "text-destructive");
+                AppendClass(ref cls, "*:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current");
+            }
             else
-                AppendClass(ref cls, "bg-card text-card-foreground *:[svg]:text-current");
+            {
+                AppendClass(ref cls, "bg-card");
+                AppendClass(ref cls, "text-card-foreground");
+                AppendClass(ref cls, "*:[svg]:text-current");
+            }
         });
-    }
-
-    protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
-    {
-        if (!ReferenceEquals(Variant, AlertVariant.Default))
-            return;
-
-        base.ApplyTextColor(ref sty, ref cls, value);
     }
 
     private LucideIcon GetDefaultIcon()

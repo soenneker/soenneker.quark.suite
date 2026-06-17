@@ -101,17 +101,20 @@ else
 
     protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        base.ApplyBorderColor(ref sty, ref cls, value ?? (Themed ? Quark.BorderColor.Utility("border-primary/20") : Quark.BorderColor.Border));
+        var borderColor = ResolvePresetValue(BorderColor, value, nameof(BorderColor)) ?? (Themed ? Quark.BorderColor.Utility("border-primary/20") : Quark.BorderColor.Border);
+        base.ApplyBorderColor(ref sty, ref cls, borderColor);
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
     {
-        base.ApplyBackgroundColor(ref sty, ref cls, value ?? (Themed ? Quark.BackgroundColor.Utility("bg-primary/5") : Quark.BackgroundColor.Background));
+        var backgroundColor = ResolvePresetValue(BackgroundColor, value, nameof(BackgroundColor)) ?? (Themed ? Quark.BackgroundColor.Utility("bg-primary/5") : Quark.BackgroundColor.Background);
+        base.ApplyBackgroundColor(ref sty, ref cls, backgroundColor);
     }
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        base.ApplyTextColor(ref sty, ref cls, value ?? (Themed ? Quark.TextColor.Primary : Quark.TextColor.Foreground));
+        var textColor = ResolvePresetValue(TextColor, value, nameof(TextColor)) ?? (Themed ? Quark.TextColor.Primary : Quark.TextColor.Foreground);
+        base.ApplyTextColor(ref sty, ref cls, textColor);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
