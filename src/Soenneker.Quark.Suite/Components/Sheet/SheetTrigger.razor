@@ -62,6 +62,8 @@ else
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            OnPointerDownEvent = ParentSheet is null || Disabled ? null : HandleTriggerPointerDown,
+            SuppressClickAfterPointerDown = true,
             RegisterElement = elementReference =>
             {
                 _elementRef = elementReference;
@@ -88,6 +90,14 @@ else
             },
             Close = ParentSheet is null ? null : () => ParentSheet.Hide()
         };
+    }
+
+    private Task HandleTriggerPointerDown(PointerEventArgs args)
+    {
+        if (ParentSheet is null || Disabled || args.Button != 0 || args.CtrlKey)
+            return Task.CompletedTask;
+
+        return ParentSheet.Visible ? ParentSheet.Hide() : ParentSheet.Show();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

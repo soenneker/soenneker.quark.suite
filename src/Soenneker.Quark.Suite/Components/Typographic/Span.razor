@@ -7,6 +7,8 @@
       @onmouseenter="HandleMouseEnter"
       @onmousemove="HandleMouseMove"
       @onmouseleave="HandleMouseLeave"
+      @onpointerdown="HandlePointerDown"
+      @onpointerdown:preventDefault="PreventPointerDownDefault"
       @onfocusin="HandleFocusIn"
       @onfocusout="HandleFocusOut"
       @onkeydown="HandleKeyDown"
@@ -21,8 +23,11 @@
     private TriggerContext? TriggerContext { get; set; }
 
     private bool _triggerElementRegistered;
+    private bool _ignoreNextPointerClick;
     private string? _registeredTriggerId;
     private static readonly TriggerContext? NoChildTriggerContext = null;
+
+    private bool PreventPointerDownDefault => TriggerContext?.PreventPointerDownDefault == true;
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
@@ -80,12 +85,34 @@
         hc.Add(TriggerContext?.AriaControls);
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
+        hc.Add(TriggerContext?.SuppressClickAfterPointerDown == true);
         hc.Add(OnClick.HasDelegate);
     }
 
     private Task HandleMouseEnter(MouseEventArgs e) => TriggerContext?.OnMouseEnter?.Invoke() ?? Task.CompletedTask;
     private Task HandleMouseMove(MouseEventArgs e) => TriggerContext?.OnMouseMove?.Invoke() ?? Task.CompletedTask;
     private Task HandleMouseLeave(MouseEventArgs e) => TriggerContext?.OnMouseLeave?.Invoke() ?? Task.CompletedTask;
+    private Task HandlePointerDown(PointerEventArgs e)
+    {
+        if (TriggerContext?.OnPointerDownEvent is not null)
+        {
+            if (TriggerContext.SuppressClickAfterPointerDown && e.Button == 0 && !e.CtrlKey)
+                _ignoreNextPointerClick = true;
+
+            return TriggerContext.OnPointerDownEvent(e);
+        }
+
+        if (TriggerContext?.OnPointerDown is not null)
+        {
+            if (TriggerContext.SuppressClickAfterPointerDown && e.Button == 0 && !e.CtrlKey)
+                _ignoreNextPointerClick = true;
+
+            return TriggerContext.OnPointerDown();
+        }
+
+        return Task.CompletedTask;
+    }
+
     private Task HandleFocusIn(FocusEventArgs e) => TriggerContext?.OnFocusIn?.Invoke() ?? Task.CompletedTask;
     private Task HandleFocusOut(FocusEventArgs e) => TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
     private Task HandleKeyDown(KeyboardEventArgs e) => TriggerContext?.OnKeyDown?.Invoke(e) ?? Task.CompletedTask;
@@ -95,10 +122,21 @@
         if (OnClick.HasDelegate)
             await OnClick.InvokeAsync(e);
 
-        if (TriggerContext?.OnClick is not null)
-            await TriggerContext.OnClick();
+        var ignoreTriggerClick = false;
 
-        if (TriggerContext?.Toggle is not null)
-            await TriggerContext.Toggle();
+        if (_ignoreNextPointerClick)
+        {
+            _ignoreNextPointerClick = false;
+            ignoreTriggerClick = true;
+        }
+
+        if (!ignoreTriggerClick)
+        {
+            if (TriggerContext?.OnClick is not null)
+                await TriggerContext.OnClick();
+
+            if (TriggerContext?.Toggle is not null)
+                await TriggerContext.Toggle();
+        }
     }
 }

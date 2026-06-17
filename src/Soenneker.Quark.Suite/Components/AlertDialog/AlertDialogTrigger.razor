@@ -91,6 +91,8 @@ else
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            OnPointerDownEvent = ParentAlertDialog is null || Disabled ? null : HandleTriggerPointerDown,
+            SuppressClickAfterPointerDown = true,
             RegisterElement = elementReference =>
             {
                 _elementRef = elementReference;
@@ -115,6 +117,14 @@ else
                 },
             Close = ParentAlertDialog is null ? null : () => ParentAlertDialog.Hide()
         };
+    }
+
+    private Task HandleTriggerPointerDown(PointerEventArgs args)
+    {
+        if (ParentAlertDialog is null || Disabled || args.Button != 0 || args.CtrlKey)
+            return Task.CompletedTask;
+
+        return ParentAlertDialog.Visible ? ParentAlertDialog.Hide() : ParentAlertDialog.Show();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -57,6 +57,8 @@ else
             DataState = BradixPopover?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = BradixPopover?.ContentId,
+            OnPointerDownEvent = BradixPopover is null || Disabled ? null : HandleTriggerPointerDown,
+            SuppressClickAfterPointerDown = true,
             Toggle = BradixPopover is null || Disabled ? null : () => BradixPopover.ToggleOpen(),
             Open = BradixPopover is null || Disabled ? null : () => BradixPopover.SetOpen(true),
             Close = BradixPopover is null ? null : () => BradixPopover.SetOpen(false),
@@ -70,6 +72,14 @@ else
                         BradixPopover.RegisterAnchor(elementReference);
                 }
         };
+    }
+
+    private Task HandleTriggerPointerDown(PointerEventArgs args)
+    {
+        if (BradixPopover is null || Disabled || args.Button != 0 || args.CtrlKey)
+            return Task.CompletedTask;
+
+        return BradixPopover.ToggleOpen();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

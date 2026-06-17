@@ -40,6 +40,8 @@ internal sealed class TriggerContext
 
     public Func<PointerEventArgs, Task>? OnPointerDownEvent { get; init; }
 
+    public bool SuppressClickAfterPointerDown { get; init; }
+
     public bool PreventPointerDownDefault { get; init; }
 
     public Func<Task>? OnPointerUp { get; init; }

@@ -120,10 +120,11 @@ else
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
+            SuppressClickAfterPointerDown = ParentTriggerContext?.SuppressClickAfterPointerDown == true,
             OnClick = HandleTriggerClick,
             OnPointerMove = HandleTriggerPointerMove,
             OnPointerLeave = HandleTriggerPointerLeave,
-            OnPointerDown = HandleTriggerPointerDown,
+            OnPointerDownEvent = HandleTriggerPointerDown,
             OnPointerUp = HandleTriggerPointerUp,
             Open = Tooltip is null ? null : () => Tooltip.HandleTriggerEnter(),
             Close = Tooltip is null ? null : () => Tooltip.Close(),
@@ -214,11 +215,21 @@ else
         return Tooltip?.HandleTriggerLeave() ?? Task.CompletedTask;
     }
 
-    private Task HandleTriggerPointerDown()
+    private async Task HandleTriggerPointerDown(PointerEventArgs args)
     {
         _pointerDown = true;
 
-        return Tooltip?.Close() ?? Task.CompletedTask;
+        if (Tooltip is not null)
+            await Tooltip.Close();
+
+        if (ParentTriggerContext?.OnPointerDownEvent is not null)
+        {
+            await ParentTriggerContext.OnPointerDownEvent(args);
+            return;
+        }
+
+        if (ParentTriggerContext?.OnPointerDown is not null)
+            await ParentTriggerContext.OnPointerDown();
     }
 
     private Task HandleTriggerPointerUp()
@@ -267,5 +278,6 @@ else
         hc.Add(ParentTriggerContext?.AriaControls);
         hc.Add(ParentTriggerContext?.AriaDescribedBy);
         hc.Add(ParentTriggerContext?.IsOpen);
+        hc.Add(ParentTriggerContext?.SuppressClickAfterPointerDown == true);
     }
 }

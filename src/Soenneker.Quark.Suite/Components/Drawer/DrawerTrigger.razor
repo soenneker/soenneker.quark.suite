@@ -68,6 +68,8 @@ else
             DataState = ParentDrawer?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            OnPointerDownEvent = ParentDrawer is null || Disabled ? null : HandleTriggerPointerDown,
+            SuppressClickAfterPointerDown = true,
             RegisterElement = elementReference =>
             {
                 _elementRef = elementReference;
@@ -94,6 +96,14 @@ else
             },
             Close = ParentDrawer is null ? null : () => ParentDrawer.Hide()
         };
+    }
+
+    private Task HandleTriggerPointerDown(PointerEventArgs args)
+    {
+        if (ParentDrawer is null || Disabled || args.Button != 0 || args.CtrlKey)
+            return Task.CompletedTask;
+
+        return ParentDrawer.Visible ? ParentDrawer.Hide() : ParentDrawer.Show();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

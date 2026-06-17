@@ -60,6 +60,7 @@ else
     private ElementReference _elementRef;
     private bool _triggerElementRegistered;
     private bool _ignoreNextKeyboardClick;
+    private bool _ignoreNextPointerClick;
     private string? _registeredTriggerId;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || Href.HasContent();
@@ -354,11 +355,22 @@ else
             return;
         }
 
-        if (TriggerContext?.OnClick is not null)
-            await TriggerContext.OnClick();
+        var ignoreTriggerClick = false;
 
-        if (TriggerContext?.Toggle is not null)
-            await TriggerContext.Toggle();
+        if (_ignoreNextPointerClick)
+        {
+            _ignoreNextPointerClick = false;
+            ignoreTriggerClick = true;
+        }
+
+        if (!ignoreTriggerClick)
+        {
+            if (TriggerContext?.OnClick is not null)
+                await TriggerContext.OnClick();
+
+            if (TriggerContext?.Toggle is not null)
+                await TriggerContext.Toggle();
+        }
 
         if (DialogCloseContext is not null)
             await DialogCloseContext.Close(args);
@@ -475,9 +487,22 @@ else
     private Task HandleTriggerPointerDown(PointerEventArgs args)
     {
         if (TriggerContext?.OnPointerDownEvent is not null)
-            return TriggerContext.OnPointerDownEvent(args);
+        {
+            if (TriggerContext.SuppressClickAfterPointerDown && args.Button == 0 && !args.CtrlKey)
+                _ignoreNextPointerClick = true;
 
-        return TriggerContext?.OnPointerDown?.Invoke() ?? Task.CompletedTask;
+            return TriggerContext.OnPointerDownEvent(args);
+        }
+
+        if (TriggerContext?.OnPointerDown is not null)
+        {
+            if (TriggerContext.SuppressClickAfterPointerDown && args.Button == 0 && !args.CtrlKey)
+                _ignoreNextPointerClick = true;
+
+            return TriggerContext.OnPointerDown();
+        }
+
+        return Task.CompletedTask;
     }
 
     private Task HandleTriggerPointerUp(PointerEventArgs args)
@@ -535,6 +560,7 @@ else
         hc.Add(TriggerContext?.AriaControls);
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
+        hc.Add(TriggerContext?.SuppressClickAfterPointerDown == true);
         hc.Add(TriggerContext?.ParentDisabled == true);
         hc.Add(DialogCloseContext?.Disabled == true);
         hc.Add(DialogCloseContext?.AriaLabel);
