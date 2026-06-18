@@ -1,27 +1,11 @@
 @namespace Soenneker.Quark
 @using Soenneker.Bradix
-@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
 @implements ITabs
 
 <CascadingValue Name="ParentTabs" Value="this">
-    <BradixTabs Value="@SelectedTab" Orientation="@ResolvedOrientation" Dir="@ResolvedDir" ActivationMode="@ActivationMode" ValueChanged="HandleBradixValueChanged" AdditionalAttributes="@ComposedRootAttributes">
-        @if (Composed)
-        {
-            @ChildContent
-        }
-        else
-        {
-            <BradixTabsList Loop="@Loop" AdditionalAttributes="@TabsListAttributes">
-                @ChildContent
-            </BradixTabsList>
-            @foreach (var tab in _tabs)
-            {
-                <BradixTabsContent Value="@tab.Name" ForceMount="@tab.ForceMount" AdditionalAttributes="@BuildTabContentAttributes(tab)">
-                    @tab.ChildContent
-                </BradixTabsContent>
-            }
-        }
+    <BradixTabs Value="@SelectedTab" Orientation="@ResolvedOrientation" Dir="@ResolvedDir" ActivationMode="@ActivationMode" ValueChanged="HandleBradixValueChanged" AdditionalAttributes="@RootAttributes">
+        @ChildContent
     </BradixTabs>
 </CascadingValue>
 
@@ -41,9 +25,6 @@
 
     [Parameter]
     public bool Justified { get; set; }
-
-    [Parameter]
-    public bool Composed { get; set; }
 
     /// <summary>Radix <c>activationMode</c>; default <see cref="TabsActivationMode.Automatic"/> (select on focus).</summary>
     [Parameter]
@@ -66,15 +47,9 @@
     [Parameter]
     public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
 
-    private readonly List<Tab> _tabs = [];
-
-    private readonly string _instanceId = BlazorIdGenerator.New("quark-tabs");
-
-    internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
     internal string? ResolvedDir => Dir.HasContent() ? Dir : DirectionProviderDir;
     private Orientation ResolvedOrientation => Vertical ? Orientation.Vertical : Orientation.Horizontal;
-    private IReadOnlyDictionary<string, object> ComposedRootAttributes => BuildComposedRootAttributes();
-    private IReadOnlyDictionary<string, object> TabsListAttributes => BuildTabsListAttributes();
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildRootAttributes();
 
     internal string TabsTriggerBaseClass => BuildTabsTriggerBaseClass();
 
@@ -85,45 +60,6 @@
         Display ??= Quark.Display.Flex;
         FlexDirection ??= Vertical ? Quark.FlexDirection.Row : Quark.FlexDirection.Col;
         Gap ??= Quark.Gap.Is2;
-    }
-
-    public void RegisterTab(Tab tab)
-    {
-        if (_tabs.Contains(tab))
-            return;
-
-        _tabs.Add(tab);
-        _ = RefreshOffThread();
-    }
-
-    public void UnregisterTab(Tab tab)
-    {
-        _tabs.Remove(tab);
-        _ = RefreshOffThread();
-    }
-
-    private string? GetResolvedSelectedTab()
-    {
-        if (SelectedTab.HasContent())
-        {
-            for (var i = 0; i < _tabs.Count; i++)
-            {
-                var tab = _tabs[i];
-
-                if (!tab.Disabled && string.Equals(tab.Name, SelectedTab, StringComparison.Ordinal))
-                    return tab.Name;
-            }
-        }
-
-        for (var i = 0; i < _tabs.Count; i++)
-        {
-            var tab = _tabs[i];
-
-            if (!tab.Disabled && tab.Name.HasContent())
-                return tab.Name;
-        }
-
-        return null;
     }
 
     public async Task SelectTab(string tabName)
@@ -140,46 +76,7 @@
         Refresh();
     }
 
-    internal bool IsTabSelected(string? value)
-    {
-        return string.Equals(ResolvedSelectedTab, value, StringComparison.Ordinal);
-    }
-
-    internal string? GetTriggerId(string? value)
-    {
-        return value.HasContent() ? BlazorIdGenerator.Child(_instanceId, $"trigger-{value}") : null;
-    }
-
-    internal string? GetContentId(string? value)
-    {
-        return value.HasContent() ? BlazorIdGenerator.Child(_instanceId, $"content-{value}") : null;
-    }
-
-    private Dictionary<string, object> BuildTabsListAttributes()
-    {
-        var attrs = new Dictionary<string, object>
-        {
-            ["data-slot"] = "tabs-list",
-            ["data-variant"] = ReferenceEquals(TabsListVariant, TabsListVariant.Line) ? "line" : "default"
-        };
-
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground data-[variant=line]:rounded-none");
-            AppendClass(ref cls, "group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col");
-            if (ReferenceEquals(TabsListVariant, TabsListVariant.Default))
-                AppendClass(ref cls, "bg-muted");
-            if (!ReferenceEquals(TabsListVariant, TabsListVariant.Default))
-                AppendClass(ref cls, "gap-1 bg-transparent");
-
-            if (Justified)
-                AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
-        });
-
-        return attrs;
-    }
-
-    private IReadOnlyDictionary<string, object> BuildComposedRootAttributes()
+    private IReadOnlyDictionary<string, object> BuildRootAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
         attributes.Remove("data-orientation");
@@ -199,23 +96,6 @@
 
         InvalidateRender();
         Refresh();
-    }
-
-    private Dictionary<string, object> BuildTabContentAttributes(Tab tab)
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "tabs-content"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex-1 text-sm outline-none");
-            if (Vertical)
-                AppendClass(ref cls, "min-w-0");
-        });
-
-        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -257,7 +137,6 @@
         hc.Add(Pills);
         hc.Add(Vertical);
         hc.Add(Justified);
-        hc.Add(Composed);
         hc.Add(ActivationMode);
         hc.Add(Loop);
         hc.Add(Dir);
@@ -265,8 +144,6 @@
         hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);
-        if (ResolvedSelectedTab is not null)
-            hc.Add(ResolvedSelectedTab);
     }
 
 }

@@ -10,7 +10,6 @@ public sealed partial class RenderedShadcnParityTests
     public void Composed_justified_tabs_list_expands_to_full_width()
     {
         var cut = Render<Tabs>(parameters => parameters
-            .Add(component => component.Composed, true)
             .Add(component => component.Justified, true)
             .Add(component => component.ChildContent, BuildTabsList()));
 
