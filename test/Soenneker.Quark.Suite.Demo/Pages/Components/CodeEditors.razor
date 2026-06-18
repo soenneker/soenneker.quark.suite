@@ -180,14 +180,65 @@ console.log(message);";
 }";
 
     private const string EditorDemoCode =
-@"<CodeEditor @bind-Text=""_text""
-            Language=""@_language""
-            Theme=""@_theme""
-            WordWrap=""@_wordWrap""
-            Minimap=""@_minimap""
-            AutoHeight=""@_autoHeight""
-            MinLines=""8""
-            MaxLines=""18"" />";
+@"<Div Class=""grid w-full gap-4"">
+    <Div Class=""grid gap-3 rounded-lg border bg-muted/30 p-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]"">
+        <Field>
+            <FieldLabel>Language</FieldLabel>
+            <Select TValue=""string"" @bind-SelectedValue=""_language"">
+                <SelectTrigger Width=""Width.IsFull"">
+                    <SelectValue Placeholder=""Language"" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        @foreach (var option in LanguageOptions)
+                        {
+                            <SelectItem TValue=""string"" ItemValue=""@option.Value"" Text=""@option.Label"" />
+                        }
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </Field>
+
+        <Field>
+            <FieldLabel>Theme</FieldLabel>
+            <Select TValue=""string"" @bind-SelectedValue=""_theme"">
+                <SelectTrigger Width=""Width.IsFull"">
+                    <SelectValue Placeholder=""Theme"" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        @foreach (var option in ThemeOptions)
+                        {
+                            <SelectItem TValue=""string"" ItemValue=""@option.Value"" Text=""@option.Label"" />
+                        }
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </Field>
+
+        <Div Class=""grid grid-cols-3 gap-2 self-end sm:col-span-2 lg:col-span-1 lg:min-w-64"">
+            <Field Class=""items-start gap-2 rounded-md border bg-background p-2"">
+                <Check Checked=""_wordWrap"" CheckedChanged=""v => _wordWrap = v"">Wrap</Check>
+            </Field>
+            <Field Class=""items-start gap-2 rounded-md border bg-background p-2"">
+                <Check Checked=""_minimap"" CheckedChanged=""v => _minimap = v"">Map</Check>
+            </Field>
+            <Field Class=""items-start gap-2 rounded-md border bg-background p-2"">
+                <Check Checked=""_autoHeight"" CheckedChanged=""v => _autoHeight = v"">Auto</Check>
+            </Field>
+        </Div>
+    </Div>
+
+    <CodeEditor @bind-Text=""_text""
+                Language=""@_language""
+                Theme=""@_theme""
+                WordWrap=""@_wordWrap""
+                Minimap=""@_minimap""
+                AutoHeight=""@_autoHeight""
+                MinLines=""8""
+                MaxLines=""18""
+                Style=""@(!_autoHeight ? ""height: 320px"" : null)"" />
+</Div>";
 
     private const string ReadOnlyDemoCode =
 @"<CodeEditor Text=""@ReadOnlyText""
@@ -199,12 +250,23 @@ console.log(message);";
             Minimap=""false"" />";
 
     private const string AutoHeightDemoCode =
-@"<CodeEditor @bind-Text=""_autoHeightText1""
-            Language=""javascript""
-            AutoHeight=""true""
-            MinLines=""4""
-            MaxLines=""10""
-            Minimap=""false"" />";
+@"<Div Class=""grid w-full gap-4 md:grid-cols-2"">
+    <CodeEditor @bind-Text=""_autoHeightText1""
+                Language=""javascript""
+                Theme=""@_theme""
+                AutoHeight=""true""
+                MinLines=""4""
+                MaxLines=""10""
+                Minimap=""false"" />
+
+    <CodeEditor @bind-Text=""_autoHeightText2""
+                Language=""json""
+                Theme=""@_theme""
+                AutoHeight=""true""
+                MinLines=""6""
+                MaxLines=""null""
+                Minimap=""false"" />
+</Div>";
 
     private readonly record struct SelectOption(string Value, string Label);
 }

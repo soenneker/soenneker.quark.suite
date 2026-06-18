@@ -587,222 +587,330 @@
         </SidebarProvider>
         """;
 
-    private const string ComposedMenuCode =
-        """
-        <SidebarProvider Open="_composedSidebarOpen" OpenChanged="OnComposedSidebarOpenChanged">
-            <Sidebar Collapsible="SidebarCollapsible.None">
-                <SidebarHeader>
-                    <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Workspace</Paragraph>
-                    <SidebarInput Placeholder="Search..." Type="search" />
-                </SidebarHeader>
-
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                        <SidebarGroupAction AsChild="true">
-                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs">
-                                <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
-                                <Span class="sr-only">Add project</Span>
-                            </Button>
-                        </SidebarGroupAction>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton AsChild="true" Active="true" Tooltip="Dashboard">
-                                        <Anchor Href="">
-                                            <Icon Name="LucideIcon.House" Size="Quark.Size.Is4" />
-                                            <Span>Dashboard</Span>
-                                        </Anchor>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton Open="_workspaceMenuOpen" OnClick="ToggleWorkspaceMenu" Tooltip="Projects">
-                                        <Icon Name="LucideIcon.Folder" Size="Quark.Size.Is4" />
-                                        <Span>Projects</Span>
-                                        <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4" />
-                                    </SidebarMenuButton>
-                                    <SidebarMenuAction AsChild="true" ShowOnHover="true">
-                                        <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs">
-                                            <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
-                                            <Span class="sr-only">Create project</Span>
-                                        </Button>
-                                    </SidebarMenuAction>
-                                    <SidebarMenuSub>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton AsChild="true">
-                                                <Anchor Href="card">
-                                                    <Span>Design System</Span>
-                                                </Anchor>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton AsChild="true" Active="true">
-                                                <Anchor Href="sidebar">
-                                                    <Span>Sidebar Refresh</Span>
-                                                </Anchor>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton AsChild="true" Tooltip="Inbox">
-                                        <Anchor Href="input">
-                                            <Icon Name="LucideIcon.Mail" Size="Quark.Size.Is4" />
-                                            <Span>Inbox</Span>
-                                        </Anchor>
-                                    </SidebarMenuButton>
-                                    <SidebarMenuBadge>12</SidebarMenuBadge>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-                <SidebarFooter>...</SidebarFooter>
-                <SidebarRail ShowTrigger="true" />
-            </Sidebar>
-            <SidebarInset>...</SidebarInset>
-        </SidebarProvider>
-        """;
-
-    private const string RtlSupportCode =
-        """
-        <DirectionProvider Dir="rtl">
-            <SidebarProvider DefaultOpen="true">
-                <Sidebar Side="SidebarSide.Right" Collapsible="SidebarCollapsible.None">
+    private const string ComposedMenuCode ="""
+        <Div id="sidebar-composed-demo" Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+            <SidebarProvider Open="_composedSidebarOpen" OpenChanged="OnComposedSidebarOpenChanged" Class="h-[31rem]">
+                <Sidebar Collapsible="SidebarCollapsible.None">
                     <SidebarHeader>
-                        <Paragraph>مساحة العمل</Paragraph>
+                        <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Workspace</Paragraph>
+                        <SidebarInput Placeholder="Search..." Type="search" />
                     </SidebarHeader>
+
                     <SidebarContent>
                         <SidebarGroup>
-                            <SidebarGroupLabel>التنقل</SidebarGroupLabel>
+                            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                            <SidebarGroupAction AsChild="true">
+                                <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs">
+                                    <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
+                                    <Span class="sr-only">Add project</Span>
+                                </Button>
+                            </SidebarGroupAction>
                             <SidebarGroupContent>
                                 <SidebarMenu>
                                     <SidebarMenuItem>
-                                        <SidebarMenuButton Active="true">
-                                            <Icon Name="LucideIcon.House" />
-                                            <Span>الرئيسية</Span>
+                                        <SidebarMenuButton AsChild="true" Active="true" Tooltip="Dashboard">
+                                            <Anchor Href="">
+                                                <Icon Name="LucideIcon.House" Size="Quark.Size.Is4" />
+                                                <Span>Dashboard</Span>
+                                            </Anchor>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton Open="_workspaceMenuOpen" OnClick="ToggleWorkspaceMenu" Tooltip="Projects">
+                                            <Icon Name="LucideIcon.Folder" Size="Quark.Size.Is4" />
+                                            <Span>Projects</Span>
+                                            <Icon Name="LucideIcon.ChevronRight" Class="@($"ml-auto size-4 transition-transform {(_workspaceMenuOpen ? "rotate-90" : string.Empty)}")" />
+                                        </SidebarMenuButton>
+                                        <SidebarMenuAction AsChild="true" ShowOnHover="true">
+                                            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs">
+                                                <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
+                                                <Span class="sr-only">Create project</Span>
+                                            </Button>
+                                        </SidebarMenuAction>
+                                        @if (_workspaceMenuOpen)
+                                        {
+                                            <SidebarMenuSub>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuSubButton AsChild="true">
+                                                        <Anchor Href="card">
+                                                            <Span>Design System</Span>
+                                                        </Anchor>
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuSubButton AsChild="true" Active="true">
+                                                        <Anchor Href="sidebar">
+                                                            <Span>Sidebar Refresh</Span>
+                                                        </Anchor>
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            </SidebarMenuSub>
+                                        }
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton AsChild="true" Tooltip="Inbox">
+                                            <Anchor Href="input">
+                                                <Icon Name="LucideIcon.Mail" Size="Quark.Size.Is4" />
+                                                <Span>Inbox</Span>
+                                            </Anchor>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuBadge>12</SidebarMenuBadge>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        <SidebarSeparator />
+
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Team</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton AsChild="true" Tooltip="Members">
+                                            <Anchor Href="/components/avatar">
+                                                <Icon Name="LucideIcon.User" Size="Quark.Size.Is4" />
+                                                <Span>Members</Span>
+                                            </Anchor>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 </SidebarMenu>
                             </SidebarGroupContent>
                         </SidebarGroup>
                     </SidebarContent>
+
+                    <SidebarFooter>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" ButtonSize="SidebarMenuButtonSize.Lg" Tooltip="Jake Stevenson">
+                                    <Span class="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">JS</Span>
+                                    <Div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                        <Span class="truncate font-medium">Jake Stevenson</Span>
+                                        <Span class="truncate text-xs text-sidebar-foreground/70">Product Engineering</Span>
+                                    </Div>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarFooter>
+
+                    <SidebarRail ShowTrigger="true" />
                 </Sidebar>
-                <SidebarInset>...</SidebarInset>
+
+                <SidebarInset>
+                    <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
+                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Icon collapse, nested submenu, and hover action are all active here.</Paragraph>
+                    </Div>
+                    <Div class="p-6">
+                        <Div class="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+                            Use one composed shell to exercise the sidebar primitives together instead of scattering them across unrelated demos.
+                        </Div>
+                    </Div>
+                </SidebarInset>
             </SidebarProvider>
+        </Div>
+        """;
+
+    private const string RtlSupportCode ="""
+        <DirectionProvider Dir="rtl">
+            <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+                <SidebarProvider DefaultOpen="true" Class="h-[16rem]">
+                    <Sidebar Side="SidebarSide.Right" Collapsible="SidebarCollapsible.None">
+                        <SidebarHeader>
+                            <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">مساحة العمل</Paragraph>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>التنقل</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton Active="true">
+                                                <Icon Name="LucideIcon.House" Size="Quark.Size.Is4" />
+                                                <Span>الرئيسية</Span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>
+                                                <Icon Name="LucideIcon.Settings" Size="Quark.Size.Is4" />
+                                                <Span>الإعدادات</Span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                    </Sidebar>
+                    <SidebarInset>
+                        <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
+                            <SidebarTrigger />
+                            <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">واجهة من اليمين إلى اليسار</Paragraph>
+                        </Div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </Div>
         </DirectionProvider>
         """;
 
-    private const string CollapsibleGroupCode =
-        """
-        <SidebarProvider DefaultOpen="true">
-            <Sidebar Collapsible="SidebarCollapsible.None">
-                <SidebarContent>
-                    <Collapsible Open="_resourcesOpen" OpenChanged="OnResourcesOpenChanged" Class="group/collapsible">
+    private const string CollapsibleGroupCode ="""
+        <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+            <SidebarProvider DefaultOpen="true" Class="h-[20rem]">
+                <Sidebar Collapsible="SidebarCollapsible.None">
+                    <SidebarContent>
+                        <Collapsible Open="_resourcesOpen" OpenChanged="OnResourcesOpenChanged" Class="group/collapsible">
+                            <SidebarGroup>
+                                <SidebarGroupLabel AsChild="true">
+                                    <CollapsibleTrigger>
+                                        <Span>Resources</Span>
+                                        <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                    </CollapsibleTrigger>
+                                </SidebarGroupLabel>
+                                <CollapsibleContent>
+                                    <SidebarGroupContent>
+                                        <SidebarMenu>
+                                            <SidebarMenuItem>
+                                                <SidebarMenuButton AsChild="true">
+                                                    <Anchor Href="card">
+                                                        <Icon Name="LucideIcon.File" Size="Quark.Size.Is4" />
+                                                        <Span>Component inventory</Span>
+                                                    </Anchor>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                            <SidebarMenuItem>
+                                                <SidebarMenuButton AsChild="true">
+                                                    <Anchor Href="validation-summary">
+                                                        <Icon Name="LucideIcon.Shield" Size="Quark.Size.Is4" />
+                                                        <Span>Accessibility audit</Span>
+                                                    </Anchor>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        </SidebarMenu>
+                                    </SidebarGroupContent>
+                                </CollapsibleContent>
+                            </SidebarGroup>
+                        </Collapsible>
+                    </SidebarContent>
+                </Sidebar>
+            </SidebarProvider>
+        </Div>
+        """;
+
+    private const string SkeletonCode ="""
+        <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+            <SidebarProvider DefaultOpen="true" Class="h-[15rem]">
+                <Sidebar Collapsible="SidebarCollapsible.None">
+                    <SidebarContent>
                         <SidebarGroup>
-                            <SidebarGroupLabel AsChild="true">
-                                <CollapsibleTrigger>
-                                    <Span>Resources</Span>
-                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4" />
-                                </CollapsibleTrigger>
-                            </SidebarGroupLabel>
-                            <CollapsibleContent>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>...</SidebarMenu>
-                                </SidebarGroupContent>
-                            </CollapsibleContent>
+                            <SidebarGroupLabel>Loading</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuSkeleton ShowIcon="true" />
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuSkeleton ShowIcon="true" />
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuSkeleton />
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
                         </SidebarGroup>
-                    </Collapsible>
-                </SidebarContent>
-            </Sidebar>
-        </SidebarProvider>
+                    </SidebarContent>
+                </Sidebar>
+            </SidebarProvider>
+        </Div>
         """;
 
-    private const string SkeletonCode =
-        """
-        <SidebarProvider DefaultOpen="true">
-            <Sidebar Collapsible="SidebarCollapsible.None">
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Loading</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuSkeleton ShowIcon="true" />
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuSkeleton ShowIcon="true" />
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuSkeleton />
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-            </Sidebar>
-        </SidebarProvider>
-        """;
+    private const string ControlledCode ="""
+        <Div id="sidebar-controlled-demo" Width="Width.IsFull" Space="Space.Y.Is4">
+            <Div Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
+                <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged" Class="h-[20rem]">
+                    <Sidebar Collapsible="SidebarCollapsible.None">
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>State</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton Tooltip="Dashboard state">
+                                                <Icon Name="LucideIcon.House" Size="Quark.Size.Is4" />
+                                                <Span>@(_controlledSidebarOpen ? "Expanded" : "Collapsed")</Span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                        <SidebarRail />
+                    </Sidebar>
 
-    private const string ControlledCode =
-        """
-        <Button ButtonSize="ButtonSize.Sm" OnClick="OpenControlledSidebar">Open</Button>
-        <Button Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" OnClick="CloseControlledSidebar">Close</Button>
-
-        <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged">
-            <Sidebar Collapsible="SidebarCollapsible.None">
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>State</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton Tooltip="Dashboard state">
-                                        <Icon Name="LucideIcon.House" Size="Quark.Size.Is4" />
-                                        <Span>@(_controlledSidebarOpen ? "Expanded" : "Collapsed")</Span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-                <SidebarRail />
-            </Sidebar>
-
-            <SidebarInset>
-                <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
-                    <SidebarTrigger />
-                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Current state: @(_controlledSidebarOpen ? "open" : "closed")</Paragraph>
-                </Div>
-            </SidebarInset>
-        </SidebarProvider>
-        """;
-
-    private const string FullScreenMobileCode =
-        """
-        <SidebarProvider IsMobile="true"
-                         OpenMobile="_mobileSidebarOpen"
-                         OpenMobileChanged="OnMobileSidebarOpenChanged"
-                         SidebarWidthMobile="100vw">
-            <Sidebar Collapsible="SidebarCollapsible.None"
-                     MobileMode="SidebarMobileMode.FullScreen"
-                     MobileShowCloseButton="false"
-                     MobileClass="bg-background">
-                <MobileContent>
-                    <Div class="flex min-h-0 flex-1 flex-col">
-                        <Div class="border-b bg-background px-6 py-4">
-                            <Div class="flex items-center gap-3">
-                                <SidebarTrigger Class="size-8 rounded-md p-0 hover:bg-accent">
-                                    <Icon Name="LucideIcon.X" Size="Quark.Size.Is5" />
-                                    <Span class="sr-only">Close menu</Span>
-                                </SidebarTrigger>
-                                <Paragraph class="text-base font-semibold">Menu</Paragraph>
+                    <SidebarInset>
+                        <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
+                            <SidebarTrigger id="sidebar-controlled-trigger" Class="relative z-50" />
+                            <Paragraph id="sidebar-controlled-state" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Current state: @(_controlledSidebarOpen ? "open" : "closed")</Paragraph>
+                            <Div Margin="Margin.Auto.FromStart" Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
+                                <Button id="sidebar-controlled-open"
+                                        Type="@ButtonType.Button"
+                                        ButtonSize="ButtonSize.Sm"
+                                        OnClick="OpenControlledSidebar">
+                                    Open
+                                </Button>
+                                <Button id="sidebar-controlled-close"
+                                        Type="@ButtonType.Button"
+                                        Variant="ButtonVariant.Outline"
+                                        ButtonSize="ButtonSize.Sm"
+                                        OnClick="CloseControlledSidebar">
+                                    Close
+                                </Button>
                             </Div>
                         </Div>
-                    </Div>
-                </MobileContent>
-            </Sidebar>
-        </SidebarProvider>
+                        <Div Padding="Padding.Is6" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                            This example is controlled entirely by the parent page and mirrors the standard `open` plus `onOpenChange` pattern.
+                        </Div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </Div>
+        </Div>
+        """;
+
+    private const string FullScreenMobileCode ="""
+        <Div id="sidebar-mobile-demo" Width="Width.IsFull" Space="Space.Y.Is4">
+            <SidebarProvider IsMobile="true"
+                             OpenMobile="_mobileSidebarOpen"
+                             OpenMobileChanged="OnMobileSidebarOpenChanged"
+                             SidebarWidthMobile="100vw">
+                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3">
+                    <SidebarTrigger id="sidebar-mobile-open-trigger" />
+                    <Paragraph id="sidebar-mobile-state" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Mobile menu is @(_mobileSidebarOpen ? "open" : "closed")
+                    </Paragraph>
+                </Div>
+
+                <Sidebar Collapsible="SidebarCollapsible.None"
+                         MobileMode="SidebarMobileMode.FullScreen"
+                         MobileShowCloseButton="false"
+                         MobileClass="bg-background">
+                    <MobileContent>
+                        <Div id="sidebar-mobile-sheet-content" class="flex min-h-0 flex-1 flex-col">
+                            <Div class="border-b bg-background px-6 py-4">
+                                <Div class="flex items-center gap-3">
+                                    <SidebarTrigger id="sidebar-mobile-close-trigger" Class="size-8 rounded-md p-0 hover:bg-accent">
+                                        <Icon Name="LucideIcon.X" Size="Quark.Size.Is5" />
+                                        <Span class="sr-only">Close menu</Span>
+                                    </SidebarTrigger>
+                                    <Paragraph class="text-base font-semibold">Menu</Paragraph>
+                                </Div>
+                            </Div>
+                            <Div class="flex flex-col gap-1 p-6">
+                                <Anchor Href="" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Introduction</Anchor>
+                                <Anchor Href="components" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Components</Anchor>
+                                <Anchor Href="validation-summary" class="rounded-md px-3 py-2 text-sm hover:bg-accent">Validation</Anchor>
+                            </Div>
+                        </Div>
+                    </MobileContent>
+                </Sidebar>
+            </SidebarProvider>
+        </Div>
         """;
 
 

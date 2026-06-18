@@ -116,39 +116,110 @@
     private int _basicStep = 2;
     private int _forceMountedStep = 1;
 
-    private const string BasicStepperCode = """
-<Stepper Value="2">
+    private const string BasicStepperCode ="""
+<Stepper Value="@_basicStep" ValueChanged="value => _basicStep = value">
     <StepperNav>
         <StepperItem Step="1">
             <StepperTrigger>
                 <StepperIndicator>1</StepperIndicator>
-                <StepperTitle>Account</StepperTitle>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Account</StepperTitle>
+                    <StepperDescription>Create profile</StepperDescription>
+                </Div>
             </StepperTrigger>
             <StepperSeparator />
         </StepperItem>
+        <StepperItem Step="2">
+            <StepperTrigger>
+                <StepperIndicator>2</StepperIndicator>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Security</StepperTitle>
+                    <StepperDescription>Verify access</StepperDescription>
+                </Div>
+            </StepperTrigger>
+            <StepperSeparator />
+        </StepperItem>
+        <StepperItem Step="3">
+            <StepperTrigger>
+                <StepperIndicator>3</StepperIndicator>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Finish</StepperTitle>
+                    <StepperDescription>Review setup</StepperDescription>
+                </Div>
+            </StepperTrigger>
+        </StepperItem>
     </StepperNav>
+
+    <StepperPanel Class="mt-6 rounded-lg border p-4">
+        <StepperContent Value="1">
+            <Text>Account details are active.</Text>
+        </StepperContent>
+        <StepperContent Value="2">
+            <Text>Security verification is active.</Text>
+        </StepperContent>
+        <StepperContent Value="3">
+            <Text>Final review is active.</Text>
+        </StepperContent>
+    </StepperPanel>
 </Stepper>
 """;
 
-    private const string VerticalStepperCode = """
+    private const string VerticalStepperCode ="""
 <Stepper Orientation="vertical" Value="2">
     <StepperNav>
         <StepperItem Step="1" Completed="true">
             <StepperTrigger>
                 <StepperIndicator>1</StepperIndicator>
-                <StepperTitle>Draft</StepperTitle>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Draft</StepperTitle>
+                    <StepperDescription>Initial content</StepperDescription>
+                </Div>
             </StepperTrigger>
             <StepperSeparator />
+        </StepperItem>
+        <StepperItem Step="2">
+            <StepperTrigger>
+                <StepperIndicator>2</StepperIndicator>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Review</StepperTitle>
+                    <StepperDescription>Current stage</StepperDescription>
+                </Div>
+            </StepperTrigger>
+            <StepperSeparator />
+        </StepperItem>
+        <StepperItem Step="3" Disabled="true">
+            <StepperTrigger>
+                <StepperIndicator>3</StepperIndicator>
+                <Div Space="Space.Y.Is1">
+                    <StepperTitle>Publish</StepperTitle>
+                    <StepperDescription>Locked until approval</StepperDescription>
+                </Div>
+            </StepperTrigger>
         </StepperItem>
     </StepperNav>
 </Stepper>
 """;
 
-    private const string ForceMountedCode = """
-<Stepper Value="1">
-    <StepperPanel>
-        <StepperContent Value="1" ForceMount="true">Alpha</StepperContent>
-        <StepperContent Value="2" ForceMount="true">Beta</StepperContent>
+    private const string ForceMountedCode ="""
+<Stepper Value="@_forceMountedStep" ValueChanged="value => _forceMountedStep = value">
+    <StepperNav>
+        <StepperItem Step="1">
+            <StepperTrigger>
+                <StepperIndicator>A</StepperIndicator>
+                <StepperTitle>Alpha</StepperTitle>
+            </StepperTrigger>
+            <StepperSeparator />
+        </StepperItem>
+        <StepperItem Step="2" Loading="true">
+            <StepperTrigger>
+                <StepperIndicator>B</StepperIndicator>
+                <StepperTitle>Beta</StepperTitle>
+            </StepperTrigger>
+        </StepperItem>
+    </StepperNav>
+    <StepperPanel Class="mt-6 rounded-lg border p-4">
+        <StepperContent Value="1" ForceMount="true">Alpha content remains mounted.</StepperContent>
+        <StepperContent Value="2" ForceMount="true">Beta content remains mounted.</StepperContent>
     </StepperPanel>
 </Stepper>
 """;

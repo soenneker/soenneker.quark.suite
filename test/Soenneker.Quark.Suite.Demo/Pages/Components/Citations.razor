@@ -125,40 +125,89 @@
     private static readonly RenderFragment CustomLabel = builder => builder.AddContent(0, "github.com");
 
     private const string DefaultCode =
-@"<Citation Citations=""@([CitationSourceInput.Create(""https://example.com"", ""Example"", ""Description"")])"">
-    <CitationTrigger />
-    <CitationContent>
-        <CitationItem />
-    </CitationContent>
-</Citation>";
+@"<Div Class=""flex flex-wrap items-center justify-center gap-3"">
+    @foreach (var citation in DefaultCitations)
+    {
+        <Citation Citations=""@([citation])"">
+            <CitationTrigger />
+            <CitationContent>
+                <CitationItem />
+            </CitationContent>
+        </Citation>
+    }
+</Div>";
 
     private const string MultipleCode =
-@"<Citation Citations=""@Sources"">
-    <CitationTrigger />
-    <CitationContent>
-        <CitationCarouselHeader>
-            <CitationSourcesBadge />
-            <CitationCarouselPagination>
-                <CitationCarouselPrev />
-                <CitationCarouselIndex />
-                <CitationCarouselNext />
-            </CitationCarouselPagination>
-        </CitationCarouselHeader>
-        <CitationItem />
-    </CitationContent>
-</Citation>";
+@"<Div Class=""flex flex-wrap items-center justify-center gap-3"">
+    <Citation Citations=""@AfricaSources"">
+        <CitationTrigger />
+        <CitationContent>
+            <CitationCarouselHeader>
+                <CitationSourcesBadge />
+                <CitationCarouselPagination>
+                    <CitationCarouselPrev />
+                    <CitationCarouselIndex />
+                    <CitationCarouselNext />
+                </CitationCarouselPagination>
+            </CitationCarouselHeader>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+    <Citation Citations=""@FrontendSources"">
+        <CitationTrigger />
+        <CitationContent>
+            <CitationCarouselHeader>
+                <CitationSourcesBadge />
+                <CitationCarouselPagination>
+                    <CitationCarouselPrev />
+                    <CitationCarouselIndex />
+                    <CitationCarouselNext />
+                </CitationCarouselPagination>
+            </CitationCarouselHeader>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+</Div>";
 
     private const string TriggerCode =
-@"<CitationTrigger Label=""@CustomLabel"" />
-<CitationTrigger ShowFavicon=""false"" />
-<CitationTrigger ShowSiteName=""false"" />";
+@"<Div Class=""flex flex-wrap items-center justify-center gap-3"">
+    <Citation Citations=""@GithubSources"">
+        <CitationTrigger Label=""@CustomLabel"" />
+        <CitationContent>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+    <Citation Citations=""@GithubSources"">
+        <CitationTrigger ShowFavicon=""false"" />
+        <CitationContent>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+    <Citation Citations=""@GithubSources"">
+        <CitationTrigger ShowSiteName=""false"" />
+        <CitationContent>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+</Div>";
 
     private const string InlineCode =
-@"Africa's largest country by area is Algeria
-<Citation Citations=""@Sources"">
-    <CitationTrigger />
-    <CitationContent>
-        <CitationItem />
-    </CitationContent>
-</Citation>";
+@"<Paragraph Class=""mx-auto max-w-xl text-center text-sm leading-6"">
+    Africa's largest country by area is Algeria
+    <Citation Citations=""@AfricaSources"">
+        <CitationTrigger />
+        <CitationContent>
+            <CitationCarouselHeader>
+                <CitationSourcesBadge />
+                <CitationCarouselPagination>
+                    <CitationCarouselPrev />
+                    <CitationCarouselIndex />
+                    <CitationCarouselNext />
+                </CitationCarouselPagination>
+            </CitationCarouselHeader>
+            <CitationItem />
+        </CitationContent>
+    </Citation>
+    while population rankings can vary by source and date.
+</Paragraph>";
 }

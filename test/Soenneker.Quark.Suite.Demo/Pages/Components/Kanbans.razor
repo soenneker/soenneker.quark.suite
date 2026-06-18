@@ -52,7 +52,7 @@
 @code {
 private const string KanbanCode =
 @"<Kanban Class=""h-[40rem]"">
-    <KanbanBoard ListId=""kanban-board"" HandleOnly=""true"" OnReorder=""HandleColumnReorder"">
+    <KanbanBoard Id=""kanban-board-demo"" ListId=""kanban-board"" HandleOnly=""true"" OnReorder=""HandleColumnReorder"">
         @foreach (var column in _columns)
         {
             <KanbanColumn @key=""column.Id"" Value=""@column.Id"">
@@ -67,7 +67,20 @@ private const string KanbanCode =
                     {
                         <KanbanItem @key=""task.Id"" Value=""@task.Id"">
                             <KanbanItemHandle>
-                                ...
+                                <Div Space=""Space.Y.Is3"" Width=""Width.IsFull"">
+                                    <Div Space=""Space.Y.Is1"">
+                                        <Div Display=""Display.Flex"" ItemsAlign=""Items.Start"" Justify=""Justify.Between"" Gap=""Gap.Is2"">
+                                            <Strong Class=""text-sm leading-5"">@task.Title</Strong>
+                                            <Icon Name=""LucideIcon.GripVertical"" Class=""mt-0.5 text-muted-foreground opacity-60 transition-opacity group-hover/kanban-item:opacity-100"" />
+                                        </Div>
+                                        <Paragraph Class=""m-0 text-xs leading-5 text-muted-foreground"">@task.Description</Paragraph>
+                                    </Div>
+
+                                    <Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Between"" Gap=""Gap.Is2"">
+                                        <Pill>@task.Priority</Pill>
+                                        <Small Class=""text-muted-foreground"">@task.Owner</Small>
+                                    </Div>
+                                </Div>
                             </KanbanItemHandle>
                         </KanbanItem>
                     }

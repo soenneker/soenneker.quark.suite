@@ -357,56 +357,96 @@
     private sealed record VisibleTreeNode(TreeDemoNode Node, int Level);
 
     private const string BasicCode =
-@"<Tree Indent=""20"" AriaLabel=""CRM navigation"">
-    @foreach (var item in GetVisibleNodes())
-    {
-        <TreeItem Level=""@item.Level""
-                  Folder=""@item.Node.HasChildren""
-                  Expanded=""@expanded.Contains(item.Node.Id)""
-                  Selected=""@(selectedId == item.Node.Id)""
-                  Click=""@(_ => OnNodeClick(item.Node))"">
-            <TreeItemLabel>@item.Node.Name</TreeItemLabel>
-        </TreeItem>
-    }
-</Tree>";
+@"<Div Class=""mx-auto w-full max-w-xs"">
+    <Tree Indent=""20"" AriaLabel=""CRM navigation"">
+        @foreach (var item in GetVisibleCrmNodes())
+        {
+            <TreeItem @key=""item.Node.Id""
+                      Level=""@item.Level""
+                      Folder=""@item.Node.HasChildren""
+                      Expanded=""@_expandedCrm.Contains(item.Node.Id)""
+                      Selected=""@(_selectedCrmId == item.Node.Id)""
+                      Click=""@(_ => OnCrmNodeClick(item.Node))""
+                      KeyDown=""@(e => OnCrmNodeKeyDown(item.Node, e))"">
+                <TreeItemLabel>@item.Node.Name</TreeItemLabel>
+            </TreeItem>
+        }
+    </Tree>
+</Div>";
 
     private const string IndentedCode =
-@"<Tree Indent=""20""
-      ToggleIconType=""TreeToggleIconType.PlusMinus""
-      Class=""relative before:absolute before:inset-0 before:-ms-1.25 before:bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)))]"">
-    <TreeItem Level=""@item.Level"" Folder=""@item.Node.HasChildren"" Expanded=""@expanded.Contains(item.Node.Id)"">
-        <TreeItemLabel Class=""relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10 before:bg-background"">
-            <Icon Name=""LucideIcon.Folder"" />
-            @item.Node.Name
-        </TreeItemLabel>
-    </TreeItem>
-</Tree>";
+@"<Div Class=""mx-auto w-full max-w-xs"">
+    <Tree Indent=""20""
+          ToggleIconType=""TreeToggleIconType.PlusMinus""
+          Class=""relative before:absolute before:inset-0 before:-ms-1.25 before:bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)))]""
+          AriaLabel=""Project tree"">
+        @foreach (var item in GetVisibleProjectNodes())
+        {
+            <TreeItem @key=""item.Node.Id""
+                      Level=""@item.Level""
+                      Folder=""@item.Node.HasChildren""
+                      Expanded=""@_expandedProject.Contains(item.Node.Id)""
+                      Selected=""@(_selectedProjectId == item.Node.Id)""
+                      Click=""@(_ => OnProjectNodeClick(item.Node))""
+                      KeyDown=""@(e => OnProjectNodeKeyDown(item.Node, e))"">
+                <TreeItemLabel Class=""relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10 before:bg-background"">
+                    <Span Margin=""Margin.Is1.FromStart"" Display=""Display.Flex"" ItemsAlign=""Items.Center"" Gap=""Gap.Is2"">
+                        <Icon Name=""@(item.Node.HasChildren ? (_expandedProject.Contains(item.Node.Id) ? LucideIcon.FolderOpen : LucideIcon.Folder) : LucideIcon.File)"" Class=""text-muted-foreground size-4"" />
+                        @item.Node.Name
+                    </Span>
+                </TreeItemLabel>
+            </TreeItem>
+        }
+    </Tree>
+</Div>";
 
     private const string FileExplorerCode =
-@"<Tree Indent=""20"" AriaLabel=""File explorer"">
-    <TreeItem Level=""0"" Folder=""true"" Expanded=""true"">
-        <TreeItemLabel>
-            <Icon Name=""LucideIcon.Folder"" />
-            components
-        </TreeItemLabel>
-    </TreeItem>
-    <TreeItem Level=""1"">
-        <TreeItemLabel>
-            <Icon Name=""LucideIcon.File"" />
-            button.tsx
-        </TreeItemLabel>
-    </TreeItem>
-</Tree>";
+@"<Card CardSize=""CardSize.Sm"" Class=""mx-auto w-full max-w-[18rem]"">
+    <CardHeader>
+        <CardTitle>Explorer</CardTitle>
+        <CardDescription>app</CardDescription>
+    </CardHeader>
+    <CardBody>
+        <Tree Indent=""20"" AriaLabel=""File explorer"">
+            @foreach (var item in GetVisibleFileNodes())
+            {
+                <TreeItem @key=""item.Node.Id""
+                          Level=""@item.Level""
+                          Folder=""@item.Node.HasChildren""
+                          Expanded=""@_expandedFiles.Contains(item.Node.Id)""
+                          Selected=""@(_selectedFileId == item.Node.Id)""
+                          Click=""@(_ => OnFileNodeClick(item.Node))""
+                          KeyDown=""@(e => OnFileNodeKeyDown(item.Node, e))"">
+                    <TreeItemLabel>
+                        <Icon Name=""@GetFileIcon(item.Node)"" Class=""@GetFileIconClass(item.Node)"" />
+                        @item.Node.Name
+                    </TreeItemLabel>
+                </TreeItem>
+            }
+        </Tree>
+    </CardBody>
+</Card>";
 
     private const string PermissionsCode =
-@"<Tree Indent=""22"" ToggleIconType=""TreeToggleIconType.PlusMinus"">
-    <TreeItem Level=""@item.Level""
-              Folder=""@item.Node.HasChildren""
-              Selected=""@checkedIds.Contains(item.Node.Id)"">
-        <TreeItemLabel>
-            <Check TValue=""bool"" Checked=""@checkedIds.Contains(item.Node.Id)"" />
-            @item.Node.Name
-        </TreeItemLabel>
-    </TreeItem>
-</Tree>";
+@"<Div Class=""mx-auto w-full max-w-xs"">
+    <Tree Indent=""22"" ToggleIconType=""TreeToggleIconType.PlusMinus"" AriaLabel=""Permissions"">
+        @foreach (var item in GetVisiblePermissionNodes())
+        {
+            <TreeItem @key=""item.Node.Id""
+                      Level=""@item.Level""
+                      Folder=""@item.Node.HasChildren""
+                      Expanded=""@_expandedPermissions.Contains(item.Node.Id)""
+                      Selected=""@_checkedPermissions.Contains(item.Node.Id)""
+                      Click=""@(_ => OnPermissionNodeClick(item.Node))""
+                      KeyDown=""@(e => OnPermissionNodeKeyDown(item.Node, e))"">
+                <TreeItemLabel>
+                    <Check TValue=""bool""
+                           Checked=""@_checkedPermissions.Contains(item.Node.Id)""
+                           CheckedChanged=""@(value => OnPermissionCheckedChanged(item.Node, value))"" />
+                    @item.Node.Name
+                </TreeItemLabel>
+            </TreeItem>
+        }
+    </Tree>
+</Div>";
 }

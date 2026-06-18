@@ -142,22 +142,43 @@
         "preview relative flex min-h-72 w-full items-center justify-center overflow-hidden p-10";
 
     private const string BasicCode =
-@"<Button Variant=""ButtonVariant.Outline"" OnClick=""OpenBasicWindow"">Open Window</Button>
+@"<Div Class=""flex flex-wrap items-center gap-2"">
+    <Button Variant=""ButtonVariant.Outline"" OnClick=""OpenBasicWindow"">Open Window</Button>
+    <Button Variant=""ButtonVariant.Ghost"" OnClick=""CenterBasicWindow"">Center</Button>
+</Div>
 
 <FloatingWindow @ref=""_basicWindow""
                 Title=""Workspace""
                 @bind-Visible=""_basicVisible""
                 Options=""@BasicOptions"">
     <Div Space=""Space.Y.Is4"">
-        <H4>Lead queue</H4>
-        <Paragraph Class=""text-sm text-muted-foreground"">
-            Drag the title bar or resize from the edges.
-        </Paragraph>
+        <Div Space=""Space.Y.Is1"">
+            <H4>Lead queue</H4>
+            <Paragraph Class=""text-sm text-muted-foreground"">
+                Drag the title bar or resize from the edges.
+            </Paragraph>
+        </Div>
+        <Div Class=""grid gap-2"">
+            <Div Class=""flex items-center justify-between rounded-md border border-border px-3 py-2"">
+                <Span TextSize=""TextSize.Sm"">New companies</Span>
+                <Badge>128</Badge>
+            </Div>
+            <Div Class=""flex items-center justify-between rounded-md border border-border px-3 py-2"">
+                <Span TextSize=""TextSize.Sm"">Ready for review</Span>
+                <Badge Variant=""BadgeVariant.Secondary"">34</Badge>
+            </Div>
+        </Div>
     </Div>
 </FloatingWindow>";
 
     private const string CustomHeaderCode =
-@"<FloatingWindow Title=""Inspector"" @bind-Visible=""_customHeaderVisible"">
+@"<Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => _customHeaderVisible = true)"">Open Custom Header</Button>
+
+<FloatingWindow Title=""Inspector""
+                @bind-Visible=""_customHeaderVisible""
+                InitialX=""160""
+                InitialY=""180""
+                Options=""@CustomHeaderOptions"">
     <HeaderContent>
         <Div Class=""flex min-w-0 flex-1 items-center justify-between gap-3"">
             <Div Class=""min-w-0"">
@@ -167,28 +188,26 @@
             <Badge Variant=""BadgeVariant.Outline"">Live</Badge>
         </Div>
     </HeaderContent>
-
-    <Div Class=""grid gap-3"">
-        <Field>
-            <Label For=""floating-window-company"">Company</Label>
-            <Input Id=""floating-window-company"" Value=""Acme Industries"" />
-        </Field>
-    </Div>
+    <ChildContent>
+        <Div Class=""grid gap-3"">
+            <Field>
+                <Label For=""floating-window-company"">Company</Label>
+                <Input Id=""floating-window-company"" Value=""Acme Industries"" />
+            </Field>
+            <Field>
+                <Label For=""floating-window-owner"">Owner</Label>
+                <Input Id=""floating-window-owner"" Value=""Maya Chen"" />
+            </Field>
+        </Div>
+    </ChildContent>
 </FloatingWindow>";
 
     private const string FixedSizeCode =
-@"<FloatingWindow Title=""Notes""
+@"<Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => _fixedSizeVisible = true)"">Open Fixed Size</Button>
+
+<FloatingWindow Title=""Notes""
                 @bind-Visible=""_fixedSizeVisible""
                 Options=""@FixedSizeOptions"">
-    <TextArea Value=""Call after the weekly sync."" Class=""min-h-32"" />
-</FloatingWindow>
-
-@code {
-    private static readonly FloatingWindowOptions FixedSizeOptions = new()
-    {
-        AutoSizeToContent = false,
-        Width = 420,
-        Height = 260
-    };
-}";
+    <TextArea Value=""Call after the weekly sync. Ask about current enrichment coverage and routing rules."" Class=""min-h-32"" />
+</FloatingWindow>";
 }

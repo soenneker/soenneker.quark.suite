@@ -64,25 +64,31 @@
     }
 
     private const string BasicCode =
-@"
-<PaymentCard CardNumber=""@_cardNumber""
-             CardHolderName=""@_cardHolderName""
-             ExpiryDate=""@_expiryDate""
-             Cvc=""@_cvc"" />
-";
+@"<Div Class=""grid w-full max-w-3xl gap-6 md:grid-cols-[20rem_1fr] md:items-center"">
+    <PaymentCard CardNumber=""@_cardNumber"" CardHolderName=""@_cardHolderName"" ExpiryDate=""@_expiryDate"" Cvc=""@_cvc"" />
+
+    <FieldGroup>
+        <Field>
+            <FieldLabel For=""payment-card-number"">Number</FieldLabel>
+            <Input Id=""payment-card-number"" @bind-Value=""_cardNumber"" />
+        </Field>
+        <Field>
+            <FieldLabel For=""payment-card-name"">Name</FieldLabel>
+            <Input Id=""payment-card-name"" @bind-Value=""_cardHolderName"" />
+        </Field>
+        <Div Class=""grid gap-4 sm:grid-cols-2"">
+            <Field>
+                <FieldLabel For=""payment-card-expiry"">Expiry</FieldLabel>
+                <Input Id=""payment-card-expiry"" @bind-Value=""_expiryDate"" />
+            </Field>
+            <Field>
+                <FieldLabel For=""payment-card-cvc"">CVC</FieldLabel>
+                <Input Id=""payment-card-cvc"" @bind-Value=""_cvc"" />
+            </Field>
+        </Div>
+    </FieldGroup>
+</Div>";
 
     private const string LastFourCode =
-@"
-<PaymentCard @ref=""_maskedCard"" FlipEnabled=""false"" />
-
-@code {
-    private PaymentCard? _maskedCard;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && _maskedCard is not null)
-            await _maskedCard.SetLast4(""4242"", ""visa"", ""visa"", ""standard"");
-    }
-}
-";
+@"<PaymentCard @ref=""_maskedCard"" FlipEnabled=""false"" />";
 }

@@ -189,40 +189,124 @@
     }
 
     private const string OverviewCode =
-@"<DateNow />
-<DateRelative Value=""DateTimeOffset.UtcNow.AddSeconds(-45)"" />
-<DateUntil Value=""DateTimeOffset.UtcNow.AddMinutes(3)"" />
-<DateCalendar Value=""DateTimeOffset.UtcNow"" />";
+@"<Div Class=""grid w-full gap-4 md:grid-cols-2"">
+    <Card Class=""rounded-lg"">
+        <CardHeader Class=""pb-2"">
+            <CardTitle Class=""text-sm"">Current time</CardTitle>
+            <CardDescription>Updates on meaningful display boundaries.</CardDescription>
+        </CardHeader>
+        <CardBody>
+            <DateNow Class=""text-lg font-semibold"" data-testid=""date-now-basic"" />
+        </CardBody>
+    </Card>
+    <Card Class=""rounded-lg"">
+        <CardHeader Class=""pb-2"">
+            <CardTitle Class=""text-sm"">Calendar phrase</CardTitle>
+            <CardDescription>Readable labels for nearby dates.</CardDescription>
+        </CardHeader>
+        <CardBody>
+            <DateCalendar Value=""_today"" Class=""text-lg font-semibold"" />
+        </CardBody>
+    </Card>
+    <Card Class=""rounded-lg"">
+        <CardHeader Class=""pb-2"">
+            <CardTitle Class=""text-sm"">Relative</CardTitle>
+            <CardDescription>Smart seconds-to-days phrasing.</CardDescription>
+        </CardHeader>
+        <CardBody>
+            <DateRelative Value=""_nearNow"" Class=""text-lg font-semibold"" data-testid=""date-relative-live"" />
+        </CardBody>
+    </Card>
+    <Card Class=""rounded-lg"">
+        <CardHeader Class=""pb-2"">
+            <CardTitle Class=""text-sm"">Countdown</CardTitle>
+            <CardDescription>Stops updating once expired.</CardDescription>
+        </CardHeader>
+        <CardBody>
+            <DateUntil Value=""_countdownTarget"" Class=""text-lg font-semibold"" />
+        </CardBody>
+    </Card>
+</Div>";
 
     private const string DateNowCode =
-@"<DateNow />
-<DateNow Format=""HH:mm:ss"" />
-<DateNow AutoUpdate=""false"" />";
+@"<Div Class=""grid w-full gap-3 md:grid-cols-3"">
+    <DateExample Label=""Basic"">
+        <DateNow Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Custom format"">
+        <DateNow Format=""HH:mm:ss"" Class=""font-mono text-sm"" data-testid=""date-now-seconds"" />
+    </DateExample>
+    <DateExample Label=""Auto-update disabled"">
+        <DateNow AutoUpdate=""false"" Class=""font-medium text-muted-foreground"" />
+    </DateExample>
+</Div>";
 
     private const string RelativeCode =
-@"<DateRelative Value=""createdAt.AddHours(-2)"" />
-<DateRelative Value=""createdAt.AddDays(2)"" />
-<DateRelative Value=""createdAt.AddSeconds(-45)"" />";
+@"<Div Class=""grid w-full gap-3 md:grid-cols-3"">
+    <DateExample Label=""Past"">
+        <DateRelative Value=""_past"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Future"">
+        <DateRelative Value=""_future"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Near-now live"">
+        <DateRelative Value=""_nearNow"" Class=""font-medium"" data-testid=""date-relative-live-secondary"" />
+    </DateExample>
+</Div>";
 
     private const string UntilCode =
-@"<DateUntil Value=""createdAt.AddMinutes(3).AddSeconds(30)"" Suffix="" remaining"" />
-<DateUntil Value=""createdAt.AddMinutes(-15)"" ExpiredText=""Closed"" />";
+@"<Div Class=""grid w-full gap-3 md:grid-cols-2"">
+    <DateExample Label=""Countdown"">
+        <DateUntil Value=""_countdownTarget"" Suffix="" remaining"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Expired state"">
+        <DateUntil Value=""_expired"" ExpiredText=""Closed"" Class=""font-medium text-muted-foreground"" />
+    </DateExample>
+</Div>";
 
     private const string CalendarCode =
-@"<DateCalendar Value=""createdAt"" />
-<DateCalendar Value=""createdAt.AddDays(1)"" />
-<DateCalendar Value=""createdAt.AddDays(-1)"" />
-<DateCalendar Value=""createdAt.AddDays(-5)"" />
-<DateCalendar Value=""createdAt.AddDays(5)"" />
-<DateCalendar Value=""new DateTimeOffset(createdAt.Year, 1, 12, 16, 0, 0, TimeSpan.Zero)"" />";
+@"<Div Class=""grid w-full gap-3 md:grid-cols-2"">
+    <DateExample Label=""Today"">
+        <DateCalendar Value=""_today"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Tomorrow"">
+        <DateCalendar Value=""_tomorrow"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Yesterday"">
+        <DateCalendar Value=""_yesterday"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Last weekday"">
+        <DateCalendar Value=""_lastWeekday"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Next weekday"">
+        <DateCalendar Value=""_nextWeekday"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Older date"">
+        <DateCalendar Value=""_olderDate"" Class=""font-medium"" />
+    </DateExample>
+</Div>";
 
     private const string TimezoneCode =
-@"<DateTimeText Value=""meetingUtc"" Format=""f"" />
-<DateTimeText Value=""meetingUtc"" TimeZone=""UTC"" Format=""f"" />
-<DateTimeText Value=""meetingUtc""
-              TimeZone=""Europe/Paris""
-              Culture=""@CultureInfo.GetCultureInfo(""fr-FR"")""
-              Format=""dddd d MMMM yyyy HH:mm"" />
-<DateCalendar Value=""createdAt.AddDays(1)""
-              Class=""rounded-md bg-muted px-2 py-1 text-sm font-medium text-foreground"" />";
+@"<Div Class=""grid w-full gap-3 md:grid-cols-2"">
+    <DateExample Label=""Browser timezone"">
+        <Div Class=""flex flex-col gap-1"">
+            <DateTimeText Value=""_meetingUtc"" Format=""f"" Class=""font-medium"" />
+            <Span Class=""text-xs text-muted-foreground"">Detected: @_browserTimeZone</Span>
+        </Div>
+    </DateExample>
+    <DateExample Label=""Explicit timezone"">
+        <DateTimeText Value=""_meetingUtc"" TimeZone=""UTC"" Format=""f"" Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Culture and custom format"">
+        <DateTimeText Value=""_meetingUtc""
+                      TimeZone=""Europe/Paris""
+                      Culture=""@FrenchCulture""
+                      Format=""dddd d MMMM yyyy HH:mm""
+                      Class=""font-medium"" />
+    </DateExample>
+    <DateExample Label=""Custom styling"">
+        <DateCalendar Value=""_tomorrow""
+                      Class=""rounded-md bg-muted px-2 py-1 text-sm font-medium text-foreground"" />
+    </DateExample>
+</Div>";
 }

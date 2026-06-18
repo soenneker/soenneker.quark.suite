@@ -214,31 +214,54 @@
         }
     ];
 
-    private const string BasicCode =
-        """
-        <Cascader Options="_locations"
-                  Placeholder="Please select"
-                  OnChange="OnLocationChanged" />
+    private const string BasicCode ="""
+        <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <FieldLabel>Location</FieldLabel>
+            <Cascader Options="_locations"
+                      Placeholder="Please select"
+                      OnChange="OnLocationChanged" />
+            <FieldDescription>@LocationSummary</FieldDescription>
+        </Field>
         """;
 
-    private const string DefaultValueCode =
-        """
-        <Cascader Options="_locations"
-                  DefaultValue='new[] { "usa", "new_york", "statue_of_liberty" }'
-                  Placeholder="Please select" />
+    private const string DefaultValueCode ="""
+        <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <FieldLabel>Landmark</FieldLabel>
+            <Cascader Options="_locations"
+                      DefaultValue='new[] { "usa", "new_york", "statue_of_liberty" }'
+                      Placeholder="Please select" />
+        </Field>
         """;
 
-    private const string HoverCode =
-        """
-        <Cascader Options="_categories"
-                  ExpandTrigger="CascaderExpandTrigger.Hover"
-                  Placeholder="Select category"
-                  TriggerClass="w-full" />
+    private const string HoverCode ="""
+        <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <FieldLabel>Category</FieldLabel>
+            <Cascader Options="_categories"
+                      ExpandTrigger="CascaderExpandTrigger.Hover"
+                      Placeholder="Select category"
+                      TriggerClass="w-full">
+                <OptionTemplate Context="option">
+                    <Span Display="Display.InlineFlex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                        @if (option.Value is "electronics" or "computers" or "phones")
+                        {
+                            <Icon Name="LucideIcon.Smartphone" Class="size-4" aria-hidden="true" />
+                        }
+                        else if (option.Value is "fashion")
+                        {
+                            <Icon Name="LucideIcon.Shirt" Class="size-4" aria-hidden="true" />
+                        }
+                        @option.Label
+                    </Span>
+                </OptionTemplate>
+            </Cascader>
+        </Field>
         """;
 
-    private const string DisabledOptionsCode =
-        """
-        <Cascader Options="_disabledLocations"
-                  Placeholder="Some options disabled" />
+    private const string DisabledOptionsCode ="""
+        <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+            <FieldLabel>Restricted location</FieldLabel>
+            <Cascader Options="_disabledLocations"
+                      Placeholder="Some options disabled" />
+        </Field>
         """;
 }
