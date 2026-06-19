@@ -38,6 +38,11 @@ public sealed class QuarkDateTimeFormatOptions
     public string? NullText { get; set; }
 
     /// <summary>
+    /// Gets or sets how relative date/time values are displayed.
+    /// </summary>
+    public DateRelativeFormatStyle DateRelativeFormatStyle { get; set; } = DateRelativeFormatStyle.Long;
+
+    /// <summary>
     /// Gets or sets the text rendered by countdown components after the target has passed.
     /// </summary>
     public string? ExpiredText { get; set; }

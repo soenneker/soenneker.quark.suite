@@ -11,7 +11,15 @@
     [Parameter]
     public DateTimeOffset? Value { get; set; }
 
+    /// <summary>
+    /// Gets or sets how the relative date/time value is displayed.
+    /// </summary>
+    [Parameter]
+    public DateRelativeFormatStyle FormatStyle { get; set; } = DateRelativeFormatStyle.Long;
+
     protected override QuarkDateTimeUpdateKind UpdateKind => QuarkDateTimeUpdateKind.Relative;
+
+    protected override DateRelativeFormatStyle DateRelativeFormatStyleCore => FormatStyle;
 
     protected override DateTimeOffset? GetEffectiveValue(DateTimeOffset now)
     {
@@ -33,5 +41,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
+        hc.Add(FormatStyle);
     }
 }

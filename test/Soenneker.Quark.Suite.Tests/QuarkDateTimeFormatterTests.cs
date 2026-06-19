@@ -61,6 +61,19 @@ public sealed class QuarkDateTimeFormatterTests
     }
 
     [Test]
+    public void Relative_formats_short_values()
+    {
+        var now = Utc(2026, 1, 15, 12, 0);
+
+        _formatter.FormatRelative(now.AddSeconds(-5), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("now");
+        _formatter.FormatRelative(now.AddMinutes(-2), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("2 min");
+        _formatter.FormatRelative(now.AddHours(-5), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("5 hr");
+        _formatter.FormatRelative(now.AddDays(-5), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("5 days");
+        _formatter.FormatRelative(Utc(2026, 4, 15, 12, 0), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("3 mo");
+        _formatter.FormatRelative(Utc(2027, 1, 15, 12, 0), now, Options(formatStyle: DateRelativeFormatStyle.Short)).Should().Be("1 yr");
+    }
+
+    [Test]
     public void Until_formats_remaining_and_expired_values()
     {
         var now = Utc(2026, 5, 27, 15, 0);
@@ -140,14 +153,16 @@ public sealed class QuarkDateTimeFormatterTests
         }
     }
 
-    private static QuarkDateTimeFormatOptions Options(string? timeZone = "UTC", string? browserTimeZone = null, string? expiredText = null)
+    private static QuarkDateTimeFormatOptions Options(string? timeZone = "UTC", string? browserTimeZone = null, string? expiredText = null,
+        DateRelativeFormatStyle? formatStyle = null)
     {
         return new QuarkDateTimeFormatOptions
         {
             TimeZone = timeZone,
             BrowserTimeZone = browserTimeZone,
             Culture = EnUs,
-            ExpiredText = expiredText
+            ExpiredText = expiredText,
+            DateRelativeFormatStyle = formatStyle ?? DateRelativeFormatStyle.Long
         };
     }
 

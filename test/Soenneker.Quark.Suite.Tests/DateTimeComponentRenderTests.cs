@@ -56,6 +56,20 @@ public sealed class DateTimeComponentRenderTests : BunitContext
         time.HasAttribute("datetime").Should().BeFalse();
     }
 
+    [Test]
+    public void Date_relative_supports_short_format_style()
+    {
+        var cut = Render<DateRelative>(parameters => parameters
+            .Add(component => component.Value, DateTimeOffset.UtcNow.AddHours(-5))
+            .Add(component => component.FormatStyle, DateRelativeFormatStyle.Short)
+            .Add(component => component.TimeZone, "UTC")
+            .Add(component => component.AutoUpdate, false));
+
+        var time = cut.Find("time[data-slot='date-relative']");
+
+        time.TextContent.Should().Be("5 hr");
+    }
+
     private sealed class StaticBrowserTimeZoneService : IQuarkBrowserTimeZoneService
     {
         public ValueTask<string?> GetTimeZoneId(CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>("UTC");

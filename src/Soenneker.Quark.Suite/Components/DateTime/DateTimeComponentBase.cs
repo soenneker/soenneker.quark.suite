@@ -127,6 +127,11 @@ public abstract class DateTimeComponentBase : Element
     protected virtual string? ExpiredTextCore => null;
 
     /// <summary>
+    /// Gets the relative date/time display style for components that format relative values.
+    /// </summary>
+    protected virtual DateRelativeFormatStyle DateRelativeFormatStyleCore => DateRelativeFormatStyle.Long;
+
+    /// <summary>
     /// Gets a value indicating whether the component should emit a datetime attribute.
     /// </summary>
     protected virtual bool ShouldEmitDateTimeAttribute => true;
@@ -243,6 +248,7 @@ public abstract class DateTimeComponentBase : Element
             Culture = Culture,
             CultureName = CultureName,
             NullText = NullText,
+            DateRelativeFormatStyle = DateRelativeFormatStyleCore,
             ExpiredText = ExpiredTextCore
         };
     }
@@ -365,6 +371,7 @@ public abstract class DateTimeComponentBase : Element
         hc.Add(Prefix);
         hc.Add(Suffix);
         hc.Add(NullText);
+        hc.Add(DateRelativeFormatStyleCore);
         hc.Add(ExpiredTextCore);
         hc.Add(_browserTimeZone);
         hc.Add(_displayText);

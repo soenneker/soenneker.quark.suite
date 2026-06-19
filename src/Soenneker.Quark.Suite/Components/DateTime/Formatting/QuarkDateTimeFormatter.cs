@@ -38,39 +38,39 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
         var absolute = delta.Duration();
 
         if (absolute < TimeSpan.FromSeconds(10))
-            return "just now";
+            return IsShortRelativeFormat(options.DateRelativeFormatStyle) ? "now" : "just now";
 
         if (absolute < OneMinute)
-            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalSeconds)), "second", future);
+            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalSeconds)), "second", "sec", future, options.DateRelativeFormatStyle);
 
         if (absolute < OneHour)
-            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalMinutes)), "minute", future);
+            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalMinutes)), "minute", "min", future, options.DateRelativeFormatStyle);
 
         var valueDate = DateOnly.FromDateTime(localValue.DateTime);
         var nowDate = DateOnly.FromDateTime(localNow.DateTime);
         var dayDiff = valueDate.DayNumber - nowDate.DayNumber;
 
         if (absolute < TimeSpan.FromHours(24) && Math.Abs(dayDiff) <= 1)
-            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalHours)), "hour", future);
+            return FormatRelativeUnit((int)Math.Max(1, Math.Floor(absolute.TotalHours)), "hour", "hr", future, options.DateRelativeFormatStyle);
 
         if (dayDiff == -1)
-            return "yesterday";
+            return IsShortRelativeFormat(options.DateRelativeFormatStyle) ? "1 day" : "yesterday";
 
         if (dayDiff == 1)
-            return "tomorrow";
+            return IsShortRelativeFormat(options.DateRelativeFormatStyle) ? "1 day" : "tomorrow";
 
         var absoluteDays = Math.Abs(dayDiff);
         if (absoluteDays < 30)
-            return FormatRelativeUnit(absoluteDays, "day", future);
+            return FormatRelativeUnit(absoluteDays, "day", "day", future, options.DateRelativeFormatStyle, "days");
 
         var months = GetWholeMonthDifference(localValue, localNow);
         var absoluteMonths = Math.Abs(months);
 
         if (absoluteMonths < 12)
-            return FormatRelativeUnit(Math.Max(1, absoluteMonths), "month", future);
+            return FormatRelativeUnit(Math.Max(1, absoluteMonths), "month", "mo", future, options.DateRelativeFormatStyle);
 
         var years = Math.Max(1, absoluteMonths / 12);
-        return FormatRelativeUnit(years, "year", future);
+        return FormatRelativeUnit(years, "year", "yr", future, options.DateRelativeFormatStyle);
     }
 
 
@@ -186,10 +186,24 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
         return CultureInfo.CurrentCulture;
     }
 
-    private static string FormatRelativeUnit(int value, string unit, bool future)
+    private static string FormatRelativeUnit(int value, string unit, string shortUnit, bool future, DateRelativeFormatStyle style, string? shortPluralUnit = null)
     {
+        if (IsShortRelativeFormat(style))
+            return FormatShortUnit(value, shortUnit, shortPluralUnit);
+
         var text = FormatUnit(value, unit);
         return future ? $"in {text}" : $"{text} ago";
+    }
+
+    private static bool IsShortRelativeFormat(DateRelativeFormatStyle style)
+    {
+        return ReferenceEquals(style, DateRelativeFormatStyle.Short);
+    }
+
+    private static string FormatShortUnit(int value, string unit, string? pluralUnit = null)
+    {
+        var resolvedUnit = value == 1 ? unit : pluralUnit ?? unit;
+        return $"{value.ToString(CultureInfo.InvariantCulture)} {resolvedUnit}";
     }
 
     private static string FormatUnit(int value, string unit)
