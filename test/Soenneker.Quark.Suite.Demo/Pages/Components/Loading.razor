@@ -20,15 +20,15 @@
             </Div>
         </CardHeader>
         <CardBody>
-            <Table @ref="_tableRef"
+            <Soenneker.Quark.DataTable @ref="_tableRef"
                         TotalRecords="@_totalRecords"
                         OnInteraction="HandleServerSideRequest" >
 
-                <TableSearch Placeholder="Search employees..." />
+                <DataTableSearch Placeholder="Search employees..." />
 
-                <TableLoader />
+                <DataTableLoader />
 
-                <TableElement>
+                <Table>
                     <Thead>
                         <Tr>
                             <Th Sortable="true" Searchable="true" >Name</Th>
@@ -57,22 +57,22 @@
                         }
                         else if (_tableRef?.HasLoadedOnce == true)
                         {
-                            <TableNoData>
+                            <DataTableNoData>
                                 <Div Class="no-data-content">
                                     <Div Class="no-data-icon">⚡</Div>
                                     <H4>No employees found</H4>
                                     <Paragraph>Try adjusting your search criteria or filters.</Paragraph>
                                 </Div>
-                            </TableNoData>
+                            </DataTableNoData>
                         }
                     </Tbody>
-                </TableElement>
+                </Table>
 
-                <TableBottomBar>
-                    <TableInfo />
-                    <TablePagination />
-                </TableBottomBar>
-            </Table>
+                <DataTableBottomBar>
+                    <DataTableInfo />
+                    <DataTablePagination />
+                </DataTableBottomBar>
+            </Soenneker.Quark.DataTable>
         </CardBody>
     </Card>
 
@@ -83,9 +83,9 @@
         <CardBody>
             <CodeEditor ReadOnly="true"
                         Language="@("html")"
-                        AutoHeight="true" Text="@(@"<Table Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
-    <TableSearch />
-    <TableElement>
+                        AutoHeight="true" Text="@(@"<DataTable Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
+    <DataTableSearch />
+    <Table>
         <Thead>
             <Tr>
                 <Th Data=""Name"" Sortable=""true"">Name</Th>
@@ -108,19 +108,19 @@
                 }
             }
         </Tbody>
-    </TableElement>
-    <TableBottomBar>
-        <TableInfo />
-        <TablePagination />
-    </TableBottomBar>
-</Table>")" />
+    </Table>
+    <DataTableBottomBar>
+        <DataTableInfo />
+        <DataTablePagination />
+    </DataTableBottomBar>
+</DataTable>")" />
         </CardBody>
     </Card>
     </Div>
 </Div>
 
 @code {
-    private Table? _tableRef;
+    private Soenneker.Quark.DataTable? _tableRef;
     private List<Employee> _currentEmployees = [];
     private int _totalRecords;
 

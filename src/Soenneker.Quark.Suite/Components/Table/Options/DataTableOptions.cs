@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Configuration options for Table
+/// Configuration options for DataTable
 /// </summary>
-public sealed class TableOptions
+public sealed class DataTableOptions
 {
     /// <summary>
     /// Gets or sets the default page size
@@ -29,9 +29,9 @@ public sealed class TableOptions
     /// Creates a clone of the current options
     /// </summary>
     /// <returns>A new instance with the same values</returns>
-    public TableOptions Clone()
+    public DataTableOptions Clone()
     {
-        return new TableOptions
+        return new DataTableOptions
         {
             DefaultPageSize = DefaultPageSize,
             SearchDebounceMs = SearchDebounceMs,
@@ -46,7 +46,7 @@ public sealed class TableOptions
     /// <returns>true if the specified object is equal to the current object; otherwise, false</returns>
     public override bool Equals(object? obj)
     {
-        if (obj is not TableOptions other)
+        if (obj is not DataTableOptions other)
             return false;
 
         return DefaultPageSize == other.DefaultPageSize &&

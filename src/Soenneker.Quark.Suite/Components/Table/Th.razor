@@ -6,8 +6,8 @@
 </th>
 
 @code {
-	[CascadingParameter(Name = nameof(Table))]
-	private ITable? Table { get; set; }
+	[CascadingParameter(Name = nameof(DataTable))]
+	private IDataTable? DataTable { get; set; }
 
 	/// <summary>
 	/// Gets or sets whether the column is sortable.
@@ -41,34 +41,34 @@
 	protected override void OnInitialized()
 	{
 		// Register this column with the parent table to get its position
-		if (Table != null)
+		if (DataTable != null)
 		{
-			_columnIndex = Table.RegisterColumn(this);
+			_columnIndex = DataTable.RegisterColumn(this);
 		}
 	}
 
 	private async Task HandleClick(MouseEventArgs e)
 	{
-		if (!Sortable || Table == null)
+		if (!Sortable || DataTable == null)
 			return;
 
-		await Table.HandleColumnSort(_columnIndex);
+		await DataTable.HandleColumnSort(_columnIndex);
 	}
 
 	private string GetSortClass()
 	{
-		if (Table == null)
+		if (DataTable == null)
 			return string.Empty;
 
-		return Table.GetSortClassByIndex(_columnIndex);
+		return DataTable.GetSortClassByIndex(_columnIndex);
 	}
 
 	private string GetSortIndicator()
 	{
-		if (Table == null)
+		if (DataTable == null)
 			return " ↕";
 
-		return Table.GetSortIndicatorByIndex(_columnIndex);
+		return DataTable.GetSortIndicatorByIndex(_columnIndex);
 	}
 
 	private string GetAlignStyle()

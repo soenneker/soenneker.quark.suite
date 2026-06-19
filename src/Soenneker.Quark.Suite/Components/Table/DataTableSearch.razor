@@ -32,7 +32,7 @@
 	protected override void ApplyDefaultParameters()
 	{
 		base.ApplyDefaultParameters();
-		DataSlot ??= "table-search";
+		DataSlot ??= "data-table-search";
 		Display ??= Quark.Display.Flex;
 		Width ??= Quark.Width.IsFull;
 		ItemsAlign ??= Items.Center;
@@ -54,7 +54,7 @@
 	{
 		var attributes = new Dictionary<string, object>
 		{
-			["data-slot"] = "table-search-input",
+			["data-slot"] = "data-table-search-input",
 			["aria-label"] = AriaLabel ?? "Search table"
 		};
 
@@ -66,8 +66,8 @@
 		return attributes;
 	}
 
-	[CascadingParameter(Name = "Table")]
-	private ITable? Table { get; set; }
+	[CascadingParameter(Name = "DataTable")]
+	private IDataTable? DataTable { get; set; }
 
 	[Parameter]
 	public string SearchTerm { get; set; } = string.Empty;
@@ -97,10 +97,10 @@
 
 		_debouncer.Debounce(DebounceMs, async _ =>
 		{
-			// First, notify the parent Table if available
-			if (Table != null)
+			// First, notify the parent DataTable if available
+			if (DataTable != null)
 			{
-				await Table.HandleSearch(newSearchTerm);
+				await DataTable.HandleSearch(newSearchTerm);
 			}
 
 			// Then, invoke the OnSearch callback if provided

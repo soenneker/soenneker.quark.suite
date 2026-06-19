@@ -5,9 +5,9 @@ using Soenneker.DataTables.Dtos.ServerSideRequest;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Interface for the Table component
+/// Interface for the DataTable component
 /// </summary>
-public interface ITable : ICancellableElement
+public interface IDataTable : ICancellableElement
 {
     /// <summary>
     /// Gets the current page number
@@ -30,7 +30,7 @@ public interface ITable : ICancellableElement
     int TotalRecordsCount { get; }
 
     /// <summary>
-    /// Gets whether the table has loaded data at least once
+    /// Gets whether the data table has loaded data at least once
     /// </summary>
     bool HasLoadedOnce { get; }
 
@@ -50,9 +50,9 @@ public interface ITable : ICancellableElement
     string? SortDirection { get; }
 
     /// <summary>
-    /// Gets the table options
+    /// Gets the data table options
     /// </summary>
-    TableOptions Options { get; }
+    DataTableOptions Options { get; }
 
     /// <summary>
     /// Handles column sorting for the component-driven approach

@@ -4,9 +4,9 @@ using Soenneker.DataTables.Dtos.ServerSideRequest;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Event arguments for Table filter change events
+/// Event arguments for DataTable filter change events
 /// </summary>
-public sealed class TableFilterEventArgs
+public sealed class DataTableFilterEventArgs
 {
     /// <summary>
     /// Gets or sets the current search term

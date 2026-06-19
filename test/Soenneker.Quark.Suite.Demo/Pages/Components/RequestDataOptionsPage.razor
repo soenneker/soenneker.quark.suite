@@ -21,15 +21,15 @@
             </Div>
         </CardHeader>
         <CardBody>
-            <Table @ref="_table"
+            <Soenneker.Quark.DataTable @ref="_table"
                         Options="_tableOptions"
                         TotalRecords="_totalRecords"
                         OnInteraction="OnInteraction"
                         OnInitialize="HandleInitialize" >
 
-                <TableSearch></TableSearch>
+                <DataTableSearch></DataTableSearch>
 
-                <TableElement>
+                <Table>
                     <Thead>
                         <Tr>
                             <Th Data="Name" Sortable="true" Searchable="true" >Name</Th>
@@ -58,21 +58,21 @@
                         }
                         else
                         {
-                            <TableNoData>
+                            <DataTableNoData>
                                 <Div Class="no-data-content">
                                     <Div Class="no-data-icon">🔧</Div>
                                     <H4>No employees found</H4>
                                     <Paragraph>Try adjusting your search criteria.</Paragraph>
                                 </Div>
-                            </TableNoData>
+                            </DataTableNoData>
                         }
                     </Tbody>
-                </TableElement>
+                </Table>
 
-                <TableBottomBar>
-                    <TablePagination />
-                </TableBottomBar>
-            </Table>
+                <DataTableBottomBar>
+                    <DataTablePagination />
+                </DataTableBottomBar>
+            </Soenneker.Quark.DataTable>
         </CardBody>
     </Card>
 
@@ -252,12 +252,12 @@ private async Task OnInteraction(DataTableServerSideRequest request)
 </style>
 
 @code {
-    private Table? _table;
+    private Soenneker.Quark.DataTable? _table;
     private List<Employee> _currentEmployees = [];
     private RequestDataOptions? _lastRequestDataOptions;
     private string _lastRequestDataOptionsJson = "";
 
-    private readonly TableOptions _tableOptions = new()
+    private readonly DataTableOptions _tableOptions = new()
     {
         DefaultPageSize = 10
     };

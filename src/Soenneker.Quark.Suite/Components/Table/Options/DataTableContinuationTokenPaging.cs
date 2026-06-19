@@ -5,10 +5,10 @@ using Soenneker.Extensions.String;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Helper class to manage continuation token pagination for Table.
-/// This allows Table to handle continuation tokens internally.
+/// Helper class to manage continuation token pagination for DataTable.
+/// This allows DataTable to handle continuation tokens internally.
 /// </summary>
-public sealed class TableContinuationTokenPaging
+public sealed class DataTableContinuationTokenPaging
 {
     private readonly Dictionary<string, string> _pageTokens = new();
     private readonly Dictionary<string, int> _pageCounts = new();

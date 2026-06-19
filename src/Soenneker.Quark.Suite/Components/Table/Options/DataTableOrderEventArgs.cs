@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Event arguments for Table order events
+/// Event arguments for DataTable order events
 /// </summary>
-public sealed class TableOrderEventArgs
+public sealed class DataTableOrderEventArgs
 {
     /// <summary>
     /// Gets or sets the column name that was ordered

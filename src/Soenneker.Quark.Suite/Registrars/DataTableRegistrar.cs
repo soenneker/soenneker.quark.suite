@@ -4,16 +4,16 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Service registrar for Quark.Table
+/// Service registrar for Quark.DataTable
 /// </summary>
-public static class TableRegistrar
+public static class DataTableRegistrar
 {
     /// <summary>
-    /// Adds Table services to the service collection
+    /// Adds DataTable services to the service collection
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <returns>The service collection for chaining</returns>
-    public static IServiceCollection AddQuarkTableAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddQuarkDataTableAsScoped(this IServiceCollection services)
     {
         services.TryAddScoped<ITablesInterop, TablesInterop>();
         return services;

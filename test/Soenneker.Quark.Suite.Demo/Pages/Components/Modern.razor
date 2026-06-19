@@ -11,7 +11,7 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-    <DemoSection Title="Modern Table" Description="Table with modern options, TableSearch, TablePagination." Code="@(@"<Card Class=""demo-card"">
+    <DemoSection Title="Modern Table" Description="Table with modern options, DataTableSearch, DataTablePagination." Code="@(@"<Card Class=""demo-card"">
     <CardHeader>
         <Div Class=""card-header-content"">
             <H3><Icon Name=""LucideIcon.Palette"" Margin=""Margin.Is2.FromEnd""/>Modern Employee Directory</H3>
@@ -19,16 +19,16 @@
         </Div>
     </CardHeader>
     <CardBody>
-        <Table @ref=""_tableRef""
+        <DataTable @ref=""_tableRef""
                     OnInteraction=""OnInteraction""
                     OnOrder=""HandleOrder""
                     OnInitialize=""HandleInitialize""
                     Options=""_modernTableOptions""
                     TotalRecords=""@_totalRecords"">
 
-            <TableSearch Placeholder=""Search...""/>
+            <DataTableSearch Placeholder=""Search...""/>
 
-            <TableElement>
+            <Table>
                 <Thead>
                     <Tr>
                         <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
@@ -57,21 +57,21 @@
                     }
                     else if (_tableRef?.HasLoadedOnce == true)
                     {
-                        <TableNoData>
+                        <DataTableNoData>
                             <Div Class=""no-data-content"">
                                 <Div Class=""no-data-icon"">🎨</Div>
                                 <H4>No employees found</H4>
                                 <Paragraph>Try adjusting your search criteria.</Paragraph>
                             </Div>
-                        </TableNoData>
+                        </DataTableNoData>
                     }
                 </Tbody>
-            </TableElement>
+            </Table>
 
-            <TableBottomBar>
-                <TablePagination/>
-            </TableBottomBar>
-        </Table>
+            <DataTableBottomBar>
+                <DataTablePagination/>
+            </DataTableBottomBar>
+        </DataTable>
     </CardBody>
 </Card>")"
 CodeLanguage="razor">
@@ -83,16 +83,16 @@ CodeLanguage="razor">
             </Div>
         </CardHeader>
         <CardBody>
-            <Table @ref="_tableRef"
+            <Soenneker.Quark.DataTable @ref="_tableRef"
                         OnInteraction="OnInteraction"
                         OnOrder="HandleOrder"
                         OnInitialize="HandleInitialize"
                         Options="_modernTableOptions"
                         TotalRecords="@_totalRecords">
 
-                <TableSearch Placeholder="Search..."/>
+                <DataTableSearch Placeholder="Search..."/>
 
-                <TableElement>
+                <Table>
                     <Thead>
                         <Tr>
                             <Th Data="Name" Sortable="true" Searchable="true">Name</Th>
@@ -121,21 +121,21 @@ CodeLanguage="razor">
                         }
                         else if (_tableRef?.HasLoadedOnce == true)
                         {
-                            <TableNoData>
+                            <DataTableNoData>
                                 <Div Class="no-data-content">
                                     <Div Class="no-data-icon">🎨</Div>
                                     <H4>No employees found</H4>
                                     <Paragraph>Try adjusting your search criteria.</Paragraph>
                                 </Div>
-                            </TableNoData>
+                            </DataTableNoData>
                         }
                     </Tbody>
-                </TableElement>
+                </Table>
 
-                <TableBottomBar>
-                    <TablePagination/>
-                </TableBottomBar>
-            </Table>
+                <DataTableBottomBar>
+                    <DataTablePagination/>
+                </DataTableBottomBar>
+            </Soenneker.Quark.DataTable>
         </CardBody>
     </Card>
     </DemoSection>
@@ -266,18 +266,18 @@ CodeLanguage="razor">
             shadow: 0 2px 4px var(--qt-shadow);
         }
 
-    /* Optional: lighter pagination buttons on hover */
-    .quark-table-pagination-btn:hover:not([disabled]) {
+    /* Optional: lighter data-table-pagination buttons on hover */
+    .quark-table-data-table-pagination-btn:hover:not([disabled]) {
         background-color: var(--qt-hover);
         border-color: var(--qt-accent);
     }
 
-    /* Optional: active pagination button tint */
-    .quark-table-pagination-btn.active {
+    /* Optional: active data-table-pagination button tint */
+    .quark-table-data-table-pagination-btn.active {
         color: #fff;
     }
 
-    .quark-table-search-input {
+    .quark-data-table-search-input {
         background: #f0f2f5;
         border-radius: 0.375rem;
     }
@@ -289,7 +289,7 @@ CodeLanguage="razor">
 
     /* Hover states */
     .quark-table tbody tr:hover,
-    .quark-table-pagination-btn:hover:not([disabled]) {
+    .quark-table-data-table-pagination-btn:hover:not([disabled]) {
         background-color: var(--qt-hover-alt);
     }
 
@@ -301,7 +301,7 @@ CodeLanguage="razor">
         border-bottom: 1px solid var(--qt-border-light);
     }
 
-    .quark-table-search-cell {
+    .quark-data-table-search-cell {
         padding: 0.4rem 0.6rem;
     }
 
@@ -311,7 +311,7 @@ CodeLanguage="razor">
     }
 
     /* Header / control bar */
-    .quark-table-with-search .quark-table-search,
+    .quark-table-with-search .quark-data-table-search,
     .quark-table-controls {
         border: none;
     }
@@ -334,10 +334,10 @@ CodeLanguage="razor">
 </style>
 
 @code {
-    private Table? _tableRef;
+    private Soenneker.Quark.DataTable? _tableRef;
     private List<Employee> _currentEmployees = [];
 
-    private readonly TableOptions _modernTableOptions = new()
+    private readonly DataTableOptions _modernTableOptions = new()
     {
         DefaultPageSize = 10
     };
@@ -379,7 +379,7 @@ CodeLanguage="razor">
         }
     }
 
-    private async Task HandleOrder(TableOrderEventArgs args)
+    private async Task HandleOrder(DataTableOrderEventArgs args)
     {
         Logger.LogInformation("Column '{Column}' sorted {Direction}", args.Column, args.Direction);
     }

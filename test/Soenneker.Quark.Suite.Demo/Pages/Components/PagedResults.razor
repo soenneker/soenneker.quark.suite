@@ -13,7 +13,7 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, TableInfo, TablePagination." Code="@(@"<Card Class=""demo-card"">
+    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, DataTableInfo, DataTablePagination." Code="@(@"<Card Class=""demo-card"">
     <CardHeader>
         <Div Class=""card-header-content"">
             <H3><Icon Name=""LucideIcon.Layers"" Margin=""Margin.Is2.FromEnd""/>Advanced Employee Directory</H3>
@@ -21,16 +21,16 @@
         </Div>
     </CardHeader>
     <CardBody>
-        <Table @ref=""_quarkTable""
+        <DataTable @ref=""_quarkTable""
                     OnInteraction=""OnInteraction""
                     OnOrder=""HandleOrder""
                     OnInitialize=""HandleInitialize""
                     Options=""_tableOptions""
                     TotalRecords=""@_totalRecords"">
 
-            <TableSearch Placeholder=""Search employees...""/>
+            <DataTableSearch Placeholder=""Search employees...""/>
 
-            <TableElement>
+            <Table>
                 <Thead>
                     <Tr>
                         <Th Sortable=""true"" Searchable=""true"">Name</Th>
@@ -59,14 +59,14 @@
                         }
                     }
                 </Tbody>
-            </TableElement>
+            </Table>
 
-            <TableBottomBar>
-                <TableInfo/>
-                <TablePagination/>
-            </TableBottomBar>
+            <DataTableBottomBar>
+                <DataTableInfo/>
+                <DataTablePagination/>
+            </DataTableBottomBar>
 
-        </Table>
+        </DataTable>
     </CardBody>
 </Card>")"
 CodeLanguage="razor">
@@ -78,16 +78,16 @@ CodeLanguage="razor">
             </Div>
         </CardHeader>
         <CardBody>
-            <Table @ref="_quarkTable"
+            <Soenneker.Quark.DataTable @ref="_quarkTable"
                         OnInteraction="OnInteraction"
                         OnOrder="HandleOrder"
                         OnInitialize="HandleInitialize"
                         Options="_tableOptions"
                         TotalRecords="@_totalRecords">
 
-                <TableSearch Placeholder="Search employees..."/>
+                <DataTableSearch Placeholder="Search employees..."/>
 
-                <TableElement>
+                <Table>
                     <Thead>
                         <Tr>
                             <Th Sortable="true" Searchable="true">Name</Th>
@@ -116,14 +116,14 @@ CodeLanguage="razor">
                             }
                         }
                     </Tbody>
-                </TableElement>
+                </Table>
 
-                <TableBottomBar>
-                    <TableInfo/>
-                    <TablePagination/>
-                </TableBottomBar>
+                <DataTableBottomBar>
+                    <DataTableInfo/>
+                    <DataTablePagination/>
+                </DataTableBottomBar>
 
-            </Table>
+            </Soenneker.Quark.DataTable>
         </CardBody>
     </Card>
     </DemoSection>
@@ -342,10 +342,10 @@ CodeLanguage="razor">
 </style>
 
 @code {
-    private Table? _quarkTable;
+    private Soenneker.Quark.DataTable? _quarkTable;
     private List<Employee> _currentEmployees = [];
 
-    private readonly TableOptions _tableOptions = new()
+    private readonly DataTableOptions _tableOptions = new()
     {
         DefaultPageSize = 5 // Smaller page size to demonstrate paging
     };
@@ -388,7 +388,7 @@ CodeLanguage="razor">
         }
     }
 
-    private async Task HandleOrder(TableOrderEventArgs args)
+    private async Task HandleOrder(DataTableOrderEventArgs args)
     {
         Logger.LogInformation("PagedResults: Column '{Column}' sorted {Direction}", args.Column, args.Direction);
     }

@@ -2,7 +2,7 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-@if (Table?.HasLoadedOnce == true)
+@if (DataTable?.HasLoadedOnce == true)
 {
     <div @attributes="BuildAttributes()">
         @if (ChildContent != null)
@@ -11,11 +11,11 @@
         }
         else
         {
-            <Div DataSlot="table-empty-content" Display="Quark.Display.Flex" MaxWidth="Quark.MaxWidth.IsMd" FlexDirection="Quark.FlexDirection.Col" ItemsAlign="Items.Center" Gap="Quark.Gap.Is4" TextAlign="Quark.TextAlign.Center">
-                <Div DataSlot="table-empty-icon" TextColor="Quark.TextColor.MutedForeground" Opacity="Quark.Opacity.Is60">
+            <Div DataSlot="data-table-empty-content" Display="Quark.Display.Flex" MaxWidth="Quark.MaxWidth.IsMd" FlexDirection="Quark.FlexDirection.Col" ItemsAlign="Items.Center" Gap="Quark.Gap.Is4" TextAlign="Quark.TextAlign.Center">
+                <Div DataSlot="data-table-empty-icon" TextColor="Quark.TextColor.MutedForeground" Opacity="Quark.Opacity.Is60">
                     <Icon Name="LucideIcon.TableProperties" Size="Quark.Size.Is12" aria-hidden="true" />
                 </Div>
-                <Div DataSlot="table-empty-text" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1">
+                <Div DataSlot="data-table-empty-text" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1">
                     <H4>No data available</H4>
                     <Paragraph>There are no records to display at this time.</Paragraph>
                 </Div>
@@ -25,14 +25,14 @@
 }
 
 @code {
-    [CascadingParameter(Name = "Table")]
-    public ITable? Table { get; set; }
+    [CascadingParameter(Name = "DataTable")]
+    public IDataTable? DataTable { get; set; }
 
     // shadcn Empty state - new-york-v4 ui/empty.tsx
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        DataSlot ??= "table-empty";
+        DataSlot ??= "data-table-empty";
         TextColor ??= Quark.TextColor.MutedForeground;
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFull;
@@ -59,7 +59,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        if (Table is not null)
-            hc.Add(Table.HasLoadedOnce);
+        if (DataTable is not null)
+            hc.Add(DataTable.HasLoadedOnce);
     }
 } 

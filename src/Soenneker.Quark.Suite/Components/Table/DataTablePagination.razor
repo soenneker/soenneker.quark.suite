@@ -44,8 +44,8 @@
 }
 
 @code {
-	[CascadingParameter(Name = "Table")]
-	private ITable? Table { get; set; }
+	[CascadingParameter(Name = "DataTable")]
+	private IDataTable? DataTable { get; set; }
 
 	[Parameter]
 	public bool ShowPagination { get; set; } = true;
@@ -80,11 +80,11 @@
 	[Parameter]
 	public EventCallback OnLastPage { get; set; }
 
-	// Computed properties that use Table values When available
-	private int ComputedCurrentPage => Math.Max(1, Table?.CurrentPage ?? CurrentPage);
-	private int ComputedTotalPages => Math.Max(1, Table?.TotalPages ?? TotalPages);
-	private int ComputedTotalRecords => Table?.TotalRecordsCount ?? TotalRecords;
-	private int ComputedPageSize => Table?.PageSize ?? PageSize;
+	// Computed properties that use DataTable values When available
+	private int ComputedCurrentPage => Math.Max(1, DataTable?.CurrentPage ?? CurrentPage);
+	private int ComputedTotalPages => Math.Max(1, DataTable?.TotalPages ?? TotalPages);
+	private int ComputedTotalRecords => DataTable?.TotalRecordsCount ?? TotalRecords;
+	private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
 	private int ComputedMaxPageButtons => MaxPageButtons;
 
 	public int StartPage
@@ -113,9 +113,9 @@
 
 	private async Task HandleFirstPage()
 	{
-		if (Table != null)
+		if (DataTable != null)
 		{
-			await Table.HandleGoToPage(1);
+			await DataTable.HandleGoToPage(1);
 		}
 		else if (OnFirstPage.HasDelegate)
 		{
@@ -129,9 +129,9 @@
 
 	private async Task HandlePreviousPage()
 	{
-		if (Table != null && ComputedCurrentPage > 1)
+		if (DataTable != null && ComputedCurrentPage > 1)
 		{
-			await Table.HandleGoToPage(ComputedCurrentPage - 1);
+			await DataTable.HandleGoToPage(ComputedCurrentPage - 1);
 		}
 		else if (OnPreviousPage.HasDelegate)
 		{
@@ -145,9 +145,9 @@
 
 	private async Task HandleNextPage()
 	{
-		if (Table != null && ComputedCurrentPage < ComputedTotalPages)
+		if (DataTable != null && ComputedCurrentPage < ComputedTotalPages)
 		{
-			await Table.HandleGoToPage(ComputedCurrentPage + 1);
+			await DataTable.HandleGoToPage(ComputedCurrentPage + 1);
 		}
 		else if (OnNextPage.HasDelegate)
 		{
@@ -161,9 +161,9 @@
 
 	private async Task HandleLastPage()
 	{
-		if (Table != null)
+		if (DataTable != null)
 		{
-			await Table.HandleGoToPage(ComputedTotalPages);
+			await DataTable.HandleGoToPage(ComputedTotalPages);
 		}
 		else if (OnLastPage.HasDelegate)
 		{
@@ -177,9 +177,9 @@
 
 	private async Task HandleGoToPage(int page)
 	{
-		if (Table != null)
+		if (DataTable != null)
 		{
-			await Table.HandleGoToPage(page);
+			await DataTable.HandleGoToPage(page);
 		}
 		else if (OnGoToPage.HasDelegate)
 		{
@@ -193,7 +193,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        DataSlot ??= "pagination";
+        DataSlot ??= "data-table-pagination";
         Display ??= Quark.Display.Flex;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
@@ -205,7 +205,7 @@
 	{
 	    base.BuildAttributesCore(attributes);
         attributes["role"] = "navigation";
-        attributes["aria-label"] = "pagination";
+        attributes["aria-label"] = "data table pagination";
 
 	}
 
@@ -213,7 +213,7 @@
 	{
 		var attributes = new Dictionary<string, object>
         {
-            ["data-slot"] = "pagination-content"
+            ["data-slot"] = "data-table-pagination-content"
         };
         BuildClassAttribute(attributes, (ref cls) =>
         {

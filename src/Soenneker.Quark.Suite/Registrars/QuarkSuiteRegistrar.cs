@@ -28,7 +28,7 @@ public static class QuarkSuiteRegistrar
                 .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
                 .AddQuarkOverlayAsScoped()
                 .AddQuarkValidationAsScoped()
-                .AddQuarkTableAsScoped()
+                .AddQuarkDataTableAsScoped()
                 .AddQuarkSortableAsScoped()
                 .AddQuarkSonnerAsScoped()
                 .AddQuarkThemeAsScoped()

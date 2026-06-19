@@ -150,7 +150,7 @@ public sealed class Theme
     public OrderedListItemOptions? OrderedListItems { get; set; }
 
     /// <summary>
-    /// Gets or sets the pagination component styling options.
+    /// Gets or sets the data-table-pagination component styling options.
     /// </summary>
     public PaginationOptions? Paginations { get; set; }
 
@@ -288,39 +288,39 @@ public sealed class Theme
     public TbodyOptions? Tbodys { get; set; }
 
     /// <summary>
-    /// Gets or sets the table search component styling options.
+    /// Gets or sets the data table search component styling options.
     /// </summary>
-    public TableSearchOptions? TableSearches { get; set; }
+    public DataTableSearchOptions? DataTableSearches { get; set; }
 
     /// <summary>
-    /// Gets or sets the table pagination component styling options.
+    /// Gets or sets the data table pagination component styling options.
     /// </summary>
-    public TablePaginationOptions? TablePaginations { get; set; }
+    public DataTablePaginationOptions? DataTablePaginations { get; set; }
 
     /// <summary>
-    /// Gets or sets the table page size selector component styling options.
+    /// Gets or sets the data table page size selector component styling options.
     /// </summary>
-    public TablePageSizeSelectorOptions? TablePageSizeSelectors { get; set; }
+    public DataTablePageSizeSelectorOptions? DataTablePageSizeSelectors { get; set; }
 
     /// <summary>
-    /// Gets or sets the table no data component styling options.
+    /// Gets or sets the data table no data component styling options.
     /// </summary>
-    public TableNoDataOptions? TableNoDatas { get; set; }
+    public DataTableNoDataOptions? DataTableNoDatas { get; set; }
 
     /// <summary>
-    /// Gets or sets the table loader component styling options.
+    /// Gets or sets the data table loader component styling options.
     /// </summary>
-    public TableLoaderOptions? TableLoaders { get; set; }
+    public DataTableLoaderOptions? DataTableLoaders { get; set; }
 
     /// <summary>
-    /// Gets or sets the table info component styling options.
+    /// Gets or sets the data table info component styling options.
     /// </summary>
-    public TableInfoOptions? TableInfos { get; set; }
+    public DataTableInfoOptions? DataTableInfos { get; set; }
 
     /// <summary>
-    /// Gets or sets the table element component styling options.
+    /// Gets or sets the table component styling options.
     /// </summary>
-    public TableElementOptions? TableElements { get; set; }
+    public TableOptions? Tables { get; set; }
 
     // Sonner components
     /// <summary>
@@ -335,12 +335,12 @@ public sealed class Theme
     public TabsOptions? Tabs { get; set; }
 
     /// <summary>
-    /// Gets or sets the pagination link component styling options.
+    /// Gets or sets the data-table-pagination link component styling options.
     /// </summary>
     public PaginationLinkOptions? PaginationLinks { get; set; }
 
     /// <summary>
-    /// Gets or sets the pagination item component styling options.
+    /// Gets or sets the data-table-pagination item component styling options.
     /// </summary>
     public PaginationItemOptions? PaginationItems { get; set; }
 
@@ -663,29 +663,29 @@ public sealed class Theme
     public ThOptions? Ths { get; set; }
 
     /// <summary>
-    /// Gets or sets the table bottom bar component styling options.
+    /// Gets or sets the data table bottom bar component styling options.
     /// </summary>
-    public TableBottomBarOptions? TableBottomBars { get; set; }
+    public DataTableBottomBarOptions? DataTableBottomBars { get; set; }
 
     /// <summary>
-    /// Gets or sets the table top bar component styling options.
+    /// Gets or sets the data table top bar component styling options.
     /// </summary>
-    public TableTopBarOptions? TableTopBars { get; set; }
+    public DataTableTopBarOptions? DataTableTopBars { get; set; }
 
     /// <summary>
-    /// Gets or sets the table left component styling options.
+    /// Gets or sets the data table left component styling options.
     /// </summary>
-    public TableLeftOptions? TableLefts { get; set; }
+    public DataTableLeftOptions? DataTableLefts { get; set; }
 
     /// <summary>
-    /// Gets or sets the table right component styling options.
+    /// Gets or sets the data table right component styling options.
     /// </summary>
-    public TableRightOptions? TableRights { get; set; }
+    public DataTableRightOptions? DataTableRights { get; set; }
 
     /// <summary>
-    /// Gets or sets the table theme component styling options.
+    /// Gets or sets the data table theme component styling options.
     /// </summary>
-    public TableThemeOptions? Tables { get; set; }
+    public DataTableThemeOptions? DataTables { get; set; }
 
     // Collection components
     /// <summary>
@@ -827,20 +827,20 @@ public sealed class Theme
             yield return Tds;
         if (Tbodys != null)
             yield return Tbodys;
-        if (TableSearches != null)
-            yield return TableSearches;
-        if (TablePaginations != null)
-            yield return TablePaginations;
-        if (TablePageSizeSelectors != null)
-            yield return TablePageSizeSelectors;
-        if (TableNoDatas != null)
-            yield return TableNoDatas;
-        if (TableLoaders != null)
-            yield return TableLoaders;
-        if (TableInfos != null)
-            yield return TableInfos;
-        if (TableElements != null)
-            yield return TableElements;
+        if (DataTableSearches != null)
+            yield return DataTableSearches;
+        if (DataTablePaginations != null)
+            yield return DataTablePaginations;
+        if (DataTablePageSizeSelectors != null)
+            yield return DataTablePageSizeSelectors;
+        if (DataTableNoDatas != null)
+            yield return DataTableNoDatas;
+        if (DataTableLoaders != null)
+            yield return DataTableLoaders;
+        if (DataTableInfos != null)
+            yield return DataTableInfos;
+        if (Tables != null)
+            yield return Tables;
         if (SonnerToaster != null)
             yield return SonnerToaster;
         if (Tabs != null)
@@ -969,16 +969,16 @@ public sealed class Theme
             yield return Tab;
         if (Ths != null)
             yield return Ths;
-        if (TableBottomBars != null)
-            yield return TableBottomBars;
-        if (TableTopBars != null)
-            yield return TableTopBars;
-        if (TableLefts != null)
-            yield return TableLefts;
-        if (TableRights != null)
-            yield return TableRights;
-        if (Tables != null)
-            yield return Tables;
+        if (DataTableBottomBars != null)
+            yield return DataTableBottomBars;
+        if (DataTableTopBars != null)
+            yield return DataTableTopBars;
+        if (DataTableLefts != null)
+            yield return DataTableLefts;
+        if (DataTableRights != null)
+            yield return DataTableRights;
+        if (DataTables != null)
+            yield return DataTables;
         if (Trees != null)
             yield return Trees;
         if (TreeItems != null)

@@ -1,0 +1,679 @@
+@using Microsoft.Extensions.Logging
+@using Soenneker.Blazor.Utils.Ids
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Utils.Debounce
+
+@namespace Soenneker.Quark
+@inherits CancellableElement
+@implements IDataTable
+
+<CascadingValue Name="DataTable" Value="this">
+    <CascadingValue Value="@_isLoading" Name="IsLoading" >
+		@if (Visible)
+		{
+			<Div Id="@ElementId" Position="Quark.Position.Relative" Width="Quark.Width.IsFull">
+                @TopContent
+
+                <Div Position="Quark.Position.Relative" Width="Quark.Width.IsFull" OverflowX="Quark.Overflow.X.Auto">
+                    @OverlayContent
+
+                    @if (TableContent != null)
+                    {
+                        <table @attributes="BuildAttributes()">
+                            @TableContent
+                        </table>
+                    }
+                    else if (!_isLoading && ChildContent == null)
+                    {
+                        <Div TextAlign="Quark.TextAlign.Center" Padding="Quark.Padding.Is4">
+                            <p>No content available</p>
+                        </Div>
+                    }
+                    else
+                    {
+                        <Div Width="Quark.Width.IsFull">
+                            @if (ChildContent != null)
+                            {
+                                @ChildContent
+                            }
+                        </Div>
+                    }
+                </Div>
+
+                @BottomContent
+            </Div>
+		}
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Inject]
+    private ITablesInterop TablesInterop { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnInitialize { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnGoToPage { get; set; }
+
+    [Parameter]
+    public EventCallback<DataTableOrderEventArgs> OnOrder { get; set; }
+
+    [Parameter]
+    public RenderFragment? TopContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? TableContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? OverlayContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? BottomContent { get; set; }
+
+    [Parameter]
+    public DataTableOptions Options { get; set; } = new();
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public int TotalRecords { get; set; }
+
+    [Parameter]
+    public EventCallback<DataTableServerSideRequest> OnInteraction { get; set; }
+
+    public readonly string ElementId = BlazorIdGenerator.New("quark-data-table");
+
+    // Debug properties
+    public int CurrentPage { get; private set; } = 1;
+
+    public int PageSize { get; private set; }
+
+    public int TotalPages { get; private set; }
+
+    public int TotalRecordsCount { get; private set; }
+
+    public bool HasLoadedOnce { get; private set; }
+
+    public string? SearchTerm => _searchTerm;
+
+    public string? SortBy
+    {
+        get
+        {
+            if (_currentOrders.Count == 0)
+                return null;
+
+            var column = GetColumn(_currentOrders[0].Column);
+            return column?.Data;
+        }
+    }
+
+    public string? SortDirection => _currentOrders.Count == 0 ? null : _currentOrders[0].Dir;
+
+    private readonly Debouncer _debouncer = new();
+    private readonly List<DataTableOrderRequest> _currentOrders = [];
+    private readonly DataTableContinuationTokenPaging _continuationTokenPaging = new();
+    private readonly List<Th> _registeredColumns = [];
+
+    private string _searchTerm = string.Empty;
+    private string? _continuationToken;
+
+    private bool _isLoading;
+    private bool _initialized;
+    private bool _dataLoaded;
+    private bool _hasLoadedOnce; // Flag to track if data has been loaded at least once
+    private bool _isUpdatingParameters; // Flag to prevent infinite loops
+    private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
+    private int _manualRequestCount; // Counter to track manual request calls
+    private DataTableOptions? _previousOptions;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "table";
+        Width ??= Quark.Width.IsFull;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "caption-bottom");
+        });
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            PageSize = Options.DefaultPageSize;
+            await TablesInterop.Initialize(CancellationToken);
+
+            _initialized = true;
+
+            if (OnInitialize.HasDelegate)
+                await OnInitialize.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during DataTable initialization: {Message}", ex.Message);
+            throw;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Prevent infinite loops by checking if we're already updating parameters
+        if (_isUpdatingParameters)
+        {
+            if (Options.Debug)
+                Logger.LogDebug("OnParametersSetAsync called while already updating parameters - skipping");
+
+            return;
+        }
+
+        if (Options.Debug)
+            Logger.LogDebug("OnParametersSetAsync called: _dataLoaded={DataLoaded}, _initialized={Initialized}, TotalRecords={TotalRecords}, _totalRecords={CurrentTotalRecords}", _dataLoaded, _initialized, TotalRecords, TotalRecordsCount);
+
+        _isUpdatingParameters = true;
+
+        try
+        {
+            // Initialize total records and pages on first parameter set
+            if (!_dataLoaded)
+            {
+                if (Options.Debug)
+                    Logger.LogDebug("First parameter set - initializing data");
+                // Ensure PageSize is initialized before first load
+                if (PageSize <= 0)
+                    PageSize = Options.DefaultPageSize;
+                TotalRecordsCount = TotalRecords;
+                TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
+
+                // Load initial data without blocking first render so loader shows immediately
+                if (OnInteraction.HasDelegate)
+                {
+                    if (Options.Debug)
+                        Logger.LogDebug("Scheduling OnInteractionInternal for initial data load");
+
+                    _isLoading = true; // ensure loader visible on first render
+                    await RefreshOffThread();
+
+                    _ = OnInteractionInternal();
+                }
+
+                _dataLoaded = true;
+            }
+            else
+            {
+                // Check if TotalRecords has changed
+                if (TotalRecordsCount != TotalRecords)
+                {
+                    if (Options.Debug)
+                        Logger.LogDebug("TotalRecords changed from {OldTotal} to {NewTotal}", TotalRecordsCount, TotalRecords);
+
+                    TotalRecordsCount = TotalRecords;
+                    TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
+
+                    if (Options.Debug)
+                        Logger.LogDebug("TotalRecords updated to {TotalRecords}, TotalPages={TotalPages}", TotalRecordsCount, TotalPages);
+                }
+            }
+
+            // Check if options have changed and trigger reload if needed
+            if (_initialized && _previousOptions != null && !Options.Equals(_previousOptions))
+            {
+                if (Options.Debug)
+                    Logger.LogDebug("Options changed - resetting table");
+                PageSize = Options.DefaultPageSize;
+                CurrentPage = 1;
+                // Clear continuation token When options change
+                _continuationToken = null;
+                _continuationTokenPaging.Reset();
+
+                if (OnInteraction.HasDelegate)
+                {
+                    await OnInteractionInternal();
+                }
+            }
+
+            _previousOptions = Options.Clone();
+        }
+        finally
+        {
+            _isUpdatingParameters = false;
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    public async ValueTask HandleGoToPage(int page)
+    {
+        if (page < 1 || page > TotalPages)
+            return;
+
+        CurrentPage = page;
+        // Clear continuation token When changing pages
+        _continuationToken = null;
+
+        await OnInteractionInternal();
+
+        if (OnGoToPage.HasDelegate)
+            await OnGoToPage.InvokeAsync(page);
+    }
+
+    public async ValueTask HandlePageSizeChanged(int pageSize)
+    {
+        if (pageSize <= 0 || pageSize == PageSize)
+            return;
+
+        PageSize = pageSize;
+        CurrentPage = 1;
+        TotalPages = Math.Max(1, (int) Math.Ceiling((double) TotalRecordsCount / PageSize));
+        _continuationTokenPaging.Reset();
+        _continuationToken = null;
+
+        await RefreshOffThread();
+        await OnInteractionInternal();
+
+        if (OnPageSizeChanged.HasDelegate)
+            await OnPageSizeChanged.InvokeAsync(pageSize);
+    }
+
+    public ValueTask GoToPage(int page)
+    {
+        return HandleGoToPage(page);
+    }
+
+    public async ValueTask HandleSearch(string searchTerm)
+    {
+        if (Options.Debug)
+            Logger.LogDebug("HandleSearch called with term: {SearchTerm}", searchTerm);
+
+        _searchTerm = searchTerm;
+        CurrentPage = 1; // Reset to first page When searching
+        _continuationTokenPaging.Reset(); // Reset continuation token paging When searching
+        _continuationToken = null; // Clear continuation token When searching
+
+
+        await OnInteractionInternal();
+    }
+
+    public List<DataTableOrderRequest> GetCurrentOrders()
+    {
+        return _currentOrders.Count == 0 ? [] : [.._currentOrders];
+    }
+
+    public async ValueTask SetOrders(List<DataTableOrderRequest> orders)
+    {
+        _currentOrders.Clear();
+
+        if (orders != null)
+        {
+            _currentOrders.AddRange(orders);
+        }
+
+        CurrentPage = 1;
+        _continuationTokenPaging.Reset();
+        _continuationToken = null;
+
+
+        await OnInteractionInternal();
+    }
+
+    public string? GetSortDirection(int columnIndex)
+    {
+        // Validate that the column index is valid
+        if (GetColumn(columnIndex) == null)
+        {
+            if (Options.Debug)
+                Logger.LogWarning("GetSortDirection: Invalid column index {ColumnIndex}", columnIndex);
+            return null;
+        }
+
+        var order = FindOrder(columnIndex);
+        return order?.Dir;
+    }
+
+    public string GetSortClassByIndex(int columnIndex)
+    {
+        return string.Empty;
+    }
+
+    public string GetSortIndicatorByIndex(int columnIndex)
+    {
+        var direction = GetSortDirection(columnIndex);
+        return direction switch
+        {
+            "asc" => " ↑",
+            "desc" => " ↓",
+            _ => " ↕"
+        };
+    }
+
+    public async ValueTask HandleColumnSort(int columnIndex)
+    {
+        if (!IsColumnSortable(columnIndex))
+            return;
+
+        if (Options.Debug)
+            Logger.LogDebug("HandleColumnSort called for column index: {ColumnIndex}", columnIndex);
+
+        // Find existing order for this column
+        var existing = FindOrder(columnIndex);
+        var nextDirection = existing?.Dir switch
+        {
+            "asc" => "desc",
+            "desc" => null,
+            _ => "asc"
+        };
+
+        // Remove existing order for this column
+        _currentOrders.RemoveAll(o => o.Column == columnIndex);
+
+        // Add new order if direction is not null
+        if (nextDirection != null)
+        {
+            _currentOrders.Add(new DataTableOrderRequest
+            {
+                Column = columnIndex,
+                Dir = nextDirection
+            });
+        }
+
+        // Reset to page 1 When sorting
+        CurrentPage = 1;
+        // Reset continuation token paging When sorting
+        _continuationTokenPaging.Reset();
+        _continuationToken = null;
+
+        await OnInteractionInternal();
+
+        if (OnOrder.HasDelegate)
+        {
+            var args = new DataTableOrderEventArgs
+            {
+                Column = $"Column_{columnIndex}",
+                Direction = nextDirection ?? string.Empty,
+                Orders = _currentOrders.Count == 0 ? [] : [.._currentOrders]
+            };
+
+            await OnOrder.InvokeAsync(args);
+        }
+    }
+
+    public int RegisterColumn(Th columnHeader)
+    {
+        _registeredColumns.Add(columnHeader);
+        var columnIndex = _registeredColumns.Count - 1;
+
+        _ = RefreshOffThread(); // fire-and-forget is ok here
+
+        return columnIndex;
+    }
+
+    private Th? GetColumn(int columnIndex)
+    {
+        if (columnIndex < 0 || columnIndex >= _registeredColumns.Count)
+        {
+            if (Options.Debug)
+                Logger.LogWarning("GetColumn: Column index {ColumnIndex} is out of bounds for registered columns count {Count}", columnIndex, _registeredColumns.Count);
+            return null;
+        }
+
+        return _registeredColumns[columnIndex];
+    }
+
+    private bool IsColumnSortable(int columnIndex)
+    {
+        var column = GetColumn(columnIndex);
+        return column?.Sortable ?? false;
+    }
+
+    private List<DataTableColumnRequest> BuildColumns()
+    {
+        var columns = new List<DataTableColumnRequest>(_registeredColumns.Count);
+
+        foreach (var column in _registeredColumns)
+        {
+            columns.Add(new DataTableColumnRequest
+            {
+                Data = column.Data,
+                Name = column.Name ?? column.Data, // Use Name if provided, otherwise fall back to Data
+                Searchable = column.Searchable,
+                Orderable = column.Sortable
+            });
+        }
+
+        return columns;
+    }
+
+    private DataTableOrderRequest? FindOrder(int columnIndex)
+    {
+        for (var i = 0; i < _currentOrders.Count; i++)
+        {
+            var order = _currentOrders[i];
+
+            if (order.Column == columnIndex)
+                return order;
+        }
+
+        return null;
+    }
+
+    private async ValueTask OnInteractionInternal()
+    {
+        // Prevent multiple simultaneous calls to OnInteractionInternal
+        if (_isHandlingManualRequest)
+        {
+            if (Options.Debug)
+                Logger.LogDebug("OnInteractionInternal called while already handling a request - skipping");
+
+            return;
+        }
+
+        // Prevent infinite loops by limiting consecutive calls
+        if (_manualRequestCount > 100)
+        {
+            if (Options.Debug)
+                Logger.LogWarning("OnInteractionInternal called too many times ({Count}) - possible infinite loop detected", _manualRequestCount);
+
+            return;
+        }
+
+        _manualRequestCount++;
+
+        if (Options.Debug)
+            Logger.LogDebug("OnInteractionInternal called (count: {Count}): Page={Page}, PageSize={PageSize}, SearchTerm='{SearchTerm}'", _manualRequestCount, CurrentPage, PageSize, _searchTerm);
+
+        if (!OnInteraction.HasDelegate)
+        {
+            if (Options.Debug)
+                Logger.LogWarning("OnInteractionInternal: No OnInteraction delegate");
+
+            return;
+        }
+
+        _isHandlingManualRequest = true;
+        _isLoading = true;
+
+        await RefreshOffThread();
+
+        try
+        {
+            // Calculate the actual start position based on current page
+            var actualStart = (CurrentPage - 1) * PageSize;
+
+            // Use continuation token paging to get the appropriate token
+            var continuationToken = _continuationTokenPaging.UpdateVirtualPage(actualStart, PageSize, _continuationToken);
+
+            var request = new DataTableServerSideRequest
+            {
+                Start = actualStart,
+                Length = PageSize,
+                Search = _searchTerm.HasContent() ? new DataTableSearchRequest {Value = _searchTerm} : null,
+                Order = _currentOrders.Count > 0 ? _currentOrders : null,
+                Columns = _registeredColumns.Count > 0 ? BuildColumns() : null,
+                ContinuationToken = continuationToken
+            };
+
+            if (Options.Debug)
+                Logger.LogDebug("Sending request: Start={Start}, Length={Length}, Search='{Search}', ContinuationToken='{Token}'", request.Start, request.Length, request.Search?.Value ?? "null", request.ContinuationToken ?? "null");
+
+            await OnInteraction.InvokeAsync(request);
+
+            // Mark that we've loaded data at least once after a successful request
+            if (!_hasLoadedOnce)
+            {
+                _hasLoadedOnce = true;
+                HasLoadedOnce = true;
+                if (Options.Debug)
+                    Logger.LogDebug("Set HasLoadedOnce to true after first successful data load");
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            if (Options.Debug)
+                Logger.LogDebug("OnInteractionInternal was cancelled");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "OnInteractionInternal error: {Message}", ex.Message);
+        }
+        finally
+        {
+            _isLoading = false;
+            _isHandlingManualRequest = false;
+
+            await RefreshOffThread();
+        }
+    }
+
+    public async ValueTask ClearSorting()
+    {
+        _currentOrders.Clear();
+        CurrentPage = 1;
+        _continuationTokenPaging.Reset();
+        _continuationToken = null;
+        _manualRequestCount = 0; // Reset the counter
+        _registeredColumns.Clear(); // Reset column registration
+        _hasLoadedOnce = false; // Reset the loaded flag
+        HasLoadedOnce = false;
+
+        await OnInteractionInternal();
+    }
+
+    public async ValueTask Reset()
+    {
+        _currentOrders.Clear();
+        CurrentPage = 1;
+        _continuationToken = null;
+        _continuationTokenPaging.Reset();
+        _manualRequestCount = 0; // Reset the counter
+        _registeredColumns.Clear(); // Reset column registration
+        _hasLoadedOnce = false; // Reset the loaded flag
+        HasLoadedOnce = false;
+
+        await OnInteractionInternal();
+    }
+
+
+
+    public async ValueTask CancelOperations()
+    {
+        if (Options.Debug)
+            Logger.LogDebug("Cancelling ongoing operations");
+
+        await Cancel();
+
+        _isLoading = false;
+        _isHandlingManualRequest = false;
+
+        await RefreshOffThread();
+    }
+
+    public void UpdateContinuationTokenPaging(int recordCount, string? continuationToken, string? tokenUsedForCurrentPage = null)
+    {
+        if (Options.Debug)
+            Logger.LogDebug("UpdateContinuationTokenPaging called: RecordCount={RecordCount}, Token='{Token}', TokenUsed='{TokenUsed}', TotalRecords={TotalRecords}", recordCount, continuationToken ?? "null", tokenUsedForCurrentPage ?? "null", TotalRecords);
+
+        _continuationTokenPaging.UpdateFromResponse(PageSize, recordCount, continuationToken, tokenUsedForCurrentPage);
+        _continuationToken = continuationToken;
+
+        // Only update total records estimate if TotalRecords parameter is not provided (0 or negative)
+        // This prevents conflicts between the continuation token paging system and the provided TotalRecords
+        if (TotalRecords <= 0)
+        {
+            var oldTotalRecords = TotalRecordsCount;
+            TotalRecordsCount = _continuationTokenPaging.CalculateTotalRecords(PageSize);
+            if (Options.Debug)
+                Logger.LogDebug("Updated _totalRecords from {OldTotal} to {NewTotal} (TotalRecords parameter is {ParamTotal})", oldTotalRecords, TotalRecordsCount, TotalRecords);
+        }
+        else
+        {
+            if (Options.Debug)
+                Logger.LogDebug("Keeping _totalRecords as {CurrentTotal} (TotalRecords parameter is {ParamTotal})", TotalRecordsCount, TotalRecords);
+        }
+
+        var oldTotalPages = TotalPages;
+        TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
+
+        if (Options.Debug)
+            Logger.LogDebug("Updated continuation token paging: RecordCount={RecordCount}, Token='{Token}', TotalRecords={TotalRecords}, TotalPages={TotalPages} (was {OldTotalPages})", recordCount, continuationToken ?? "null", TotalRecordsCount, TotalPages, oldTotalPages);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await base.DisposeAsync();
+
+            await _debouncer.DisposeAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during DataTable disposal: {Message}", ex.Message);
+        }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+
+        hc.Add(Visible);
+        hc.Add(_isLoading);
+
+        hc.Add(CurrentPage);
+        hc.Add(PageSize);
+        hc.Add(_searchTerm);
+
+        hc.Add(_registeredColumns.Count);
+
+        hc.Add(_hasLoadedOnce);
+        hc.Add(TotalRecordsCount);
+        hc.Add(TotalPages);
+
+        hc.Add(TotalRecords);
+        hc.Add(Options);
+        hc.Add(TopContent);
+        hc.Add(TableContent);
+        hc.Add(OverlayContent);
+        hc.Add(BottomContent);
+
+        hc.Add(_currentOrders.Count);
+        for (var i = 0; i < _currentOrders.Count; i++)
+        {
+            var o = _currentOrders[i];
+            hc.Add(o.Column);
+            hc.Add(o.Dir);
+        }
+    }
+}
