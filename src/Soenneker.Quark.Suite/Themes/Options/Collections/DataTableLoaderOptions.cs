@@ -8,6 +8,6 @@ public sealed class DataTableLoaderOptions : ComponentOptions
 {
     public DataTableLoaderOptions()
     {
-        Selector = "[data-slot='data-table-loader']";
+        Selector = "[data-slot='datatable-loader']";
     }
 }

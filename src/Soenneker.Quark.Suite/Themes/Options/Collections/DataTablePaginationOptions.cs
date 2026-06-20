@@ -2,12 +2,12 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents the data table data-table-pagination options.
+/// Represents the data table datatable-pagination options.
 /// </summary>
 public sealed class DataTablePaginationOptions : ComponentOptions
 {
     public DataTablePaginationOptions()
     {
-        Selector = "[data-slot='data-table-pagination']";
+        Selector = "[data-slot='datatable-pagination']";
     }
 }

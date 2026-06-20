@@ -8,6 +8,6 @@ public sealed class DataTableInfoOptions : ComponentOptions
 {
     public DataTableInfoOptions()
     {
-        Selector = ".q-data-table-info";
+        Selector = ".q-datatable-info";
     }
 }

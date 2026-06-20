@@ -8,6 +8,6 @@ public sealed class DataTableSearchOptions : ComponentOptions
 {
     public DataTableSearchOptions()
     {
-        Selector = ".q-data-table-search";
+        Selector = ".q-datatable-search";
     }
 }

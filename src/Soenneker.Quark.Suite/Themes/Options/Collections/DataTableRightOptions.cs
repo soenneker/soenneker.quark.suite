@@ -8,7 +8,7 @@ public sealed class DataTableRightOptions : ComponentOptions
 {
     public DataTableRightOptions()
     {
-        Selector = ".q-data-table-right";
+        Selector = ".q-datatable-right";
     }
 }
 

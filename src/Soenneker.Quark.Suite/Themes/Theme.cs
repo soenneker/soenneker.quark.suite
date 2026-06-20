@@ -150,7 +150,7 @@ public sealed class Theme
     public OrderedListItemOptions? OrderedListItems { get; set; }
 
     /// <summary>
-    /// Gets or sets the data-table-pagination component styling options.
+    /// Gets or sets the datatable-pagination component styling options.
     /// </summary>
     public PaginationOptions? Paginations { get; set; }
 
@@ -335,12 +335,12 @@ public sealed class Theme
     public TabsOptions? Tabs { get; set; }
 
     /// <summary>
-    /// Gets or sets the data-table-pagination link component styling options.
+    /// Gets or sets the datatable-pagination link component styling options.
     /// </summary>
     public PaginationLinkOptions? PaginationLinks { get; set; }
 
     /// <summary>
-    /// Gets or sets the data-table-pagination item component styling options.
+    /// Gets or sets the datatable-pagination item component styling options.
     /// </summary>
     public PaginationItemOptions? PaginationItems { get; set; }
 

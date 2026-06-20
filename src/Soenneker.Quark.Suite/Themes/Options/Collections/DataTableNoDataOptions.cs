@@ -8,6 +8,6 @@ public sealed class DataTableNoDataOptions : ComponentOptions
 {
     public DataTableNoDataOptions()
     {
-        Selector = "[data-slot='data-table-empty']";
+        Selector = "[data-slot='datatable-empty']";
     }
 }

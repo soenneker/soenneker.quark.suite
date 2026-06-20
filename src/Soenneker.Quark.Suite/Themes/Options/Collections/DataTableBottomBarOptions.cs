@@ -8,7 +8,7 @@ public sealed class DataTableBottomBarOptions : ComponentOptions
 {
     public DataTableBottomBarOptions()
     {
-        Selector = ".q-data-table-bottom-bar";
+        Selector = ".q-datatable-bottom-bar";
     }
 }
 

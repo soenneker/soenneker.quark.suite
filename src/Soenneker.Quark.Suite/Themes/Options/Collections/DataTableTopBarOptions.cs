@@ -8,7 +8,7 @@ public sealed class DataTableTopBarOptions : ComponentOptions
 {
     public DataTableTopBarOptions()
     {
-        Selector = ".q-data-table-top-bar";
+        Selector = ".q-datatable-top-bar";
     }
 }
 

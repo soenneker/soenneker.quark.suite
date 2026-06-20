@@ -7,6 +7,6 @@ public sealed class DataTableThemeOptions : ComponentOptions
 {
     public DataTableThemeOptions()
     {
-        Selector = ".q-data-table";
+        Selector = ".q-datatable";
     }
 }

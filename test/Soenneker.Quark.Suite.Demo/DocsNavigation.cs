@@ -55,7 +55,7 @@ public static class DocsNavigation
         new("Copy Button", ComponentRoute("copy-button"), IsNew: true),
         new("Copy Field", ComponentRoute("copy-field"), IsNew: true),
         new("Currency Input", ComponentRoute("currency-inputs"), IsNew: true),
-        new("Data Table", ComponentRoute("data-table")),
+        new("DataTable", ComponentRoute("datatables")),
         new("Date Time", ComponentRoute("date-time"), IsNew: true),
         new("Date Picker", ComponentRoute("date-picker")),
         new("Dialog", ComponentRoute("dialog")),

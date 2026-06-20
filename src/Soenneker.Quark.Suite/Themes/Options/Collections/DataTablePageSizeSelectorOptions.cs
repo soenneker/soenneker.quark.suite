@@ -8,6 +8,6 @@ public sealed class DataTablePageSizeSelectorOptions : ComponentOptions
 {
     public DataTablePageSizeSelectorOptions()
     {
-        Selector = ".q-data-table-page-size-selector";
+        Selector = ".q-datatable-page-size-selector";
     }
 }
