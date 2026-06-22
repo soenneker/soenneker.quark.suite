@@ -94,4 +94,41 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(timeInput).ToHaveValueAsync("19:30:00");
     }
+
+    [Test]
+    public async ValueTask Date_picker_triggers_open_calendar_on_pointer_down()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}components/date-picker",
+            static p => p.Locator("#date-picker-simple"),
+            expectedTitle: "Date Pickers - Quark Suite");
+
+        await AssertPopoverOpensOnPointerDown(page, "#date-picker-simple");
+        await AssertPopoverOpensOnPointerDown(page, "#date-picker-range");
+        await AssertPopoverOpensOnPointerDown(page, "#date");
+        await AssertPopoverOpensOnPointerDown(page, "#date-picker-subscription");
+        await AssertPopoverOpensOnPointerDown(page, "#date-picker-optional");
+        await AssertPopoverOpensOnPointerDown(page, "#date-picker-natural-language");
+    }
+
+    private static async Task AssertPopoverOpensOnPointerDown(IPage page, string selector)
+    {
+        var trigger = page.Locator(selector);
+        await Assertions.Expect(trigger).ToBeVisibleAsync();
+        await trigger.ScrollIntoViewIfNeededAsync();
+        await trigger.HoverAsync();
+        await page.Mouse.DownAsync();
+
+        var openPopover = page.Locator("[data-slot='popover-content'][data-state='open']");
+        await Assertions.Expect(openPopover).ToHaveCountAsync(1);
+
+        await page.Mouse.UpAsync();
+        await page.Mouse.DownAsync();
+
+        await Assertions.Expect(openPopover).ToHaveCountAsync(0);
+        await page.Mouse.UpAsync();
+    }
 }

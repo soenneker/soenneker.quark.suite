@@ -14,8 +14,9 @@
     <div @attributes="GetContainerAttributes()">
         <input type="hidden" @attributes="BuildHiddenInputAttributes()" />
 
-        <PopoverTrigger AsChild="true">
+        <PopoverTrigger AsChild="true" Id="@TriggerId">
             <Button Variant="ButtonVariant.Outline"
+                    Type="@ButtonType.Button"
                     Disabled="Disabled"
                     Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
@@ -112,6 +113,7 @@
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _lastSyncedSelectedDate;
+    private readonly string _triggerId = BlazorIdGenerator.New("quark-datepicker-trigger");
     private readonly string _panelId = BlazorIdGenerator.New("quark-datepicker-panel");
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
@@ -124,7 +126,7 @@
         ["class"] = "relative w-fit"
     };
 
-    private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _panelId;
+    private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _triggerId;
 
     private static string FormatDisplay(DateOnly value)
     {
@@ -235,12 +237,10 @@
 
     private static IReadOnlyDictionary<string, object> GetContainerAttributes() => ContainerAttributes;
 
-    private Task HandleOpenChanged(bool open)
+    private async Task HandleOpenChanged(bool open)
     {
         _open = open;
-        InvalidateRender();
-        Refresh();
-        return Task.CompletedTask;
+        await RefreshOffThread();
     }
 
     internal async Task ClosePanel()
@@ -285,14 +285,12 @@
         await ClosePanel();
     }
 
-    private Task HandleCalendarMonthChanged(DateOnly? month)
+    private async Task HandleCalendarMonthChanged(DateOnly? month)
     {
         if (month.HasValue)
             _displayMonth = new DateOnly(month.Value.Year, month.Value.Month, 1);
 
-        InvalidateRender();
-        Refresh();
-        return Task.CompletedTask;
+        await RefreshOffThread();
     }
 
     private void SyncDisplayMonthToSelection(DateOnly? selectedDate)
@@ -316,6 +314,7 @@
         hc.Add(Min);
         hc.Add(Max);
         hc.Add(_open);
+        hc.Add(_triggerId);
         hc.Add(_panelId);
         AddIf(ref hc, InputSize);
     }

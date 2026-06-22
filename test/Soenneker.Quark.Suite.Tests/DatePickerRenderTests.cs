@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DatePickers>();
 
-        var triggers = cut.FindAll("button#date-picker");
+        var triggers = cut.FindAll("button[aria-label='Select date']");
 
         triggers.Should().HaveCount(2);
         triggers.Should().OnlyContain(trigger => trigger.GetAttribute("data-variant") == "ghost");

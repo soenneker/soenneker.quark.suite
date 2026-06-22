@@ -34,8 +34,9 @@
                     <Div Display="Display.Grid" Gap="Gap.Is2">
                         <FieldLabel For="date-picker-range">Date Picker Range</FieldLabel>
                         <Popover>
-                            <PopoverTrigger AsChild="true">
+                            <PopoverTrigger AsChild="true" Id="date-picker-range">
                                 <Button Id="date-picker-range"
+                                        Type="@ButtonType.Button"
                                         Variant="ButtonVariant.Outline"
                                         Class="@DateRangeButtonClass(_rangeDate?.From is not null)">
                                     <Icon Name="LucideIcon.Calendar" Class="size-4" />
@@ -64,8 +65,9 @@
                     <Div Display="Display.Grid" Gap="Gap.Is2">
                         <FieldLabel For="date">Date of birth</FieldLabel>
                         <Popover Open="_dobOpen" OpenChanged="OnDobOpenChanged">
-                            <PopoverTrigger AsChild="true">
+                            <PopoverTrigger AsChild="true" Id="date">
                                 <Button Id="date"
+                                        Type="@ButtonType.Button"
                                         Variant="ButtonVariant.Outline"
                                         Class="@DatePlainButtonClass(_dobDate is not null, "w-[176px]")">
                                     @(_dobDate is null ? "Select date" : FormatDate(_dobDate))
@@ -100,8 +102,8 @@
                                                      Placeholder="June 01, 2025"
                                                      @bind-Value="_subscriptionDateText" />
                                     <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
-                                        <PopoverTrigger AsChild="true">
-                                            <InputGroupButton Id="date-picker" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" aria-label="Select date">
+                                        <PopoverTrigger AsChild="true" Id="date-picker-subscription">
+                                            <InputGroupButton Id="date-picker-subscription" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" aria-label="Select date">
                                                 <Icon Name="LucideIcon.Calendar" />
                                                 <Span Class="sr-only">Select date</Span>
                                             </InputGroupButton>
@@ -129,8 +131,9 @@
                         <Field>
                             <FieldLabel For="date-picker-optional">Date</FieldLabel>
                             <Popover Open="_timePickerOpen" OpenChanged="OnTimePickerOpenChanged">
-                                <PopoverTrigger AsChild="true">
+                                <PopoverTrigger AsChild="true" Id="date-picker-optional">
                                     <Button Id="date-picker-optional"
+                                            Type="@ButtonType.Button"
                                             Variant="ButtonVariant.Outline"
                                             Class="@DateButtonClass(_timePickerDate is not null, "w-full")">
                                         @(_timePickerDate is null ? "Select date" : FormatDate(_timePickerDate))
@@ -167,8 +170,8 @@
                                                  Value="@_naturalLanguageText"
                                                  ValueChanged="OnNaturalLanguageTextChanged" />
                                 <InputGroupAddon AddonAlign="InputGroupAddonAlign.InlineEnd">
-                                    <PopoverTrigger AsChild="true">
-                                        <InputGroupButton Id="date-picker" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" aria-label="Select date">
+                                    <PopoverTrigger AsChild="true" Id="date-picker-natural-language">
+                                        <InputGroupButton Id="date-picker-natural-language" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" aria-label="Select date">
                                             <Icon Name="LucideIcon.Calendar" />
                                             <Span Class="sr-only">Select date</Span>
                                         </InputGroupButton>
@@ -198,7 +201,7 @@
                     <Div Dir="rtl" Display="Display.Grid" Width="Width.IsFit" Gap="Gap.Is6">
                         <Popover>
                             <PopoverTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Outline" Class="@DateButtonClass(_rtlDate is not null, "w-[212px]")">
+                                <Button Variant="ButtonVariant.Outline" Type="@ButtonType.Button" Class="@DateButtonClass(_rtlDate is not null, "w-[212px]")">
                                     @FormatRtlDate()
                                     <Icon Name="LucideIcon.ChevronDown" Class="mr-auto size-4 opacity-50" />
                                 </Button>
@@ -241,6 +244,7 @@
         <Popover>
             <PopoverTrigger AsChild="true">
                 <Button Variant="ButtonVariant.Outline"
+                        Type="@ButtonType.Button"
                         Class="@DateButtonClass(_overviewDate is not null, "w-[212px]")">
                     @FormatDate(_overviewDate)
                     <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
@@ -256,8 +260,9 @@
         <Div Display="Display.Grid" Gap="Gap.Is2">
             <FieldLabel For="date-picker-simple">Date</FieldLabel>
             <Popover>
-                <PopoverTrigger AsChild="true">
+                <PopoverTrigger AsChild="true" Id="date-picker-simple">
                     <Button Id="date-picker-simple"
+                            Type="@ButtonType.Button"
                             Variant="ButtonVariant.Outline"
                             Class="@DatePlainButtonClass(_basicDate is not null, "w-[176px]")">
                         @FormatDate(_basicDate)
@@ -468,17 +473,51 @@
     }
 
     private const string BasicDatePickerCode =
-@"@DatePickerOverviewExample";
+@"<Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.Center"">
+    <Popover>
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline""
+                    Type=""@ButtonType.Button""
+                    Class=""@DateButtonClass(_overviewDate is not null, ""w-[212px]"")"">
+                @FormatDate(_overviewDate)
+                <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+            <Calendar SelectedDate=""_overviewDate"" SelectedDateChanged=""OnOverviewDateChanged"" />
+        </PopoverContent>
+    </Popover>
+</Div>";
 
-    private const string BasicDatePickerPreview2Code = @"@DatePickerBasicExample";
+    private const string BasicDatePickerPreview2Code =
+@"<Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.Center"">
+    <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
+        <FieldLabel For=""date-picker-simple"">Date</FieldLabel>
+        <Popover>
+            <PopoverTrigger AsChild=""true"" Id=""date-picker-simple"">
+                <Button Id=""date-picker-simple""
+                        Type=""@ButtonType.Button""
+                        Variant=""ButtonVariant.Outline""
+                        Class=""@DatePlainButtonClass(_basicDate is not null, ""w-[176px]"")"">
+                    @FormatDate(_basicDate)
+                    <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
+                <Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" />
+            </PopoverContent>
+        </Popover>
+    </Div>
+</Div>";
 
     private const string RangePickerCode =
 @"<Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.Center"">
     <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
         <FieldLabel For=""date-picker-range"">Date Picker Range</FieldLabel>
         <Popover>
-            <PopoverTrigger AsChild=""true"">
+            <PopoverTrigger AsChild=""true"" Id=""date-picker-range"">
                 <Button Id=""date-picker-range""
+                        Type=""@ButtonType.Button""
                         Variant=""ButtonVariant.Outline""
                         Class=""@DateRangeButtonClass(_rangeDate?.From is not null)"">
                     <Icon Name=""LucideIcon.Calendar"" Class=""size-4"" />
@@ -500,8 +539,9 @@
     <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
         <FieldLabel For=""date"">Date of birth</FieldLabel>
         <Popover Open=""_dobOpen"" OpenChanged=""OnDobOpenChanged"">
-            <PopoverTrigger AsChild=""true"">
+            <PopoverTrigger AsChild=""true"" Id=""date"">
                 <Button Id=""date""
+                        Type=""@ButtonType.Button""
                         Variant=""ButtonVariant.Outline""
                         Class=""@DatePlainButtonClass(_dobDate is not null, ""w-[176px]"")"">
                     @(_dobDate is null ? ""Select date"" : FormatDate(_dobDate))
@@ -529,8 +569,8 @@
                                      Placeholder=""June 01, 2025""
                                      @bind-Value=""_subscriptionDateText"" />
                     <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-                        <PopoverTrigger AsChild=""true"">
-                            <InputGroupButton Id=""date-picker"" Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"" aria-label=""Select date"">
+                        <PopoverTrigger AsChild=""true"" Id=""date-picker-subscription"">
+                            <InputGroupButton Id=""date-picker-subscription"" Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"" aria-label=""Select date"">
                                 <Icon Name=""LucideIcon.Calendar"" />
                                 <Span Class=""sr-only"">Select date</Span>
                             </InputGroupButton>
@@ -551,8 +591,9 @@
         <Field>
             <FieldLabel For=""date-picker-optional"">Date</FieldLabel>
             <Popover Open=""_timePickerOpen"" OpenChanged=""OnTimePickerOpenChanged"">
-                <PopoverTrigger AsChild=""true"">
+                <PopoverTrigger AsChild=""true"" Id=""date-picker-optional"">
                     <Button Id=""date-picker-optional""
+                            Type=""@ButtonType.Button""
                             Variant=""ButtonVariant.Outline""
                             Class=""@DateButtonClass(_timePickerDate is not null, ""w-full"")"">
                         @(_timePickerDate is null ? ""Select date"" : FormatDate(_timePickerDate))
@@ -582,8 +623,8 @@
                                  Value=""@_naturalLanguageText""
                                  ValueChanged=""OnNaturalLanguageTextChanged"" />
                 <InputGroupAddon AddonAlign=""InputGroupAddonAlign.InlineEnd"">
-                    <PopoverTrigger AsChild=""true"">
-                        <InputGroupButton Id=""date-picker"" Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"" aria-label=""Select date"">
+                    <PopoverTrigger AsChild=""true"" Id=""date-picker-natural-language"">
+                        <InputGroupButton Id=""date-picker-natural-language"" Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"" aria-label=""Select date"">
                             <Icon Name=""LucideIcon.Calendar"" />
                             <Span Class=""sr-only"">Select date</Span>
                         </InputGroupButton>
@@ -606,7 +647,7 @@
     <Div Dir=""rtl"" Display=""Display.Grid"" Width=""Width.IsFit"" Gap=""Gap.Is6"">
         <Popover>
             <PopoverTrigger AsChild=""true"">
-                <Button Variant=""ButtonVariant.Outline"" Class=""@DateButtonClass(_rtlDate is not null, ""w-[212px]"")"">
+                <Button Variant=""ButtonVariant.Outline"" Type=""@ButtonType.Button"" Class=""@DateButtonClass(_rtlDate is not null, ""w-[212px]"")"">
                     @FormatRtlDate()
                     <Icon Name=""LucideIcon.ChevronDown"" Class=""mr-auto size-4 opacity-50"" />
                 </Button>

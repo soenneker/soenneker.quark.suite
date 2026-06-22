@@ -13,7 +13,7 @@
 }
 else
 {
-    <BradixPopoverTrigger Id="@BradixPopover?.DefaultTriggerId"
+    <BradixPopoverTrigger Id="@ResolvedTriggerId"
                           Disabled="@Disabled"
                           OnClick="@OnClick"
                           AdditionalAttributes="@TriggerAttributes">
@@ -31,6 +31,8 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    private string? ResolvedTriggerId => string.IsNullOrWhiteSpace(Id) ? BradixPopover?.DefaultTriggerId : Id;
+
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -43,7 +45,10 @@ else
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        return BuildAttributes();
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("id");
+
+        return attributes;
     }
 
     private TriggerContext GetTriggerContext()
@@ -51,7 +56,7 @@ else
         return new TriggerContext
         {
             DataSlot = "popover-trigger",
-            TriggerId = BradixPopover?.DefaultTriggerId,
+            TriggerId = ResolvedTriggerId,
             ParentDisabled = Disabled,
             IsOpen = BradixPopover?.CurrentOpen == true,
             DataState = BradixPopover?.CurrentOpen == true ? "open" : "closed",
@@ -66,7 +71,7 @@ else
                 ? null
                 : elementReference =>
                 {
-                    BradixPopover.RegisterTrigger(elementReference, BradixPopover.DefaultTriggerId);
+                    BradixPopover.RegisterTrigger(elementReference, ResolvedTriggerId);
 
                     if (BradixPopover.HasCustomAnchor != true)
                         BradixPopover.RegisterAnchor(elementReference);
@@ -88,7 +93,7 @@ else
         hc.Add(Disabled);
         hc.Add(BradixPopover?.CurrentOpen);
         hc.Add(AsChild);
-        hc.Add(BradixPopover?.DefaultTriggerId);
+        hc.Add(ResolvedTriggerId);
         hc.Add(BradixPopover?.ContentId);
     }
 }
