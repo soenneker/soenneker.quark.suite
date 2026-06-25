@@ -1,0 +1,424 @@
+@using System.Globalization
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
+@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.FormControlElement
+
+<Popover Open="@EffectiveOpen"
+         OpenChanged="HandleOpenChanged">
+    <div class="relative w-fit">
+        <PopoverTrigger AsChild="true" Id="@TriggerId">
+            <Button Id="@TriggerId"
+                    Type="@ButtonType.Button"
+                    Variant="@TriggerVariant"
+                    Disabled="Disabled"
+                    Class="@GetTriggerClass()"
+                    @attributes="BuildTriggerAttributes()">
+                @if (ShowCalendarIcon)
+                {
+                    <Icon Name="LucideIcon.CalendarDays" Class="size-4 shrink-0" />
+                }
+                <span class="min-w-0 flex-1 truncate text-left">@TriggerLabel</span>
+                <Icon Name="@ChevronIcon" Class="ml-auto size-4 opacity-50" />
+            </Button>
+        </PopoverTrigger>
+
+        <PopoverContent Id="@_panelId"
+                        Side="@Side"
+                        Align="@Align"
+                        SideOffset="@SideOffset"
+                        Width="Quark.Width.Auto"
+                        Padding="Quark.Padding.Is0"
+                        @attributes="BuildPanelAttributes()">
+            <div class="@PanelClass">
+                @if (HasPresets)
+                {
+                    <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="menu">
+                    @foreach (PresetDateRangePickerOption preset in EffectivePresets)
+                    {
+                        bool active = IsPresetActive(preset);
+
+                        <Button Type="@ButtonType.Button"
+                                Variant="ButtonVariant.Ghost"
+                                Class="@PresetButtonClass(active)"
+                                AriaPressed="@active"
+                                Role="menuitemradio"
+                                OnClick="@(() => ApplyPreset(preset))">
+                            <span>@preset.Label</span>
+                            @if (active)
+                            {
+                                <Icon Name="LucideIcon.Check" Class="size-4 shrink-0" />
+                            }
+                        </Button>
+                    }
+                    </div>
+                }
+                <div class="@CalendarPanelClass">
+                    <Calendar Mode="CalendarSelectionMode.Range"
+                              SelectedRange="@CalendarRange"
+                              SelectedRangeChanged="SetDateRange"
+                              Min="@CalendarMinDate"
+                              Max="@CalendarMaxDate"
+                              DisplayMonth="@_displayMonth"
+                              DisplayMonthChanged="HandleCalendarMonthChanged"
+                              NumberOfMonths="@NumberOfMonths"
+                              ShowOutsideDays="@ShowOutsideDays"
+                              Border="Quark.Border.Is0"
+                              Shadow="Quark.Shadow.None"
+                              Padding="Quark.Padding.Is0"
+                              MinWidth="Quark.MinWidth.Is0" />
+                </div>
+            </div>
+        </PopoverContent>
+    </div>
+</Popover>
+
+@code {
+    [Parameter]
+    public CalendarDateRange? SelectedRange { get; set; }
+
+    [Parameter]
+    public EventCallback<CalendarDateRange?> SelectedRangeChanged { get; set; }
+
+    [Parameter]
+    public DateOnly? Min { get; set; }
+
+    [Parameter]
+    public DateOnly? Max { get; set; }
+
+    [Parameter]
+    public int? MaxRangeDays { get; set; }
+
+    [Parameter]
+    public bool DisableDatesOutsideMaxRangeWindow { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<PresetDateRangePickerOption>? Presets { get; set; }
+
+    [Parameter]
+    public bool ShowPresets { get; set; } = true;
+
+    [Parameter]
+    public string DisplayFormat { get; set; } = "MMM d, yyyy";
+
+    [Parameter]
+    public ButtonVariant TriggerVariant { get; set; } = ButtonVariant.Outline;
+
+    [Parameter]
+    public bool ShowCalendarIcon { get; set; } = true;
+
+    [Parameter]
+    public int NumberOfMonths { get; set; } = 1;
+
+    [Parameter]
+    public bool ShowOutsideDays { get; set; } = true;
+
+    [Parameter]
+    public bool CloseOnRangeSelected { get; set; } = true;
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
+
+    [Parameter]
+    public Side Side { get; set; } = Side.Bottom;
+
+    [Parameter]
+    public Alignment Align { get; set; } = Alignment.Start;
+
+    [Parameter]
+    public int SideOffset { get; set; } = 4;
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    private bool _open;
+    private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _lastSyncedFrom;
+    private DateOnly? _lastSyncedTo;
+    private DateOnly? _rangeAnchorDate;
+    private readonly string _triggerId = BlazorIdGenerator.New("quark-preset-date-range-picker-trigger");
+    private readonly string _panelId = BlazorIdGenerator.New("quark-preset-date-range-picker-panel");
+
+    private bool EffectiveOpen => OpenChanged.HasDelegate ? Open : _open;
+
+    private string TriggerId => Id ?? _triggerId;
+
+    private DateOnly EffectiveMaxDate => Max ?? DateOnly.FromDateTime(DateTime.Today);
+
+    private DateOnly ConfiguredMinDate => Min ?? EffectiveMaxDate.AddYears(-100);
+
+    private DateOnly EffectiveMinDate => PresetDateRangePickerUtil.GetSelectableMin(ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+
+    private IReadOnlyList<PresetDateRangePickerOption> EffectivePresets => Presets ?? PresetDateRangePickerOption.Defaults;
+
+    private bool HasPresets => ShowPresets && EffectivePresets.Count > 0;
+
+    private (DateOnly Start, DateOnly End)? EffectiveRange => PresetDateRangePickerUtil.Normalize(SelectedRange, ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+
+    private CalendarDateRange? CalendarRange => EffectiveRange is { } range ? new CalendarDateRange(range.Start, range.End) : SelectedRange;
+
+    private DateOnly CalendarMinDate => _rangeAnchorDate is { } anchor && MaxRangeDays is { } maxRangeDays
+        ? MaxDate(EffectiveMinDate, anchor.AddDays(-Math.Max(1, maxRangeDays) + 1))
+        : EffectiveMinDate;
+
+    private DateOnly CalendarMaxDate => _rangeAnchorDate is { } anchor && MaxRangeDays is { } maxRangeDays
+        ? MinDate(EffectiveMaxDate, anchor.AddDays(Math.Max(1, maxRangeDays) - 1))
+        : EffectiveMaxDate;
+
+    private LucideIcon ChevronIcon => EffectiveOpen ? LucideIcon.ChevronUp : LucideIcon.ChevronDown;
+
+    private string TriggerLabel => ActivePresetLabel() ?? RangeLabel() ?? GetPlaceholderText();
+
+    private string PanelClass =>
+        HasPresets
+            ? "grid w-[min(calc(100vw-2rem),46rem)] grid-cols-1 overflow-hidden rounded-lg bg-popover p-3 md:grid-cols-[14rem_minmax(0,1fr)]"
+            : "grid w-[min(calc(100vw-2rem),32rem)] grid-cols-1 overflow-hidden rounded-lg bg-popover p-3";
+
+    private string CalendarPanelClass => HasPresets ? "min-w-0 pt-3 md:pl-3 md:pt-0" : "min-w-0";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _open = DefaultOpen || Open;
+        SyncDisplayMonthToSelection();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (_lastSyncedFrom != SelectedRange?.From || _lastSyncedTo != SelectedRange?.To)
+            SyncDisplayMonthToSelection();
+    }
+
+    private string GetTriggerClass()
+    {
+        const string baseClass = "w-[212px] justify-between text-left font-normal";
+        return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "preset-date-range-picker-trigger",
+            ["aria-label"] = AriaLabel.HasContent() ? AriaLabel! : "Select date range",
+            ["aria-expanded"] = EffectiveOpen ? "true" : "false"
+        };
+
+        if (Attributes is not null)
+        {
+            foreach (var attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("placeholder", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        return attributes;
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildPanelAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "preset-date-range-picker-panel"
+        };
+    }
+
+    private string GetPlaceholderText()
+    {
+        return Placeholder.HasContent() ? Placeholder! : "Pick a date range";
+    }
+
+    private string? RangeLabel()
+    {
+        if (EffectiveRange is not { } range)
+            return null;
+
+        if (range.Start == range.End)
+            return FormatDate(range.Start);
+
+        return $"{FormatDate(range.Start)} - {FormatDate(range.End)}";
+    }
+
+    private async Task HandleOpenChanged(bool open)
+    {
+        if (!open)
+            _rangeAnchorDate = null;
+
+        if (OpenChanged.HasDelegate)
+            await OpenChanged.InvokeAsync(open);
+        else
+            _open = open;
+
+        await RefreshOffThread();
+    }
+
+    private async Task ApplyPreset(PresetDateRangePickerOption preset)
+    {
+        _rangeAnchorDate = null;
+
+        if (CloseOnRangeSelected)
+            await HandleOpenChanged(false);
+
+        await NotifyRangeChanged(preset.GetStart(EffectiveMaxDate), preset.GetEnd(EffectiveMaxDate));
+    }
+
+    private async Task SetDateRange(CalendarDateRange? range)
+    {
+        if (range is null)
+            return;
+
+        DateOnly? selectedStart = range.From ?? range.To;
+        DateOnly? selectedEnd = range.To;
+
+        if (selectedStart is null)
+            return;
+
+        if (selectedEnd is null || selectedStart == selectedEnd)
+        {
+            _rangeAnchorDate = PresetDateRangePickerUtil.Clamp(selectedStart.Value, EffectiveMinDate, EffectiveMaxDate);
+            await NotifyRangeChanged(_rangeAnchorDate.Value, _rangeAnchorDate.Value);
+            return;
+        }
+
+        if (selectedStart > selectedEnd)
+            (selectedStart, selectedEnd) = (selectedEnd, selectedStart);
+
+        _rangeAnchorDate = null;
+
+        if (CloseOnRangeSelected)
+            await HandleOpenChanged(false);
+
+        await NotifyRangeChanged(selectedStart.Value, selectedEnd.Value);
+    }
+
+    private async Task NotifyRangeChanged(DateOnly start, DateOnly end)
+    {
+        (start, end) = PresetDateRangePickerUtil.Normalize(start, end, ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+        var nextRange = new CalendarDateRange(start, end);
+        SelectedRange = nextRange;
+        SyncDisplayMonthToSelection();
+
+        await SelectedRangeChanged.InvokeAsync(nextRange);
+
+        var serializedRange = $"{start.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}/{end.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
+        var args = new ChangeEventArgs {Value = serializedRange};
+        await OnInput.InvokeIfHasDelegate(args);
+        await OnChange.InvokeIfHasDelegate(args);
+    }
+
+    private async Task HandleCalendarMonthChanged(DateOnly? month)
+    {
+        if (month.HasValue)
+            _displayMonth = new DateOnly(month.Value.Year, month.Value.Month, 1);
+
+        await RefreshOffThread();
+    }
+
+    private bool IsPresetActive(PresetDateRangePickerOption preset)
+    {
+        if (EffectiveRange is not { } range)
+            return false;
+
+        (DateOnly Start, DateOnly End) presetRange = PresetDateRangePickerUtil.Normalize(preset.GetStart(EffectiveMaxDate), preset.GetEnd(EffectiveMaxDate),
+            ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+
+        return range.Start == presetRange.Start && range.End == presetRange.End;
+    }
+
+    private string? ActivePresetLabel()
+    {
+        foreach (PresetDateRangePickerOption preset in EffectivePresets)
+        {
+            if (IsPresetActive(preset))
+                return preset.Label;
+        }
+
+        return null;
+    }
+
+    private static string PresetButtonClass(bool active)
+    {
+        const string baseClass = "flex h-10 w-full items-center justify-between gap-2 rounded-md px-3 text-left text-sm font-medium";
+
+        return active
+            ? $"{baseClass} bg-accent text-accent-foreground"
+            : $"{baseClass} bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground";
+    }
+
+    private string FormatDate(DateOnly value)
+    {
+        return value.ToString(DisplayFormat, CultureInfo.InvariantCulture);
+    }
+
+    private void SyncDisplayMonthToSelection()
+    {
+        _lastSyncedFrom = SelectedRange?.From;
+        _lastSyncedTo = SelectedRange?.To;
+
+        DateOnly displayDate = SelectedRange?.To ?? SelectedRange?.From ?? EffectiveMaxDate;
+        _displayMonth = new DateOnly(displayDate.Year, displayDate.Month, 1);
+    }
+
+    private static DateOnly MinDate(DateOnly first, DateOnly second)
+    {
+        return first <= second ? first : second;
+    }
+
+    private static DateOnly MaxDate(DateOnly first, DateOnly second)
+    {
+        return first >= second ? first : second;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(SelectedRange?.From);
+        hc.Add(SelectedRange?.To);
+        hc.Add(Min);
+        hc.Add(Max);
+        hc.Add(MaxRangeDays);
+        hc.Add(DisableDatesOutsideMaxRangeWindow);
+        hc.Add(ShowPresets);
+        hc.Add(DisplayFormat);
+        hc.Add(TriggerVariant);
+        hc.Add(ShowCalendarIcon);
+        hc.Add(NumberOfMonths);
+        hc.Add(ShowOutsideDays);
+        hc.Add(CloseOnRangeSelected);
+        hc.Add(EffectiveOpen);
+        hc.Add(DefaultOpen);
+        hc.Add(Side);
+        hc.Add(Align);
+        hc.Add(SideOffset);
+        hc.Add(_displayMonth);
+        hc.Add(_rangeAnchorDate);
+        hc.Add(Presets?.Count ?? 0);
+    }
+}

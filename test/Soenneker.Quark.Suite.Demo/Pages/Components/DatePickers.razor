@@ -26,30 +26,20 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Range Picker"
-                         Description="A date picker component for selecting a range of dates."
+                         Description="A preset date range picker component with a constrained selection window."
                          Code="@RangePickerCode"
                          PreviewClass="@DatePickerPreviewClass"
                          CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
                     <Div Display="Display.Grid" Gap="Gap.Is2">
                         <FieldLabel For="date-picker-range">Date Picker Range</FieldLabel>
-                        <Popover>
-                            <PopoverTrigger AsChild="true" Id="date-picker-range">
-                                <Button Id="date-picker-range"
-                                        Type="@ButtonType.Button"
-                                        Variant="ButtonVariant.Outline"
-                                        Class="@DateRangeButtonClass(_rangeDate?.From is not null)">
-                                    <Icon Name="LucideIcon.Calendar" Class="size-4" />
-                                    @FormatRange(_rangeDate)
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent Width="Width.Auto" Padding="Padding.Is0" Align="Alignment.Start">
-                                <Calendar Mode="CalendarSelectionMode.Range"
-                                          SelectedRange="_rangeDate"
-                                          SelectedRangeChanged="OnRangeDateChanged"
-                                          NumberOfMonths="2" />
-                            </PopoverContent>
-                        </Popover>
+                        <PresetDateRangePicker Id="date-picker-range"
+                                               SelectedRange="_rangeDate"
+                                               SelectedRangeChanged="OnRangeDateChanged"
+                                               Max="_rangeMaxDate"
+                                               MaxRangeDays="30"
+                                               DisableDatesOutsideMaxRangeWindow="true"
+                                               Presets="_rangePresets" />
                     </Div>
                 </Div>
             </DemoSection>
@@ -223,7 +213,17 @@
 
     private DateOnly? _overviewDate;
     private DateOnly? _basicDate;
-    private CalendarDateRange? _rangeDate = new(new DateOnly(2026, 1, 20), new DateOnly(2026, 2, 9));
+    private readonly DateOnly _rangeMaxDate = new(2026, 6, 24);
+    private readonly IReadOnlyList<PresetDateRangePickerOption> _rangePresets =
+    [
+        new("today", "Today", 0, 0),
+        new("yesterday", "Yesterday", -1, -1),
+        PresetDateRangePickerOption.LastDays(3),
+        PresetDateRangePickerOption.LastDays(7),
+        PresetDateRangePickerOption.LastDays(15),
+        PresetDateRangePickerOption.LastDays(30)
+    ];
+    private CalendarDateRange? _rangeDate = new(new DateOnly(2026, 5, 26), new DateOnly(2026, 6, 24));
     private DateOnly? _dobDate;
     private bool _dobOpen;
     private readonly DateOnly _dobMinDate = new(1900, 1, 1);
@@ -288,12 +288,6 @@
         return $"{width} justify-start text-left font-normal{muted}";
     }
 
-    private static string DateRangeButtonClass(bool hasValue)
-    {
-        var muted = hasValue ? string.Empty : " text-muted-foreground";
-        return $"w-[240px] justify-start text-left font-normal{muted}";
-    }
-
     private static string FormatDate(DateOnly? value)
     {
         if (value is null)
@@ -319,17 +313,6 @@
             return "rd";
 
         return "th";
-    }
-
-    private static string FormatRange(CalendarDateRange? value)
-    {
-        if (value?.From is null)
-            return "Pick a date range";
-
-        if (value.To is null)
-            return value.From.Value.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
-
-        return $"{value.From.Value:MMM dd, yyyy} - {value.To.Value:MMM dd, yyyy}";
     }
 
     private DateOnly NaturalLanguageDate => _naturalLanguageDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(2));
@@ -514,23 +497,13 @@
 @"<Div Display=""Display.Flex"" Width=""Width.IsFull"" Justify=""Justify.Center"">
     <Div Display=""Display.Grid"" Gap=""Gap.Is2"">
         <FieldLabel For=""date-picker-range"">Date Picker Range</FieldLabel>
-        <Popover>
-            <PopoverTrigger AsChild=""true"" Id=""date-picker-range"">
-                <Button Id=""date-picker-range""
-                        Type=""@ButtonType.Button""
-                        Variant=""ButtonVariant.Outline""
-                        Class=""@DateRangeButtonClass(_rangeDate?.From is not null)"">
-                    <Icon Name=""LucideIcon.Calendar"" Class=""size-4"" />
-                    @FormatRange(_rangeDate)
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent Width=""Width.Auto"" Padding=""Padding.Is0"" Align=""Alignment.Start"">
-                <Calendar Mode=""CalendarSelectionMode.Range""
-                          SelectedRange=""_rangeDate""
-                          SelectedRangeChanged=""OnRangeDateChanged""
-                          NumberOfMonths=""2"" />
-            </PopoverContent>
-        </Popover>
+        <PresetDateRangePicker Id=""date-picker-range""
+                               SelectedRange=""_rangeDate""
+                               SelectedRangeChanged=""OnRangeDateChanged""
+                               Max=""_rangeMaxDate""
+                               MaxRangeDays=""30""
+                               DisableDatesOutsideMaxRangeWindow=""true""
+                               Presets=""_rangePresets"" />
     </Div>
 </Div>";
 
