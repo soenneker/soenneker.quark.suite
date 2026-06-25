@@ -14,6 +14,7 @@
                     Type="@ButtonType.Button"
                     Variant="@TriggerVariant"
                     Disabled="Disabled"
+                    Justify="Quark.Justify.Between"
                     Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (ShowCalendarIcon)
@@ -42,11 +43,12 @@
 
                         <Button Type="@ButtonType.Button"
                                 Variant="ButtonVariant.Ghost"
+                                Justify="Quark.Justify.Between"
                                 Class="@PresetButtonClass(active)"
-                                AriaPressed="@active"
+                                aria-pressed="@GetAriaBoolean(active)"
                                 Role="menuitemradio"
                                 OnClick="@(() => ApplyPreset(preset))">
-                            <span>@preset.Label</span>
+                            <span class="min-w-0 flex-1 truncate text-left">@preset.Label</span>
                             @if (active)
                             {
                                 <Icon Name="LucideIcon.Check" Class="size-4 shrink-0" />
@@ -182,8 +184,8 @@
 
     private string PanelClass =>
         HasPresets
-            ? "grid w-[min(calc(100vw-2rem),46rem)] grid-cols-1 overflow-hidden rounded-lg bg-popover p-3 md:grid-cols-[14rem_minmax(0,1fr)]"
-            : "grid w-[min(calc(100vw-2rem),32rem)] grid-cols-1 overflow-hidden rounded-lg bg-popover p-3";
+            ? "grid w-fit max-w-[calc(100vw-2rem)] grid-cols-1 overflow-x-auto overflow-y-hidden rounded-lg bg-popover p-3 md:grid-cols-[14rem_auto]"
+            : "grid w-fit max-w-[calc(100vw-2rem)] grid-cols-1 overflow-x-auto overflow-y-hidden rounded-lg bg-popover p-3";
 
     private string CalendarPanelClass => HasPresets ? "min-w-0 pt-3 md:pl-3 md:pt-0" : "min-w-0";
 
@@ -204,7 +206,7 @@
 
     private string GetTriggerClass()
     {
-        const string baseClass = "w-[212px] justify-between text-left font-normal";
+        const string baseClass = "w-[212px] text-left font-normal";
         return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
     }
 
@@ -362,7 +364,7 @@
 
     private static string PresetButtonClass(bool active)
     {
-        const string baseClass = "flex h-10 w-full items-center justify-between gap-2 rounded-md px-3 text-left text-sm font-medium";
+        const string baseClass = "flex h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm font-medium";
 
         return active
             ? $"{baseClass} bg-accent text-accent-foreground"
@@ -391,6 +393,11 @@
     private static DateOnly MaxDate(DateOnly first, DateOnly second)
     {
         return first >= second ? first : second;
+    }
+
+    private static string GetAriaBoolean(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -13,8 +13,8 @@ public sealed partial class RenderedShadcnParityTests
     public void Preset_date_range_picker_marks_active_preset_and_disables_dates_outside_constrained_window()
     {
         var cut = Render<PresetDateRangePicker>(parameters => parameters
-            .Add(component => component.SelectedRange, new CalendarDateRange(new DateOnly(2026, 5, 26), new DateOnly(2026, 6, 24)))
-            .Add(component => component.Max, new DateOnly(2026, 6, 24))
+            .Add(component => component.SelectedRange, new CalendarDateRange(new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 30)))
+            .Add(component => component.Max, new DateOnly(2026, 6, 30))
             .Add(component => component.MaxRangeDays, 30)
             .Add(component => component.DisableDatesOutsideMaxRangeWindow, true)
             .Add(component => component.DefaultOpen, true));
@@ -22,8 +22,8 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("button[data-slot='preset-date-range-picker-trigger']").TextContent.Should().Contain("Last 30 days");
         cut.Find("button[role='menuitemradio'][aria-pressed='true']").TextContent.Should().Contain("Last 30 days");
 
-        cut.Find("td[data-day='2026-05-25'] button").HasAttribute("disabled").Should().BeTrue();
-        cut.Find("td[data-day='2026-05-26'] button").HasAttribute("disabled").Should().BeFalse();
+        cut.Find("td[data-day='2026-05-31'] button").HasAttribute("disabled").Should().BeTrue();
+        cut.Find("td[data-day='2026-06-01'] button").HasAttribute("disabled").Should().BeFalse();
     }
 
     [Test]
