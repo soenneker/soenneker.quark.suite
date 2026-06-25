@@ -59,7 +59,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<PresetDateRangePicker>(parameters => parameters
             .Add(component => component.SelectedRange, new CalendarDateRange(new DateOnly(2026, 6, 18), new DateOnly(2026, 6, 24)))
             .Add(component => component.Max, new DateOnly(2026, 6, 24))
-            .Add(component => component.Presets, presets)
+            .Add(component => component.RangePresets, presets)
             .Add(component => component.DefaultOpen, true));
 
         cut.FindAll("button[role='menuitemradio']").Should().HaveCount(2);

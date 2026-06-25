@@ -95,7 +95,7 @@
     public bool DisableDatesOutsideMaxRangeWindow { get; set; }
 
     [Parameter]
-    public IReadOnlyList<PresetDateRangePickerOption>? Presets { get; set; }
+    public IReadOnlyList<PresetDateRangePickerOption>? RangePresets { get; set; }
 
     [Parameter]
     public bool ShowPresets { get; set; } = true;
@@ -137,9 +137,6 @@
     public int SideOffset { get; set; } = 4;
 
     [Parameter]
-    public string? AriaLabel { get; set; }
-
-    [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
     [Parameter]
@@ -163,7 +160,7 @@
 
     private DateOnly EffectiveMinDate => PresetDateRangePickerUtil.GetSelectableMin(ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
 
-    private IReadOnlyList<PresetDateRangePickerOption> EffectivePresets => Presets ?? PresetDateRangePickerOption.Defaults;
+    private IReadOnlyList<PresetDateRangePickerOption> EffectivePresets => RangePresets ?? PresetDateRangePickerOption.Defaults;
 
     private bool HasPresets => ShowPresets && EffectivePresets.Count > 0;
 
@@ -419,6 +416,6 @@
         hc.Add(SideOffset);
         hc.Add(_displayMonth);
         hc.Add(_rangeAnchorDate);
-        hc.Add(Presets?.Count ?? 0);
+        hc.Add(RangePresets?.Count ?? 0);
     }
 }
