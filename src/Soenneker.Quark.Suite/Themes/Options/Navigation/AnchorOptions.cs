@@ -8,6 +8,6 @@ public sealed class AnchorOptions : ComponentOptions
 {
     public AnchorOptions()
     {
-        Selector = ".q-anchor";
+        Selector = "[data-slot='anchor']";
     }
 }

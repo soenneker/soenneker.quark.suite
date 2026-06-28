@@ -168,6 +168,275 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
+    public void DataTable_theme_options_generate_scoped_child_component_css()
+    {
+        var theme = new Theme
+        {
+            DataTables = new DataTableThemeOptions
+            {
+                Width = Width.IsFull,
+                Anchors = new AnchorOptions
+                {
+                    Display = Display.InlineFlex,
+                    DecorationLine = DecorationLine.None
+                },
+                Tds = new TdOptions
+                {
+                    Padding = Padding.OnY.Is3
+                },
+                Inputs = new InputOptions
+                {
+                    Width = Width.IsFull
+                },
+                PaginationLinks = new PaginationLinkOptions
+                {
+                    Display = Display.InlineFlex
+                },
+                Searches = new DataTableSearchOptions
+                {
+                    Display = Display.Flex
+                },
+                Selects = new SelectOptions
+                {
+                    Width = Width.IsFull
+                },
+                Spans = new SpanOptions
+                {
+                    Display = Display.Block,
+                    TextOverflow = TextOverflow.Ellipsis
+                }
+            }
+        };
+
+        string result = ComponentsCssGenerator.Generate(theme);
+
+        result.Should().Contain(".q-datatable {\n  width: 100%;\n}");
+        result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] {\n  display: inline-flex;\n  text-decoration: none;\n}");
+        result.Should().Contain(".q-datatable [data-slot='datatable-search-input'] {\n  width: 100%;\n}");
+        result.Should().Contain(".q-datatable [data-slot='datatable-pagination'] [data-slot='pagination-link'] {\n  display: inline-flex;\n}");
+        result.Should().Contain(".q-datatable [data-slot='datatable-search'] {\n  display: flex;\n}");
+        result.Should().Contain(".q-datatable [data-slot='datatable-page-size-select'] {\n  width: 100%;\n}");
+        result.Should().Contain(".q-datatable tbody [data-slot='table-cell'] {\n  padding-top: 0.75rem;\n  padding-bottom: 0.75rem;\n}");
+        result.Should().Contain(".q-datatable tbody td [data-slot='span'] {\n  display: block;\n  text-overflow: ellipsis;\n}");
+    }
+
+    [Test]
+    public void DataTable_scoped_child_options_allow_relative_selector_overrides()
+    {
+        var theme = new Theme
+        {
+            DataTables = new DataTableThemeOptions
+            {
+                Anchors = new AnchorOptions
+                {
+                    Selector = "& tbody td > a[data-entity-link]",
+                    MinWidth = Width.Is0
+                }
+            }
+        };
+
+        string result = ComponentsCssGenerator.Generate(theme);
+
+        result.Should().Be(".q-datatable tbody td > a[data-entity-link] {\n  min-width: 0;\n}");
+    }
+
+    [Test]
+    public void Composite_theme_options_generate_nested_child_component_css()
+    {
+        var theme = new Theme
+        {
+            Cards = new CardOptions
+            {
+                Headers = new CardHeaderOptions
+                {
+                    Display = Display.Flex
+                },
+                Titles = new CardTitleOptions
+                {
+                    FontWeight = FontWeight.Semibold
+                }
+            },
+            Fields = new FieldOptions
+            {
+                Labels = new FieldLabelOptions
+                {
+                    Display = Display.Block
+                },
+                Inputs = new InputOptions
+                {
+                    Width = Width.IsFull
+                }
+            },
+            Dialogs = new DialogOptions
+            {
+                Titles = new DialogTitleOptions
+                {
+                    FontWeight = FontWeight.Semibold
+                },
+                Descriptions = new DialogDescriptionOptions
+                {
+                    TextSize = TextSize.Sm
+                }
+            },
+            Dropdowns = new DropdownOptions
+            {
+                Items = new DropdownItemOptions
+                {
+                    Display = Display.Flex
+                },
+                Shortcuts = new DropdownShortcutOptions
+                {
+                    TextSize = TextSize.Xs
+                }
+            },
+            Selects = new SelectOptions
+            {
+                Triggers = new SelectTriggerOptions
+                {
+                    Width = Width.IsFull
+                },
+                Items = new SelectItemOptions
+                {
+                    Display = Display.Flex
+                }
+            },
+            Alerts = new AlertOptions
+            {
+                Titles = new AlertTitleOptions
+                {
+                    FontWeight = FontWeight.Semibold
+                },
+                Icons = new IconOptions
+                {
+                    Display = Display.InlineBlock
+                }
+            },
+            Breadcrumbs = new BreadcrumbOptions
+            {
+                Links = new BreadcrumbLinkOptions
+                {
+                    TextColor = TextColor.Foreground
+                },
+                Separators = new BreadcrumbSeparatorOptions
+                {
+                    Display = Display.InlineFlex
+                }
+            },
+            ButtonGroups = new ButtonGroupOptions
+            {
+                Buttons = new ButtonOptions
+                {
+                    Width = Width.IsFull
+                },
+                Texts = new ButtonGroupTextOptions
+                {
+                    TextSize = TextSize.Sm
+                }
+            },
+            Paginations = new PaginationOptions
+            {
+                Contents = new PaginationContentOptions
+                {
+                    Gap = Gap.Is1
+                },
+                Links = new PaginationLinkOptions
+                {
+                    Display = Display.InlineFlex
+                }
+            },
+            OrderedLists = new OrderedListOptions
+            {
+                Items = new OrderedListItemOptions
+                {
+                    Padding = Padding.FromLeft.Is2
+                }
+            },
+            Progresses = new ProgressOptions
+            {
+                Indicators = new ProgressIndicatorOptions
+                {
+                    BackgroundColor = BackgroundColor.Primary
+                }
+            },
+            Tabs = new TabsOptions
+            {
+                Lists = new TabsListOptions
+                {
+                    Display = Display.Flex
+                },
+                Triggers = new TabOptions
+                {
+                    FontWeight = FontWeight.Medium
+                }
+            },
+            Tables = new TableOptions
+            {
+                Containers = new TableContainerOptions
+                {
+                    Display = Display.Block
+                },
+                Tds = new TdOptions
+                {
+                    Padding = Padding.Is2
+                },
+                Ths = new ThOptions
+                {
+                    FontWeight = FontWeight.Semibold
+                }
+            },
+            Trees = new TreeOptions
+            {
+                ItemLabels = new TreeItemLabelOptions
+                {
+                    Padding = Padding.OnX.Is2
+                },
+                DragLines = new TreeDragLineOptions
+                {
+                    Display = Display.Block
+                }
+            },
+            UnorderedLists = new UnorderedListOptions
+            {
+                Items = new UnorderedListItemOptions
+                {
+                    Display = Display.ListItem
+                }
+            }
+        };
+
+        string result = ComponentsCssGenerator.Generate(theme);
+
+        result.Should().Contain("[data-slot='card'] [data-slot='card-header'] {\n  display: flex;\n}");
+        result.Should().Contain("[data-slot='card'] [data-slot='card-title'] {\n  font-weight: 600;\n}");
+        result.Should().Contain("[data-slot='field'] [data-slot='field-label'] {\n  display: block;\n}");
+        result.Should().Contain("[data-slot='field'] [data-slot='input'] {\n  width: 100%;\n}");
+        result.Should().Contain("[data-slot='dialog-title'] {\n  font-weight: 600;\n}");
+        result.Should().Contain("[data-slot='dialog-description'] {\n  font-size: var(--text-sm);\n}");
+        result.Should().Contain("[data-slot='dropdown-menu-item'] {\n  display: flex;\n}");
+        result.Should().Contain("[data-slot='dropdown-menu-shortcut'] {\n  font-size: var(--text-xs);\n}");
+        result.Should().Contain("[data-slot='select-trigger'] {\n  width: 100%;\n}");
+        result.Should().Contain("[data-slot='select-item'] {\n  display: flex;\n}");
+        result.Should().Contain("[data-slot='alert'] [data-slot='alert-title'] {\n  font-weight: 600;\n}");
+        result.Should().Contain("[data-slot='alert'] [data-slot='icon'] {\n  display: inline-block;\n}");
+        result.Should().Contain("[data-slot='breadcrumb'] [data-slot='breadcrumb-link'] {\n  color: var(--foreground);\n}");
+        result.Should().Contain("[data-slot='breadcrumb'] [data-slot='breadcrumb-separator'] {\n  display: inline-flex;\n}");
+        result.Should().Contain("[data-slot='button-group'] [data-slot='button'] {\n  width: 100%;\n}");
+        result.Should().Contain("[data-slot='button-group'] [data-slot='button-group-text'] {\n  font-size: var(--text-sm);\n}");
+        result.Should().Contain("[data-slot='ordered-list'] [data-slot='ordered-list-item'] {\n  padding-left: 0.5rem;\n}");
+        result.Should().Contain("[data-slot='pagination'] [data-slot='pagination-content'] {\n  gap: 0.25rem;\n}");
+        result.Should().Contain("[data-slot='pagination'] [data-slot='pagination-link'] {\n  display: inline-flex;\n}");
+        result.Should().Contain("[data-slot='progress'] [data-slot='progress-indicator'] {\n  background-color: var(--primary);\n}");
+        result.Should().Contain("[data-slot='tabs'] [data-slot='tabs-list'] {\n  display: flex;\n}");
+        result.Should().Contain("[data-slot='tabs'] [data-slot='tabs-trigger'] {\n  font-weight: 500;\n}");
+        result.Should().Contain("[data-slot='table-container'] {\n  display: block;\n}");
+        result.Should().Contain("[data-slot='table'] [data-slot='table-cell'] {\n  padding: 0.5rem;\n}");
+        result.Should().Contain("[data-slot='table'] [data-slot='table-head'] {\n  font-weight: 600;\n}");
+        result.Should().Contain("[data-slot='tree'] [data-slot='tree-item-label'] {\n  padding-left: 0.5rem;\n  padding-right: 0.5rem;\n}");
+        result.Should().Contain("[data-slot='tree'] [data-slot='tree-drag-line'] {\n  display: block;\n}");
+        result.Should().Contain("[data-slot='unordered-list'] [data-slot='unordered-list-item'] {\n  display: list-item;\n}");
+    }
+
+    [Test]
     public void Class_merging_preserves_identical_tokens()
     {
         CssValue<FlexBuilder> flex = "flex flex-col";

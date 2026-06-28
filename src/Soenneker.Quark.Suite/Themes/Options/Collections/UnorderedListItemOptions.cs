@@ -8,6 +8,6 @@ public sealed class UnorderedListItemOptions : ComponentOptions
 {
     public UnorderedListItemOptions()
     {
-        Selector = ".q-unordered-list-item";
+        Selector = "[data-slot='unordered-list-item']";
     }
 }

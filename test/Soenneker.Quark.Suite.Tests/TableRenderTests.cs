@@ -14,9 +14,25 @@ public sealed partial class RenderedShadcnParityTests
 
         var table = cut.Find("table[data-slot='table']");
         table.TextContent.Should().Contain("Cell");
+        table.ClassList.Should().Contain("q-datatable");
         table.ClassList.Should().Contain("w-full");
         table.ClassList.Should().Contain("text-sm");
         table.ClassList.Should().Contain("caption-bottom");
+    }
+
+    [Test]
+    public void Anchor_and_span_render_themeable_data_slots()
+    {
+        var anchor = Render<Anchor>(parameters => parameters
+            .Add(p => p.Href, "/details")
+            .Add(p => p.ChildContent, "Details"));
+
+        anchor.Find("a").GetAttribute("data-slot").Should().Be("anchor");
+
+        var span = Render<Span>(parameters => parameters
+            .Add(p => p.ChildContent, "Label"));
+
+        span.Find("span").GetAttribute("data-slot").Should().Be("span");
     }
 
     [Test]

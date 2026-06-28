@@ -20,12 +20,63 @@ public class ComponentOptions
     /// </summary>
     internal virtual IEnumerable<ComponentCssRule> GetCssRules()
     {
-        if (Selector.IsNullOrWhiteSpace())
+        return GetCssRules(Selector);
+    }
+
+    /// <summary>
+    /// Gets all CSS rules for this component under the provided selector.
+    /// </summary>
+    internal virtual IEnumerable<ComponentCssRule> GetCssRules(string baseSelector)
+    {
+        if (baseSelector.IsNullOrWhiteSpace())
             return [];
 
         var buffer = new List<ComponentCssRule>(32);
-        CollectCssRules(buffer, Selector);
+        CollectCssRules(buffer, baseSelector);
+        CollectChildCssRules(buffer, baseSelector);
         return buffer;
+    }
+
+    /// <summary>
+    /// Allows component option groups to append scoped child component rules.
+    /// </summary>
+    private protected virtual void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    {
+    }
+
+    private protected static void AddChildCssRules<TOptions>(List<ComponentCssRule> buffer, TOptions? options, string scopedDefaultSelector,
+        string optionDefaultSelector, string baseSelector)
+        where TOptions : ComponentOptions
+    {
+        if (options is null)
+            return;
+
+        string? scopedSelector = ResolveScopedChildSelector(baseSelector, options.Selector, scopedDefaultSelector, optionDefaultSelector);
+
+        if (scopedSelector.IsNullOrWhiteSpace())
+            return;
+
+        foreach (ComponentCssRule rule in options.GetCssRules(scopedSelector))
+        {
+            buffer.Add(rule);
+        }
+    }
+
+    private static string? ResolveScopedChildSelector(string baseSelector, string? selector, string scopedDefaultSelector, string optionDefaultSelector)
+    {
+        if (selector.IsNullOrWhiteSpace())
+            return null;
+
+        string trimmed = selector.Trim();
+        string relativeSelector = string.Equals(trimmed, optionDefaultSelector, System.StringComparison.Ordinal) ? scopedDefaultSelector : trimmed;
+
+        if (relativeSelector.Contains('&', System.StringComparison.Ordinal))
+            return relativeSelector.Replace("&", baseSelector, System.StringComparison.Ordinal).Trim();
+
+        if (baseSelector.IsNullOrWhiteSpace())
+            return relativeSelector;
+
+        return $"{baseSelector} {relativeSelector}";
     }
 
     /// <summary>
