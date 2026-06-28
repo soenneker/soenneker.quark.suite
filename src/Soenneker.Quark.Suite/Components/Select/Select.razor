@@ -1,6 +1,7 @@
 @using Soenneker.Bradix
 @using System.Globalization
 @using System.Linq.Expressions
+@using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -11,17 +12,40 @@
 
 <CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
     <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="true">
-        <BradixSelect Value="@SelectedValueString"
-                      Name="@Name"
-                      Disabled="@Disabled"
-                      Required="@Required"
-                      ValueChanged="HandleBradixValueChanged">
-            @ChildContent
-        </BradixSelect>
+        @if (UsesAutoSaveStatusSlot)
+        {
+            <div class="inline-flex items-center gap-2">
+                <BradixSelect Value="@SelectedValueString"
+                              Name="@Name"
+                              Disabled="@Disabled"
+                              Required="@Required"
+                              ValueChanged="HandleBradixValueChanged">
+                    @ChildContent
+                </BradixSelect>
+                <AutoSaveStatus State="@_autoSave.State"
+                                Visible="@UsesAutoSaveStatusSlot"
+                                Class="@AutoSaveStatusClass"
+                                SavingClass="@AutoSaveSavingClass"
+                                SavedClass="@AutoSaveSavedClass"
+                                FailedClass="@AutoSaveFailedClass" />
+            </div>
+        }
+        else
+        {
+            <BradixSelect Value="@SelectedValueString"
+                          Name="@Name"
+                          Disabled="@Disabled"
+                          Required="@Required"
+                          ValueChanged="HandleBradixValueChanged">
+                @ChildContent
+            </BradixSelect>
+        }
     </CascadingValue>
 </CascadingValue>
 
 @code {
+    private readonly AutoSaveController<TValue?> _autoSave = new();
+
     /// <summary>
     /// Gets or sets the selected value.
     /// </summary>
@@ -52,6 +76,39 @@
     [Parameter]
     public CssValue<SelectSizeBuilder>? SelectSize { get; set; } = SelectSizes.Default;
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<TValue?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     /// <summary>
     /// Gets or sets the default item text.
     /// </summary>
@@ -75,6 +132,7 @@
     private SelectContext _context = null!;
     private string? SelectedValueString => GetValueString(SelectedValue);
     private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     protected override void OnInitialized()
     {
@@ -136,6 +194,9 @@
 
         if (valueChanged && SelectedValueChanged.HasDelegate)
             await SelectedValueChanged.InvokeAsync(nextValue);
+
+        if (valueChanged)
+            await _autoSave.NotifyValueChanged(nextValue, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 
         await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
 
@@ -211,6 +272,7 @@
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
+        await _autoSave.DisposeAsync();
 
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
@@ -226,5 +288,16 @@
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
     }
 }

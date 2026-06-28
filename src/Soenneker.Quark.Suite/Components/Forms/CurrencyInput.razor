@@ -1,5 +1,6 @@
 @using System.Globalization
 @using System.Linq.Expressions
+@using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -14,7 +15,7 @@
         </Span>
     }
 
-    <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="@HandleValueChanged" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="@OnKeyDown" OnInput="HandleInput" OnChange="HandleChange" OnFocus="HandleInputFocus" OnBlur="HandleInputBlur" @attributes="BuildInputAttributes()" ValidationValueSelector="@(() => (object?)Value)"/>
+    <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="@HandleValueChanged" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="HandleInputKeyDown" OnInput="HandleInput" OnChange="HandleChange" OnFocus="HandleInputFocus" OnBlur="HandleInputBlur" @attributes="BuildInputAttributes()" ValidationValueSelector="@(() => (object?)Value)"/>
 
     @if (ShowSymbol && SymbolAtEnd)
     {
@@ -22,9 +23,17 @@
             @EffectiveSymbol
         </Span>
     }
+
+    <AutoSaveStatus State="@_autoSave.State"
+                    Visible="@UsesAutoSaveStatusSlot"
+                    Class="@AutoSaveStatusOverlayClass"
+                    SavingClass="@AutoSaveSavingClass"
+                    SavedClass="@AutoSaveSavedClass"
+                    FailedClass="@AutoSaveFailedClass" />
 </Div>
 
 @code {
+    private readonly AutoSaveController<decimal?> _autoSave = new();
 
     [Parameter]
     public decimal? Value { get; set; }
@@ -80,6 +89,39 @@
     [Parameter]
     public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<decimal?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
@@ -87,6 +129,7 @@
 
     private string _editingValue = string.Empty;
     private bool _isFocused;
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     private string EffectiveSymbol
     {
@@ -103,7 +146,23 @@
 
     private string InputClass
     {
-        get => "text-right tabular-nums";
+        get => UsesAutoSaveStatusSlot && !SymbolAtEnd
+            ? "text-right tabular-nums pe-8"
+            : "text-right tabular-nums";
+    }
+
+    private string AutoSaveStatusOverlayClass
+    {
+        get
+        {
+            var overlayClass = SymbolAtEnd
+                ? "absolute right-8 top-1/2 -translate-y-1/2"
+                : "absolute end-2.5 top-1/2 -translate-y-1/2";
+
+            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
+                ? overlayClass
+                : $"{overlayClass} {AutoSaveStatusClass}";
+        }
     }
 
     private string? InputStyle
@@ -181,6 +240,7 @@
         if (valueChanged)
         {
             await ValueChanged.InvokeIfHasDelegate(Value);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
             InvalidateRender();
             Refresh();
         }
@@ -224,8 +284,19 @@
         _editingValue = FormatEditingValue(Value);
 
         await OnBlur.InvokeIfHasDelegate(e);
+        if (AutoSaveOnBlur)
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
         InvalidateRender();
         Refresh();
+    }
+
+    private async Task HandleInputKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
     }
 
     private Dictionary<string, object> BuildInputAttributes()
@@ -362,6 +433,7 @@
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
+        await _autoSave.DisposeAsync();
 
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
@@ -384,6 +456,17 @@
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);

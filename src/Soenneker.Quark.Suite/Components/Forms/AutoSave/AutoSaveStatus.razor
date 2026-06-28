@@ -1,0 +1,119 @@
+@namespace Soenneker.Quark
+
+@if (ShouldRenderStatus)
+{
+    <span class="@RootClass" data-slot="autosave-status" data-state="@State.Value" role="status" aria-live="polite" aria-label="@AriaLabel">
+        <span class="@GetIconLayerClass(IsSavingState)">
+            <Icon Name="LucideIcon.LoaderCircle" Size="Quark.Size.Is4" Class="animate-spin" aria-hidden="true" />
+        </span>
+        <span class="@GetIconLayerClass(IsState(AutoSaveState.Saved))">
+            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" aria-hidden="true" />
+        </span>
+        <span class="@GetIconLayerClass(IsState(AutoSaveState.Failed))">
+            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+        </span>
+    </span>
+}
+
+@code {
+    [Parameter]
+    public AutoSaveState State { get; set; } = AutoSaveState.Idle;
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? SavingClass { get; set; }
+
+    [Parameter]
+    public string? SavedClass { get; set; }
+
+    [Parameter]
+    public string? FailedClass { get; set; }
+
+    private bool ShouldRenderStatus => Visible && !IsState(AutoSaveState.Idle);
+
+    private bool IsSavingState => IsState(AutoSaveState.Pending) || IsState(AutoSaveState.Saving);
+
+    private string AriaLabel => State.Value switch
+    {
+        "pending" => "Autosave pending",
+        "saving" => "Autosaving",
+        "saved" => "Autosaved",
+        "failed" => "Autosave failed",
+        _ => "Autosave status"
+    };
+
+    private string RootClass
+    {
+        get
+        {
+            var cls = $"pointer-events-none {PositionClass} grid size-4 shrink-0 place-items-center overflow-hidden {StateClass}";
+
+            if (!string.IsNullOrWhiteSpace(Class))
+                cls = $"{cls} {Class}";
+
+            return cls;
+        }
+    }
+
+    private string PositionClass => HasPositionClass(Class) ? string.Empty : "relative";
+
+    private string StateClass
+    {
+        get
+        {
+            if (IsSavingState)
+                return string.IsNullOrWhiteSpace(SavingClass) ? "text-foreground" : SavingClass!;
+
+            if (IsState(AutoSaveState.Saved))
+                return string.IsNullOrWhiteSpace(SavedClass) ? "text-green-600 dark:text-green-400" : SavedClass!;
+
+            if (IsState(AutoSaveState.Failed))
+                return string.IsNullOrWhiteSpace(FailedClass) ? "text-red-600 dark:text-red-400" : FailedClass!;
+
+            return string.Empty;
+        }
+    }
+
+    private bool IsState(AutoSaveState state)
+    {
+        return EqualityComparer<AutoSaveState>.Default.Equals(State, state);
+    }
+
+    private static string GetIconLayerClass(bool active)
+    {
+        const string baseClass = "absolute inset-0 grid place-items-center transition-all duration-200 ease-out";
+
+        return active
+            ? $"{baseClass} scale-100 rotate-0 opacity-100"
+            : $"{baseClass} scale-75 -rotate-12 opacity-0";
+    }
+
+    private static bool HasPositionClass(string? cls)
+    {
+        if (string.IsNullOrWhiteSpace(cls))
+            return false;
+
+        ReadOnlySpan<char> span = cls.AsSpan();
+
+        while (!span.IsEmpty)
+        {
+            var nextSpace = span.IndexOf(' ');
+            var token = nextSpace < 0 ? span : span[..nextSpace];
+
+            if (token is "relative" or "absolute" or "fixed" or "sticky")
+                return true;
+
+            if (nextSpace < 0)
+                return false;
+
+            span = span[(nextSpace + 1)..].TrimStart();
+        }
+
+        return false;
+    }
+}

@@ -1,22 +1,52 @@
 @namespace Soenneker.Quark
 @using Soenneker.Bradix
+@using Soenneker.Blazor.Extensions.EventCallback
+@using System.Threading
 @inherits Soenneker.Quark.FormControlElement
 
 <CascadingValue Name="ParentToggleGroup" Value="@this" IsFixed="true">
-    <BradixToggleGroup Type="@Type"
-                       Disabled="@Disabled"
-                       Value="@Value"
-                       Values="@Values"
-                       Dir="@ResolvedDirection"
-                       Orientation="@Orientation"
-                       ValueChanged="HandleSingleValueChanged"
-                       ValuesChanged="HandleMultipleValuesChanged"
-                       AdditionalAttributes="@GroupAttributes">
-        @ChildContent
-    </BradixToggleGroup>
+    @if (UsesAutoSaveStatusSlot)
+    {
+        <div class="inline-flex items-center gap-2">
+            <BradixToggleGroup Type="@Type"
+                               Disabled="@Disabled"
+                               Value="@Value"
+                               Values="@Values"
+                               Dir="@ResolvedDirection"
+                               Orientation="@Orientation"
+                               ValueChanged="HandleSingleValueChanged"
+                               ValuesChanged="HandleMultipleValuesChanged"
+                               AdditionalAttributes="@GroupAttributes">
+                @ChildContent
+            </BradixToggleGroup>
+            <AutoSaveStatus State="@CurrentAutoSaveState"
+                            Visible="@UsesAutoSaveStatusSlot"
+                            Class="@AutoSaveStatusClass"
+                            SavingClass="@AutoSaveSavingClass"
+                            SavedClass="@AutoSaveSavedClass"
+                            FailedClass="@AutoSaveFailedClass" />
+        </div>
+    }
+    else
+    {
+        <BradixToggleGroup Type="@Type"
+                           Disabled="@Disabled"
+                           Value="@Value"
+                           Values="@Values"
+                           Dir="@ResolvedDirection"
+                           Orientation="@Orientation"
+                           ValueChanged="HandleSingleValueChanged"
+                           ValuesChanged="HandleMultipleValuesChanged"
+                           AdditionalAttributes="@GroupAttributes">
+            @ChildContent
+        </BradixToggleGroup>
+    }
 </CascadingValue>
 
 @code {
+    private readonly AutoSaveController<string?> _autoSave = new();
+    private readonly AutoSaveController<string[]?> _autoSaveMultiple = new();
+
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? CascadedDirection { get; set; }
 
@@ -71,7 +101,46 @@
     [Parameter]
     public string? Dir { get; set; }
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public Func<string[]?, CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     internal string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
+    private bool UsesMultipleAutosave => Type == SelectionMode.Multiple;
+    private AutoSaveState CurrentAutoSaveState => UsesMultipleAutosave ? _autoSaveMultiple.State : _autoSave.State;
+    private bool UsesAutoSaveStatusSlot => AutoSave && ShowAutoSaveStatus && (OnAutoSave is not null || OnAutoSaveMultiple is not null);
 
     internal bool IsItemPressed(string value)
     {
@@ -113,6 +182,12 @@
             attributes["data-orientation"] = Orientation?.Value ?? Orientation.Horizontal.Value;
             attributes["data-spacing"] = Spacing.ToString();
 
+            if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && (OnAutoSave is not null || OnAutoSaveMultiple is not null)))
+                attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleGroupBlur);
+
+            if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && (OnAutoSave is not null || OnAutoSaveMultiple is not null)))
+                attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleGroupKeyDown);
+
             AppendStyleDeclAttr(attributes, $"--gap:{Spacing}");
 
             BuildClassAttribute(attributes, (ref cls) =>
@@ -130,6 +205,7 @@
         var normalized = value.HasContent() ? value : null;
         Value = normalized;
         await ValueChanged.InvokeAsync(normalized);
+        await _autoSave.NotifyValueChanged(normalized, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
         InvalidateRender();
         Refresh();
     }
@@ -138,8 +214,32 @@
     {
         Values = values as string[] ?? CopyValues(values);
         await ValueChangedMultiple.InvokeAsync(Values);
+        await _autoSaveMultiple.NotifyValueChanged(Values, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread);
         InvalidateRender();
         Refresh();
+    }
+
+    private async Task HandleGroupBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            await FlushAutoSave();
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    private async Task HandleGroupKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await FlushAutoSave();
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
+    }
+
+    private Task FlushAutoSave()
+    {
+        return UsesMultipleAutosave
+            ? _autoSaveMultiple.Flush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread)
+            : _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
     }
 
     private bool ContainsValue(string value)
@@ -181,8 +281,27 @@
         hc.Add(Spacing);
         hc.Add(Dir);
         hc.Add(CascadedDirection);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(CurrentAutoSaveState);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(OnAutoSaveMultiple is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
         if (Values != null)
             foreach (var x in Values) hc.Add(x);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await _autoSaveMultiple.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     private static string GetToggleSizeDataAttribute(CssValue<ToggleSizeBuilder>? size)

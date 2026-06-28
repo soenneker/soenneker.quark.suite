@@ -1,4 +1,5 @@
 @using System.Linq.Expressions
+@using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -6,9 +7,24 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IMemoInput
 
-<textarea value="@Value" @oninput="HandleInput" @onchange="HandleChange" @attributes="BuildAttributes()"></textarea>
+@if (UsesAutoSaveStatusSlot)
+{
+    <span class="relative block w-full">
+        <textarea value="@Value" @oninput="HandleInput" @onchange="HandleChange" @attributes="BuildAttributes()"></textarea>
+        <AutoSaveStatus State="@_autoSave.State"
+                        Class="@AutoSaveStatusOverlayClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
+    </span>
+}
+else
+{
+    <textarea value="@Value" @oninput="HandleInput" @onchange="HandleChange" @attributes="BuildAttributes()"></textarea>
+}
 
 @code {
+    private readonly AutoSaveController<string?> _autoSave = new();
 
 	/// <summary>
 	/// Gets or sets the number of rows for the textarea.
@@ -70,6 +86,39 @@
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
@@ -77,6 +126,20 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => Value;
+
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
+
+    private string AutoSaveStatusOverlayClass
+    {
+        get
+        {
+            const string overlayClass = "absolute end-2.5 top-3.5";
+
+            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
+                ? overlayClass
+                : $"{overlayClass} {AutoSaveStatusClass}";
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -159,6 +222,9 @@
 			var validationClass = GetValidationClass();
 			if (validationClass != null)
 				AppendClass(ref cls, validationClass);
+
+            if (UsesAutoSaveStatusSlot)
+                AppendClass(ref cls, "pe-8");
 		});
 
 		if (Placeholder.HasContent())
@@ -187,6 +253,12 @@
 
 		if (AutoResize)
 			BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;"));
+
+        if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
+            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleMemoBlur);
+
+        if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
+            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleMemoKeyDown);
 	}
 
     private async Task HandleInput(ChangeEventArgs e)
@@ -211,6 +283,7 @@
 
 		if (valueChanged)
 		{
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 			InvalidateRender();
 			Refresh();
 		}
@@ -237,14 +310,32 @@
 
 		if (valueChanged)
 		{
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 			InvalidateRender();
 			Refresh();
 		}
 	}
 
+    private async Task HandleMemoBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    private async Task HandleMemoKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
+    }
+
 	public override async ValueTask DisposeAsync()
     {
 		await base.DisposeAsync();
+        await _autoSave.DisposeAsync();
 
 		if (ParentValidation is not null)
 			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
@@ -264,5 +355,16 @@
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);
 		hc.Add(Required);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
 	}
 }

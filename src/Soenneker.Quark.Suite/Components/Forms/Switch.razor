@@ -1,6 +1,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
+@using System.Threading
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
@@ -28,7 +29,34 @@
         {
             <Span @attributes="BuildLabelAttributes()">@Label</Span>
         }
+        <AutoSaveStatus State="@_autoSave.State"
+                        Visible="@UsesAutoSaveStatusSlot"
+                        Class="@AutoSaveStatusClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
     </Label>
+}
+else if (UsesAutoSaveStatusSlot)
+{
+    <span class="inline-flex items-center gap-2">
+        <BradixSwitch Checked="@Checked"
+                      Required="@Required"
+                      Disabled="@Disabled"
+                      Name="@Name"
+                      Value="@ResolvedSwitchValue"
+                      CheckedChanged="HandleCheckedChanged"
+                      OnClick="@OnClick"
+                      AdditionalAttributes="@BuildControlAttributes()">
+            <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
+        </BradixSwitch>
+        <AutoSaveStatus State="@_autoSave.State"
+                        Visible="@UsesAutoSaveStatusSlot"
+                        Class="@AutoSaveStatusClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
+    </span>
 }
 else
 {
@@ -45,6 +73,8 @@ else
 }
 
 @code {
+    private readonly AutoSaveController<bool?> _autoSave = new();
+
     [Parameter]
     public string? Label { get; set; }
 
@@ -54,12 +84,46 @@ else
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<bool?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent != null || Label.HasContent();
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedSwitchValue => Value.HasContent() ? Value! : "on";
 
@@ -122,6 +186,12 @@ else
         if (Disabled)
             attributes["data-disabled"] = "";
 
+        if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
+            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleControlBlur);
+
+        if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
+            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown);
+
         if (Attributes is not null)
         {
             foreach (var attribute in Attributes)
@@ -181,6 +251,7 @@ else
     {
         Checked = next;
         await CheckedChanged.InvokeAsync(next);
+        await _autoSave.NotifyValueChanged(next, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 
         if (ParentValidation is not null)
         {
@@ -193,6 +264,22 @@ else
         Refresh();
     }
 
+    private async Task HandleControlBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    private async Task HandleControlKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -202,6 +289,17 @@ else
         hc.Add(Value);
         hc.Add(Label);
         AddIf(ref hc, SwitchSize);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
     }
 
     public override async ValueTask DisposeAsync()
@@ -209,6 +307,7 @@ else
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
 
+        await _autoSave.DisposeAsync();
         await base.DisposeAsync();
     }
 }

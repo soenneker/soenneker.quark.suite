@@ -1,14 +1,34 @@
 @using Soenneker.Bradix
+@using Soenneker.Blazor.Extensions.EventCallback
+@using System.Threading
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements IToggle
 
-<BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="@OnKeyDown" AdditionalAttributes="@ToggleAttributes">
-    @ChildContent
-</BradixToggle>
+@if (UsesAutoSaveStatusSlot)
+{
+    <span class="inline-flex items-center gap-2">
+        <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="HandleToggleKeyDown" AdditionalAttributes="@ToggleAttributes">
+            @ChildContent
+        </BradixToggle>
+        <AutoSaveStatus State="@_autoSave.State"
+                        Visible="@UsesAutoSaveStatusSlot"
+                        Class="@AutoSaveStatusClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
+    </span>
+}
+else
+{
+    <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="HandleToggleKeyDown" AdditionalAttributes="@ToggleAttributes">
+        @ChildContent
+    </BradixToggle>
+}
 
 @code {
+    private readonly AutoSaveController<bool?> _autoSave = new();
 
     /// <summary>
     /// Gets or sets whether the toggle is pressed.
@@ -34,6 +54,39 @@
     [Parameter]
     public CssValue<ToggleSizeBuilder>? ToggleSize { get; set; } = "default";
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<bool?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
@@ -44,6 +97,7 @@
     public string? Dir { get; set; }
 
     private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     protected override void ApplyDefaultParameters()
     {
@@ -90,6 +144,9 @@
 
             attributes["data-state"] = Pressed ? "on" : "off";
 
+            if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
+                attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleToggleBlur);
+
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 var isRtl = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
@@ -108,9 +165,26 @@
     {
         Pressed = pressed;
         await PressedChanged.InvokeAsync(pressed);
+        await _autoSave.NotifyValueChanged(pressed, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 
         InvalidateRender();
         Refresh();
+    }
+
+    private async Task HandleToggleBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            await _autoSave.Flush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    private async Task HandleToggleKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -123,6 +197,23 @@
         hc.Add(ToggleSize);
         hc.Add(Dir);
         hc.Add(DirectionProviderDir);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     internal static string GetToggleVariantClass(ToggleVariant? variant)

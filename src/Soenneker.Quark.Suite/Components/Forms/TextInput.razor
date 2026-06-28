@@ -1,4 +1,5 @@
 @using System.Linq.Expressions
+@using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -27,6 +28,17 @@
            @attributes="BuildInputAttributes()"
            OnInput="HandleInput"
            OnChange="HandleChange"
+           AutoSave="@AutoSave"
+           AutoSaveDelay="@AutoSaveDelay"
+           AutoSaveOnBlur="@AutoSaveOnBlur"
+           AutoSaveOnEnter="@AutoSaveOnEnter"
+           ShowAutoSaveStatus="@ShowAutoSaveStatus"
+           OnAutoSave="@OnAutoSave"
+           AutoSaveStateChanged="@AutoSaveStateChanged"
+           AutoSaveStatusClass="@AutoSaveStatusClass"
+           AutoSaveSavingClass="@AutoSaveSavingClass"
+           AutoSaveSavedClass="@AutoSaveSavedClass"
+           AutoSaveFailedClass="@AutoSaveFailedClass"
            ValidationValueSelector="@(() => (object?)Value)" />
 </div>
 
@@ -108,6 +120,39 @@
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
 
     /// <summary>
     /// Gets or sets the parent validation context.
@@ -240,6 +285,16 @@
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);

@@ -1,6 +1,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
+@using System.Threading
 @using BradixCheckboxCheckedState = Soenneker.Bradix.BradixCheckboxCheckedState
 
 @namespace Soenneker.Quark
@@ -38,8 +39,43 @@
             {
                 @Label
             }
+            <AutoSaveStatus State="@_autoSave.State"
+                            Visible="@UsesAutoSaveStatusSlot"
+                            Class="@AutoSaveStatusClass"
+                            SavingClass="@AutoSaveSavingClass"
+                            SavedClass="@AutoSaveSavedClass"
+                            FailedClass="@AutoSaveFailedClass" />
         </label>
     </div>
+}
+else if (UsesAutoSaveStatusSlot)
+{
+    <span class="inline-flex items-center gap-2">
+        <BradixCheckbox Checked="@CurrentCheckedState"
+                        Required="@Required"
+                        Disabled="@Disabled"
+                        Name="@Name"
+                        Value="@ResolvedCheckboxValue"
+                        CheckedChanged="HandleCheckedStateChanged"
+                        AdditionalAttributes="@BuildControlAttributes()">
+            <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
+                @if (Indeterminate)
+                {
+                    <Icon Name="LucideIcon.Minus" Size='Quark.Size.Is3_5' aria-hidden="true" />
+                }
+                else
+                {
+                    <Icon Name="LucideIcon.Check" Size='Quark.Size.Is3_5' aria-hidden="true" />
+                }
+            </BradixCheckboxIndicator>
+        </BradixCheckbox>
+        <AutoSaveStatus State="@_autoSave.State"
+                        Visible="@UsesAutoSaveStatusSlot"
+                        Class="@AutoSaveStatusClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
+    </span>
 }
 else
 {
@@ -70,6 +106,8 @@ else
         ["class"] = "grid place-content-center text-current transition-none [&>svg]:size-3.5"
     };
 
+    private readonly AutoSaveController<bool?> _autoSave = new();
+
     [Parameter]
     public bool Indeterminate { get; set; }
 
@@ -97,12 +135,46 @@ else
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<bool?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
+    private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
     private string ControlId => Id ?? CurrentFieldContext?.ControlId ?? string.Empty;
     private string ResolvedCheckboxValue => Value.HasContent() ? Value! : "on";
     private BradixCheckboxCheckedState CurrentCheckedState => Indeterminate
@@ -190,6 +262,12 @@ else
         if (AriaLabelledBy.HasContent())
             attributes["aria-labelledby"] = AriaLabelledBy!;
 
+        if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
+            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleControlBlur);
+
+        if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
+            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown);
+
         if (Attributes is not null)
         {
             foreach (var attribute in Attributes)
@@ -253,6 +331,7 @@ else
         Checked = next;
         Indeterminate = state == BradixCheckboxCheckedState.Indeterminate;
         await CheckedChanged.InvokeAsync(next);
+        await _autoSave.NotifyValueChanged(next, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
         InvalidateRender();
         Refresh();
 
@@ -266,9 +345,26 @@ else
         await base.HandleClick(new MouseEventArgs());
     }
 
+    private async Task HandleControlBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    private async Task HandleControlKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeIfHasDelegate(e);
+    }
+
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
+        await _autoSave.DisposeAsync();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         }
@@ -288,6 +384,17 @@ else
         hc.Add(Label);
         hc.Add(IndicatorClass);
         hc.Add(IndicatorStyle);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
     }
 }
 
