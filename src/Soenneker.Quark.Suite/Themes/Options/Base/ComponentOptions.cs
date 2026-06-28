@@ -516,7 +516,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, DecorationLine, "text-decoration");
         AddRules(buffer, baseSelector, Tracking, null);
         AddRules(buffer, baseSelector, ContentAlign, null);
-        AddRules(buffer, baseSelector, ItemsAlign, null);
+        AddRules(buffer, baseSelector, ItemsAlign, "align-items");
         AddRules(buffer, baseSelector, Justify, null);
         AddRules(buffer, baseSelector, SelfAlign, null);
         AddRules(buffer, baseSelector, JustifyItemsAlign, null);
@@ -537,7 +537,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Whitespace, "white-space");
         AddRules(buffer, baseSelector, TextWrap, "text-wrap");
         AddRules(buffer, baseSelector, TextBreak, "word-break");
-        AddRules(buffer, baseSelector, Border, "border-color");
+        AddRules(buffer, baseSelector, BorderColor, "border-color");
         AddRules(buffer, baseSelector, BackgroundColor, "background-color");
         AddRules(buffer, baseSelector, Animation, "animation");
         AddRules(buffer, baseSelector, Duration, "transition-duration");
@@ -545,7 +545,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
         AddRules(buffer, baseSelector, Rounded, "border-radius");
         AddRules(buffer, baseSelector, Ring, null);
-        AddRules(buffer, baseSelector, Ring, null);
+        AddRules(buffer, baseSelector, RingColor, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");
@@ -626,6 +626,37 @@ public class ComponentOptions
             return decoration is null ? null : [$"{fallbackProperty}: {decoration}"];
         }
 
+        if (typeof(TBuilder) == typeof(DisplayBuilder) &&
+            fallbackProperty.Equals("display", System.StringComparison.Ordinal))
+        {
+            var display = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "hidden" => "none",
+                "block" => "block",
+                "inline" => "inline",
+                "inline-block" => "inline-block",
+                "flow-root" => "flow-root",
+                "flex" => "flex",
+                "inline-flex" => "inline-flex",
+                "grid" => "grid",
+                "inline-grid" => "inline-grid",
+                "table" => "table",
+                "table-caption" => "table-caption",
+                "table-cell" => "table-cell",
+                "table-column" => "table-column",
+                "table-column-group" => "table-column-group",
+                "table-footer-group" => "table-footer-group",
+                "table-header-group" => "table-header-group",
+                "table-row" => "table-row",
+                "table-row-group" => "table-row-group",
+                "contents" => "contents",
+                "list-item" => "list-item",
+                _ => null
+            });
+
+            return display is null ? null : [$"{fallbackProperty}: {display}"];
+        }
+
         if (typeof(TBuilder) == typeof(TextColorBuilder) &&
             fallbackProperty.Equals("color", System.StringComparison.Ordinal))
         {
@@ -640,10 +671,112 @@ public class ComponentOptions
             return color is null ? null : [$"{fallbackProperty}: {color}"];
         }
 
+        if (typeof(TBuilder) == typeof(BorderColorBuilder) &&
+            fallbackProperty.Equals("border-color", System.StringComparison.Ordinal))
+        {
+            var color = ConvertColorUtility(resolved, "border-");
+            return color is null ? null : [$"{fallbackProperty}: {color}"];
+        }
+
         if (typeof(TBuilder) == typeof(PaddingBuilder) &&
             fallbackProperty.Equals("padding", System.StringComparison.Ordinal))
         {
             return ConvertPaddingUtilities(resolved);
+        }
+
+        if (typeof(TBuilder) == typeof(WidthBuilder) &&
+            (fallbackProperty.Equals("width", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("min-width", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("max-width", System.StringComparison.Ordinal)))
+        {
+            var width = ConvertWidthUtility(resolved);
+            return width is null ? null : [$"{fallbackProperty}: {width}"];
+        }
+
+        if (typeof(TBuilder) == typeof(OverflowBuilder) &&
+            (fallbackProperty.Equals("overflow", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("overflow-x", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("overflow-y", System.StringComparison.Ordinal)))
+        {
+            var overflow = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "overflow-auto" => "auto",
+                "overflow-hidden" => "hidden",
+                "overflow-clip" => "clip",
+                "overflow-visible" => "visible",
+                "overflow-scroll" => "scroll",
+                _ => null
+            });
+
+            return overflow is null ? null : [$"{fallbackProperty}: {overflow}"];
+        }
+
+        if (typeof(TBuilder) == typeof(TextSizeBuilder) &&
+            fallbackProperty.Equals("font-size", System.StringComparison.Ordinal))
+        {
+            var textSize = ConvertTextSizeUtility(resolved);
+            return textSize is null ? null : [$"{fallbackProperty}: {textSize}"];
+        }
+
+        if (typeof(TBuilder) == typeof(ItemsBuilder) &&
+            fallbackProperty.Equals("align-items", System.StringComparison.Ordinal))
+        {
+            var alignItems = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "items-start" => "flex-start",
+                "items-end" => "flex-end",
+                "items-center" => "center",
+                "items-baseline" => "baseline",
+                "items-stretch" => "stretch",
+                _ => null
+            });
+
+            return alignItems is null ? null : [$"{fallbackProperty}: {alignItems}"];
+        }
+
+        if (typeof(TBuilder) == typeof(GapBuilder) &&
+            fallbackProperty.Equals("gap", System.StringComparison.Ordinal))
+        {
+            var gap = ConvertSpacingUtility(resolved, "gap-");
+            return gap is null ? null : [$"{fallbackProperty}: {gap}"];
+        }
+
+        if (typeof(TBuilder) == typeof(BorderBuilder) &&
+            fallbackProperty.Equals("border", System.StringComparison.Ordinal))
+        {
+            return ConvertBorderUtilities(resolved);
+        }
+
+        if (typeof(TBuilder) == typeof(VerticalAlignBuilder) &&
+            fallbackProperty.Equals("vertical-align", System.StringComparison.Ordinal))
+        {
+            var verticalAlign = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "align-baseline" => "baseline",
+                "align-top" => "top",
+                "align-middle" => "middle",
+                "align-bottom" => "bottom",
+                "align-text-top" => "text-top",
+                "align-text-bottom" => "text-bottom",
+                "align-sub" => "sub",
+                "align-super" => "super",
+                _ => null
+            });
+
+            return verticalAlign is null ? null : [$"{fallbackProperty}: {verticalAlign}"];
+        }
+
+        if (typeof(TBuilder) == typeof(TextOverflowBuilder) &&
+            fallbackProperty.Equals("text-overflow", System.StringComparison.Ordinal))
+        {
+            var textOverflow = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "text-ellipsis" => "ellipsis",
+                "text-clip" => "clip",
+                _ => null
+            });
+
+            return textOverflow is null ? null : [$"{fallbackProperty}: {textOverflow}"];
         }
 
         if (typeof(TBuilder) == typeof(RoundedBuilder) &&
@@ -658,6 +791,43 @@ public class ComponentOptions
         {
             var shadow = ConvertShadowUtility(resolved);
             return shadow is null ? null : [$"{fallbackProperty}: {shadow}"];
+        }
+
+        if (typeof(TBuilder) == typeof(FontWeightBuilder) &&
+            fallbackProperty.Equals("font-weight", System.StringComparison.Ordinal))
+        {
+            var fontWeight = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "font-thin" => "100",
+                "font-extralight" => "200",
+                "font-light" => "300",
+                "font-normal" => "400",
+                "font-medium" => "500",
+                "font-semibold" => "600",
+                "font-bold" => "700",
+                "font-extrabold" => "800",
+                "font-black" => "900",
+                _ => null
+            });
+
+            return fontWeight is null ? null : [$"{fallbackProperty}: {fontWeight}"];
+        }
+
+        if (typeof(TBuilder) == typeof(WhitespaceBuilder) &&
+            fallbackProperty.Equals("white-space", System.StringComparison.Ordinal))
+        {
+            var whitespace = ConvertSingleTokenUtility(resolved, static token => token switch
+            {
+                "whitespace-normal" => "normal",
+                "whitespace-nowrap" => "nowrap",
+                "whitespace-pre" => "pre",
+                "whitespace-pre-line" => "pre-line",
+                "whitespace-pre-wrap" => "pre-wrap",
+                "whitespace-break-spaces" => "break-spaces",
+                _ => null
+            });
+
+            return whitespace is null ? null : [$"{fallbackProperty}: {whitespace}"];
         }
 
         if (typeof(TBuilder) == typeof(FlexDirectionBuilder) &&
@@ -721,12 +891,24 @@ public class ComponentOptions
         return null;
     }
 
+    private static string? ConvertSingleTokenUtility(string value, System.Func<string, string?> converter)
+    {
+        if (value.Contains(':') || value.Contains(' '))
+            return null;
+
+        return converter(value);
+    }
+
     private static string? ConvertColorUtility(string value, string prefix)
     {
         if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
             return null;
 
         string token = value.Substring(prefix.Length);
+        string? arbitrary = ConvertArbitraryToken(token);
+
+        if (arbitrary is not null)
+            return arbitrary;
 
         return token switch
         {
@@ -752,8 +934,213 @@ public class ComponentOptions
             "destructive" => "var(--destructive)",
             "destructive-foreground" => "var(--destructive-foreground)",
             "border" => "var(--border)",
-            _ => IsPaletteColorToken(token) ? $"var(--color-{token})" : null
+            _ => IsPaletteColorToken(token) ? $"var(--color-{token})" : $"var(--{token})"
         };
+    }
+
+    private static string? ConvertWidthUtility(string value)
+    {
+        if (value.Contains(':') || value.Contains(' '))
+            return null;
+
+        string token = value;
+
+        if (token.StartsWith("min-w-", System.StringComparison.Ordinal))
+            token = token.Substring("min-w-".Length);
+        else if (token.StartsWith("max-w-", System.StringComparison.Ordinal))
+            token = token.Substring("max-w-".Length);
+        else if (token.StartsWith("w-", System.StringComparison.Ordinal))
+            token = token.Substring("w-".Length);
+        else
+            return null;
+
+        string? arbitrary = ConvertArbitraryToken(token);
+        if (arbitrary is not null)
+            return arbitrary;
+
+        string? spacing = ConvertSpacingScaleToken(token);
+        if (spacing is not null)
+            return spacing;
+
+        string? fraction = ConvertFractionToken(token);
+        if (fraction is not null)
+            return fraction;
+
+        return token switch
+        {
+            "auto" => "auto",
+            "full" => "100%",
+            "screen" => "100vw",
+            "svw" => "100svw",
+            "lvw" => "100lvw",
+            "dvw" => "100dvw",
+            "min" => "min-content",
+            "max" => "max-content",
+            "fit" => "fit-content",
+            _ => null
+        };
+    }
+
+    private static string? ConvertTextSizeUtility(string value)
+    {
+        if (!value.StartsWith("text-", System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
+            return null;
+
+        string token = value.Substring("text-".Length);
+
+        string? arbitrary = ConvertArbitraryToken(token);
+        if (arbitrary is not null)
+            return arbitrary;
+
+        return token switch
+        {
+            "xs" => "var(--text-xs)",
+            "sm" => "var(--text-sm)",
+            "base" => "var(--text-base)",
+            "lg" => "var(--text-lg)",
+            "xl" => "var(--text-xl)",
+            "2xl" => "var(--text-2xl)",
+            "3xl" => "var(--text-3xl)",
+            "4xl" => "var(--text-4xl)",
+            "5xl" => "var(--text-5xl)",
+            "6xl" => "var(--text-6xl)",
+            "7xl" => "var(--text-7xl)",
+            "8xl" => "var(--text-8xl)",
+            "9xl" => "var(--text-9xl)",
+            _ => null
+        };
+    }
+
+    private static string? ConvertSpacingUtility(string value, string prefix)
+    {
+        if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
+            return null;
+
+        string token = value.Substring(prefix.Length);
+        return ConvertArbitraryToken(token) ?? ConvertSpacingScaleToken(token);
+    }
+
+    private static IEnumerable<string>? ConvertBorderUtilities(string value)
+    {
+        if (value.Contains(':') || value.Contains(' '))
+            return null;
+
+        string? property = value switch
+        {
+            "border" => "border-width",
+            "border-x" => "border-inline-width",
+            "border-y" => "border-block-width",
+            "border-s" => "border-inline-start-width",
+            "border-e" => "border-inline-end-width",
+            "border-t" => "border-top-width",
+            "border-r" => "border-right-width",
+            "border-b" => "border-bottom-width",
+            "border-l" => "border-left-width",
+            _ => null
+        };
+
+        string token;
+
+        if (property is not null)
+            token = "1";
+        else if (value.StartsWith("border-", System.StringComparison.Ordinal))
+        {
+            string suffix = value.Substring("border-".Length);
+            var dash = suffix.IndexOf('-');
+
+            if (dash > 0)
+            {
+                string side = suffix.Substring(0, dash);
+                token = suffix.Substring(dash + 1);
+                property = side switch
+                {
+                    "x" => "border-inline-width",
+                    "y" => "border-block-width",
+                    "s" => "border-inline-start-width",
+                    "e" => "border-inline-end-width",
+                    "t" => "border-top-width",
+                    "r" => "border-right-width",
+                    "b" => "border-bottom-width",
+                    "l" => "border-left-width",
+                    _ => null
+                };
+            }
+            else
+            {
+                token = suffix;
+                property = "border-width";
+            }
+        }
+        else
+            return null;
+
+        if (property is null)
+            return null;
+
+        string? width = ConvertBorderWidthToken(token);
+        return width is null ? null : [$"{property}: {width}", property.Replace("-width", "-style") + ": solid"];
+    }
+
+    private static string? ConvertBorderWidthToken(string token)
+    {
+        string? arbitrary = ConvertArbitraryToken(token);
+        if (arbitrary is not null)
+            return arbitrary;
+
+        return token switch
+        {
+            "0" => "0",
+            "1" => "1px",
+            "2" => "2px",
+            "4" => "4px",
+            "8" => "8px",
+            _ => null
+        };
+    }
+
+    private static string? ConvertFractionToken(string token)
+    {
+        return token switch
+        {
+            "1/2" => "50%",
+            "1/3" => "33.333333%",
+            "2/3" => "66.666667%",
+            "1/4" => "25%",
+            "2/4" => "50%",
+            "3/4" => "75%",
+            "1/5" => "20%",
+            "2/5" => "40%",
+            "3/5" => "60%",
+            "4/5" => "80%",
+            "1/6" => "16.666667%",
+            "5/6" => "83.333333%",
+            "1/12" => "8.333333%",
+            "2/12" => "16.666667%",
+            "3/12" => "25%",
+            "4/12" => "33.333333%",
+            "5/12" => "41.666667%",
+            "6/12" => "50%",
+            "7/12" => "58.333333%",
+            "8/12" => "66.666667%",
+            "9/12" => "75%",
+            "10/12" => "83.333333%",
+            "11/12" => "91.666667%",
+            _ => null
+        };
+    }
+
+    private static string? ConvertArbitraryToken(string token)
+    {
+        if (token.Length < 2)
+            return null;
+
+        if (token[0] == '[' && token[^1] == ']')
+            return token[1..^1].Replace('_', ' ');
+
+        if (token[0] == '(' && token[^1] == ')')
+            return $"var({token[1..^1]})";
+
+        return null;
     }
 
     private static bool IsPaletteColorToken(string token)
@@ -837,6 +1224,11 @@ public class ComponentOptions
 
         string token = utility.Substring(dash + 1);
 
+        return ConvertSpacingScaleToken(token);
+    }
+
+    private static string? ConvertSpacingScaleToken(string token)
+    {
         return token switch
         {
             "0" => "0",
