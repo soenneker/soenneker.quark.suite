@@ -44,6 +44,26 @@ public sealed class DataTableThemeOptions : ComponentOptions
     public AnchorOptions? Anchors { get; set; }
 
     /// <summary>
+    /// Gets or sets styling for direct div children inside data table body anchors.
+    /// </summary>
+    public DivOptions? AnchorDivs { get; set; }
+
+    /// <summary>
+    /// Gets or sets styling for the first direct span child inside data table body anchors.
+    /// </summary>
+    public SpanOptions? AnchorLeadingSpans { get; set; }
+
+    /// <summary>
+    /// Gets or sets styling for small text inside direct div children inside data table body anchors.
+    /// </summary>
+    public SmallOptions? AnchorSmalls { get; set; }
+
+    /// <summary>
+    /// Gets or sets styling for spans inside direct div children inside data table body anchors.
+    /// </summary>
+    public SpanOptions? AnchorSpans { get; set; }
+
+    /// <summary>
     /// Gets or sets button styling scoped to buttons inside the data table.
     /// </summary>
     public ButtonOptions? Buttons { get; set; }
@@ -166,6 +186,10 @@ public sealed class DataTableThemeOptions : ComponentOptions
     private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
         AddChildCssRules(buffer, Anchors, "tbody td > [data-slot='anchor']", _anchorDefaultSelector, baseSelector);
+        AddChildCssRules(buffer, AnchorDivs, "tbody td > [data-slot='anchor'] > [data-slot='div']", _divDefaultSelector, baseSelector);
+        AddChildCssRules(buffer, AnchorLeadingSpans, "tbody td > [data-slot='anchor'] > [data-slot='span']:first-child", _spanDefaultSelector, baseSelector);
+        AddChildCssRules(buffer, AnchorSmalls, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='small']", _smallDefaultSelector, baseSelector);
+        AddChildCssRules(buffer, AnchorSpans, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='span']", _spanDefaultSelector, baseSelector);
         AddChildCssRules(buffer, BottomBars, "[data-slot='datatable-bottom-bar']", _bottomBarDefaultSelector, baseSelector);
         AddChildCssRules(buffer, Buttons, "[data-slot='button']", _buttonDefaultSelector, baseSelector);
         AddChildCssRules(buffer, Divs, "tbody td [data-slot='div']", _divDefaultSelector, baseSelector);

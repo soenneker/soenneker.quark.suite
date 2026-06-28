@@ -180,6 +180,24 @@ public sealed class BuilderRuntimeContractTests : BunitContext
                     Display = Display.InlineFlex,
                     DecorationLine = DecorationLine.None
                 },
+                AnchorDivs = new DivOptions
+                {
+                    MinWidth = Width.Is0
+                },
+                AnchorLeadingSpans = new SpanOptions
+                {
+                    Shrink = Shrink.Is0
+                },
+                AnchorSmalls = new SmallOptions
+                {
+                    Display = Display.Block,
+                    TextOverflow = TextOverflow.Ellipsis
+                },
+                AnchorSpans = new SpanOptions
+                {
+                    Display = Display.Block,
+                    TextOverflow = TextOverflow.Ellipsis
+                },
                 Tds = new TdOptions
                 {
                     Padding = Padding.OnY.Is3
@@ -212,6 +230,10 @@ public sealed class BuilderRuntimeContractTests : BunitContext
 
         result.Should().Contain(".q-datatable {\n  width: 100%;\n}");
         result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] {\n  display: inline-flex;\n  text-decoration: none;\n}");
+        result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] > [data-slot='div'] {\n  min-width: 0;\n}");
+        result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] > [data-slot='span']:first-child {\n  flex-shrink: 0;\n}");
+        result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='small'] {\n  display: block;\n  text-overflow: ellipsis;\n}");
+        result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='span'] {\n  display: block;\n  text-overflow: ellipsis;\n}");
         result.Should().Contain(".q-datatable [data-slot='datatable-search-input'] {\n  width: 100%;\n}");
         result.Should().Contain(".q-datatable [data-slot='datatable-pagination'] [data-slot='pagination-link'] {\n  display: inline-flex;\n}");
         result.Should().Contain(".q-datatable [data-slot='datatable-search'] {\n  display: flex;\n}");
