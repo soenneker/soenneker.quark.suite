@@ -12,12 +12,17 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public void AutoSaveStatus_saved_state_without_completed_save_does_not_render_status()
+    public void AutoSaveStatus_saved_state_without_completed_save_reserves_silent_status_slot()
     {
         var cut = Render<AutoSaveStatus>(parameters => parameters
             .Add(p => p.State, AutoSaveState.Saved));
 
-        cut.FindAll("[data-slot='autosave-status']").Should().BeEmpty();
+        var status = cut.Find("[data-slot='autosave-status']");
+
+        status.ClassList.Should().Contain("size-4");
+        status.GetAttribute("aria-hidden").Should().Be("true");
+        status.HasAttribute("role").Should().BeFalse();
+        status.HasAttribute("aria-live").Should().BeFalse();
     }
 
     [Test]
@@ -31,6 +36,79 @@ public sealed partial class RenderedShadcnParityTests
 
         status.GetAttribute("data-state").Should().Be("saved");
         status.TextContent.Should().BeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public void AutoSaveStatus_pending_state_reserves_silent_status_slot()
+    {
+        var cut = Render<AutoSaveStatus>(parameters => parameters
+            .Add(p => p.State, AutoSaveState.Pending));
+
+        var status = cut.Find("[data-slot='autosave-status']");
+
+        status.ClassList.Should().Contain("size-4");
+        status.GetAttribute("aria-hidden").Should().Be("true");
+        status.HasAttribute("role").Should().BeFalse();
+        status.HasAttribute("aria-live").Should().BeFalse();
+    }
+
+    [Test]
+    public async Task AutoSave_debounces_initial_value_change_before_saving()
+    {
+        var saveCount = 0;
+        string? savedValue = null;
+        var states = new List<AutoSaveState>();
+        var gate = new object();
+
+        Func<string?, CancellationToken, ValueTask> onAutoSave = (value, _) =>
+        {
+            saveCount++;
+            savedValue = value;
+            return ValueTask.CompletedTask;
+        };
+
+        var cut = Render<TextInput>(parameters => parameters
+            .Add(p => p.Value, string.Empty)
+            .Add(p => p.AutoSave, true)
+            .Add(p => p.AutoSaveDelay, 250)
+            .Add(p => p.OnAutoSave, onAutoSave)
+            .Add(p => p.AutoSaveStateChanged, state =>
+            {
+                lock (gate)
+                {
+                    states.Add(state);
+                }
+
+                return Task.CompletedTask;
+            }));
+
+        cut.Find("input").Input("f");
+
+        await Task.Delay(100);
+
+        saveCount.Should().Be(0);
+        HasState(AutoSaveState.Saving).Should().BeFalse();
+
+        cut.Find("input").Input("fi");
+
+        await Task.Delay(100);
+
+        saveCount.Should().Be(0);
+        HasState(AutoSaveState.Saving).Should().BeFalse();
+
+        cut.WaitForAssertion(() =>
+        {
+            saveCount.Should().Be(1);
+            savedValue.Should().Be("fi");
+        }, TimeSpan.FromSeconds(2));
+
+        bool HasState(AutoSaveState state)
+        {
+            lock (gate)
+            {
+                return states.Any(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry, state));
+            }
+        }
     }
 
     [Test]

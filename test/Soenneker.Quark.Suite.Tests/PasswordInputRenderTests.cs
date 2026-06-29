@@ -16,7 +16,8 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Value, "secret"));
 
         var root = cut.Find("[data-slot='password-input']");
-        root.ClassList.Should().Contain("relative");
+        root.ClassList.Should().Contain("inline-flex");
+        root.ClassList.Should().Contain("gap-2");
 
         var input = cut.Find("input");
         input.GetAttribute("id").Should().Be("password");
@@ -24,9 +25,12 @@ public sealed partial class RenderedShadcnParityTests
         input.GetAttribute("placeholder").Should().Be("Enter your password");
         input.GetAttribute("autocomplete").Should().Be("current-password");
         input.ClassList.Should().Contain("hide-password-toggle");
-        input.ClassList.Should().Contain("pr-10");
+        input.ClassList.Should().Contain("flex-1");
+        input.ClassList.Should().NotContain("pr-10");
 
-        cut.Find("button[aria-label='Show password']").Should().NotBeNull();
+        var toggle = cut.Find("button[aria-label='Show password']");
+        toggle.ClassList.Should().Contain("shrink-0");
+        toggle.ClassList.Should().NotContain("absolute");
     }
 
     [Test]

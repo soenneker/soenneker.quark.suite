@@ -32,6 +32,7 @@ public static class DocsNavigation
         new("Aspect Ratio", ComponentRoute("aspect-ratio")),
         new("Attachments", ComponentRoute("attachments"), IsNew: true),
         new("Avatar", ComponentRoute("avatar")),
+        new("Autosave", ComponentRoute("autosave"), IsNew: true),
         new("Badge", ComponentRoute("badge")),
         new("Breadcrumb", ComponentRoute("breadcrumb")),
         new("Button", ComponentRoute("button")),

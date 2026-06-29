@@ -34,7 +34,7 @@
     <AutoSaveStatus State="@_autoSave.State"
                     HasSaved="@_autoSave.HasSaved"
                     Visible="@UsesAutoSaveStatusSlot"
-                    Class="@AutoSaveStatusOverlayClass"
+                    Class="@AutoSaveStatusClass"
                     SavingClass="@AutoSaveSavingClass"
                     SavedClass="@AutoSaveSavedClass"
                     FailedClass="@AutoSaveFailedClass" />
@@ -158,20 +158,8 @@
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     private string ResolvedInputClass => UsesAutoSaveStatusSlot
-        ? AppendToClass(Class, "pe-8")
+        ? AppendToClass(Class, "min-w-0 flex-1")
         : Class ?? string.Empty;
-
-    private string AutoSaveStatusOverlayClass
-    {
-        get
-        {
-            const string overlayClass = "absolute end-2.5 top-1/2 -translate-y-1/2";
-
-            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
-                ? overlayClass
-                : $"{overlayClass} {AutoSaveStatusClass}";
-        }
-    }
 
     public string? GetValidationClass()
     {
@@ -294,7 +282,7 @@
         var attributes = new Dictionary<string, object>();
 
         if (UsesAutoSaveStatusSlot)
-            attributes["class"] = "relative";
+            attributes["class"] = "inline-flex w-full min-w-0 items-center gap-2";
 
         return attributes;
     }

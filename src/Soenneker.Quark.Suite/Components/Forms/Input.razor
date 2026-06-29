@@ -9,7 +9,7 @@
 
 @if (UsesAutoSaveStatusSlot)
 {
-    <span class="relative block w-full">
+    <span class="inline-flex w-full min-w-0 items-center gap-2">
         <input @ref="_elementRef"
                value="@Value"
                @oninput="HandleInput"
@@ -17,7 +17,7 @@
                @attributes="BuildAttributes()" />
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
-                        Class="@AutoSaveStatusOverlayClass"
+                        Class="@AutoSaveStatusClass"
                         SavingClass="@AutoSaveSavingClass"
                         SavedClass="@AutoSaveSavedClass"
                         FailedClass="@AutoSaveFailedClass" />
@@ -147,18 +147,6 @@ else
     public virtual object? ValidationValue => ValidationValueSelector?.Invoke() ?? Value;
 
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
-
-    private string AutoSaveStatusOverlayClass
-    {
-        get
-        {
-            const string overlayClass = "absolute end-2.5 top-1/2 -translate-y-1/2";
-
-            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
-                ? overlayClass
-                : $"{overlayClass} {AutoSaveStatusClass}";
-        }
-    }
 
     /// <summary>
     /// Called after the component has rendered.
@@ -445,7 +433,7 @@ else
             if (sizeClass is not null) AppendClass(ref cls, sizeClass);
 
             if (UsesAutoSaveStatusSlot)
-                AppendClass(ref cls, "pe-8");
+                AppendClass(ref cls, "min-w-0 flex-1");
 
             var validationClass = GetValidationClass();
             if (validationClass is not null) AppendClass(ref cls, validationClass);

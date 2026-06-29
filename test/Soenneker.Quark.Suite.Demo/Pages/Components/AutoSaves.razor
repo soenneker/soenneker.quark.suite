@@ -1,0 +1,564 @@
+@page "/components/autosave"
+@using System.Globalization
+@using System.Threading
+
+<PageTitle>Autosave - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input"
+                         Description="Autosave on the low-level Input component."
+                         Code="@InputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-input">Workspace name</FieldLabel>
+                    <Input Id="autosave-input"
+                           Value="@_inputValue"
+                           ValueChanged="HandleInputValueChanged"
+                           AutoSave="true"
+                           AutoSaveDelay="450"
+                           OnAutoSave="SaveInputValue"
+                           Placeholder="Workspace name" />
+                    <FieldDescription>Last saved: @Display(_savedInputValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="TextInput"
+                         Description="Autosave on TextInput with string binding."
+                         Code="@TextInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-textinput">Display name</FieldLabel>
+                    <TextInput Id="autosave-textinput"
+                               Value="@_textInputValue"
+                               ValueChanged="HandleTextInputValueChanged"
+                               AutoSave="true"
+                               AutoSaveDelay="450"
+                               OnAutoSave="SaveTextInputValue"
+                               Placeholder="Display name" />
+                    <FieldDescription>Last saved: @Display(_savedTextInputValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="PasswordInput"
+                         Description="Autosave on PasswordInput while keeping the visibility toggle outside the input box."
+                         Code="@PasswordInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-password">API secret</FieldLabel>
+                    <PasswordInput Id="autosave-password"
+                                   Value="@_passwordValue"
+                                   ValueChanged="HandlePasswordValueChanged"
+                                   AutoSave="true"
+                                   AutoSaveDelay="450"
+                                   OnAutoSave="SavePasswordValue"
+                                   Placeholder="Secret" />
+                    <FieldDescription>Last saved length: @(_savedPasswordValue?.Length ?? 0)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="NumericInput"
+                         Description="Autosave on NumericInput with decimal values."
+                         Code="@NumericInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-numeric">Seat limit</FieldLabel>
+                    <NumericInput Id="autosave-numeric"
+                                  Value="@_numericValue"
+                                  ValueChanged="HandleNumericValueChanged"
+                                  AutoSave="true"
+                                  AutoSaveDelay="450"
+                                  OnAutoSave="SaveNumericValue"
+                                  Min="1"
+                                  Max="500"
+                                  Placeholder="Seats" />
+                    <FieldDescription>Last saved: @Display(_savedNumericValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="CurrencyInput"
+                         Description="Autosave on CurrencyInput with decimal currency values."
+                         Code="@CurrencyInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-currency">Monthly budget</FieldLabel>
+                    <CurrencyInput Id="autosave-currency"
+                                   Value="@_currencyValue"
+                                   ValueChanged="HandleCurrencyValueChanged"
+                                   AutoSave="true"
+                                   AutoSaveDelay="450"
+                                   OnAutoSave="SaveCurrencyValue"
+                                   Placeholder="0.00" />
+                    <FieldDescription>Last saved: @DisplayCurrency(_savedCurrencyValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="DateInput"
+                         Description="Autosave on DateInput with a DateTime value."
+                         Code="@DateInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-date">Review date</FieldLabel>
+                    <DateInput Id="autosave-date"
+                               Date="@_dateValue"
+                               DateChanged="HandleDateValueChanged"
+                               AutoSave="true"
+                               AutoSaveDelay="450"
+                               OnAutoSave="SaveDateValue"
+                               Placeholder="Select date" />
+                    <FieldDescription>Last saved: @Display(_savedDateValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="MemoInput"
+                         Description="Autosave on MemoInput for multiline text."
+                         Code="@MemoInputAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="autosave-memo">Internal note</FieldLabel>
+                    <MemoInput Id="autosave-memo"
+                               Value="@_memoValue"
+                               ValueChanged="HandleMemoValueChanged"
+                               AutoSave="true"
+                               AutoSaveDelay="450"
+                               OnAutoSave="SaveMemoValue"
+                               Rows="3"
+                               Placeholder="Write a note..." />
+                    <FieldDescription>Last saved: @Display(_savedMemoValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="TextArea"
+                         Description="Autosave on TextArea for multiline text."
+                         Code="@TextAreaAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsSm">
+                    <FieldLabel For="autosave-textarea">Public description</FieldLabel>
+                    <TextArea Id="autosave-textarea"
+                              Value="@_textAreaValue"
+                              ValueChanged="HandleTextAreaValueChanged"
+                              AutoSave="true"
+                              AutoSaveDelay="450"
+                              OnAutoSave="SaveTextAreaValue"
+                              Rows="3"
+                              Placeholder="Write a description..." />
+                    <FieldDescription>Last saved: @Display(_savedTextAreaValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Check"
+                         Description="Autosave on Check with a boolean value."
+                         Code="@CheckAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field Orientation="@Orientation.Horizontal" MaxWidth="MaxWidth.IsSm">
+                    <Check Id="autosave-check"
+                           Checked="@_checkValue"
+                           CheckedChanged="HandleCheckValueChanged"
+                           AutoSave="true"
+                           AutoSaveDelay="450"
+                           OnAutoSave="SaveCheckValue" />
+                    <FieldContent>
+                        <FieldLabel For="autosave-check">Email receipts</FieldLabel>
+                        <FieldDescription>Last saved: @Display(_savedCheckValue)</FieldDescription>
+                    </FieldContent>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Switch"
+                         Description="Autosave on Switch with a boolean value."
+                         Code="@SwitchAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field Orientation="@Orientation.Horizontal" MaxWidth="MaxWidth.IsSm">
+                    <FieldContent>
+                        <FieldLabel For="autosave-switch">Share across devices</FieldLabel>
+                        <FieldDescription>Last saved: @Display(_savedSwitchValue)</FieldDescription>
+                    </FieldContent>
+                    <Switch Id="autosave-switch"
+                            Checked="@_switchValue"
+                            CheckedChanged="HandleSwitchValueChanged"
+                            AutoSave="true"
+                            AutoSaveDelay="450"
+                            OnAutoSave="SaveSwitchValue" />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Toggle"
+                         Description="Autosave on Toggle with a pressed state."
+                         Code="@ToggleAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel>Compact toolbar</FieldLabel>
+                    <Toggle Pressed="@_toggleValue"
+                            PressedChanged="HandleToggleValueChanged"
+                            AutoSave="true"
+                            AutoSaveDelay="450"
+                            OnAutoSave="SaveToggleValue"
+                            Variant="ToggleVariant.Outline"
+                            aria-label="Toggle compact toolbar">
+                        <Icon Name="LucideIcon.PanelTop" />
+                        Compact
+                    </Toggle>
+                    <FieldDescription>Last saved: @Display(_savedToggleValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RadioGroup"
+                         Description="Autosave on RadioGroup with a selected string value."
+                         Code="@RadioGroupAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <FieldSet MaxWidth="MaxWidth.IsXs">
+                    <FieldLegend Variant="FieldLegendVariant.Label">Density</FieldLegend>
+                    <RadioGroup Name="autosave-density"
+                                Value="@_radioGroupValue"
+                                ValueChanged="HandleRadioGroupValueChanged"
+                                AutoSave="true"
+                                AutoSaveDelay="450"
+                                OnAutoSave="SaveRadioGroupValue">
+                        <Field Orientation="@Orientation.Horizontal">
+                            <Radio Id="autosave-density-default" Value="default" />
+                            <FieldLabel For="autosave-density-default">Default</FieldLabel>
+                        </Field>
+                        <Field Orientation="@Orientation.Horizontal">
+                            <Radio Id="autosave-density-comfortable" Value="comfortable" />
+                            <FieldLabel For="autosave-density-comfortable">Comfortable</FieldLabel>
+                        </Field>
+                        <Field Orientation="@Orientation.Horizontal">
+                            <Radio Id="autosave-density-compact" Value="compact" />
+                            <FieldLabel For="autosave-density-compact">Compact</FieldLabel>
+                        </Field>
+                    </RadioGroup>
+                    <FieldDescription>Last saved: @Display(_savedRadioGroupValue)</FieldDescription>
+                </FieldSet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="ToggleGroup"
+                         Description="Autosave on ToggleGroup with a selected string value."
+                         Code="@ToggleGroupAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel>View mode</FieldLabel>
+                    <ToggleGroup Type="SelectionMode.Single"
+                                 Variant="ToggleVariant.Outline"
+                                 Value="@_toggleGroupValue"
+                                 ValueChanged="HandleToggleGroupValueChanged"
+                                 AutoSave="true"
+                                 AutoSaveDelay="450"
+                                 OnAutoSave="SaveToggleGroupValue">
+                        <ToggleGroupItem Value="list" aria-label="List">List</ToggleGroupItem>
+                        <ToggleGroupItem Value="grid" aria-label="Grid">Grid</ToggleGroupItem>
+                        <ToggleGroupItem Value="cards" aria-label="Cards">Cards</ToggleGroupItem>
+                    </ToggleGroup>
+                    <FieldDescription>Last saved: @Display(_savedToggleGroupValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Select"
+                         Description="Autosave on Select with a selected string value."
+                         Code="@SelectAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel>Notification channel</FieldLabel>
+                    <Select TValue="string"
+                            SelectedValue="@_selectValue"
+                            SelectedValueChanged="HandleSelectValueChanged"
+                            AutoSave="true"
+                            AutoSaveDelay="450"
+                            OnAutoSave="SaveSelectValue">
+                        <SelectTrigger Width="Width.IsFull">
+                            <SelectValue Placeholder="Select channel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem TValue="string" ItemValue="@("email")" Text="Email" />
+                            <SelectItem TValue="string" ItemValue="@("slack")" Text="Slack" />
+                            <SelectItem TValue="string" ItemValue="@("sms")" Text="SMS" />
+                        </SelectContent>
+                    </Select>
+                    <FieldDescription>Last saved: @Display(_savedSelectValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="NativeSelect"
+                         Description="Autosave on NativeSelect with a selected string value."
+                         Code="@NativeSelectAutoSaveCode"
+                         CodeLanguage="razor"
+                         PreviewClass="@AutosavePreviewClass">
+                <Field MaxWidth="MaxWidth.IsXs">
+                    <FieldLabel For="autosave-native-select">Status</FieldLabel>
+                    <NativeSelect Id="autosave-native-select"
+                                  Value="@_nativeSelectValue"
+                                  ValueChanged="HandleNativeSelectValueChanged"
+                                  AutoSave="true"
+                                  AutoSaveDelay="450"
+                                  OnAutoSave="SaveNativeSelectValue">
+                        <NativeSelectOption Value="todo">Todo</NativeSelectOption>
+                        <NativeSelectOption Value="in-progress">In Progress</NativeSelectOption>
+                        <NativeSelectOption Value="done">Done</NativeSelectOption>
+                    </NativeSelect>
+                    <FieldDescription>Last saved: @Display(_savedNativeSelectValue)</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private const string AutosavePreviewClass = "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
+
+    private string? _inputValue = "Acme Workspace";
+    private string? _savedInputValue = "Acme Workspace";
+    private string? _textInputValue = "Jordan Lee";
+    private string? _savedTextInputValue = "Jordan Lee";
+    private string? _passwordValue = "secret-token";
+    private string? _savedPasswordValue = "secret-token";
+    private decimal? _numericValue = 24;
+    private decimal? _savedNumericValue = 24;
+    private decimal? _currencyValue = 1250;
+    private decimal? _savedCurrencyValue = 1250;
+    private DateTime? _dateValue = DateTime.Today.AddDays(7);
+    private DateTime? _savedDateValue = DateTime.Today.AddDays(7);
+    private string? _memoValue = "Follow up after launch.";
+    private string? _savedMemoValue = "Follow up after launch.";
+    private string? _textAreaValue = "This workspace is used by the operations team.";
+    private string? _savedTextAreaValue = "This workspace is used by the operations team.";
+    private bool _checkValue = true;
+    private bool? _savedCheckValue = true;
+    private bool _switchValue = true;
+    private bool? _savedSwitchValue = true;
+    private bool _toggleValue;
+    private bool? _savedToggleValue = false;
+    private string? _radioGroupValue = "comfortable";
+    private string? _savedRadioGroupValue = "comfortable";
+    private string? _toggleGroupValue = "list";
+    private string? _savedToggleGroupValue = "list";
+    private string? _selectValue = "email";
+    private string? _savedSelectValue = "email";
+    private string? _nativeSelectValue = "in-progress";
+    private string? _savedNativeSelectValue = "in-progress";
+
+    private Task HandleInputValueChanged(string? value) => SetValue(value, v => _inputValue = v);
+    private Task HandleTextInputValueChanged(string? value) => SetValue(value, v => _textInputValue = v);
+    private Task HandlePasswordValueChanged(string? value) => SetValue(value, v => _passwordValue = v);
+    private Task HandleNumericValueChanged(decimal? value) => SetValue(value, v => _numericValue = v);
+    private Task HandleCurrencyValueChanged(decimal? value) => SetValue(value, v => _currencyValue = v);
+    private Task HandleDateValueChanged(DateTime? value) => SetValue(value, v => _dateValue = v);
+    private Task HandleMemoValueChanged(string? value) => SetValue(value, v => _memoValue = v);
+    private Task HandleTextAreaValueChanged(string? value) => SetValue(value, v => _textAreaValue = v);
+    private Task HandleCheckValueChanged(bool value) => SetValue(value, v => _checkValue = v);
+    private Task HandleSwitchValueChanged(bool value) => SetValue(value, v => _switchValue = v);
+    private Task HandleToggleValueChanged(bool value) => SetValue(value, v => _toggleValue = v);
+    private Task HandleRadioGroupValueChanged(string? value) => SetValue(value, v => _radioGroupValue = v);
+    private Task HandleToggleGroupValueChanged(string? value) => SetValue(value, v => _toggleGroupValue = v);
+    private Task HandleSelectValueChanged(string? value) => SetValue(value, v => _selectValue = v);
+    private Task HandleNativeSelectValueChanged(string? value) => SetValue(value, v => _nativeSelectValue = v);
+
+    private ValueTask SaveInputValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedInputValue = v);
+    private ValueTask SaveTextInputValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedTextInputValue = v);
+    private ValueTask SavePasswordValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedPasswordValue = v);
+    private ValueTask SaveNumericValue(decimal? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedNumericValue = v);
+    private ValueTask SaveCurrencyValue(decimal? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedCurrencyValue = v);
+    private ValueTask SaveDateValue(DateTime? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedDateValue = v);
+    private ValueTask SaveMemoValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedMemoValue = v);
+    private ValueTask SaveTextAreaValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedTextAreaValue = v);
+    private ValueTask SaveCheckValue(bool? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedCheckValue = v);
+    private ValueTask SaveSwitchValue(bool? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedSwitchValue = v);
+    private ValueTask SaveToggleValue(bool? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedToggleValue = v);
+    private ValueTask SaveRadioGroupValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedRadioGroupValue = v);
+    private ValueTask SaveToggleGroupValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedToggleGroupValue = v);
+    private ValueTask SaveSelectValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedSelectValue = v);
+    private ValueTask SaveNativeSelectValue(string? value, CancellationToken cancellationToken) => SaveValue(value, cancellationToken, v => _savedNativeSelectValue = v);
+
+    private static Task SetValue<T>(T value, Action<T> assign)
+    {
+        assign(value);
+        return Task.CompletedTask;
+    }
+
+    private async ValueTask SaveValue<T>(T value, CancellationToken cancellationToken, Action<T> assign)
+    {
+        try
+        {
+            await Task.Delay(650, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        assign(value);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static string Display(string? value) => string.IsNullOrWhiteSpace(value) ? "(empty)" : value;
+
+    private static string Display(decimal? value) => value?.ToString("0.##", CultureInfo.InvariantCulture) ?? "(empty)";
+
+    private static string Display(DateTime? value) => value?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "(empty)";
+
+    private static string Display(bool? value) => value == true ? "On" : "Off";
+
+    private static string DisplayCurrency(decimal? value) => value?.ToString("C", CultureInfo.CurrentCulture) ?? "(empty)";
+
+    private const string InputAutoSaveCode =
+@"<Input Value=""@_inputValue""
+       ValueChanged=""HandleInputValueChanged""
+       AutoSave=""true""
+       AutoSaveDelay=""450""
+       OnAutoSave=""SaveInputValue"" />";
+
+    private const string TextInputAutoSaveCode =
+@"<TextInput Value=""@_textInputValue""
+           ValueChanged=""HandleTextInputValueChanged""
+           AutoSave=""true""
+           AutoSaveDelay=""450""
+           OnAutoSave=""SaveTextInputValue"" />";
+
+    private const string PasswordInputAutoSaveCode =
+@"<PasswordInput Value=""@_passwordValue""
+               ValueChanged=""HandlePasswordValueChanged""
+               AutoSave=""true""
+               AutoSaveDelay=""450""
+               OnAutoSave=""SavePasswordValue"" />";
+
+    private const string NumericInputAutoSaveCode =
+@"<NumericInput Value=""@_numericValue""
+              ValueChanged=""HandleNumericValueChanged""
+              AutoSave=""true""
+              AutoSaveDelay=""450""
+              OnAutoSave=""SaveNumericValue"" />";
+
+    private const string CurrencyInputAutoSaveCode =
+@"<CurrencyInput Value=""@_currencyValue""
+               ValueChanged=""HandleCurrencyValueChanged""
+               AutoSave=""true""
+               AutoSaveDelay=""450""
+               OnAutoSave=""SaveCurrencyValue"" />";
+
+    private const string DateInputAutoSaveCode =
+@"<DateInput Date=""@_dateValue""
+           DateChanged=""HandleDateValueChanged""
+           AutoSave=""true""
+           AutoSaveDelay=""450""
+           OnAutoSave=""SaveDateValue"" />";
+
+    private const string MemoInputAutoSaveCode =
+@"<MemoInput Value=""@_memoValue""
+           ValueChanged=""HandleMemoValueChanged""
+           AutoSave=""true""
+           AutoSaveDelay=""450""
+           OnAutoSave=""SaveMemoValue"" />";
+
+    private const string TextAreaAutoSaveCode =
+@"<TextArea Value=""@_textAreaValue""
+          ValueChanged=""HandleTextAreaValueChanged""
+          AutoSave=""true""
+          AutoSaveDelay=""450""
+          OnAutoSave=""SaveTextAreaValue"" />";
+
+    private const string CheckAutoSaveCode =
+@"<Check Checked=""@_checkValue""
+       CheckedChanged=""HandleCheckValueChanged""
+       AutoSave=""true""
+       AutoSaveDelay=""450""
+       OnAutoSave=""SaveCheckValue"" />";
+
+    private const string SwitchAutoSaveCode =
+@"<Switch Checked=""@_switchValue""
+        CheckedChanged=""HandleSwitchValueChanged""
+        AutoSave=""true""
+        AutoSaveDelay=""450""
+        OnAutoSave=""SaveSwitchValue"" />";
+
+    private const string ToggleAutoSaveCode =
+@"<Toggle Pressed=""@_toggleValue""
+        PressedChanged=""HandleToggleValueChanged""
+        AutoSave=""true""
+        AutoSaveDelay=""450""
+        OnAutoSave=""SaveToggleValue"">
+    Compact
+</Toggle>";
+
+    private const string RadioGroupAutoSaveCode =
+@"<RadioGroup Value=""@_radioGroupValue""
+            ValueChanged=""HandleRadioGroupValueChanged""
+            AutoSave=""true""
+            AutoSaveDelay=""450""
+            OnAutoSave=""SaveRadioGroupValue"">
+    <Radio Value=""default"" />
+    <Radio Value=""comfortable"" />
+    <Radio Value=""compact"" />
+</RadioGroup>";
+
+    private const string ToggleGroupAutoSaveCode =
+@"<ToggleGroup Type=""SelectionMode.Single""
+             Value=""@_toggleGroupValue""
+             ValueChanged=""HandleToggleGroupValueChanged""
+             AutoSave=""true""
+             AutoSaveDelay=""450""
+             OnAutoSave=""SaveToggleGroupValue"">
+    <ToggleGroupItem Value=""list"">List</ToggleGroupItem>
+    <ToggleGroupItem Value=""grid"">Grid</ToggleGroupItem>
+    <ToggleGroupItem Value=""cards"">Cards</ToggleGroupItem>
+</ToggleGroup>";
+
+    private const string SelectAutoSaveCode =
+@"<Select TValue=""string""
+        SelectedValue=""@_selectValue""
+        SelectedValueChanged=""HandleSelectValueChanged""
+        AutoSave=""true""
+        AutoSaveDelay=""450""
+        OnAutoSave=""SaveSelectValue"">
+    ...
+</Select>";
+
+    private const string NativeSelectAutoSaveCode =
+@"<NativeSelect Value=""@_nativeSelectValue""
+              ValueChanged=""HandleNativeSelectValueChanged""
+              AutoSave=""true""
+              AutoSaveDelay=""450""
+              OnAutoSave=""SaveNativeSelectValue"">
+    ...
+</NativeSelect>";
+}

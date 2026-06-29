@@ -9,7 +9,7 @@
 
 @if (UsesAutoSaveStatusSlot)
 {
-    <span class="relative block w-full">
+    <span class="inline-flex w-full min-w-0 items-start gap-2">
         <textarea @ref="_elementRef"
                   @attributes="BuildAttributes()"
                   value="@Value"
@@ -17,7 +17,7 @@
                   @onchange="HandleChange"></textarea>
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
-                        Class="@AutoSaveStatusOverlayClass"
+                        Class="@ResolvedAutoSaveStatusClass"
                         SavingClass="@AutoSaveSavingClass"
                         SavedClass="@AutoSaveSavedClass"
                         FailedClass="@AutoSaveFailedClass" />
@@ -130,15 +130,15 @@ else
     private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
-    private string AutoSaveStatusOverlayClass
+    private string ResolvedAutoSaveStatusClass
     {
         get
         {
-            const string overlayClass = "absolute end-2.5 top-3.5";
+            const string statusClass = "mt-3.5";
 
             return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
-                ? overlayClass
-                : $"{overlayClass} {AutoSaveStatusClass}";
+                ? statusClass
+                : $"{statusClass} {AutoSaveStatusClass}";
         }
     }
 
@@ -291,7 +291,7 @@ else
             AppendClass(ref cls, "dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
 
             if (UsesAutoSaveStatusSlot)
-                AppendClass(ref cls, "pe-8");
+                AppendClass(ref cls, "min-w-0 flex-1");
         });
     }
 

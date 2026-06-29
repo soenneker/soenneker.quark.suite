@@ -1,8 +1,14 @@
 @namespace Soenneker.Quark
 
-@if (ShouldRenderStatus)
+@if (Visible)
 {
-    <span class="@RootClass" data-slot="autosave-status" data-state="@State.Value" role="status" aria-live="polite" aria-label="@AriaLabel">
+    <span class="@RootClass"
+          data-slot="autosave-status"
+          data-state="@State.Value"
+          role="@StatusRole"
+          aria-live="@AriaLive"
+          aria-label="@AriaLabel"
+          aria-hidden="@AriaHidden">
         <span class="@GetIconLayerClass(IsSavingState)">
             <Icon Name="LucideIcon.LoaderCircle" Size="Quark.Size.Is4" Class="animate-spin" aria-hidden="true" />
         </span>
@@ -40,20 +46,27 @@
     [Parameter]
     public string? FailedClass { get; set; }
 
-    private bool ShouldRenderStatus => Visible && !IsState(AutoSaveState.Idle) && (!IsState(AutoSaveState.Saved) || HasSaved);
-
-    private bool IsSavingState => IsState(AutoSaveState.Pending) || IsState(AutoSaveState.Saving);
+    private bool IsSavingState => IsState(AutoSaveState.Saving);
 
     private bool IsSavedState => HasSaved && IsState(AutoSaveState.Saved);
 
-    private string AriaLabel => State.Value switch
-    {
-        "pending" => "Autosave pending",
-        "saving" => "Autosaving",
-        "saved" => "Autosaved",
-        "failed" => "Autosave failed",
-        _ => "Autosave status"
-    };
+    private bool ShouldExposeStatus => IsSavingState || IsSavedState || IsState(AutoSaveState.Failed);
+
+    private string? StatusRole => ShouldExposeStatus ? "status" : null;
+
+    private string? AriaLive => ShouldExposeStatus ? "polite" : null;
+
+    private string? AriaHidden => ShouldExposeStatus ? null : "true";
+
+    private string? AriaLabel => ShouldExposeStatus
+        ? State.Value switch
+        {
+            "saving" => "Autosaving",
+            "saved" => "Autosaved",
+            "failed" => "Autosave failed",
+            _ => "Autosave status"
+        }
+        : null;
 
     private string RootClass
     {

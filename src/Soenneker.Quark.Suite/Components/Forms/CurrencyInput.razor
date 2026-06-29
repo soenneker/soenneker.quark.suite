@@ -7,27 +7,29 @@
 @inherits Soenneker.Quark.FormControlElementBase
 @implements ICurrencyInput
 
-<Div DataSlot="currency-input" Position="Quark.Position.Relative" Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MaxWidth="Quark.MaxWidth.Is48" Class="sm:max-w-56">
-    @if (ShowSymbol && !SymbolAtEnd)
-    {
-        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Bottom="Quark.Bottom.Is0" Left="Quark.Left.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromLeft.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
-            @EffectiveSymbol
-        </Span>
-    }
+<Div DataSlot="currency-input" Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MaxWidth="Quark.MaxWidth.Is48" Class="items-center gap-2 sm:max-w-56">
+    <span class="relative inline-flex min-w-0 flex-1">
+        @if (ShowSymbol && !SymbolAtEnd)
+        {
+            <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Bottom="Quark.Bottom.Is0" Left="Quark.Left.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromLeft.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
+                @EffectiveSymbol
+            </Span>
+        }
 
-    <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="@HandleValueChanged" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="HandleInputKeyDown" OnInput="HandleInput" OnChange="HandleChange" OnFocus="HandleInputFocus" OnBlur="HandleInputBlur" @attributes="BuildInputAttributes()" ValidationValueSelector="@(() => (object?)Value)"/>
+        <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="@HandleValueChanged" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="HandleInputKeyDown" OnInput="HandleInput" OnChange="HandleChange" OnFocus="HandleInputFocus" OnBlur="HandleInputBlur" @attributes="BuildInputAttributes()" ValidationValueSelector="@(() => (object?)Value)"/>
 
-    @if (ShowSymbol && SymbolAtEnd)
-    {
-        <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Right="Quark.Right.Is0" Bottom="Quark.Bottom.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromRight.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
-            @EffectiveSymbol
-        </Span>
-    }
+        @if (ShowSymbol && SymbolAtEnd)
+        {
+            <Span PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Top="Quark.Top.Is0" Right="Quark.Right.Is0" Bottom="Quark.Bottom.Is0" ZIndex="Quark.ZIndex.Is10" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Padding="Quark.Padding.FromRight.Is3" TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">
+                @EffectiveSymbol
+            </Span>
+        }
+    </span>
 
     <AutoSaveStatus State="@_autoSave.State"
                     HasSaved="@_autoSave.HasSaved"
                     Visible="@UsesAutoSaveStatusSlot"
-                    Class="@AutoSaveStatusOverlayClass"
+                    Class="@AutoSaveStatusClass"
                     SavingClass="@AutoSaveSavingClass"
                     SavedClass="@AutoSaveSavedClass"
                     FailedClass="@AutoSaveFailedClass" />
@@ -147,23 +149,7 @@
 
     private string InputClass
     {
-        get => UsesAutoSaveStatusSlot && !SymbolAtEnd
-            ? "text-right tabular-nums pe-8"
-            : "text-right tabular-nums";
-    }
-
-    private string AutoSaveStatusOverlayClass
-    {
-        get
-        {
-            var overlayClass = SymbolAtEnd
-                ? "absolute right-8 top-1/2 -translate-y-1/2"
-                : "absolute end-2.5 top-1/2 -translate-y-1/2";
-
-            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
-                ? overlayClass
-                : $"{overlayClass} {AutoSaveStatusClass}";
-        }
+        get => "text-right tabular-nums";
     }
 
     private string? InputStyle
