@@ -20,6 +20,7 @@
                 @ChildContent
             </BradixToggleGroup>
             <AutoSaveStatus State="@CurrentAutoSaveState"
+                            HasSaved="@CurrentAutoSaveHasSaved"
                             Visible="@UsesAutoSaveStatusSlot"
                             Class="@AutoSaveStatusClass"
                             SavingClass="@AutoSaveSavingClass"
@@ -140,6 +141,7 @@
     internal string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
     private bool UsesMultipleAutosave => Type == SelectionMode.Multiple;
     private AutoSaveState CurrentAutoSaveState => UsesMultipleAutosave ? _autoSaveMultiple.State : _autoSave.State;
+    private bool CurrentAutoSaveHasSaved => UsesMultipleAutosave ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved;
     private bool UsesAutoSaveStatusSlot => AutoSave && ShowAutoSaveStatus && (OnAutoSave is not null || OnAutoSaveMultiple is not null);
 
     internal bool IsItemPressed(string value)
@@ -287,6 +289,7 @@
         hc.Add(AutoSaveOnEnter);
         hc.Add(ShowAutoSaveStatus);
         hc.Add(CurrentAutoSaveState);
+        hc.Add(CurrentAutoSaveHasSaved);
         hc.Add(OnAutoSave is not null);
         hc.Add(OnAutoSaveMultiple is not null);
         hc.Add(AutoSaveStatusClass);

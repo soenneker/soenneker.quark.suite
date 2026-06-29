@@ -8,6 +8,8 @@ namespace Soenneker.Quark;
 
 internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 {
+    private const int MinimumSavingStateDuration = 500;
+
     private CancellationTokenSource? _operationCancellationTokenSource;
     private int _version;
     private bool _hasPendingValue;
@@ -17,6 +19,8 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
     public bool HasPendingValue => _hasPendingValue;
 
+    public bool HasSaved { get; private set; }
+
     public async Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
@@ -24,6 +28,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         {
             CancelOperation();
             _hasPendingValue = false;
+            HasSaved = false;
             await SetState(AutoSaveState.Idle, autoSaveStateChanged, refreshAsync);
             return;
         }
@@ -87,19 +92,33 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
         _hasPendingValue = false;
         await SetState(AutoSaveState.Saving, autoSaveStateChanged, refreshAsync);
+        long savingStarted = Environment.TickCount64;
 
         try
         {
             await onAutoSave(value, cancellationToken);
+            await DelayForMinimumSavingStateDuration(savingStarted, cancellationToken);
 
             if (IsCurrent(version) && !cancellationToken.IsCancellationRequested)
+            {
+                HasSaved = true;
                 await SetState(AutoSaveState.Saved, autoSaveStateChanged, refreshAsync);
+            }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
         }
         catch
         {
+            try
+            {
+                await DelayForMinimumSavingStateDuration(savingStarted, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             if (IsCurrent(version) && !cancellationToken.IsCancellationRequested)
                 await SetState(AutoSaveState.Failed, autoSaveStateChanged, refreshAsync);
         }
@@ -121,6 +140,15 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     private static bool CanAutoSave(bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave)
     {
         return autoSave && onAutoSave is not null;
+    }
+
+    private static async Task DelayForMinimumSavingStateDuration(long savingStarted, CancellationToken cancellationToken)
+    {
+        long elapsed = Environment.TickCount64 - savingStarted;
+        long remaining = MinimumSavingStateDuration - elapsed;
+
+        if (remaining > 0)
+            await Task.Delay((int)remaining, cancellationToken);
     }
 
     private int NextVersion()

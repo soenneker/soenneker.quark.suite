@@ -31,6 +31,7 @@
            OnKeyDown="HandleInputKeyDown"
            ValidationValueSelector="@(() => (object?)Date ?? (object?)DateOnly)" />
     <AutoSaveStatus State="@CurrentAutoSaveState"
+                    HasSaved="@CurrentAutoSaveHasSaved"
                     Visible="@UsesAutoSaveStatusSlot"
                     Class="@AutoSaveStatusOverlayClass"
                     SavingClass="@AutoSaveSavingClass"
@@ -219,6 +220,7 @@
     private string InputModeValue => InputMode?.Value ?? DateInputMode.Date.Value;
     private bool UsesDateOnlyValue => DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate;
     private AutoSaveState CurrentAutoSaveState => UsesDateOnlyValue ? _dateOnlyAutoSave.State : _dateAutoSave.State;
+    private bool CurrentAutoSaveHasSaved => UsesDateOnlyValue ? _dateOnlyAutoSave.HasSaved : _dateAutoSave.HasSaved;
     private bool UsesAutoSaveStatusSlot => AutoSave && ShowAutoSaveStatus && (OnAutoSave is not null || OnAutoSaveDateOnly is not null);
 
     private string ResolvedInputClass => UsesAutoSaveStatusSlot
@@ -483,6 +485,7 @@
         hc.Add(AutoSaveOnEnter);
         hc.Add(ShowAutoSaveStatus);
         hc.Add(CurrentAutoSaveState);
+        hc.Add(CurrentAutoSaveHasSaved);
         hc.Add(OnAutoSave is not null);
         hc.Add(OnAutoSaveDateOnly is not null);
         hc.Add(AutoSaveStatusClass);
