@@ -24,6 +24,7 @@
 @code
 {
     private static readonly CultureInfo _inv = CultureInfo.InvariantCulture;
+    private const string NeutralScoreColor = "var(--score-neutral-color, var(--foreground))";
 
     private bool _parametersChanged;
 
@@ -32,6 +33,7 @@
     private string? _lastText;
     private int _lastSize;
     private int _lastThickness;
+    private bool _lastColored;
 
     // Cached computed values (only recomputed When params actually change)
     private int _sizePx;
@@ -45,6 +47,7 @@
     [Parameter] public string? Text { get; set; }
     [Parameter] public int ScoreSize { get; set; } = 88;
     [Parameter] public int Thickness { get; set; } = 8;
+    [Parameter] public bool Colored { get; set; } = true;
 
     protected override void ApplyDefaultParameters()
     {
@@ -65,6 +68,7 @@
             _normalizedValue != _lastValue ||
             ScoreSize != _lastSize ||
             Thickness != _lastThickness ||
+            Colored != _lastColored ||
             !string.Equals(Text, _lastText, StringComparison.Ordinal);
 
         if (_parametersChanged)
@@ -78,18 +82,13 @@
             // angle = value * 3.6
             _angleCss = string.Concat(FormatDouble0To2(_normalizedValue * 3.6d), "deg");
 
-            // hue: 0..120, split ramp around 50
-            var hue = _normalizedValue <= 50
-                ? (_normalizedValue / 50d) * 60d
-                : 60d + ((_normalizedValue - 50d) / 50d) * 60d;
-
-            // hsl(<hue> 75% 45%)
-            _colorCss = string.Concat("hsl(", FormatDouble0To2(hue), " 75% 45%)");
+            _colorCss = Colored ? GetColoredScoreColor(_normalizedValue) : NeutralScoreColor;
         }
 
         _lastValue = _normalizedValue;
         _lastSize = ScoreSize;
         _lastThickness = Thickness;
+        _lastColored = Colored;
         _lastText = Text;
 
         base.OnParametersSet();
@@ -120,6 +119,17 @@
 
     private static int NormalizeValue(int value) => Math.Clamp(value, 0, 100);
 
+    private static string GetColoredScoreColor(int value)
+    {
+        // hue: 0..120, split ramp around 50
+        var hue = value <= 50
+            ? (value / 50d) * 60d
+            : 60d + ((value - 50d) / 50d) * 60d;
+
+        // hsl(<hue> 75% 45%)
+        return string.Concat("hsl(", FormatDouble0To2(hue), " 75% 45%)");
+    }
+
     // Fast invariant formatting without allocating intermediary strings in common cases.
     private static string FormatDouble0To2(double value)
     {
@@ -139,5 +149,6 @@
         hc.Add(Text);
         hc.Add(ScoreSize);
         hc.Add(Thickness);
+        hc.Add(Colored);
     }
 }

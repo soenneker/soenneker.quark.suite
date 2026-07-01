@@ -94,6 +94,7 @@ public static class DocsNavigation
         new("Radio Group", ComponentRoute("radio-group")),
         new("Reasoning", ComponentRoute("reasoning"), IsNew: true),
         new("Resizable", ComponentRoute("resizable")),
+        new("Score", ComponentRoute("scores")),
         new("Scroll Area", ComponentRoute("scroll-area")),
         new("Select", ComponentRoute("select")),
         new("Separator", ComponentRoute("separator")),

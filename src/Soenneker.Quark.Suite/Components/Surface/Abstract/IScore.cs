@@ -24,4 +24,9 @@ public interface IScore : IElement
     /// Gets or sets the thickness of the score ring, in pixels.
     /// </summary>
     int Thickness { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the score uses value-based coloring.
+    /// </summary>
+    bool Colored { get; set; }
 }
