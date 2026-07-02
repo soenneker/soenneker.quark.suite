@@ -5,7 +5,19 @@
     <Div Space="Quark.Space.Y.Is2">
         @if (Title != null)
         {
-            <H3 Id="@ResolvedTitleId" TextSize="Quark.TextSize.Xl" FontWeight="Quark.FontWeight.Semibold" Tracking="Quark.Tracking.Tight" Margin="Quark.Margin.Is0">@Title</H3>
+            <H3 Id="@ResolvedTitleId" TextSize="Quark.TextSize.Xl" FontWeight="Quark.FontWeight.Semibold" Tracking="Quark.Tracking.Tight" Margin="Quark.Margin.Is0" ScrollMargin="@ResolvedTitleScrollMargin">
+                @if (ShouldRenderTitleAnchor)
+                {
+                    <Anchor Href="@ResolvedTitleHref" Class="group/title-anchor inline-flex items-baseline gap-1.5 text-inherit no-underline outline-none">
+                        <span class="group-hover/title-anchor:underline group-focus-visible/title-anchor:underline underline-offset-4">@Title</span>
+                        <span aria-hidden="true" class="select-none text-muted-foreground opacity-0 transition-opacity group-hover/title-anchor:opacity-100 group-focus-visible/title-anchor:opacity-100">#</span>
+                    </Anchor>
+                }
+                else
+                {
+                    @Title
+                }
+            </H3>
         }
         @if (DescriptionContent != null)
         {
@@ -177,6 +189,9 @@
     public string? TitleId { get; set; }
 
     [Parameter]
+    public bool ShowTitleAnchor { get; set; }
+
+    [Parameter]
     public string? Description { get; set; }
 
     /// <summary>Optional rich description (e.g. inline Badge). When set, Description is ignored.</summary>
@@ -222,6 +237,18 @@
     private bool _showCode;
     private string _copyButtonLabel = "Copy";
     private string? ResolvedTitleId => TitleId ?? CreateTitleId(Title);
+    private bool ShouldRenderTitleAnchor => ShowTitleAnchor && ResolvedTitleId.HasContent();
+    private string? ResolvedTitleHref => ShouldRenderTitleAnchor ? $"#{ResolvedTitleId}" : null;
+    private CssValue<ScrollMarginBuilder>? ResolvedTitleScrollMargin
+    {
+        get
+        {
+            if (!ShouldRenderTitleAnchor)
+                return null;
+
+            return Quark.ScrollMargin.Is24.FromTop;
+        }
+    }
     private string _showCodeCss => ShouldShowCollapsedCodeOverlay ? "false" : "true";
     private string _previewChromeless => PreviewChromeless ? "true" : "false";
     private string? ResolvedPreviewLanguageLabel => !string.IsNullOrWhiteSpace(PreviewLanguageLabel)

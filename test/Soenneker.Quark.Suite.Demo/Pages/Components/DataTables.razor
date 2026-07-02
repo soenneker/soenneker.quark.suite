@@ -123,6 +123,64 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Page Size Selector"
+                     Description="Use DataTableOptions to render an optional page size selector in the table footer."
+                     Code="@PageSizeSelectorCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
+                     PreviewInnerClass="w-full">
+            <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl" Space="Space.Y.Is5">
+                <H2 TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight" Margin="Margin.Is0">Projects</H2>
+
+                <Div Class="flex h-10 items-center gap-2 rounded-lg border border-input bg-muted/40 px-3 text-sm text-muted-foreground">
+                    <Icon Name="LucideIcon.Search" Size="Size.Is4" />
+                    <Span>Search...</Span>
+                </Div>
+
+                <DataTable Options="@_pageSizeSelectorOptions" TotalRecords="@_projectRows.Count" Rounded="Rounded.Md" Border="Border.Default" Overflow="Overflow.Hidden">
+                    <TableContent>
+                        <Thead>
+                            <Tr>
+                                <Th>Project</Th>
+                                <Th>Status</Th>
+                                <Th>Owner</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            @foreach (var project in _projectRows)
+                            {
+                                <Tr>
+                                    <Td>
+                                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3">
+                                            <Span Display="Display.InlineFlex"
+                                                  Size="Size.Is8"
+                                                  ItemsAlign="Items.Center"
+                                                  Justify="Justify.Center"
+                                                  Rounded="Rounded.Md"
+                                                  Border="Border.Default"
+                                                  BackgroundColor='BackgroundColor.Utility("bg-muted/50")'
+                                                  TextColor="TextColor.MutedForeground">
+                                                <Icon Name="LucideIcon.Folder" Size="Size.Is4" />
+                                            </Span>
+                                            <Span>@project.Name</Span>
+                                        </Div>
+                                    </Td>
+                                    <Td>
+                                        <Span Class="inline-flex rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-950/30 dark:text-green-400">
+                                            @project.Status
+                                        </Span>
+                                    </Td>
+                                    <Td>@project.Owner</Td>
+                                </Tr>
+                            }
+                        </Tbody>
+                    </TableContent>
+                </DataTable>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="RTL"
                      Description="To enable RTL support in shadcn/ui, see the RTL configuration guide."
                      PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
@@ -267,6 +325,17 @@
     private bool _rtlShowAmount = true;
     private bool? _emailSortDescending;
     private bool? _rtlEmailSortDescending;
+    private readonly DataTableOptions _pageSizeSelectorOptions = new()
+    {
+        DefaultPageSize = 40,
+        ShowPageSizeSelector = true,
+        PageSizeOptions = [40, 80, 120],
+        PageInfoRecordText = "projects"
+    };
+    private readonly List<ProjectRow> _projectRows =
+    [
+        new("Website redesign", "Active", "Design team")
+    ];
 
     private List<PaymentRow> FilteredRows
     {
@@ -379,6 +448,7 @@
     }
 
     private sealed record PaymentRow(string Id, string Status, string StatusArabic, string Email, string Amount, string AmountArabic);
+    private sealed record ProjectRow(string Name, string Status, string Owner);
 
     private const string DataTableCode =
 @"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXl"" Space=""Space.Y.Is4"">
@@ -493,4 +563,37 @@
         </Div>
     </Div>
 </Div>";
+
+    private const string PageSizeSelectorCode =
+@"@code {
+    private readonly DataTableOptions _pageSizeSelectorOptions = new()
+    {
+        DefaultPageSize = 40,
+        ShowPageSizeSelector = true,
+        PageSizeOptions = [40, 80, 120],
+        PageInfoRecordText = ""projects""
+    };
+}
+
+<DataTable Options=""@_pageSizeSelectorOptions"" TotalRecords=""@_projectRows.Count"" Rounded=""Rounded.Md"" Border=""Border.Default"" Overflow=""Overflow.Hidden"">
+    <TableContent>
+        <Thead>
+            <Tr>
+                <Th>Project</Th>
+                <Th>Status</Th>
+                <Th>Owner</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (ProjectRow project in _projectRows)
+            {
+                <Tr>
+                    <Td>@project.Name</Td>
+                    <Td>@project.Status</Td>
+                    <Td>@project.Owner</Td>
+                </Tr>
+            }
+        </Tbody>
+    </TableContent>
+</DataTable>";
 }

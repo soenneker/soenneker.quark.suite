@@ -1,72 +1,178 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Element
 
 <Div @attributes="BuildAttributes()">
-	<Label For="@_selectId" TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">Show</Label>
-	<NativeSelect Id="@_selectId" DataSlot="datatable-page-size-select" Value="@ComputedPageSize.ToString()" ValueChanged="OnPageSizeChangedHandler">
-		@for (var i = 0; i < PageSizeOptions.Length; i++)
-		{
-			var size = PageSizeOptions[i];
-			<NativeSelectOption Value="@size.ToString()">@size</NativeSelectOption>
-		}
-	</NativeSelect>
-	<Span TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">entries per page</Span>
+    @if (Label.HasContent())
+    {
+        <Label For="@_selectId" TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">@Label</Label>
+    }
+
+    <Select TValue="int"
+            SelectedValue="@ComputedPageSize"
+            SelectedValueChanged="OnSelectedPageSizeChanged"
+            SelectSize="SelectSizes.Sm">
+        <SelectTrigger Id="@_selectId"
+                       DataSlot="datatable-page-size-select"
+                       Width="@ResolvedTriggerWidth"
+                       TextColor="@ResolvedTriggerTextColor"
+                       Cursor="Quark.Cursor.Pointer.OnDisabled.NotAllowed"
+                       Class="@ResolvedTriggerClass"
+                       aria-label="@SelectAriaLabel">
+            <SelectValue />
+        </SelectTrigger>
+        <SelectContent MinWidth="@ContentMinWidth">
+            <SelectGroup>
+                @for (var i = 0; i < ResolvedPageSizeOptions.Length; i++)
+                {
+                    var size = ResolvedPageSizeOptions[i];
+                    <SelectItem TValue="int" ItemValue="@size" Text="@GetPageSizeText(size)" />
+                }
+            </SelectGroup>
+        </SelectContent>
+    </Select>
+
+    @if (Suffix.HasContent())
+    {
+        <Span TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">@Suffix</Span>
+    }
 </Div>
 
 @code {
-	private readonly string _selectId = $"datatable-page-size-{Guid.NewGuid():N}";
+    private readonly string _selectId = $"datatable-page-size-{Guid.NewGuid():N}";
 
-	// shadcn Select in table toolbar - new-york-v4 ui/select.tsx
-	protected override void ApplyDefaultParameters()
-	{
-		base.ApplyDefaultParameters();
-		DataSlot ??= "datatable-page-size-selector";
-		Display ??= Quark.Display.Flex;
-		Gap ??= Quark.Gap.Is2;
-		ItemsAlign ??= Items.Center;
+    // Quark Select-based table footer page size selector.
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "datatable-page-size-selector";
+        Display ??= Inline ? Quark.Display.InlineFlex : Quark.Display.Flex;
+        Gap ??= Inline ? Quark.Gap.Is1 : Quark.Gap.Is2;
+        ItemsAlign ??= Items.Center;
+        FlexWrap ??= Quark.FlexWrap.Wrap;
+    }
 
-	}
+    [CascadingParameter(Name = "DataTable")]
+    private IDataTable? DataTable { get; set; }
 
-	[CascadingParameter(Name = "DataTable")]
-	private IDataTable? DataTable { get; set; }
+    [Parameter]
+    public int PageSize { get; set; } = 10;
 
-	[Parameter]
-	public int PageSize { get; set; } = 10;
+    [Parameter]
+    public EventCallback<int> PageSizeChanged { get; set; }
 
-	[Parameter]
-	public EventCallback<int> PageSizeChanged { get; set; }
+    [Parameter]
+    public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
 
-	[Parameter]
-	public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
+    [Parameter]
+    public string? Label { get; set; }
 
-	private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
+    [Parameter]
+    public string? Suffix { get; set; }
 
-	private async Task OnPageSizeChangedHandler(string? value)
-	{
-		if (int.TryParse(value, out var size) && size != ComputedPageSize)
-		{
-			PageSize = size;
+    [Parameter]
+    public string ItemSingularText { get; set; } = "item";
 
-			if (DataTable != null)
-				await DataTable.HandlePageSizeChanged(size);
-			
-			if (PageSizeChanged.HasDelegate)
-				await PageSizeChanged.InvokeAsync(size);
-		}
-	}
+    [Parameter]
+    public string ItemPluralText { get; set; } = "items";
 
-	protected override void ComputeRenderKeyCore(ref HashCode hc)
-	{
-		base.ComputeRenderKeyCore(ref hc);
-		hc.Add(PageSize);
-		hc.Add(ComputedPageSize);
-		if (PageSizeOptions is not null)
-		{
-			hc.Add(PageSizeOptions.Length);
-			foreach (var size in PageSizeOptions)
-			{
-				hc.Add(size);
-			}
-		}
-	}
+    [Parameter]
+    public CssValue<WidthBuilder>? TriggerWidth { get; set; } = Quark.Width.Is32;
+
+    [Parameter]
+    public CssValue<MinWidthBuilder>? ContentMinWidth { get; set; } = Quark.MinWidth.Is32;
+
+    [Parameter]
+    public string SelectAriaLabel { get; set; } = "Rows per page";
+
+    [Parameter]
+    public bool Inline { get; set; } = true;
+
+    private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
+
+    private int[] ResolvedPageSizeOptions => NormalizePageSizeOptions(PageSizeOptions, ComputedPageSize);
+
+    private CssValue<WidthBuilder>? ResolvedTriggerWidth => Inline ? Quark.Width.Auto : TriggerWidth;
+    private CssValue<TextColorBuilder>? ResolvedTriggerTextColor
+    {
+        get
+        {
+            if (!Inline)
+                return null;
+
+            return Quark.TextColor.MutedForeground;
+        }
+    }
+    private string? ResolvedTriggerClass => Inline ? "!h-auto !min-h-0 !border-0 !rounded-none !bg-transparent !p-0 !shadow-none focus-visible:!ring-0 focus-visible:!ring-offset-0" : null;
+
+    private async Task OnSelectedPageSizeChanged(int size)
+    {
+        if (size == ComputedPageSize)
+            return;
+
+        PageSize = size;
+
+        if (DataTable != null)
+            await DataTable.HandlePageSizeChanged(size);
+
+        if (PageSizeChanged.HasDelegate)
+            await PageSizeChanged.InvokeAsync(size);
+    }
+
+    private string GetPageSizeText(int size)
+    {
+        var unit = size == 1 ? ItemSingularText : ItemPluralText;
+        return unit.HasContent() ? $"{size} {unit}" : size.ToString();
+    }
+
+    private static int[] NormalizePageSizeOptions(int[]? options, int currentPageSize)
+    {
+        var result = new List<int>();
+
+        if (currentPageSize > 0)
+            result.Add(currentPageSize);
+
+        if (options is not null)
+        {
+            for (var i = 0; i < options.Length; i++)
+            {
+                var option = options[i];
+
+                if (option > 0 && !result.Contains(option))
+                    result.Add(option);
+            }
+        }
+
+        if (result.Count == 0)
+            result.Add(10);
+
+        return result.ToArray();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-datatable-page-size-selector"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(PageSize);
+        hc.Add(ComputedPageSize);
+        hc.Add(Label);
+        hc.Add(Suffix);
+        hc.Add(ItemSingularText);
+        hc.Add(ItemPluralText);
+        hc.Add(SelectAriaLabel);
+        hc.Add(Inline);
+        AddIf(ref hc, TriggerWidth);
+        AddIf(ref hc, ResolvedTriggerTextColor);
+        AddIf(ref hc, ContentMinWidth);
+        hc.Add(ResolvedPageSizeOptions.Length);
+        foreach (var size in ResolvedPageSizeOptions)
+            hc.Add(size);
+    }
 }

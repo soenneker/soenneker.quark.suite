@@ -121,10 +121,13 @@
             ["data-position"] = ContentPosition == SelectPosition.Popper ? "popper" : "item-aligned"
         };
 
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        if (ContentPosition == SelectPosition.Popper)
         {
-            AppendClass(ref cls, "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)");
-        });
+            RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)");
+            });
+        }
 
         return attributes;
     }

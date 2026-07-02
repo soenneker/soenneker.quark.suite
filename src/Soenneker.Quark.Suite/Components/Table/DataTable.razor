@@ -41,6 +41,27 @@
                 </Div>
 
                 @BottomContent
+
+                @if (ShouldRenderPageSizeSelector)
+                {
+                    <DataTableBottomBar Justify="Quark.Justify.Start"
+                                        Gap="Quark.Gap.Is1"
+                                        Border="Quark.Border.Is0"
+                                        BackgroundColor="Quark.BackgroundColor.Transparent"
+                                        Padding="Quark.Padding.OnY.Is2.OnX.Is0"
+                                        Rounded="Quark.Rounded.None"
+                                        Class="shadow-none">
+                        <DataTableInfo>
+                            @PageSizeSelectorInfoText
+                        </DataTableInfo>
+                        <Span TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" aria-hidden="true">–</Span>
+                        <DataTablePageSizeSelector PageSizeOptions="@ResolvedPageSizeOptions"
+                                                   Label="@Options.PageSizeSelectorLabel"
+                                                   Suffix="@Options.PageSizeSelectorSuffix"
+                                                   ItemSingularText="@Options.PageSizeItemSingularText"
+                                                   ItemPluralText="@Options.PageSizeItemPluralText" />
+                    </DataTableBottomBar>
+                }
             </Div>
 		}
     </CascadingValue>
@@ -131,6 +152,13 @@
     private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private DataTableOptions? _previousOptions;
+    private bool ShouldRenderPageSizeSelector => Options.ShowPageSizeSelector && BottomContent is null;
+    private int[] ResolvedPageSizeOptions => NormalizePageSizeOptions(Options.PageSizeOptions, PageSize);
+    private int StartRecord => TotalRecordsCount == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
+    private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
+    private string VisibleRecordRangeText => StartRecord == EndRecord ? StartRecord.ToString() : $"{StartRecord}-{EndRecord}";
+    private string PageInfoRecordSuffix => Options.PageInfoRecordText.HasContent() ? $" {Options.PageInfoRecordText}" : string.Empty;
+    private string PageSizeSelectorInfoText => $"Page {CurrentPage} – {VisibleRecordRangeText} of {TotalRecordsCount}{PageInfoRecordSuffix}";
 
     protected override void ApplyDefaultParameters()
     {
@@ -155,7 +183,7 @@
     {
         try
         {
-            PageSize = Options.DefaultPageSize;
+            PageSize = GetDefaultPageSize();
             await TablesInterop.Initialize(CancellationToken);
 
             _initialized = true;
@@ -195,7 +223,7 @@
                     Logger.LogDebug("First parameter set - initializing data");
                 // Ensure PageSize is initialized before first load
                 if (PageSize <= 0)
-                    PageSize = Options.DefaultPageSize;
+                    PageSize = GetDefaultPageSize();
                 TotalRecordsCount = TotalRecords;
                 TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
 
@@ -234,7 +262,7 @@
             {
                 if (Options.Debug)
                     Logger.LogDebug("Options changed - resetting table");
-                PageSize = Options.DefaultPageSize;
+                PageSize = GetDefaultPageSize();
                 CurrentPage = 1;
                 // Clear continuation token When options change
                 _continuationToken = null;
@@ -292,6 +320,35 @@
     public ValueTask GoToPage(int page)
     {
         return HandleGoToPage(page);
+    }
+
+    private int GetDefaultPageSize()
+    {
+        return Options.DefaultPageSize > 0 ? Options.DefaultPageSize : 10;
+    }
+
+    private static int[] NormalizePageSizeOptions(int[]? options, int currentPageSize)
+    {
+        var result = new List<int>();
+
+        if (currentPageSize > 0)
+            result.Add(currentPageSize);
+
+        if (options is not null)
+        {
+            for (var i = 0; i < options.Length; i++)
+            {
+                var option = options[i];
+
+                if (option > 0 && !result.Contains(option))
+                    result.Add(option);
+            }
+        }
+
+        if (result.Count == 0)
+            result.Add(10);
+
+        return result.ToArray();
     }
 
     public async ValueTask HandleSearch(string searchTerm)

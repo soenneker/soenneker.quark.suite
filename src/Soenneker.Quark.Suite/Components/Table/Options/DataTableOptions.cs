@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace Soenneker.Quark;
@@ -12,6 +13,48 @@ public sealed class DataTableOptions
     /// </summary>
     [JsonPropertyName("defaultPageSize")]
     public int DefaultPageSize { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets whether DataTable should render a built-in page size selector in its bottom bar.
+    /// </summary>
+    [JsonPropertyName("showPageSizeSelector")]
+    public bool ShowPageSizeSelector { get; set; }
+
+    /// <summary>
+    /// Gets or sets the selectable page sizes.
+    /// </summary>
+    [JsonPropertyName("pageSizeOptions")]
+    public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
+
+    /// <summary>
+    /// Gets or sets the singular item label used by the page size selector.
+    /// </summary>
+    [JsonPropertyName("pageSizeItemSingularText")]
+    public string PageSizeItemSingularText { get; set; } = "item";
+
+    /// <summary>
+    /// Gets or sets the plural item label used by the page size selector.
+    /// </summary>
+    [JsonPropertyName("pageSizeItemPluralText")]
+    public string PageSizeItemPluralText { get; set; } = "items";
+
+    /// <summary>
+    /// Gets or sets the record label used by the built-in page info text.
+    /// </summary>
+    [JsonPropertyName("pageInfoRecordText")]
+    public string PageInfoRecordText { get; set; } = "records";
+
+    /// <summary>
+    /// Gets or sets optional text rendered before the page size selector.
+    /// </summary>
+    [JsonPropertyName("pageSizeSelectorLabel")]
+    public string? PageSizeSelectorLabel { get; set; }
+
+    /// <summary>
+    /// Gets or sets optional text rendered after the page size selector.
+    /// </summary>
+    [JsonPropertyName("pageSizeSelectorSuffix")]
+    public string? PageSizeSelectorSuffix { get; set; }
 
     /// <summary>
     /// Gets or sets the search debounce delay in milliseconds
@@ -34,6 +77,13 @@ public sealed class DataTableOptions
         return new DataTableOptions
         {
             DefaultPageSize = DefaultPageSize,
+            ShowPageSizeSelector = ShowPageSizeSelector,
+            PageSizeOptions = PageSizeOptions.ToArray(),
+            PageSizeItemSingularText = PageSizeItemSingularText,
+            PageSizeItemPluralText = PageSizeItemPluralText,
+            PageInfoRecordText = PageInfoRecordText,
+            PageSizeSelectorLabel = PageSizeSelectorLabel,
+            PageSizeSelectorSuffix = PageSizeSelectorSuffix,
             SearchDebounceMs = SearchDebounceMs,
             Debug = Debug
         };
@@ -50,6 +100,13 @@ public sealed class DataTableOptions
             return false;
 
         return DefaultPageSize == other.DefaultPageSize &&
+               ShowPageSizeSelector == other.ShowPageSizeSelector &&
+               PageSizeOptions.SequenceEqual(other.PageSizeOptions) &&
+               PageSizeItemSingularText == other.PageSizeItemSingularText &&
+               PageSizeItemPluralText == other.PageSizeItemPluralText &&
+               PageInfoRecordText == other.PageInfoRecordText &&
+               PageSizeSelectorLabel == other.PageSizeSelectorLabel &&
+               PageSizeSelectorSuffix == other.PageSizeSelectorSuffix &&
                SearchDebounceMs == other.SearchDebounceMs &&
                Debug == other.Debug;
     }
@@ -64,6 +121,14 @@ public sealed class DataTableOptions
         {
             var hash = 17;
             hash = hash * 23 + DefaultPageSize.GetHashCode();
+            hash = hash * 23 + ShowPageSizeSelector.GetHashCode();
+            for (var i = 0; i < PageSizeOptions.Length; i++)
+                hash = hash * 23 + PageSizeOptions[i].GetHashCode();
+            hash = hash * 23 + PageSizeItemSingularText.GetHashCode();
+            hash = hash * 23 + PageSizeItemPluralText.GetHashCode();
+            hash = hash * 23 + PageInfoRecordText.GetHashCode();
+            hash = hash * 23 + (PageSizeSelectorLabel?.GetHashCode() ?? 0);
+            hash = hash * 23 + (PageSizeSelectorSuffix?.GetHashCode() ?? 0);
             hash = hash * 23 + SearchDebounceMs.GetHashCode();
             hash = hash * 23 + Debug.GetHashCode();
             return hash;
