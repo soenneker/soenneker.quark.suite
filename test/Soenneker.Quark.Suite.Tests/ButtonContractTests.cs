@@ -25,6 +25,33 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Button_defaults_to_pointer_cursor_until_disabled()
+    {
+        var cut = Render<Button>(parameters => parameters
+            .Add(p => p.ChildContent, "Save"));
+
+        var button = cut.Find("button");
+        var classes = button.GetAttribute("class");
+
+        classes.Should().Contain("cursor-pointer");
+        classes.Should().Contain("disabled:cursor-not-allowed");
+    }
+
+    [Test]
+    public void Button_allows_explicit_cursor_override()
+    {
+        var cut = Render<Button>(parameters => parameters
+            .Add(p => p.Cursor, Cursor.Default)
+            .Add(p => p.ChildContent, "Save"));
+
+        var button = cut.Find("button");
+        var classes = button.GetAttribute("class");
+
+        classes.Should().Contain("cursor-default");
+        classes.Should().NotContain("cursor-pointer");
+    }
+
+    [Test]
     public void ButtonSize_supports_tokens_and_builder_values()
     {
         ButtonSize.Default.ToString().Should().Be(ButtonSizeEnum.Default.Class);
