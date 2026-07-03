@@ -11,16 +11,46 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-separator";
+        Rounded ??= Quark.Rounded.Sm;
+        Transition ??= Quark.Transition.Colors;
+        Duration ??= Quark.Duration.Is500;
+
+        if (!HasExplicitParameter(nameof(BackgroundColor)))
+            BackgroundColor = ParentStepperItem?.State == "completed" ? Quark.BackgroundColor.Primary : Quark.BackgroundColor.Muted;
+
+        if (ParentStepperItem?.Responsive == true)
+        {
+            Margin ??= Quark.Margin.FromStart.Is4.OnMd.Is2;
+            Height ??= Quark.Height.Is8.OnMd.Is0_5;
+            Width ??= Quark.Width.Is0_5;
+            Flex ??= Quark.Flex.None.OnMd.Is1;
+        }
+        else if (ParentStepperItem?.Orientation == "vertical")
+        {
+            Margin ??= Quark.Margin.Is2;
+            Height ??= Quark.Height.Is12;
+            Width ??= Quark.Width.Is0_5;
+        }
+        else
+        {
+            Margin ??= Quark.Margin.Is2;
+            Height ??= Quark.Height.Is0_5;
+            Flex ??= Quark.Flex.Is1;
+        }
+
+        if (ParentStepperItem is { IsStacked: true, Orientation: "horizontal" })
+        {
+            Position ??= Quark.Position.Absolute;
+            Inset ??= Quark.Inset.OnX.Is0;
+            Top ??= Quark.Top.Is2;
+            Right ??= Quark.Right.Token("[calc(-50%+18px)]");
+            Left ??= Quark.Left.Token("[calc(50%+18px)]");
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "bg-muted style-vega:rounded-full style-vega:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-vega:group-data-[orientation=vertical]/stepper-nav:h-12 style-vega:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-maia:rounded-full style-maia:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-maia:group-data-[orientation=vertical]/stepper-nav:h-12 style-maia:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-nova:rounded-sm style-nova:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-nova:group-data-[orientation=vertical]/stepper-nav:h-12 style-nova:group-data-[orientation=vertical]/stepper-nav:w-0.5 style-lyra:rounded-none style-lyra:group-data-[orientation=horizontal]/stepper-nav:h-px style-lyra:group-data-[orientation=vertical]/stepper-nav:h-12 style-lyra:group-data-[orientation=vertical]/stepper-nav:w-px style-mira:rounded-sm style-mira:group-data-[orientation=horizontal]/stepper-nav:h-0.5 style-mira:group-data-[orientation=vertical]/stepper-nav:h-12 style-mira:group-data-[orientation=vertical]/stepper-nav:w-0.5 m-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1");
-        });
     }
 }

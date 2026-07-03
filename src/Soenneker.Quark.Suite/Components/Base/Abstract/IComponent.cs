@@ -309,6 +309,10 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// </summary>
     CssValue<BorderBuilder>? Border { get; set; }
     /// <summary>
+    /// Gets or sets border style.
+    /// </summary>
+    CssValue<BorderStyleBuilder>? BorderStyle { get; set; }
+    /// <summary>
     /// Gets or sets rounded.
     /// </summary>
     CssValue<RoundedBuilder>? Rounded { get; set; }
@@ -320,6 +324,10 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// Gets or sets ring.
     /// </summary>
     CssValue<RingBuilder>? Ring { get; set; }
+    /// <summary>
+    /// Gets or sets ring offset.
+    /// </summary>
+    CssValue<RingOffsetBuilder>? RingOffset { get; set; }
     /// <summary>
     /// Gets or sets outline style.
     /// </summary>

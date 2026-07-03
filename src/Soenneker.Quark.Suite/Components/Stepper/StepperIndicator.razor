@@ -3,29 +3,120 @@
 
 <div @attributes="BuildAttributes()">
     <Div Position="Quark.Position.Absolute">
-        @ChildContent
+        @if (IndicatorContent is not null)
+        {
+            @IndicatorContent
+        }
+        else
+        {
+            @ChildContent
+        }
     </Div>
 </div>
 
 @code {
+    [CascadingParameter(Name = nameof(ParentStepper))]
+    internal Stepper? ParentStepper { get; set; }
+
     [CascadingParameter(Name = nameof(ParentStepperItem))]
     internal StepperItemContext? ParentStepperItem { get; set; }
+
+    [Parameter]
+    public StepperIndicatorVariant Variant { get; set; } = StepperIndicatorVariant.Default;
+
+    private RenderFragment? IndicatorContent => ParentStepper?.GetIndicator(ParentStepperItem?.State ?? "inactive", ParentStepperItem?.Loading == true);
+
+    private bool IsActive => ParentStepperItem?.State == "active";
+    private bool IsCompleted => ParentStepperItem?.State == "completed";
+    private bool IsOutline => ReferenceEquals(Variant, StepperIndicatorVariant.Outline);
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-indicator";
+
+        if (!HasExplicitParameter(nameof(Border)))
+        {
+            if (IsOutline)
+                Border = Quark.Border.Default;
+            else
+                Border = null;
+        }
+
+        if (!HasExplicitParameter(nameof(BorderColor)))
+            BorderColor = IsOutline
+                ? IsActive ? Quark.BorderColor.Token("foreground") : Quark.BorderColor.Border
+                : Quark.BorderColor.Background;
+
+        if (!HasExplicitParameter(nameof(BackgroundColor)))
+            BackgroundColor = IsOutline
+                ? Quark.BackgroundColor.Background
+                : IsActive || IsCompleted ? Quark.BackgroundColor.Primary : Quark.BackgroundColor.Muted;
+
+        if (!HasExplicitParameter(nameof(TextColor)))
+        {
+            if (IsOutline)
+                TextColor = IsActive || IsCompleted ? Quark.TextColor.Foreground : Quark.TextColor.MutedForeground;
+            else if (IsActive || IsCompleted)
+                TextColor = Quark.TextColor.PrimaryForeground;
+            else
+                TextColor = null;
+        }
+
+        if (!HasExplicitParameter(nameof(Ring)))
+        {
+            if (!IsOutline && IsActive)
+                Ring = Quark.Ring.Is2;
+            else
+                Ring = null;
+        }
+
+        if (!HasExplicitParameter(nameof(RingColor)))
+        {
+            if (!IsOutline && IsActive)
+                RingColor = Quark.RingColor.Token("primary/30");
+            else
+                RingColor = null;
+        }
+
+        if (!HasExplicitParameter(nameof(RingOffset)))
+        {
+            if (!IsOutline && IsActive)
+                RingOffset = Quark.RingOffset.Background.Width(3);
+            else
+                RingOffset = null;
+        }
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        Size ??= Quark.Size.Is8;
+        Shrink ??= Quark.Shrink.Is0;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Overflow ??= Quark.Overflow.Hidden;
+        Transition ??= Quark.Transition.All;
+        Duration ??= Quark.Duration.Is300;
+        Rounded ??= Quark.Rounded.Md;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
+    }
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "border-background bg-accent text-accent-foreground data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex size-6 shrink-0 items-center justify-center overflow-hidden");
-            AppendClass(ref cls, "style-vega:rounded-full style-vega:text-xs style-maia:rounded-full style-maia:text-xs style-nova:rounded-full style-nova:text-xs style-lyra:rounded-none style-lyra:text-[0.625rem] style-mira:rounded-sm style-mira:text-[0.625rem]");
-        });
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentStepperItem);
+        hc.Add(ParentStepper?.ActiveStep);
+        hc.Add(ParentStepper?.Indicators);
+        hc.Add(ParentStepper?.ActiveIndicator);
+        hc.Add(ParentStepper?.CompletedIndicator);
+        hc.Add(ParentStepper?.InactiveIndicator);
+        hc.Add(ParentStepper?.LoadingIndicator);
+        hc.Add(Variant);
     }
 }

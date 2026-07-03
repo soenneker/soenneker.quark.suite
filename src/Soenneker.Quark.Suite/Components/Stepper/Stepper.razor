@@ -11,50 +11,130 @@
 @code {
     private readonly SortedDictionary<int, ElementReference> _triggers = [];
     private readonly HashSet<int> _disabledSteps = [];
+    private readonly Dictionary<int, string> _stepValues = [];
 
     [Parameter]
     public int DefaultValue { get; set; } = 1;
 
     [Parameter]
+    public string? DefaultValueKey { get; set; }
+
+    [Parameter]
     public int? Value { get; set; }
+
+    [Parameter]
+    public string? ValueKey { get; set; }
 
     [Parameter]
     public EventCallback<int> ValueChanged { get; set; }
 
     [Parameter]
+    public EventCallback<string> ValueKeyChanged { get; set; }
+
+    [Parameter]
     public string Orientation { get; set; } = "horizontal";
 
-    internal int ActiveStep => Value ?? DefaultValue;
+    [Parameter]
+    public bool Responsive { get; set; }
+
+    [Parameter]
+    public StepperIndicators? Indicators { get; set; }
+
+    [Parameter]
+    public RenderFragment? ActiveIndicator { get; set; }
+
+    [Parameter]
+    public RenderFragment? CompletedIndicator { get; set; }
+
+    [Parameter]
+    public RenderFragment? InactiveIndicator { get; set; }
+
+    [Parameter]
+    public RenderFragment? LoadingIndicator { get; set; }
+
+    internal int ActiveStep => Value ?? (HasValueKey ? GetStepForValue(ActiveValue) : null) ?? DefaultValue;
+
+    internal string ActiveValue => NormalizeValueKey(ValueKey) ?? NormalizeValueKey(DefaultValueKey) ?? (Value ?? DefaultValue).ToString();
+
+    private bool HasValueKey => NormalizeValueKey(ValueKey) is not null || NormalizeValueKey(DefaultValueKey) is not null;
 
     internal string ResolvedOrientation => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
 
-    internal async Task SetActiveStep(int step)
+    internal string GetStepValue(int step, string? value) => NormalizeValueKey(value) ?? step.ToString();
+
+    internal string GetStepState(int step, string value, bool completed)
+    {
+        if (completed || step < ActiveStep)
+            return "completed";
+
+        return IsStepActive(step, value) ? "active" : "inactive";
+    }
+
+    internal bool IsStepActive(int step, string value)
+    {
+        return HasValueKey ? string.Equals(ActiveValue, value, StringComparison.Ordinal) : ActiveStep == step;
+    }
+
+    internal RenderFragment? GetIndicator(string state, bool loading)
+    {
+        if (loading)
+            return LoadingIndicator ?? Indicators?.Loading;
+
+        return state switch
+        {
+            "completed" => CompletedIndicator ?? Indicators?.Completed,
+            "active" => ActiveIndicator ?? Indicators?.Active,
+            "inactive" => InactiveIndicator ?? Indicators?.Inactive,
+            _ => null
+        };
+    }
+
+    internal async Task SetActiveStep(int step, string? value = null)
     {
         if (_disabledSteps.Contains(step))
             return;
 
+        string resolvedValue = GetStepValue(step, value);
+
         if (Value is null)
             DefaultValue = step;
 
+        if (NormalizeValueKey(ValueKey) is null && NormalizeValueKey(value) is not null)
+            DefaultValueKey = resolvedValue;
+
         if (ValueChanged.HasDelegate)
             await ValueChanged.InvokeAsync(step);
+
+        if (ValueKeyChanged.HasDelegate)
+            await ValueKeyChanged.InvokeAsync(resolvedValue);
 
         InvalidateRender();
         Refresh();
     }
 
-    internal void RegisterStep(int step, bool disabled)
+    internal void RegisterStep(int step, bool disabled, string? value = null)
     {
+        string resolvedValue = GetStepValue(step, value);
+        bool valueChanged = !_stepValues.TryGetValue(step, out string? existingValue) || !string.Equals(existingValue, resolvedValue, StringComparison.Ordinal);
+        bool resolvesActiveStep = HasValueKey && GetStepForValue(ActiveValue) is null && string.Equals(resolvedValue, ActiveValue, StringComparison.Ordinal);
+        int fallbackActiveStep = Value ?? DefaultValue;
+
+        _stepValues[step] = resolvedValue;
+
         if (disabled)
             _disabledSteps.Add(step);
         else
             _disabledSteps.Remove(step);
+
+        if (valueChanged && resolvesActiveStep && step != fallbackActiveStep)
+            _ = RefreshOffThread();
     }
 
     internal void UnregisterStep(int step)
     {
         _disabledSteps.Remove(step);
         _triggers.Remove(step);
+        _stepValues.Remove(step);
     }
 
     internal void RegisterTrigger(int step, ElementReference element)
@@ -85,8 +165,7 @@
         if (target == 0)
             return;
 
-        if (args.Key is "Enter" or " ")
-            await SetActiveStep(target);
+        await SetActiveStep(target, _stepValues.GetValueOrDefault(target));
 
         if (_triggers.TryGetValue(target, out var trigger))
             await trigger.FocusAsync();
@@ -106,17 +185,36 @@
         attributes["aria-orientation"] = ResolvedOrientation;
         attributes["data-orientation"] = ResolvedOrientation;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "w-full");
-        });
+        if (Responsive)
+            attributes["data-responsive"] = "true";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(DefaultValue);
+        hc.Add(DefaultValueKey);
         hc.Add(Value);
+        hc.Add(ValueKey);
         hc.Add(Orientation);
+        hc.Add(Responsive);
+        hc.Add(Indicators);
+        hc.Add(ActiveIndicator);
+        hc.Add(CompletedIndicator);
+        hc.Add(InactiveIndicator);
+        hc.Add(LoadingIndicator);
     }
+
+    private int? GetStepForValue(string value)
+    {
+        foreach (var pair in _stepValues)
+        {
+            if (string.Equals(pair.Value, value, StringComparison.Ordinal))
+                return pair.Key;
+        }
+
+        return null;
+    }
+
+    private static string? NormalizeValueKey(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }

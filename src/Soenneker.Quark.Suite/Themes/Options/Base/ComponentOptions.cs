@@ -355,6 +355,11 @@ public class ComponentOptions
     public CssValue<BorderBuilder>? Border { get; set; }
 
     /// <summary>
+    /// Gets or sets border-style utility classes.
+    /// </summary>
+    public CssValue<BorderStyleBuilder>? BorderStyle { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS opacity configuration.
     /// </summary>
     public CssValue<OpacityBuilder>? Opacity { get; set; }
@@ -576,6 +581,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, RowSpan, null);
         AddRules(buffer, baseSelector, RowStart, null);
         AddRules(buffer, baseSelector, Border, "border");
+        AddRules(buffer, baseSelector, BorderStyle, "border-style");
         AddRules(buffer, baseSelector, Opacity, "opacity");
         AddRules(buffer, baseSelector, ZIndex, "z-index");
         AddRules(buffer, baseSelector, PointerEvents, "pointer-events");

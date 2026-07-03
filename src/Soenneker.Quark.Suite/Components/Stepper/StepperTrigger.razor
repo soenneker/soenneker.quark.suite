@@ -2,9 +2,18 @@
 @using Microsoft.AspNetCore.Components.Web
 @inherits Soenneker.Quark.Element
 
-<button @ref="_button" @onclick="HandleClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
-    @ChildContent
-</button>
+@if (AsChild)
+{
+    <span @attributes="BuildAttributes()">
+        @ChildContent
+    </span>
+}
+else
+{
+    <button @ref="_button" @onclick="HandleClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     private ElementReference _button;
@@ -18,12 +27,16 @@
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
+    [Parameter]
+    public bool AsChild { get; set; }
+
     private int Step => ParentStepperItem?.Step ?? 0;
-    private bool Selected => ParentStepper?.ActiveStep == Step;
+    private string StepValue => ParentStepperItem?.Value ?? Step.ToString();
+    private bool Selected => ParentStepper?.IsStepActive(Step, StepValue) == true;
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (Step > 0)
+        if (!AsChild && Step > 0)
             ParentStepper?.RegisterTrigger(Step, _button);
 
         base.OnAfterRender(firstRender);
@@ -33,16 +46,38 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-trigger";
+        Display ??= ParentStepperItem?.IsStacked == true ? Quark.Display.Flex : Quark.Display.InlineFlex;
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Center;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is60.OnDisabled;
+        Rounded ??= Quark.Rounded.Full;
+        Gap ??= Quark.Gap.Is2_5;
+
+        if (ParentStepperItem?.IsStacked == true)
+            FlexDirection ??= Quark.FlexDirection.Col;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        if (AsChild)
+        {
+            attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
+
+            if (ParentStepperItem?.Loading == true)
+                attributes["data-loading"] = "true";
+
+            return;
+        }
+
         attributes["type"] = "button";
         attributes["role"] = "tab";
-        attributes["id"] = $"stepper-tab-{Step}";
+        attributes["id"] = $"stepper-tab-{StepValue}";
         attributes["aria-selected"] = Selected ? "true" : "false";
-        attributes["aria-controls"] = $"stepper-panel-{Step}";
+        attributes["aria-controls"] = $"stepper-panel-{StepValue}";
         attributes["tabindex"] = Selected ? 0 : -1;
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
         attributes["data-loading"] = ParentStepperItem?.Loading == true ? "true" : "false";
@@ -50,11 +85,6 @@
         if (ParentStepperItem?.Disabled == true)
             attributes["disabled"] = true;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 inline-flex cursor-pointer items-center outline-none focus-visible:z-10 focus-visible:ring-3 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60");
-            AppendClass(ref cls, "style-vega:gap-3 style-vega:rounded-full style-maia:gap-3 style-maia:rounded-full style-nova:gap-2.5 style-nova:rounded-full style-lyra:gap-2.5 style-lyra:rounded-none style-mira:gap-2 style-mira:rounded-full");
-        });
     }
 
     private async Task HandleClick(MouseEventArgs args)
@@ -63,7 +93,7 @@
             await OnClick.InvokeAsync(args);
 
         if (ParentStepper is not null && Step > 0)
-            await ParentStepper.SetActiveStep(Step);
+            await ParentStepper.SetActiveStep(Step, StepValue);
     }
 
     private Task HandleKeyDown(KeyboardEventArgs args)
@@ -77,7 +107,9 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Step);
+        hc.Add(StepValue);
         hc.Add(Selected);
         hc.Add(ParentStepperItem);
+        hc.Add(AsChild);
     }
 }

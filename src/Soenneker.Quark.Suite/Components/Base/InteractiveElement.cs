@@ -14,12 +14,6 @@ namespace Soenneker.Quark;
 public abstract class InteractiveElement : Element
 {
     /// <summary>
-    /// Gets or sets ring offset.
-    /// </summary>
-    [Parameter]
-    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
-
-    /// <summary>
     /// Gets or sets on click.
     /// </summary>
     [Parameter]
@@ -64,8 +58,6 @@ public abstract class InteractiveElement : Element
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
-
-        AddCss(ref sty, ref cls, RingOffset);
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
@@ -104,7 +96,6 @@ public abstract class InteractiveElement : Element
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(OnClick.HasDelegate);
-        AddIf(ref hc, RingOffset);
         hc.Add(OnDoubleClick.HasDelegate);
         hc.Add(OnMouseOver.HasDelegate);
         hc.Add(OnMouseOut.HasDelegate);

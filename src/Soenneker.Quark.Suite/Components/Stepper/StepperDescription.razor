@@ -11,16 +11,24 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-description";
+        TextColor ??= Quark.TextColor.MutedForeground;
+
+        if (ParentStepperItem?.IsStacked == true)
+        {
+            TextSize ??= Quark.TextSize.Xs;
+            FontWeight ??= Quark.FontWeight.Medium;
+            Whitespace ??= Quark.Whitespace.Nowrap;
+            Display ??= Quark.Display.None.OnMd.Block;
+        }
+        else
+        {
+            TextSize ??= Quark.TextSize.Sm;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "text-muted-foreground style-vega:text-sm style-maia:text-sm style-nova:text-sm style-lyra:text-xs style-mira:text-xs/relaxed");
-        });
     }
 }

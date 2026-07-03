@@ -282,6 +282,10 @@ public sealed class QuarkPresetContext
     /// </summary>
     public CssValue<BorderBuilder>? Border { get; set; }
     /// <summary>
+    /// Gets or sets border style.
+    /// </summary>
+    public CssValue<BorderStyleBuilder>? BorderStyle { get; set; }
+    /// <summary>
     /// Gets or sets rounded.
     /// </summary>
     public CssValue<RoundedBuilder>? Rounded { get; set; }
@@ -293,6 +297,10 @@ public sealed class QuarkPresetContext
     /// Gets or sets ring.
     /// </summary>
     public CssValue<RingBuilder>? Ring { get; set; }
+    /// <summary>
+    /// Gets or sets ring offset.
+    /// </summary>
+    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
     /// <summary>
     /// Gets or sets shadow.
     /// </summary>

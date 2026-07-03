@@ -15,9 +15,14 @@
     public int Value { get; set; }
 
     [Parameter]
+    public string? ValueKey { get; set; }
+
+    [Parameter]
     public bool ForceMount { get; set; }
 
-    private bool IsActive => Value == (ParentStepper?.ActiveStep ?? 1);
+    private string ResolvedValue => ParentStepper?.GetStepValue(Value, ValueKey) ?? Value.ToString();
+
+    private bool IsActive => ParentStepper?.IsStepActive(Value, ResolvedValue) == true;
 
     protected override void ApplyDefaultParameters()
     {
@@ -30,26 +35,20 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["role"] = "tabpanel";
-        attributes["id"] = $"stepper-panel-{Value}";
-        attributes["aria-labelledby"] = $"stepper-tab-{Value}";
-        attributes["data-state"] = ParentStepper?.ActiveStep ?? 1;
+        attributes["id"] = $"stepper-panel-{ResolvedValue}";
+        attributes["aria-labelledby"] = $"stepper-tab-{ResolvedValue}";
+        attributes["data-state"] = ParentStepper?.ActiveValue ?? "1";
 
         if (!IsActive && ForceMount)
             attributes["hidden"] = true;
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "w-full");
-            if (!IsActive && ForceMount)
-                AppendClass(ref cls, "hidden");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
+        hc.Add(ValueKey);
         hc.Add(ForceMount);
-        hc.Add(ParentStepper?.ActiveStep);
+        hc.Add(ParentStepper?.ActiveValue);
     }
 }

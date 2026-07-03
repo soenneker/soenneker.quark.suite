@@ -241,6 +241,9 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<BorderBuilder>? Border { get; set; }
 
     [Parameter]
+    public CssValue<BorderStyleBuilder>? BorderStyle { get; set; }
+
+    [Parameter]
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
@@ -248,6 +251,9 @@ public abstract class Component : RenderComponent, IComponent
 
     [Parameter]
     public CssValue<RingBuilder>? Ring { get; set; }
+
+    [Parameter]
+    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
 
     [Parameter]
     public CssValue<RingColorBuilder>? RingColor { get; set; }
@@ -407,11 +413,13 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, ResolvePresetValue(Cursor, preset?.Cursor, nameof(Cursor)));
         AddCss(ref sty, ref cls, ResolvePresetValue(ScreenReader, preset?.ScreenReader, nameof(ScreenReader)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Border, preset?.Border, nameof(Border)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BorderStyle, preset?.BorderStyle, nameof(BorderStyle)));
         ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
         ApplyBackgroundColor(ref sty, ref cls, preset?.BackgroundColor);
         AddCss(ref sty, ref cls, ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)));
         AddCss(ref sty, ref cls, ResolvePresetValue(RingColor, preset?.RingColor, nameof(RingColor)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Ring, preset?.Ring, nameof(Ring)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(RingOffset, preset?.RingOffset, nameof(RingOffset)));
         AddCss(ref sty, ref cls, OutlineStyle);
         AddCss(ref sty, ref cls, ResolvePresetValue(Shadow, preset?.Shadow, nameof(Shadow)));
         AddCss(ref sty, ref cls, ResolvePresetValue(BackdropFilter, preset?.BackdropFilter, nameof(BackdropFilter)));
@@ -604,10 +612,12 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, ScreenReader);
         AddIf(ref hc, BackgroundColor);
         AddIf(ref hc, Border);
-        AddIf(ref hc, Border);
+        AddIf(ref hc, BorderStyle);
+        AddIf(ref hc, BorderColor);
         AddIf(ref hc, Rounded);
+        AddIf(ref hc, RingColor);
         AddIf(ref hc, Ring);
-        AddIf(ref hc, Ring);
+        AddIf(ref hc, RingOffset);
         AddIf(ref hc, OutlineStyle);
         AddIf(ref hc, Shadow);
         AddIf(ref hc, BackdropFilter);

@@ -16,6 +16,9 @@
     public int Step { get; set; }
 
     [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
     public bool Completed { get; set; }
 
     [Parameter]
@@ -24,25 +27,28 @@
     [Parameter]
     public bool Loading { get; set; }
 
-    internal string State => Completed || Step < (ParentStepper?.ActiveStep ?? 1)
-        ? "completed"
-        : Step == ParentStepper?.ActiveStep
-            ? "active"
-            : "inactive";
+    [Parameter]
+    public StepperItemVariant Variant { get; set; } = StepperItemVariant.Default;
 
-    private bool IsLoading => Loading && Step == ParentStepper?.ActiveStep;
+    internal string ResolvedValue => ParentStepper?.GetStepValue(Step, Value) ?? Step.ToString();
 
-    private StepperItemContext ItemContext => new(Step, State, Disabled, IsLoading);
+    internal string State => ParentStepper?.GetStepState(Step, ResolvedValue, Completed) ?? "inactive";
+
+    private bool IsLoading => Loading && ParentStepper?.IsStepActive(Step, ResolvedValue) == true;
+
+    private bool IsResponsive => ParentStepper?.Responsive == true;
+
+    private StepperItemContext ItemContext => new(Step, ResolvedValue, State, Disabled, IsLoading, ParentStepper?.ResolvedOrientation ?? "horizontal", Variant, IsResponsive);
 
     protected override void OnInitialized()
     {
-        ParentStepper?.RegisterStep(Step, Disabled);
+        ParentStepper?.RegisterStep(Step, Disabled, Value);
         base.OnInitialized();
     }
 
     protected override void OnParametersSet()
     {
-        ParentStepper?.RegisterStep(Step, Disabled);
+        ParentStepper?.RegisterStep(Step, Disabled, Value);
         base.OnParametersSet();
     }
 
@@ -56,6 +62,34 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-item";
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+
+        if (IsResponsive)
+        {
+            ItemsAlign ??= Quark.Items.Start;
+            FlexDirection ??= Quark.FlexDirection.Col.OnMd.Row;
+            Width ??= Quark.Width.IsFull.OnMd.Auto;
+        }
+        else
+        {
+            FlexDirection ??= ParentStepper?.ResolvedOrientation == "vertical" ? Quark.FlexDirection.Col : Quark.FlexDirection.Row;
+        }
+
+        if (ReferenceEquals(Variant, StepperItemVariant.Stacked))
+        {
+            Position ??= Quark.Position.Relative;
+            Flex ??= Quark.Flex.Is1;
+        }
+        else if (IsResponsive)
+        {
+            Flex ??= Quark.Flex.None.OnMd.Custom("not-last").Is1;
+        }
+        else
+        {
+            Flex ??= Soenneker.Quark.Variant.Of(Quark.Flex.Is1).Custom("not-last");
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -65,20 +99,17 @@
 
         if (IsLoading)
             attributes["data-loading"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/step flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Step);
+        hc.Add(Value);
         hc.Add(Completed);
         hc.Add(Disabled);
         hc.Add(Loading);
+        hc.Add(Variant);
         hc.Add(ParentStepper?.ActiveStep);
     }
 }

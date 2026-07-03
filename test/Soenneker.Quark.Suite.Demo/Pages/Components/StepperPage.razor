@@ -2,225 +2,224 @@
 
 <PageTitle>Stepper - Quark Suite</PageTitle>
 
-<Container Class="max-w-6xl space-y-8">
-    <DemoSection Title="Stepper" Code="@BasicStepperCode">
-        <Stepper Value="@_basicStep" ValueChanged="value => _basicStep = value">
-            <StepperNav>
-                <StepperItem Step="1">
-                    <StepperTrigger>
-                        <StepperIndicator>1</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Account</StepperTitle>
-                            <StepperDescription>Create profile</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                    <StepperSeparator />
-                </StepperItem>
-                <StepperItem Step="2">
-                    <StepperTrigger>
-                        <StepperIndicator>2</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Security</StepperTitle>
-                            <StepperDescription>Verify access</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                    <StepperSeparator />
-                </StepperItem>
-                <StepperItem Step="3">
-                    <StepperTrigger>
-                        <StepperIndicator>3</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Finish</StepperTitle>
-                            <StepperDescription>Review setup</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                </StepperItem>
-            </StepperNav>
+<Container MaxWidth='MaxWidth.Token("[1500px]")'>
+    <Div Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Default" BackgroundColor="BackgroundColor.Background">
+        <Div Display="Display.Flex" Height="Height.Is14" ItemsAlign="Items.Center" Justify="Justify.Between" Border="Border.FromBottom.Is1" Padding="Padding.OnX.Is4">
+            <Div TextSize="TextSize.Base" FontWeight="FontWeight.Medium">Stepper Variants</Div>
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize='ButtonSize.Token("h-10 gap-2 rounded-md px-3")'>
+                    <Span Display="Display.InlineFlex" Size="Size.Is4" ItemsAlign="Items.Center" Justify="Justify.Center" FontWeight="FontWeight.Semibold">R</Span>
+                    <Span>Radix UI</Span>
+                    <Icon Name="LucideIcon.ChevronDown" Size="Size.Is4" Opacity="Opacity.Is70" />
+                </Button>
+                <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize='ButtonSize.Token("size-10 rounded-md")' AriaLabel="Open preview">
+                    <Icon Name="LucideIcon.ExternalLink" Size="Size.Is4" />
+                </Button>
+            </Div>
+        </Div>
 
-            <StepperPanel Class="mt-6 rounded-lg border p-4">
-                <StepperContent Value="1">
-                    <Text>Account details are active.</Text>
-                </StepperContent>
-                <StepperContent Value="2">
-                    <Text>Security verification is active.</Text>
-                </StepperContent>
-                <StepperContent Value="3">
-                    <Text>Final review is active.</Text>
-                </StepperContent>
-            </StepperPanel>
-        </Stepper>
-    </DemoSection>
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValueKey="done" Display="Display.Flex" ItemsAlign="Items.Center" Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+                <StepperNav>
+                    @foreach (var step in KeyedSteps)
+                    {
+                        <StepperItem Step="@step.Number" Value="@step.Value">
+                            <StepperTrigger>
+                                <StepperIndicator>@step.Number</StepperIndicator>
+                            </StepperTrigger>
+                            @if (step.Number < KeyedSteps.Length)
+                            {
+                                <StepperSeparator />
+                            }
+                        </StepperItem>
+                    }
+                </StepperNav>
+            </Stepper>
+        </Div>
 
-    <DemoSection Title="Vertical" Code="@VerticalStepperCode">
-        <Stepper Orientation="vertical" Value="2">
-            <StepperNav>
-                <StepperItem Step="1" Completed="true">
-                    <StepperTrigger>
-                        <StepperIndicator>1</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Draft</StepperTitle>
-                            <StepperDescription>Initial content</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                    <StepperSeparator />
-                </StepperItem>
-                <StepperItem Step="2">
-                    <StepperTrigger>
-                        <StepperIndicator>2</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Review</StepperTitle>
-                            <StepperDescription>Current stage</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                    <StepperSeparator />
-                </StepperItem>
-                <StepperItem Step="3" Disabled="true">
-                    <StepperTrigger>
-                        <StepperIndicator>3</StepperIndicator>
-                        <Div Space="Space.Y.Is1">
-                            <StepperTitle>Publish</StepperTitle>
-                            <StepperDescription>Locked until approval</StepperDescription>
-                        </Div>
-                    </StepperTrigger>
-                </StepperItem>
-            </StepperNav>
-        </Stepper>
-    </DemoSection>
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValueKey="confirm" Display="Display.Flex" ItemsAlign="Items.Center" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
+                <StepperNav>
+                    @foreach (var step in ShortTitleSteps)
+                    {
+                        <StepperItem Step="@step.Number" Value="@step.Value" Variant="StepperItemVariant.Stacked">
+                            <StepperTrigger>
+                                <StepperIndicator>@step.Number</StepperIndicator>
+                                <StepperTitle>@step.Title</StepperTitle>
+                            </StepperTrigger>
+                            @if (step.Number < ShortTitleSteps.Length)
+                            {
+                                <StepperSeparator />
+                            }
+                        </StepperItem>
+                    }
+                </StepperNav>
+            </Stepper>
+        </Div>
 
-    <DemoSection Title="Force Mounted Content" Code="@ForceMountedCode">
-        <Stepper Value="@_forceMountedStep" ValueChanged="value => _forceMountedStep = value">
-            <StepperNav>
-                <StepperItem Step="1">
-                    <StepperTrigger>
-                        <StepperIndicator>A</StepperIndicator>
-                        <StepperTitle>Alpha</StepperTitle>
-                    </StepperTrigger>
-                    <StepperSeparator />
-                </StepperItem>
-                <StepperItem Step="2" Loading="true">
-                    <StepperTrigger>
-                        <StepperIndicator>B</StepperIndicator>
-                        <StepperTitle>Beta</StepperTitle>
-                    </StepperTrigger>
-                </StepperItem>
-            </StepperNav>
-            <StepperPanel Class="mt-6 rounded-lg border p-4">
-                <StepperContent Value="1" ForceMount="true">Alpha content remains mounted.</StepperContent>
-                <StepperContent Value="2" ForceMount="true">Beta content remains mounted.</StepperContent>
-            </StepperPanel>
-        </Stepper>
-    </DemoSection>
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValueKey="account" Display="Display.Flex" Width="Width.IsFull" ItemsAlign="Items.Center">
+                <StepperNav>
+                    @foreach (var step in SetupSteps)
+                    {
+                        <StepperItem Step="@step.Number" Value="@step.Value" Variant="StepperItemVariant.Stacked">
+                            <StepperTrigger>
+                                <StepperIndicator>@step.Number</StepperIndicator>
+                                <StepperTitle>@step.Title</StepperTitle>
+                                <StepperDescription>@step.Description</StepperDescription>
+                            </StepperTrigger>
+                            @if (step.Number < SetupSteps.Length)
+                            {
+                                <StepperSeparator />
+                            }
+                        </StepperItem>
+                    }
+                </StepperNav>
+            </Stepper>
+        </Div>
+
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValue="1" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
+                <CompletedIndicator>
+                    <Icon Name="LucideIcon.Check" Size="Size.Is3_5" />
+                </CompletedIndicator>
+                <ChildContent>
+                    <StepperNav>
+                        @foreach (var step in InlineTitleSteps)
+                        {
+                            <StepperItem Step="@step.Number">
+                                <StepperTrigger>
+                                    <StepperIndicator>@step.Number</StepperIndicator>
+                                    <StepperTitle TextSize="TextSize.Base">@step.Title</StepperTitle>
+                                </StepperTrigger>
+                                @if (step.Number < InlineTitleSteps.Length)
+                                {
+                                    <StepperSeparator />
+                                }
+                            </StepperItem>
+                        }
+                    </StepperNav>
+                </ChildContent>
+            </Stepper>
+        </Div>
+
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Div Display="Display.Flex" Width="Width.IsFull" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Gap="Gap.Is8">
+                <Stepper DefaultValue="1" Responsive="true" Width="Width.IsFull" MaxWidth="MaxWidth.Is4xl">
+                    <CompletedIndicator>
+                        <Icon Name="LucideIcon.Check" Size="Size.Is3_5" />
+                    </CompletedIndicator>
+                    <ChildContent>
+                        <StepperNav>
+                            @foreach (var step in InlineDescriptionSteps)
+                            {
+                                <StepperItem Step="@step.Number">
+                                    <StepperTrigger ItemsAlign="Items.Start" Gap="Gap.Is3">
+                                        <StepperIndicator>@step.Number</StepperIndicator>
+                                        <Div Space="Space.Y.Is1" TextAlign="TextAlign.Start">
+                                            <StepperTitle TextSize="TextSize.Base">@step.Title</StepperTitle>
+                                            <StepperDescription>@step.Description</StepperDescription>
+                                        </Div>
+                                    </StepperTrigger>
+                                    @if (step.Number < InlineDescriptionSteps.Length)
+                                    {
+                                        <StepperSeparator />
+                                    }
+                                </StepperItem>
+                            }
+                        </StepperNav>
+                    </ChildContent>
+                </Stepper>
+                <Div TextColor="TextColor.MutedForeground" TextSize="TextSize.Base">
+                    <Span FontWeight="FontWeight.Medium">Responsive</Span> - switches to vertical layout
+                </Div>
+            </Div>
+        </Div>
+
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValue="1" Width="Width.IsFull" MaxWidth="MaxWidth.Is4xl">
+                <StepperNav>
+                    @foreach (var step in ThreeSteps)
+                    {
+                        <StepperItem Step="@step">
+                            <StepperTrigger>
+                                <StepperIndicator Variant="StepperIndicatorVariant.Outline">@step</StepperIndicator>
+                            </StepperTrigger>
+                            @if (step < ThreeSteps.Length)
+                            {
+                                <StepperSeparator />
+                            }
+                        </StepperItem>
+                    }
+                </StepperNav>
+            </Stepper>
+        </Div>
+
+        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is0" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
+            <Stepper DefaultValue="2" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
+                <CompletedIndicator>
+                    <Icon Name="LucideIcon.Check" Size="Size.Is3_5" />
+                </CompletedIndicator>
+                <ChildContent>
+                    <StepperNav>
+                        @foreach (var step in ThreeSteps)
+                        {
+                            <StepperItem Step="@step">
+                                <StepperTrigger>
+                                    <StepperIndicator>@step</StepperIndicator>
+                                </StepperTrigger>
+                                @if (step < ThreeSteps.Length)
+                                {
+                                    <StepperSeparator />
+                                }
+                            </StepperItem>
+                        }
+                    </StepperNav>
+                </ChildContent>
+            </Stepper>
+        </Div>
+    </Div>
 </Container>
 
 @code {
-    private int _basicStep = 2;
-    private int _forceMountedStep = 1;
+    private static readonly int[] ThreeSteps = [1, 2, 3];
 
-    private const string BasicStepperCode ="""
-<Stepper Value="@_basicStep" ValueChanged="value => _basicStep = value">
-    <StepperNav>
-        <StepperItem Step="1">
-            <StepperTrigger>
-                <StepperIndicator>1</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Account</StepperTitle>
-                    <StepperDescription>Create profile</StepperDescription>
-                </Div>
-            </StepperTrigger>
-            <StepperSeparator />
-        </StepperItem>
-        <StepperItem Step="2">
-            <StepperTrigger>
-                <StepperIndicator>2</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Security</StepperTitle>
-                    <StepperDescription>Verify access</StepperDescription>
-                </Div>
-            </StepperTrigger>
-            <StepperSeparator />
-        </StepperItem>
-        <StepperItem Step="3">
-            <StepperTrigger>
-                <StepperIndicator>3</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Finish</StepperTitle>
-                    <StepperDescription>Review setup</StepperDescription>
-                </Div>
-            </StepperTrigger>
-        </StepperItem>
-    </StepperNav>
+    private static readonly StepperValueStep[] KeyedSteps =
+    [
+        new(1, "details"),
+        new(2, "review"),
+        new(3, "done")
+    ];
 
-    <StepperPanel Class="mt-6 rounded-lg border p-4">
-        <StepperContent Value="1">
-            <Text>Account details are active.</Text>
-        </StepperContent>
-        <StepperContent Value="2">
-            <Text>Security verification is active.</Text>
-        </StepperContent>
-        <StepperContent Value="3">
-            <Text>Final review is active.</Text>
-        </StepperContent>
-    </StepperPanel>
-</Stepper>
-""";
+    private static readonly StepperDemoStep[] ShortTitleSteps =
+    [
+        new(1, "Details", Value: "details"),
+        new(2, "Confirm", Value: "confirm"),
+        new(3, "Done", Value: "done")
+    ];
 
-    private const string VerticalStepperCode ="""
-<Stepper Orientation="vertical" Value="2">
-    <StepperNav>
-        <StepperItem Step="1" Completed="true">
-            <StepperTrigger>
-                <StepperIndicator>1</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Draft</StepperTitle>
-                    <StepperDescription>Initial content</StepperDescription>
-                </Div>
-            </StepperTrigger>
-            <StepperSeparator />
-        </StepperItem>
-        <StepperItem Step="2">
-            <StepperTrigger>
-                <StepperIndicator>2</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Review</StepperTitle>
-                    <StepperDescription>Current stage</StepperDescription>
-                </Div>
-            </StepperTrigger>
-            <StepperSeparator />
-        </StepperItem>
-        <StepperItem Step="3" Disabled="true">
-            <StepperTrigger>
-                <StepperIndicator>3</StepperIndicator>
-                <Div Space="Space.Y.Is1">
-                    <StepperTitle>Publish</StepperTitle>
-                    <StepperDescription>Locked until approval</StepperDescription>
-                </Div>
-            </StepperTrigger>
-        </StepperItem>
-    </StepperNav>
-</Stepper>
-""";
+    private static readonly StepperDemoStep[] SetupSteps =
+    [
+        new(1, "Account", "Create an account", "account"),
+        new(2, "Profile", "Set up our profile", "profile"),
+        new(3, "Complete", "Complete the setup", "complete")
+    ];
 
-    private const string ForceMountedCode ="""
-<Stepper Value="@_forceMountedStep" ValueChanged="value => _forceMountedStep = value">
-    <StepperNav>
-        <StepperItem Step="1">
-            <StepperTrigger>
-                <StepperIndicator>A</StepperIndicator>
-                <StepperTitle>Alpha</StepperTitle>
-            </StepperTrigger>
-            <StepperSeparator />
-        </StepperItem>
-        <StepperItem Step="2" Loading="true">
-            <StepperTrigger>
-                <StepperIndicator>B</StepperIndicator>
-                <StepperTitle>Beta</StepperTitle>
-            </StepperTrigger>
-        </StepperItem>
-    </StepperNav>
-    <StepperPanel Class="mt-6 rounded-lg border p-4">
-        <StepperContent Value="1" ForceMount="true">Alpha content remains mounted.</StepperContent>
-        <StepperContent Value="2" ForceMount="true">Beta content remains mounted.</StepperContent>
-    </StepperPanel>
-</Stepper>
-""";
+    private static readonly StepperDemoStep[] InlineTitleSteps =
+    [
+        new(1, "Step 1"),
+        new(2, "Step 2"),
+        new(3, "Step 3")
+    ];
+
+    private static readonly StepperDemoStep[] InlineDescriptionSteps =
+    [
+        new(1, "Step 1", "This is the first step"),
+        new(2, "Step 2", "This is the second step"),
+        new(3, "Step 3", "This is the third step")
+    ];
+
+    private sealed record StepperDemoStep(int Number, string Title, string? Description = null, string? Value = null);
+
+    private sealed record StepperValueStep(int Number, string Value);
 }

@@ -200,7 +200,8 @@
 
     private bool IsDocsPage => CurrentPath != "/";
     private bool IsComponentsIndexPage => CurrentPath == "/components";
-    private bool ShouldRenderOnThisPage => IsComponentsIndexPage || IsDocumentedComponentPage;
+    private bool UsesWideComponentPreview => CurrentPath == "/components/stepper";
+    private bool ShouldRenderOnThisPage => !UsesWideComponentPreview && (IsComponentsIndexPage || IsDocumentedComponentPage);
     private bool ShouldRenderLayoutPageTitle => !IsComponentsIndexPage && CurrentPath is not ("/introduction" or "/installation");
     private bool IsLandingPage => CurrentPath == "/";
     private bool ShowSidebarTrigger => true;
@@ -253,7 +254,11 @@
 
     private IReadOnlyList<QuarkPresetToken>? NavigationShellContainerPresets => IsLandingPage ? ContainerWrapperPresets : DocsContainerPresets;
 
-    private string MainClass => IsLandingPage ? string.Empty : "max-w-6xl px-4 py-6 md:px-6 lg:px-8 lg:py-8";
+    private string MainClass => IsLandingPage
+        ? string.Empty
+        : UsesWideComponentPreview
+            ? "max-w-none px-4 py-6 md:px-6 lg:px-8 lg:py-8"
+            : "max-w-6xl px-4 py-6 md:px-6 lg:px-8 lg:py-8";
 
     private Task ToggleDocsLayout(MouseEventArgs _)
     {
