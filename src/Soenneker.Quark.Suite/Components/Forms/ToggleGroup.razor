@@ -224,7 +224,7 @@
     private async Task HandleGroupBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            await FlushAutoSave();
+            QueueAutoSaveFlush();
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -242,6 +242,14 @@
         return UsesMultipleAutosave
             ? _autoSaveMultiple.Flush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread)
             : _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+    }
+
+    private void QueueAutoSaveFlush()
+    {
+        if (UsesMultipleAutosave)
+            _autoSaveMultiple.QueueFlush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread);
+        else
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
     }
 
     private bool ContainsValue(string value)

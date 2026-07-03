@@ -14,6 +14,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     private int _version;
     private bool _hasPendingValue;
     private TValue _pendingValue = default!;
+    private bool _disposed;
 
     public AutoSaveState State { get; private set; } = AutoSaveState.Idle;
 
@@ -24,6 +25,9 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     public async Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
+        if (_disposed)
+            return;
+
         if (!CanAutoSave(autoSave, onAutoSave))
         {
             CancelOperation();
@@ -49,17 +53,26 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     public Task Flush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (!_hasPendingValue)
+        if (_disposed || !_hasPendingValue)
             return Task.CompletedTask;
 
         var value = _pendingValue;
         return SaveNow(value, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
     }
 
+    public void QueueFlush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
+        EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
+    {
+        if (_disposed || !_hasPendingValue || !CanAutoSave(autoSave, onAutoSave))
+            return;
+
+        _ = RunQueuedFlush(currentValue, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
+    }
+
     public Task SaveNow(TValue value, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (!CanAutoSave(autoSave, onAutoSave))
+        if (_disposed || !CanAutoSave(autoSave, onAutoSave))
             return Task.CompletedTask;
 
         CancelOperation();
@@ -67,6 +80,17 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         CancellationToken cancellationToken = CreateOperationCancellationToken();
 
         return RunSave(value, version, onAutoSave!, autoSaveStateChanged, refreshAsync, cancellationToken);
+    }
+
+    private async Task RunQueuedFlush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
+        EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
+    {
+        await Task.Yield();
+
+        if (_disposed)
+            return;
+
+        await Flush(currentValue, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
     }
 
     private async Task RunDelayedSave(TValue value, int delay, int version, Func<TValue, CancellationToken, ValueTask> onAutoSave,
@@ -176,6 +200,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
     public ValueTask DisposeAsync()
     {
+        _disposed = true;
         CancelOperation();
         return ValueTask.CompletedTask;
     }

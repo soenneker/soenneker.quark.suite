@@ -310,7 +310,7 @@
     private async Task HandleInputBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            await FlushAutoSave();
+            QueueAutoSaveFlush();
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -328,6 +328,14 @@
         return UsesDateOnlyValue
             ? _dateOnlyAutoSave.Flush(DateOnly, AutoSave, OnAutoSaveDateOnly, AutoSaveStateChanged, RefreshOffThread)
             : _dateAutoSave.Flush(Date, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+    }
+
+    private void QueueAutoSaveFlush()
+    {
+        if (UsesDateOnlyValue)
+            _dateOnlyAutoSave.QueueFlush(DateOnly, AutoSave, OnAutoSaveDateOnly, AutoSaveStateChanged, RefreshOffThread);
+        else
+            _dateAutoSave.QueueFlush(Date, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
     }
 
 	/// <summary>
