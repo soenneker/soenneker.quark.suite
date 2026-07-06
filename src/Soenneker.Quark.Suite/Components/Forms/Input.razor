@@ -11,10 +11,11 @@
 {
     <span class="inline-flex w-full min-w-0 items-center gap-2">
         <input @ref="_elementRef"
-               value="@Value"
-               @oninput="HandleInput"
-               @onchange="HandleChange"
-               @attributes="BuildAttributes()" />
+               @attributes="BuildAttributes()"
+               @bind:get="Value"
+               @bind:set="HandleInputValueChanged"
+               @bind:event="oninput"
+               @onchange="HandleChange" />
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Class="@AutoSaveStatusClass"
@@ -26,10 +27,11 @@
 else
 {
     <input @ref="_elementRef"
-           value="@Value"
-           @oninput="HandleInput"
-           @onchange="HandleChange"
-           @attributes="BuildAttributes()" />
+           @attributes="BuildAttributes()"
+           @bind:get="Value"
+           @bind:set="HandleInputValueChanged"
+           @bind:event="oninput"
+           @onchange="HandleChange" />
 }
 
 @code {
@@ -193,16 +195,15 @@ else
     /// <summary>
     /// Handles the input event.
     /// </summary>
-    /// <param name="e">The change event arguments.</param>
-    protected virtual async Task HandleInput(ChangeEventArgs e)
+    /// <param name="newValue">The input value from the native input event.</param>
+    protected virtual async Task HandleInputValueChanged(string? newValue)
     {
         if (IsNativeTimeInput())
         {
-            TrackPendingNativeTimeValue(e);
+            TrackPendingNativeTimeValue(newValue);
             return;
         }
 
-        var newValue = e.Value?.ToString();
         var valueChanged = false;
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
         {
@@ -212,7 +213,7 @@ else
         }
 
         if (OnInput.HasDelegate)
-            await OnInput.InvokeIfHasDelegate(e);
+            await OnInput.InvokeIfHasDelegate(new ChangeEventArgs { Value = Value });
 
         if (ParentValidation is not null)
         {
@@ -236,7 +237,7 @@ else
     {
         if (IsNativeTimeInput())
         {
-            TrackPendingNativeTimeValue(e);
+            TrackPendingNativeTimeValue(e.Value?.ToString());
             return;
         }
 
@@ -266,10 +267,8 @@ else
         }
     }
 
-    private void TrackPendingNativeTimeValue(ChangeEventArgs e)
+    private void TrackPendingNativeTimeValue(string? newValue)
     {
-        var newValue = e.Value?.ToString();
-
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
         {
             Value = newValue;
