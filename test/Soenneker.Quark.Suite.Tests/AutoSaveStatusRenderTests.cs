@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -109,6 +110,29 @@ public sealed partial class RenderedShadcnParityTests
                 return states.Any(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry, state));
             }
         }
+    }
+
+    [Test]
+    public async Task AutoSave_input_does_not_wait_for_pending_state_notification()
+    {
+        var pendingStateGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Func<string?, CancellationToken, ValueTask> onAutoSave = (_, _) => ValueTask.CompletedTask;
+
+        var cut = Render<TextInput>(parameters => parameters
+            .Add(p => p.Value, string.Empty)
+            .Add(p => p.AutoSave, true)
+            .Add(p => p.AutoSaveDelay, 1_000)
+            .Add(p => p.OnAutoSave, onAutoSave)
+            .Add(p => p.AutoSaveStateChanged, state => state == AutoSaveState.Pending
+                ? pendingStateGate.Task
+                : Task.CompletedTask));
+
+        Task inputTask = cut.Find("input").InputAsync(new ChangeEventArgs { Value = "f" });
+        Task completed = await Task.WhenAny(inputTask, Task.Delay(250));
+
+        completed.Should().Be(inputTask);
+        pendingStateGate.SetResult();
     }
 
     [Test]

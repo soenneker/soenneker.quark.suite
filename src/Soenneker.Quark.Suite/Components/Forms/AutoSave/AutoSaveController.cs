@@ -22,19 +22,19 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
     public bool HasSaved { get; private set; }
 
-    public async Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
+    public Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
         if (_disposed)
-            return;
+            return Task.CompletedTask;
 
         if (!CanAutoSave(autoSave, onAutoSave))
         {
             CancelOperation();
             _hasPendingValue = false;
             HasSaved = false;
-            await SetState(AutoSaveState.Idle, autoSaveStateChanged, refreshAsync);
-            return;
+            QueueSetState(AutoSaveState.Idle, autoSaveStateChanged, refreshAsync);
+            return Task.CompletedTask;
         }
 
         _pendingValue = value;
@@ -45,9 +45,10 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         var delay = Math.Max(0, autoSaveDelay);
         CancellationToken cancellationToken = CreateOperationCancellationToken();
 
-        await SetState(AutoSaveState.Pending, autoSaveStateChanged, refreshAsync);
+        QueueSetState(AutoSaveState.Pending, autoSaveStateChanged, refreshAsync);
 
         _ = RunDelayedSave(value, delay, version, onAutoSave!, autoSaveStateChanged, refreshAsync, cancellationToken);
+        return Task.CompletedTask;
     }
 
     public Task Flush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
@@ -154,11 +155,35 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
             return;
 
         State = state;
+        await NotifyStateChanged(state, autoSaveStateChanged, refreshAsync);
+    }
 
+    private void QueueSetState(AutoSaveState state, EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
+    {
+        if (EqualityComparer<AutoSaveState>.Default.Equals(State, state))
+            return;
+
+        State = state;
+        _ = NotifyStateChangedSafely(state, autoSaveStateChanged, refreshAsync);
+    }
+
+    private static async Task NotifyStateChanged(AutoSaveState state, EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
+    {
         if (autoSaveStateChanged.HasDelegate)
             await autoSaveStateChanged.InvokeAsync(state);
 
         await refreshAsync();
+    }
+
+    private static async Task NotifyStateChangedSafely(AutoSaveState state, EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
+    {
+        try
+        {
+            await NotifyStateChanged(state, autoSaveStateChanged, refreshAsync);
+        }
+        catch
+        {
+        }
     }
 
     private static bool CanAutoSave(bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave)

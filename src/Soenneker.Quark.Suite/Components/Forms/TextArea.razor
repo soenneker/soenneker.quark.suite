@@ -188,9 +188,9 @@ else
 
         if (valueChanged)
         {
-            await CapturePendingSelection(next);
             Value = next;
             await ValueChanged.InvokeIfHasDelegate(Value);
+            await CapturePendingSelection(Value);
         }
         else
         {
@@ -203,11 +203,7 @@ else
             await ParentValidation.NotifyInputChanged(Value);
 
         if (valueChanged)
-        {
             await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
-            InvalidateRender();
-            Refresh();
-        }
     }
 
     private async Task CapturePendingSelection(string? value)
@@ -247,11 +243,7 @@ else
         }
 
         if (valueChanged)
-        {
             await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
-            InvalidateRender();
-            Refresh();
-        }
     }
 
     private async Task HandleTextAreaBlur(FocusEventArgs e)
