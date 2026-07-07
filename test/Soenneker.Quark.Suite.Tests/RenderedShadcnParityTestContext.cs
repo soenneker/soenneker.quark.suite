@@ -248,6 +248,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
         Services.AddScoped<ICarouselInterop, FakeCarouselInterop>();
+        Services.AddScoped<IInputInterop, FakeInputInterop>();
         Services.AddQuarkPaymentCardAsScoped();
         Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
@@ -375,6 +376,19 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask UnregisterAttachmentsById(string inputId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeInputInterop : IInputInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask<InputSelectionSnapshot?> GetSelection(ElementReference input, System.Threading.CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult<InputSelectionSnapshot?>(null);
+
+        public ValueTask RestoreSelection(ElementReference input, int start, int end, string? value, System.Threading.CancellationToken cancellationToken = default) =>
+            ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

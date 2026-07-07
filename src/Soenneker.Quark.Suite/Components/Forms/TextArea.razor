@@ -6,6 +6,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements Soenneker.Quark.IValidationInput
 @implements ITextArea
+@inject IInputInterop InputInterop
 
 @if (UsesAutoSaveStatusSlot)
 {
@@ -37,6 +38,7 @@ else
 @code {
     private ElementReference _elementRef;
     private readonly AutoSaveController<string?> _autoSave = new();
+    private InputSelectionSnapshot? _pendingSelectionRestore;
 
     [CascadingParameter]
     internal InputGroupContext? InputGroupContext { get; set; }
@@ -147,7 +149,10 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             InputGroupContext?.RegisterControl(_elementRef);
+            await InputInterop.Initialize();
+        }
 
         if (firstRender && ParentValidation is not null)
         {
@@ -158,6 +163,7 @@ else
                 await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
+        await RestorePendingSelection();
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -179,10 +185,17 @@ else
     private async Task HandleInputValueChanged(string? next)
     {
         var valueChanged = !string.Equals(Value, next, StringComparison.Ordinal);
-        Value = next;
 
         if (valueChanged)
+        {
+            await CapturePendingSelection(next);
+            Value = next;
             await ValueChanged.InvokeIfHasDelegate(Value);
+        }
+        else
+        {
+            Value = next;
+        }
 
         await OnInput.InvokeIfHasDelegate(new ChangeEventArgs { Value = Value });
 
@@ -195,6 +208,25 @@ else
             InvalidateRender();
             Refresh();
         }
+    }
+
+    private async Task CapturePendingSelection(string? value)
+    {
+        var selection = await InputInterop.GetSelection(_elementRef);
+
+        if (selection is not null && string.Equals(selection.Value, value, StringComparison.Ordinal))
+            _pendingSelectionRestore = selection;
+    }
+
+    private async Task RestorePendingSelection()
+    {
+        var selection = _pendingSelectionRestore;
+
+        if (selection is null)
+            return;
+
+        _pendingSelectionRestore = null;
+        await InputInterop.RestoreSelection(_elementRef, selection.Start, selection.End, selection.Value);
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -262,6 +294,7 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes.Remove("value");
         var hadExplicitDescription = attributes.ContainsKey("aria-describedby");
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
         if (!hadExplicitDescription)

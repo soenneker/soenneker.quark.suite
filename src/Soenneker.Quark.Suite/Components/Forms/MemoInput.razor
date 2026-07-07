@@ -6,11 +6,12 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements Soenneker.Quark.IValidationInput
 @implements IMemoInput
+@inject IInputInterop InputInterop
 
 @if (UsesAutoSaveStatusSlot)
 {
     <Span Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Start" Gap="Quark.Gap.Is2">
-        <textarea @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
+        <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Class="@ResolvedAutoSaveStatusClass"
@@ -21,11 +22,13 @@
 }
 else
 {
-    <textarea @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
+    <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
 }
 
 @code {
+    private ElementReference _elementRef;
     private readonly AutoSaveController<string?> _autoSave = new();
+    private InputSelectionSnapshot? _pendingSelectionRestore;
 
 	/// <summary>
 	/// Gets or sets the number of rows for the textarea.
@@ -144,6 +147,9 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
+        if (firstRender)
+            await InputInterop.Initialize();
+
 		if (firstRender && ParentValidation is not null)
 		{
 			await ParentValidation.InitializeInput(this);
@@ -154,6 +160,7 @@ else
 			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
+        await RestorePendingSelection();
         await base.OnAfterRenderAsync(firstRender);
 	}
 
@@ -210,6 +217,7 @@ else
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
+        attributes.Remove("value");
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
 		BuildClassAttribute(attributes, (ref cls) =>
@@ -268,6 +276,7 @@ else
 		var valueChanged = false;
 		if (Value != newValue)
 		{
+            await CapturePendingSelection(newValue);
 			Value = newValue;
 			await ValueChanged.InvokeAsync(Value);
 			valueChanged = true;
@@ -316,6 +325,25 @@ else
 			Refresh();
 		}
 	}
+
+    private async Task CapturePendingSelection(string? value)
+    {
+        var selection = await InputInterop.GetSelection(_elementRef);
+
+        if (selection is not null && string.Equals(selection.Value, value, StringComparison.Ordinal))
+            _pendingSelectionRestore = selection;
+    }
+
+    private async Task RestorePendingSelection()
+    {
+        var selection = _pendingSelectionRestore;
+
+        if (selection is null)
+            return;
+
+        _pendingSelectionRestore = null;
+        await InputInterop.RestoreSelection(_elementRef, selection.Start, selection.End, selection.Value);
+    }
 
     private async Task HandleMemoBlur(FocusEventArgs e)
     {
