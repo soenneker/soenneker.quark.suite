@@ -19,25 +19,6 @@
         </Div>
 
         <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
-            <Stepper DefaultValueKey="done" Display="Display.Flex" ItemsAlign="Items.Center" Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
-                <StepperNav>
-                    @foreach (var step in KeyedSteps)
-                    {
-                        <StepperItem Step="@step.Number" Value="@step.Value">
-                            <StepperTrigger>
-                                <StepperIndicator>@step.Number</StepperIndicator>
-                            </StepperTrigger>
-                            @if (step.Number < KeyedSteps.Length)
-                            {
-                                <StepperSeparator />
-                            }
-                        </StepperItem>
-                    }
-                </StepperNav>
-            </Stepper>
-        </Div>
-
-        <Div Display="Display.Flex" MinHeight='Height.Token("[264px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is6.OnY.Is12">
             <Stepper DefaultValueKey="confirm" Display="Display.Flex" ItemsAlign="Items.Center" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
                 <StepperNav>
                     @foreach (var step in ShortTitleSteps)
@@ -54,6 +35,59 @@
                         </StepperItem>
                     }
                 </StepperNav>
+            </Stepper>
+        </Div>
+
+        <Div Display="Display.Flex" MinHeight='Height.Token("[486px]")' ItemsAlign="Items.Center" Justify="Justify.Center" Border="Border.FromBottom.Is1" BorderStyle="BorderStyle.Dashed" Padding="Padding.OnX.Is8.OnY.Is12" Class="max-sm:px-4">
+            <Stepper Value="@_verticalStep" ValueChanged="SetVerticalStep" Orientation="vertical" Display="Display.Flex" Width="Width.IsFull" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is10" MaxWidth='MaxWidth.Token("[820px]")' Class="max-lg:flex-col max-lg:items-start">
+                <StepperNav Width='Width.Token("60")'>
+                    @foreach (var step in VerticalSteps)
+                    {
+                        <StepperItem Step="@step.Number" Position="Position.Relative" ItemsAlign="Items.Start">
+                            <StepperTrigger ItemsAlign="Items.Start" Class="pb-15 last:pb-0">
+                                <StepperIndicator>
+                                    <Icon Name="@step.Icon" Size="Size.Is4" />
+                                </StepperIndicator>
+                                <Div TextAlign="TextAlign.Start">
+                                    <StepperTitle>@step.Title</StepperTitle>
+                                    <StepperDescription TextSize="TextSize.Xs" FontWeight="FontWeight.Medium">@step.Description</StepperDescription>
+                                </Div>
+                            </StepperTrigger>
+                            @if (step.Number < VerticalSteps.Length)
+                            {
+                                <StepperSeparator Style="position: absolute; left: 8px; top: calc(50% - 22px); height: 60px; width: 2px; background-color: var(--border);" />
+                            }
+                        </StepperItem>
+                    }
+                </StepperNav>
+                <StepperPanel Class="w-xs text-center text-sm sm:w-116">
+                    @foreach (var step in VerticalSteps)
+                    {
+                        <StepperContent Value="@step.Number">
+                            <Div BackgroundColor="BackgroundColor.Muted" Border="Border.Is2" BorderStyle="BorderStyle.Dashed" BorderColor='BorderColor.Token("primary/15")' Rounded="Rounded.Lg" Padding="Padding.Is4.OnMd.Is8" Display="Display.Flex" FlexDirection="FlexDirection.Col" ItemsAlign="Items.Center" Gap="Gap.Is4">
+                                <Div Space="Space.Y.Is2">
+                                    <h3 class="text-muted-foreground text-lg font-medium">@step.Title</h3>
+                                    <p class="text-muted-foreground text-sm">@step.Description</p>
+                                </Div>
+                                <Div Width="Width.IsFull">
+                                    <Div TextColor="TextColor.MutedForeground" Display="Display.Flex" Height='Height.Token("36")' ItemsAlign="Items.Center" Justify="Justify.Center">
+                                        <Span TextSize="TextSize.Base">@step.Content</Span>
+                                    </Div>
+                                    <Div Margin="Margin.FromTop.Is6" Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between">
+                                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Secondary" Disabled="@IsFirstVerticalStep" OnClick="GoToPreviousVerticalStep">
+                                            <Icon Name="LucideIcon.ArrowLeft" Size="Size.Is4" />
+                                            Back
+                                        </Button>
+                                        <Button Type="ButtonType.Button" Disabled="@IsLastVerticalStep" OnClick="GoToNextVerticalStep">
+                                            Next
+                                            <Icon Name="LucideIcon.ArrowRight" Size="Size.Is4" />
+                                        </Button>
+                                    </Div>
+                                </Div>
+                            </Div>
+                        </StepperContent>
+                    }
+                </StepperPanel>
             </Stepper>
         </Div>
 
@@ -182,13 +216,15 @@
 </Container>
 
 @code {
+    private int _verticalStep = 1;
+
     private static readonly int[] ThreeSteps = [1, 2, 3];
 
-    private static readonly StepperValueStep[] KeyedSteps =
+    private static readonly VerticalStepperDemoStep[] VerticalSteps =
     [
-        new(1, "details"),
-        new(2, "review"),
-        new(3, "done")
+        new(1, "Profile", "Add owner and contact details", "Profile content", LucideIcon.User),
+        new(2, "Business", "Confirm workspace information", "Business content", LucideIcon.Building2),
+        new(3, "Verify", "Review access and security", "Verify content", LucideIcon.ShieldCheck)
     ];
 
     private static readonly StepperDemoStep[] ShortTitleSteps =
@@ -221,5 +257,24 @@
 
     private sealed record StepperDemoStep(int Number, string Title, string? Description = null, string? Value = null);
 
-    private sealed record StepperValueStep(int Number, string Value);
+    private bool IsFirstVerticalStep => _verticalStep <= 1;
+
+    private bool IsLastVerticalStep => _verticalStep >= VerticalSteps.Length;
+
+    private void SetVerticalStep(int step)
+    {
+        _verticalStep = Math.Clamp(step, 1, VerticalSteps.Length);
+    }
+
+    private void GoToPreviousVerticalStep()
+    {
+        SetVerticalStep(_verticalStep - 1);
+    }
+
+    private void GoToNextVerticalStep()
+    {
+        SetVerticalStep(_verticalStep + 1);
+    }
+
+    private sealed record VerticalStepperDemoStep(int Number, string Title, string Description, string Content, LucideIcon Icon);
 }
