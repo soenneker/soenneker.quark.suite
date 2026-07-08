@@ -262,7 +262,9 @@
             EditContext.NotifyFieldChanged(_fieldIdentifier);
         }
 
-        if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto)
+        var mode = ParentValidations?.Mode ?? ValidationMode.Auto;
+
+        if (mode == ValidationMode.Auto || _explicitlyValidated)
         {
             return ValidateValue(newValidationValue!);
         }
