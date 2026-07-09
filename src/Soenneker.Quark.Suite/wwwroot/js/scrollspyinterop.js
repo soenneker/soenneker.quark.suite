@@ -42,6 +42,10 @@ export function initialize(element, options, dotNetRef) {
       return;
     }
 
+    if (!force && previousId === sectionId) {
+      return;
+    }
+
     anchors.forEach((anchor) => {
       const id = anchor.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "");
 

@@ -33,7 +33,7 @@ public interface IRadioGroup : IElement
     /// <summary>
     /// Orientation: "horizontal" or "vertical".
     /// </summary>
-    Orientation Orientation { get; set; }
+    Orientation? Orientation { get; set; }
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).

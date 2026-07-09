@@ -1,5 +1,6 @@
 let activeDrag = null;
-let lastPointerPosition = null;
+let pendingMove = null;
+let moveFrame = 0;
 let listenersInstalled = false;
 const handleRegistrations = new WeakMap();
 
@@ -57,17 +58,7 @@ function getMetrics(groupElement, clientX, clientY, orientation) {
   };
 }
 
-function updateLastPointerPosition(clientX, clientY) {
-  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
-    return;
-  }
-
-  lastPointerPosition = { clientX, clientY };
-}
-
 function emitMove(clientX, clientY, pointerId) {
-  updateLastPointerPosition(clientX, clientY);
-
   if (!activeDrag) {
     return;
   }
@@ -81,9 +72,34 @@ function emitMove(clientX, clientY, pointerId) {
   invokeDotNet(activeDrag.handleElement, activeDrag.dotNetRef, "HandlePointerDragMove", activeDrag.handleIndex, metrics.percentage, metrics.size);
 }
 
-function emitEnd(clientX, clientY, pointerId) {
-  updateLastPointerPosition(clientX, clientY);
+function scheduleMove(clientX, clientY, pointerId) {
+  pendingMove = { clientX, clientY, pointerId };
 
+  if (moveFrame) {
+    return;
+  }
+
+  moveFrame = window.requestAnimationFrame(() => {
+    moveFrame = 0;
+    const move = pendingMove;
+    pendingMove = null;
+
+    if (move) {
+      emitMove(move.clientX, move.clientY, move.pointerId);
+    }
+  });
+}
+
+function cancelPendingMove() {
+  pendingMove = null;
+
+  if (moveFrame) {
+    window.cancelAnimationFrame(moveFrame);
+    moveFrame = 0;
+  }
+}
+
+function emitEnd(clientX, clientY, pointerId) {
   if (!activeDrag) {
     return;
   }
@@ -92,6 +108,7 @@ function emitEnd(clientX, clientY, pointerId) {
     return;
   }
 
+  cancelPendingMove();
   const metrics = getMetrics(activeDrag.groupElement, clientX, clientY, activeDrag.orientation);
   const drag = activeDrag;
   activeDrag = null;
@@ -105,7 +122,7 @@ function installListeners() {
   }
 
   window.addEventListener("pointermove", (event) => {
-    emitMove(event.clientX, event.clientY, event.pointerId);
+    scheduleMove(event.clientX, event.clientY, event.pointerId);
   });
 
   window.addEventListener("pointerup", (event) => {
@@ -117,7 +134,7 @@ function installListeners() {
   });
 
   window.addEventListener("mousemove", (event) => {
-    emitMove(event.clientX, event.clientY, null);
+    scheduleMove(event.clientX, event.clientY, null);
   });
 
   window.addEventListener("mouseup", (event) => {
@@ -128,7 +145,7 @@ function installListeners() {
 }
 
 function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, pointerId, clientX, clientY) {
-  updateLastPointerPosition(clientX, clientY);
+  cancelPendingMove();
 
   activeDrag = {
     dotNetRef,
@@ -171,6 +188,22 @@ function disposeHandleRegistration(handleElement) {
 
 export function initialize() {
   installListeners();
+}
+
+export function startDrag(groupElement, pointerId, clientX, clientY, orientation, dotNetRef, handleIndex) {
+  if (!groupElement) {
+    return;
+  }
+
+  const handleElement = Array.from(groupElement.children)
+    .filter((element) => element.dataset?.slot === "resizable-handle")[handleIndex];
+
+  if (!handleElement) {
+    return;
+  }
+
+  installListeners();
+  beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, pointerId, clientX, clientY);
 }
 
 export function registerHandle(handleElement, groupElement, orientation, dotNetRef, handleIndex) {
@@ -231,9 +264,11 @@ export function unregisterHandle(handleElement) {
 
   if (activeDrag?.handleElement === handleElement) {
     activeDrag = null;
+    cancelPendingMove();
   }
 }
 
 export function stopDrag() {
   activeDrag = null;
+  cancelPendingMove();
 }

@@ -395,10 +395,16 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeResizableInterop : IResizableInterop
     {
+        public int RegisterHandleCallCount { get; private set; }
+
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask RegisterHandle(ElementReference handle, ElementReference group, string orientation,
-            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, System.Threading.CancellationToken cancellationToken = default)
+        {
+            RegisterHandleCallCount++;
+            return ValueTask.CompletedTask;
+        }
 
         public ValueTask UnregisterHandle(ElementReference handle, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 

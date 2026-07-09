@@ -23,7 +23,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     /// <summary>
     /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
-    /// <see cref="LeptonIdentifiableContentElement.AdditionalAttributes"/> parameter.
+    /// <c>AdditionalAttributes</c> parameter.
     /// </summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? Attributes { get; set; }

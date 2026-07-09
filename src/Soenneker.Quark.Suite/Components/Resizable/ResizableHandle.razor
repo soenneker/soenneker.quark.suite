@@ -28,6 +28,10 @@
     private string? DirectionProviderDir { get; set; }
 
     private ResizablePanelGroup? _registeredParentPanelGroup;
+    private ResizablePanelGroup? _interopParentPanelGroup;
+    private string? _interopOrientation;
+    private int _interopIndex = -1;
+    private bool _interopRegistered;
     private int _index;
 
     /// <summary>
@@ -98,12 +102,36 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (ParentPanelGroup is not null)
+        if (ParentPanelGroup is null)
         {
-            await ResizableInterop.RegisterHandle(ElementRef, ParentPanelGroup.GroupElementRef, ParentPanelGroup.OrientationValue, ParentPanelGroup.GetOrCreateDotNetRef(), _index);
+            if (_interopRegistered)
+            {
+                await ResizableInterop.UnregisterHandle(ElementRef);
+                ClearInteropRegistration();
+            }
+        }
+        else if (!_interopRegistered ||
+                 !ReferenceEquals(_interopParentPanelGroup, ParentPanelGroup) ||
+                 _interopIndex != _index ||
+                 !string.Equals(_interopOrientation, ParentPanelGroup.OrientationValue, StringComparison.Ordinal))
+        {
+            await ResizableInterop.RegisterHandle(ElementRef, ParentPanelGroup.GroupElementRef, ParentPanelGroup.OrientationValue,
+                ParentPanelGroup.GetOrCreateDotNetRef(), _index);
+            _interopRegistered = true;
+            _interopParentPanelGroup = ParentPanelGroup;
+            _interopOrientation = ParentPanelGroup.OrientationValue;
+            _interopIndex = _index;
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void ClearInteropRegistration()
+    {
+        _interopRegistered = false;
+        _interopParentPanelGroup = null;
+        _interopOrientation = null;
+        _interopIndex = -1;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -148,7 +176,13 @@
     public override async ValueTask DisposeAsync()
     {
         _registeredParentPanelGroup?.UnregisterHandle(this);
-        await ResizableInterop.UnregisterHandle(ElementRef);
+
+        if (_interopRegistered)
+        {
+            await ResizableInterop.UnregisterHandle(ElementRef);
+            ClearInteropRegistration();
+        }
+
         await base.DisposeAsync();
     }
 }
