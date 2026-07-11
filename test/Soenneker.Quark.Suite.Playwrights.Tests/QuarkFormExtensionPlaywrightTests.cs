@@ -139,6 +139,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
 
         var basic = page.Locator("textarea[data-slot='textarea']").First;
         await Assertions.Expect(basic).ToHaveAttributeAsync("rows", "3");
+        await Assertions.Expect(basic).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)aria-invalid:ring-3(\s|$)"));
         await basic.FillAsync("A memo with\nmultiple lines");
         await Assertions.Expect(basic).ToHaveValueAsync("A memo with\nmultiple lines");
 
