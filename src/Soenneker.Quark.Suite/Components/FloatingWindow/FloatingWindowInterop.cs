@@ -50,6 +50,18 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         }
     }
 
+    public async ValueTask UpdateOptions(string id, FloatingWindowOptions options, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var json = JsonUtil.Serialize(options)!;
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("updateOptions", linked, id, json);
+        }
+    }
+
     public async ValueTask SetCallbacks(string id, DotNetObjectReference<FloatingWindow> dotNetRef, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);

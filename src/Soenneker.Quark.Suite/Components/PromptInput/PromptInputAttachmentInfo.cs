@@ -1,4 +1,5 @@
 using System;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -10,7 +11,7 @@ public sealed record PromptInputAttachmentInfo
     /// <summary>
     /// Gets or sets id.
     /// </summary>
-    public string Id { get; init; } = Guid.NewGuid().ToString("N");
+    public string Id { get; init; } = BlazorIdGenerator.New("prompt-input-attachment");
 
     /// <summary>
     /// Gets or sets name.

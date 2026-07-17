@@ -173,6 +173,7 @@
     private bool _initialized;
     private bool _visible;
     private bool _appliedVisible;
+    private FloatingWindowOptions? _appliedOptions;
     private readonly CancellationTokenSource _disposeCts = new();
     private DotNetObjectReference<FloatingWindow>? _dotNetRef;
 
@@ -282,6 +283,7 @@
 
         attrs["data-state"] = _visible ? "open" : "closed";
         attrs["aria-modal"] = "false";
+        attrs.TryAdd("tabindex", "-1");
 
         BuildClassAttribute(attrs, (ref cls) =>
         {
@@ -299,15 +301,16 @@
 
         if (firstRender)
         {
-            await WindowInterop.Initialize(MergedOptions.UseCdn, _disposeCts.Token);
+            var options = MergedOptions;
+            await WindowInterop.Initialize(options.UseCdn, _disposeCts.Token);
             _dotNetRef = DotNetObjectReference.Create(this);
-            await Task.Delay(10, _disposeCts.Token);
-            await WindowInterop.Create(Id!, MergedOptions, _disposeCts.Token);
+            await WindowInterop.Create(Id!, options, _disposeCts.Token);
             await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
             _initialized = true;
             _appliedVisible = false;
+            _appliedOptions = options;
 
-            if (Visible)
+            if (Visible && options.Enabled)
             {
                 await Show(_disposeCts.Token);
                 _appliedVisible = true;
@@ -316,7 +319,24 @@
             return;
         }
 
-        if (_initialized && Visible != _appliedVisible)
+        if (!_initialized)
+            return;
+
+        var currentOptions = MergedOptions;
+
+        if (_appliedOptions is null || !OptionsEqual(_appliedOptions, currentOptions))
+        {
+            await WindowInterop.UpdateOptions(Id!, currentOptions, _disposeCts.Token);
+            _appliedOptions = currentOptions;
+
+            if (!currentOptions.Enabled)
+                _appliedVisible = false;
+        }
+
+        if (!currentOptions.Enabled)
+            return;
+
+        if (Visible != _appliedVisible)
         {
             if (Visible)
                 await Show(_disposeCts.Token);
@@ -326,6 +346,29 @@
             _appliedVisible = Visible;
         }
     }
+
+    private static bool OptionsEqual(FloatingWindowOptions left, FloatingWindowOptions right) =>
+        left.Draggable == right.Draggable &&
+        left.Resizable == right.Resizable &&
+        left.ShowCloseButton == right.ShowCloseButton &&
+        left.ShowTitleBar == right.ShowTitleBar &&
+        left.Enabled == right.Enabled &&
+        left.Width == right.Width &&
+        left.Height == right.Height &&
+        left.InitialX == right.InitialX &&
+        left.InitialY == right.InitialY &&
+        left.MinWidth == right.MinWidth &&
+        left.MinHeight == right.MinHeight &&
+        left.MaxWidth == right.MaxWidth &&
+        left.MaxHeight == right.MaxHeight &&
+        left.ConstrainToViewport == right.ConstrainToViewport &&
+        left.CenterOnShow == right.CenterOnShow &&
+        left.FocusOnShow == right.FocusOnShow &&
+        left.UseCdn == right.UseCdn &&
+        left.AutoSizeToContent == right.AutoSizeToContent &&
+        left.DynamicAutoSizeToContent == right.DynamicAutoSizeToContent &&
+        left.RecenterOnResize == right.RecenterOnResize &&
+        left.ZIndex == right.ZIndex;
 
     public async ValueTask Show(CancellationToken cancellationToken = default)
     {
@@ -455,7 +498,27 @@
         hc.Add(OnHide.HasDelegate);
         hc.Add(OnDragStart.HasDelegate);
         hc.Add(OnDragEnd.HasDelegate);
-        hc.Add(Options);
+        hc.Add(Options.Draggable);
+        hc.Add(Options.Resizable);
+        hc.Add(Options.ShowCloseButton);
+        hc.Add(Options.ShowTitleBar);
+        hc.Add(Options.Enabled);
+        hc.Add(Options.Width);
+        hc.Add(Options.Height);
+        hc.Add(Options.InitialX);
+        hc.Add(Options.InitialY);
+        hc.Add(Options.MinWidth);
+        hc.Add(Options.MinHeight);
+        hc.Add(Options.MaxWidth);
+        hc.Add(Options.MaxHeight);
+        hc.Add(Options.ConstrainToViewport);
+        hc.Add(Options.CenterOnShow);
+        hc.Add(Options.FocusOnShow);
+        hc.Add(Options.UseCdn);
+        hc.Add(Options.AutoSizeToContent);
+        hc.Add(Options.DynamicAutoSizeToContent);
+        hc.Add(Options.RecenterOnResize);
+        hc.Add(Options.ZIndex);
         hc.Add(Draggable);
         hc.Add(Resizable);
         hc.Add(ShowCloseButton);

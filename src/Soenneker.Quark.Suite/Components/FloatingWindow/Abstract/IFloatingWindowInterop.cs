@@ -28,6 +28,15 @@ public interface IFloatingWindowInterop : IAsyncDisposable
     ValueTask Create(string id, FloatingWindowOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Updates the behavior options for an existing floating window.
+    /// </summary>
+    /// <param name="id">The identifier.</param>
+    /// <param name="options">The updated options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    ValueTask UpdateOptions(string id, FloatingWindowOptions options, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Sets callbacks.
     /// </summary>
     /// <param name="id">The identifier.</param>

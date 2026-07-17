@@ -1,0 +1,139 @@
+@page "/test/floating-window"
+@using Soenneker.Razor.Sitemap
+@attribute [Sitemap(Exclude = true)]
+
+<PageTitle>Floating Window Test Harness</PageTitle>
+
+<div class="flex flex-wrap gap-2 p-4">
+    <button data-testid="open-a" @onclick="@(() => _aVisible = true)">Open A</button>
+    <button data-testid="open-b" @onclick="@(() => _bVisible = true)">Open B</button>
+    <button data-testid="toggle-draggable" @onclick="@(() => _draggable = !_draggable)">Toggle draggable</button>
+    <button data-testid="toggle-resizable" @onclick="@(() => _resizable = !_resizable)">Toggle resizable</button>
+    <button data-testid="toggle-enabled" @onclick="@(() => _enabled = !_enabled)">Toggle enabled</button>
+    <button data-testid="toggle-focus" @onclick="ToggleFocusOnShow">Toggle focus</button>
+    <button data-testid="move-a-to-edge" @onclick="MoveAToEdge">Move A to edge</button>
+    <button data-testid="race-centered" @onclick="RaceCenteredWindow">Race centered window</button>
+    <button data-testid="open-bounded" @onclick="@(() => _boundedVisible = true)">Open bounded window</button>
+</div>
+
+<div class="p-4" data-testid="window-events">
+    <span data-testid="a-show-count">@_aShowCount</span>
+    <span data-testid="a-hide-count">@_aHideCount</span>
+    <span data-testid="a-drag-start-count">@_aDragStartCount</span>
+    <span data-testid="a-drag-end-count">@_aDragEndCount</span>
+    <span data-testid="centered-show-count">@_centeredShowCount</span>
+    <span data-testid="centered-hide-count">@_centeredHideCount</span>
+</div>
+
+<FloatingWindow @ref="_windowA"
+                Id="floating-window-a"
+                Title="Window A"
+                @bind-Visible="_aVisible"
+                Draggable="_draggable"
+                Resizable="_resizable"
+                Enabled="_enabled"
+                Options="_optionsA"
+                OnShow="@(() => _aShowCount++)"
+                OnHide="@(() => _aHideCount++)"
+                OnDragStart="@(() => _aDragStartCount++)"
+                OnDragEnd="@(() => _aDragEndCount++)">
+    <p>Window A content</p>
+</FloatingWindow>
+
+<FloatingWindow @ref="_centeredWindow"
+                Id="floating-window-centered"
+                Title="Centered Window"
+                Options="_centeredOptions"
+                OnShow="@(() => _centeredShowCount++)"
+                OnHide="@(() => _centeredHideCount++)">
+    <p>Centered window content</p>
+</FloatingWindow>
+
+<FloatingWindow Id="floating-window-bounded"
+                Title="Bounded Window"
+                @bind-Visible="_boundedVisible"
+                Options="_boundedOptions">
+    <p>Bounded window content</p>
+</FloatingWindow>
+
+<FloatingWindow Id="floating-window-b"
+                Title="Window B"
+                @bind-Visible="_bVisible"
+                Options="_optionsB">
+    <p>Window B content</p>
+</FloatingWindow>
+
+@code {
+    private FloatingWindow? _windowA;
+    private FloatingWindow? _centeredWindow;
+    private bool _aVisible;
+    private bool _bVisible;
+    private bool _boundedVisible;
+    private bool _draggable = true;
+    private bool _resizable = true;
+    private bool _enabled = true;
+    private int _aShowCount;
+    private int _aHideCount;
+    private int _aDragStartCount;
+    private int _aDragEndCount;
+    private int _centeredShowCount;
+    private int _centeredHideCount;
+
+    private FloatingWindowOptions _optionsA = CreateOptions(40, 50);
+    private readonly FloatingWindowOptions _optionsB = CreateOptions(80, 90);
+    private readonly FloatingWindowOptions _centeredOptions = new()
+    {
+        AutoSizeToContent = false,
+        Width = 300,
+        Height = 200,
+        CenterOnShow = true,
+        FocusOnShow = true
+    };
+    private readonly FloatingWindowOptions _boundedOptions = new()
+    {
+        AutoSizeToContent = false,
+        Width = 300,
+        Height = 220,
+        InitialX = 420,
+        InitialY = 300,
+        MinWidth = 240,
+        MinHeight = 180,
+        MaxWidth = 360,
+        MaxHeight = 260,
+        CenterOnShow = false,
+        ConstrainToViewport = false
+    };
+
+    private static FloatingWindowOptions CreateOptions(int x, int y, bool focusOnShow = true) => new()
+    {
+        AutoSizeToContent = false,
+        Width = 320,
+        Height = 220,
+        InitialX = x,
+        InitialY = y,
+        CenterOnShow = false,
+        FocusOnShow = focusOnShow,
+        ConstrainToViewport = true,
+        ZIndex = 1000
+    };
+
+    private void ToggleFocusOnShow()
+    {
+        _optionsA.FocusOnShow = !_optionsA.FocusOnShow;
+    }
+
+    private async Task MoveAToEdge()
+    {
+        if (_windowA is not null)
+            await _windowA.SetPosition(1000, 800);
+    }
+
+    private async Task RaceCenteredWindow()
+    {
+        if (_centeredWindow is null)
+            return;
+
+        await _centeredWindow.Show();
+        await _centeredWindow.Hide();
+    }
+}

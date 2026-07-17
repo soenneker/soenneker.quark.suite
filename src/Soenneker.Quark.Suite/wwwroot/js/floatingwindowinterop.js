@@ -1,8 +1,9 @@
 const floatingWindows = new Map();
 let nextZIndex = 1000;
+let viewportResizeFrame = 0;
+let viewportListenersAttached = false;
 
-export async function create(id, optionsJson) {
-    const options = normalizeOptions(JSON.parse(optionsJson));
+export function create(id, optionsJson) {
     const element = document.getElementById(id);
 
     if (!element) {
@@ -10,77 +11,89 @@ export async function create(id, optionsJson) {
         return;
     }
 
-    if (!options?.enabled) {
-        element.style.display = "none";
+    if (floatingWindows.has(id)) {
+        destroy(id);
+    }
+
+    const options = normalizeOptions(JSON.parse(optionsJson));
+    const windowData = {
+        element,
+        options,
+        dotNetRef: null,
+        isOpen: false,
+        isDragging: false,
+        isResizing: false,
+        activePointerId: null,
+        dragStart: { x: 0, y: 0 },
+        resizeStart: { width: 0, height: 0, x: 0, y: 0, pointerX: 0, pointerY: 0 },
+        resizeDirection: null,
+        resizeObserver: null,
+        cleanupDragging: null,
+        cleanupResizing: [],
+        cleanupActivation: null,
+        cleanupActiveInteraction: null,
+        showFrame: 0
+    };
+
+    floatingWindows.set(id, windowData);
+    attachViewportListeners();
+
+    element.style.position = "fixed";
+    applyZIndex(windowData, options.zIndex);
+    applySizing(windowData);
+    applyInitialPosition(windowData);
+    configureResizeObserver(id);
+    setupActivation(id);
+    configureInteractions(id);
+
+    if (!options.enabled) {
+        setHiddenWithoutCallback(windowData);
+    }
+
+    if (options.constrainToViewport) {
+        reconcileToViewport(windowData);
+    }
+}
+
+export function updateOptions(id, optionsJson) {
+    const windowData = floatingWindows.get(id);
+
+    if (!windowData) {
         return;
     }
 
-    element.style.position = "fixed";
-    element.style.zIndex = options.zIndex || nextZIndex++;
+    const previous = windowData.options;
+    const next = normalizeOptions(JSON.parse(optionsJson));
+    windowData.options = next;
 
-    if (options.autoSizeToContent) {
-        element.style.width = "auto";
-        element.style.height = "auto";
-        element.style.maxWidth = "";
-        element.style.maxHeight = "";
-        element.style.minWidth = "";
-        element.style.minHeight = "";
-    } else {
-        if (options.width) {
-            element.style.width = `${options.width}px`;
-        }
+    cancelActiveInteraction(windowData, true);
 
-        if (options.height) {
-            element.style.height = `${options.height}px`;
-        }
+    if (previous.zIndex !== next.zIndex) {
+        applyZIndex(windowData, next.zIndex);
     }
 
-    if (options.initialX !== undefined) {
-        element.style.left = `${options.initialX}px`;
+    if (sizingChanged(previous, next)) {
+        applySizing(windowData);
     }
 
-    if (options.initialY !== undefined) {
-        element.style.top = `${options.initialY}px`;
+    if (previous.initialX !== next.initialX && next.initialX !== undefined) {
+        windowData.element.style.left = `${next.initialX}px`;
     }
 
-    let resizeObserver = null;
-
-    if (options.dynamicAutoSizeToContent) {
-        const content = element.querySelector(".quark-floating-window-content");
-
-        if (content) {
-            resizeObserver = new ResizeObserver(() => {
-                element.style.width = "auto";
-                element.style.height = "auto";
-
-                const windowData = floatingWindows.get(id);
-
-                if (options.recenterOnResize && windowData?.dotNetRef) {
-                    windowData.dotNetRef.invokeMethodAsync("OnContentResized").catch(console.error);
-                }
-            });
-
-            resizeObserver.observe(content);
-        }
+    if (previous.initialY !== next.initialY && next.initialY !== undefined) {
+        windowData.element.style.top = `${next.initialY}px`;
     }
 
-    floatingWindows.set(id, {
-        element,
-        options,
-        isDragging: false,
-        isResizing: false,
-        dragStart: { x: 0, y: 0 },
-        resizeStart: { width: 0, height: 0, x: 0, y: 0 },
-        resizeDirection: null,
-        resizeObserver
-    });
+    configureResizeObserver(id);
+    configureInteractions(id);
 
-    if (options.draggable) {
-        setupDragging(id);
+    if (!next.enabled) {
+        setHiddenWithoutCallback(windowData);
+        return;
     }
 
-    if (options.resizable) {
-        setupResizing(id);
+    if (next.constrainToViewport) {
+        reconcileToViewport(windowData);
     }
 }
 
@@ -112,27 +125,132 @@ function normalizeOptions(options) {
     };
 }
 
-function setupDragging(id) {
+function applyZIndex(windowData, requestedZIndex) {
+    const zIndex = Number.isFinite(requestedZIndex) ? requestedZIndex : nextZIndex;
+    windowData.element.style.zIndex = `${zIndex}`;
+    nextZIndex = Math.max(nextZIndex, zIndex + 1);
+}
+
+function applySizing(windowData) {
+    const { element, options } = windowData;
+    const viewport = getViewportSize();
+    const minWidth = Math.min(options.minWidth, viewport.width);
+    const minHeight = Math.min(options.minHeight, viewport.height);
+
+    element.style.minWidth = `${Math.max(0, minWidth)}px`;
+    element.style.minHeight = `${Math.max(0, minHeight)}px`;
+
+    if (options.autoSizeToContent) {
+        element.style.width = "auto";
+        element.style.height = "auto";
+    } else {
+        element.style.width = options.width == null ? "" : `${options.width}px`;
+        element.style.height = options.height == null ? "" : `${options.height}px`;
+    }
+
+    applyMaximumDimensions(windowData, viewport);
+}
+
+function applyMaximumDimensions(windowData, viewport = getViewportSize()) {
+    const { element, options } = windowData;
+    const maxWidth = options.constrainToViewport
+        ? Math.min(options.maxWidth ?? viewport.width, viewport.width)
+        : options.maxWidth;
+    const maxHeight = options.constrainToViewport
+        ? Math.min(options.maxHeight ?? viewport.height, viewport.height)
+        : options.maxHeight;
+
+    element.style.maxWidth = maxWidth == null ? "" : `${Math.max(0, maxWidth)}px`;
+    element.style.maxHeight = maxHeight == null ? "" : `${Math.max(0, maxHeight)}px`;
+}
+
+function applyInitialPosition(windowData) {
+    const { element, options } = windowData;
+
+    if (options.initialX !== undefined) {
+        element.style.left = `${options.initialX}px`;
+    }
+
+    if (options.initialY !== undefined) {
+        element.style.top = `${options.initialY}px`;
+    }
+}
+
+function sizingChanged(previous, next) {
+    return previous.autoSizeToContent !== next.autoSizeToContent ||
+        previous.width !== next.width ||
+        previous.height !== next.height ||
+        previous.minWidth !== next.minWidth ||
+        previous.minHeight !== next.minHeight ||
+        previous.maxWidth !== next.maxWidth ||
+        previous.maxHeight !== next.maxHeight ||
+        previous.constrainToViewport !== next.constrainToViewport;
+}
+
+function configureInteractions(id) {
     const windowData = floatingWindows.get(id);
 
     if (!windowData) {
         return;
     }
 
-    const titleBar = windowData.element.querySelector(".quark-floating-window-titlebar");
+    windowData.cleanupDragging?.();
+    windowData.cleanupDragging = null;
+    windowData.cleanupResizing?.forEach(cleanup => cleanup());
+    windowData.cleanupResizing = [];
 
-    if (!titleBar) {
+    if (windowData.options.draggable) {
+        setupDragging(id);
+    }
+
+    if (windowData.options.resizable) {
+        setupResizing(id);
+    }
+}
+
+function setupActivation(id) {
+    const windowData = floatingWindows.get(id);
+
+    if (!windowData) {
         return;
     }
 
-    const onMouseDown = (event) => {
+    windowData.cleanupActivation?.();
+
+    const onPointerDown = event => {
+        if (isPrimaryInteraction(event) && windowData.options.enabled) {
+            bringToFront(id);
+        }
+    };
+
+    windowData.element.addEventListener("pointerdown", onPointerDown);
+    windowData.cleanupActivation = () => windowData.element.removeEventListener("pointerdown", onPointerDown);
+}
+
+function setupDragging(id) {
+    const windowData = floatingWindows.get(id);
+    const titleBar = windowData?.element.querySelector(".quark-floating-window-titlebar");
+
+    if (!windowData || !titleBar) {
+        return;
+    }
+
+    const onPointerDown = event => {
+        if (!isPrimaryInteraction(event) || isInteractiveTitleBarTarget(event.target)) {
+            return;
+        }
+
         event.preventDefault();
         startDragging(id, event);
     };
 
-    titleBar.addEventListener("mousedown", onMouseDown);
+    titleBar.addEventListener("pointerdown", onPointerDown);
     titleBar.style.cursor = "move";
-    windowData.cleanupDragging = () => titleBar.removeEventListener("mousedown", onMouseDown);
+    titleBar.style.touchAction = "none";
+    windowData.cleanupDragging = () => {
+        titleBar.removeEventListener("pointerdown", onPointerDown);
+        titleBar.style.touchAction = "";
+    };
 }
 
 function setupResizing(id) {
@@ -143,88 +261,152 @@ function setupResizing(id) {
     }
 
     const resizeHandles = windowData.element.querySelectorAll(".quark-floating-window-resize-handle");
-    windowData.cleanupResizing = [];
 
-    resizeHandles.forEach((handle) => {
+    resizeHandles.forEach(handle => {
         const direction = handle.dataset.direction;
-        const onMouseDown = (event) => {
+        const onPointerDown = event => {
+            if (!isPrimaryInteraction(event)) {
+                return;
+            }
+
             event.preventDefault();
             startResizing(id, event, direction);
         };
 
-        handle.addEventListener("mousedown", onMouseDown);
-        windowData.cleanupResizing.push(() => handle.removeEventListener("mousedown", onMouseDown));
+        handle.addEventListener("pointerdown", onPointerDown);
+        handle.style.touchAction = "none";
+        windowData.cleanupResizing.push(() => {
+            handle.removeEventListener("pointerdown", onPointerDown);
+            handle.style.touchAction = "";
+        });
     });
+}
+
+function isPrimaryInteraction(event) {
+    return event.isPrimary !== false && (event.pointerType === "touch" || event.button === 0);
+}
+
+function isInteractiveTitleBarTarget(target) {
+    return target instanceof Element && target.closest("button, a, input, textarea, select, [role='button'], [contenteditable='true']") !== null;
 }
 
 function startDragging(id, event) {
     const windowData = floatingWindows.get(id);
 
-    if (!windowData) {
+    if (!windowData || !windowData.options.enabled) {
         return;
     }
 
+    cancelActiveInteraction(windowData, false);
     windowData.isDragging = true;
+    windowData.activePointerId = event.pointerId;
     windowData.dragStart = {
         x: event.clientX - windowData.element.offsetLeft,
         y: event.clientY - windowData.element.offsetTop
     };
 
-    bringToFront(id);
     windowData.dotNetRef?.invokeMethodAsync("InvokeOnDragStart").catch(console.error);
 
-    const onMouseMove = (moveEvent) => {
-        if (windowData.isDragging) {
+    const onPointerMove = moveEvent => {
+        if (moveEvent.pointerId === windowData.activePointerId && windowData.isDragging) {
+            moveEvent.preventDefault();
             updateDragPosition(id, moveEvent);
         }
     };
 
-    const onMouseUp = () => {
-        windowData.isDragging = false;
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-        windowData.dotNetRef?.invokeMethodAsync("InvokeOnDragEnd").catch(console.error);
+    const onPointerEnd = endEvent => {
+        if (endEvent.pointerId !== windowData.activePointerId) {
+            return;
+        }
+
+        finishDragging(windowData, true);
     };
 
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerEnd);
+    document.addEventListener("pointercancel", onPointerEnd);
+    windowData.cleanupActiveInteraction = () => {
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerEnd);
+        document.removeEventListener("pointercancel", onPointerEnd);
+    };
 }
 
 function startResizing(id, event, direction) {
     const windowData = floatingWindows.get(id);
 
-    if (!windowData) {
+    if (!windowData || !windowData.options.enabled || !direction) {
         return;
     }
 
+    cancelActiveInteraction(windowData, false);
     windowData.isResizing = true;
+    windowData.activePointerId = event.pointerId;
     windowData.resizeDirection = direction;
     windowData.resizeStart = {
         width: windowData.element.offsetWidth,
         height: windowData.element.offsetHeight,
         x: parseInt(windowData.element.style.left, 10) || 0,
         y: parseInt(windowData.element.style.top, 10) || 0,
-        mouseX: event.clientX,
-        mouseY: event.clientY
+        pointerX: event.clientX,
+        pointerY: event.clientY
     };
 
-    bringToFront(id);
-
-    const onMouseMove = (moveEvent) => {
-        if (windowData.isResizing) {
+    const onPointerMove = moveEvent => {
+        if (moveEvent.pointerId === windowData.activePointerId && windowData.isResizing) {
+            moveEvent.preventDefault();
             updateResizePosition(id, moveEvent);
         }
     };
 
-    const onMouseUp = () => {
-        windowData.isResizing = false;
-        windowData.resizeDirection = null;
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
+    const onPointerEnd = endEvent => {
+        if (endEvent.pointerId !== windowData.activePointerId) {
+            return;
+        }
+
+        finishResizing(windowData);
     };
 
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerEnd);
+    document.addEventListener("pointercancel", onPointerEnd);
+    windowData.cleanupActiveInteraction = () => {
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerEnd);
+        document.removeEventListener("pointercancel", onPointerEnd);
+    };
+}
+
+function finishDragging(windowData, notify) {
+    const wasDragging = windowData.isDragging;
+    windowData.isDragging = false;
+    windowData.activePointerId = null;
+    windowData.cleanupActiveInteraction?.();
+    windowData.cleanupActiveInteraction = null;
+
+    if (notify && wasDragging) {
+        windowData.dotNetRef?.invokeMethodAsync("InvokeOnDragEnd").catch(console.error);
+    }
+}
+
+function finishResizing(windowData) {
+    windowData.isResizing = false;
+    windowData.resizeDirection = null;
+    windowData.activePointerId = null;
+    windowData.cleanupActiveInteraction?.();
+    windowData.cleanupActiveInteraction = null;
+}
+
+function cancelActiveInteraction(windowData, notifyDragEnd) {
+    if (windowData.isDragging) {
+        finishDragging(windowData, notifyDragEnd);
+    } else if (windowData.isResizing) {
+        finishResizing(windowData);
+    } else {
+        windowData.cleanupActiveInteraction?.();
+        windowData.cleanupActiveInteraction = null;
+        windowData.activePointerId = null;
+    }
 }
 
 function updateDragPosition(id, event) {
@@ -238,9 +420,10 @@ function updateDragPosition(id, event) {
     let newY = event.clientY - windowData.dragStart.y;
 
     if (windowData.options.constrainToViewport) {
+        const viewport = getViewportSize();
         const rect = windowData.element.getBoundingClientRect();
-        newX = Math.max(0, Math.min(newX, window.innerWidth - rect.width));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - rect.height));
+        newX = clamp(newX, 0, Math.max(0, viewport.width - rect.width));
+        newY = clamp(newY, 0, Math.max(0, viewport.height - rect.height));
     }
 
     windowData.element.style.left = `${newX}px`;
@@ -254,71 +437,84 @@ function updateResizePosition(id, event) {
         return;
     }
 
-    const deltaX = event.clientX - windowData.resizeStart.mouseX;
-    const deltaY = event.clientY - windowData.resizeStart.mouseY;
+    const { options, resizeStart } = windowData;
+    const deltaX = event.clientX - resizeStart.pointerX;
+    const deltaY = event.clientY - resizeStart.pointerY;
     const direction = windowData.resizeDirection;
-    let newWidth = windowData.resizeStart.width;
-    let newHeight = windowData.resizeStart.height;
-    let newX = windowData.resizeStart.x;
-    let newY = windowData.resizeStart.y;
+    const viewport = getViewportSize();
+    const minWidth = Math.min(options.minWidth, viewport.width);
+    const minHeight = Math.min(options.minHeight, viewport.height);
+    const maxWidth = Math.min(options.maxWidth ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewport.width : Number.POSITIVE_INFINITY);
+    const maxHeight = Math.min(options.maxHeight ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewport.height : Number.POSITIVE_INFINITY);
+    let newWidth = resizeStart.width;
+    let newHeight = resizeStart.height;
+    let newX = resizeStart.x;
+    let newY = resizeStart.y;
 
     if (direction.includes("e")) {
-        newWidth = Math.max(windowData.options.minWidth, windowData.resizeStart.width + deltaX);
-
-        if (windowData.options.maxWidth) {
-            newWidth = Math.min(windowData.options.maxWidth, newWidth);
-        }
+        newWidth = clamp(resizeStart.width + deltaX, minWidth, maxWidth);
     }
 
     if (direction.includes("w")) {
-        const maxWidthChange = windowData.resizeStart.width - windowData.options.minWidth;
-        const clampedDeltaX = Math.max(-maxWidthChange, Math.min(deltaX, maxWidthChange));
-        newWidth = windowData.resizeStart.width - clampedDeltaX;
-        newX = windowData.resizeStart.x + (windowData.resizeStart.width - newWidth);
+        newWidth = clamp(resizeStart.width - deltaX, minWidth, maxWidth);
+        newX = resizeStart.x + resizeStart.width - newWidth;
     }
 
     if (direction.includes("s")) {
-        newHeight = Math.max(windowData.options.minHeight, windowData.resizeStart.height + deltaY);
-
-        if (windowData.options.maxHeight) {
-            newHeight = Math.min(windowData.options.maxHeight, newHeight);
-        }
+        newHeight = clamp(resizeStart.height + deltaY, minHeight, maxHeight);
     }
 
     if (direction.includes("n")) {
-        const maxHeightChange = windowData.resizeStart.height - windowData.options.minHeight;
-        const clampedDeltaY = Math.max(-maxHeightChange, Math.min(deltaY, maxHeightChange));
-        newHeight = windowData.resizeStart.height - clampedDeltaY;
-        newY = windowData.resizeStart.y + (windowData.resizeStart.height - newHeight);
+        newHeight = clamp(resizeStart.height - deltaY, minHeight, maxHeight);
+        newY = resizeStart.y + resizeStart.height - newHeight;
     }
 
-    if (windowData.options.constrainToViewport) {
-        const minWidth = windowData.options.minWidth || 200;
-        const minHeight = windowData.options.minHeight || 150;
-
-        if (newX + newWidth > window.innerWidth) {
-            newWidth = Math.max(minWidth, window.innerWidth - newX);
-        }
-
-        if (newY + newHeight > window.innerHeight) {
-            newHeight = Math.max(minHeight, window.innerHeight - newY);
-        }
-
-        if (newX < 0) {
-            newX = 0;
-            newWidth = Math.min(newWidth, window.innerWidth);
-        }
-
-        if (newY < 0) {
-            newY = 0;
-            newHeight = Math.min(newHeight, window.innerHeight);
-        }
+    if (options.constrainToViewport) {
+        newX = clamp(newX, 0, Math.max(0, viewport.width - minWidth));
+        newY = clamp(newY, 0, Math.max(0, viewport.height - minHeight));
+        newWidth = Math.min(newWidth, viewport.width - newX);
+        newHeight = Math.min(newHeight, viewport.height - newY);
     }
 
     windowData.element.style.width = `${newWidth}px`;
     windowData.element.style.height = `${newHeight}px`;
     windowData.element.style.left = `${newX}px`;
     windowData.element.style.top = `${newY}px`;
+}
+
+function configureResizeObserver(id) {
+    const windowData = floatingWindows.get(id);
+
+    if (!windowData) {
+        return;
+    }
+
+    windowData.resizeObserver?.disconnect();
+    windowData.resizeObserver = null;
+
+    if (!windowData.options.dynamicAutoSizeToContent) {
+        return;
+    }
+
+    const content = windowData.element.querySelector(".quark-floating-window-content");
+
+    if (!content) {
+        return;
+    }
+
+    windowData.resizeObserver = new ResizeObserver(() => {
+        windowData.element.style.width = "auto";
+        windowData.element.style.height = "auto";
+
+        if (windowData.options.constrainToViewport) {
+            reconcileToViewport(windowData);
+        }
+
+        if (windowData.options.recenterOnResize && windowData.dotNetRef) {
+            windowData.dotNetRef.invokeMethodAsync("OnContentResized").catch(console.error);
+        }
+    });
+    windowData.resizeObserver.observe(content);
 }
 
 export function setCallbacks(id, dotNetRef) {
@@ -332,35 +528,57 @@ export function setCallbacks(id, dotNetRef) {
 export function show(id) {
     const windowData = floatingWindows.get(id);
 
-    if (!windowData) {
+    if (!windowData?.options.enabled) {
         return;
     }
 
+    if (windowData.isOpen) {
+        bringToFront(id);
+        focusWindow(windowData);
+        return;
+    }
+
+    cancelShowFrame(windowData);
     const element = windowData.element;
+    element.style.display = "flex";
 
     if (windowData.options.centerOnShow) {
-        element.style.display = "flex";
         element.style.visibility = "hidden";
         element.style.left = "-9999px";
         element.style.top = "-9999px";
-
-        requestAnimationFrame(() => {
-            const x = Math.max(0, Math.round((window.innerWidth - element.offsetWidth) / 2));
-            const y = Math.max(0, Math.round((window.innerHeight - element.offsetHeight) / 2));
-            element.style.left = `${x}px`;
-            element.style.top = `${y}px`;
-            element.style.visibility = "visible";
-            element.dataset.state = "open";
-            windowData.dotNetRef?.invokeMethodAsync("InvokeOnShow").catch(console.error);
+        windowData.showFrame = requestAnimationFrame(() => {
+            windowData.showFrame = 0;
+            centerVisibleWindow(windowData);
+            finishShow(id, windowData);
         });
-
         return;
     }
 
-    element.style.display = "flex";
-    element.style.visibility = "visible";
-    element.dataset.state = "open";
+    finishShow(id, windowData);
+}
+
+function finishShow(id, windowData) {
+    if (!windowData.options.enabled) {
+        setHiddenWithoutCallback(windowData);
+        return;
+    }
+
+    if (windowData.options.constrainToViewport) {
+        reconcileToViewport(windowData);
+    }
+
+    windowData.element.style.visibility = "visible";
+    windowData.element.dataset.state = "open";
+    windowData.isOpen = true;
+    bringToFront(id);
+    focusWindow(windowData);
     windowData.dotNetRef?.invokeMethodAsync("InvokeOnShow").catch(console.error);
+}
+
+function focusWindow(windowData) {
+    if (windowData.options.focusOnShow) {
+        windowData.element.focus({ preventScroll: true });
+    }
 }
 
 export function hide(id) {
@@ -370,9 +588,29 @@ export function hide(id) {
         return;
     }
 
+    const wasOpen = windowData.isOpen || windowData.showFrame !== 0;
+    cancelShowFrame(windowData);
+    cancelActiveInteraction(windowData, true);
+    setHiddenWithoutCallback(windowData);
+
+    if (wasOpen) {
+        windowData.dotNetRef?.invokeMethodAsync("InvokeOnHide").catch(console.error);
+    }
+}
+
+function setHiddenWithoutCallback(windowData) {
+    cancelShowFrame(windowData);
     windowData.element.style.display = "none";
+    windowData.element.style.visibility = "hidden";
     windowData.element.dataset.state = "closed";
-    windowData.dotNetRef?.invokeMethodAsync("InvokeOnHide").catch(console.error);
+    windowData.isOpen = false;
+}
+
+function cancelShowFrame(windowData) {
+    if (windowData.showFrame) {
+        cancelAnimationFrame(windowData.showFrame);
+        windowData.showFrame = 0;
+    }
 }
 
 export function toggle(id) {
@@ -382,7 +620,7 @@ export function toggle(id) {
         return;
     }
 
-    if (windowData.element.dataset.state === "open") {
+    if (windowData.isOpen || windowData.showFrame) {
         hide(id);
     } else {
         show(id);
@@ -400,10 +638,14 @@ export function destroy(id) {
         return;
     }
 
+    cancelShowFrame(windowData);
+    cancelActiveInteraction(windowData, false);
     windowData.cleanupDragging?.();
-    windowData.cleanupResizing?.forEach((cleanup) => cleanup());
+    windowData.cleanupResizing?.forEach(cleanup => cleanup());
+    windowData.cleanupActivation?.();
     windowData.resizeObserver?.disconnect();
     floatingWindows.delete(id);
+    detachViewportListenersIfUnused();
 }
 
 export function getPosition(id) {
@@ -428,6 +670,10 @@ export function setPosition(id, x, y) {
 
     windowData.element.style.left = `${x}px`;
     windowData.element.style.top = `${y}px`;
+
+    if (windowData.options.constrainToViewport) {
+        reconcileToViewport(windowData);
+    }
 }
 
 export function getSize(id) {
@@ -452,20 +698,29 @@ export function setSize(id, width, height) {
 
     windowData.element.style.width = `${width}px`;
     windowData.element.style.height = `${height}px`;
+
+    if (windowData.options.constrainToViewport) {
+        reconcileToViewport(windowData);
+    }
 }
 
 export function bringToFront(id) {
     const windowData = floatingWindows.get(id);
 
-    if (windowData) {
-        windowData.element.style.zIndex = nextZIndex++;
+    if (!windowData) {
+        return;
     }
+
+    const currentZIndex = parseInt(windowData.element.style.zIndex, 10) || 0;
+    nextZIndex = Math.max(nextZIndex, currentZIndex + 1);
+    windowData.element.style.zIndex = `${nextZIndex++}`;
 }
 
 export function getViewportSize() {
+    const viewport = window.visualViewport;
     return {
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: Math.round(viewport?.width ?? window.innerWidth),
+        height: Math.round(viewport?.height ?? window.innerHeight)
     };
 }
 
@@ -481,11 +736,90 @@ export function centerInViewport(id) {
     const previousVisibility = element.style.visibility;
     element.style.display = "flex";
     element.style.visibility = "hidden";
-
-    const x = Math.max(0, Math.round((window.innerWidth - element.offsetWidth) / 2));
-    const y = Math.max(0, Math.round((window.innerHeight - element.offsetHeight) / 2));
-    element.style.left = `${x}px`;
-    element.style.top = `${y}px`;
+    centerVisibleWindow(windowData);
     element.style.display = previousDisplay;
     element.style.visibility = previousVisibility;
+}
+
+function centerVisibleWindow(windowData) {
+    if (windowData.options.constrainToViewport) {
+        reconcileToViewport(windowData);
+    }
+
+    const viewport = getViewportSize();
+    const x = Math.max(0, Math.round((viewport.width - windowData.element.offsetWidth) / 2));
+    const y = Math.max(0, Math.round((viewport.height - windowData.element.offsetHeight) / 2));
+    windowData.element.style.left = `${x}px`;
+    windowData.element.style.top = `${y}px`;
+}
+
+function reconcileToViewport(windowData) {
+    if (!windowData.options.constrainToViewport) {
+        return;
+    }
+
+    const { element, options } = windowData;
+    const viewport = getViewportSize();
+    element.style.minWidth = `${Math.max(0, Math.min(options.minWidth, viewport.width))}px`;
+    element.style.minHeight = `${Math.max(0, Math.min(options.minHeight, viewport.height))}px`;
+    applyMaximumDimensions(windowData, viewport);
+
+    // Preserve the configured or last-known position while the window is not measurable.
+    // It will be reconciled after display is enabled by show().
+    if (element.getClientRects().length === 0) {
+        return;
+    }
+
+    if (!options.autoSizeToContent && element.offsetWidth > viewport.width) {
+        element.style.width = `${viewport.width}px`;
+    }
+
+    if (!options.autoSizeToContent && element.offsetHeight > viewport.height) {
+        element.style.height = `${viewport.height}px`;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const x = clamp(rect.left, 0, Math.max(0, viewport.width - rect.width));
+    const y = clamp(rect.top, 0, Math.max(0, viewport.height - rect.height));
+    element.style.left = `${Math.round(x)}px`;
+    element.style.top = `${Math.round(y)}px`;
+}
+
+function attachViewportListeners() {
+    if (viewportListenersAttached) {
+        return;
+    }
+
+    window.addEventListener("resize", scheduleViewportReconciliation);
+    window.visualViewport?.addEventListener("resize", scheduleViewportReconciliation);
+    viewportListenersAttached = true;
+}
+
+function detachViewportListenersIfUnused() {
+    if (!viewportListenersAttached || floatingWindows.size !== 0) {
+        return;
+    }
+
+    window.removeEventListener("resize", scheduleViewportReconciliation);
+    window.visualViewport?.removeEventListener("resize", scheduleViewportReconciliation);
+    cancelAnimationFrame(viewportResizeFrame);
+    viewportResizeFrame = 0;
+    viewportListenersAttached = false;
+}
+
+function scheduleViewportReconciliation() {
+    cancelAnimationFrame(viewportResizeFrame);
+    viewportResizeFrame = requestAnimationFrame(() => {
+        viewportResizeFrame = 0;
+
+        floatingWindows.forEach(windowData => {
+            if (windowData.options.enabled && windowData.options.constrainToViewport) {
+                reconcileToViewport(windowData);
+            }
+        });
+    });
+}
+
+function clamp(value, minimum, maximum) {
+    return Math.max(minimum, Math.min(value, maximum));
 }

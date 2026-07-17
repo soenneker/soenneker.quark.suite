@@ -2,6 +2,7 @@
 @using System.Threading
 @using Soenneker.Blazor.C15t.Abstract
 @using Soenneker.Blazor.C15t.Models
+@using Soenneker.Blazor.Utils.Ids
 @inject IC15tConsentService ConsentService
 
 @ChildContent
@@ -59,7 +60,7 @@
                             <Div TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextTransform="TextTransform.Capitalize">@category</Div>
                             <Div TextColor="TextColor.MutedForeground" TextSize="TextSize.Sm" Leading="Leading.Is5">@GetCategoryDescription(category)</Div>
                         </Div>
-                        <Switch Id="@($"{_componentId}-{category}")" Checked="@IsSelected(category)" CheckedChanged="@((bool value) => SetSelected(category, value))" Disabled="@disabled"/>
+                        <Switch Id="@BlazorIdGenerator.Child(_componentId, category)" Checked="@IsSelected(category)" CheckedChanged="@((bool value) => SetSelected(category, value))" Disabled="@disabled"/>
                     </Div>
                 </Div>
             }
@@ -73,10 +74,10 @@
 }
 
 @code {
-    private readonly string _componentId = $"consent-manager-{Guid.NewGuid():N}";
-    private string _titleId => $"{_componentId}-title";
-    private string _descriptionId => $"{_componentId}-description";
-    private string _preferencesTitleId => $"{_componentId}-preferences-title";
+    private readonly string _componentId = BlazorIdGenerator.New("consent-manager");
+    private string _titleId => BlazorIdGenerator.Child(_componentId, "title");
+    private string _descriptionId => BlazorIdGenerator.Child(_componentId, "description");
+    private string _preferencesTitleId => BlazorIdGenerator.Child(_componentId, "preferences-title");
     private const string _defaultPositionClass = "fixed bottom-6 max-sm:bottom-24";
 
     private C15tConsentState? _state;
