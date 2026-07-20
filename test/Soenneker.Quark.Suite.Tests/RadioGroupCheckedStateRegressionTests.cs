@@ -38,8 +38,9 @@ public sealed partial class RenderedShadcnParityTests
         radios[1].GetAttribute("data-state").Should().Be("checked");
         radios[1].HasAttribute("data-checked").Should().BeFalse();
         radios[1].HasAttribute("data-unchecked").Should().BeFalse();
-        radios[1].GetAttribute("class").Should().Contain("data-checked:bg-primary");
-        radios[1].GetAttribute("class").Should().Contain("data-checked:text-primary-foreground");
+        radios[1].GetAttribute("class").Should().Contain("data-[state=checked]:bg-primary");
+        radios[1].GetAttribute("class").Should().Contain("data-[state=checked]:text-primary-foreground");
+        radios[1].GetAttribute("class").Should().NotContain("data-checked:");
         radios[1].QuerySelector("[data-slot='radio-group-indicator'] svg").Should().BeNull();
     }
 }

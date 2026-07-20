@@ -20,6 +20,26 @@ public sealed partial class RenderedShadcnParityTests
         listClass.Should().NotContain("w-fit");
     }
 
+    [Test]
+    public void Tabs_styles_target_bradix_state_and_orientation_attributes_directly()
+    {
+        var cut = Render<Tabs>(parameters => parameters
+            .Add(component => component.SelectedTab, "explorer")
+            .Add(component => component.Vertical, true)
+            .Add(component => component.ChildContent, BuildTabsList()));
+
+        var root = cut.Find("[data-slot='tabs']");
+        var list = cut.Find("[data-slot='tabs-list']");
+        var trigger = cut.Find("[data-slot='tabs-trigger']");
+
+        root.GetAttribute("data-orientation").Should().Be("vertical");
+        root.GetAttribute("class").Should().Contain("data-[orientation=horizontal]:flex-col");
+        list.GetAttribute("class").Should().Contain("group-data-[orientation=vertical]/tabs:flex-col");
+        trigger.GetAttribute("data-state").Should().Be("active");
+        trigger.GetAttribute("class").Should().Contain("data-[state=active]:bg-background");
+        trigger.GetAttribute("class").Should().NotContain("data-active:");
+    }
+
     private static RenderFragment BuildTabsList()
     {
         return builder =>

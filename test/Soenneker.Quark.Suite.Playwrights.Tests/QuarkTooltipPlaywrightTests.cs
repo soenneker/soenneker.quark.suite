@@ -72,7 +72,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         var sideDemo = page.GetByTestId(SideDemoTestId);
         var topTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "top", Exact = true });
         var rightTrigger = sideDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "right", Exact = true });
-        var openTooltip = page.Locator("[data-slot='tooltip-content'][data-open]")
+        var openTooltip = page.Locator("[data-slot='tooltip-content'][data-state='delayed-open'], [data-slot='tooltip-content'][data-state='instant-open']")
                               .Filter(new LocatorFilterOptions { HasText = "Add to library" });
 
         await basicTrigger.HoverAsync();
