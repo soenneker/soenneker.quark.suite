@@ -32,10 +32,15 @@ else
 
         attributes["data-variant"] = GetDataVariant(Variant);
 
+        QuarkPresetContext? preset = BuildPresetContext();
+        bool hasBackgroundColor = BackgroundColor is not null || preset?.BackgroundColor is not null;
+        bool hasTextColor = TextColor is not null || preset?.TextColor is not null;
+        bool hasBorderColor = BorderColor is not null || preset?.BorderColor is not null;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, _shadcnBadgeBase);
-            AppendClass(ref cls, GetBadgeVariantClass(Variant));
+            AppendClass(ref cls, GetBadgeVariantClass(Variant, hasBackgroundColor, hasTextColor, hasBorderColor));
         });
     }
 
@@ -72,23 +77,49 @@ else
         return "default";
     }
 
-    private string GetBadgeVariantClass(BadgeVariant? variant)
+    private static string GetBadgeVariantClass(BadgeVariant? variant, bool hasBackgroundColor, bool hasTextColor, bool hasBorderColor)
     {
         if (ReferenceEquals(variant, BadgeVariant.Secondary))
-            return "border-transparent bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80";
+            return BuildVariantClass("border-transparent", "bg-secondary [a]:hover:bg-secondary/80", "text-secondary-foreground", null,
+                hasBackgroundColor, hasTextColor, hasBorderColor);
 
         if (ReferenceEquals(variant, BadgeVariant.Destructive))
-            return "border-transparent bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20";
+            return BuildVariantClass("border-transparent", "bg-destructive/10 dark:bg-destructive/20 [a]:hover:bg-destructive/20", "text-destructive",
+                "focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40", hasBackgroundColor, hasTextColor, hasBorderColor);
 
         if (ReferenceEquals(variant, BadgeVariant.Outline))
-            return "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground";
+            return BuildVariantClass("border-border", "[a]:hover:bg-muted", "text-foreground [a]:hover:text-muted-foreground", null,
+                hasBackgroundColor, hasTextColor, hasBorderColor);
 
         if (ReferenceEquals(variant, BadgeVariant.Ghost))
-            return "border-transparent hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50";
+            return BuildVariantClass("border-transparent", "hover:bg-muted dark:hover:bg-muted/50", "hover:text-muted-foreground", null,
+                hasBackgroundColor, hasTextColor, hasBorderColor);
 
         if (ReferenceEquals(variant, BadgeVariant.Link))
-            return "border-transparent text-primary underline-offset-4 [a]:hover:underline";
+            return BuildVariantClass("border-transparent", null, "text-primary", "underline-offset-4 [a]:hover:underline", hasBackgroundColor,
+                hasTextColor, hasBorderColor);
 
-        return "border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80";
+        return BuildVariantClass("border-transparent", "bg-primary [a]:hover:bg-primary/80", "text-primary-foreground", null, hasBackgroundColor,
+            hasTextColor, hasBorderColor);
+    }
+
+    private static string BuildVariantClass(string? borderClasses, string? backgroundClasses, string? textClasses, string? otherClasses,
+        bool hasBackgroundColor, bool hasTextColor, bool hasBorderColor)
+    {
+        var classes = new List<string>(4);
+
+        if (!hasBorderColor && borderClasses is not null)
+            classes.Add(borderClasses);
+
+        if (!hasBackgroundColor && backgroundClasses is not null)
+            classes.Add(backgroundClasses);
+
+        if (!hasTextColor && textClasses is not null)
+            classes.Add(textClasses);
+
+        if (otherClasses is not null)
+            classes.Add(otherClasses);
+
+        return string.Join(' ', classes);
     }
 }
