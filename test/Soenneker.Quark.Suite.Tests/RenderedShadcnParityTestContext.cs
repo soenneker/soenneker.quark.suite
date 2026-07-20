@@ -454,6 +454,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeColorPickerInterop : IColorPickerInterop
     {
+        public ValueTask<string?> PickColor(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(null);
+
         public ValueTask<bool> RegisterCanvas(ElementReference canvas, DotNetObjectReference<ColorPicker> callbackReference, bool disabled,
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 

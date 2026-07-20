@@ -21,7 +21,18 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask<bool> RegisterCanvas(ElementReference canvas, DotNetObjectReference<ColorPicker> callbackReference, bool disabled,
+    public async ValueTask<string?> PickColor(CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            return await module.InvokeAsync<string?>("pickColor", linked);
+        }
+    }
+
+    public async ValueTask<bool> RegisterCanvas(ElementReference root, DotNetObjectReference<ColorPicker> callbackReference, bool disabled,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -29,18 +40,18 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<bool>("registerCanvas", linked, canvas, callbackReference, disabled);
+            return await module.InvokeAsync<bool>("registerCanvas", linked, root, callbackReference, disabled);
         }
     }
 
-    public async ValueTask UnregisterCanvas(ElementReference canvas, CancellationToken cancellationToken = default)
+    public async ValueTask UnregisterCanvas(ElementReference root, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterCanvas", linked, canvas);
+            await module.InvokeVoidAsync("unregisterCanvas", linked, root);
         }
     }
 

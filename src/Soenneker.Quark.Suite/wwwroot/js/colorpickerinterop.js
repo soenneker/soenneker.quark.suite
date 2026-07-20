@@ -1,15 +1,73 @@
 const registrations = new WeakMap();
 
-export function registerCanvas(canvas, dotNetRef, disabled) {
-  if (!canvas) {
+export async function pickColor() {
+  if (!("EyeDropper" in window)) {
+    return null;
+  }
+
+  try {
+    const result = await new window.EyeDropper().open();
+    return result?.sRGBHex ?? null;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export function registerCanvas(root, dotNetRef, disabled) {
+  if (!root?.querySelector) {
     return false;
   }
 
-  unregisterCanvas(canvas);
+  unregisterCanvas(root);
 
   if (disabled) {
     return true;
   }
+
+  let detachCanvas = null;
+  let currentCanvas = null;
+
+  const attachCanvas = () => {
+    const canvas = root.querySelector("[data-slot='color-picker-canvas']");
+
+    if (canvas === currentCanvas) {
+      return;
+    }
+
+    detachCanvas?.();
+    currentCanvas = canvas;
+    detachCanvas = canvas ? wireCanvas(canvas, dotNetRef) : null;
+  };
+
+  attachCanvas();
+
+  const observer = new MutationObserver(attachCanvas);
+  observer.observe(root, { childList: true, subtree: true });
+  registrations.set(root, {
+    dispose: () => {
+      observer.disconnect();
+      detachCanvas?.();
+    }
+  });
+  return true;
+}
+
+export function unregisterCanvas(root) {
+  const registration = registrations.get(root);
+
+  if (!registration) {
+    return;
+  }
+
+  registration.dispose();
+  registrations.delete(root);
+}
+
+function wireCanvas(canvas, dotNetRef) {
 
   let dragging = false;
   let pointerId = null;
@@ -98,23 +156,13 @@ export function registerCanvas(canvas, dotNetRef, disabled) {
   canvas.addEventListener("pointerup", stopDragging);
   canvas.addEventListener("pointercancel", stopDragging);
   canvas.addEventListener("click", click, true);
-  registrations.set(canvas, { pointerDown, pointerMove, stopDragging, click });
-  return true;
-}
-
-export function unregisterCanvas(canvas) {
-  const registration = registrations.get(canvas);
-
-  if (!registration) {
-    return;
-  }
-
-  canvas.removeEventListener("pointerdown", registration.pointerDown);
-  canvas.removeEventListener("pointermove", registration.pointerMove);
-  canvas.removeEventListener("pointerup", registration.stopDragging);
-  canvas.removeEventListener("pointercancel", registration.stopDragging);
-  canvas.removeEventListener("click", registration.click, true);
-  registrations.delete(canvas);
+  return () => {
+    canvas.removeEventListener("pointerdown", pointerDown);
+    canvas.removeEventListener("pointermove", pointerMove);
+    canvas.removeEventListener("pointerup", stopDragging);
+    canvas.removeEventListener("pointercancel", stopDragging);
+    canvas.removeEventListener("click", click, true);
+  };
 }
 
 function clamp(value, min, max) {

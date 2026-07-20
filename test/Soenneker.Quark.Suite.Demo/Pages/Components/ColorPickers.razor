@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Section Space="Space.Y.Is4">
         <DemoSection
-            Description="A shadcn-style color picker with an HSL canvas, hue slider, alpha control, eyedropper affordance, presets, and multiple output formats."
+            Description="A shadcn-style color picker with a saturation/lightness canvas, hue and alpha controls, a working browser eyedropper, and multiple output formats."
             Code="@BasicCode"
             PreviewClass="preview relative flex min-h-96 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
             <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
@@ -33,8 +33,8 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
-        <DemoSection Title="No Alpha"
-                     Description="Hide the alpha channel for opaque-only color fields."
+        <DemoSection Title="Configurable controls"
+                     Description="Every part of the picker can be hidden independently. This opaque-only variant removes the eyedropper and alpha controls, limits the formats, and adds a custom preset palette."
                      Code="@NoAlphaCode"
                      PreviewClass="preview relative flex min-h-96 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0">
             <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
@@ -42,6 +42,9 @@
                 <ColorPicker Inline="true"
                              ShowAlpha="false"
                              ShowEyedropper="false"
+                             ShowPresets="true"
+                             Formats="_opaqueFormats"
+                             PresetColors="_brandPresets"
                              @bind-Value="_solidColor" />
             </Field>
         </DemoSection>
@@ -53,6 +56,8 @@
     private string? _brandColor = "rgba(59, 130, 246, 0.85)";
     private string? _solidColor = "#22c55e";
     private ColorPickerFormat _format = ColorPickerFormat.Hex;
+    private readonly ColorPickerFormat[] _opaqueFormats = [ColorPickerFormat.Hex, ColorPickerFormat.Rgb, ColorPickerFormat.Hsl];
+    private readonly string[] _brandPresets = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
 
     private const string BasicCode ="""
         <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
@@ -76,10 +81,13 @@
     private const string NoAlphaCode ="""
         <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
             <FieldLabel>Solid color</FieldLabel>
-            <ColorPicker Inline="true"
-                         ShowAlpha="false"
-                         ShowEyedropper="false"
-                         @bind-Value="_solidColor" />
+        <ColorPicker Inline="true"
+                     ShowAlpha="false"
+                     ShowEyedropper="false"
+                     ShowPresets="true"
+                     Formats="_opaqueFormats"
+                     PresetColors="_brandPresets"
+                     @bind-Value="_solidColor" />
         </Field>
         """;
 }

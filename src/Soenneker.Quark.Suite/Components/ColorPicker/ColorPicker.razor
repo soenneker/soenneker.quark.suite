@@ -10,13 +10,13 @@
 
 @if (Inline)
 {
-    <div @attributes="BuildRootAttributes()">
+    <div @ref="_rootRef" @attributes="BuildRootAttributes()">
         @RenderPanel()
     </div>
 }
 else
 {
-    <div @attributes="BuildRootAttributes()">
+    <div @ref="_rootRef" @attributes="BuildRootAttributes()">
         <Popover>
             <PopoverTrigger AsChild="true" Disabled="@Disabled">
                 <Button Type="@ButtonType.Button"
@@ -28,8 +28,14 @@ else
                         Padding="Quark.Padding.Is3.OnX"
                         Class="@TriggerClass"
                         AriaLabel="@AriaLabelValue">
-                    <Span Size="Quark.Size.Is5" Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Border" Shadow="Quark.Shadow.Xs" Style="@SwatchStyle"></Span>
-                    <Span Truncate="Quark.Truncate.Default" FontFamily="Quark.FontFamily.Mono" TextSize="Quark.TextSize.Xs">@FormattedValue</Span>
+                    @if (ShowTriggerSwatch)
+                    {
+                        <Span Size="Quark.Size.Is5" Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Md" Border="Quark.Border.Default" BorderColor="Quark.BorderColor.Border" Shadow="Quark.Shadow.Xs" Style="@SwatchStyle"></Span>
+                    }
+                    @if (ShowTriggerValue)
+                    {
+                        <Span Truncate="Quark.Truncate.Default" FontFamily="Quark.FontFamily.Mono" TextSize="Quark.TextSize.Xs">@FormattedValue</Span>
+                    }
                     <Icon Name="LucideIcon.ChevronDown" Margin="Quark.Margin.Auto.FromLeft" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" aria-hidden="true" />
                 </Button>
             </PopoverTrigger>
@@ -51,11 +57,17 @@ else
     private double _alpha = 1;
     private ColorPickerFormat _format = ColorPickerFormat.Hex;
     private string? _lastValue;
-    private ElementReference _canvasRef;
+    private ElementReference _rootRef;
     private DotNetObjectReference<ColorPicker>? _dotNetRef;
     private bool _canvasRegistered;
     private bool? _lastCanvasDisabled;
     private static readonly CssValue<SizeBuilder> EyedropperIconSize = Quark.Size.Is4;
+    private static readonly ColorPickerFormat[] DefaultFormats = Enum.GetValues<ColorPickerFormat>();
+    private static readonly string[] DefaultPresets =
+    [
+        "#ef4444", "#f97316", "#f59e0b", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6",
+        "#ec4899", "#111827", "#64748b", "#ffffff", "#000000", "#14b8a6", "#a855f7", "#f43f5e"
+    ];
 
     [Parameter]
     public string? Value { get; set; } = "#8b5cf6";
@@ -76,7 +88,43 @@ else
     public bool ShowAlpha { get; set; } = true;
 
     [Parameter]
+    public bool ShowAlphaSlider { get; set; } = true;
+
+    [Parameter]
     public bool ShowEyedropper { get; set; } = true;
+
+    [Parameter]
+    public bool ShowCanvas { get; set; } = true;
+
+    [Parameter]
+    public bool ShowHue { get; set; } = true;
+
+    [Parameter]
+    public bool ShowAlphaInput { get; set; } = true;
+
+    [Parameter]
+    public bool ShowFormatSelector { get; set; } = true;
+
+    [Parameter]
+    public bool ShowValueInput { get; set; } = true;
+
+    [Parameter]
+    public bool ShowPresets { get; set; }
+
+    [Parameter]
+    public bool ShowTriggerSwatch { get; set; } = true;
+
+    [Parameter]
+    public bool ShowTriggerValue { get; set; } = true;
+
+    [Parameter]
+    public IReadOnlyList<ColorPickerFormat> Formats { get; set; } = DefaultFormats;
+
+    [Parameter]
+    public IReadOnlyList<string> PresetColors { get; set; } = DefaultPresets;
+
+    [Parameter]
+    public string? PanelClass { get; set; }
 
     [Parameter]
     public string? TriggerClass { get; set; }
@@ -85,6 +133,10 @@ else
     public string? PopupClass { get; set; }
 
     private string AriaLabelValue => AriaLabel ?? "Choose color";
+
+    private bool ControlsDisabled => Disabled || ReadOnly;
+
+    private IReadOnlyList<ColorPickerFormat> VisibleFormats => Formats is { Count: > 0 } ? Formats : DefaultFormats;
 
     private string FormattedValue => FormatColor(_format);
 
@@ -108,6 +160,9 @@ else
 
         _format = Format;
 
+        if (!VisibleFormats.Contains(_format))
+            _format = VisibleFormats[0];
+
         if (!string.Equals(_lastValue, Value, StringComparison.OrdinalIgnoreCase) && TryParseColor(Value, out var parsed))
         {
             _hue = parsed.H;
@@ -124,17 +179,22 @@ else
 
         builder.OpenElement(sequence++, "div");
         builder.AddAttribute(sequence++, "data-slot", "color-picker-panel");
-        builder.AddAttribute(sequence++, "class", "grid gap-3");
+        builder.AddAttribute(sequence++, "class", $"grid w-full gap-3 {PanelClass}".Trim());
 
-        RenderCanvas(builder, ref sequence);
-        RenderSlider(builder, ref sequence, "Hue", "color-picker-hue", 0, 360, 1, _hue, EventCallback.Factory.Create<ChangeEventArgs>(this, HandleHueChanged), HueSliderStyle);
+        if (ShowCanvas)
+            RenderCanvas(builder, ref sequence);
 
-        if (ShowAlpha)
+        if (ShowHue)
+            RenderSlider(builder, ref sequence, "Hue", "color-picker-hue", 0, 360, 1, _hue, EventCallback.Factory.Create<ChangeEventArgs>(this, HandleHueChanged), HueSliderStyle);
+
+        if (ShowAlpha && ShowAlphaSlider)
             RenderSlider(builder, ref sequence, "Alpha", "color-picker-alpha", 0, 1, 0.01, _alpha, EventCallback.Factory.Create<ChangeEventArgs>(this, HandleAlphaChanged), AlphaSliderStyle);
 
-        RenderFormatButtons(builder, ref sequence);
-        RenderValueEditor(builder, ref sequence);
-        RenderPresetSwatches(builder, ref sequence);
+        if (ShowEyedropper || ShowFormatSelector || ShowValueInput || (ShowAlpha && ShowAlphaInput))
+            RenderControls(builder, ref sequence);
+
+        if (ShowPresets && PresetColors.Count > 0)
+            RenderPresetSwatches(builder, ref sequence);
 
         builder.CloseElement();
     };
@@ -143,14 +203,12 @@ else
     {
         builder.OpenElement(sequence++, "div");
         builder.AddAttribute(sequence++, "data-slot", "color-picker-canvas");
-        builder.AddAttribute(sequence++, "class", "relative h-44 overflow-hidden rounded-md border border-border shadow-inner cursor-crosshair touch-none");
+        builder.AddAttribute(sequence++, "class", $"relative h-40 overflow-hidden rounded-lg border border-border shadow-inner touch-none {(ControlsDisabled ? "cursor-not-allowed opacity-60" : "cursor-crosshair")}");
         builder.AddAttribute(sequence++, "style", CanvasStyle);
         builder.AddAttribute(sequence++, "role", "grid");
         builder.AddAttribute(sequence++, "aria-label", "Saturation and lightness");
         builder.AddAttribute(sequence++, "data-hue", _hue.ToString("0.##", CultureInfo.InvariantCulture));
         builder.AddAttribute(sequence++, "data-alpha", _alpha.ToString("0.##", CultureInfo.InvariantCulture));
-        builder.AddElementReferenceCapture(sequence++, value => _canvasRef = value);
-
         for (var lightnessIndex = 0; lightnessIndex <= 10; lightnessIndex++)
         {
             for (var saturationIndex = 0; saturationIndex <= 10; saturationIndex++)
@@ -164,6 +222,7 @@ else
                 builder.AddAttribute(sequence++, "aria-label", $"Saturation {saturation:0}, lightness {lightness:0}");
                 builder.AddAttribute(sequence++, "class", "absolute opacity-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring");
                 builder.AddAttribute(sequence++, "style", $"left:{saturationIndex * 10}%;top:{lightnessIndex * 10}%;width:10%;height:10%;");
+                builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
                 builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetSaturationLightness(saturation, lightness)));
                 builder.CloseElement();
             }
@@ -181,62 +240,26 @@ else
     private void RenderSlider(RenderTreeBuilder builder, ref int sequence, string label, string slot, double min, double max, double step, double value,
         EventCallback<ChangeEventArgs> callback, string style)
     {
-        builder.OpenElement(sequence++, "label");
-        builder.AddAttribute(sequence++, "class", "grid gap-1.5 text-xs font-medium");
-        builder.AddContent(sequence++, label);
-
         builder.OpenElement(sequence++, "input");
         builder.AddAttribute(sequence++, "data-slot", slot);
         builder.AddAttribute(sequence++, "type", "range");
+        builder.AddAttribute(sequence++, "aria-label", label);
         builder.AddAttribute(sequence++, "min", min.ToString(CultureInfo.InvariantCulture));
         builder.AddAttribute(sequence++, "max", max.ToString(CultureInfo.InvariantCulture));
         builder.AddAttribute(sequence++, "step", step.ToString(CultureInfo.InvariantCulture));
         builder.AddAttribute(sequence++, "value", value.ToString(CultureInfo.InvariantCulture));
-        builder.AddAttribute(sequence++, "class", "h-4 w-full cursor-pointer appearance-none rounded-full border border-border bg-transparent accent-foreground");
+        builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
+        builder.AddAttribute(sequence++, "class", "h-3 w-full cursor-pointer appearance-none rounded-full border-0 bg-transparent accent-foreground disabled:cursor-not-allowed disabled:opacity-60");
         builder.AddAttribute(sequence++, "style", style);
         builder.AddAttribute(sequence++, "oninput", callback);
         builder.CloseElement();
-
-        builder.CloseElement();
     }
 
-    private void RenderFormatButtons(RenderTreeBuilder builder, ref int sequence)
+    private void RenderControls(RenderTreeBuilder builder, ref int sequence)
     {
         builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "data-slot", "color-picker-format-tabs");
-        builder.AddAttribute(sequence++, "class", "grid grid-cols-4 gap-1 rounded-lg bg-muted p-1");
-
-        foreach (var format in Enum.GetValues<ColorPickerFormat>())
-        {
-            var selected = _format == format;
-
-            builder.OpenElement(sequence++, "button");
-            builder.AddAttribute(sequence++, "type", "button");
-            builder.AddAttribute(sequence++, "data-slot", "color-picker-format");
-            builder.AddAttribute(sequence++, "data-active", selected ? "true" : "false");
-            builder.AddAttribute(sequence++, "class", selected
-                ? "rounded-md bg-background px-2 py-1 text-xs font-medium shadow-sm"
-                : "rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground");
-            builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetFormat(format)));
-            builder.AddContent(sequence++, GetFormatLabel(format));
-            builder.CloseElement();
-        }
-
-        builder.CloseElement();
-    }
-
-    private void RenderValueEditor(RenderTreeBuilder builder, ref int sequence)
-    {
-        builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "data-slot", "color-picker-output");
-        builder.AddAttribute(sequence++, "class", "flex gap-2");
-
-        builder.OpenElement(sequence++, "input");
-        builder.AddAttribute(sequence++, "data-slot", "color-picker-value");
-        builder.AddAttribute(sequence++, "value", FormattedValue);
-        builder.AddAttribute(sequence++, "class", "flex h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-1 font-mono text-xs shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-        builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleValueInputChanged));
-        builder.CloseElement();
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-controls");
+        builder.AddAttribute(sequence++, "class", "flex min-w-0 items-center gap-2");
 
         if (ShowEyedropper)
         {
@@ -244,13 +267,80 @@ else
             builder.AddAttribute(sequence++, "type", "button");
             builder.AddAttribute(sequence++, "data-slot", "color-picker-eyedropper");
             builder.AddAttribute(sequence++, "aria-label", "Pick color from screen");
-            builder.AddAttribute(sequence++, "class", "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground shadow-xs hover:bg-accent hover:text-accent-foreground");
+            builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
+            builder.AddAttribute(sequence++, "class", "inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50");
+            builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, PickColor));
             builder.OpenComponent<Icon>(sequence++);
             builder.AddAttribute(sequence++, nameof(Icon.Name), LucideIcon.Pipette);
             builder.AddAttribute(sequence++, nameof(Icon.Size), (object) EyedropperIconSize);
             builder.CloseComponent();
             builder.CloseElement();
         }
+
+        if (ShowFormatSelector)
+        {
+            builder.OpenElement(sequence++, "select");
+            builder.AddAttribute(sequence++, "data-slot", "color-picker-format");
+            builder.AddAttribute(sequence++, "aria-label", "Color format");
+            builder.AddAttribute(sequence++, "value", _format.ToString());
+            builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
+            builder.AddAttribute(sequence++, "class", "h-9 w-[5.25rem] shrink-0 rounded-md border border-input bg-background px-2 text-xs font-medium outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
+            builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleFormatChanged));
+
+            foreach (var format in VisibleFormats.Distinct())
+            {
+                builder.OpenElement(sequence++, "option");
+                builder.AddAttribute(sequence++, "value", format.ToString());
+                builder.AddContent(sequence++, GetFormatLabel(format));
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+
+        if (ShowValueInput)
+        {
+            builder.OpenElement(sequence++, "input");
+            builder.AddAttribute(sequence++, "data-slot", "color-picker-value");
+            builder.AddAttribute(sequence++, "aria-label", "Color value");
+            builder.AddAttribute(sequence++, "value", FormattedValue);
+            builder.AddAttribute(sequence++, "disabled", Disabled);
+            builder.AddAttribute(sequence++, "readonly", ReadOnly);
+            builder.AddAttribute(sequence++, "class", "h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2.5 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
+            builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleValueInputChanged));
+            builder.CloseElement();
+        }
+
+        if (ShowAlpha && ShowAlphaInput)
+            RenderAlphaInput(builder, ref sequence);
+
+        builder.CloseElement();
+    }
+
+    private void RenderAlphaInput(RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "data-slot", "color-picker-alpha-input");
+        builder.AddAttribute(sequence++, "class", "relative w-[4.5rem] shrink-0");
+
+        builder.OpenElement(sequence++, "input");
+        builder.AddAttribute(sequence++, "type", "number");
+        builder.AddAttribute(sequence++, "aria-label", "Alpha percentage");
+        builder.AddAttribute(sequence++, "min", "0");
+        builder.AddAttribute(sequence++, "max", "100");
+        builder.AddAttribute(sequence++, "step", "1");
+        builder.AddAttribute(sequence++, "value", Math.Round(_alpha * 100).ToString(CultureInfo.InvariantCulture));
+        builder.AddAttribute(sequence++, "disabled", Disabled);
+        builder.AddAttribute(sequence++, "readonly", ReadOnly);
+        builder.AddAttribute(sequence++, "class", "h-9 w-full appearance-none rounded-md border border-input bg-background py-1 pl-2.5 pr-6 text-right text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
+        builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleAlphaInputChanged));
+        builder.CloseElement();
+
+        builder.OpenElement(sequence++, "span");
+        builder.AddAttribute(sequence++, "class", "pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground");
+        builder.AddAttribute(sequence++, "aria-hidden", "true");
+        builder.AddContent(sequence++, "%");
+        builder.CloseElement();
 
         builder.CloseElement();
     }
@@ -261,13 +351,14 @@ else
         builder.AddAttribute(sequence++, "data-slot", "color-picker-presets");
         builder.AddAttribute(sequence++, "class", "grid grid-cols-8 gap-1");
 
-        foreach (var preset in ColorPresets)
+        foreach (var preset in PresetColors)
         {
             builder.OpenElement(sequence++, "button");
             builder.AddAttribute(sequence++, "type", "button");
             builder.AddAttribute(sequence++, "data-slot", "color-picker-preset");
             builder.AddAttribute(sequence++, "aria-label", $"Select {preset}");
-            builder.AddAttribute(sequence++, "class", "size-7 rounded-md border border-border shadow-xs focus:outline-none focus:ring-2 focus:ring-ring");
+            builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
+            builder.AddAttribute(sequence++, "class", "size-7 rounded-md border border-border shadow-xs focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50");
             builder.AddAttribute(sequence++, "style", $"background:{preset};");
             builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetFromInput(preset)));
             builder.CloseElement();
@@ -287,18 +378,36 @@ else
 
     private async Task HandleHueChanged(ChangeEventArgs args)
     {
+        if (ControlsDisabled)
+            return;
+
         _hue = ParseDouble(args.Value, _hue, 0, 360);
         await CommitColor();
     }
 
     private async Task HandleAlphaChanged(ChangeEventArgs args)
     {
+        if (ControlsDisabled)
+            return;
+
         _alpha = ParseDouble(args.Value, _alpha, 0, 1);
+        await CommitColor();
+    }
+
+    private async Task HandleAlphaInputChanged(ChangeEventArgs args)
+    {
+        if (ControlsDisabled)
+            return;
+
+        _alpha = ParseDouble(args.Value, _alpha * 100, 0, 100) / 100d;
         await CommitColor();
     }
 
     private async Task SetSaturationLightness(double saturation, double lightness)
     {
+        if (ControlsDisabled)
+            return;
+
         _saturation = Math.Clamp(saturation, 0, 100);
         _lightness = Math.Clamp(lightness, 0, 100);
         await CommitColor();
@@ -312,19 +421,45 @@ else
 
     private async Task SetFormat(ColorPickerFormat format)
     {
+        if (ControlsDisabled || !VisibleFormats.Contains(format))
+            return;
+
         _format = format;
         Format = format;
         await FormatChanged.InvokeIfHasDelegate(format);
         await CommitColor();
     }
 
+    private async Task HandleFormatChanged(ChangeEventArgs args)
+    {
+        if (Enum.TryParse(args.Value?.ToString(), true, out ColorPickerFormat format))
+            await SetFormat(format);
+    }
+
     private async Task HandleValueInputChanged(ChangeEventArgs args)
     {
+        if (ControlsDisabled)
+            return;
+
         await SetFromInput(args.Value?.ToString());
+    }
+
+    private async Task PickColor()
+    {
+        if (ControlsDisabled)
+            return;
+
+        var color = await ColorPickerInterop.PickColor();
+
+        if (color is not null)
+            await SetFromInput(color);
     }
 
     private async Task SetFromInput(string? input)
     {
+        if (ControlsDisabled)
+            return;
+
         if (!TryParseColor(input, out var parsed))
             return;
 
@@ -563,8 +698,22 @@ else
         hc.Add(_lightness);
         hc.Add(_alpha);
         hc.Add(Inline);
+        hc.Add(ShowCanvas);
+        hc.Add(ShowHue);
         hc.Add(ShowAlpha);
+        hc.Add(ShowAlphaSlider);
+        hc.Add(ShowAlphaInput);
         hc.Add(ShowEyedropper);
+        hc.Add(ShowFormatSelector);
+        hc.Add(ShowValueInput);
+        hc.Add(ShowPresets);
+        hc.Add(ShowTriggerSwatch);
+        hc.Add(ShowTriggerValue);
+        hc.Add(PanelClass);
+        foreach (var format in Formats)
+            hc.Add(format);
+        foreach (var preset in PresetColors)
+            hc.Add(preset);
         hc.Add(TriggerClass);
         hc.Add(PopupClass);
         hc.Add(Disabled);
@@ -575,15 +724,21 @@ else
     {
         try
         {
-            var canvasDisabled = Disabled || ReadOnly;
+            var canvasDisabled = ControlsDisabled;
 
-            if (!_canvasRegistered || _lastCanvasDisabled != canvasDisabled)
+            if (ShowCanvas && (!_canvasRegistered || _lastCanvasDisabled != canvasDisabled))
             {
                 _dotNetRef ??= DotNetObjectReference.Create(this);
-                _canvasRegistered = await ColorPickerInterop.RegisterCanvas(_canvasRef, _dotNetRef, canvasDisabled);
+                _canvasRegistered = await ColorPickerInterop.RegisterCanvas(_rootRef, _dotNetRef, canvasDisabled);
 
                 if (_canvasRegistered)
                     _lastCanvasDisabled = canvasDisabled;
+            }
+            else if (!ShowCanvas && _canvasRegistered)
+            {
+                await ColorPickerInterop.UnregisterCanvas(_rootRef);
+                _canvasRegistered = false;
+                _lastCanvasDisabled = null;
             }
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
@@ -597,7 +752,7 @@ else
     {
         try
         {
-            await ColorPickerInterop.UnregisterCanvas(_canvasRef);
+            await ColorPickerInterop.UnregisterCanvas(_rootRef);
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
@@ -607,23 +762,4 @@ else
         await base.DisposeAsync();
     }
 
-    private static readonly string[] ColorPresets =
-    [
-        "#ef4444",
-        "#f97316",
-        "#f59e0b",
-        "#eab308",
-        "#22c55e",
-        "#06b6d4",
-        "#3b82f6",
-        "#8b5cf6",
-        "#ec4899",
-        "#111827",
-        "#64748b",
-        "#ffffff",
-        "#000000",
-        "#14b8a6",
-        "#a855f7",
-        "#f43f5e"
-    ];
 }
