@@ -37,7 +37,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
             "return !!menu && document.body.contains(menu) && !!main && !main.contains(menu);" +
             "}");
 
-        await page.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "More Tools", Exact = true }).ClickAsync();
+        await page.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "More Tools", Exact = true }).HoverAsync();
 
         var submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Developer Tools" });
         await Assertions.Expect(submenu).ToBeVisibleAsync();

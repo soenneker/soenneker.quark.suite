@@ -33,11 +33,11 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        var linkSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "To use a custom link component from your routing library, you can use the AsChild prop on BreadcrumbLink." }).First;
+        var linkSection = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Link component", Exact = true })
+                              .Locator("xpath=ancestor::section[1]");
         var navigation = linkSection.Locator("[data-slot='breadcrumb']").First;
-        var homeLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(0);
-        var componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
+        var homeLink = navigation.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Home", Exact = true });
+        var componentsLink = navigation.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Components", Exact = true });
         var currentPage = navigation.Locator("[data-slot='breadcrumb-page']").First;
 
         await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "/");
@@ -46,8 +46,8 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
         (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("gap-1.5");
 
-        var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions
-            { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
+        var rtlSection = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "RTL", Exact = true })
+                             .Locator("xpath=ancestor::section[1]");
         var rtlNavigation = rtlSection.GetByRole(AriaRole.Navigation, new LocatorGetByRoleOptions { Name = "breadcrumb", Exact = true });
 
         await Assertions.Expect(rtlNavigation).ToHaveAttributeAsync("dir", "rtl");

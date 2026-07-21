@@ -581,7 +581,7 @@ function focusWindow(windowData) {
     }
 }
 
-export function hide(id) {
+export async function hide(id) {
     const windowData = floatingWindows.get(id);
 
     if (!windowData) {
@@ -593,8 +593,8 @@ export function hide(id) {
     cancelActiveInteraction(windowData, true);
     setHiddenWithoutCallback(windowData);
 
-    if (wasOpen) {
-        windowData.dotNetRef?.invokeMethodAsync("InvokeOnHide").catch(console.error);
+    if (wasOpen && windowData.dotNetRef) {
+        await windowData.dotNetRef.invokeMethodAsync("InvokeOnHide");
     }
 }
 
@@ -613,7 +613,7 @@ function cancelShowFrame(windowData) {
     }
 }
 
-export function toggle(id) {
+export async function toggle(id) {
     const windowData = floatingWindows.get(id);
 
     if (!windowData) {
@@ -621,14 +621,14 @@ export function toggle(id) {
     }
 
     if (windowData.isOpen || windowData.showFrame) {
-        hide(id);
+        await hide(id);
     } else {
         show(id);
     }
 }
 
-export function close(id) {
-    hide(id);
+export async function close(id) {
+    await hide(id);
 }
 
 export function destroy(id) {

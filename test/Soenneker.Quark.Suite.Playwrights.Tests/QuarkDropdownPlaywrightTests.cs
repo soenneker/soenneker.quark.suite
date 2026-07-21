@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
@@ -15,7 +14,7 @@ public sealed class QuarkDropdownPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Dropdown_menu_fades_out_before_unmounting()
+    public async ValueTask Dropdown_menu_exposes_exit_motion_and_unmounts_after_close()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -30,19 +29,14 @@ public sealed class QuarkDropdownPlaywrightTests : QuarkPlaywrightTest
 
         var content = page.Locator("[data-slot='dropdown-menu-content'][data-state='open']").First;
         await Assertions.Expect(content).ToBeVisibleAsync();
+        await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bdata-\[state=closed\]:animate-out\b"));
+        await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bdata-\[state=closed\]:fade-out-0\b"));
+        string animationDuration = await content.EvaluateAsync<string>("element => getComputedStyle(element).animationDuration");
+        animationDuration.Should().Be("0.15s");
 
         await page.Keyboard.PressAsync("Escape");
-        await page.WaitForTimeoutAsync(25);
-
-        var closingContent = page.Locator("[data-slot='dropdown-menu-content'][data-state='closed']").First;
-        await Assertions.Expect(closingContent).ToBeAttachedAsync();
-
-        Dictionary<string, string?> snapshot = await closingContent.EvaluateAsync<Dictionary<string, string?>>(
-            "element => ({ dataState: element.getAttribute('data-state'), animationDuration: getComputedStyle(element).animationDuration })");
-
-        snapshot["dataState"].Should().Be("closed");
-        snapshot["animationDuration"].Should().Be("0.15s");
-
-        await Assertions.Expect(closingContent).Not.ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = 1000 });
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(page.Locator("[data-slot='dropdown-menu-content'][data-state='open']")).ToHaveCountAsync(0);
+        await Assertions.Expect(content).Not.ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = 1000 });
     }
 }

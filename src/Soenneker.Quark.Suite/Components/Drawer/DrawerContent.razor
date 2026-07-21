@@ -3,7 +3,6 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
-@inject IControlsInterop ControlsInterop
 
 <BradixDialogPortal>
     @if (ParentDrawer?.ShowBackdrop == true)
@@ -11,7 +10,7 @@
         <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
     }
 
-    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnOpenAutoFocusDetailed="HandleOpenAutoFocus" OnPointerDownOutside="HandleBackdropPointerDownOutside" OnElementReferenceCaptured="HandleElementReferenceCaptured" AdditionalAttributes="@ContentAttributes">
+    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnPointerDownOutside="HandleBackdropPointerDownOutside" OnElementReferenceCaptured="HandleElementReferenceCaptured" AdditionalAttributes="@ContentAttributes">
         @if (ResolvedSide == Soenneker.Bradix.Side.Bottom)
         {
             <Div DataSlot="drawer-handle" Margin="Quark.Margin.OnX.Auto.FromTop.Is4" Height="Quark.Height.Is2" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted"></Div>
@@ -21,16 +20,11 @@
 </BradixDialogPortal>
 
 @code {
-    private bool _triggerRefocusedForOpen;
-
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
-
-    [CascadingParameter]
-    private BradixDialog? BradixDialog { get; set; }
 
     [Parameter]
     public Side? Side { get; set; }
@@ -56,6 +50,7 @@
         ZIndex ??= Quark.ZIndex.Is50;
         Display ??= Quark.Display.Flex;
         Height ??= Quark.Height.Auto;
+        OverflowY ??= Quark.Overflow.Y.Auto;
         FlexDirection ??= Quark.FlexDirection.Col;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
     }
@@ -105,32 +100,6 @@
             await ParentDrawer.SetOverlayContentElement(element);
     }
 
-    private async Task HandleOpenAutoFocus(BradixAutoFocusEventArgs args)
-    {
-        args.PreventDefault();
-
-        if (BradixDialog is not null)
-            await BradixDialog.FocusTrigger();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (ParentDrawer?.Visible != true)
-        {
-            _triggerRefocusedForOpen = false;
-            return;
-        }
-
-        if (_triggerRefocusedForOpen || BradixDialog is null || string.IsNullOrWhiteSpace(BradixDialog.ResolvedTriggerId))
-            return;
-
-        _triggerRefocusedForOpen = true;
-        await Task.Delay(150);
-        await ControlsInterop.FocusElementById(BradixDialog.ResolvedTriggerId);
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -145,8 +114,6 @@
         hc.Add(ParentDrawer?.CloseOnBackdropClick ?? true);
         hc.Add(ParentDrawer?.Static ?? false);
         hc.Add(Context?.ContentId);
-        hc.Add(BradixDialog?.ResolvedTriggerId);
-        hc.Add(_triggerRefocusedForOpen);
     }
 
 }

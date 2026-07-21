@@ -173,6 +173,7 @@
     private bool _initialized;
     private bool _visible;
     private bool _appliedVisible;
+    private readonly TaskCompletionSource<bool> _initialization = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private FloatingWindowOptions? _appliedOptions;
     private readonly CancellationTokenSource _disposeCts = new();
     private DotNetObjectReference<FloatingWindow>? _dotNetRef;
@@ -301,19 +302,28 @@
 
         if (firstRender)
         {
-            var options = MergedOptions;
-            await WindowInterop.Initialize(options.UseCdn, _disposeCts.Token);
-            _dotNetRef = DotNetObjectReference.Create(this);
-            await WindowInterop.Create(Id!, options, _disposeCts.Token);
-            await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
-            _initialized = true;
-            _appliedVisible = false;
-            _appliedOptions = options;
-
-            if (Visible && options.Enabled)
+            try
             {
-                await Show(_disposeCts.Token);
-                _appliedVisible = true;
+                var options = MergedOptions;
+                await WindowInterop.Initialize(options.UseCdn, _disposeCts.Token);
+                _dotNetRef = DotNetObjectReference.Create(this);
+                await WindowInterop.Create(Id!, options, _disposeCts.Token);
+                await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
+                _initialized = true;
+                _initialization.TrySetResult(true);
+                _appliedVisible = false;
+                _appliedOptions = options;
+
+                if (Visible && options.Enabled)
+                {
+                    await Show(_disposeCts.Token);
+                    _appliedVisible = true;
+                }
+            }
+            catch (Exception exception)
+            {
+                _initialization.TrySetException(exception);
+                throw;
             }
 
             return;
@@ -372,35 +382,41 @@
 
     public async ValueTask Show(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            return;
-
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
 
         using (cts)
+        {
+            if (!_initialized)
+                await _initialization.Task.WaitAsync(linked);
+
             await WindowInterop.Show(Id!, linked);
+        }
     }
 
     public async ValueTask Hide(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            return;
-
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
 
         using (cts)
+        {
+            if (!_initialized)
+                await _initialization.Task.WaitAsync(linked);
+
             await WindowInterop.Hide(Id!, linked);
+        }
     }
 
     public async ValueTask Toggle(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            return;
-
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
 
         using (cts)
+        {
+            if (!_initialized)
+                await _initialization.Task.WaitAsync(linked);
+
             await WindowInterop.Toggle(Id!, linked);
+        }
     }
 
     public async ValueTask Close(CancellationToken cancellationToken = default)

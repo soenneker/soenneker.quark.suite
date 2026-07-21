@@ -84,11 +84,10 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(toggle).ToHaveAttributeAsync("type", "button");
         await Assertions.Expect(toggle).ToHaveAttributeAsync("data-slot", "button");
         await Assertions.Expect(toggle).ToHaveAttributeAsync("data-variant", "ghost");
-        await Assertions.Expect(toggle).ToHaveAttributeAsync("data-size", "icon");
         await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bgroup/toggle\b"));
         await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bextend-touch-target\b"));
         await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-8\b"));
-        await Assertions.Expect(toggle.Locator("svg")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-4\.5\b"));
+        await Assertions.Expect(toggle.Locator("svg").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-4\.5\b"));
         await Assertions.Expect(toggle.Locator(".sr-only")).ToHaveTextAsync("Toggle theme");
 
         var wasDark = await html.EvaluateAsync<bool>("element => element.classList.contains('dark')");

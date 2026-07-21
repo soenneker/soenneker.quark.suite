@@ -111,7 +111,8 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
         await page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true }).ClickAsync();
 
         await Assertions.Expect(trigger).ToContainTextAsync("Banana");
-        await Assertions.Expect(listbox).Not.ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(page.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 

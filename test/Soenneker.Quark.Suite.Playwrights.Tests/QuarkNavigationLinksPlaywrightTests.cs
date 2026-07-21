@@ -142,7 +142,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
         beforeNavigation.pageScrollY.Should().BeGreaterThan(500);
 
         await commandLink.ClickAsync();
-        await page.WaitForURLAsync(new Regex("/components/command$"));
+        await Assertions.Expect(page).ToHaveURLAsync(new Regex("/components/command(?:#.*)?$"));
         await page.WaitForFunctionAsync("() => window.scrollY === 0");
 
         var afterNavigation = await sidebarContent.EvaluateAsync<ScrollPositionProbe>(

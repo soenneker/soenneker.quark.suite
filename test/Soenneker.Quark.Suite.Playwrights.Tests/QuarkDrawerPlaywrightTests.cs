@@ -54,6 +54,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToBeFocusedAsync();
+        await page.WaitForFunctionAsync("() => document.body.style.overflow === '' && document.body.style.paddingRight === ''");
         (await page.EvaluateAsync<string>("() => document.body.style.overflow")).Should().BeEmpty();
         (await page.EvaluateAsync<string>("() => document.body.style.paddingRight")).Should().BeEmpty();
     }

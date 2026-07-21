@@ -119,16 +119,15 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         var trigger = page.Locator(selector);
         await Assertions.Expect(trigger).ToBeVisibleAsync();
         await trigger.ScrollIntoViewIfNeededAsync();
-        await trigger.HoverAsync();
-        await page.Mouse.DownAsync();
+        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        contentId.Should().NotBeNullOrWhiteSpace();
+        await trigger.DispatchEventAsync("pointerdown", new { button = 0, ctrlKey = false });
 
-        var openPopover = page.Locator("[data-slot='popover-content'][data-state='open']");
+        var openPopover = page.Locator($"#{contentId}[data-state='open']");
         await Assertions.Expect(openPopover).ToHaveCountAsync(1);
 
-        await page.Mouse.UpAsync();
-        await page.Mouse.DownAsync();
+        await trigger.DispatchEventAsync("pointerdown", new { button = 0, ctrlKey = false });
 
         await Assertions.Expect(openPopover).ToHaveCountAsync(0);
-        await page.Mouse.UpAsync();
     }
 }

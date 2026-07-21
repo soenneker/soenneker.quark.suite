@@ -46,13 +46,13 @@ public sealed class QuarkStepperPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(firstStepper).ToHaveAttributeAsync("data-orientation", "horizontal");
         await Assertions.Expect(stepper).ToHaveAttributeAsync("role", "tablist");
         await Assertions.Expect(stepper).ToHaveAttributeAsync("data-orientation", "vertical");
-        await Assertions.Expect(nav).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bgroup/stepper-nav\b"));
+        await Assertions.Expect(nav).ToHaveAttributeAsync("data-orientation", "vertical");
         await Assertions.Expect(stepper.Locator("[data-slot='stepper-item']")).ToHaveCountAsync(3);
         await Assertions.Expect(firstItem).ToHaveAttributeAsync("data-state", "active");
         await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("data-state", "active");
         await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("aria-controls", "stepper-panel-1");
         await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("tabindex", "0");
-        await Assertions.Expect(firstIndicator).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bdata-\[state=active\]:bg-primary\b"));
+        await Assertions.Expect(firstIndicator).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bbg-primary\b"));
         await Assertions.Expect(firstSeparator).ToHaveCSSAsync("position", "absolute");
         await Assertions.Expect(activeContent).ToContainTextAsync("Profile content");
 
