@@ -1,0 +1,207 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @ref="ElementRef" @attributes="BuildAttributes()">
+    <span @attributes="BuildTextAttributes()">@Text</span>
+    <CopyButton Text="@ResolvedCopyText"
+                Variant="@CopyButtonVariant"
+                ButtonSize="@CopyButtonSize"
+                Disabled="@CopyDisabled"
+                IdleIcon="@IdleIcon"
+                DoneIcon="@DoneIcon"
+                ErrorIcon="@ErrorIcon"
+                CopyLabel="@CopyLabel"
+                DoneLabel="@DoneLabel"
+                ErrorLabel="@ErrorLabel"
+                ResetDelay="@ResetDelay"
+                Class="@ResolvedCopyButtonClass"
+                Attributes="@CopyButtonAttributes"
+                OnCopySuccess="@OnCopySuccess"
+                OnCopyError="@OnCopyError" />
+</span>
+
+@code {
+    /// <summary>Text displayed by the component.</summary>
+    [Parameter]
+    public string? Text { get; set; }
+
+    /// <summary>Optional text copied instead of <see cref="Text"/>.</summary>
+    [Parameter]
+    public string? CopyText { get; set; }
+
+    /// <summary>Indicates whether overflowing text is truncated with an ellipsis.</summary>
+    [Parameter]
+    public bool TruncateText { get; set; } = true;
+
+    /// <summary>Exposes the full text as a native tooltip when truncation is enabled.</summary>
+    [Parameter]
+    public bool ShowFullTextOnHover { get; set; } = true;
+
+    /// <summary>Keeps the copy button visible instead of revealing it on hover or keyboard focus.</summary>
+    [Parameter]
+    public bool AlwaysShowCopyButton { get; set; }
+
+    /// <summary>Indicates whether copying is disabled.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Additional classes applied to the displayed text.</summary>
+    [Parameter]
+    public string? TextClass { get; set; }
+
+    /// <summary>Additional classes applied to the copy button.</summary>
+    [Parameter]
+    public string? CopyButtonClass { get; set; }
+
+    [Parameter]
+    public ButtonVariant CopyButtonVariant { get; set; } = ButtonVariant.Ghost;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = ButtonSize.IconXs;
+
+    [Parameter]
+    public LucideIcon IdleIcon { get; set; } = LucideIcon.Copy;
+
+    [Parameter]
+    public LucideIcon DoneIcon { get; set; } = LucideIcon.Check;
+
+    [Parameter]
+    public LucideIcon ErrorIcon { get; set; } = LucideIcon.X;
+
+    [Parameter]
+    public string CopyLabel { get; set; } = "Copy";
+
+    [Parameter]
+    public string DoneLabel { get; set; } = "Copied";
+
+    [Parameter]
+    public string ErrorLabel { get; set; } = "Copy failed";
+
+    [Parameter]
+    public int ResetDelay { get; set; } = 1600;
+
+    /// <summary>Additional attributes applied to the displayed text.</summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, object>? TextAttributes { get; set; }
+
+    /// <summary>Additional attributes applied to the copy button.</summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, object>? CopyButtonAttributes { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCopySuccess { get; set; }
+
+    [Parameter]
+    public EventCallback<Exception?> OnCopyError { get; set; }
+
+    private string? ResolvedCopyText => CopyText ?? Text;
+    private bool CopyDisabled => Disabled || string.IsNullOrEmpty(ResolvedCopyText);
+    private string ResolvedTextClass => AppendClass(TruncateText ? "min-w-0 flex-1 truncate" : "min-w-0 flex-1", TextClass);
+
+    private string ResolvedCopyButtonClass
+    {
+        get
+        {
+            var visibilityClass = AlwaysShowCopyButton
+                ? null
+                : "transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100 motion-reduce:transition-none";
+
+            return AppendClass($"shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0 {visibilityClass}", CopyButtonClass);
+        }
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "copyable-text";
+    }
+
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Disabled)
+            attributes["aria-disabled"] = "true";
+    }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder style, ref PooledStringBuilder cssClass)
+    {
+        base.BuildOwnedClassAndStyle(ref style, ref cssClass);
+        AppendClass(ref cssClass, "group/copyable-text inline-flex max-w-full min-w-0 items-center gap-1 align-middle");
+    }
+
+    private Dictionary<string, object> BuildTextAttributes()
+    {
+        var attributes = CopyAttributes(TextAttributes);
+        attributes["data-slot"] = "copyable-text-value";
+
+        if (TruncateText && ShowFullTextOnHover && !string.IsNullOrEmpty(Text) && !attributes.ContainsKey("title"))
+            attributes["title"] = Text;
+
+        MergeAttribute(attributes, "class", ResolvedTextClass);
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(Text);
+        hashCode.Add(CopyText);
+        hashCode.Add(TruncateText);
+        hashCode.Add(ShowFullTextOnHover);
+        hashCode.Add(AlwaysShowCopyButton);
+        hashCode.Add(Disabled);
+        hashCode.Add(TextClass);
+        hashCode.Add(CopyButtonClass);
+        hashCode.Add(CopyButtonVariant);
+        hashCode.Add(CopyButtonSize);
+        hashCode.Add(IdleIcon);
+        hashCode.Add(DoneIcon);
+        hashCode.Add(ErrorIcon);
+        hashCode.Add(CopyLabel);
+        hashCode.Add(DoneLabel);
+        hashCode.Add(ErrorLabel);
+        hashCode.Add(ResetDelay);
+        AddAttributesToHash(ref hashCode, TextAttributes);
+        AddAttributesToHash(ref hashCode, CopyButtonAttributes);
+    }
+
+    private static void AddAttributesToHash(ref HashCode hashCode, IReadOnlyDictionary<string, object>? attributes)
+    {
+        if (attributes is null)
+            return;
+
+        foreach ((var key, var value) in attributes)
+        {
+            hashCode.Add(key, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(value);
+        }
+    }
+
+    private static string AppendClass(string defaultClass, string? additionalClass) =>
+        string.IsNullOrWhiteSpace(additionalClass) ? defaultClass.Trim() : $"{defaultClass.Trim()} {additionalClass}";
+
+    private static Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source)
+    {
+        var attributes = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        if (source is not null)
+        {
+            foreach ((var key, var value) in source)
+                attributes[key] = value;
+        }
+
+        return attributes;
+    }
+
+    private static void MergeAttribute(Dictionary<string, object> attributes, string name, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        if (attributes.TryGetValue(name, out var existing) && !string.IsNullOrWhiteSpace(existing?.ToString()))
+            attributes[name] = $"{existing} {value}";
+        else
+            attributes[name] = value;
+    }
+}
