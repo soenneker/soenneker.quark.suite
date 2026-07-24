@@ -97,6 +97,7 @@ public static class DocsNavigation
         new("Resizable", ComponentRoute("resizable")),
         new("Score", ComponentRoute("scores")),
         new("Scroll Area", ComponentRoute("scroll-area")),
+        new("Scroll Reveal", ComponentRoute("scroll-reveal"), IsNew: true),
         new("Select", ComponentRoute("select")),
         new("Separator", ComponentRoute("separator")),
         new("Sheet", ComponentRoute("sheet")),

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Tests.Unit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 

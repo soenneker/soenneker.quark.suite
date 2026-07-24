@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Tests.Unit;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

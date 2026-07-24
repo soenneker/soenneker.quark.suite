@@ -1,0 +1,123 @@
+@page "/components/scroll-reveal"
+
+<PageTitle>Scroll Reveal - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Description="Reveal content with a smooth transition as it enters the viewport."
+                 Code="@DefaultCode"
+                 CodeLanguage="razor">
+        <Div Class="h-96 space-y-24 overflow-y-auto rounded-lg border p-6">
+            <Div Class="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                Scroll down inside this preview
+            </Div>
+
+            @foreach (var feature in Features)
+            {
+                <ScrollReveal>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>@feature.Title</CardTitle>
+                            <CardDescription>@feature.Description</CardDescription>
+                        </CardHeader>
+                    </Card>
+                </ScrollReveal>
+            }
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Directions"
+                 Description="Choose which direction the content travels from."
+                 Code="@DirectionsCode"
+                 CodeLanguage="razor">
+        <Div Class="grid gap-4 sm:grid-cols-2">
+            @foreach (var direction in Directions)
+            {
+                <ScrollReveal Direction="@direction" Distance="40">
+                    <Div Class="rounded-lg border bg-card p-6 text-center text-sm font-medium">
+                        @direction
+                    </Div>
+                </ScrollReveal>
+            }
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Blur and stagger"
+                 Description="Combine blur and delay to build a staggered sequence."
+                 Code="@StaggerCode"
+                 CodeLanguage="razor">
+        <Div Class="grid gap-4 sm:grid-cols-3">
+            @for (var i = 0; i < 3; i++)
+            {
+                var index = i;
+
+                <ScrollReveal Blur="8" Delay="@(index * 140)" Distance="20">
+                    <Div Class="rounded-lg border bg-muted/40 p-6 text-center text-sm">
+                        Item @(index + 1)
+                    </Div>
+                </ScrollReveal>
+            }
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Replay"
+                 Description="Set Once to false to reveal the content each time it re-enters the viewport."
+                 Code="@ReplayCode"
+                 CodeLanguage="razor">
+        <ScrollReveal Once="false" Direction="ScrollRevealDirection.Left" Distance="48">
+            <Div Class="rounded-lg border bg-card p-8 text-center text-sm font-medium">
+                I reveal every time
+            </Div>
+        </ScrollReveal>
+    </DemoSection>
+</Div>
+
+@code {
+    private static readonly (string Title, string Description)[] Features =
+    [
+        ("Fast by default", "IntersectionObserver keeps the reveal work off the scroll handler."),
+        ("Easy to tune", "Control direction, distance, duration, delay, blur, and easing."),
+        ("Accessible motion", "Reduced-motion preferences are respected automatically.")
+    ];
+
+    private static readonly ScrollRevealDirection[] Directions =
+    [
+        ScrollRevealDirection.Up,
+        ScrollRevealDirection.Down,
+        ScrollRevealDirection.Left,
+        ScrollRevealDirection.Right
+    ];
+
+    private const string DefaultCode =
+@"<ScrollReveal>
+    <Card>
+        <CardHeader>
+            <CardTitle>Fast by default</CardTitle>
+            <CardDescription>
+                IntersectionObserver keeps the reveal work off the scroll handler.
+            </CardDescription>
+        </CardHeader>
+    </Card>
+</ScrollReveal>";
+
+    private const string DirectionsCode =
+@"<ScrollReveal Direction=""ScrollRevealDirection.Left"" Distance=""40"">
+    <Div Class=""rounded-lg border bg-card p-6"">
+        Reveals from the right and travels left
+    </Div>
+</ScrollReveal>";
+
+    private const string StaggerCode =
+@"@for (var i = 0; i < 3; i++)
+{
+    <ScrollReveal Blur=""8"" Delay=""@(i * 140)"" Distance=""20"">
+        <Div>Item @(i + 1)</Div>
+    </ScrollReveal>
+}";
+
+    private const string ReplayCode =
+@"<ScrollReveal Once=""false""
+              Direction=""ScrollRevealDirection.Left""
+              Distance=""48"">
+    <Div>I reveal every time</Div>
+</ScrollReveal>";
+}

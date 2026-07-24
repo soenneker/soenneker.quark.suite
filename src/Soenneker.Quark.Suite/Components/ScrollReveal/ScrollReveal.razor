@@ -1,0 +1,210 @@
+@namespace Soenneker.Quark
+@using System.Globalization
+@using Microsoft.JSInterop
+@inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+@inject IScrollRevealInterop ScrollRevealInterop
+
+<style>
+[data-slot="scroll-reveal"] {
+    transition:
+        opacity var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay),
+        transform var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay),
+        filter var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay);
+}
+
+[data-slot="scroll-reveal"][data-scroll-reveal-state="hidden"] {
+    opacity: 0;
+    transform: var(--scroll-reveal-transform);
+    filter: blur(var(--scroll-reveal-blur));
+    will-change: opacity, transform, filter;
+}
+
+[data-slot="scroll-reveal"][data-scroll-reveal-state="visible"] {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+}
+
+@@media (prefers-reduced-motion: reduce) {
+    [data-slot="scroll-reveal"] {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        transition: none !important;
+    }
+}
+</style>
+
+<div @ref="_element" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference _element;
+    private bool _initialized;
+    private bool _disposed;
+    private int _configurationHash;
+
+    /// <summary>
+    /// Gets or sets the direction content travels from.
+    /// </summary>
+    [Parameter]
+    public ScrollRevealDirection Direction { get; set; } = ScrollRevealDirection.Up;
+
+    /// <summary>
+    /// Gets or sets the starting offset in pixels.
+    /// </summary>
+    [Parameter]
+    public double Distance { get; set; } = 24;
+
+    /// <summary>
+    /// Gets or sets the reveal duration in milliseconds.
+    /// </summary>
+    [Parameter]
+    public int RevealDuration { get; set; } = 600;
+
+    /// <summary>
+    /// Gets or sets the delay before the reveal begins, in milliseconds.
+    /// </summary>
+    [Parameter]
+    public int Delay { get; set; }
+
+    /// <summary>
+    /// Gets or sets the starting blur radius in pixels.
+    /// </summary>
+    [Parameter]
+    public double Blur { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS easing function used by the transition.
+    /// </summary>
+    [Parameter]
+    public string Easing { get; set; } = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+    /// <summary>
+    /// Gets or sets the visible proportion required to trigger the reveal.
+    /// </summary>
+    [Parameter]
+    public double Threshold { get; set; } = 0.15;
+
+    /// <summary>
+    /// Gets or sets the IntersectionObserver root margin.
+    /// </summary>
+    [Parameter]
+    public string RootMargin { get; set; } = "0px 0px -10% 0px";
+
+    /// <summary>
+    /// Gets or sets whether the reveal only runs once.
+    /// </summary>
+    [Parameter]
+    public bool Once { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the reveal behavior is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var configurationHash = GetConfigurationHash();
+
+        if (firstRender || configurationHash != _configurationHash)
+        {
+            await ScrollRevealInterop.Initialize(_element, new
+            {
+                threshold = Math.Clamp(Threshold, 0, 1),
+                rootMargin = RootMargin,
+                once = Once,
+                disabled = Disabled
+            });
+
+            _configurationHash = configurationHash;
+            _initialized = true;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "scroll-reveal";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-direction"] = Direction.ToString().ToLowerInvariant();
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, $"--scroll-reveal-duration:{Math.Max(RevealDuration, 0)}ms");
+            AppendStyleDecl(ref sty, $"--scroll-reveal-delay:{Math.Max(Delay, 0)}ms");
+            AppendStyleDecl(ref sty, $"--scroll-reveal-blur:{Format(Math.Max(Blur, 0))}px");
+            AppendStyleDecl(ref sty, $"--scroll-reveal-easing:{Easing}");
+            AppendStyleDecl(ref sty, $"--scroll-reveal-transform:{GetInitialTransform()}");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Direction);
+        hc.Add(Distance);
+        hc.Add(RevealDuration);
+        hc.Add(Delay);
+        hc.Add(Blur);
+        hc.Add(Easing);
+        hc.Add(Threshold);
+        hc.Add(RootMargin);
+        hc.Add(Once);
+        hc.Add(Disabled);
+    }
+
+    private int GetConfigurationHash()
+    {
+        var hc = new HashCode();
+        hc.Add(Threshold);
+        hc.Add(RootMargin);
+        hc.Add(Once);
+        hc.Add(Disabled);
+        return hc.ToHashCode();
+    }
+
+    private string GetInitialTransform()
+    {
+        var distance = Format(Math.Max(Distance, 0));
+
+        return Direction switch
+        {
+            ScrollRevealDirection.Up => $"translate3d(0, {distance}px, 0)",
+            ScrollRevealDirection.Down => $"translate3d(0, -{distance}px, 0)",
+            ScrollRevealDirection.Left => $"translate3d({distance}px, 0, 0)",
+            ScrollRevealDirection.Right => $"translate3d(-{distance}px, 0, 0)",
+            _ => "none"
+        };
+    }
+
+    private static string Format(double value) => value.ToString("0.###", CultureInfo.InvariantCulture);
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        try
+        {
+            if (_initialized)
+                await ScrollRevealInterop.Destroy(_element);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
+        {
+        }
+
+        await base.DisposeAsync();
+    }
+}
