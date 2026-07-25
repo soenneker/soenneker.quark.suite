@@ -48,7 +48,7 @@
                                         <Th>
                                             <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" Height="Height.Is8" Class="-ml-3 px-2" OnClick="ToggleEmailSort">
                                                 Email
-                                                <Icon Name="LucideIcon.ArrowUpDown" data-icon="inline-end" />
+                                                <Icon Name="@GetSortIcon(_emailSortDescending)" data-icon="inline-end" />
                                             </Button>
                                         </Th>
                                     }
@@ -227,7 +227,7 @@
                                             <Th>
                                                 <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" Height="Height.Is8" Class="-mr-3 px-2" OnClick="ToggleRtlEmailSort">
                                                     البريد الإلكتروني
-                                                    <Icon Name="LucideIcon.ArrowUpDown" data-icon="inline-end" />
+                                                    <Icon Name="@GetSortIcon(_rtlEmailSortDescending)" data-icon="inline-end" />
                                                 </Button>
                                             </Th>
                                         }
@@ -395,6 +395,16 @@
         _rtlEmailSortDescending = _rtlEmailSortDescending is null ? false : !_rtlEmailSortDescending.Value;
     }
 
+    private static LucideIcon GetSortIcon(bool? descending)
+    {
+        return descending switch
+        {
+            false => LucideIcon.ArrowUp,
+            true => LucideIcon.ArrowDown,
+            null => LucideIcon.ArrowUpDown
+        };
+    }
+
     private void HandleSelectAllChanged(bool selected)
     {
         foreach (var row in FilteredRows)
@@ -492,7 +502,7 @@
                             <Th>
                                 <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.Sm"" Height=""Height.Is8"" Class=""-ml-3 px-2"" OnClick=""ToggleEmailSort"">
                                     Email
-                                    <Icon Name=""LucideIcon.ArrowUpDown"" data-icon=""inline-end"" />
+                                    <Icon Name=""@GetSortIcon(_emailSortDescending)"" data-icon=""inline-end"" />
                                 </Button>
                             </Th>
                         }
