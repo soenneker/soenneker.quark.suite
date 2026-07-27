@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Bunit;
-using System.Linq;
 
 namespace Soenneker.Quark.Suite.Tests;
 
