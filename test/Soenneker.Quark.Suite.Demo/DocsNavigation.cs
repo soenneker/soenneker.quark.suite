@@ -102,6 +102,7 @@ public static class DocsNavigation
         new("Separator", ComponentRoute("separator")),
         new("Sheet", ComponentRoute("sheet")),
         new("Sidebar", ComponentRoute("sidebar")),
+        new("Signature Pad", ComponentRoute("signature-pad"), IsNew: true),
         new("Skeleton", ComponentRoute("skeleton")),
         new("Slider", ComponentRoute("slider")),
         new("Sonner", ComponentRoute("sonner")),

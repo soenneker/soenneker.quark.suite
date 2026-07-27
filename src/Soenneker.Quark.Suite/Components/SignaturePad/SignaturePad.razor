@@ -1,0 +1,172 @@
+@using System.Collections.Generic
+@using System.Threading
+@using Soenneker.Blazor.SignaturePads.Configuration
+@using Soenneker.Blazor.SignaturePads.Dtos
+
+@namespace Soenneker.Quark
+@inherits FormControlElementBase
+@implements ISignaturePad
+
+<Soenneker.Blazor.SignaturePads.SignaturePadCanvas @ref="_canvas"
+                                                       @attributes="BuildAttributes()"
+                                                       Options="BuildOptions()"
+                                                       ObserveResize="@ObserveResize"
+                                                       PreserveDrawingOnResize="@PreserveDrawingOnResize"
+                                                       OnReady="HandleReady" />
+
+@code {
+    private Soenneker.Blazor.SignaturePads.SignaturePadCanvas? _canvas;
+    private bool? _lastInteractionDisabled;
+
+    [Parameter]
+    public double? DotSize { get; set; }
+
+    [Parameter]
+    public double? MinStrokeWidth { get; set; }
+
+    [Parameter]
+    public double? MaxStrokeWidth { get; set; }
+
+    [Parameter]
+    public int? Throttle { get; set; }
+
+    [Parameter]
+    public int? MinDistance { get; set; }
+
+    [Parameter]
+    public string? CanvasBackgroundColor { get; set; } = "#ffffff";
+
+    [Parameter]
+    public string? PenColor { get; set; } = "#0f172a";
+
+    [Parameter]
+    public double? VelocityFilterWeight { get; set; }
+
+    [Parameter]
+    public string? CompositeOperation { get; set; }
+
+    [Parameter]
+    public bool ObserveResize { get; set; } = true;
+
+    [Parameter]
+    public bool PreserveDrawingOnResize { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "signature-pad";
+        Width ??= Quark.Width.IsFull;
+        Height ??= Quark.Height.Token("64");
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
+        BackgroundColor ??= Quark.BackgroundColor.White;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        ApplyFieldControlAttributes(attributes);
+        attributes["aria-disabled"] = Disabled ? "true" : "false";
+        attributes["aria-readonly"] = ReadOnly ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "touch-none");
+            AppendClass(ref cls, "focus-visible:ring-3");
+            AppendClass(ref cls, "aria-readonly:cursor-not-allowed aria-readonly:opacity-50");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20");
+            AppendClass(ref cls, "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        bool interactionDisabled = Disabled || ReadOnly;
+        if (_canvas is null || _lastInteractionDisabled == interactionDisabled)
+            return;
+
+        _lastInteractionDisabled = interactionDisabled;
+
+        if (interactionDisabled)
+            await _canvas.Disable();
+        else
+            await _canvas.Enable();
+    }
+
+    private async Task HandleReady()
+    {
+        _lastInteractionDisabled = null;
+
+        if (OnReady.HasDelegate)
+            await OnReady.InvokeAsync();
+    }
+
+    private SignaturePadOptions BuildOptions() =>
+        new()
+        {
+            DotSize = DotSize,
+            MinWidth = MinStrokeWidth,
+            MaxWidth = MaxStrokeWidth,
+            Throttle = Throttle,
+            MinDistance = MinDistance,
+            BackgroundColor = CanvasBackgroundColor,
+            PenColor = PenColor,
+            VelocityFilterWeight = VelocityFilterWeight,
+            CompositeOperation = CompositeOperation
+        };
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DotSize);
+        hc.Add(MinStrokeWidth);
+        hc.Add(MaxStrokeWidth);
+        hc.Add(Throttle);
+        hc.Add(MinDistance);
+        hc.Add(CanvasBackgroundColor);
+        hc.Add(PenColor);
+        hc.Add(VelocityFilterWeight);
+        hc.Add(CompositeOperation);
+        hc.Add(ObserveResize);
+        hc.Add(PreserveDrawingOnResize);
+        hc.Add(OnReady);
+    }
+
+    private Soenneker.Blazor.SignaturePads.SignaturePadCanvas EnsureReady() =>
+        _canvas ?? throw new InvalidOperationException("The signature pad is not ready yet. Wait until the component has rendered.");
+
+    public ValueTask Clear(CancellationToken cancellationToken = default) => EnsureReady().Clear(cancellationToken);
+
+    public ValueTask<bool> IsEmpty(CancellationToken cancellationToken = default) => EnsureReady().IsEmpty(cancellationToken);
+
+    public ValueTask<string> ToDataUrl(string type = "image/png", double? encoderOptions = null, CancellationToken cancellationToken = default) =>
+        EnsureReady().ToDataUrl(type, encoderOptions, cancellationToken);
+
+    public ValueTask<string> ToSvg(SignaturePadSvgOptions? options = null, CancellationToken cancellationToken = default) =>
+        EnsureReady().ToSvg(options, cancellationToken);
+
+    public ValueTask<IReadOnlyList<SignaturePadPointGroup>> ToData(CancellationToken cancellationToken = default) =>
+        EnsureReady().ToData(cancellationToken);
+
+    public ValueTask FromData(IReadOnlyList<SignaturePadPointGroup> data, bool clear = true, CancellationToken cancellationToken = default) =>
+        EnsureReady().FromData(data, clear, cancellationToken);
+
+    public ValueTask FromDataUrl(string dataUrl, SignaturePadDataUrlOptions? options = null, CancellationToken cancellationToken = default) =>
+        EnsureReady().FromDataUrl(dataUrl, options, cancellationToken);
+
+    public ValueTask Redraw(CancellationToken cancellationToken = default) => EnsureReady().Redraw(cancellationToken);
+
+    public ValueTask Enable(CancellationToken cancellationToken = default) => EnsureReady().Enable(cancellationToken);
+
+    public ValueTask Disable(CancellationToken cancellationToken = default) => EnsureReady().Disable(cancellationToken);
+}

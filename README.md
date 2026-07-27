@@ -36,7 +36,7 @@ Headers, sidebars, navigation menus, breadcrumbs, tabs, sections, containers, gr
 Buttons, button groups, dropdowns, context menus, menubars, dialogs, alert dialogs, sheets, drawers, popovers, hover cards, tooltips, commands, and navigation menus.
 
 **Forms and data entry**  
-Inputs, text areas, input groups, selects, native selects, comboboxes, checks, radio groups, switches, sliders, date inputs, date pickers, field layouts, validation, and one-time-password inputs.
+Inputs, text areas, input groups, selects, native selects, comboboxes, checks, radio groups, switches, sliders, date inputs, date pickers, field layouts, validation, signature capture, and one-time-password inputs.
 
 **Data display and workflows**  
 Tables, pagination, sorting helpers, resizable panels, sortable lists, tree views, attachments, steps, timelines, scores, progress, loading states, empty states, and code editor support.

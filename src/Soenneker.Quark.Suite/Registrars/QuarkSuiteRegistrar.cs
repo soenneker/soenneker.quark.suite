@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Soenneker.Blazor.C15t.Registrars;
+using Soenneker.Blazor.SignaturePads.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.Clipboard.Registrars;
 using Soenneker.Bradix;
@@ -46,6 +47,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkOnThisPageAsScoped()
                 .AddQuarkDateTimesAsScoped()
                 .AddQuarkPaymentCardAsScoped()
+                .AddSignaturePadAsScoped()
                 .AddC15tAsScoped()
                 .AddClipboardAsScoped();
 

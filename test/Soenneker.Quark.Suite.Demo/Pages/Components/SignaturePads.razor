@@ -1,0 +1,77 @@
+@page "/components/signature-pad"
+
+<PageTitle>Signature Pad - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection
+            Description="Capture a signature with a mouse, touch, or stylus. Configure the canvas with normal Quark component parameters."
+            Code="@BasicCode"
+            CodeLanguage="razor"
+            PreviewClass="preview relative flex min-h-96 w-full justify-center p-6 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.Is2xl">
+                <FieldLabel>Signature</FieldLabel>
+                <SignaturePad @ref="_signaturePad"
+                              MinStrokeWidth="0.8"
+                              MaxStrokeWidth="2.2"
+                              PenColor="#0f172a"
+                              CanvasBackgroundColor="#ffffff"
+                              Shadow="Shadow.Xs"
+                              OnReady="OnReady" />
+                <FieldDescription>@_status</FieldDescription>
+
+                <Div Display="Display.Flex" Gap="Gap.Is2">
+                    <Button OnClick="ExportSvg">Export SVG</Button>
+                    <Button OnClick="Clear" Variant="ButtonVariant.Outline">Clear</Button>
+                </Div>
+            </Field>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private SignaturePad? _signaturePad;
+    private string _status = "Loading signature pad...";
+
+    private Task OnReady()
+    {
+        _status = "Ready for a signature.";
+        return Task.CompletedTask;
+    }
+
+    private async Task ExportSvg()
+    {
+        if (_signaturePad is null)
+            return;
+
+        if (await _signaturePad.IsEmpty())
+        {
+            _status = "Add a signature before exporting.";
+            return;
+        }
+
+        string svg = await _signaturePad.ToSvg();
+        _status = $"Exported an SVG containing {svg.Length:N0} characters.";
+    }
+
+    private async Task Clear()
+    {
+        if (_signaturePad is null)
+            return;
+
+        await _signaturePad.Clear();
+        _status = "Signature cleared.";
+    }
+
+    private const string BasicCode = """
+        <Field Width="Width.IsFull" MaxWidth="MaxWidth.Is2xl">
+            <FieldLabel>Signature</FieldLabel>
+            <SignaturePad @ref="_signaturePad"
+                          MinStrokeWidth="0.8"
+                          MaxStrokeWidth="2.2"
+                          PenColor="#0f172a"
+                          CanvasBackgroundColor="#ffffff" />
+            <FieldDescription>Draw with a mouse, touch, or stylus.</FieldDescription>
+        </Field>
+        """;
+}
