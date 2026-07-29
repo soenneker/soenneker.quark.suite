@@ -74,6 +74,34 @@ public sealed class QuarkDateTimeFormatterTests
     }
 
     [Test]
+    public void Relative_update_waits_until_just_now_label_changes()
+    {
+        var now = Utc(2026, 5, 27, 15, 0);
+
+        RelativeInterval(now.AddSeconds(-5), now).Should().Be(TimeSpan.FromSeconds(5));
+        RelativeInterval(now.AddSeconds(5), now).Should().Be(TimeSpan.FromSeconds(15));
+    }
+
+    [Test]
+    public void Relative_update_aligns_with_the_displayed_unit_boundary()
+    {
+        var now = Utc(2026, 5, 27, 15, 0);
+
+        RelativeInterval(now.AddSeconds(-25.25), now).Should().Be(TimeSpan.FromMilliseconds(750));
+        RelativeInterval(now.AddMinutes(-5.5), now).Should().Be(TimeSpan.FromSeconds(30));
+        RelativeInterval(now.AddHours(-4.25), now).Should().Be(TimeSpan.FromMinutes(45));
+        RelativeInterval(now.AddMinutes(5.5), now).Should().Be(TimeSpan.FromSeconds(30));
+    }
+
+    [Test]
+    public void Relative_update_for_day_values_waits_until_the_next_local_day()
+    {
+        var now = Utc(2026, 5, 27, 15, 42);
+
+        RelativeInterval(now.AddDays(-5), now).Should().Be(TimeSpan.FromHours(8).Add(TimeSpan.FromMinutes(18)));
+    }
+
+    [Test]
     public void Until_formats_remaining_and_expired_values()
     {
         var now = Utc(2026, 5, 27, 15, 0);
@@ -169,6 +197,11 @@ public sealed class QuarkDateTimeFormatterTests
     private static DateTimeOffset Utc(int year, int month, int day, int hour, int minute)
     {
         return new DateTimeOffset(year, month, day, hour, minute, 0, TimeSpan.Zero);
+    }
+
+    private TimeSpan RelativeInterval(DateTimeOffset value, DateTimeOffset now)
+    {
+        return _formatter.GetNextUpdateInterval(QuarkDateTimeUpdateKind.Relative, value, now, Options())!.Value;
     }
 
     private string FormatCalendar(DateTimeOffset value, DateTimeOffset now)

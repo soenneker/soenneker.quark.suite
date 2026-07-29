@@ -236,18 +236,32 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
 
     private static TimeSpan GetRelativeInterval(DateTimeOffset value, DateTimeOffset now)
     {
-        var absolute = (value - now).Duration();
+        var delta = value - now;
+        var absolute = delta.Duration();
+
+        if (absolute < TimeSpan.FromSeconds(10))
+            return Clamp(value.AddSeconds(10) - now);
 
         if (absolute < OneMinute)
-            return OneSecond;
+            return UntilNextRelativeUnitBoundary(delta, OneSecond);
 
         if (absolute < OneHour)
-            return UntilNextMinute(now);
+            return UntilNextRelativeUnitBoundary(delta, OneMinute);
 
-        if (absolute < OneDay)
-            return UntilNextHour(now);
+        if (absolute < OneDay || (delta > TimeSpan.Zero && absolute == OneDay))
+            return UntilNextRelativeUnitBoundary(delta, OneHour);
 
         return UntilNextDay(now);
+    }
+
+    private static TimeSpan UntilNextRelativeUnitBoundary(TimeSpan delta, TimeSpan unit)
+    {
+        var remainderTicks = delta.Duration().Ticks % unit.Ticks;
+
+        if (delta > TimeSpan.Zero)
+            return Clamp(remainderTicks == 0 ? TimeSpan.FromMilliseconds(250) : TimeSpan.FromTicks(remainderTicks));
+
+        return Clamp(remainderTicks == 0 ? unit : TimeSpan.FromTicks(unit.Ticks - remainderTicks));
     }
 
     private static TimeSpan? GetUntilInterval(DateTimeOffset value, DateTimeOffset now)
