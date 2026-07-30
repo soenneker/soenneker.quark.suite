@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditorPaletteItem
+
+<button type="button" @onclick="OnActivated" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Type { get; set; } = "";
+
+    [Parameter]
+    public string? Data { get; set; }
+
+    [Parameter]
+    public EventCallback OnActivated { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(Type))
+            throw new InvalidOperationException($"{nameof(NodeEditorPaletteItem)} requires a non-empty {nameof(Type)}.");
+
+        base.OnParametersSet();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor-palette-item";
+        Cursor ??= Quark.Cursor.Grab;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["draggable"] = "true";
+        attributes["data-palette-type"] = Type;
+        attributes["data-palette-data"] = Data ?? "";
+
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "touch-manipulation active:cursor-grabbing"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(Type);
+        hashCode.Add(Data);
+        hashCode.Add(OnActivated);
+    }
+}

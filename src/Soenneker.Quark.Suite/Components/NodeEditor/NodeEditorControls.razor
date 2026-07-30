@@ -1,0 +1,83 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditorControls
+
+<div @attributes="BuildAttributes()">
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Disabled="@(!CanUndo)" AriaLabel="Undo" Title="Undo" OnClick="Undo">
+        <Icon Name="LucideIcon.Undo2" Size="Quark.Size.Is4" />
+    </Button>
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Disabled="@(!CanRedo)" AriaLabel="Redo" Title="Redo" OnClick="Redo">
+        <Icon Name="LucideIcon.Redo2" Size="Quark.Size.Is4" />
+    </Button>
+    <Div Width="Quark.Width.IsPx" Height="Quark.Height.Is5" BackgroundColor="Quark.BackgroundColor.Border" aria-hidden="true" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Zoom out" Title="Zoom out" OnClick="ZoomOut">
+        <Icon Name="LucideIcon.Minus" Size="Quark.Size.Is4" />
+    </Button>
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Reset view" Title="Reset view" OnClick="ResetView">
+        <Icon Name="LucideIcon.Scan" Size="Quark.Size.Is4" />
+    </Button>
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Fit to view" Title="Fit to view" OnClick="FitView">
+        <Icon Name="LucideIcon.Maximize" Size="Quark.Size.Is4" />
+    </Button>
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Zoom in" Title="Zoom in" OnClick="ZoomIn">
+        <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
+    </Button>
+</div>
+
+@code {
+    [CascadingParameter]
+    public NodeEditorContext? EditorContext { get; set; }
+
+    [Parameter]
+    public bool CanUndo { get; set; }
+
+    [Parameter]
+    public bool CanRedo { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor-controls";
+        Position ??= Quark.Position.Absolute;
+        Bottom ??= Quark.Bottom.Is4;
+        Left ??= Quark.Left.Is4;
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Token("0.5");
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Token("border/80");
+        BackgroundColor ??= Quark.BackgroundColor.Token("background/90");
+        Padding ??= Quark.Padding.Is1;
+        Shadow ??= Quark.Shadow.Sm;
+        BackdropFilter ??= Quark.BackdropFilter.Blur;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["role"] = "toolbar";
+        attributes["aria-label"] = "View controls";
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "z-30"));
+
+    }
+
+    private Task ZoomIn() => EditorContext?.ZoomIn().AsTask() ?? Task.CompletedTask;
+
+    private Task ZoomOut() => EditorContext?.ZoomOut().AsTask() ?? Task.CompletedTask;
+
+    private Task FitView() => EditorContext?.FitView().AsTask() ?? Task.CompletedTask;
+
+    private Task ResetView() => EditorContext?.ResetView().AsTask() ?? Task.CompletedTask;
+
+    private Task Undo() => EditorContext?.Undo() ?? Task.CompletedTask;
+
+    private Task Redo() => EditorContext?.Redo() ?? Task.CompletedTask;
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(CanUndo);
+        hashCode.Add(CanRedo);
+    }
+}

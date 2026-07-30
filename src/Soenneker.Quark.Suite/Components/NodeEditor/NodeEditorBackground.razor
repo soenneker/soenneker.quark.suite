@@ -1,0 +1,28 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditorBackground
+
+<div @attributes="BuildAttributes()"></div>
+
+@code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor-background";
+        PointerEvents ??= Quark.PointerEvents.None;
+        Position ??= Quark.Position.Absolute;
+        Inset ??= Quark.Inset.Is0;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-node-editor-background");
+            AppendClass(ref cls, "bg-[radial-gradient(circle_at_center,hsl(var(--border))_1px,transparent_1px)] bg-[length:20px_20px]");
+            AppendClass(ref cls, "[mask-image:linear-gradient(to_bottom,black,rgba(0,0,0,0.72))]");
+        });
+    }
+}

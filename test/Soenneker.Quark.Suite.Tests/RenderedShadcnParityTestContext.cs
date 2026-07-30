@@ -251,6 +251,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IInputInterop, FakeInputInterop>();
         Services.AddQuarkPaymentCardAsScoped();
         Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
+        Services.AddScoped<INodeEditorInterop, FakeNodeEditorInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
         Services.AddScoped<IThemeInterop, FakeThemeInterop>();
@@ -460,6 +461,28 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
         public ValueTask UnregisterCanvas(ElementReference canvas, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeNodeEditorInterop : INodeEditorInterop
+    {
+        public ValueTask Initialize(string id, NodeEditorOptions options, DotNetObjectReference<NodeEditor> callbackReference,
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, string? selectedEdgeId,
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask FitView(string id, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask ResetView(string id, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask<NodeEditorGraphPoint> ClientToGraph(string id, double clientX, double clientY, CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult(new NodeEditorGraphPoint { X = clientX, Y = clientY });
+
+        public ValueTask Destroy(string id, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

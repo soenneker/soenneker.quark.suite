@@ -1,0 +1,931 @@
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Utils.Ids
+@using System.Threading
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditor
+
+@inject INodeEditorInterop EditorInterop
+
+<div @attributes="BuildAttributes()">
+    <NodeEditorBackground />
+
+    <Div DataSlot="node-editor-viewport"
+         Position="Quark.Position.Absolute"
+         Left="Quark.Left.Is0"
+         Top="Quark.Top.Is0"
+         Opacity="Quark.Opacity.Is0"
+         Transition="Quark.Transition.Opacity"
+         Class="quark-node-editor-viewport origin-top-left duration-150 will-change-transform">
+        <svg data-slot="node-editor-edge-layer"
+             class="quark-node-editor-edge-layer pointer-events-none absolute left-0 top-0 overflow-visible"
+             width="1"
+             height="1"
+             role="group"
+             aria-label="Connections">
+            @foreach (NodeEditorAddHandleModel handle in AddHandles)
+            {
+                <g @key="handle.Id"
+                   data-add-handle-edge="@handle.Id"
+                   data-source-node="@handle.SourceNodeId"
+                   data-source-port="@handle.SourcePortId"
+                   data-target-x="@handle.X"
+                   data-target-y="@handle.Y"
+                   class="pointer-events-none">
+                    <path data-add-handle-path
+                          class="fill-none stroke-muted-foreground/25"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-dasharray="3 4"
+                          vector-effect="non-scaling-stroke" />
+                    @if (!string.IsNullOrWhiteSpace(handle.Label))
+                    {
+                        <g data-edge-label>
+                            <rect data-edge-label-background
+                                  x="-5"
+                                  y="-10"
+                                  width="10"
+                                  height="20"
+                                  rx="10"
+                                  class="fill-muted" />
+                            <text data-edge-label-text
+                                  text-anchor="middle"
+                                  dominant-baseline="middle"
+                                  class="select-none fill-muted-foreground text-[11px] font-medium">@handle.Label</text>
+                        </g>
+                    }
+                </g>
+            }
+
+            @foreach (NodeEditorEdgeModel edge in Edges)
+            {
+                <g @key="edge.Id"
+                   data-edge-id="@edge.Id"
+                   data-source-node="@edge.SourceNodeId"
+                   data-source-port="@edge.SourcePortId"
+                   data-target-node="@edge.TargetNodeId"
+                   data-target-port="@edge.TargetPortId"
+                   data-disabled="@(edge.Disabled ? "true" : "false")"
+                   data-selectable="@(edge.Selectable ? "true" : "false")"
+                   data-label-editable="@(edge.LabelEditable ? "true" : "false")"
+                   data-selected="@(edge.Id == SelectedEdgeId ? "true" : "false")"
+                   class="quark-node-editor-edge group pointer-events-auto cursor-pointer outline-none"
+                   role="button"
+                   aria-label="@EdgeAccessibleLabel(edge)"
+                   aria-pressed="@(edge.Id == SelectedEdgeId ? "true" : "false")"
+                   aria-disabled="@(edge.Disabled ? "true" : "false")"
+                   aria-keyshortcuts="@EdgeKeyboardShortcuts(edge)"
+                   tabindex="@(edge.Selectable && !edge.Disabled ? "0" : "-1")">
+                    <path data-edge-hit
+                          class="fill-none stroke-transparent"
+                          stroke-width="14"
+                          vector-effect="non-scaling-stroke" />
+                    <path data-edge-path
+                          class="fill-none stroke-muted-foreground/35 transition-[stroke,opacity] duration-150 group-data-[disabled=true]:opacity-40"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          vector-effect="non-scaling-stroke" />
+                    <circle data-edge-endpoint="source"
+                            r="5"
+                            class="pointer-events-none fill-background stroke-primary opacity-0 transition-opacity group-data-[selected=true]:pointer-events-auto group-data-[selected=true]:cursor-pointer group-data-[selected=true]:opacity-100"
+                            stroke-width="2"
+                            vector-effect="non-scaling-stroke"
+                            aria-hidden="true" />
+                    <circle data-edge-endpoint="target"
+                            r="5"
+                            class="pointer-events-none fill-background stroke-primary opacity-0 transition-opacity group-data-[selected=true]:pointer-events-auto group-data-[selected=true]:cursor-pointer group-data-[selected=true]:opacity-100"
+                            stroke-width="2"
+                            vector-effect="non-scaling-stroke"
+                            aria-hidden="true" />
+                    @if (_editingEdgeId == edge.Id)
+                    {
+                        <g data-edge-label data-edge-label-editor>
+                            <foreignObject x="@(-EdgeLabelEditorWidth / 2)"
+                                           y="-14"
+                                           width="@EdgeLabelEditorWidth"
+                                           height="28"
+                                           class="overflow-visible">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     class="flex h-full w-full items-center">
+                                    <input data-edge-label-input
+                                           type="text"
+                                           value="@_editingEdgeLabel"
+                                           aria-label="Connection label"
+                                           placeholder="Connection label"
+                                           class="h-7 w-full rounded-md border border-input bg-background px-2 text-[11px] font-medium text-foreground shadow-sm outline-none ring-1 ring-ring"
+                                           @oninput="UpdateEditingEdgeLabel"
+                                           @onkeydown="HandleEdgeLabelEditorKeyDown"
+                                           @onblur="HandleEdgeLabelEditorBlur" />
+                                </div>
+                            </foreignObject>
+                        </g>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(edge.Label))
+                    {
+                        <g data-edge-label>
+                            <rect data-edge-label-background
+                                  x="-5"
+                                  y="-10"
+                                  width="10"
+                                  height="20"
+                                  rx="10"
+                                  class="fill-muted" />
+                            <text data-edge-label-text
+                                  text-anchor="middle"
+                                  dominant-baseline="middle"
+                                  class="select-none fill-muted-foreground text-[11px] font-medium">@edge.Label</text>
+                        </g>
+                    }
+                </g>
+            }
+
+            <path data-connection-preview
+                  class="hidden fill-none stroke-primary"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-dasharray="5 5"
+                  vector-effect="non-scaling-stroke" />
+        </svg>
+
+        <Div DataSlot="node-editor-node-layer"
+             Position="Quark.Position.Absolute"
+             Left="Quark.Left.Is0"
+             Top="Quark.Top.Is0"
+             Class="quark-node-editor-node-layer">
+            @foreach (NodeEditorNodeModel node in Nodes)
+            {
+                <CascadingValue @key="node.Id" Value="new NodeEditorNodeContext(node.Id)" IsFixed="true">
+                    <NodeEditorNode Node="node" Selected="@(node.Id == SelectedNodeId)">
+                        @NodeTemplate(node)
+                    </NodeEditorNode>
+                </CascadingValue>
+            }
+
+            @foreach (NodeEditorAddHandleModel handle in AddHandles)
+            {
+                <button @key="handle.Id"
+                        type="button"
+                        data-slot="node-editor-add-handle"
+                        data-add-handle-id="@handle.Id"
+                        data-source-node="@handle.SourceNodeId"
+                        data-source-port="@handle.SourcePortId"
+                        data-handle-x="@handle.X"
+                        data-handle-y="@handle.Y"
+                        disabled="@handle.Disabled"
+                        aria-label="@(handle.AccessibleLabel ?? handle.Label ?? "Add step")"
+                        title="@(handle.AccessibleLabel ?? handle.Label ?? "Add step")"
+                        class="absolute left-0 top-0 z-20 grid size-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-border bg-background text-muted-foreground shadow-sm outline-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
+                        style="@HandleStyle(handle)">
+                    <span aria-hidden="true" class="text-base font-medium leading-none">+</span>
+                </button>
+            }
+        </Div>
+    </Div>
+
+    <CascadingValue Value="_context" IsFixed="true">
+        @if (ShowControls)
+        {
+            <NodeEditorControls CanUndo="CanUndo" CanRedo="CanRedo" />
+        }
+
+        @OverlayContent
+    </CascadingValue>
+
+    <Div ScreenReader="Quark.ScreenReader.Only" aria-live="polite">@_announcement</Div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<NodeEditorNodeModel> Nodes { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<NodeEditorEdgeModel> Edges { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<NodeEditorAddHandleModel> AddHandles { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public RenderFragment<NodeEditorNodeModel> NodeTemplate { get; set; } = _ => builder => { };
+
+    [Parameter]
+    public RenderFragment? OverlayContent { get; set; }
+
+    [Parameter]
+    public NodeEditorOptions Options { get; set; } = new();
+
+    [Parameter]
+    public string? SelectedNodeId { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> SelectedNodeIdChanged { get; set; }
+
+    [Parameter]
+    public string? SelectedEdgeId { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> SelectedEdgeIdChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorNodePositionChangedEventArgs> OnNodePositionChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorConnectionRequest> OnConnectionRequested { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorConnectionChangeRequest> OnConnectionChangeRequested { get; set; }
+
+    [Parameter]
+    public Func<NodeEditorConnectionValidationRequest, ValueTask<NodeEditorConnectionValidationResult>>? ConnectionValidator { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorAddRequest> OnAddRequested { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorDropRequest> OnNodeDropRequested { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorDeleteRequest> OnDeleteRequested { get; set; }
+
+    [Parameter]
+    public bool CanUndo { get; set; }
+
+    [Parameter]
+    public bool CanRedo { get; set; }
+
+    [Parameter]
+    public EventCallback OnUndoRequested { get; set; }
+
+    [Parameter]
+    public EventCallback OnRedoRequested { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorDuplicateRequest> OnDuplicateRequested { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorEdgeLabelChangedEventArgs> OnEdgeLabelChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<NodeEditorViewportChangedEventArgs> OnViewportChanged { get; set; }
+
+    [Parameter]
+    public bool ShowControls { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public Func<CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    public AutoSaveState AutoSaveState => _autoSave.State;
+
+    public bool HasAutoSaved => _autoSave.HasSaved;
+
+    private readonly NodeEditorContext _context;
+    private readonly AutoSaveController<int> _autoSave = new();
+    private DotNetObjectReference<NodeEditor>? _dotNetReference;
+    private bool _initialized;
+    private int _changeVersion;
+    private string _announcement = "";
+    private string? _editingEdgeId;
+    private string _editingEdgeLabel = "";
+    private double EdgeLabelEditorWidth => Math.Clamp(_editingEdgeLabel.Length * 6.5 + 24, 112, 220);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NodeEditor"/> component.
+    /// </summary>
+    public NodeEditor()
+    {
+        Id = BlazorIdGenerator.New("quark-ne");
+        _context = new NodeEditorContext(this);
+    }
+
+    protected override void OnParametersSet()
+    {
+        ValidateParameters();
+        base.OnParametersSet();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor";
+        Role ??= "application";
+        AriaLabel ??= "Node editor";
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Xl;
+        Border ??= Quark.Border.Default;
+        BackgroundColor ??= Quark.BackgroundColor.Token("muted/20");
+        TextColor ??= Quark.TextColor.Foreground;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Transition ??= Quark.Transition.Colors;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["tabindex"] = "0";
+        attributes["aria-keyshortcuts"] = "Control+Z Meta+Z Control+Y Meta+Shift+Z Control+D Meta+D Control+C Meta+C Control+V Meta+V";
+        attributes["data-initialized"] = _initialized ? "true" : "false";
+        attributes["data-drop-target"] = "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-node-editor isolate focus-visible:ring-2 focus-visible:ring-ring");
+            if (MinHeight is null)
+                AppendClass(ref cls, "min-h-96");
+            AppendClass(ref cls, "data-[drop-target=true]:border-primary data-[drop-target=true]:ring-2 data-[drop-target=true]:ring-primary/15");
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _dotNetReference = DotNetObjectReference.Create(this);
+            await EditorInterop.Initialize(Id!, Options, _dotNetReference);
+            _initialized = true;
+        }
+
+        if (_initialized)
+            await EditorInterop.Refresh(Id!, Options, SelectedNodeId, SelectedEdgeId);
+    }
+
+    /// <summary>
+    /// Applies a node selection received from the browser interaction layer.
+    /// </summary>
+    /// <param name="nodeId">The selected node identifier, or <c>null</c> to clear the selection.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeNodeSelected(string? nodeId)
+    {
+        SelectedNodeId = nodeId;
+        SelectedEdgeId = null;
+        _announcement = nodeId is null ? "Selection cleared" : $"Node {nodeId} selected";
+
+        await SelectedNodeIdChanged.InvokeAsync(nodeId);
+        await SelectedEdgeIdChanged.InvokeAsync(null);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Applies an edge selection received from the browser interaction layer.
+    /// </summary>
+    /// <param name="edgeId">The selected edge identifier, or <c>null</c> to clear the selection.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeEdgeSelected(string? edgeId)
+    {
+        SelectedEdgeId = edgeId;
+        SelectedNodeId = null;
+        _announcement = edgeId is null ? "Selection cleared" : $"Connection {edgeId} selected";
+
+        await SelectedEdgeIdChanged.InvokeAsync(edgeId);
+        await SelectedNodeIdChanged.InvokeAsync(null);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Opens the inline label editor for an edge when editing is available.
+    /// </summary>
+    /// <param name="edgeId">The identifier of the edge to edit.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeEdgeLabelEditRequested(string edgeId)
+    {
+        if (!Options.InlineEdgeLabelEditingEnabled)
+            return;
+
+        NodeEditorEdgeModel? edge = Edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        if (edge is null || edge.Disabled || !edge.Selectable || !edge.LabelEditable)
+            return;
+
+        _editingEdgeId = edgeId;
+        _editingEdgeLabel = edge.Label ?? "";
+        SelectedEdgeId = edgeId;
+        SelectedNodeId = null;
+        _announcement = $"Editing connection {edgeId} label";
+
+        await SelectedEdgeIdChanged.InvokeAsync(edgeId);
+        await SelectedNodeIdChanged.InvokeAsync(null);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Applies a completed node move received from the browser interaction layer.
+    /// </summary>
+    /// <param name="args">The node position change details.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeNodeMoved(NodeEditorNodePositionChangedEventArgs args)
+    {
+        NodeEditorNodeModel? node = Nodes.FirstOrDefault(candidate => candidate.Id == args.NodeId);
+
+        if (node is not null)
+        {
+            node.X = args.X;
+            node.Y = args.Y;
+        }
+
+        _announcement = $"Node {args.NodeId} moved";
+        await OnNodePositionChanged.InvokeAsync(args);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a request to create a new connection.
+    /// </summary>
+    /// <param name="request">The requested connection endpoints.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeConnectionRequested(NodeEditorConnectionRequest request)
+    {
+        _announcement = $"Connection requested from {request.SourceNodeId} to {request.TargetNodeId}";
+        await OnConnectionRequested.InvokeAsync(request);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a request to change the endpoints of an existing connection.
+    /// </summary>
+    /// <param name="request">The requested edge endpoint change.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeConnectionChangeRequested(NodeEditorConnectionChangeRequest request)
+    {
+        _announcement = $"Connection {request.EdgeId} endpoint change requested";
+        await OnConnectionChangeRequested.InvokeAsync(request);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Validates a proposed connection or edge endpoint change.
+    /// </summary>
+    /// <param name="request">The proposed connection endpoints.</param>
+    /// <returns>The validation result.</returns>
+    [JSInvokable]
+    public async Task<NodeEditorConnectionValidationResult> InvokeConnectionValidationRequested(NodeEditorConnectionValidationRequest request)
+    {
+        NodeEditorConnectionValidationResult result = ConnectionValidator is null
+            ? NodeEditorConnectionValidationResult.Accept()
+            : await ConnectionValidator(request);
+
+        if (result is null)
+            throw new InvalidOperationException($"{nameof(ConnectionValidator)} must return a non-null validation result.");
+
+        if (!result.Allowed)
+        {
+            _announcement = string.IsNullOrWhiteSpace(result.Message)
+                ? "That connection is not allowed"
+                : result.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Raises a request to populate an empty branch.
+    /// </summary>
+    /// <param name="request">The activated add-handle details.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeAddRequested(NodeEditorAddRequest request)
+    {
+        _announcement = $"Add step requested for branch {request.HandleId}";
+        await OnAddRequested.InvokeAsync(request);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a request for palette data dropped onto the graph.
+    /// </summary>
+    /// <param name="request">The palette drop details.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeNodeDropRequested(NodeEditorDropRequest request)
+    {
+        _announcement = $"{request.Type} dropped onto the editor";
+        await OnNodeDropRequested.InvokeAsync(request);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Announces an interaction rejected by the browser interaction layer.
+    /// </summary>
+    /// <param name="message">The accessible rejection message.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeInteractionRejected(string message)
+    {
+        _announcement = message;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Raises a deletion request for a node or edge.
+    /// </summary>
+    /// <param name="request">The graph item requested for deletion.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeDeleteRequested(NodeEditorDeleteRequest request)
+    {
+        _announcement = request.NodeId is not null
+            ? $"Deletion requested for node {request.NodeId}"
+            : $"Deletion requested for connection {request.EdgeId}";
+        await OnDeleteRequested.InvokeAsync(request);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a controlled undo request when undo is available.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeUndoRequested()
+    {
+        if (!CanUndo)
+            return;
+
+        _announcement = "Undo requested";
+        await OnUndoRequested.InvokeAsync();
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a controlled redo request when redo is available.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeRedoRequested()
+    {
+        if (!CanRedo)
+            return;
+
+        _announcement = "Redo requested";
+        await OnRedoRequested.InvokeAsync();
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises a request to duplicate a node.
+    /// </summary>
+    /// <param name="nodeId">The identifier of the node to duplicate.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeDuplicateRequested(string nodeId)
+    {
+        NodeEditorNodeModel? node = Nodes.FirstOrDefault(candidate => candidate.Id == nodeId);
+        if (node is null)
+            return;
+
+        _announcement = $"Duplication requested for node {nodeId}";
+        await OnDuplicateRequested.InvokeAsync(new NodeEditorDuplicateRequest
+        {
+            NodeId = nodeId,
+            SuggestedX = node.X + Options.GridSize * 2,
+            SuggestedY = node.Y + Options.GridSize * 2
+        });
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Raises the viewport changed callback.
+    /// </summary>
+    /// <param name="args">The current viewport state.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public Task InvokeViewportChanged(NodeEditorViewportChangedEventArgs args) =>
+        OnViewportChanged.InvokeAsync(args);
+
+    public Task NotifyChanged()
+    {
+        unchecked
+        {
+            _changeVersion++;
+        }
+
+        return _autoSave.NotifyValueChanged(
+            _changeVersion,
+            AutoSave,
+            AutoSaveDelay,
+            AutoSaveCallback,
+            AutoSaveStateChanged,
+            RefreshOffThread);
+    }
+
+    public Task SaveNow() =>
+        _autoSave.SaveNow(
+            _changeVersion,
+            AutoSave,
+            AutoSaveCallback,
+            AutoSaveStateChanged,
+            RefreshOffThread);
+
+    public Task FlushAutoSave() =>
+        _autoSave.Flush(
+            _changeVersion,
+            AutoSave,
+            AutoSaveCallback,
+            AutoSaveStateChanged,
+            RefreshOffThread);
+
+    public Task Undo() => InvokeUndoRequested();
+
+    public Task Redo() => InvokeRedoRequested();
+
+    public Task DuplicateSelectedNode() =>
+        SelectedNodeId is null ? Task.CompletedTask : InvokeDuplicateRequested(SelectedNodeId);
+
+    public ValueTask ZoomIn() => EditorInterop.ZoomBy(Id!, 0.15);
+
+    public ValueTask ZoomOut() => EditorInterop.ZoomBy(Id!, -0.15);
+
+    public ValueTask FitView() => EditorInterop.FitView(Id!);
+
+    public ValueTask ResetView() => EditorInterop.ResetView(Id!);
+
+    public ValueTask<NodeEditorGraphPoint> ClientToGraph(double clientX, double clientY) =>
+        EditorInterop.ClientToGraph(Id!, clientX, clientY);
+
+    private Func<int, CancellationToken, ValueTask>? AutoSaveCallback =>
+        OnAutoSave is null ? null : InvokeAutoSave;
+
+    private ValueTask InvokeAutoSave(int _, CancellationToken cancellationToken) =>
+        OnAutoSave!(cancellationToken);
+
+    private void UpdateEditingEdgeLabel(ChangeEventArgs args)
+    {
+        _editingEdgeLabel = args.Value?.ToString() ?? "";
+    }
+
+    private async Task HandleEdgeLabelEditorKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            await CommitEdgeLabelEdit();
+        else if (args.Key == "Escape")
+            await CancelEdgeLabelEdit();
+    }
+
+    private Task HandleEdgeLabelEditorBlur(FocusEventArgs _) =>
+        CommitEdgeLabelEdit();
+
+    private async Task CommitEdgeLabelEdit()
+    {
+        string? edgeId = _editingEdgeId;
+        if (edgeId is null)
+            return;
+
+        NodeEditorEdgeModel? edge = Edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        if (edge is null)
+        {
+            await CancelEdgeLabelEdit();
+            return;
+        }
+
+        string? previousLabel = edge.Label;
+        string? label = string.IsNullOrWhiteSpace(_editingEdgeLabel) ? null : _editingEdgeLabel.Trim();
+        _editingEdgeId = null;
+        _editingEdgeLabel = "";
+
+        if (previousLabel == label)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        edge.Label = label;
+        _announcement = label is null
+            ? $"Connection {edgeId} label cleared"
+            : $"Connection {edgeId} label changed to {label}";
+
+        await OnEdgeLabelChanged.InvokeAsync(new NodeEditorEdgeLabelChangedEventArgs
+        {
+            EdgeId = edgeId,
+            PreviousLabel = previousLabel,
+            Label = label
+        });
+        await NotifyChanged();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CancelEdgeLabelEdit()
+    {
+        if (_editingEdgeId is null)
+            return;
+
+        _editingEdgeId = null;
+        _editingEdgeLabel = "";
+        _announcement = "Connection label edit canceled";
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc/>
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_initialized)
+                await EditorInterop.Destroy(Id!, CancellationToken.None);
+        }
+        catch (Exception exception) when (exception is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+
+        _dotNetReference?.Dispose();
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(NodeTemplate);
+        hashCode.Add(OverlayContent);
+        hashCode.Add(ConnectionValidator);
+        hashCode.Add(SelectedNodeId);
+        hashCode.Add(SelectedEdgeId);
+        hashCode.Add(ShowControls);
+        hashCode.Add(AutoSave);
+        hashCode.Add(AutoSaveDelay);
+        hashCode.Add(OnAutoSave is not null);
+        hashCode.Add(AutoSaveStateChanged);
+        hashCode.Add(AutoSaveState);
+        hashCode.Add(HasAutoSaved);
+        hashCode.Add(_announcement);
+        hashCode.Add(Options.DraggableNodes);
+        hashCode.Add(Options.PanEnabled);
+        hashCode.Add(Options.ZoomEnabled);
+        hashCode.Add(Options.ConnectionsEnabled);
+        hashCode.Add(Options.DeleteKeyEnabled);
+        hashCode.Add(Options.CommandShortcutsEnabled);
+        hashCode.Add(Options.InlineEdgeLabelEditingEnabled);
+        hashCode.Add(Options.MinZoom);
+        hashCode.Add(Options.MaxZoom);
+        hashCode.Add(Options.InitialZoom);
+        hashCode.Add(Options.InitialX);
+        hashCode.Add(Options.InitialY);
+        hashCode.Add(Options.GridSize);
+        hashCode.Add(Options.SnapToGrid);
+        hashCode.Add(Options.FitViewOnInitialize);
+        hashCode.Add(CanUndo);
+        hashCode.Add(CanRedo);
+        hashCode.Add(OnUndoRequested);
+        hashCode.Add(OnRedoRequested);
+        hashCode.Add(OnDuplicateRequested);
+        hashCode.Add(OnEdgeLabelChanged);
+        hashCode.Add(OnViewportChanged);
+        hashCode.Add(_editingEdgeId);
+        hashCode.Add(_editingEdgeLabel);
+
+        foreach (NodeEditorNodeModel node in Nodes)
+        {
+            hashCode.Add(node.Id);
+            hashCode.Add(node.X);
+            hashCode.Add(node.Y);
+            hashCode.Add(node.Disabled);
+            hashCode.Add(node.Selectable);
+            hashCode.Add(node.Tag);
+            hashCode.Add(node.RenderKey);
+        }
+
+        foreach (NodeEditorEdgeModel edge in Edges)
+        {
+            hashCode.Add(edge.Id);
+            hashCode.Add(edge.SourceNodeId);
+            hashCode.Add(edge.SourcePortId);
+            hashCode.Add(edge.TargetNodeId);
+            hashCode.Add(edge.TargetPortId);
+            hashCode.Add(edge.Label);
+            hashCode.Add(edge.LabelEditable);
+            hashCode.Add(edge.AccessibleLabel);
+            hashCode.Add(edge.Disabled);
+            hashCode.Add(edge.Selectable);
+        }
+
+        foreach (NodeEditorAddHandleModel handle in AddHandles)
+        {
+            hashCode.Add(handle.Id);
+            hashCode.Add(handle.SourceNodeId);
+            hashCode.Add(handle.SourcePortId);
+            hashCode.Add(handle.X);
+            hashCode.Add(handle.Y);
+            hashCode.Add(handle.Label);
+            hashCode.Add(handle.AccessibleLabel);
+            hashCode.Add(handle.Disabled);
+        }
+    }
+
+    private static string EdgeAccessibleLabel(NodeEditorEdgeModel edge) =>
+        edge.AccessibleLabel ?? edge.Label ?? $"Connection from {edge.SourceNodeId} to {edge.TargetNodeId}";
+
+    private static string EdgeKeyboardShortcuts(NodeEditorEdgeModel edge) =>
+        edge.LabelEditable ? "Enter Space F2 Delete Backspace" : "Enter Space Delete Backspace";
+
+    private void ValidateParameters()
+    {
+        if (Nodes is null)
+            throw new InvalidOperationException($"{nameof(NodeEditor)} requires a non-null {nameof(Nodes)} collection.");
+
+        if (Edges is null)
+            throw new InvalidOperationException($"{nameof(NodeEditor)} requires a non-null {nameof(Edges)} collection.");
+
+        if (AddHandles is null)
+            throw new InvalidOperationException($"{nameof(NodeEditor)} requires a non-null {nameof(AddHandles)} collection.");
+
+        if (Options is null)
+            throw new InvalidOperationException($"{nameof(NodeEditor)} requires non-null {nameof(Options)}.");
+
+        if (AutoSaveDelay < 0)
+            throw new InvalidOperationException($"{nameof(NodeEditor.AutoSaveDelay)} must be greater than or equal to zero.");
+
+        if (!double.IsFinite(Options.MinZoom) || Options.MinZoom <= 0)
+            throw new InvalidOperationException($"{nameof(NodeEditorOptions.MinZoom)} must be a finite value greater than zero.");
+
+        if (!double.IsFinite(Options.MaxZoom) || Options.MaxZoom < Options.MinZoom)
+            throw new InvalidOperationException($"{nameof(NodeEditorOptions.MaxZoom)} must be finite and greater than or equal to {nameof(NodeEditorOptions.MinZoom)}.");
+
+        if (!double.IsFinite(Options.InitialZoom) || !double.IsFinite(Options.InitialX) || !double.IsFinite(Options.InitialY))
+            throw new InvalidOperationException("Initial node editor viewport values must be finite.");
+
+        if (!double.IsFinite(Options.GridSize) || Options.GridSize <= 0)
+            throw new InvalidOperationException($"{nameof(NodeEditorOptions.GridSize)} must be a finite value greater than zero.");
+
+        var nodeIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (NodeEditorNodeModel node in Nodes)
+        {
+            if (node is null)
+                throw new InvalidOperationException($"{nameof(NodeEditor.Nodes)} cannot contain null entries.");
+
+            if (string.IsNullOrWhiteSpace(node.Id))
+                throw new InvalidOperationException("Every node must have a non-empty identifier.");
+
+            if (!nodeIds.Add(node.Id))
+                throw new InvalidOperationException($"Node identifiers must be unique. Duplicate identifier: '{node.Id}'.");
+
+            if (!double.IsFinite(node.X) || !double.IsFinite(node.Y))
+                throw new InvalidOperationException($"Node '{node.Id}' must have finite X and Y positions.");
+        }
+
+        var edgeIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (NodeEditorEdgeModel edge in Edges)
+        {
+            if (edge is null)
+                throw new InvalidOperationException($"{nameof(NodeEditor.Edges)} cannot contain null entries.");
+
+            if (string.IsNullOrWhiteSpace(edge.Id))
+                throw new InvalidOperationException("Every edge must have a non-empty identifier.");
+
+            if (!edgeIds.Add(edge.Id))
+                throw new InvalidOperationException($"Edge identifiers must be unique. Duplicate identifier: '{edge.Id}'.");
+
+            if (string.IsNullOrWhiteSpace(edge.SourceNodeId) || string.IsNullOrWhiteSpace(edge.SourcePortId) ||
+                string.IsNullOrWhiteSpace(edge.TargetNodeId) || string.IsNullOrWhiteSpace(edge.TargetPortId))
+                throw new InvalidOperationException($"Edge '{edge.Id}' must specify non-empty source and target node and port identifiers.");
+
+            if (!nodeIds.Contains(edge.SourceNodeId))
+                throw new InvalidOperationException($"Edge '{edge.Id}' references missing source node '{edge.SourceNodeId}'.");
+
+            if (!nodeIds.Contains(edge.TargetNodeId))
+                throw new InvalidOperationException($"Edge '{edge.Id}' references missing target node '{edge.TargetNodeId}'.");
+        }
+
+        var handleIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (NodeEditorAddHandleModel handle in AddHandles)
+        {
+            if (handle is null)
+                throw new InvalidOperationException($"{nameof(NodeEditor.AddHandles)} cannot contain null entries.");
+
+            if (string.IsNullOrWhiteSpace(handle.Id))
+                throw new InvalidOperationException("Every add handle must have a non-empty identifier.");
+
+            if (!handleIds.Add(handle.Id))
+                throw new InvalidOperationException($"Add handle identifiers must be unique. Duplicate identifier: '{handle.Id}'.");
+
+            if (string.IsNullOrWhiteSpace(handle.SourceNodeId) || string.IsNullOrWhiteSpace(handle.SourcePortId))
+                throw new InvalidOperationException($"Add handle '{handle.Id}' must specify a non-empty source node and port identifier.");
+
+            if (!nodeIds.Contains(handle.SourceNodeId))
+                throw new InvalidOperationException($"Add handle '{handle.Id}' references missing source node '{handle.SourceNodeId}'.");
+
+            if (!double.IsFinite(handle.X) || !double.IsFinite(handle.Y))
+                throw new InvalidOperationException($"Add handle '{handle.Id}' must have finite X and Y positions.");
+        }
+    }
+
+    private static string HandleStyle(NodeEditorAddHandleModel handle) =>
+        System.FormattableString.Invariant($"transform: translate3d({handle.X:0.###}px, {handle.Y:0.###}px, 0) translate(-50%, -50%)");
+}

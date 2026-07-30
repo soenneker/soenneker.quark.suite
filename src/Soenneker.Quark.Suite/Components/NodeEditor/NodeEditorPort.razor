@@ -1,0 +1,135 @@
+@using System.Globalization
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditorPort
+
+<button type="button" @attributes="BuildAttributes()">
+    @ChildContent
+    <Span ScreenReader="Quark.ScreenReader.Only">@AccessibleLabel</Span>
+</button>
+
+@code {
+    [CascadingParameter]
+    public NodeEditorNodeContext? NodeContext { get; set; }
+
+    [Parameter, EditorRequired]
+    public string PortId { get; set; } = "";
+
+    [Parameter]
+    public NodeEditorPortType Type { get; set; } = NodeEditorPortType.Source;
+
+    [Parameter]
+    public NodeEditorPortPlacement? Placement { get; set; }
+
+    [Parameter]
+    public double Offset { get; set; } = 0.5;
+
+    [Parameter]
+    public int? MaxConnections { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private NodeEditorPortPlacement EffectivePlacement =>
+        Placement ?? (Type == NodeEditorPortType.Target ? NodeEditorPortPlacement.Top : NodeEditorPortPlacement.Bottom);
+
+    private string AccessibleLabel => Label ?? $"{Type.Value} connection";
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(PortId))
+            throw new InvalidOperationException($"{nameof(NodeEditorPort)} requires a non-empty {nameof(PortId)}.");
+
+        if (Type is null)
+            throw new InvalidOperationException($"{nameof(NodeEditorPort)} requires a non-null {nameof(Type)}.");
+
+        if (!double.IsFinite(Offset) || Offset is < 0 or > 1)
+            throw new InvalidOperationException($"{nameof(NodeEditorPort.Offset)} must be a finite value between zero and one.");
+
+        if (MaxConnections <= 0)
+            throw new InvalidOperationException($"{nameof(NodeEditorPort.MaxConnections)} must be greater than zero when specified.");
+
+        base.OnParametersSet();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor-port";
+        Position ??= Quark.Position.Absolute;
+        Display ??= Quark.Display.Grid;
+        Size ??= Quark.Size.Is3;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Rounded ??= Quark.Rounded.Full;
+        Border ??= Quark.Border.Is2;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Shadow ??= Quark.Shadow.Xs;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        if (NodeContext is null)
+            throw new InvalidOperationException($"{nameof(NodeEditorPort)} must be used inside a node template.");
+
+        attributes["data-node-id"] = NodeContext.NodeId;
+        attributes["data-port-id"] = PortId;
+        attributes["data-port-type"] = Type.Value;
+        attributes["data-placement"] = EffectivePlacement.Value;
+        attributes["data-position"] = Offset.ToString("0.###", CultureInfo.InvariantCulture);
+        attributes["data-max-connections"] = MaxConnections?.ToString(CultureInfo.InvariantCulture) ?? "";
+        attributes["data-at-capacity"] = "false";
+        attributes["data-disabled"] = Disabled ? "true" : "false";
+        attributes["aria-label"] = AccessibleLabel;
+        attributes["title"] = AccessibleLabel;
+        attributes["disabled"] = Disabled;
+        attributes["aria-disabled"] = Disabled ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-node-editor-port z-20 touch-none border-muted-foreground/70 transition-[transform,background-color,border-color,box-shadow] duration-150");
+            AppendClass(ref cls, "hover:scale-125 hover:border-primary hover:bg-primary focus-visible:scale-125 focus-visible:border-primary focus-visible:bg-primary focus-visible:ring-2 focus-visible:ring-ring");
+            AppendClass(ref cls, "aria-pressed:scale-125 aria-pressed:border-primary aria-pressed:bg-primary");
+            AppendClass(ref cls, "data-[connection-target=true]:scale-125 data-[connection-target=true]:border-primary data-[connection-target=true]:bg-primary/15 data-[connection-target=true]:ring-4 data-[connection-target=true]:ring-primary/10");
+            AppendClass(ref cls, "data-[at-capacity=true]:border-muted-foreground/35 data-[at-capacity=true]:bg-muted data-[at-capacity=true]:opacity-60");
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40");
+
+            AppendClass(ref cls, EffectivePlacement.Value switch
+            {
+                "top" => "top-0 -translate-x-1/2 -translate-y-1/2",
+                "right" => "right-0 translate-x-1/2 -translate-y-1/2",
+                "bottom" => "bottom-0 -translate-x-1/2 translate-y-1/2",
+                _ => "left-0 -translate-x-1/2 -translate-y-1/2"
+            });
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            string position = (Offset * 100).ToString("0.###", CultureInfo.InvariantCulture);
+            AppendStyleDecl(ref sty, EffectivePlacement.Value is "top" or "bottom"
+                ? $"left: {position}%"
+                : $"top: {position}%");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(NodeContext?.NodeId);
+        hashCode.Add(PortId);
+        hashCode.Add(Type.Value);
+        hashCode.Add(Placement?.Value);
+        hashCode.Add(Offset);
+        hashCode.Add(MaxConnections);
+        hashCode.Add(Label);
+        hashCode.Add(Disabled);
+    }
+}

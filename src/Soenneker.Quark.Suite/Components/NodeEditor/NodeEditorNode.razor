@@ -1,0 +1,73 @@
+@using System.Globalization
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INodeEditorNode
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public NodeEditorNodeModel Node { get; set; } = null!;
+
+    [Parameter]
+    public bool Selected { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "node-editor-node";
+        Position ??= Quark.Position.Absolute;
+        Left ??= Quark.Left.Is0;
+        Top ??= Quark.Top.Is0;
+        UserSelect ??= Quark.UserSelect.None;
+        Rounded ??= Quark.Rounded.Xl;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Cursor ??= Quark.Cursor.Grab;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-node-id"] = Node.Id;
+        attributes["data-node-x"] = Node.X.ToString("0.###", CultureInfo.InvariantCulture);
+        attributes["data-node-y"] = Node.Y.ToString("0.###", CultureInfo.InvariantCulture);
+        attributes["data-disabled"] = Node.Disabled ? "true" : "false";
+        attributes["data-selectable"] = Node.Selectable ? "true" : "false";
+        attributes["data-selected"] = Selected ? "true" : "false";
+        attributes["aria-selected"] = Selected ? "true" : "false";
+        attributes["aria-keyshortcuts"] = "Enter Space ArrowUp ArrowRight ArrowDown ArrowLeft Delete Backspace";
+        attributes["tabindex"] = Node.Selectable && !Node.Disabled ? "0" : "-1";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-node-editor-node touch-none transition-[box-shadow,border-color,opacity] duration-150 data-[dragging=true]:cursor-grabbing");
+            AppendClass(ref cls, "data-[selected=true]:ring-2 data-[selected=true]:ring-primary data-[selected=true]:ring-offset-2 data-[selected=true]:ring-offset-background");
+            AppendClass(ref cls, "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background");
+            AppendClass(ref cls, "data-[selected=true]:z-10 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            string x = Node.X.ToString("0.###", CultureInfo.InvariantCulture);
+            string y = Node.Y.ToString("0.###", CultureInfo.InvariantCulture);
+            AppendStyleDecl(ref sty, $"transform: translate3d({x}px, {y}px, 0)");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(Node.Id);
+        hashCode.Add(Node.X);
+        hashCode.Add(Node.Y);
+        hashCode.Add(Node.Disabled);
+        hashCode.Add(Node.Selectable);
+        hashCode.Add(Node.Tag);
+        hashCode.Add(Node.RenderKey);
+        hashCode.Add(Selected);
+    }
+}

@@ -85,6 +85,7 @@ public static class DocsNavigation
         new("Model Selector", ComponentRoute("model-selectors"), IsNew: true),
         new("Native Select", ComponentRoute("native-select")),
         new("Navigation Menu", ComponentRoute("navigation-menu")),
+        new("Node Editor", ComponentRoute("node-editor"), IsNew: true),
         new("On This Page", ComponentRoute("docs-on-this-page"), IsNew: true),
         new("Pagination", ComponentRoute("pagination")),
         new("Password Input", ComponentRoute("password-input"), IsNew: true),

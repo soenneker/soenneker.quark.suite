@@ -1,0 +1,1056 @@
+@page "/components/node-editor"
+@using System.Threading
+
+<PageTitle>Node Editor - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" Width="Width.IsFull">
+    <DemoSection Title="Node Editor"
+                 Description="A composable HTML and SVG editor for connected node experiences. Drag nodes, pan the surface, zoom, select connections, or draw a new connection from any output port."
+                 Code="@NodeEditorCode"
+                 CodeLanguage="razor"
+                 PreviewClass="preview w-full overflow-hidden p-0">
+        <Grid Columns='GridCols.Is1.OnMd.Token("[15rem_minmax(0,1fr)]").OnXl.Token("[15rem_minmax(0,1fr)_18rem]")'
+              Width="Width.IsFull"
+              BackgroundColor="BackgroundColor.Background">
+            <Div Display="Display.Flex.OnMd.Block"
+                 Gap="Gap.Is2"
+                 OverflowX="Overflow.Auto"
+                 Border="Border.FromBottom.Default.OnMd.FromBottom.Is0.OnMd.FromRight.Default"
+                 BackgroundColor="BackgroundColor.Background"
+                 Padding="Padding.Is3.OnMd.Is4"
+                 Class="z-40 md:space-y-2 md:overflow-visible">
+                <Div Display="Display.None.OnMd.Block" Padding="Padding.FromBottom.Is2">
+                    <Strong Display="Display.Block" TextSize="TextSize.Base">Steps</Strong>
+                    <Small Margin="Margin.FromTop.Is1"
+                           Display="Display.Block"
+                           TextSize="TextSize.Sm"
+                           Leading="Leading.Is5"
+                           TextColor="TextColor.MutedForeground">Click to add or drag onto the flow.</Small>
+                </Div>
+
+                @foreach (PaletteItem item in _palette)
+                {
+                    <NodeEditorPaletteItem Type="@item.Type"
+                                           Data="@item.Tone"
+                                           OnActivated="@(() => AddPaletteNode(item))"
+                                           Width="Width.IsFull"
+                                           Rounded="Rounded.Lg"
+                                           Border="Border.Default"
+                                           BackgroundColor='BackgroundColor.Background.OnHover.Token("muted/50")'
+                                           Padding="Padding.Is3"
+                                           TextAlign="TextAlign.Start"
+                                           Shadow="Shadow.Xs"
+                                           Transition="Transition.Colors"
+                                           Ring="Ring.OnFocusVisible.Is2"
+                                           RingColor="RingColor.OnFocusVisible.Ring"
+                                           MinWidth='MinWidth.Token("40")'
+                                           Class="md:min-w-0">
+                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap='Gap.Token("2.5")'>
+                            <Div Display="Display.Grid"
+                                 Size="Size.Is9"
+                                 Shrink="Shrink.Is0"
+                                 ItemsAlign="Items.Center"
+                                 Justify="Justify.Center"
+                                 Rounded="Rounded.Lg"
+                                 Class="@IconToneClass(item.Tone)">
+                                <Icon Name="@item.Icon" Size="Size.Is4" />
+                            </Div>
+                            <Div MinWidth="MinWidth.Is0">
+                                <Strong Display="Display.Block" Truncate="Truncate.Default" TextSize="TextSize.Sm">@item.Title</Strong>
+                                <Small Margin='Margin.FromTop.Token("0.5")'
+                                       Display="Display.Block"
+                                       Truncate="Truncate.Default"
+                                       TextSize="TextSize.Xs"
+                                       TextColor="TextColor.MutedForeground">@item.Description</Small>
+                            </Div>
+                        </Div>
+                    </NodeEditorPaletteItem>
+                }
+            </Div>
+
+            <NodeEditor @ref="_editor"
+                        Height='Height.Token("[46rem]")'
+                        Rounded="Rounded.None"
+                        Border="Border.Is0"
+                        Nodes="_nodes"
+                        Edges="_edges"
+                        AddHandles="_addHandles"
+                        Options="_options"
+                        @bind-SelectedNodeId="_selectedNodeId"
+                        @bind-SelectedEdgeId="_selectedEdgeId"
+                        CanUndo="@(_undo.Count > 0)"
+                        CanRedo="@(_redo.Count > 0)"
+                        AutoSave
+                        AutoSaveDelay="600"
+                        OnAutoSave="SaveWorkflow"
+                        AutoSaveStateChanged="TrackAutoSaveState"
+                        OnUndoRequested="Undo"
+                        OnRedoRequested="Redo"
+                        OnDuplicateRequested="DuplicateNode"
+                        OnEdgeLabelChanged="HandleEdgeLabelChanged"
+                        OnViewportChanged="TrackViewport"
+                        OnConnectionRequested="AddConnection"
+                        OnConnectionChangeRequested="ChangeConnection"
+                        ConnectionValidator="ValidateConnection"
+                        OnAddRequested="AddStep"
+                        OnNodeDropRequested="AddDroppedNode"
+                        OnNodePositionChanged="HandleNodeMoved"
+                        OnDeleteRequested="DeleteSelection">
+            <NodeTemplate Context="node">
+                @{
+                    DemoNode content = (DemoNode)node.Tag!;
+                }
+
+                <Div Width='Width.Token("72")'
+                     Position="Position.Relative"
+                     Overflow="Overflow.Hidden"
+                     Rounded="Rounded.Xl"
+                     Border="Border.Default"
+                     BorderColor='BorderColor.Token("border/80")'
+                     BackgroundColor="BackgroundColor.Background"
+                     Shadow="Shadow.Sm">
+                    <Button Type="ButtonType.Button"
+                            Variant="ButtonVariant.Ghost"
+                            ButtonSize="ButtonSize.IconSm"
+                            Position="Position.Absolute"
+                            Top="Top.Is2"
+                            Right="Right.Is2"
+                            ZIndex="ZIndex.Is10"
+                            Rounded="Rounded.Full"
+                            BackgroundColor='BackgroundColor.Token("background/80")'
+                            TextColor="TextColor.MutedForeground"
+                            OnClick="@(() => DeleteNode(node.Id))"
+                            AriaLabel="@($"Delete {content.Title}")"
+                            Title="@($"Delete {content.Title}")"
+                            Class="hover:bg-destructive/10 hover:text-destructive">
+                        <Icon Name="LucideIcon.X" Size="Size.Is3_5" />
+                    </Button>
+
+                    <Div Display="Display.Flex"
+                         ItemsAlign="Items.Start"
+                         Gap="Gap.Is3"
+                         Padding="Padding.Is4.Is12.FromRight">
+                        <Div Display="Display.Grid"
+                             Size="Size.Is9"
+                             Shrink="Shrink.Is0"
+                             ItemsAlign="Items.Center"
+                             Justify="Justify.Center"
+                             Rounded="Rounded.Lg"
+                             Class="@IconToneClass(content.Tone)">
+                            <Icon Name="@content.Icon" Size="Size.Is4" />
+                        </Div>
+                        <Div MinWidth="MinWidth.Is0" Flex="Flex.Is1">
+                            <Div Margin="Margin.FromBottom.Is1"
+                                 Display="Display.Flex"
+                                 ItemsAlign="Items.Center"
+                                 Justify="Justify.Between"
+                                 Gap="Gap.Is3">
+                                <Small Truncate="Truncate.Default"
+                                       TextSize="TextSize.Xs"
+                                       FontWeight="FontWeight.Semibold"
+                                       TextTransform="TextTransform.Uppercase"
+                                       Tracking='Tracking.Token("[0.16em]")'
+                                       TextColor="TextColor.MutedForeground">
+                                    @content.Kicker
+                                </Small>
+                                @if (content.Status is not null)
+                                {
+                                    <Span Size="Size.Is2"
+                                          Shrink="Shrink.Is0"
+                                          Rounded="Rounded.Full"
+                                          BackgroundColor='BackgroundColor.Utility("bg-emerald-500")'
+                                          Title="@content.Status"></Span>
+                                }
+                            </Div>
+                            <Strong Display="Display.Block" Truncate="Truncate.Default" TextSize="TextSize.Base">@content.Title</Strong>
+                            <Paragraph Margin="Margin.Is0.FromTop.Is1"
+                                       TextSize="TextSize.Sm"
+                                       Leading="Leading.Is5"
+                                       TextColor="TextColor.MutedForeground">@content.Description</Paragraph>
+                        </Div>
+                    </Div>
+
+                    @if (content.Meta is not null)
+                    {
+                        <Div Border="Border.FromTop.Default"
+                             BorderColor='BorderColor.Token("border/70")'
+                             BackgroundColor='BackgroundColor.Token("muted/25")'
+                             Padding="Padding.OnX.Is4.OnY.Is2"
+                             TextSize="TextSize.Xs"
+                             FontWeight="FontWeight.Medium"
+                             TextColor="TextColor.MutedForeground">
+                            @content.Meta
+                        </Div>
+                    }
+                </Div>
+
+                @if (content.HasInput)
+                {
+                    <NodeEditorPort PortId="input"
+                                    Type="NodeEditorPortType.Target"
+                                    Placement="@content.InputPlacement"
+                                    Label="@($"Connect to {content.Title}")" />
+                }
+
+                @if (content.HasPrimaryOutput)
+                {
+                    <NodeEditorPort PortId="next"
+                                    Type="NodeEditorPortType.Source"
+                                    Placement="NodeEditorPortPlacement.Bottom"
+                                    Label="@($"Continue from {content.Title}")" />
+                }
+
+                @if (content.HasSecondaryOutput)
+                {
+                    <NodeEditorPort PortId="alternate"
+                                    Type="NodeEditorPortType.Source"
+                                    Placement="NodeEditorPortPlacement.Right"
+                                    Offset="0.7"
+                                    Label="@($"Alternate path from {content.Title}")" />
+                }
+            </NodeTemplate>
+
+            <OverlayContent>
+                <Div PointerEvents="PointerEvents.None"
+                     Position="Position.Absolute"
+                     Left="Left.Is4"
+                     Top="Top.Is4"
+                     Display="Display.None.OnSm.Flex"
+                     ItemsAlign="Items.Center"
+                     Gap="Gap.Is2"
+                     Rounded="Rounded.Lg"
+                     Border="Border.Default"
+                     BorderColor='BorderColor.Token("border/80")'
+                     BackgroundColor='BackgroundColor.Token("background/90")'
+                     Padding="Padding.OnX.Is3.OnY.Is2"
+                     Shadow="Shadow.Sm"
+                     BackdropFilter="BackdropFilter.Blur"
+                     Class="z-30">
+                    <Icon Name="LucideIcon.MousePointer2" Size="Size.Is3" TextColor="TextColor.MutedForeground" />
+                    <Small TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Drag to move · Drop a step on a connector to insert · Scroll to zoom</Small>
+                </Div>
+
+                <Div PointerEvents="PointerEvents.None"
+                     Position="Position.Absolute"
+                     Right="Right.Is4"
+                     Top="Top.Is4"
+                     Display="Display.Flex"
+                     ItemsAlign="Items.Center"
+                     Gap="Gap.Is2"
+                     Rounded="Rounded.Lg"
+                     Border="Border.Default"
+                     BorderColor='BorderColor.Token("border/80")'
+                     BackgroundColor='BackgroundColor.Token("background/90")'
+                     Padding="Padding.OnX.Is3.OnY.Is2"
+                     Shadow="Shadow.Sm"
+                     BackdropFilter="BackdropFilter.Blur"
+                     Class="z-30">
+                    <AutoSaveStatus State="_autoSaveState" HasSaved="_hasAutoSaved" />
+                    <Small TextSize="TextSize.Sm"
+                           FontWeight="FontWeight.Medium"
+                           TextColor="TextColor.MutedForeground">@SelectionText</Small>
+                </Div>
+            </OverlayContent>
+            </NodeEditor>
+
+            <Div Border="Border.FromTop.Default.OnXl.FromTop.Is0.OnXl.FromLeft.Default"
+                 BorderColor="BorderColor.Border"
+                 BackgroundColor="BackgroundColor.Background"
+                 OverflowY="Overflow.Auto"
+                 Padding="Padding.Is4"
+                 Class="md:col-span-2 xl:col-span-1 xl:max-h-[46rem]">
+                <Div Display="Display.Flex"
+                     ItemsAlign="Items.Center"
+                     Justify="Justify.Between"
+                     Gap="Gap.Is3"
+                     Padding="Padding.FromBottom.Is4">
+                    <Div>
+                        <Strong Display="Display.Block" TextSize="TextSize.Base">Inspector</Strong>
+                        <Small Display="Display.Block"
+                               Margin="Margin.FromTop.Is1"
+                               TextSize="TextSize.Sm"
+                               TextColor="TextColor.MutedForeground">Select a step or connection to modify it.</Small>
+                    </Div>
+                    @if (_selectedNodeId is not null || _selectedEdgeId is not null)
+                    {
+                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is1">
+                            @if (_selectedNodeId is not null)
+                            {
+                                <Button Variant="ButtonVariant.Ghost"
+                                        ButtonSize="ButtonSize.IconSm"
+                                        OnClick="DuplicateSelected"
+                                        AriaLabel="Duplicate selected step"
+                                        Title="Duplicate selected step">
+                                    <Icon Name="LucideIcon.CopyPlus" Size="Size.Is4" />
+                                </Button>
+                            }
+                            <Button Variant="ButtonVariant.Ghost"
+                                    ButtonSize="ButtonSize.IconSm"
+                                    OnClick="DeleteSelected"
+                                    AriaLabel="@DeleteSelectionLabel"
+                                    Title="@DeleteSelectionLabel"
+                                    TextColor="TextColor.Destructive">
+                                <Icon Name="LucideIcon.Trash2" Size="Size.Is4" />
+                            </Button>
+                        </Div>
+                    }
+                </Div>
+
+                @if (SelectedNode is { } selectedNode && selectedNode.Tag is DemoNode selectedContent)
+                {
+                    <Div Space="Space.Y.Is4">
+                        <Div Space="Space.Y.Is2">
+                            <FieldLabel For="node-editor-title">Title</FieldLabel>
+                            <TextInput Id="node-editor-title"
+                                       Value="@selectedContent.Title"
+                                       ValueChanged="UpdateSelectedTitle" />
+                        </Div>
+                        <Div Space="Space.Y.Is2">
+                            <FieldLabel For="node-editor-description">Description</FieldLabel>
+                            <TextArea Id="node-editor-description"
+                                      Rows="3"
+                                      Value="@selectedContent.Description"
+                                      ValueChanged="UpdateSelectedDescription" />
+                        </Div>
+                        <Div Space="Space.Y.Is2">
+                            <FieldLabel For="node-editor-meta">Summary</FieldLabel>
+                            <TextInput Id="node-editor-meta"
+                                       Value="@selectedContent.Meta"
+                                       ValueChanged="UpdateSelectedMeta" />
+                        </Div>
+                        @if (selectedContent.Kicker == "Decision")
+                        {
+                            <Div Space="Space.Y.Is2">
+                                <FieldLabel>Outcomes</FieldLabel>
+                                @foreach (NodeEditorEdgeModel outcome in DecisionOutcomes(selectedNode.Id))
+                                {
+                                    <TextInput @key="outcome.Id"
+                                               Id="@($"node-editor-outcome-{outcome.Id}")"
+                                               Value="@outcome.Label"
+                                               ValueChanged="@(value => UpdateDecisionOutcome(outcome.Id, value))" />
+                                }
+                                <Small Display="Display.Block"
+                                       TextSize="TextSize.Sm"
+                                       Leading="Leading.Is5"
+                                       TextColor="TextColor.MutedForeground">
+                                    Outcome names label their connections automatically.
+                                </Small>
+                            </Div>
+                        }
+                        <Button Variant="ButtonVariant.Destructive"
+                                Width="Width.IsFull"
+                                OnClick="DeleteSelected">
+                            <Icon Name="LucideIcon.Trash2" Size="Size.Is4" />
+                            Delete step
+                        </Button>
+                    </Div>
+                }
+                else if (SelectedEdge is { } selectedEdge)
+                {
+                    <Div Space="Space.Y.Is4">
+                        <Div Rounded="Rounded.Lg"
+                             Border="Border.Default"
+                             BackgroundColor='BackgroundColor.Token("muted/25")'
+                             Padding="Padding.Is3">
+                            <Small Display="Display.Block"
+                                   TextSize="TextSize.Sm"
+                                   TextColor="TextColor.MutedForeground">Connection</Small>
+                            <Strong Display="Display.Block"
+                                    Margin="Margin.FromTop.Is1"
+                                    TextSize="TextSize.Base">@NodeTitle(selectedEdge.SourceNodeId) → @NodeTitle(selectedEdge.TargetNodeId)</Strong>
+                        </Div>
+                        <Div Space="Space.Y.Is2">
+                            <FieldLabel For="node-editor-connection-label">
+                                @(selectedEdge.LabelEditable ? "Label" : "Decision outcome")
+                            </FieldLabel>
+                            @if (selectedEdge.LabelEditable)
+                            {
+                                <TextInput Id="node-editor-connection-label"
+                                           Placeholder="Optional connection label"
+                                           Value="@selectedEdge.Label"
+                                           ValueChanged="UpdateSelectedEdgeLabel" />
+                            }
+                            else
+                            {
+                                <TextInput Id="node-editor-connection-label"
+                                           Value="@selectedEdge.Label"
+                                           ReadOnly />
+                            }
+                            <Small Display="Display.Block"
+                                   TextSize="TextSize.Sm"
+                                   Leading="Leading.Is5"
+                                   TextColor="TextColor.MutedForeground">
+                                @if (selectedEdge.LabelEditable)
+                                {
+                                    <text>Displayed directly on the connector.</text>
+                                }
+                                else
+                                {
+                                    <text>Edit this outcome from the @NodeTitle(selectedEdge.SourceNodeId) decision.</text>
+                                }
+                            </Small>
+                        </Div>
+                        <Button Variant="ButtonVariant.Destructive"
+                                Width="Width.IsFull"
+                                OnClick="DeleteSelected">
+                            <Icon Name="LucideIcon.Trash2" Size="Size.Is4" />
+                            Delete connection
+                        </Button>
+                    </Div>
+                }
+                else
+                {
+                    <Div Rounded="Rounded.Lg"
+                         Border="Border.Default"
+                         BorderStyle="BorderStyle.Dashed"
+                         Padding="Padding.OnX.Is4.OnY.Is8"
+                         TextAlign="TextAlign.Center">
+                        <Icon Name="LucideIcon.MousePointer2"
+                              Size="Size.Is5"
+                              Margin="Margin.Auto.OnX"
+                              TextColor="TextColor.MutedForeground" />
+                        <Paragraph Margin="Margin.Is0.FromTop.Is3"
+                                   TextSize="TextSize.Sm"
+                                   Leading="Leading.Is5"
+                                   TextColor="TextColor.MutedForeground">
+                            Select a step to edit its content, or select a connector to edit its label.
+                        </Paragraph>
+                    </Div>
+                }
+
+                <Div Margin="Margin.FromTop.Is6"
+                     Border="Border.FromTop.Default"
+                     Padding="Padding.FromTop.Is5">
+                    <Div Display="Display.Flex"
+                         ItemsAlign="Items.Center"
+                         Justify="Justify.Between"
+                         Gap="Gap.Is3"
+                         Padding="Padding.FromBottom.Is3">
+                        <Div>
+                            <Strong Display="Display.Block" TextSize="TextSize.Base">Live output</Strong>
+                            <Small Display="Display.Block"
+                                   Margin="Margin.FromTop.Is1"
+                                   TextSize="TextSize.Sm"
+                                   TextColor="TextColor.MutedForeground">Controlled graph state · @_undo.Count undo · @_redo.Count redo</Small>
+                        </Div>
+                        <Span Rounded="Rounded.Full"
+                              BackgroundColor='BackgroundColor.Token("muted")'
+                              Padding="Padding.OnX.Is2.OnY.Is1"
+                              TextSize='TextSize.Token("[0.7rem]")'
+                              FontWeight="FontWeight.Semibold"
+                              TextColor="TextColor.MutedForeground">JSON</Span>
+                    </Div>
+                    <PreCode TextSize="TextSize.Xs"
+                             Whitespace="Whitespace.PreWrap"
+                             TextBreak="TextBreak.Words"
+                             Class="max-h-64 overflow-auto">@WorkflowOutput</PreCode>
+                </Div>
+            </Div>
+        </Grid>
+    </DemoSection>
+</Div>
+
+@code {
+    private NodeEditor? _editor;
+    private string? _selectedNodeId;
+    private string? _selectedEdgeId;
+    private int _edgeSequence = 10;
+    private int _nodeSequence = 10;
+    private double _viewportZoom = 1;
+    private AutoSaveState _autoSaveState = AutoSaveState.Idle;
+    private bool _hasAutoSaved;
+    private readonly Stack<GraphSnapshot> _undo = new();
+    private readonly Stack<GraphSnapshot> _redo = new();
+
+    private readonly NodeEditorOptions _options = new()
+    {
+        MinZoom = 0.45,
+        MaxZoom = 1.8,
+        SnapToGrid = true,
+        GridSize = 8,
+        FitViewOnInitialize = true
+    };
+
+    private readonly List<NodeEditorNodeModel> _nodes =
+    [
+        Node("ticket", 100, 24, new DemoNode("Order", "Ticket received", "A new table order enters the kitchen.", LucideIcon.ClipboardCheck, "violet", false, true, false, "Table 12 · Dine-in", "Active")),
+        Node("ingredients", 100, 220, new DemoNode("Decision", "Check ingredients", "Confirm every ingredient is ready for service.", LucideIcon.Route, "blue", true, true, true, "2 possible routes")),
+        Node("prepare", 100, 416, new DemoNode("Prep", "Prepare dish", "Cook and assemble the selected menu item.", LucideIcon.Flame, "emerald", true, true, false, "Station · Hot line")),
+        Node("substitute", 500, 244, new DemoNode("Substitution", "Choose substitute", "Replace an unavailable ingredient before cooking.", LucideIcon.RefreshCw, "amber", true, true, true, "Chef approval", InputPlacement: NodeEditorPortPlacement.Left)),
+        Node("plate", 100, 612, new DemoNode("Service", "Plate order", "Finish the plate and send it to the pass.", LucideIcon.CircleCheck, "cyan", true, true, false, "Ready for pickup")),
+        Node("alert", 500, 440, new DemoNode("Follow-up", "Alert server", "Let the floor know the substitute is still pending.", LucideIcon.BellRing, "rose", true, true, false, "One alert"))
+    ];
+
+    private readonly List<NodeEditorEdgeModel> _edges =
+    [
+        Edge("edge-1", "ticket", "next", "ingredients", "input"),
+        Edge("edge-2", "ingredients", "next", "prepare", "input", "Ready to cook", false),
+        Edge("edge-3", "ingredients", "alternate", "substitute", "input", "Item missing", false),
+        Edge("edge-4", "prepare", "next", "plate", "input"),
+        Edge("edge-5", "substitute", "next", "alert", "input", "Still unavailable")
+    ];
+
+    private readonly List<NodeEditorAddHandleModel> _addHandles =
+    [
+        new()
+        {
+            Id = "substitute-fallback",
+            SourceNodeId = "substitute",
+            SourcePortId = "alternate",
+            X = 830,
+            Y = 363,
+            AccessibleLabel = "Add another kitchen path"
+        }
+    ];
+
+    private readonly PaletteItem[] _palette =
+    [
+        new("prep", "Prep", "Prep task", "Prepare an ingredient", LucideIcon.Flame, "emerald"),
+        new("decision", "Decision", "Decision", "Choose a kitchen path", LucideIcon.Route, "blue"),
+        new("timer", "Timer", "Timer", "Wait before continuing", LucideIcon.Clock3, "orange"),
+        new("handoff", "Handoff", "Handoff", "Send to another station", LucideIcon.Send, "indigo")
+    ];
+
+    private NodeEditorNodeModel? SelectedNode =>
+        _selectedNodeId is null ? null : _nodes.FirstOrDefault(node => node.Id == _selectedNodeId);
+
+    private NodeEditorEdgeModel? SelectedEdge =>
+        _selectedEdgeId is null ? null : _edges.FirstOrDefault(edge => edge.Id == _selectedEdgeId);
+
+    private string SelectionText =>
+        SelectedNode?.Tag is DemoNode node ? $"{node.Title} selected" :
+        _selectedEdgeId is not null ? "Connection selected" :
+        $"{_nodes.Count} nodes · {_edges.Count} connections · {_viewportZoom:P0}";
+
+    private string DeleteSelectionLabel => _selectedNodeId is not null ? "Delete selected step" : "Delete selected connection";
+
+    private string WorkflowOutput => System.Text.Json.JsonSerializer.Serialize(
+        new
+        {
+            nodes = _nodes.Select(node =>
+            {
+                DemoNode content = (DemoNode)node.Tag!;
+                return new
+                {
+                    node.Id,
+                    type = content.Kicker.ToLowerInvariant(),
+                    content.Title,
+                    content.Description,
+                    position = new { x = node.X, y = node.Y }
+                };
+            }),
+            connections = _edges.Select(edge => new
+            {
+                edge.Id,
+                source = new { node = edge.SourceNodeId, port = edge.SourcePortId },
+                target = new { node = edge.TargetNodeId, port = edge.TargetPortId },
+                edge.Label,
+                edge.LabelEditable
+            })
+        },
+        WorkflowJsonOptions);
+
+    private static readonly System.Text.Json.JsonSerializerOptions WorkflowJsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    };
+
+    private static NodeEditorNodeModel Node(string id, double x, double y, DemoNode content) =>
+        new() { Id = id, X = x, Y = y, Tag = content };
+
+    private static NodeEditorEdgeModel Edge(
+        string id,
+        string sourceNode,
+        string sourcePort,
+        string targetNode,
+        string targetPort,
+        string? label = null,
+        bool labelEditable = true) =>
+        new()
+        {
+            Id = id,
+            SourceNodeId = sourceNode,
+            SourcePortId = sourcePort,
+            TargetNodeId = targetNode,
+            TargetPortId = targetPort,
+            Label = label,
+            LabelEditable = labelEditable
+        };
+
+    private Task AddConnection(NodeEditorConnectionRequest request)
+    {
+        bool exists = _edges.Any(edge =>
+            edge.SourceNodeId == request.SourceNodeId &&
+            edge.SourcePortId == request.SourcePortId &&
+            edge.TargetNodeId == request.TargetNodeId &&
+            edge.TargetPortId == request.TargetPortId);
+
+        if (!exists)
+        {
+            RecordHistory();
+            _edges.Add(Edge($"edge-{++_edgeSequence}", request.SourceNodeId, request.SourcePortId, request.TargetNodeId, request.TargetPortId));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ChangeConnection(NodeEditorConnectionChangeRequest request)
+    {
+        NodeEditorEdgeModel? edge = _edges.FirstOrDefault(candidate => candidate.Id == request.EdgeId);
+        if (edge is not null)
+        {
+            RecordHistory();
+            edge.SourceNodeId = request.SourceNodeId;
+            edge.SourcePortId = request.SourcePortId;
+            edge.TargetNodeId = request.TargetNodeId;
+            edge.TargetPortId = request.TargetPortId;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private ValueTask<NodeEditorConnectionValidationResult> ValidateConnection(NodeEditorConnectionValidationRequest request)
+    {
+        bool duplicate = _edges.Any(edge =>
+            edge.Id != request.EdgeId &&
+            edge.SourceNodeId == request.SourceNodeId &&
+            edge.SourcePortId == request.SourcePortId &&
+            edge.TargetNodeId == request.TargetNodeId &&
+            edge.TargetPortId == request.TargetPortId);
+
+        return ValueTask.FromResult(duplicate
+            ? NodeEditorConnectionValidationResult.Reject("That connection already exists.")
+            : NodeEditorConnectionValidationResult.Accept());
+    }
+
+    private Task AddStep(NodeEditorAddRequest request)
+    {
+        RecordHistory();
+        string id = $"step-{++_nodeSequence}";
+        _nodes.Add(Node(id, request.X - 144, request.Y + 64,
+            new DemoNode("Kitchen step", "New kitchen step", "Add instructions for this part of service.", LucideIcon.Plus, "violet", true, true, false, "Ready to assign")));
+        _edges.Add(Edge($"edge-{++_edgeSequence}", request.SourceNodeId, request.SourcePortId, id, "input"));
+        _addHandles.RemoveAll(handle => handle.Id == request.HandleId);
+        _selectedNodeId = id;
+        return Task.CompletedTask;
+    }
+
+    private Task AddDroppedNode(NodeEditorDropRequest request)
+    {
+        RecordHistory();
+        PaletteItem item = _palette.First(candidate => candidate.Type == request.Type);
+        string id = $"step-{++_nodeSequence}";
+        _nodes.Add(Node(id, request.X - 144, request.Y - 54,
+            new DemoNode(item.Kicker, item.Title, item.Description, item.Icon, item.Tone, true, true, item.Type == "decision", "Dropped from steps")));
+
+        if (request.EdgeId is not null)
+        {
+            NodeEditorEdgeModel? replaced = _edges.FirstOrDefault(edge => edge.Id == request.EdgeId);
+            if (replaced is not null)
+            {
+                _edges.Remove(replaced);
+                _edges.Add(Edge(
+                    $"edge-{++_edgeSequence}",
+                    replaced.SourceNodeId,
+                    replaced.SourcePortId,
+                    id,
+                    "input",
+                    replaced.Label,
+                    replaced.LabelEditable));
+                _edges.Add(Edge($"edge-{++_edgeSequence}", id, "next", replaced.TargetNodeId, replaced.TargetPortId));
+            }
+        }
+
+        _selectedNodeId = id;
+        return Task.CompletedTask;
+    }
+
+    private async Task AddPaletteNode(PaletteItem item)
+    {
+        RecordHistory();
+        string id = $"step-{++_nodeSequence}";
+        double offset = (_nodeSequence % 4) * 32;
+        _nodes.Add(Node(id, 600 + offset, 80 + offset,
+            new DemoNode(item.Kicker, item.Title, item.Description, item.Icon, item.Tone, true, true, item.Type == "decision", "Added from steps")));
+        _selectedNodeId = id;
+        await NotifyEditorChanged();
+    }
+
+    private Task UpdateSelectedTitle(string? value) =>
+        UpdateSelectedContent(content => content with { Title = value?.TrimStart() ?? string.Empty });
+
+    private Task UpdateSelectedDescription(string? value) =>
+        UpdateSelectedContent(content => content with { Description = value ?? string.Empty });
+
+    private Task UpdateSelectedMeta(string? value) =>
+        UpdateSelectedContent(content => content with { Meta = string.IsNullOrWhiteSpace(value) ? null : value });
+
+    private async Task UpdateSelectedEdgeLabel(string? value)
+    {
+        NodeEditorEdgeModel? edge = SelectedEdge;
+        string? label = string.IsNullOrWhiteSpace(value) ? null : value;
+        if (edge is null || !edge.LabelEditable || edge.Label == label)
+            return;
+
+        RecordHistory();
+        edge.Label = label;
+        await NotifyEditorChanged();
+    }
+
+    private IEnumerable<NodeEditorEdgeModel> DecisionOutcomes(string nodeId) =>
+        _edges.Where(edge => edge.SourceNodeId == nodeId);
+
+    private async Task UpdateDecisionOutcome(string edgeId, string? value)
+    {
+        NodeEditorEdgeModel? edge = _edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        string? label = string.IsNullOrWhiteSpace(value) ? null : value.TrimStart();
+        if (edge is null || edge.Label == label)
+            return;
+
+        RecordHistory();
+        edge.Label = label;
+        await NotifyEditorChanged();
+    }
+
+    private Task HandleEdgeLabelChanged(NodeEditorEdgeLabelChangedEventArgs args)
+    {
+        GraphSnapshot previous = CaptureSnapshot();
+        NodeEditorEdgeModel? edge = previous.Edges.FirstOrDefault(candidate => candidate.Id == args.EdgeId);
+        if (edge is not null)
+        {
+            edge.Label = args.PreviousLabel;
+            _undo.Push(previous);
+            _redo.Clear();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task UpdateSelectedContent(Func<DemoNode, DemoNode> update)
+    {
+        NodeEditorNodeModel? node = SelectedNode;
+        if (node?.Tag is DemoNode content)
+        {
+            RecordHistory();
+            node.Tag = update(content);
+            await NotifyEditorChanged();
+        }
+    }
+
+    private async Task DeleteSelected()
+    {
+        if (_selectedNodeId is not null)
+            await DeleteSelection(new NodeEditorDeleteRequest { NodeId = _selectedNodeId });
+        else if (_selectedEdgeId is not null)
+            await DeleteSelection(new NodeEditorDeleteRequest { EdgeId = _selectedEdgeId });
+        else
+            return;
+
+        await NotifyEditorChanged();
+    }
+
+    private async Task DeleteNode(string nodeId)
+    {
+        await DeleteSelection(new NodeEditorDeleteRequest { NodeId = nodeId });
+        await NotifyEditorChanged();
+    }
+
+    private Task NotifyEditorChanged() =>
+        _editor?.NotifyChanged() ?? Task.CompletedTask;
+
+    private string NodeTitle(string nodeId) =>
+        _nodes.FirstOrDefault(node => node.Id == nodeId)?.Tag is DemoNode content ? content.Title : nodeId;
+
+    private Task DeleteSelection(NodeEditorDeleteRequest request)
+    {
+        bool exists = request.EdgeId is not null
+            ? _edges.Any(edge => edge.Id == request.EdgeId)
+            : request.NodeId is not null && _nodes.Any(node => node.Id == request.NodeId);
+        if (!exists)
+            return Task.CompletedTask;
+
+        RecordHistory();
+        if (request.EdgeId is not null)
+        {
+            _edges.RemoveAll(edge => edge.Id == request.EdgeId);
+            _selectedEdgeId = null;
+        }
+        else if (request.NodeId is not null)
+        {
+            _nodes.RemoveAll(node => node.Id == request.NodeId);
+            _edges.RemoveAll(edge => edge.SourceNodeId == request.NodeId || edge.TargetNodeId == request.NodeId);
+            _addHandles.RemoveAll(handle => handle.SourceNodeId == request.NodeId);
+            _selectedNodeId = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleNodeMoved(NodeEditorNodePositionChangedEventArgs args)
+    {
+        GraphSnapshot previous = CaptureSnapshot();
+        NodeEditorNodeModel? moved = previous.Nodes.FirstOrDefault(node => node.Id == args.NodeId);
+        if (moved is not null)
+        {
+            moved.X = args.PreviousX;
+            moved.Y = args.PreviousY;
+            _undo.Push(previous);
+            _redo.Clear();
+
+            double deltaX = args.X - args.PreviousX;
+            double deltaY = args.Y - args.PreviousY;
+            foreach (NodeEditorAddHandleModel handle in _addHandles.Where(handle => handle.SourceNodeId == args.NodeId))
+            {
+                handle.X += deltaX;
+                handle.Y += deltaY;
+            }
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task DuplicateNode(NodeEditorDuplicateRequest request)
+    {
+        NodeEditorNodeModel? source = _nodes.FirstOrDefault(node => node.Id == request.NodeId);
+        if (source?.Tag is not DemoNode content)
+            return Task.CompletedTask;
+
+        RecordHistory();
+        string id = $"step-{++_nodeSequence}";
+        _nodes.Add(Node(id, request.SuggestedX, request.SuggestedY, content with { Title = $"{content.Title} copy", Status = null }));
+        _selectedNodeId = id;
+        _selectedEdgeId = null;
+        return Task.CompletedTask;
+    }
+
+    private Task DuplicateSelected() =>
+        _editor?.DuplicateSelectedNode() ?? Task.CompletedTask;
+
+    private Task Undo()
+    {
+        if (_undo.Count == 0)
+            return Task.CompletedTask;
+
+        _redo.Push(CaptureSnapshot());
+        RestoreSnapshot(_undo.Pop());
+        return Task.CompletedTask;
+    }
+
+    private Task Redo()
+    {
+        if (_redo.Count == 0)
+            return Task.CompletedTask;
+
+        _undo.Push(CaptureSnapshot());
+        RestoreSnapshot(_redo.Pop());
+        return Task.CompletedTask;
+    }
+
+    private Task TrackViewport(NodeEditorViewportChangedEventArgs args)
+    {
+        _viewportZoom = args.Zoom;
+        return Task.CompletedTask;
+    }
+
+    private static async ValueTask SaveWorkflow(CancellationToken cancellationToken)
+    {
+        await Task.Delay(150, cancellationToken);
+    }
+
+    private Task TrackAutoSaveState(AutoSaveState state)
+    {
+        _autoSaveState = state;
+        if (state == AutoSaveState.Saved)
+            _hasAutoSaved = true;
+
+        return Task.CompletedTask;
+    }
+
+    private void RecordHistory()
+    {
+        _undo.Push(CaptureSnapshot());
+        _redo.Clear();
+    }
+
+    private GraphSnapshot CaptureSnapshot() =>
+        new(
+            _nodes.Select(CloneNode).ToList(),
+            _edges.Select(CloneEdge).ToList(),
+            _addHandles.Select(CloneHandle).ToList(),
+            _selectedNodeId,
+            _selectedEdgeId,
+            _nodeSequence,
+            _edgeSequence);
+
+    private void RestoreSnapshot(GraphSnapshot snapshot)
+    {
+        _nodes.Clear();
+        _nodes.AddRange(snapshot.Nodes.Select(CloneNode));
+        _edges.Clear();
+        _edges.AddRange(snapshot.Edges.Select(CloneEdge));
+        _addHandles.Clear();
+        _addHandles.AddRange(snapshot.AddHandles.Select(CloneHandle));
+        _selectedNodeId = snapshot.SelectedNodeId;
+        _selectedEdgeId = snapshot.SelectedEdgeId;
+        _nodeSequence = snapshot.NodeSequence;
+        _edgeSequence = snapshot.EdgeSequence;
+    }
+
+    private static NodeEditorNodeModel CloneNode(NodeEditorNodeModel node) =>
+        new()
+        {
+            Id = node.Id,
+            X = node.X,
+            Y = node.Y,
+            Disabled = node.Disabled,
+            Selectable = node.Selectable,
+            Tag = node.Tag is DemoNode content ? content with { } : node.Tag,
+            RenderKey = node.RenderKey
+        };
+
+    private static NodeEditorEdgeModel CloneEdge(NodeEditorEdgeModel edge) =>
+        new()
+        {
+            Id = edge.Id,
+            SourceNodeId = edge.SourceNodeId,
+            SourcePortId = edge.SourcePortId,
+            TargetNodeId = edge.TargetNodeId,
+            TargetPortId = edge.TargetPortId,
+            Label = edge.Label,
+            LabelEditable = edge.LabelEditable,
+            AccessibleLabel = edge.AccessibleLabel,
+            Disabled = edge.Disabled,
+            Selectable = edge.Selectable
+        };
+
+    private static NodeEditorAddHandleModel CloneHandle(NodeEditorAddHandleModel handle) =>
+        new()
+        {
+            Id = handle.Id,
+            SourceNodeId = handle.SourceNodeId,
+            SourcePortId = handle.SourcePortId,
+            X = handle.X,
+            Y = handle.Y,
+            Label = handle.Label,
+            AccessibleLabel = handle.AccessibleLabel,
+            Disabled = handle.Disabled
+        };
+
+    private static string IconToneClass(string tone) =>
+        tone switch
+        {
+            "violet" => "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+            "blue" => "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+            "emerald" => "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+            "amber" => "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+            "cyan" => "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+            "orange" => "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+            "indigo" => "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+            _ => "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+        };
+
+    private sealed record DemoNode(
+        string Kicker,
+        string Title,
+        string Description,
+        LucideIcon Icon,
+        string Tone,
+        bool HasInput,
+        bool HasPrimaryOutput,
+        bool HasSecondaryOutput,
+        string? Meta = null,
+        string? Status = null,
+        NodeEditorPortPlacement? InputPlacement = null);
+
+    private sealed record PaletteItem(string Type, string Kicker, string Title, string Description, LucideIcon Icon, string Tone);
+
+    private sealed record GraphSnapshot(
+        List<NodeEditorNodeModel> Nodes,
+        List<NodeEditorEdgeModel> Edges,
+        List<NodeEditorAddHandleModel> AddHandles,
+        string? SelectedNodeId,
+        string? SelectedEdgeId,
+        int NodeSequence,
+        int EdgeSequence);
+
+    private const string NodeEditorCode =
+@"<NodeEditor Nodes=""_nodes""
+            Edges=""_edges""
+            Options=""_options""
+            @bind-SelectedNodeId=""_selectedNodeId""
+            @bind-SelectedEdgeId=""_selectedEdgeId""
+            CanUndo=""@(_undo.Count > 0)""
+            CanRedo=""@(_redo.Count > 0)""
+            AutoSave
+            AutoSaveDelay=""600""
+            OnAutoSave=""SaveWorkflow""
+            OnUndoRequested=""Undo""
+            OnRedoRequested=""Redo""
+            OnDuplicateRequested=""DuplicateNode""
+            OnEdgeLabelChanged=""HandleEdgeLabelChanged""
+            OnNodeDropRequested=""AddDroppedNode""
+            OnConnectionRequested=""AddConnection"">
+    <NodeTemplate Context=""node"">
+        <Div Width=""Width.Is56""
+             Rounded=""Rounded.Xl""
+             Border=""Border.Default""
+             BackgroundColor=""BackgroundColor.Background""
+             Padding=""Padding.Is4""
+             Shadow=""Shadow.Sm"">
+            <Strong>@node.Tag</Strong>
+        </Div>
+
+        @if (node.Id != ""start"")
+        {
+            <NodeEditorPort PortId=""input"" Type=""NodeEditorPortType.Target"" />
+        }
+
+        @if (node.Id != ""finish"")
+        {
+            <NodeEditorPort PortId=""next"" Type=""NodeEditorPortType.Source"" />
+        }
+    </NodeTemplate>
+</NodeEditor>
+
+@code {
+    private string? _selectedNodeId;
+    private string? _selectedEdgeId;
+    private int _edgeId = 1;
+
+    private readonly NodeEditorOptions _options = new()
+    {
+        FitViewOnInitialize = true,
+        SnapToGrid = true
+    };
+
+    private readonly List<NodeEditorNodeModel> _nodes =
+    [
+        new() { Id = ""start"", X = 120, Y = 40, Tag = ""Start"" },
+        new() { Id = ""finish"", X = 120, Y = 220, Tag = ""Finish"" }
+    ];
+
+    private readonly List<NodeEditorEdgeModel> _edges = [];
+
+    private ValueTask SaveWorkflow(CancellationToken cancellationToken)
+    {
+        // Persist the current consumer-owned workflow DTO.
+        return ValueTask.CompletedTask;
+    }
+
+    private Task AddConnection(NodeEditorConnectionRequest request)
+    {
+        _edges.Add(new NodeEditorEdgeModel
+        {
+            Id = $""edge-{_edgeId++}"",
+            SourceNodeId = request.SourceNodeId,
+            SourcePortId = request.SourcePortId,
+            TargetNodeId = request.TargetNodeId,
+            TargetPortId = request.TargetPortId
+        });
+
+        return Task.CompletedTask;
+    }
+}";
+}
