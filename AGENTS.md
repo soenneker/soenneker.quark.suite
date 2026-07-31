@@ -15,6 +15,8 @@ Before changing or adding builder chains, verify which value each modifier binds
 
 ## Test execution
 
+Do not run the full integration test suite by default, including as routine build verification. Integration tests are long-running, so run them only when the change requires integration coverage or the user explicitly requests them. When integration tests are needed, target the smallest relevant set of tests instead of running the entire suite.
+
 When running specific tests, use Microsoft Testing Platform (MTP) tree node filters.
 
 Do **not** use VSTest filters:
