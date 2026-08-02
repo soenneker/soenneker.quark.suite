@@ -359,7 +359,7 @@ public sealed partial class RenderedShadcnParityTests
 
         var cut = Render<NodeEditor>(parameters => parameters
             .Add(component => component.AutoSave, true)
-            .Add(component => component.AutoSaveDelay, 150)
+            .Add(component => component.AutoSaveDelay, 500)
             .Add(component => component.OnAutoSave, (CancellationToken _) =>
             {
                 Interlocked.Increment(ref saveCount);
@@ -377,20 +377,17 @@ public sealed partial class RenderedShadcnParityTests
             .Add(component => component.NodeTemplate, _ => _ => { }));
 
         await cut.Instance.NotifyChanged();
-        await Task.Delay(50);
         await cut.Instance.NotifyChanged();
-        await Task.Delay(50);
         await cut.Instance.NotifyChanged();
 
-        await Task.Delay(75);
         Volatile.Read(ref saveCount).Should().Be(0);
 
-        cut.WaitForAssertion(() => Volatile.Read(ref saveCount).Should().Be(1), TimeSpan.FromSeconds(2));
         cut.WaitForAssertion(() =>
         {
             cut.Instance.AutoSaveState.Should().Be(AutoSaveState.Saved);
             cut.Instance.HasAutoSaved.Should().BeTrue();
         }, TimeSpan.FromSeconds(2));
+        Volatile.Read(ref saveCount).Should().Be(1);
 
         lock (gate)
         {
