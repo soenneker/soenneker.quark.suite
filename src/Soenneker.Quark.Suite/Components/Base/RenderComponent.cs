@@ -166,7 +166,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // Keep this generic nullable-struct path out of large component methods. Mono AOT can
+    // otherwise inline every closed CssValue<T> instantiation into the caller and create
+    // enormous native frames that corrupt managed references under AOT.
+    [MethodImpl(MethodImplOptions.NoInlining)]
     protected static void AddIf<T>(ref HashCode hc, CssValue<T>? v) where T : class, ICssBuilder
     {
         if (v is { IsEmpty: false })
@@ -276,7 +279,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         b.Append(fullDecl);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // This is intentionally a hard AOT boundary. Component.BuildOwnedClassAndStyle invokes
+    // many closed generic versions of this method; forced inlining produced a ~939 KB AOT
+    // function with a ~96 KB stack frame in a production build.
+    [MethodImpl(MethodImplOptions.NoInlining)]
     protected static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
     {
         if (v is not { IsEmpty: false })
@@ -420,7 +426,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.NoInlining)]
     protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
         attrs.TryGetValue("class", out var existingClassObj);

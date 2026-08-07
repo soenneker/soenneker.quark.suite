@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
@@ -617,6 +618,10 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
     }
 
+    // CollectCssRules calls this for every closed CssValue<TBuilder> used by Quark. Keep the
+    // generic nullable-struct work out of that large caller for the same Mono AOT safety reason
+    // as RenderComponent.AddCss.
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private static void AddRules<TBuilder>(List<ComponentCssRule> buffer, string baseSelector, CssValue<TBuilder>? value, string? fallbackProperty = null)
         where TBuilder : class, ICssBuilder
     {

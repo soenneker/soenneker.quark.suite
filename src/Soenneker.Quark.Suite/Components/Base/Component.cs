@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
@@ -347,6 +348,27 @@ public abstract class Component : RenderComponent, IComponent
         if (Style.HasContent())
             AppendStyleDecl(ref sty, Style!);
 
+        BuildTypographyClassAndStyle(ref sty, ref cls, preset);
+        BuildLayoutClassAndStyle(ref sty, ref cls, preset);
+        BuildInteractionClassAndStyle(ref sty, ref cls, preset);
+        BuildVisualClassAndStyle(ref sty, ref cls, preset);
+
+        if (Container)
+            AppendClass(ref cls, "container");
+
+        if (preset?.Class.HasContent() == true)
+            AppendClass(ref cls, preset.Class!);
+
+        if (Class.HasContent())
+            AppendClass(ref cls, Class!);
+    }
+
+    // Keep each group as a separate native frame. In particular, do not combine these methods
+    // or allow them to inline: CssValue<T>? is a large nullable struct containing references,
+    // and a single method covering every CSS property exceeds safe Mono AOT code/frame sizes.
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildTypographyClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
         AddCss(ref sty, ref cls, ResolvePresetValue(Display, preset?.Display, nameof(Display)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Visibility, preset?.Visibility, nameof(Visibility)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Float, preset?.Float, nameof(Float)));
@@ -368,6 +390,11 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, ResolvePresetValue(Truncate, preset?.Truncate, nameof(Truncate)));
         AddCss(ref sty, ref cls, ResolvePresetValue(LineClamp, preset?.LineClamp, nameof(LineClamp)));
         AddCss(ref sty, ref cls, ResolvePresetValue(FontVariantNumeric, preset?.FontVariantNumeric, nameof(FontVariantNumeric)));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildLayoutClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
         AddCss(ref sty, ref cls, ResolvePresetValue(Margin, preset?.Margin, nameof(Margin)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Padding, preset?.Padding, nameof(Padding)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Inset, preset?.Inset, nameof(Inset)));
@@ -406,12 +433,22 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, ResolvePresetValue(ColStart, preset?.ColStart, nameof(ColStart)));
         AddCss(ref sty, ref cls, ResolvePresetValue(RowSpan, preset?.RowSpan, nameof(RowSpan)));
         AddCss(ref sty, ref cls, ResolvePresetValue(RowStart, preset?.RowStart, nameof(RowStart)));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildInteractionClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
         AddCss(ref sty, ref cls, ResolvePresetValue(Opacity, preset?.Opacity, nameof(Opacity)));
         AddCss(ref sty, ref cls, ResolvePresetValue(ZIndex, preset?.ZIndex, nameof(ZIndex)));
         AddCss(ref sty, ref cls, ResolvePresetValue(PointerEvents, preset?.PointerEvents, nameof(PointerEvents)));
         AddCss(ref sty, ref cls, ResolvePresetValue(UserSelect, preset?.UserSelect, nameof(UserSelect)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Cursor, preset?.Cursor, nameof(Cursor)));
         AddCss(ref sty, ref cls, ResolvePresetValue(ScreenReader, preset?.ScreenReader, nameof(ScreenReader)));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildVisualClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
         AddCss(ref sty, ref cls, ResolvePresetValue(Border, preset?.Border, nameof(Border)));
         AddCss(ref sty, ref cls, ResolvePresetValue(BorderStyle, preset?.BorderStyle, nameof(BorderStyle)));
         ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
@@ -429,15 +466,6 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, ResolvePresetValue(Animation, preset?.Animation, nameof(Animation)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Duration, preset?.Duration, nameof(Duration)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Transition, preset?.Transition, nameof(Transition)));
-
-        if (Container)
-            AppendClass(ref cls, "container");
-
-        if (preset?.Class.HasContent() == true)
-            AppendClass(ref cls, preset.Class!);
-
-        if (Class.HasContent())
-            AppendClass(ref cls, Class!);
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)

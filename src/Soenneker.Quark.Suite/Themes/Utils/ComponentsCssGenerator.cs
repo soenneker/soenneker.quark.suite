@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 public static class ComponentsCssGenerator
 {
     /// <summary>Generates CSS rules for all component options in the theme.</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static string Generate(Theme theme)
     {
         if (theme is null)
