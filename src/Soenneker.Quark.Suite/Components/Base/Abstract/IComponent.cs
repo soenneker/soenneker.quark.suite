@@ -182,11 +182,11 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// <summary>
     /// Gets or sets min height.
     /// </summary>
-    CssValue<HeightBuilder>? MinHeight { get; set; }
+    CssValue<MinHeightBuilder>? MinHeight { get; set; }
     /// <summary>
     /// Gets or sets max height.
     /// </summary>
-    CssValue<HeightBuilder>? MaxHeight { get; set; }
+    CssValue<MaxHeightBuilder>? MaxHeight { get; set; }
     /// <summary>
     /// Gets or sets overflow.
     /// </summary>

@@ -49,18 +49,21 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
-    public void MaxHeight_uses_height_builder_output_without_rewriting()
+    public void MinHeight_and_MaxHeight_emit_property_specific_builder_output()
     {
         var cut = Render<TestRenderBox>(parameters => parameters
-            .Add(p => p.MaxHeight, Height.Token("72")));
+            .Add(p => p.MinHeight, MinHeight.Token("16"))
+            .Add(p => p.MaxHeight, MaxHeight.Token("72")));
 
         var box = cut.Find("[data-slot='test-box']");
         var classes = box.GetAttribute("class")!;
         var style = box.GetAttribute("style");
         var classTokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        classTokens.Should().Contain("h-72");
-        classTokens.Should().NotContain("max-h-72");
+        classTokens.Should().Contain("min-h-16");
+        classTokens.Should().Contain("max-h-72");
+        classTokens.Should().NotContain("h-16");
+        classTokens.Should().NotContain("h-72");
         style.Should().BeNull();
     }
 
@@ -483,6 +486,22 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             .Add(p => p.DataSlot, "custom-box"));
 
         cut.Find("[data-slot='custom-box']").Should().NotBeNull();
+    }
+
+    [Test]
+    public void Explicit_attributes_override_additional_attributes_case_insensitively()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .AddUnmatched("DATA-OWNER", "additional")
+            .Add(p => p.Attributes, new Dictionary<string, object>
+            {
+                ["data-owner"] = "explicit"
+            }));
+
+        var box = cut.Find("[data-slot='test-box']");
+
+        box.GetAttribute("data-owner").Should().Be("explicit");
+        box.Attributes.Count(attribute => attribute.Name.Equals("data-owner", StringComparison.OrdinalIgnoreCase)).Should().Be(1);
     }
 
     [Test]

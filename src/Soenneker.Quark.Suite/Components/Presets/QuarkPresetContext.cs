@@ -156,11 +156,11 @@ public sealed class QuarkPresetContext
     /// <summary>
     /// Gets or sets min height.
     /// </summary>
-    public CssValue<HeightBuilder>? MinHeight { get; set; }
+    public CssValue<MinHeightBuilder>? MinHeight { get; set; }
     /// <summary>
     /// Gets or sets max height.
     /// </summary>
-    public CssValue<HeightBuilder>? MaxHeight { get; set; }
+    public CssValue<MaxHeightBuilder>? MaxHeight { get; set; }
     /// <summary>
     /// Gets or sets overflow.
     /// </summary>

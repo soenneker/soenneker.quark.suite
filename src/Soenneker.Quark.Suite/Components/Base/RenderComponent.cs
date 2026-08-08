@@ -20,6 +20,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
     private int _renderVersion;
+    private bool _renderKeyDirty;
 
     /// <summary>
     /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
@@ -61,7 +62,9 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             _renderVersion++;
         }
 
-        _lastRenderKey = ComputeRenderKey();
+        // Multiple state changes can be coalesced into one render. Defer the expensive
+        // component-wide hash until attributes are actually requested for that render.
+        _renderKeyDirty = true;
         _cachedAttrs = null;
         _cachedAttrsKey = 0;
         _shouldRender = true;
@@ -82,25 +85,32 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (AlwaysRender)
         {
             _shouldRender = true;
-            _lastRenderKey = ComputeRenderKey();
+            _renderKeyDirty = false;
             return;
         }
 
         var key = ComputeRenderKey();
         _shouldRender = key != _lastRenderKey;
         _lastRenderKey = key;
+        _renderKeyDirty = false;
     }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         ApplyDefaultParameters();
 
+        if (!AlwaysRender && _renderKeyDirty)
+        {
+            _lastRenderKey = ComputeRenderKey();
+            _renderKeyDirty = false;
+        }
+
         var currentKey = _lastRenderKey;
 
         if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
-        var attrs = new Dictionary<string, object>(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
+        var attrs = new Dictionary<string, object>(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(128);
 

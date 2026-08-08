@@ -149,10 +149,10 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<HeightBuilder>? Height { get; set; }
 
     [Parameter]
-    public CssValue<HeightBuilder>? MinHeight { get; set; }
+    public CssValue<MinHeightBuilder>? MinHeight { get; set; }
 
     [Parameter]
-    public CssValue<HeightBuilder>? MaxHeight { get; set; }
+    public CssValue<MaxHeightBuilder>? MaxHeight { get; set; }
 
     [Parameter]
     public CssValue<OverflowBuilder>? Overflow { get; set; }

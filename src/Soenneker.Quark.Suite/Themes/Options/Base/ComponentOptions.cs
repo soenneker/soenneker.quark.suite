@@ -193,12 +193,12 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS minimum height configuration.
     /// </summary>
-    public CssValue<HeightBuilder>? MinHeight { get; set; }
+    public CssValue<MinHeightBuilder>? MinHeight { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS maximum height configuration.
     /// </summary>
-    public CssValue<HeightBuilder>? MaxHeight { get; set; }
+    public CssValue<MaxHeightBuilder>? MaxHeight { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS overflow configuration.
@@ -755,6 +755,17 @@ public class ComponentOptions
             return width is null ? null : [$"{fallbackProperty}: {width}"];
         }
 
+        if ((typeof(TBuilder) == typeof(HeightBuilder) ||
+             typeof(TBuilder) == typeof(MinHeightBuilder) ||
+             typeof(TBuilder) == typeof(MaxHeightBuilder)) &&
+            (fallbackProperty.Equals("height", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("min-height", System.StringComparison.Ordinal) ||
+             fallbackProperty.Equals("max-height", System.StringComparison.Ordinal)))
+        {
+            var height = ConvertHeightUtility(resolved);
+            return height is null ? null : [$"{fallbackProperty}: {height}"];
+        }
+
         if (typeof(TBuilder) == typeof(OverflowBuilder) &&
             (fallbackProperty.Equals("overflow", System.StringComparison.Ordinal) ||
              fallbackProperty.Equals("overflow-x", System.StringComparison.Ordinal) ||
@@ -1039,6 +1050,50 @@ public class ComponentOptions
             "min" => "min-content",
             "max" => "max-content",
             "fit" => "fit-content",
+            _ => null
+        };
+    }
+
+    private static string? ConvertHeightUtility(string value)
+    {
+        if (value.Contains(':') || value.Contains(' '))
+            return null;
+
+        string token = value;
+
+        if (token.StartsWith("min-h-", System.StringComparison.Ordinal))
+            token = token.Substring("min-h-".Length);
+        else if (token.StartsWith("max-h-", System.StringComparison.Ordinal))
+            token = token.Substring("max-h-".Length);
+        else if (token.StartsWith("h-", System.StringComparison.Ordinal))
+            token = token.Substring("h-".Length);
+        else
+            return null;
+
+        string? arbitrary = ConvertArbitraryToken(token);
+        if (arbitrary is not null)
+            return arbitrary;
+
+        string? spacing = ConvertSpacingScaleToken(token);
+        if (spacing is not null)
+            return spacing;
+
+        string? fraction = ConvertFractionToken(token);
+        if (fraction is not null)
+            return fraction;
+
+        return token switch
+        {
+            "auto" => "auto",
+            "full" => "100%",
+            "screen" => "100vh",
+            "svh" => "100svh",
+            "lvh" => "100lvh",
+            "dvh" => "100dvh",
+            "min" => "min-content",
+            "max" => "max-content",
+            "fit" => "fit-content",
+            "none" => "none",
             _ => null
         };
     }

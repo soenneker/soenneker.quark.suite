@@ -58,4 +58,23 @@ public sealed partial class RenderedShadcnParityTests
 
         values.Should().Equal("Programming");
     }
+
+    [Test]
+    public async Task TagInput_removes_the_selected_duplicate_tag()
+    {
+        string[] values = ["Same", "Other", "Same"];
+
+        var cut = Render<TagInput>(parameters => parameters
+            .Add(p => p.AllowDuplicates, true)
+            .Add(p => p.Values, values)
+            .Add(p => p.ValuesChanged, next =>
+            {
+                values = next;
+                return Task.CompletedTask;
+            }));
+
+        await cut.FindAll("[aria-label='Remove Same']")[1].ClickAsync(new MouseEventArgs());
+
+        values.Should().Equal("Same", "Other");
+    }
 }
