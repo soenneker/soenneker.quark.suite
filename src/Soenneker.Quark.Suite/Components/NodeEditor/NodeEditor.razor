@@ -158,7 +158,7 @@
              Class="quark-node-editor-node-layer">
             @foreach (NodeEditorNodeModel node in Nodes)
             {
-                <CascadingValue @key="node.Id" Value="new NodeEditorNodeContext(node.Id)" IsFixed="true">
+                <CascadingValue @key="node.Id" Value="@GetNodeContext(node.Id)" IsFixed="true">
                     <NodeEditorNode Node="node" Selected="@(node.Id == SelectedNodeId)">
                         @NodeTemplate(node)
                     </NodeEditorNode>
@@ -292,8 +292,14 @@
 
     private readonly NodeEditorContext _context;
     private readonly AutoSaveController<int> _autoSave = new();
+    private readonly Dictionary<string, NodeEditorNodeModel> _nodesById = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, NodeEditorEdgeModel> _edgesById = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _handleIds = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, NodeEditorNodeContext> _nodeContexts = new(StringComparer.Ordinal);
     private DotNetObjectReference<NodeEditor>? _dotNetReference;
     private bool _initialized;
+    private int _lastInteropRefreshKey;
+    private bool _interopSynchronized;
     private int _changeVersion;
     private string _announcement = "";
     private string? _editingEdgeId;
@@ -358,10 +364,21 @@
             _dotNetReference = DotNetObjectReference.Create(this);
             await EditorInterop.Initialize(Id!, Options, _dotNetReference);
             _initialized = true;
+            _lastInteropRefreshKey = ComputeInteropRefreshKey();
+            _interopSynchronized = true;
+            return;
         }
 
-        if (_initialized)
-            await EditorInterop.Refresh(Id!, Options, SelectedNodeId, SelectedEdgeId);
+        if (!_initialized)
+            return;
+
+        var refreshKey = ComputeInteropRefreshKey();
+        if (_interopSynchronized && refreshKey == _lastInteropRefreshKey)
+            return;
+
+        await EditorInterop.Refresh(Id!, Options, SelectedNodeId, SelectedEdgeId);
+        _lastInteropRefreshKey = refreshKey;
+        _interopSynchronized = true;
     }
 
     /// <summary>
@@ -409,7 +426,7 @@
         if (!Options.InlineEdgeLabelEditingEnabled)
             return;
 
-        NodeEditorEdgeModel? edge = Edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        _edgesById.TryGetValue(edgeId, out NodeEditorEdgeModel? edge);
         if (edge is null || edge.Disabled || !edge.Selectable || !edge.LabelEditable)
             return;
 
@@ -432,7 +449,7 @@
     [JSInvokable]
     public async Task InvokeNodeMoved(NodeEditorNodePositionChangedEventArgs args)
     {
-        NodeEditorNodeModel? node = Nodes.FirstOrDefault(candidate => candidate.Id == args.NodeId);
+        _nodesById.TryGetValue(args.NodeId, out NodeEditorNodeModel? node);
 
         if (node is not null)
         {
@@ -588,7 +605,7 @@
     [JSInvokable]
     public async Task InvokeDuplicateRequested(string nodeId)
     {
-        NodeEditorNodeModel? node = Nodes.FirstOrDefault(candidate => candidate.Id == nodeId);
+        _nodesById.TryGetValue(nodeId, out NodeEditorNodeModel? node);
         if (node is null)
             return;
 
@@ -689,7 +706,7 @@
         if (edgeId is null)
             return;
 
-        NodeEditorEdgeModel? edge = Edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        _edgesById.TryGetValue(edgeId, out NodeEditorEdgeModel? edge);
         if (edge is null)
         {
             await CancelEdgeLabelEdit();
@@ -835,6 +852,80 @@
     private static string EdgeKeyboardShortcuts(NodeEditorEdgeModel edge) =>
         edge.LabelEditable ? "Enter Space F2 Delete Backspace" : "Enter Space Delete Backspace";
 
+    private NodeEditorNodeContext GetNodeContext(string nodeId)
+    {
+        if (_nodeContexts.TryGetValue(nodeId, out NodeEditorNodeContext? context))
+            return context;
+
+        // Keep the cache bounded when callers replace nodes over time.
+        if (_nodeContexts.Count > Math.Max(Nodes.Count * 2, 32))
+            _nodeContexts.Clear();
+
+        context = new NodeEditorNodeContext(nodeId);
+        _nodeContexts[nodeId] = context;
+        return context;
+    }
+
+    private int ComputeInteropRefreshKey()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(NodeTemplate);
+        hashCode.Add(SelectedNodeId);
+        hashCode.Add(SelectedEdgeId);
+        hashCode.Add(_editingEdgeId);
+        hashCode.Add(Options.DraggableNodes);
+        hashCode.Add(Options.PanEnabled);
+        hashCode.Add(Options.ZoomEnabled);
+        hashCode.Add(Options.ConnectionsEnabled);
+        hashCode.Add(Options.DeleteKeyEnabled);
+        hashCode.Add(Options.CommandShortcutsEnabled);
+        hashCode.Add(Options.InlineEdgeLabelEditingEnabled);
+        hashCode.Add(Options.MinZoom);
+        hashCode.Add(Options.MaxZoom);
+        hashCode.Add(Options.InitialZoom);
+        hashCode.Add(Options.InitialX);
+        hashCode.Add(Options.InitialY);
+        hashCode.Add(Options.GridSize);
+        hashCode.Add(Options.SnapToGrid);
+        hashCode.Add(Options.FitViewOnInitialize);
+
+        foreach (NodeEditorNodeModel node in Nodes)
+        {
+            hashCode.Add(node.Id);
+            hashCode.Add(node.X);
+            hashCode.Add(node.Y);
+            hashCode.Add(node.Disabled);
+            hashCode.Add(node.Selectable);
+            hashCode.Add(node.RenderKey);
+        }
+
+        foreach (NodeEditorEdgeModel edge in Edges)
+        {
+            hashCode.Add(edge.Id);
+            hashCode.Add(edge.SourceNodeId);
+            hashCode.Add(edge.SourcePortId);
+            hashCode.Add(edge.TargetNodeId);
+            hashCode.Add(edge.TargetPortId);
+            hashCode.Add(edge.Label);
+            hashCode.Add(edge.LabelEditable);
+            hashCode.Add(edge.Disabled);
+            hashCode.Add(edge.Selectable);
+        }
+
+        foreach (NodeEditorAddHandleModel handle in AddHandles)
+        {
+            hashCode.Add(handle.Id);
+            hashCode.Add(handle.SourceNodeId);
+            hashCode.Add(handle.SourcePortId);
+            hashCode.Add(handle.X);
+            hashCode.Add(handle.Y);
+            hashCode.Add(handle.Label);
+            hashCode.Add(handle.Disabled);
+        }
+
+        return hashCode.ToHashCode();
+    }
+
     private void ValidateParameters()
     {
         if (Nodes is null)
@@ -864,7 +955,7 @@
         if (!double.IsFinite(Options.GridSize) || Options.GridSize <= 0)
             throw new InvalidOperationException($"{nameof(NodeEditorOptions.GridSize)} must be a finite value greater than zero.");
 
-        var nodeIds = new HashSet<string>(StringComparer.Ordinal);
+        _nodesById.Clear();
         foreach (NodeEditorNodeModel node in Nodes)
         {
             if (node is null)
@@ -873,14 +964,14 @@
             if (string.IsNullOrWhiteSpace(node.Id))
                 throw new InvalidOperationException("Every node must have a non-empty identifier.");
 
-            if (!nodeIds.Add(node.Id))
+            if (!_nodesById.TryAdd(node.Id, node))
                 throw new InvalidOperationException($"Node identifiers must be unique. Duplicate identifier: '{node.Id}'.");
 
             if (!double.IsFinite(node.X) || !double.IsFinite(node.Y))
                 throw new InvalidOperationException($"Node '{node.Id}' must have finite X and Y positions.");
         }
 
-        var edgeIds = new HashSet<string>(StringComparer.Ordinal);
+        _edgesById.Clear();
         foreach (NodeEditorEdgeModel edge in Edges)
         {
             if (edge is null)
@@ -889,21 +980,21 @@
             if (string.IsNullOrWhiteSpace(edge.Id))
                 throw new InvalidOperationException("Every edge must have a non-empty identifier.");
 
-            if (!edgeIds.Add(edge.Id))
+            if (!_edgesById.TryAdd(edge.Id, edge))
                 throw new InvalidOperationException($"Edge identifiers must be unique. Duplicate identifier: '{edge.Id}'.");
 
             if (string.IsNullOrWhiteSpace(edge.SourceNodeId) || string.IsNullOrWhiteSpace(edge.SourcePortId) ||
                 string.IsNullOrWhiteSpace(edge.TargetNodeId) || string.IsNullOrWhiteSpace(edge.TargetPortId))
                 throw new InvalidOperationException($"Edge '{edge.Id}' must specify non-empty source and target node and port identifiers.");
 
-            if (!nodeIds.Contains(edge.SourceNodeId))
+            if (!_nodesById.ContainsKey(edge.SourceNodeId))
                 throw new InvalidOperationException($"Edge '{edge.Id}' references missing source node '{edge.SourceNodeId}'.");
 
-            if (!nodeIds.Contains(edge.TargetNodeId))
+            if (!_nodesById.ContainsKey(edge.TargetNodeId))
                 throw new InvalidOperationException($"Edge '{edge.Id}' references missing target node '{edge.TargetNodeId}'.");
         }
 
-        var handleIds = new HashSet<string>(StringComparer.Ordinal);
+        _handleIds.Clear();
         foreach (NodeEditorAddHandleModel handle in AddHandles)
         {
             if (handle is null)
@@ -912,13 +1003,13 @@
             if (string.IsNullOrWhiteSpace(handle.Id))
                 throw new InvalidOperationException("Every add handle must have a non-empty identifier.");
 
-            if (!handleIds.Add(handle.Id))
+            if (!_handleIds.Add(handle.Id))
                 throw new InvalidOperationException($"Add handle identifiers must be unique. Duplicate identifier: '{handle.Id}'.");
 
             if (string.IsNullOrWhiteSpace(handle.SourceNodeId) || string.IsNullOrWhiteSpace(handle.SourcePortId))
                 throw new InvalidOperationException($"Add handle '{handle.Id}' must specify a non-empty source node and port identifier.");
 
-            if (!nodeIds.Contains(handle.SourceNodeId))
+            if (!_nodesById.ContainsKey(handle.SourceNodeId))
                 throw new InvalidOperationException($"Add handle '{handle.Id}' references missing source node '{handle.SourceNodeId}'.");
 
             if (!double.IsFinite(handle.X) || !double.IsFinite(handle.Y))

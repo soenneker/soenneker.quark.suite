@@ -30,7 +30,10 @@ export function initialize(id, optionsJson, dotNetRef) {
         validationSequence: 0,
         destroyed: false,
         ports: new Map(),
+        nodeElements: [],
         edgeElements: [],
+        edgeElementsById: new Map(),
+        connectionCounts: new Map(),
         addHandleElements: [],
         cleanup: []
     };
@@ -121,20 +124,19 @@ export function refresh(id, optionsJson, selectedNodeId, selectedEdgeId) {
     state.background = state.root.querySelector("[data-slot='node-editor-background']");
     state.edgeLayer = state.root.querySelector("[data-slot='node-editor-edge-layer']");
     state.preview = state.root.querySelector("[data-connection-preview]");
-    validatePortConfiguration(state);
     rebuildGeometryIndex(state);
     focusEdgeLabelEditor(state);
 
-    state.root.querySelectorAll("[data-node-id][data-slot='node-editor-node']").forEach(node => {
+    state.nodeElements.forEach(node => {
         node.dataset.selected = node.dataset.nodeId === selectedNodeId ? "true" : "false";
         node.setAttribute("aria-selected", node.dataset.selected);
     });
 
     state.resizeObserver?.disconnect();
     state.resizeObserver?.observe(state.root);
-    state.root.querySelectorAll("[data-node-id][data-slot='node-editor-node']").forEach(node => state.resizeObserver?.observe(node));
+    state.nodeElements.forEach(node => state.resizeObserver?.observe(node));
 
-    state.root.querySelectorAll("[data-edge-id]").forEach(edge => {
+    state.edgeElements.forEach(edge => {
         edge.dataset.selected = edge.dataset.edgeId === selectedEdgeId ? "true" : "false";
         edge.setAttribute("aria-pressed", edge.dataset.selected);
         const path = edge.querySelector("[data-edge-path]");
@@ -953,18 +955,58 @@ function rebuildGeometryIndex(state) {
     state.ports = new Map();
     state.root.querySelectorAll("[data-slot='node-editor-port']").forEach(port => {
         const key = portKey(port.dataset.nodeId, port.dataset.portId);
-        if (!state.ports.has(key)) {
-            state.ports.set(key, port);
+        if (state.ports.has(key)) {
+            throw new Error(`Node editor '${state.root.id}' contains duplicate port '${port.dataset.portId}' on node '${port.dataset.nodeId}'.`);
+        }
+
+        state.ports.set(key, port);
+    });
+
+    state.nodeElements = [...state.root.querySelectorAll("[data-node-id][data-slot='node-editor-node']")];
+    state.edgeElements = [...state.root.querySelectorAll("[data-edge-id]")];
+    state.edgeElementsById = new Map();
+    state.connectionCounts = new Map();
+
+    state.edgeElements.forEach(edge => {
+        const sourceKey = portKey(edge.dataset.sourceNode, edge.dataset.sourcePort);
+        const targetKey = portKey(edge.dataset.targetNode, edge.dataset.targetPort);
+        if (!state.ports.has(sourceKey)) {
+            throw new Error(`Edge '${edge.dataset.edgeId}' references missing source port '${edge.dataset.sourcePort}' on node '${edge.dataset.sourceNode}'.`);
+        }
+
+        if (!state.ports.has(targetKey)) {
+            throw new Error(`Edge '${edge.dataset.edgeId}' references missing target port '${edge.dataset.targetPort}' on node '${edge.dataset.targetNode}'.`);
+        }
+
+        state.edgeElementsById.set(edge.dataset.edgeId, edge);
+        incrementConnectionCount(state.connectionCounts, "source", edge.dataset.sourceNode, edge.dataset.sourcePort);
+        incrementConnectionCount(state.connectionCounts, "target", edge.dataset.targetNode, edge.dataset.targetPort);
+    });
+
+    state.addHandleElements = [...state.root.querySelectorAll("[data-add-handle-edge]")];
+    state.addHandleElements.forEach(handle => {
+        const sourceKey = portKey(handle.dataset.sourceNode, handle.dataset.sourcePort);
+        if (!state.ports.has(sourceKey)) {
+            throw new Error(`Add handle '${handle.dataset.addHandleEdge}' references missing source port '${handle.dataset.sourcePort}' on node '${handle.dataset.sourceNode}'.`);
         }
     });
-    state.edgeElements = [...state.root.querySelectorAll("[data-edge-id]")];
-    state.addHandleElements = [...state.root.querySelectorAll("[data-add-handle-edge]")];
 }
 
 function updateEdges(state) {
     if (!state.edgeLayer) {
         return;
     }
+
+    const rootRect = state.root.getBoundingClientRect();
+    const portCenters = new Map();
+    const getPortCenter = port => {
+        let center = portCenters.get(port);
+        if (!center) {
+            center = portCenterInGraph(state, port, rootRect);
+            portCenters.set(port, center);
+        }
+        return center;
+    };
 
     state.edgeElements.forEach(edge => {
         const source = state.ports.get(portKey(edge.dataset.sourceNode, edge.dataset.sourcePort));
@@ -978,8 +1020,8 @@ function updateEdges(state) {
         }
 
         edge.style.display = "";
-        const start = portCenterInGraph(state, source);
-        const end = portCenterInGraph(state, target);
+        const start = getPortCenter(source);
+        const end = getPortCenter(target);
         const d = edgePath(start.x, start.y, end.x, end.y, source.dataset.placement, target.dataset.placement);
 
         path.setAttribute("d", d);
@@ -1004,7 +1046,7 @@ function updateEdges(state) {
         }
 
         placeholder.style.display = "";
-        const start = portCenterInGraph(state, source);
+        const start = getPortCenter(source);
         const targetX = number(placeholder.dataset.targetX);
         const targetY = number(placeholder.dataset.targetY);
         path.setAttribute("d", edgePath(start.x, start.y, targetX, targetY, source.dataset.placement, oppositePlacement(source.dataset.placement)));
@@ -1012,43 +1054,11 @@ function updateEdges(state) {
     });
 }
 
-function validatePortConfiguration(state) {
-    const ports = new Set();
-    state.root.querySelectorAll("[data-slot='node-editor-port']").forEach(port => {
-        const key = portKey(port.dataset.nodeId, port.dataset.portId);
-        if (ports.has(key)) {
-            throw new Error(`Node editor '${state.root.id}' contains duplicate port '${port.dataset.portId}' on node '${port.dataset.nodeId}'.`);
-        }
-
-        ports.add(key);
-    });
-
-    state.root.querySelectorAll("[data-edge-id]").forEach(edge => {
-        const sourceKey = portKey(edge.dataset.sourceNode, edge.dataset.sourcePort);
-        const targetKey = portKey(edge.dataset.targetNode, edge.dataset.targetPort);
-        if (!ports.has(sourceKey)) {
-            throw new Error(`Edge '${edge.dataset.edgeId}' references missing source port '${edge.dataset.sourcePort}' on node '${edge.dataset.sourceNode}'.`);
-        }
-
-        if (!ports.has(targetKey)) {
-            throw new Error(`Edge '${edge.dataset.edgeId}' references missing target port '${edge.dataset.targetPort}' on node '${edge.dataset.targetNode}'.`);
-        }
-    });
-
-    state.root.querySelectorAll("[data-add-handle-edge]").forEach(handle => {
-        const sourceKey = portKey(handle.dataset.sourceNode, handle.dataset.sourcePort);
-        if (!ports.has(sourceKey)) {
-            throw new Error(`Add handle '${handle.dataset.addHandleEdge}' references missing source port '${handle.dataset.sourcePort}' on node '${handle.dataset.sourceNode}'.`);
-        }
-    });
-}
-
 function portKey(nodeId, portId) {
     return `${nodeId ?? ""}\u0000${portId ?? ""}`;
 }
 
-function portCenterInGraph(state, port) {
-    const rootRect = state.root.getBoundingClientRect();
+function portCenterInGraph(state, port, rootRect = state.root.getBoundingClientRect()) {
     const rect = port.getBoundingClientRect();
     return {
         x: ((rect.left + rect.width / 2) - rootRect.left - state.panX) / state.zoom,
@@ -1061,7 +1071,7 @@ function findPort(state, nodeId, portId) {
 }
 
 function updatePortCapacities(state) {
-    state.root.querySelectorAll("[data-slot='node-editor-port']").forEach(port => {
+    state.ports.forEach(port => {
         const atCapacity = !portAvailable(state, port, null);
         port.dataset.atCapacity = atCapacity ? "true" : "false";
         if (atCapacity) {
@@ -1085,11 +1095,21 @@ function portAvailable(state, port, excludedEdgeId) {
     const nodeId = port.dataset.nodeId;
     const portId = port.dataset.portId;
     const endpoint = port.dataset.portType === "source" ? "source" : "target";
-    const count = state.edgeElements.filter(edge =>
-        edge.dataset.edgeId !== excludedEdgeId &&
-        edge.dataset[`${endpoint}Node`] === nodeId &&
-        edge.dataset[`${endpoint}Port`] === portId).length;
+    let count = state.connectionCounts.get(connectionCountKey(endpoint, nodeId, portId)) ?? 0;
+    const excludedEdge = excludedEdgeId ? state.edgeElementsById.get(excludedEdgeId) : null;
+    if (excludedEdge && excludedEdge.dataset[`${endpoint}Node`] === nodeId && excludedEdge.dataset[`${endpoint}Port`] === portId) {
+        count--;
+    }
     return count < maximum;
+}
+
+function connectionCountKey(endpoint, nodeId, portId) {
+    return `${endpoint}\u0000${portKey(nodeId, portId)}`;
+}
+
+function incrementConnectionCount(counts, endpoint, nodeId, portId) {
+    const key = connectionCountKey(endpoint, nodeId, portId);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
 }
 
 function portCapacityMessage(port) {

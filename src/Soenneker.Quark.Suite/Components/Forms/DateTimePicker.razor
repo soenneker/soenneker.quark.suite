@@ -28,7 +28,7 @@
                 }
                 @foreach (var day in BuildMonthCells())
                 {
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="@GetDayClass(day)" Disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</Button>
+                    <Button @key="day.Date" Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="@GetDayClass(day)" Disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</Button>
                 }
             </Grid>
 
@@ -136,6 +136,10 @@
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private CultureInfo _currentCulture = CultureInfo.CurrentCulture;
+    private string? _dayNamesCultureName;
+    private DayOfWeek _dayNamesFirstDay;
+    private Cell[]? _monthCells;
+    private MonthCellState _monthCellState;
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _pendingDate;
     private int _hour; // 0-23
@@ -197,7 +201,6 @@
 
         if (valueChanged)
         {
-            InvalidateRender();
             Refresh();
         }
     }
@@ -216,7 +219,6 @@
 
         if (valueChanged)
         {
-            InvalidateRender();
             Refresh();
         }
     }
@@ -313,6 +315,10 @@
     {
         var culture = _currentCulture;
         var first = culture.DateTimeFormat.FirstDayOfWeek;
+
+        if (string.Equals(_dayNamesCultureName, culture.Name, StringComparison.Ordinal) && _dayNamesFirstDay == first && _dayNames.Length != 0)
+            return;
+
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
         var dayNames = new string[7];
 
@@ -322,9 +328,12 @@
         }
 
         _dayNames = dayNames;
+        _dayNamesCultureName = culture.Name;
+        _dayNamesFirstDay = first;
     }
 
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
+    private readonly record struct MonthCellState(DateOnly DisplayMonth, string CultureName, DayOfWeek FirstDayOfWeek, DateOnly? Min, DateOnly? Max);
 
     private string GetDayClass(Cell day)
     {
@@ -346,8 +355,14 @@
 
     private Cell[] BuildMonthCells()
     {
-        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
         var culture = _currentCulture;
+        var state = new MonthCellState(_displayMonth, culture.Name, culture.DateTimeFormat.FirstDayOfWeek,
+            Min.HasValue ? DateOnly.FromDateTime(Min.Value) : null, Max.HasValue ? DateOnly.FromDateTime(Max.Value) : null);
+
+        if (_monthCells is not null && _monthCellState.Equals(state))
+            return _monthCells;
+
+        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
         var startDow = culture.DateTimeFormat.FirstDayOfWeek;
         var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
         var gridStart = firstOfMonth.AddDays(-offset);
@@ -361,6 +376,8 @@
             cells[i] = new Cell(d, inMonth, disabled);
         }
 
+        _monthCellState = state;
+        _monthCells = cells;
         return cells;
     }
 
@@ -368,7 +385,6 @@
     {
         if (!_open)
             _open = true;
-        InvalidateRender();
         Refresh();
         return Task.CompletedTask;
     }
@@ -376,7 +392,6 @@
     private Task HandleOpenChanged(bool open)
     {
         _open = open;
-        InvalidateRender();
         Refresh();
         return Task.CompletedTask;
     }
@@ -406,7 +421,6 @@
             await ParentValidation.NotifyInputChanged(SelectedDateTime);
         }
 
-        InvalidateRender();
         Refresh();
     }
 
@@ -510,7 +524,6 @@
     private Task PrevMonth()
     {
         _displayMonth = _displayMonth.AddMonths(-1);
-        InvalidateRender();
         Refresh();
         return Task.CompletedTask;
     }
@@ -518,7 +531,6 @@
     private Task NextMonth()
     {
         _displayMonth = _displayMonth.AddMonths(1);
-        InvalidateRender();
         Refresh();
         return Task.CompletedTask;
     }

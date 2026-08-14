@@ -152,8 +152,12 @@
     private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private DataTableOptions? _previousOptions;
+    private int[]? _pageSizeOptionsSnapshot;
+    private int[] _resolvedPageSizeOptions = [];
+    private int _resolvedForPageSize;
+    private bool _pageSizeOptionsInitialized;
     private bool ShouldRenderPageSizeSelector => Options.ShowPageSizeSelector && BottomContent is null;
-    private int[] ResolvedPageSizeOptions => NormalizePageSizeOptions(Options.PageSizeOptions, PageSize);
+    private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
     private int StartRecord => TotalRecordsCount == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
     private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
     private string VisibleRecordRangeText => StartRecord == EndRecord ? StartRecord.ToString() : $"{StartRecord}-{EndRecord}";
@@ -258,7 +262,9 @@
             }
 
             // Check if options have changed and trigger reload if needed
-            if (_initialized && _previousOptions != null && !Options.Equals(_previousOptions))
+            var optionsChanged = _previousOptions != null && !Options.Equals(_previousOptions);
+
+            if (_initialized && optionsChanged)
             {
                 if (Options.Debug)
                     Logger.LogDebug("Options changed - resetting table");
@@ -274,7 +280,8 @@
                 }
             }
 
-            _previousOptions = Options.Clone();
+            if (_previousOptions is null || optionsChanged)
+                _previousOptions = Options.Clone();
         }
         finally
         {
@@ -349,6 +356,37 @@
             result.Add(10);
 
         return result.ToArray();
+    }
+
+    private int[] GetResolvedPageSizeOptions()
+    {
+        var options = Options.PageSizeOptions;
+
+        if (_pageSizeOptionsInitialized && _resolvedForPageSize == PageSize && PageSizeOptionsEqual(options, _pageSizeOptionsSnapshot))
+            return _resolvedPageSizeOptions;
+
+        _pageSizeOptionsInitialized = true;
+        _resolvedForPageSize = PageSize;
+        _pageSizeOptionsSnapshot = options is null ? null : [.. options];
+        _resolvedPageSizeOptions = NormalizePageSizeOptions(options, PageSize);
+        return _resolvedPageSizeOptions;
+    }
+
+    private static bool PageSizeOptionsEqual(int[]? left, int[]? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null || right is null || left.Length != right.Length)
+            return false;
+
+        for (var i = 0; i < left.Length; i++)
+        {
+            if (left[i] != right[i])
+                return false;
+        }
+
+        return true;
     }
 
     public async ValueTask HandleSearch(string searchTerm)

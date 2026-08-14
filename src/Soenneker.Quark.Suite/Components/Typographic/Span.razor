@@ -5,7 +5,6 @@
 <span @ref="ElementRef"
       @onclick="HandleClick"
       @onmouseenter="HandleMouseEnter"
-      @onmousemove="HandleMouseMove"
       @onmouseleave="HandleMouseLeave"
       @onpointerdown="HandlePointerDown"
       @onpointerdown:preventDefault="PreventPointerDownDefault"
@@ -63,6 +62,9 @@
 
         if (TriggerContext?.AriaDescribedBy is not null && !attributes.ContainsKey("aria-describedby"))
             attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;
+
+        if (TriggerContext?.OnMouseMove is not null)
+            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleMouseMove);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,6 +90,7 @@
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
         hc.Add(TriggerContext?.SuppressClickAfterPointerDown == true);
+        hc.Add(TriggerContext?.OnMouseMove is not null);
         hc.Add(OnClick.HasDelegate);
     }
 

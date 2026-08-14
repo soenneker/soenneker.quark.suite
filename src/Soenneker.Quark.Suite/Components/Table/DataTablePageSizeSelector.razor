@@ -26,7 +26,7 @@
                 @for (var i = 0; i < ResolvedPageSizeOptions.Length; i++)
                 {
                     var size = ResolvedPageSizeOptions[i];
-                    <SelectItem TValue="int" ItemValue="@size" Text="@GetPageSizeText(size)" />
+                    <SelectItem @key="size" TValue="int" ItemValue="@size" Text="@GetPageSizeText(size)" />
                 }
             </SelectGroup>
         </SelectContent>
@@ -90,7 +90,12 @@
 
     private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
 
-    private int[] ResolvedPageSizeOptions => NormalizePageSizeOptions(PageSizeOptions, ComputedPageSize);
+    private int[]? _pageSizeOptionsSnapshot;
+    private int[] _resolvedPageSizeOptions = [];
+    private int _resolvedForPageSize;
+    private bool _pageSizeOptionsInitialized;
+
+    private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
 
     private CssValue<WidthBuilder>? ResolvedTriggerWidth => Inline ? Quark.Width.Auto : TriggerWidth;
     private CssValue<TextColorBuilder>? ResolvedTriggerTextColor
@@ -147,6 +152,37 @@
             result.Add(10);
 
         return result.ToArray();
+    }
+
+    private int[] GetResolvedPageSizeOptions()
+    {
+        var currentPageSize = ComputedPageSize;
+
+        if (_pageSizeOptionsInitialized && _resolvedForPageSize == currentPageSize && PageSizeOptionsEqual(PageSizeOptions, _pageSizeOptionsSnapshot))
+            return _resolvedPageSizeOptions;
+
+        _pageSizeOptionsInitialized = true;
+        _resolvedForPageSize = currentPageSize;
+        _pageSizeOptionsSnapshot = PageSizeOptions is null ? null : [.. PageSizeOptions];
+        _resolvedPageSizeOptions = NormalizePageSizeOptions(PageSizeOptions, currentPageSize);
+        return _resolvedPageSizeOptions;
+    }
+
+    private static bool PageSizeOptionsEqual(int[]? left, int[]? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null || right is null || left.Length != right.Length)
+            return false;
+
+        for (var i = 0; i < left.Length; i++)
+        {
+            if (left[i] != right[i])
+                return false;
+        }
+
+        return true;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

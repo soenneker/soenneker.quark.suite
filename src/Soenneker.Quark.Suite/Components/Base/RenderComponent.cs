@@ -399,10 +399,19 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             builder(ref cls);
 
             attrs.TryGetValue("class", out var existing);
-            var combined = AppendToClass(cls.ToString(), existing?.ToString() ?? string.Empty);
+            var existingString = existing as string ?? existing?.ToString();
 
-            if (combined.Length > 0)
-                attrs["class"] = combined;
+            if (cls.Length == 0)
+            {
+                if (existingString.HasContent())
+                    attrs["class"] = existingString!;
+                return;
+            }
+
+            if (existingString.HasContent())
+                AppendClass(ref cls, existingString!);
+
+            attrs["class"] = cls.ToString();
         }
         finally
         {

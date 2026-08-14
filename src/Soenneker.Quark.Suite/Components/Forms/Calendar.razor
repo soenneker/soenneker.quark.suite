@@ -19,7 +19,7 @@
             var month = _displayMonth.AddMonths(monthIndex);
             var weeks = BuildMonthWeeks(month);
 
-            <Div Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="rdp-month">
+            <Div @key="month" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="rdp-month">
                 <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Padding='Quark.Padding.OnX.Token("(--cell-size)")' Class="rdp-month_caption">
                     @if (CaptionLayout == "dropdown")
                     {
@@ -74,7 +74,7 @@
                     <TbodyPrimitive Class="rdp-weeks">
                         @foreach (var week in weeks)
                         {
-                            <TrPrimitive Margin="Quark.Margin.FromTop.Is2" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" Class="rdp-week">
+                            <TrPrimitive @key="week[0].Date" Margin="Quark.Margin.FromTop.Is2" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" Class="rdp-week">
                                 @if (ShowWeekNumber)
                                 {
                                     <TdPrimitive TextSize='Quark.TextSize.Token("[0.8rem]")' TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="rdp-week_number" role="rowheader" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
@@ -90,7 +90,7 @@
                                     var cellCss = GetDayCellClass(dayContext, day);
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
-                                    <TdPrimitive Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
+                                    <TdPrimitive @key="day.Date" Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
                                         <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@($"{CalendarDayButtonSize} {buttonCss}")" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
                                             @if (DayContent is not null)
                                             {
@@ -243,6 +243,11 @@
     private string[] _fullDayNames = [];
     private CultureInfo _resolvedCulture = CultureInfo.CurrentCulture;
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
+    private readonly Dictionary<DateOnly, List<Cell[]>> _monthWeeks = [];
+    private CalendarGridState _calendarGridState;
+    private string? _dayNamesCultureName;
+    private DayOfWeek _dayNamesFirstDay;
+    private bool _dayNamesInitialized;
     private bool _initialized;
     private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
     private bool IsMultipleMode => Mode == CalendarSelectionMode.Multiple;
@@ -250,20 +255,21 @@
     private CalendarDateRange? EffectiveSelectedRange => SelectedRange;
     private IReadOnlyList<DateOnly> EffectiveSelectedDates => SelectedDates ?? [];
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        _today = DateOnly.FromDateTime(DateTime.Today);
-        _resolvedCulture = ResolveCultureCore();
-        InitializeDayNames();
-    }
-
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
         _today = DateOnly.FromDateTime(DateTime.Today);
         _resolvedCulture = ResolveCultureCore();
         InitializeDayNames();
+
+        var gridState = new CalendarGridState(_resolvedCulture.Name, GetFirstDayOfWeek(_resolvedCulture), UseCultureCalendar,
+            ShowOutsideDays, FixedWeeks, Min, Max, GetDisabledDatesHash());
+
+        if (!_calendarGridState.Equals(gridState))
+        {
+            _calendarGridState = gridState;
+            _monthWeeks.Clear();
+        }
 
         if (!IsRangeMode && SelectedDate is null && DateOnlyValue.HasValue)
             SelectedDate = DateOnlyValue;
@@ -294,6 +300,10 @@
     {
         var culture = _resolvedCulture;
         var first = GetFirstDayOfWeek(culture);
+
+        if (_dayNamesInitialized && string.Equals(_dayNamesCultureName, culture.Name, StringComparison.Ordinal) && _dayNamesFirstDay == first)
+            return;
+
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
         var fullNames = culture.DateTimeFormat.DayNames;
 
@@ -309,6 +319,9 @@
 
         _dayNames = dayNames;
         _fullDayNames = fullDayNames;
+        _dayNamesCultureName = culture.Name;
+        _dayNamesFirstDay = first;
+        _dayNamesInitialized = true;
     }
 
     private DateOnly GetInitialMultipleDate()
@@ -318,8 +331,14 @@
 
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
 
+    private readonly record struct CalendarGridState(string CultureName, DayOfWeek FirstDayOfWeek, bool UseCultureCalendar,
+        bool ShowOutsideDays, bool FixedWeeks, DateOnly? Min, DateOnly? Max, int DisabledDatesHash);
+
     private List<Cell[]> BuildMonthWeeks(DateOnly month)
     {
+        if (_monthWeeks.TryGetValue(month, out var cachedWeeks))
+            return cachedWeeks;
+
         var culture = _resolvedCulture;
         var calendar = culture.Calendar;
         DateOnly firstOfMonth;
@@ -370,7 +389,25 @@
             weeks.RemoveRange(lastWeekWithMonthDays + 1, weeks.Count - lastWeekWithMonthDays - 1);
         }
 
+        if (_monthWeeks.Count >= Math.Max(NumberOfMonths * 2, 12))
+            _monthWeeks.Clear();
+
+        _monthWeeks[month] = weeks;
         return weeks;
+    }
+
+    private int GetDisabledDatesHash()
+    {
+        if (DisabledDates is null || DisabledDates.Length == 0)
+            return 0;
+
+        var hash = new HashCode();
+        hash.Add(DisabledDates.Length);
+
+        for (var i = 0; i < DisabledDates.Length; i++)
+            hash.Add(DisabledDates[i]);
+
+        return hash.ToHashCode();
     }
 
     private bool IsInDisplayedMonth(DateOnly date, DateOnly month, System.Globalization.Calendar calendar, int cultureCalendarYear, int cultureCalendarMonth)
@@ -403,7 +440,6 @@
             var nextRange = BuildNextRange(date);
             SelectedRange = nextRange;
             await SelectedRangeChanged.InvokeAsync(nextRange);
-            InvalidateRender();
             Refresh();
             return;
         }
@@ -412,7 +448,6 @@
         {
             SelectedDates = ToggleSelectedDate(date);
             await SelectedDatesChanged.InvokeAsync(SelectedDates);
-            InvalidateRender();
             Refresh();
             return;
         }
@@ -421,7 +456,6 @@
         DateOnlyValue = date;
         await SelectedDateChanged.InvokeAsync(SelectedDate);
         await ValueChanged.InvokeAsync(DateOnlyValue);
-        InvalidateRender();
         Refresh();
     }
 
@@ -487,7 +521,6 @@
         var month = monthIndex + 1;
         _displayMonth = new DateOnly(_displayMonth.Year, month, 1);
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        InvalidateRender();
         Refresh();
     }
 
@@ -498,7 +531,6 @@
 
         _displayMonth = new DateOnly(year, _displayMonth.Month, 1);
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        InvalidateRender();
         Refresh();
     }
 
@@ -942,7 +974,6 @@
 
         _displayMonth = _displayMonth.AddMonths(-1);
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        InvalidateRender();
         Refresh();
     }
 
@@ -953,7 +984,6 @@
 
         _displayMonth = _displayMonth.AddMonths(1);
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        InvalidateRender();
         Refresh();
     }
 

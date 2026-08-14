@@ -53,6 +53,13 @@
     private int _focusedColumn;
     private int _focusedIndex;
     private bool _preventKeyDefault;
+    private IReadOnlyList<CascaderOption> _selectedOptionsCache = [];
+    private IReadOnlyList<string> _selectedLabelsCache = [];
+    private IReadOnlyList<IReadOnlyList<CascaderOption>> _columnsCache = [];
+    private IReadOnlyList<CascaderOption>? _selectionOptionsSource;
+    private IReadOnlyList<CascaderOption>? _columnsOptionsSource;
+    private string[] _selectionPathSnapshot = [];
+    private string[] _columnsPathSnapshot = [];
     private static readonly CssValue<TruncateBuilder> OptionLabelTruncate = Quark.Truncate.Default;
     private static readonly CssValue<SizeBuilder> OptionChevronSize = Quark.Size.Is4;
     private static readonly CssValue<MarginBuilder> OptionChevronMargin = Quark.Margin.FromLeft.Is2;
@@ -96,7 +103,7 @@
 
     private bool HasSelection => CurrentValue.Length > 0 && SelectedOptions.Count > 0;
 
-    private IReadOnlyList<CascaderOption> SelectedOptions => GetSelectedOptions(CurrentValue);
+    private IReadOnlyList<CascaderOption> SelectedOptions => GetSelectedOptionsCached();
 
     private string DisplayValueOrPlaceholder => HasSelection ? DisplayValue : Placeholder ?? "Please select";
 
@@ -104,9 +111,8 @@
     {
         get
         {
-            var selectedOptions = SelectedOptions;
-            var labels = selectedOptions.Select(option => option.DisplayLabel).ToArray();
-            return DisplayRender?.Invoke(labels, selectedOptions) ?? string.Join(" / ", labels);
+            var selectedOptions = GetSelectedOptionsCached();
+            return DisplayRender?.Invoke(_selectedLabelsCache, selectedOptions) ?? string.Join(" / ", _selectedLabelsCache);
         }
     }
 
@@ -159,6 +165,7 @@
                 var isSelected = CurrentValue.Length > columnIndex && string.Equals(CurrentValue[columnIndex], option.Value, StringComparison.Ordinal);
 
                 builder.OpenElement(10, "div");
+                builder.SetKey(option.Value);
                 builder.AddAttribute(11, "data-slot", "cascader-option");
                 builder.AddAttribute(12, "data-value", option.Value);
                 builder.AddAttribute(13, "role", "option");
@@ -222,7 +229,6 @@
             _expandedPath = [];
         }
 
-        InvalidateRender();
         await RefreshOffThread();
     }
 
@@ -231,14 +237,13 @@
         if (Disabled || ReadOnly || option.Disabled)
             return;
 
-        var nextPath = _expandedPath.Take(columnIndex).Append(option.Value).ToArray();
+        var nextPath = BuildPath(columnIndex, option.Value);
 
         if (option.HasChildren)
         {
             _expandedPath = nextPath;
             _focusedColumn = columnIndex + 1;
             _focusedIndex = 0;
-            InvalidateRender();
             await RefreshOffThread();
             return;
         }
@@ -251,8 +256,7 @@
         if (ExpandTrigger != CascaderExpandTrigger.Hover || !option.HasChildren || option.Disabled)
             return;
 
-        _expandedPath = _expandedPath.Take(columnIndex).Append(option.Value).ToArray();
-        InvalidateRender();
+        _expandedPath = BuildPath(columnIndex, option.Value);
         await RefreshOffThread();
     }
 
@@ -289,7 +293,7 @@
             case "Backspace":
                 if (columnIndex > 0)
                 {
-                    _expandedPath = _expandedPath.Take(columnIndex - 1).ToArray();
+                    _expandedPath = BuildPath(columnIndex - 1);
                     _focusedColumn = columnIndex - 1;
                     _focusedIndex = 0;
                 }
@@ -300,7 +304,6 @@
                 break;
         }
 
-        InvalidateRender();
         await RefreshOffThread();
     }
 
@@ -334,18 +337,20 @@
             });
         }
 
-        InvalidateRender();
         await RefreshOffThread();
     }
 
     private IReadOnlyList<IReadOnlyList<CascaderOption>> GetColumns()
     {
+        if (PathCacheMatches(_columnsOptionsSource, _columnsPathSnapshot, _expandedPath))
+            return _columnsCache;
+
         var columns = new List<IReadOnlyList<CascaderOption>> { Options };
         var currentOptions = Options;
 
         foreach (var value in _expandedPath)
         {
-            var found = currentOptions.FirstOrDefault(option => string.Equals(option.Value, value, StringComparison.Ordinal));
+            var found = FindOption(currentOptions, value);
 
             if (found?.HasChildren != true)
                 break;
@@ -354,6 +359,9 @@
             currentOptions = found.Children;
         }
 
+        _columnsOptionsSource = Options;
+        _columnsPathSnapshot = [.. _expandedPath];
+        _columnsCache = columns;
         return columns;
     }
 
@@ -364,7 +372,7 @@
 
         foreach (var value in values)
         {
-            var found = currentOptions.FirstOrDefault(option => string.Equals(option.Value, value, StringComparison.Ordinal));
+            var found = FindOption(currentOptions, value);
 
             if (found is null)
                 break;
@@ -373,6 +381,64 @@
             currentOptions = found.Children;
         }
 
+        return result;
+    }
+
+    private IReadOnlyList<CascaderOption> GetSelectedOptionsCached()
+    {
+        var values = CurrentValue;
+        if (PathCacheMatches(_selectionOptionsSource, _selectionPathSnapshot, values))
+            return _selectedOptionsCache;
+
+        var selected = GetSelectedOptions(values);
+        var labels = new string[selected.Count];
+        for (var i = 0; i < selected.Count; i++)
+            labels[i] = selected[i].DisplayLabel;
+
+        _selectionOptionsSource = Options;
+        _selectionPathSnapshot = [.. values];
+        _selectedOptionsCache = selected;
+        _selectedLabelsCache = labels;
+        return selected;
+    }
+
+    private bool PathCacheMatches(IReadOnlyList<CascaderOption>? optionsSource, IReadOnlyList<string> snapshot, IReadOnlyList<string> path)
+    {
+        if (!ReferenceEquals(optionsSource, Options) || snapshot.Count != path.Count)
+            return false;
+
+        for (var i = 0; i < path.Count; i++)
+        {
+            if (!string.Equals(snapshot[i], path[i], StringComparison.Ordinal))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static CascaderOption? FindOption(IReadOnlyList<CascaderOption> options, string value)
+    {
+        for (var i = 0; i < options.Count; i++)
+        {
+            if (string.Equals(options[i].Value, value, StringComparison.Ordinal))
+                return options[i];
+        }
+
+        return null;
+    }
+
+    private string[] BuildPath(int count, string? appendedValue = null)
+    {
+        count = Math.Clamp(count, 0, _expandedPath.Length);
+        var length = count + (appendedValue is null ? 0 : 1);
+        if (length == 0)
+            return [];
+
+        var result = new string[length];
+        if (count > 0)
+            Array.Copy(_expandedPath, result, count);
+        if (appendedValue is not null)
+            result[^1] = appendedValue;
         return result;
     }
 

@@ -295,6 +295,23 @@ public abstract class Component : RenderComponent, IComponent
 
     public override Task SetParametersAsync(ParameterView parameters)
     {
+        var resolvedPreset = Preset;
+        var resolvedPresets = Presets;
+
+        if (parameters.TryGetValue(nameof(Preset), out QuarkPresetToken? preset))
+            resolvedPreset = preset;
+
+        if (parameters.TryGetValue(nameof(Presets), out IReadOnlyList<QuarkPresetToken>? presets))
+            resolvedPresets = presets;
+
+        // Explicit-parameter tracking is only needed while presets are active. Avoid a second
+        // ParameterView enumeration and HashSet work for the overwhelmingly common no-preset path.
+        if (resolvedPreset is null && (resolvedPresets is null || resolvedPresets.Count == 0))
+        {
+            _explicitParameters?.Clear();
+            return base.SetParametersAsync(parameters);
+        }
+
         _explicitParameters ??= new HashSet<string>(StringComparer.Ordinal);
         _explicitParameters.Clear();
 
@@ -310,10 +327,13 @@ public abstract class Component : RenderComponent, IComponent
 
     protected CssValue<T>? ResolvePresetValue<T>(CssValue<T>? value, CssValue<T>? presetValue, string parameterName) where T : class, ICssBuilder
     {
+        if (presetValue is null)
+            return value;
+
         if (HasExplicitParameter(parameterName))
             return value;
 
-        return presetValue ?? value;
+        return presetValue;
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)

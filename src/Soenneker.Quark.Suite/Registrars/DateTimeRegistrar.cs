@@ -18,6 +18,7 @@ public static class DateTimeRegistrar
     {
         services.AddModuleImportUtilAsScoped();
         services.TryAddScoped<IQuarkDateTimeFormatter, QuarkDateTimeFormatter>();
+        services.TryAddScoped<IQuarkDateTimeScheduler, QuarkDateTimeScheduler>();
         services.TryAddScoped<IQuarkBrowserTimeZoneInterop, QuarkBrowserTimeZoneInterop>();
         services.TryAddScoped<IQuarkBrowserTimeZoneService, QuarkBrowserTimeZoneService>();
 

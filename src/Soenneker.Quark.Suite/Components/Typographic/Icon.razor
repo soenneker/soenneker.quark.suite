@@ -20,6 +20,9 @@
     private ILucideIconSvgProvider? SvgProvider { get; set; }
 
     private string? _svgWithAttributes;
+    private IReadOnlyDictionary<string, object>? _svgAttributes;
+    private LucideIcon _svgName;
+    private bool _svgResolved;
 
     private LucideIcon _lastName;
     private string? _iconNameCache;
@@ -46,7 +49,15 @@
             _iconNameCache = Name.ToString();
         }
 
-        _svgWithAttributes = GetSvgWithAttributes();
+        var attributes = BuildAttributes();
+
+        if (_svgResolved && EqualityComparer<LucideIcon>.Default.Equals(_svgName, Name) && ReferenceEquals(_svgAttributes, attributes))
+            return;
+
+        _svgName = Name;
+        _svgAttributes = attributes;
+        _svgWithAttributes = GetSvgWithAttributes(attributes);
+        _svgResolved = true;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -55,7 +66,7 @@
         hc.Add(Name);
     }
 
-    private string? GetSvgWithAttributes()
+    private string? GetSvgWithAttributes(IReadOnlyDictionary<string, object> attributes)
     {
         var iconName = _iconNameCache;
         if (iconName is null)
@@ -66,8 +77,7 @@
         if (raw.IsNullOrEmpty())
             return null;
 
-        var attrs = BuildAttributes();
-        return InjectAttributesIntoSvg(raw, attrs);
+        return InjectAttributesIntoSvg(raw, attributes);
     }
 
     private string? GetSvg(string iconName)

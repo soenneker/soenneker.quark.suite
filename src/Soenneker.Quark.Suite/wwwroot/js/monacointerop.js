@@ -100,6 +100,11 @@ function removeEditorState(state) {
     }
 
     state.container = null;
+
+    if (activeEditors.size === 0 && domObserver) {
+        domObserver.disconnect();
+        domObserver = null;
+    }
 }
 
 function getEditorState(container) {

@@ -20,7 +20,9 @@
              aria-atomic="false">
         @foreach (var group in groups)
         {
-            <ol dir="ltr"
+            var toastOffset = 0d;
+
+            <ol @key="group.Position" dir="ltr"
                 tabindex="-1"
                 class="@GetToasterClass()"
                 data-sonner-toaster="true"
@@ -29,7 +31,6 @@
                 data-x-position="@GetXPosition(group.Position)"
                 style="@GetToasterStyle(group.Toasts)"
                 @onmouseenter="(() => SetExpanded(group.Position, true))"
-                @onmousemove="(() => SetExpanded(group.Position, true))"
                 @onmouseleave="(() => SetExpanded(group.Position, false))"
                 @onfocusin="(() => SetFocused(group.Position, true))"
                 @onfocusout="(() => SetFocused(group.Position, false))"
@@ -40,6 +41,9 @@
                     var toast = group.Toasts[i];
                     var isVisible = i < VisibleToasts && !toast.Removed;
                     var expanded = IsExpanded(group.Position);
+                    var toastHeight = GetToastHeight(toast);
+                    var toastStyle = GetToastStyle(group.Toasts.Count, i, toastOffset, toastHeight);
+                    toastOffset += toastHeight + DefaultGap;
 
                     <li @key="toast.Id"
                         tabindex="0"
@@ -62,7 +66,7 @@
                         data-type="@GetDataType(toast)"
                         data-swipe-out="@GetBoolString(IsSwipeDismissed(toast.Id))"
                         data-expanded="@GetBoolString(expanded)"
-                        style="@GetToastStyle(group.Toasts, i)">
+                        style="@toastStyle">
                         @if (HasIcon(toast))
                         {
                             <div data-icon>
@@ -319,17 +323,9 @@
         return Style.HasContent() ? $"{baseStyle} {Style}" : baseStyle;
     }
 
-    private string GetToastStyle(IReadOnlyList<SonnerToast> toasts, int index)
+    private static string GetToastStyle(int toastCount, int index, double offset, double initialHeight)
     {
-        double offset = 0;
-
-        for (var i = 0; i < index; i++)
-        {
-            offset += GetToastHeight(toasts[i]) + DefaultGap;
-        }
-
-        var initialHeight = GetToastHeight(toasts[index]);
-        var zIndex = toasts.Count - index;
+        var zIndex = toastCount - index;
         return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
     }
 

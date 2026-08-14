@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Soenneker.Quark;
 
@@ -13,14 +13,19 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class DateTimeComponentBase : Element
 {
-    private CancellationTokenSource? _timerCts;
-    private Task? _timerTask;
     private bool _browserTimeZoneResolved;
     private bool _restartTimerAfterRender = true;
     private string? _browserTimeZone;
     private string _displayText = string.Empty;
     private string? _displayTitle;
     private string? _dateTimeAttribute;
+    private QuarkDateTimeFormatOptions? _cachedOptions;
+    private QuarkDateTimeFormatOptions? _attributeOptions;
+    private DateTimeOffset? _attributeValue;
+    private DateTimeParameterState? _lastParameterState;
+    private IQuarkDateTimeScheduleRegistration? _scheduleRegistration;
+    private IQuarkDateTimeScheduler? _resolvedScheduler;
+    private QuarkDateTimeScheduler? _fallbackScheduler;
 
     /// <summary>
     /// Gets or sets an optional .NET date/time format string.
@@ -100,6 +105,13 @@ public abstract class DateTimeComponentBase : Element
     protected IQuarkBrowserTimeZoneService BrowserTimeZoneService { get; set; } = null!;
 
     /// <summary>
+    /// Gets the service provider used to resolve the shared scheduler while preserving
+    /// compatibility with hosts that manually registered the older date/time services.
+    /// </summary>
+    [Inject]
+    protected IServiceProvider Services { get; set; } = null!;
+
+    /// <summary>
     /// Gets the formatter kind for the component.
     /// </summary>
     protected abstract QuarkDateTimeUpdateKind UpdateKind { get; }
@@ -140,7 +152,17 @@ public abstract class DateTimeComponentBase : Element
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        UpdateDisplay(DateTimeOffset.UtcNow);
+
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        var state = new DateTimeParameterState(Format, TimeZone, Culture, CultureName, AutoUpdate, RefreshInterval, NullText,
+            DateRelativeFormatStyleCore, ExpiredTextCore, UpdateKind == QuarkDateTimeUpdateKind.Now ? null : GetEffectiveValue(now));
+
+        if (_lastParameterState.HasValue && _lastParameterState.Value.Equals(state))
+            return;
+
+        _lastParameterState = state;
+        InvalidateOptions();
+        UpdateDisplay(now);
         _restartTimerAfterRender = true;
     }
 
@@ -157,16 +179,19 @@ public abstract class DateTimeComponentBase : Element
             if (!string.Equals(_browserTimeZone, timeZone, StringComparison.Ordinal))
             {
                 _browserTimeZone = timeZone;
+                InvalidateOptions();
 
                 if (UpdateDisplay(DateTimeOffset.UtcNow))
                     await InvokeAsync(StateHasChanged);
+
+                _restartTimerAfterRender = true;
             }
         }
 
         if (_restartTimerAfterRender)
         {
             _restartTimerAfterRender = false;
-            await RestartTimer();
+            SyncScheduleRegistration();
         }
     }
 
@@ -221,26 +246,29 @@ public abstract class DateTimeComponentBase : Element
         var value = GetEffectiveValue(now);
         var options = BuildOptions();
         var text = FormatValue(value, now, options);
-        var title = value.HasValue ? Formatter.FormatTitle(value.Value, options) : null;
-        var dateTime = value.HasValue ? Formatter.FormatDateTimeAttribute(value.Value, options) : null;
+        bool attributesChanged = !ReferenceEquals(_attributeOptions, options) || _attributeValue != value;
 
-        if (string.Equals(_displayText, text, StringComparison.Ordinal) &&
-            string.Equals(_displayTitle, title, StringComparison.Ordinal) &&
-            string.Equals(_dateTimeAttribute, dateTime, StringComparison.Ordinal))
+        if (attributesChanged)
+        {
+            _displayTitle = value.HasValue ? Formatter.FormatTitle(value.Value, options) : null;
+            _dateTimeAttribute = value.HasValue ? Formatter.FormatDateTimeAttribute(value.Value, options) : null;
+            _attributeOptions = options;
+            _attributeValue = value;
+        }
+
+        if (string.Equals(_displayText, text, StringComparison.Ordinal) && !attributesChanged)
         {
             return false;
         }
 
         _displayText = text;
-        _displayTitle = title;
-        _dateTimeAttribute = dateTime;
 
         return true;
     }
 
     private QuarkDateTimeFormatOptions BuildOptions()
     {
-        return new QuarkDateTimeFormatOptions
+        return _cachedOptions ??= new QuarkDateTimeFormatOptions
         {
             Format = Format,
             TimeZone = TimeZone,
@@ -253,20 +281,33 @@ public abstract class DateTimeComponentBase : Element
         };
     }
 
-    private async Task RestartTimer()
+    private void InvalidateOptions()
     {
-        await StopTimer();
+        _cachedOptions = null;
+        _attributeOptions = null;
+        _attributeValue = null;
+    }
 
-        if (!AutoUpdate)
-            return;
-
-        var interval = GetNextInterval(DateTimeOffset.UtcNow);
+    private void SyncScheduleRegistration()
+    {
+        TimeSpan? interval = AutoUpdate ? GetNextInterval(DateTimeOffset.UtcNow) : null;
 
         if (!interval.HasValue)
+        {
+            _scheduleRegistration?.Dispose();
+            _scheduleRegistration = null;
             return;
+        }
 
-        _timerCts = new CancellationTokenSource();
-        _timerTask = RunTimer(_timerCts.Token);
+        if (_scheduleRegistration is null)
+        {
+            _resolvedScheduler ??= Services.GetService<IQuarkDateTimeScheduler>() ??
+                                   (_fallbackScheduler = new QuarkDateTimeScheduler(NullLogger<QuarkDateTimeScheduler>.Instance));
+            _scheduleRegistration = _resolvedScheduler.Register(GetNextInterval, OnScheduledUpdate);
+            return;
+        }
+
+        _scheduleRegistration.Reschedule();
     }
 
     private TimeSpan? GetNextInterval(DateTimeOffset now)
@@ -293,59 +334,12 @@ public abstract class DateTimeComponentBase : Element
         return interval.Value < TimeSpan.FromMilliseconds(250) ? TimeSpan.FromMilliseconds(250) : interval.Value;
     }
 
-    private async Task RunTimer(CancellationToken cancellationToken)
+    private async ValueTask OnScheduledUpdate(DateTimeOffset now)
     {
-        try
+        if (UpdateDisplay(now))
         {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                var now = DateTimeOffset.UtcNow;
-                var interval = GetNextInterval(now);
-
-                if (!interval.HasValue)
-                    return;
-
-                using var timer = new PeriodicTimer(interval.Value);
-
-                if (!await timer.WaitForNextTickAsync(cancellationToken))
-                    return;
-
-                if (UpdateDisplay(DateTimeOffset.UtcNow))
-                    await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception exception)
-        {
-            Logger.LogError(exception, "Quark date/time auto-update failed.");
-        }
-    }
-
-    private async Task StopTimer()
-    {
-        var cts = _timerCts;
-        var task = _timerTask;
-
-        _timerCts = null;
-        _timerTask = null;
-
-        if (cts is not null)
-        {
-            await cts.CancelAsync();
-            cts.Dispose();
-        }
-
-        if (task is not null)
-        {
-            try
-            {
-                await task;
-            }
-            catch (OperationCanceledException)
-            {
-            }
+            InvalidateRender();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -355,7 +349,16 @@ public abstract class DateTimeComponentBase : Element
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
-        await StopTimer();
+        _scheduleRegistration?.Dispose();
+        _scheduleRegistration = null;
+
+        if (_fallbackScheduler is not null)
+        {
+            await _fallbackScheduler.DisposeAsync();
+            _fallbackScheduler = null;
+            _resolvedScheduler = null;
+        }
+
         await base.DisposeAsync();
     }
 
@@ -379,4 +382,8 @@ public abstract class DateTimeComponentBase : Element
         hc.Add(_dateTimeAttribute);
         hc.Add(Template is not null);
     }
+
+    private readonly record struct DateTimeParameterState(string? Format, string? TimeZone, CultureInfo? Culture, string? CultureName,
+        bool AutoUpdate, TimeSpan? RefreshInterval, string? NullText, DateRelativeFormatStyle RelativeFormatStyle, string? ExpiredText,
+        DateTimeOffset? Value);
 }
