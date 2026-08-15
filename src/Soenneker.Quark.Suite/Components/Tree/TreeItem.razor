@@ -1,13 +1,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IDisposable
 
 <CascadingValue Name="ParentTreeItem" Value="@this">
-    <button @attributes="BuildAttributes()" @onclick="HandleClick" @onkeydown="HandleKeyDown">
+    <button @ref="_element" @attributes="BuildAttributes()" @onclick="HandleClick" @onfocus="HandleFocus" @onkeydown="HandleKeyDown">
         @ChildContent
     </button>
 </CascadingValue>
 
 @code {
+    private ElementReference _element;
+
     [CascadingParameter(Name = "ParentTree")]
     public Tree? ParentTree { get; set; }
 
@@ -27,12 +30,24 @@
     public bool Disabled { get; set; }
 
     [Parameter]
+    public int? PositionInSet { get; set; }
+
+    [Parameter]
+    public int? SetSize { get; set; }
+
+    [Parameter]
     public EventCallback<MouseEventArgs> Click { get; set; }
 
     [Parameter]
     public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
 
     internal TreeToggleIconType ToggleIconType => ParentTree?.ToggleIconType ?? TreeToggleIconType.Chevron;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ParentTree?.Register(this);
+    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -56,7 +71,14 @@
         attributes["data-folder"] = Folder ? "true" : "false";
         attributes["data-selected"] = Selected ? "true" : "false";
         attributes["aria-selected"] = Selected ? "true" : "false";
-        attributes["tabindex"] = Disabled ? "-1" : "0";
+        attributes["aria-level"] = Math.Max(1, Level + 1);
+        attributes["tabindex"] = ParentTree?.IsCurrent(this) == true ? "0" : "-1";
+
+        if (PositionInSet is > 0)
+            attributes["aria-posinset"] = PositionInSet.Value;
+
+        if (SetSize is > 0)
+            attributes["aria-setsize"] = SetSize.Value;
 
         if (Folder)
             attributes["aria-expanded"] = Expanded ? "true" : "false";
@@ -81,19 +103,40 @@
 
     private Task HandleClick(MouseEventArgs args)
     {
-        if (Disabled || !Click.HasDelegate)
+        if (Disabled)
+            return Task.CompletedTask;
+
+        ParentTree?.SetCurrent(this);
+
+        if (!Click.HasDelegate)
             return Task.CompletedTask;
 
         return Click.InvokeAsync(args);
     }
 
-    private Task HandleKeyDown(KeyboardEventArgs args)
+    private Task HandleFocus(FocusEventArgs _)
     {
-        if (Disabled || !KeyDown.HasDelegate)
-            return Task.CompletedTask;
-
-        return KeyDown.InvokeAsync(args);
+        ParentTree?.SetCurrent(this);
+        return Task.CompletedTask;
     }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (Disabled)
+            return;
+
+        if (ParentTree is not null)
+            await ParentTree.MoveFocus(this, args.Key);
+
+        if (KeyDown.HasDelegate)
+            await KeyDown.InvokeAsync(args);
+    }
+
+    internal ValueTask Focus() => _element.FocusAsync();
+
+    internal void RefreshTreeItem() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => ParentTree?.Unregister(this);
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
@@ -103,5 +146,7 @@
         hc.Add(Expanded);
         hc.Add(Selected);
         hc.Add(Disabled);
+        hc.Add(PositionInSet);
+        hc.Add(SetSize);
     }
 }

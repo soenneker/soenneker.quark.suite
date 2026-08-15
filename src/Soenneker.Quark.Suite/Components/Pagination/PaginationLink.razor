@@ -3,9 +3,18 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IPaginationLink
 
-<a href="@Href" @onclick="HandleClick" @attributes="BuildAttributes()">
-    @ChildContent
-</a>
+@if (Href.HasContent())
+{
+    <a href="@Href" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </a>
+}
+else
+{
+    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     /// <summary>
@@ -76,9 +85,16 @@
         if (Disabled)
         {
             attributes["aria-disabled"] = "true";
-            // Set tabindex only if not already set via TabIndex property
-            if (!attributes.ContainsKey("tabindex"))
-                attributes["tabindex"] = -1;
+
+            if (Href.HasContent())
+            {
+                if (!attributes.ContainsKey("tabindex"))
+                    attributes["tabindex"] = -1;
+            }
+            else
+            {
+                attributes["disabled"] = true;
+            }
         }
     }
 

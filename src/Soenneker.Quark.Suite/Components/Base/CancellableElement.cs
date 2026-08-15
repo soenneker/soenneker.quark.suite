@@ -9,9 +9,6 @@ namespace Soenneker.Quark;
 public abstract class CancellableElement : CancellableComponent, ICancellableElement
 {
     [Parameter]
-    public string Tag { get; set; } = "div";
-
-    [Parameter]
     public int? TabIndex { get; set; }
 
     [Parameter]
@@ -65,7 +62,6 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
     {
         base.ComputeRenderKeyCore(ref hc);
 
-        hc.Add(Tag);
         hc.Add(TabIndex);
         hc.Add(Role);
         hc.Add(AriaLabel);

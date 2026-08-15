@@ -10,4 +10,9 @@ public interface IHeading : IElement
     /// </summary>
     CssValue<ScaleBuilder>? Scale { get; set; }
 
+    /// <summary>
+    /// Gets or sets the semantic HTML heading level independently of visual scale.
+    /// </summary>
+    HeadingLevel? Level { get; set; }
+
 }

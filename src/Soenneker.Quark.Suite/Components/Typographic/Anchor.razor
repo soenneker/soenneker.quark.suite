@@ -2,11 +2,26 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements IAnchor
 
-<a @onclick="HandleClick"
-   @onclick:preventDefault="PreventDefault"
-   @attributes="BuildAttributes()">
-    @ChildContent
-</a>
+@if (Href.HasContent())
+{
+    <a @onclick="HandleClick"
+       @onclick:preventDefault="PreventDefault"
+       @attributes="BuildAttributes()">
+        @ChildContent
+    </a>
+}
+else if (OnClick.HasDelegate)
+{
+    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
+else
+{
+    <span @attributes="BuildAttributes()">
+        @ChildContent
+    </span>
+}
 
 @code {
     [CascadingParameter(Name = SlotAttributes.Name)]
@@ -52,13 +67,15 @@
         base.BuildAttributesCore(attributes);
 
         if (Href.HasContent())
+        {
             attributes["href"] = Href!;
 
-        if (Target is not null)
-            attributes["target"] = Target.Value;
+            if (Target is not null)
+                attributes["target"] = Target.Value;
 
-        if (EnhanceNav is not null)
-            attributes["data-enhance-nav"] = EnhanceNav.Value ? "true" : "false";
+            if (EnhanceNav is not null)
+                attributes["data-enhance-nav"] = EnhanceNav.Value ? "true" : "false";
+        }
 
         SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
     }

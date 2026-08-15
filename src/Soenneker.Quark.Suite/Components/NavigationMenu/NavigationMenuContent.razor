@@ -4,7 +4,8 @@
 @inherits Soenneker.Quark.Element
 @implements INavigationMenuContent
 
-<BradixNavigationMenuContent AdditionalAttributes="@ContentAttributes">
+<BradixNavigationMenuContent ForceMount="@ForceMount"
+                             AdditionalAttributes="@ContentAttributes">
     @ChildContent
 </BradixNavigationMenuContent>
 
@@ -17,6 +18,12 @@
 
     [Parameter]
     public string? Motion { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the dropdown content remains mounted while closed. Enable this for navigation links that must be present in prerendered HTML.
+    /// </summary>
+    [Parameter]
+    public bool ForceMount { get; set; }
 
     private IReadOnlyDictionary<string, object> ContentAttributes
     {
@@ -65,5 +72,6 @@
         hc.Add(Open);
         hc.Add(DisableAutoOpen);
         hc.Add(Motion);
+        hc.Add(ForceMount);
     }
 }

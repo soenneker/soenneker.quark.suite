@@ -39,6 +39,29 @@
         VerticalAlign ??= Quark.VerticalAlign.Middle;
     }
 
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        bool hasAccessibleName = HasNonEmptyAttribute(attributes, "aria-label") ||
+                                 HasNonEmptyAttribute(attributes, "aria-labelledby");
+
+        attributes["focusable"] = "false";
+
+        if (hasAccessibleName)
+        {
+            attributes.Remove("aria-hidden");
+            attributes.TryAdd("role", "img");
+        }
+        else if (!attributes.ContainsKey("role"))
+        {
+            attributes.TryAdd("aria-hidden", "true");
+        }
+    }
+
+    private static bool HasNonEmptyAttribute(IReadOnlyDictionary<string, object> attributes, string name) =>
+        attributes.TryGetValue(name, out object? value) && !string.IsNullOrWhiteSpace(value?.ToString());
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
@@ -287,7 +310,7 @@
 
     private static bool IsSvgSafeAttribute(string key)
     {
-        return key.Length > 0 && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase) || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase) || key.Equals("id", StringComparison.OrdinalIgnoreCase) || key.Equals("title", StringComparison.OrdinalIgnoreCase) || key.Equals("role", StringComparison.OrdinalIgnoreCase) || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase));
+        return key.Length > 0 && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase) || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase) || key.Equals("id", StringComparison.OrdinalIgnoreCase) || key.Equals("title", StringComparison.OrdinalIgnoreCase) || key.Equals("role", StringComparison.OrdinalIgnoreCase) || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase) || key.Equals("focusable", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void AppendEscapedHtmlAttribute(ref PooledStringBuilder sb, string value)

@@ -1,8 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<th @onclick="HandleClick" @attributes="BuildAttributes()">
-	@ChildContent @(Sortable ? GetSortIndicator() : string.Empty)
+<th @attributes="BuildAttributes()">
+    @if (Sortable)
+    {
+        <button type="button" class="@GetSortButtonClass()" @onclick="HandleClick">
+            @ChildContent <span aria-hidden="true">@GetSortIndicator()</span>
+        </button>
+    }
+    else
+    {
+        @ChildContent
+    }
 </th>
 
 @code {
@@ -104,6 +113,12 @@
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
+		attributes.TryAdd("scope", "col");
+
+		if (Sortable)
+		{
+			attributes["aria-sort"] = GetAriaSort();
+		}
 
 
 		BuildClassAttribute(attributes, (ref cls) =>
@@ -118,17 +133,32 @@
 		});
 
 		var alignStyle = GetAlignStyle();
-		if (Sortable || alignStyle.HasContent())
+		if (alignStyle.HasContent())
 		{
 			BuildStyleAttribute(attributes, (ref sty) =>
 			{
-				if (Sortable)
-					AppendStyleDecl(ref sty, "cursor:pointer;");
-				
 				if (alignStyle.HasContent())
 					AppendStyleDecl(ref sty, alignStyle);
 			});
 		}
+	}
+
+	private string GetAriaSort() => DataTable?.GetSortDirection(_columnIndex) switch
+	{
+		"asc" => "ascending",
+		"desc" => "descending",
+		_ => "none"
+	};
+
+	private string GetSortButtonClass()
+	{
+		const string baseClass = "inline-flex w-full cursor-pointer items-center gap-1 bg-transparent p-0 text-inherit";
+		return HeaderAlign.ToLowerInvariantFast() switch
+		{
+			"center" => $"{baseClass} justify-center",
+			"right" => $"{baseClass} justify-end",
+			_ => baseClass
+		};
 	}
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)

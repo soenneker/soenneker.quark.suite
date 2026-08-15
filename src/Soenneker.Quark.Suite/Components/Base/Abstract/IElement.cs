@@ -6,10 +6,6 @@ namespace Soenneker.Quark;
 public interface IElement : IComponent
 {
     /// <summary>
-    /// Gets or sets tag.
-    /// </summary>
-    string Tag { get; set; }
-    /// <summary>
     /// Gets or sets tab index.
     /// </summary>
     int? TabIndex { get; set; }

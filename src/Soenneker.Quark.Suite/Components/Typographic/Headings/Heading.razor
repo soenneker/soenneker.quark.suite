@@ -3,7 +3,7 @@
 @implements IHeading
 
 @{
-    var level = GetHeadingLevel(Scale);
+    var level = GetHeadingLevel();
     var attrs = BuildAttributes();
 }
 
@@ -37,6 +37,13 @@ else
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; }
 
+    /// <summary>
+    /// Gets or sets the semantic HTML heading level independently of visual sizing.
+    /// When omitted, the level continues to be inferred from the visual scale for compatibility.
+    /// </summary>
+    [Parameter]
+    public HeadingLevel? Level { get; set; }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -52,9 +59,9 @@ else
             AddCss(ref sty, ref cls, Scale);
         });
 
-        var headingLevel = GetHeadingLevel(Scale);
+        var visualLevel = GetScaleLevel();
 
-        switch (headingLevel)
+        switch (visualLevel)
         {
             case 1:
                 BuildTypographyDefaultAttributes(attributes, Quark.TextSize.FourXl, Quark.FontWeight.Bold, Quark.Tracking.Tight);
@@ -79,10 +86,18 @@ else
 
     
 
-    private static int GetHeadingLevel(CssValue<ScaleBuilder>? scale)
+    private int GetHeadingLevel()
+    {
+        if (Level.HasValue)
+            return (int) Level.Value;
+
+        return GetScaleLevel();
+    }
+
+    private int GetScaleLevel()
     {
         const int fallback = 3;
-        var s = scale?.ToString();
+        var s = Scale?.ToString();
 
         if (s.IsNullOrWhiteSpace())
             return fallback;
@@ -101,5 +116,6 @@ else
     {
         base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, Scale);
+        hc.Add(Level);
     }
 }

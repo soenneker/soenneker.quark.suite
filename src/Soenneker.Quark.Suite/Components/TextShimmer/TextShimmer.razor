@@ -30,6 +30,12 @@ else
     [Parameter]
     public double ShimmerDuration { get; set; } = 1;
 
+    /// <summary>
+    /// Gets or sets the rendered text element. Supported values are <c>span</c>, <c>p</c>, and <c>div</c>.
+    /// </summary>
+    [Parameter]
+    public string Tag { get; set; } = "span";
+
     [Parameter]
     public double RepeatDelay { get; set; }
 
@@ -45,7 +51,7 @@ else
     [Parameter]
     public bool Invert { get; set; }
 
-    private string ResolvedTag => Tag == "div" ? "span" : Tag;
+    private string ResolvedTag => Tag;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -73,6 +79,7 @@ else
         hc.Add(Angle);
         hc.Add(Color);
         hc.Add(Invert);
+        hc.Add(Tag);
     }
 
     private string BuildGradient()

@@ -8,11 +8,69 @@
 </CascadingValue>
 
 @code {
+    private readonly List<TreeItem> _items = [];
+    private TreeItem? _currentItem;
+
     [Parameter]
     public int Indent { get; set; } = 20;
 
     [Parameter]
     public TreeToggleIconType ToggleIconType { get; set; } = TreeToggleIconType.Chevron;
+
+    internal void Register(TreeItem item)
+    {
+        if (!_items.Contains(item))
+            _items.Add(item);
+
+        if (_currentItem is null && !item.Disabled)
+            _currentItem = item;
+    }
+
+    internal void Unregister(TreeItem item)
+    {
+        _items.Remove(item);
+
+        if (ReferenceEquals(_currentItem, item))
+            _currentItem = _items.FirstOrDefault(candidate => !candidate.Disabled);
+    }
+
+    internal bool IsCurrent(TreeItem item) => !item.Disabled && ReferenceEquals(_currentItem, item);
+
+    internal void SetCurrent(TreeItem item)
+    {
+        if (item.Disabled || ReferenceEquals(_currentItem, item))
+            return;
+
+        TreeItem? previous = _currentItem;
+        _currentItem = item;
+        previous?.RefreshTreeItem();
+        item.RefreshTreeItem();
+    }
+
+    internal async Task<bool> MoveFocus(TreeItem item, string? key)
+    {
+        List<TreeItem> enabled = _items.Where(candidate => !candidate.Disabled).ToList();
+        if (enabled.Count == 0)
+            return false;
+
+        int currentIndex = enabled.IndexOf(item);
+        int targetIndex = key switch
+        {
+            "ArrowDown" => Math.Min(currentIndex + 1, enabled.Count - 1),
+            "ArrowUp" => Math.Max(currentIndex - 1, 0),
+            "Home" => 0,
+            "End" => enabled.Count - 1,
+            _ => -1
+        };
+
+        if (targetIndex < 0)
+            return false;
+
+        TreeItem target = enabled[targetIndex];
+        SetCurrent(target);
+        await target.Focus();
+        return true;
+    }
 
     protected override void ApplyDefaultParameters()
     {

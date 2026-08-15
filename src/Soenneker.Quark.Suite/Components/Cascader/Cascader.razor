@@ -20,17 +20,6 @@
                     AriaLabel="@Placeholder">
                 <Span Truncate="Quark.Truncate.Default" Flex="Quark.Flex.Is1" TextAlign="Quark.TextAlign.Start" FontWeight="Quark.FontWeight.Normal">@DisplayValueOrPlaceholder</Span>
                 <Span Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Shrink="Quark.Shrink.Is0">
-                    @if (AllowClear && HasSelection && !Disabled && !ReadOnly)
-                    {
-                        <span role="button"
-                              tabindex="0"
-                              aria-label="Clear selection"
-                              class="inline-flex cursor-pointer opacity-50 hover:opacity-100"
-                              @onclick="ClearSelection"
-                              @onclick:stopPropagation="true">
-                            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
-                        </span>
-                    }
                     <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" aria-hidden="true" />
                 </Span>
             </Button>
@@ -44,6 +33,16 @@
             @RenderColumns()
         </PopoverContent>
     </Popover>
+
+    @if (AllowClear && HasSelection && !Disabled && !ReadOnly)
+    {
+        <button type="button"
+                aria-label="Clear selection"
+                class="absolute end-8 top-1/2 z-10 inline-flex -translate-y-1/2 cursor-pointer items-center bg-transparent p-0 opacity-50 hover:opacity-100"
+                @onclick="ClearSelection">
+            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+        </button>
+    }
 </div>
 
 @code {
@@ -462,6 +461,7 @@
     {
         var attributes = BuildAttributes();
         ApplyFieldControlAttributes(attributes);
+        AppendToClassAttr(attributes, "relative inline-block");
         return attributes;
     }
 

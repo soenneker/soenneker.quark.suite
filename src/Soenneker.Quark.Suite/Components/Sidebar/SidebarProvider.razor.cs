@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
+using Soenneker.Blazor.Utils.Ids;
 using Soenneker.Quark.Dtos;
 
 namespace Soenneker.Quark;
@@ -24,6 +25,8 @@ public partial class SidebarProvider
     private bool _openInternal = true;
     private bool _openMobileInternal;
     private bool _isMobileDetected;
+
+    internal string MobileContentId { get; } = BlazorIdGenerator.New("quark-sidebar-mobile");
 
     [Inject]
     private IModuleImportUtil ModuleImportUtil { get; set; } = null!;

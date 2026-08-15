@@ -87,7 +87,9 @@ public sealed partial class RenderedShadcnParityTests
                 return Task.CompletedTask;
             }));
 
-        await cut.Find("[aria-label='Clear selection']").ClickAsync(new MouseEventArgs());
+        var clear = cut.Find("button[aria-label='Clear selection']");
+        clear.ParentElement?.TagName.Should().NotBe("BUTTON");
+        await clear.ClickAsync(new MouseEventArgs());
 
         selected.Should().BeEmpty();
     }

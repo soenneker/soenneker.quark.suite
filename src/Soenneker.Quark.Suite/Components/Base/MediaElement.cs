@@ -16,7 +16,7 @@ public abstract class MediaElement : Element
     public string? Source { get; set; }
 
     /// <summary>
-    /// Gets or sets alt.
+    /// Gets or sets the meaningful text alternative for content images. Leave null or empty only when the image is decorative.
     /// </summary>
     [Parameter]
     public string? Alt { get; set; }

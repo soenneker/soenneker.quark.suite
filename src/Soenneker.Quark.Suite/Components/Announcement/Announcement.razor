@@ -7,9 +7,15 @@
         @RenderContent()
     </a>
 }
+else if (OnClick.HasDelegate)
+{
+    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @RenderContent()
+    </button>
+}
 else
 {
-    <span @onclick="HandleClick" @attributes="BuildAttributes()">
+    <span @attributes="BuildAttributes()">
         @RenderContent()
     </span>
 }
@@ -84,12 +90,6 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        if (!Href.HasContent() && OnClick.HasDelegate)
-        {
-            attributes["role"] = "button";
-            attributes.TryAdd("tabindex", "0");
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

@@ -9,9 +9,6 @@ namespace Soenneker.Quark;
 public abstract class Element : Component, IElement
 {
     [Parameter]
-    public string Tag { get; set; } = "div";
-
-    [Parameter]
     public int? TabIndex { get; set; }
 
     [Parameter]
@@ -65,7 +62,6 @@ public abstract class Element : Component, IElement
     {
         base.ComputeRenderKeyCore(ref hc);
 
-        hc.Add(Tag);
         hc.Add(TabIndex);
         hc.Add(Role);
         hc.Add(AriaLabel);
