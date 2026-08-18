@@ -10,7 +10,7 @@ export function initializeAutoScroll(element) {
     destroyAutoScroll(element);
 
     const observer = new MutationObserver((mutations) => {
-        const hasConsoleMutation = mutations.some((mutation) => {
+        const hasConsolePanelMutation = mutations.some((mutation) => {
             const target = mutation.target.nodeType === Node.ELEMENT_NODE
                 ? mutation.target
                 : mutation.target.parentElement;
@@ -18,7 +18,7 @@ export function initializeAutoScroll(element) {
             return !target?.closest('[data-slot="console-actions"]');
         });
 
-        if (hasConsoleMutation) {
+        if (hasConsolePanelMutation) {
             scrollToBottom(element);
         }
     });

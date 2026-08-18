@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Provides browser file downloads for console content.
 /// </summary>
-public interface IConsoleInterop : IAsyncDisposable
+public interface IConsolePanelInterop : IAsyncDisposable
 {
     /// <summary>Observes console content and scrolls the element to the latest output after mutations.</summary>
     ValueTask InitializeAutoScroll(ElementReference element, CancellationToken cancellationToken = default);

@@ -1,15 +1,15 @@
-@page "/components/console"
+@page "/components/console-panel"
 @using System.Threading
 @implements IAsyncDisposable
 
-<PageTitle>Console - Quark Suite</PageTitle>
+<PageTitle>ConsolePanel - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
     <Section Space="Space.Y.Is4">
         <DemoSection Description="A live log surface with fake deployment events streaming in, plus built-in download and copy actions."
                      Code="@BasicCode"
                      CodeLanguage="razor">
-            <Console Text="@LogText"
+            <ConsolePanel Text="@LogText"
                      DownloadFileName="deployment.log"
                      ActionsDisabled="@(_lines.Count == 0)"
                      Width="Width.IsFull"
@@ -21,7 +21,7 @@
                         <Span Whitespace="Whitespace.PreWrap" Class="break-words">@line[14..]</Span>
                     </Div>
                 }
-            </Console>
+            </ConsolePanel>
         </DemoSection>
     </Section>
 </Div>
@@ -91,11 +91,11 @@
     }
 
     private const string BasicCode = """
-<Console Text="@LogText" DownloadFileName="deployment.log" Width="Width.IsFull" AriaLabel="Live deployment log">
+<ConsolePanel Text="@LogText" DownloadFileName="deployment.log" Width="Width.IsFull" AriaLabel="Live deployment log">
     @foreach (string line in _lines)
     {
         <Div>@line</Div>
     }
-</Console>
+</ConsolePanel>
 """;
 }

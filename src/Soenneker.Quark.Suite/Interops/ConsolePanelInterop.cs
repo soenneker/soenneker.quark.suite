@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IConsoleInterop"/>
-public sealed class ConsoleInterop : IConsoleInterop
+/// <inheritdoc cref="IConsolePanelInterop"/>
+public sealed class ConsolePanelInterop : IConsolePanelInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/consoleinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/consolepanelinterop.js";
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ConsoleInterop(IModuleImportUtil moduleImportUtil)
+    public ConsolePanelInterop(IModuleImportUtil moduleImportUtil)
     {
         _moduleImportUtil = moduleImportUtil;
     }

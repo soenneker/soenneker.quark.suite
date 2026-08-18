@@ -3,9 +3,9 @@
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
 @inherits Soenneker.Quark.Element
-@implements IConsole
+@implements IConsolePanel
 @implements IAsyncDisposable
-@inject IConsoleInterop ConsoleInterop
+@inject IConsolePanelInterop ConsolePanelInterop
 
 <div @ref="_element" @attributes="BuildAttributes()">
     @if (ShowDownload || ShowCopy)
@@ -155,9 +155,9 @@
             if (!_disposed.Value && AutoScroll != _autoScrollInitialized)
             {
                 if (AutoScroll)
-                    await ConsoleInterop.InitializeAutoScroll(_element);
+                    await ConsolePanelInterop.InitializeAutoScroll(_element);
                 else
-                    await ConsoleInterop.DestroyAutoScroll(_element);
+                    await ConsolePanelInterop.DestroyAutoScroll(_element);
 
                 _autoScrollInitialized = AutoScroll;
             }
@@ -178,7 +178,7 @@
             if (string.IsNullOrEmpty(value))
                 throw new InvalidOperationException("No console text was provided to download.");
 
-            await ConsoleInterop.Download(DownloadFileName, DownloadContentType, value);
+            await ConsolePanelInterop.Download(DownloadFileName, DownloadContentType, value);
 
             if (OnDownload.HasDelegate)
                 await OnDownload.InvokeAsync(value);
@@ -239,7 +239,7 @@
             {
                 if (_autoScrollInitialized)
                 {
-                    await ConsoleInterop.DestroyAutoScroll(_element);
+                    await ConsolePanelInterop.DestroyAutoScroll(_element);
                     _autoScrollInitialized = false;
                 }
             }
