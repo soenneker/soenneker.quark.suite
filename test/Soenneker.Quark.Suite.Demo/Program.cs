@@ -80,7 +80,7 @@ public sealed class Program
 
     private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
     {
-        SelfLog.Enable(m => Console.Error.WriteLine(m));
+        SelfLog.Enable(m => System.Console.Error.WriteLine(m));
 
         var logEventLevel = configuration.GetLogEventLevel();
 

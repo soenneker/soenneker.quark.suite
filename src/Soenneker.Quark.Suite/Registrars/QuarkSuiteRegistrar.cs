@@ -45,6 +45,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkCodeEditorAsScoped()
                 .AddQuarkScoreAsScoped()
                 .AddQuarkColorPickerAsScoped()
+                .AddQuarkConsoleAsScoped()
                 .AddQuarkOnThisPageAsScoped()
                 .AddQuarkDateTimesAsScoped()
                 .AddQuarkPaymentCardAsScoped()

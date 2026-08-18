@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Asyncs.Locks;
+using Soenneker.Atomics.ValueBools;
 
 namespace Soenneker.Quark;
 
@@ -10,11 +12,12 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 {
     private const int MinimumSavingStateDuration = 500;
 
+    private readonly AsyncLock _operationLock = new();
     private CancellationTokenSource? _operationCancellationTokenSource;
     private int _version;
     private bool _hasPendingValue;
     private TValue _pendingValue = default!;
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
 
     public AutoSaveState State { get; private set; } = AutoSaveState.Idle;
 
@@ -22,39 +25,39 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
     public bool HasSaved { get; private set; }
 
-    public Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
+    public async Task NotifyValueChanged(TValue value, bool autoSave, int autoSaveDelay, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed)
-            return Task.CompletedTask;
+        if (_disposed.Value)
+            return;
 
         if (!CanAutoSave(autoSave, onAutoSave))
         {
-            CancelOperation();
+            await CancelOperation();
             _hasPendingValue = false;
             HasSaved = false;
             QueueSetState(AutoSaveState.Idle, autoSaveStateChanged, refreshAsync);
-            return Task.CompletedTask;
+            return;
         }
 
         _pendingValue = value;
         _hasPendingValue = true;
 
-        CancelOperation();
-        var version = NextVersion();
         var delay = Math.Max(0, autoSaveDelay);
-        CancellationToken cancellationToken = CreateOperationCancellationToken();
+
+        Operation? operation = await TryStartOperation();
+        if (operation is null)
+            return;
 
         QueueSetState(AutoSaveState.Pending, autoSaveStateChanged, refreshAsync);
 
-        _ = RunDelayedSave(value, delay, version, onAutoSave!, autoSaveStateChanged, refreshAsync, cancellationToken);
-        return Task.CompletedTask;
+        _ = RunDelayedSave(value, delay, operation.Value.Version, onAutoSave!, autoSaveStateChanged, refreshAsync, operation.Value.CancellationToken);
     }
 
     public Task Flush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed || !_hasPendingValue)
+        if (_disposed.Value || !_hasPendingValue)
             return Task.CompletedTask;
 
         var value = _pendingValue;
@@ -64,23 +67,23 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     public void QueueFlush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed || !_hasPendingValue || !CanAutoSave(autoSave, onAutoSave))
+        if (_disposed.Value || !_hasPendingValue || !CanAutoSave(autoSave, onAutoSave))
             return;
 
         _ = RunQueuedFlush(currentValue, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
     }
 
-    public Task SaveNow(TValue value, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
+    public async Task SaveNow(TValue value, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed || !CanAutoSave(autoSave, onAutoSave))
-            return Task.CompletedTask;
+        if (_disposed.Value || !CanAutoSave(autoSave, onAutoSave))
+            return;
 
-        CancelOperation();
-        var version = NextVersion();
-        CancellationToken cancellationToken = CreateOperationCancellationToken();
+        Operation? operation = await TryStartOperation();
+        if (operation is null)
+            return;
 
-        return RunSave(value, version, onAutoSave!, autoSaveStateChanged, refreshAsync, cancellationToken);
+        await RunSave(value, operation.Value.Version, onAutoSave!, autoSaveStateChanged, refreshAsync, operation.Value.CancellationToken);
     }
 
     private async Task RunQueuedFlush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
@@ -88,7 +91,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
     {
         await Task.Yield();
 
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         await Flush(currentValue, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
@@ -200,33 +203,67 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
             await Task.Delay((int)remaining, cancellationToken);
     }
 
-    private int NextVersion()
+    private async ValueTask<Operation?> TryStartOperation()
     {
-        unchecked
+        CancellationTokenSource? previous;
+        Operation operation;
+
+        using (await _operationLock.Lock())
         {
-            return ++_version;
+            if (_disposed.Value)
+                return null;
+
+            previous = _operationCancellationTokenSource;
+            _operationCancellationTokenSource = new CancellationTokenSource();
+
+            unchecked
+            {
+                _version++;
+            }
+
+            operation = new Operation(_version, _operationCancellationTokenSource.Token);
         }
+
+        CancelAndDispose(previous);
+        return operation;
     }
 
-    private bool IsCurrent(int version) => version == _version;
+    private bool IsCurrent(int version) => version == Volatile.Read(ref _version);
 
-    private CancellationToken CreateOperationCancellationToken()
+    private async ValueTask CancelOperation()
     {
-        _operationCancellationTokenSource = new CancellationTokenSource();
-        return _operationCancellationTokenSource.Token;
+        CancellationTokenSource? source;
+
+        using (await _operationLock.Lock())
+        {
+            source = _operationCancellationTokenSource;
+            _operationCancellationTokenSource = null;
+
+            unchecked
+            {
+                _version++;
+            }
+        }
+
+        CancelAndDispose(source);
     }
 
-    private void CancelOperation()
+    private static void CancelAndDispose(CancellationTokenSource? source)
     {
-        _operationCancellationTokenSource?.Cancel();
-        _operationCancellationTokenSource?.Dispose();
-        _operationCancellationTokenSource = null;
+        if (source is null)
+            return;
+
+        source.Cancel();
+        source.Dispose();
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        _disposed = true;
-        CancelOperation();
-        return ValueTask.CompletedTask;
+        if (!_disposed.TrySetTrue())
+            return;
+
+        await CancelOperation();
     }
+
+    private readonly record struct Operation(int Version, CancellationToken CancellationToken);
 }

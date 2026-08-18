@@ -1,6 +1,8 @@
 @namespace Soenneker.Quark
 @using System.Globalization
 @using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@using Soenneker.Atomics.ValueBools
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
 @inject IScrollRevealInterop ScrollRevealInterop
@@ -42,8 +44,9 @@
 
 @code {
     private ElementReference _element;
+    private readonly AsyncLock _interopLock = new();
     private bool _initialized;
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
     private int _configurationHash;
 
     /// <summary>
@@ -112,16 +115,22 @@
 
         if (firstRender || configurationHash != _configurationHash)
         {
-            await ScrollRevealInterop.Initialize(_element, new
+            using (await _interopLock.Lock())
             {
-                threshold = Math.Clamp(Threshold, 0, 1),
-                rootMargin = RootMargin,
-                once = Once,
-                disabled = Disabled
-            });
+                if (!_disposed.Value)
+                {
+                    await ScrollRevealInterop.Initialize(_element, new
+                    {
+                        threshold = Math.Clamp(Threshold, 0, 1),
+                        rootMargin = RootMargin,
+                        once = Once,
+                        disabled = Disabled
+                    });
 
-            _configurationHash = configurationHash;
-            _initialized = true;
+                    _configurationHash = configurationHash;
+                    _initialized = true;
+                }
+            }
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -191,15 +200,19 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (!_disposed.TrySetTrue())
             return;
-
-        _disposed = true;
 
         try
         {
-            if (_initialized)
-                await ScrollRevealInterop.Destroy(_element);
+            using (await _interopLock.Lock())
+            {
+                if (_initialized)
+                {
+                    await ScrollRevealInterop.Destroy(_element);
+                    _initialized = false;
+                }
+            }
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
         {

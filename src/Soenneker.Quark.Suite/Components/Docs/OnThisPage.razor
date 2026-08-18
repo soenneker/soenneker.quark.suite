@@ -1,5 +1,7 @@
 @using System.Threading
 @using Microsoft.AspNetCore.Components.Routing
+@using Soenneker.Asyncs.Locks
+@using Soenneker.Atomics.ValueBools
 @implements IAsyncDisposable
 @inject NavigationManager Navigation
 @inject IOnThisPageInterop OnThisPageInterop
@@ -50,8 +52,9 @@
     private const string _defaultAsideClass = "top-[calc(var(--header-height)+1rem)]";
 
     private CancellationTokenSource? _refreshCts;
+    private readonly AsyncLock _refreshLock = new();
     private IReadOnlyList<OnThisPageTocItem> _items = [];
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
 
     [Parameter]
     public string RootSelector { get; set; } = "[data-docs-content]";
@@ -98,15 +101,21 @@
     /// </summary>
     public async ValueTask Refresh()
     {
-        if (_disposed)
-            return;
+        using (await _refreshLock.Lock())
+        {
+            if (_disposed.Value)
+                return;
 
-        var options = BuildOptions();
-        var items = await OnThisPageInterop.GetItems(options);
+            var options = BuildOptions();
+            var items = await OnThisPageInterop.GetItems(options);
 
-        _items = items;
+            if (_disposed.Value)
+                return;
 
-        await InvokeAsync(StateHasChanged);
+            _items = items;
+
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private object BuildOptions()
@@ -181,7 +190,7 @@
 
     private async ValueTask ScheduleRefresh()
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         if (_refreshCts != null)
@@ -212,18 +221,22 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (!_disposed.TrySetTrue())
             return;
 
-        _disposed = true;
         Navigation.LocationChanged -= OnLocationChanged;
 
-        if (_refreshCts != null)
+        CancellationTokenSource? refreshCts = _refreshCts;
+
+        if (refreshCts != null)
+            await refreshCts.CancelAsync();
+
+        using (await _refreshLock.Lock())
         {
-            await _refreshCts.CancelAsync();
-            _refreshCts.Dispose();
+            refreshCts?.Dispose();
+
+            if (ReferenceEquals(_refreshCts, refreshCts))
+                _refreshCts = null;
         }
-
     }
-
 }

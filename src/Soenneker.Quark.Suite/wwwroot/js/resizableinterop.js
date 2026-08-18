@@ -2,6 +2,7 @@ let activeDrag = null;
 let pendingMove = null;
 let moveFrame = 0;
 let listenersInstalled = false;
+let handleRegistrationCount = 0;
 const handleRegistrations = new WeakMap();
 
 function invokeDotNet(handleElement, dotNetRef, methodName, handleIndex, percentage, size) {
@@ -116,32 +117,47 @@ function emitEnd(clientX, clientY, pointerId) {
   invokeDotNet(drag.handleElement, drag.dotNetRef, "HandlePointerDragEnd", drag.handleIndex, metrics.percentage, metrics.size);
 }
 
+function onPointerMove(event) {
+  scheduleMove(event.clientX, event.clientY, event.pointerId);
+}
+
+function onPointerUp(event) {
+  emitEnd(event.clientX, event.clientY, event.pointerId);
+}
+
+function onMouseMove(event) {
+  scheduleMove(event.clientX, event.clientY, null);
+}
+
+function onMouseUp(event) {
+  emitEnd(event.clientX, event.clientY, null);
+}
+
 function installListeners() {
   if (listenersInstalled) {
     return;
   }
 
-  window.addEventListener("pointermove", (event) => {
-    scheduleMove(event.clientX, event.clientY, event.pointerId);
-  });
-
-  window.addEventListener("pointerup", (event) => {
-    emitEnd(event.clientX, event.clientY, event.pointerId);
-  });
-
-  window.addEventListener("pointercancel", (event) => {
-    emitEnd(event.clientX, event.clientY, event.pointerId);
-  });
-
-  window.addEventListener("mousemove", (event) => {
-    scheduleMove(event.clientX, event.clientY, null);
-  });
-
-  window.addEventListener("mouseup", (event) => {
-    emitEnd(event.clientX, event.clientY, null);
-  });
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
 
   listenersInstalled = true;
+}
+
+function uninstallListeners() {
+  if (!listenersInstalled) {
+    return;
+  }
+
+  window.removeEventListener("pointermove", onPointerMove);
+  window.removeEventListener("pointerup", onPointerUp);
+  window.removeEventListener("pointercancel", onPointerUp);
+  window.removeEventListener("mousemove", onMouseMove);
+  window.removeEventListener("mouseup", onMouseUp);
+  listenersInstalled = false;
 }
 
 function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, pointerId, clientX, clientY) {
@@ -184,10 +200,16 @@ function disposeHandleRegistration(handleElement) {
   delete handleElement.dataset.resizableDotnetError;
   delete handleElement.dataset.resizableDown;
   handleRegistrations.delete(handleElement);
+  handleRegistrationCount = Math.max(0, handleRegistrationCount - 1);
+
+  if (handleRegistrationCount === 0) {
+    activeDrag = null;
+    cancelPendingMove();
+    uninstallListeners();
+  }
 }
 
 export function initialize() {
-  installListeners();
 }
 
 export function startDrag(groupElement, pointerId, clientX, clientY, orientation, dotNetRef, handleIndex) {
@@ -207,9 +229,8 @@ export function startDrag(groupElement, pointerId, clientX, clientY, orientation
 }
 
 export function registerHandle(handleElement, groupElement, orientation, dotNetRef, handleIndex) {
-  installListeners();
-
   disposeHandleRegistration(handleElement);
+  installListeners();
 
   const onPointerDown = (event) => {
     if (event.button !== 0) {
@@ -257,6 +278,7 @@ export function registerHandle(handleElement, groupElement, orientation, dotNetR
     onMouseDown,
     onKeyDown,
   });
+  handleRegistrationCount += 1;
 }
 
 export function unregisterHandle(handleElement) {
@@ -271,4 +293,8 @@ export function unregisterHandle(handleElement) {
 export function stopDrag() {
   activeDrag = null;
   cancelPendingMove();
+
+  if (handleRegistrationCount === 0) {
+    uninstallListeners();
+  }
 }

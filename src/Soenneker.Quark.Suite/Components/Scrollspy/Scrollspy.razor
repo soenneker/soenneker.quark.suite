@@ -1,5 +1,7 @@
 @namespace Soenneker.Quark
 @using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@using Soenneker.Atomics.ValueBools
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
 @inject IScrollspyInterop ScrollspyInterop
@@ -10,9 +12,10 @@
 
 @code {
     private ElementReference _element;
+    private readonly AsyncLock _interopLock = new();
     private DotNetObjectReference<Scrollspy>? _dotNetRef;
     private bool _initialized;
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
     private int _configurationHash;
 
     [Parameter]
@@ -62,22 +65,25 @@
 
     private async ValueTask Initialize()
     {
-        if (_disposed)
-            return;
-
-        _dotNetRef ??= DotNetObjectReference.Create(this);
-
-        await ScrollspyInterop.Initialize(_element, new
+        using (await _interopLock.Lock())
         {
-            targetSelector = TargetSelector,
-            offset = Offset,
-            smooth = Smooth,
-            dataAttribute = DataAttribute,
-            history = History,
-            throttleTime = ThrottleTime
-        }, _dotNetRef);
+            if (_disposed.Value)
+                return;
 
-        _initialized = true;
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+
+            await ScrollspyInterop.Initialize(_element, new
+            {
+                targetSelector = TargetSelector,
+                offset = Offset,
+                smooth = Smooth,
+                dataAttribute = DataAttribute,
+                history = History,
+                throttleTime = ThrottleTime
+            }, _dotNetRef);
+
+            _initialized = true;
+        }
     }
 
     private int GetConfigurationHash()
@@ -101,15 +107,19 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (!_disposed.TrySetTrue())
             return;
-
-        _disposed = true;
 
         try
         {
-            if (_initialized)
-                await ScrollspyInterop.Destroy(_element);
+            using (await _interopLock.Lock())
+            {
+                if (_initialized)
+                {
+                    await ScrollspyInterop.Destroy(_element);
+                    _initialized = false;
+                }
+            }
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
         {

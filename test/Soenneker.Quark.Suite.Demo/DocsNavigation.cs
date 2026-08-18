@@ -50,6 +50,7 @@ public static class DocsNavigation
         new("Color Picker", ComponentRoute("color-picker"), IsNew: true),
         new("Combobox", ComponentRoute("combobox")),
         new("Command", ComponentRoute("command")),
+        new("Console", ComponentRoute("console"), IsNew: true),
         new("Consent Manager", ComponentRoute("consent-manager"), IsNew: true),
         new("Container", ComponentRoute("container")),
         new("Context Menu", ComponentRoute("context-menu")),

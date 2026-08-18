@@ -1,0 +1,259 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@using Soenneker.Atomics.ValueBools
+@inherits Soenneker.Quark.Element
+@implements IConsole
+@implements IAsyncDisposable
+@inject IConsoleInterop ConsoleInterop
+
+<div @ref="_element" @attributes="BuildAttributes()">
+    @if (ShowDownload || ShowCopy)
+    {
+        <Div DataSlot="console-actions"
+             Display="Quark.Display.Flex"
+             FlexWrap="Quark.FlexWrap.Wrap"
+             ItemsAlign="Quark.Items.Center"
+             Justify="Quark.Justify.End"
+             Gap="Quark.Gap.Is2"
+             Margin="Quark.Margin.FromBottom.Is3"
+             Position="Quark.Position.Sticky"
+             Top="Quark.Top.Is0"
+             ZIndex="Quark.ZIndex.Is10"
+             FontFamily="Quark.FontFamily.Sans">
+            @if (ShowDownload)
+            {
+                <Button Type="@ButtonType.Button"
+                        Variant="@ActionVariant"
+                        ButtonSize="@ActionSize"
+                        Disabled="@ActionsDisabled"
+                        OnClick="Download">
+                    <Icon Name="@DownloadIcon" Size="Quark.Size.Is3" />
+                    <Span>@DownloadLabel</Span>
+                </Button>
+            }
+            @if (ShowCopy)
+            {
+                <CopyButton TextProvider="ResolveText"
+                            Variant="@ActionVariant"
+                            ButtonSize="@ActionSize"
+                            Disabled="@ActionsDisabled"
+                            IdleIcon="@CopyIcon"
+                            CopyLabel="@CopyLabel"
+                            DoneLabel="@CopiedLabel"
+                            OnCopySuccess="@OnCopySuccess"
+                            OnCopyError="@OnCopyError">
+                    @CopyLabel
+                </CopyButton>
+            }
+            @Actions
+        </Div>
+    }
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference _element;
+    private readonly AsyncLock _interopLock = new();
+    private bool _autoScrollInitialized;
+    private ValueAtomicBool _disposed = new(false);
+
+    /// <summary>The complete plain-text console content used for copy and download actions.</summary>
+    [Parameter]
+    public string? Text { get; set; }
+
+    /// <summary>Resolves the latest plain-text console content when an action is invoked.</summary>
+    [Parameter]
+    public Func<string?>? TextProvider { get; set; }
+
+    /// <summary>The filename used when downloading the console content.</summary>
+    [Parameter]
+    public string DownloadFileName { get; set; } = "console.log";
+
+    /// <summary>The MIME type used when downloading the console content.</summary>
+    [Parameter]
+    public string DownloadContentType { get; set; } = "text/plain;charset=utf-8";
+
+    /// <summary>Shows the download action.</summary>
+    [Parameter]
+    public bool ShowDownload { get; set; } = true;
+
+    /// <summary>Shows the copy action.</summary>
+    [Parameter]
+    public bool ShowCopy { get; set; } = true;
+
+    /// <summary>Disables the built-in actions.</summary>
+    [Parameter]
+    public bool ActionsDisabled { get; set; }
+
+    /// <summary>Text displayed by the download action.</summary>
+    [Parameter]
+    public string DownloadLabel { get; set; } = "Download log";
+
+    /// <summary>Text displayed by the copy action.</summary>
+    [Parameter]
+    public string CopyLabel { get; set; } = "Copy";
+
+    /// <summary>Text exposed after a successful copy.</summary>
+    [Parameter]
+    public string CopiedLabel { get; set; } = "Copied";
+
+    /// <summary>Icon displayed by the download action.</summary>
+    [Parameter]
+    public LucideIcon DownloadIcon { get; set; } = LucideIcon.Download;
+
+    /// <summary>Icon displayed by the copy action.</summary>
+    [Parameter]
+    public LucideIcon CopyIcon { get; set; } = LucideIcon.Copy;
+
+    /// <summary>Visual variant used by the built-in actions.</summary>
+    [Parameter]
+    public ButtonVariant ActionVariant { get; set; } = ButtonVariant.Outline;
+
+    /// <summary>Size used by the built-in actions.</summary>
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? ActionSize { get; set; } = ButtonSize.Sm;
+
+    /// <summary>Optional actions rendered after the built-in actions.</summary>
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    /// <summary>Automatically scrolls to the latest console output when rendered content changes.</summary>
+    [Parameter]
+    public bool AutoScroll { get; set; } = true;
+
+    /// <summary>Fixed console height below the medium breakpoint.</summary>
+    [Parameter]
+    public string SmallScreenHeight { get; set; } = "24rem";
+
+    /// <summary>Fixed console height at the medium breakpoint and above.</summary>
+    [Parameter]
+    public string MediumScreenHeight { get; set; } = "32rem";
+
+    /// <summary>Raised after the log is downloaded.</summary>
+    [Parameter]
+    public EventCallback<string> OnDownload { get; set; }
+
+    /// <summary>Raised when downloading the log fails.</summary>
+    [Parameter]
+    public EventCallback<Exception?> OnDownloadError { get; set; }
+
+    /// <summary>Raised after the log is copied.</summary>
+    [Parameter]
+    public EventCallback<string> OnCopySuccess { get; set; }
+
+    /// <summary>Raised when copying the log fails.</summary>
+    [Parameter]
+    public EventCallback<Exception?> OnCopyError { get; set; }
+
+    private string? ResolveText() => TextProvider?.Invoke() ?? Text;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        using (await _interopLock.Lock())
+        {
+            if (!_disposed.Value && AutoScroll != _autoScrollInitialized)
+            {
+                if (AutoScroll)
+                    await ConsoleInterop.InitializeAutoScroll(_element);
+                else
+                    await ConsoleInterop.DestroyAutoScroll(_element);
+
+                _autoScrollInitialized = AutoScroll;
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task Download()
+    {
+        if (ActionsDisabled)
+            return;
+
+        try
+        {
+            string? value = ResolveText();
+
+            if (string.IsNullOrEmpty(value))
+                throw new InvalidOperationException("No console text was provided to download.");
+
+            await ConsoleInterop.Download(DownloadFileName, DownloadContentType, value);
+
+            if (OnDownload.HasDelegate)
+                await OnDownload.InvokeAsync(value);
+        }
+        catch (Exception exception)
+        {
+            if (OnDownloadError.HasDelegate)
+                await OnDownloadError.InvokeAsync(exception);
+        }
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "console";
+        Role ??= "log";
+        AriaLabel ??= "Console output";
+        Position ??= Quark.Position.Relative;
+        Shrink ??= Quark.Shrink.Is0;
+        OverflowY ??= Quark.Overflow.Auto;
+        Overscroll ??= Quark.Overscroll.Contain;
+        Border ??= Quark.Border.Is1;
+        BorderColor ??= Quark.BorderColor.Border;
+        Rounded ??= Quark.Rounded.Xl;
+        Padding ??= Quark.Padding.Is4;
+        FontFamily ??= Quark.FontFamily.Mono;
+        TextSize ??= Quark.TextSize.Xs;
+        Leading ??= Quark.Leading.Relaxed;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["aria-live"] = "polite";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, "--console-height-small: ", ResolveHeight(SmallScreenHeight, "24rem"));
+            AppendStyleDecl(ref sty, "--console-height-medium: ", ResolveHeight(MediumScreenHeight, "32rem"));
+        });
+    }
+
+    private static string ResolveHeight(string? value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value.Trim().Trim('[', ']');
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+
+        try
+        {
+            using (await _interopLock.Lock())
+            {
+                if (_autoScrollInitialized)
+                {
+                    await ConsoleInterop.DestroyAutoScroll(_element);
+                    _autoScrollInitialized = false;
+                }
+            }
+        }
+        catch (Exception exception) when (exception is JSDisconnectedException or InvalidOperationException or TaskCanceledException)
+        {
+        }
+
+        await base.DisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoScroll);
+    }
+}

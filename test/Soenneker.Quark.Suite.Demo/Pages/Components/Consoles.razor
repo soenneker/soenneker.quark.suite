@@ -1,0 +1,101 @@
+@page "/components/console"
+@using System.Threading
+@implements IAsyncDisposable
+
+<PageTitle>Console - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Description="A live log surface with fake deployment events streaming in, plus built-in download and copy actions."
+                     Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Console Text="@LogText"
+                     DownloadFileName="deployment.log"
+                     ActionsDisabled="@(_lines.Count == 0)"
+                     Width="Width.IsFull"
+                     AriaLabel="Live deployment log">
+                @foreach (string line in _lines)
+                {
+                    <Div Display="Display.Grid" Gap="Gap.Is3" Padding="Padding.OnY.Is1" Class="grid-cols-[6.75rem_minmax(0,1fr)]">
+                        <Span Whitespace="Whitespace.Nowrap" TextColor="TextColor.MutedForeground">@line[..12]</Span>
+                        <Span Whitespace="Whitespace.PreWrap" Class="break-words">@line[14..]</Span>
+                    </Div>
+                }
+            </Console>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private static readonly string[] Messages =
+    [
+        "Initializing build environment...",
+        "Restoring project dependencies...",
+        "Success: Dependencies restored",
+        "Compiling application...",
+        "Generating static assets...",
+        "Uploading deployment bundle...",
+        "Verifying deployment health...",
+        "Success: Deployment completed",
+        "Watching for new build activity..."
+    ];
+
+    private readonly List<string> _lines = [];
+    private readonly CancellationTokenSource _streamCancellation = new();
+    private Task? _streamTask;
+
+    private string LogText => string.Join(System.Environment.NewLine, _lines);
+
+    protected override Task OnInitializedAsync()
+    {
+        _streamTask = StreamFakeLogs(_streamCancellation.Token);
+        return Task.CompletedTask;
+    }
+
+    private async Task StreamFakeLogs(CancellationToken cancellationToken)
+    {
+        var messageIndex = 0;
+
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(messageIndex == 0 ? 250 : 900, cancellationToken);
+                string line = $"{DateTimeOffset.Now:HH:mm:ss.fff}  {Messages[messageIndex % Messages.Length]}";
+                messageIndex++;
+
+                await InvokeAsync(() =>
+                {
+                    _lines.Add(line);
+
+                    if (_lines.Count > 200)
+                        _lines.RemoveAt(0);
+
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _streamCancellation.CancelAsync();
+
+        if (_streamTask is not null)
+            await _streamTask;
+
+        _streamCancellation.Dispose();
+    }
+
+    private const string BasicCode = """
+<Console Text="@LogText" DownloadFileName="deployment.log" Width="Width.IsFull" AriaLabel="Live deployment log">
+    @foreach (string line in _lines)
+    {
+        <Div>@line</Div>
+    }
+</Console>
+""";
+}
