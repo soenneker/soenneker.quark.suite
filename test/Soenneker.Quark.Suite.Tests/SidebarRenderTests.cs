@@ -31,4 +31,17 @@ public sealed partial class RenderedShadcnParityTests
         style.Should().Contain("height: calc(100svh - var(--header-height, 0px))");
         style.Should().Contain("max-height: calc(100svh - var(--header-height, 0px))");
     }
+
+    [Test]
+    public void Sidebar_rail_hit_target_stays_outside_sidebar_content()
+    {
+        var cut = Render<SidebarRail>();
+
+        var rail = cut.Find("[data-sidebar='rail']");
+        var cls = rail.GetAttribute("class");
+
+        cls.Should().Contain("group-data-[side=left]:-right-4");
+        cls.Should().Contain("group-data-[side=right]:-left-4");
+        cls.Should().NotContain("-translate-x-1/2");
+    }
 }
