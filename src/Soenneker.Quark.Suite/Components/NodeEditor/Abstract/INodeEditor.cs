@@ -52,6 +52,17 @@ public interface INodeEditor : IElement
     EventCallback<string?> SelectedNodeIdChanged { get; set; }
 
     /// <summary>
+    /// Gets or sets every selected node identifier. Use <c>@bind-SelectedNodeIds</c> to observe marquee and modifier-key selection.
+    /// <see cref="SelectedNodeId"/> remains the primary selected node for compatibility.
+    /// </summary>
+    IReadOnlyList<string> SelectedNodeIds { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback raised when <see cref="SelectedNodeIds"/> changes.
+    /// </summary>
+    EventCallback<IReadOnlyList<string>> SelectedNodeIdsChanged { get; set; }
+
+    /// <summary>
     /// Gets or sets the selected edge identifier. Use <c>@bind-SelectedEdgeId</c> for two-way binding.
     /// </summary>
     string? SelectedEdgeId { get; set; }

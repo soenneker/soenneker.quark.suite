@@ -470,7 +470,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask Initialize(string id, NodeEditorOptions options, DotNetObjectReference<NodeEditor> callbackReference,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, string? selectedEdgeId,
+        public ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;

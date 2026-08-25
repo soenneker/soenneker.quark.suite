@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -26,6 +27,53 @@ public sealed partial class RenderedShadcnParityTests
         root.GetAttribute("data-selectable").Should().Be("true");
         root.GetAttribute("data-selected").Should().Be("true");
         root.GetAttribute("style").Should().Contain("translate3d(120.5px, 240px, 0)");
+    }
+
+    [Test]
+    public void Node_editor_renders_multi_node_selection_and_marquee_surface()
+    {
+        NodeEditorNodeModel[] nodes =
+        [
+            new() { Id = "first" },
+            new() { Id = "second", X = 200 },
+            new() { Id = "third", X = 400 }
+        ];
+        var cut = Render<NodeEditor>(parameters => parameters
+            .Add(component => component.Nodes, nodes)
+            .Add(component => component.SelectedNodeId, "second")
+            .Add(component => component.SelectedNodeIds, ["first", "second"])
+            .Add(component => component.NodeTemplate, node => builder => builder.AddContent(0, node.Id)));
+
+        cut.FindAll("[data-slot='node-editor-node'][data-selected='true']")
+            .Select(element => element.GetAttribute("data-node-id"))
+            .Should().Equal("first", "second");
+        cut.Find("[data-slot='node-editor-selection-rectangle']")
+            .GetAttribute("aria-hidden").Should().Be("true");
+    }
+
+    [Test]
+    public async Task Node_editor_applies_a_marquee_selection_as_one_controlled_change()
+    {
+        NodeEditorNodeModel[] nodes =
+        [
+            new() { Id = "first" },
+            new() { Id = "second" },
+            new() { Id = "disabled", Disabled = true }
+        ];
+        IReadOnlyList<string>? selectedIds = null;
+        string? primaryId = null;
+        var cut = Render<NodeEditor>(parameters => parameters
+            .Add(component => component.Nodes, nodes)
+            .Add(component => component.SelectedNodeIdsChanged, ids => selectedIds = ids)
+            .Add(component => component.SelectedNodeIdChanged, id => primaryId = id)
+            .Add(component => component.NodeTemplate, node => builder => builder.AddContent(0, node.Id)));
+
+        await cut.Instance.InvokeNodeSelectionChanged(["first", "disabled", "second", "first"]);
+
+        selectedIds.Should().Equal("first", "second");
+        primaryId.Should().Be("second");
+        cut.Instance.SelectedNodeIds.Should().Equal("first", "second");
+        cut.Instance.SelectedNodeId.Should().Be("second");
     }
 
     [Test]

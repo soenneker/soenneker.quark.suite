@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
@@ -32,11 +33,12 @@ public interface INodeEditorInterop : IAsyncDisposable
     /// </summary>
     /// <param name="id">The editor element identifier.</param>
     /// <param name="options">The editor interaction options.</param>
-    /// <param name="selectedNodeId">The selected node identifier.</param>
+    /// <param name="selectedNodeId">The primary selected node identifier.</param>
+    /// <param name="selectedNodeIds">All selected node identifiers.</param>
     /// <param name="selectedEdgeId">The selected edge identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A value task representing the asynchronous operation.</returns>
-    ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, string? selectedEdgeId,
+    ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
         CancellationToken cancellationToken = default);
 
     /// <summary>

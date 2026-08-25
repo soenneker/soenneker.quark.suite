@@ -159,7 +159,7 @@
             @foreach (NodeEditorNodeModel node in Nodes)
             {
                 <CascadingValue @key="node.Id" Value="@GetNodeContext(node.Id)" IsFixed="true">
-                    <NodeEditorNode Node="node" Selected="@(node.Id == SelectedNodeId)">
+                    <NodeEditorNode Node="node" Selected="@IsNodeSelected(node.Id)">
                         @NodeTemplate(node)
                     </NodeEditorNode>
                 </CascadingValue>
@@ -185,6 +185,10 @@
             }
         </Div>
     </Div>
+
+    <div data-slot="node-editor-selection-rectangle"
+         aria-hidden="true"
+         class="pointer-events-none absolute left-0 top-0 z-30 hidden rounded-sm border border-primary/80 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.08)]"></div>
 
     <CascadingValue Value="_context" IsFixed="true">
         @if (ShowControls)
@@ -222,6 +226,12 @@
 
     [Parameter]
     public EventCallback<string?> SelectedNodeIdChanged { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string> SelectedNodeIds { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<IReadOnlyList<string>> SelectedNodeIdsChanged { get; set; }
 
     [Parameter]
     public string? SelectedEdgeId { get; set; }
@@ -302,6 +312,7 @@
     private bool _interopSynchronized;
     private int _changeVersion;
     private string _announcement = "";
+    private string? _lastSelectedNodeId;
     private string? _editingEdgeId;
     private string _editingEdgeLabel = "";
     private double EdgeLabelEditorWidth => Math.Clamp(_editingEdgeLabel.Length * 6.5 + 24, 112, 220);
@@ -317,6 +328,7 @@
 
     protected override void OnParametersSet()
     {
+        ReconcileNodeSelectionParameters();
         ValidateParameters();
         base.OnParametersSet();
     }
@@ -363,6 +375,7 @@
         {
             _dotNetReference = DotNetObjectReference.Create(this);
             await EditorInterop.Initialize(Id!, Options, _dotNetReference);
+            await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
             _initialized = true;
             _lastInteropRefreshKey = ComputeInteropRefreshKey();
             _interopSynchronized = true;
@@ -376,7 +389,7 @@
         if (_interopSynchronized && refreshKey == _lastInteropRefreshKey)
             return;
 
-        await EditorInterop.Refresh(Id!, Options, SelectedNodeId, SelectedEdgeId);
+        await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
         _lastInteropRefreshKey = refreshKey;
         _interopSynchronized = true;
     }
@@ -387,13 +400,34 @@
     /// <param name="nodeId">The selected node identifier, or <c>null</c> to clear the selection.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task InvokeNodeSelected(string? nodeId)
-    {
-        SelectedNodeId = nodeId;
-        SelectedEdgeId = null;
-        _announcement = nodeId is null ? "Selection cleared" : $"Node {nodeId} selected";
+    public Task InvokeNodeSelected(string? nodeId) =>
+        InvokeNodeSelectionChanged(nodeId is null ? [] : [nodeId]);
 
-        await SelectedNodeIdChanged.InvokeAsync(nodeId);
+    /// <summary>
+    /// Applies a node selection received from marquee, pointer, or keyboard interaction.
+    /// </summary>
+    /// <param name="nodeIds">The selected node identifiers in selection order.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeNodeSelectionChanged(string[] nodeIds)
+    {
+        string[] selection = nodeIds
+            .Where(id => _nodesById.TryGetValue(id, out NodeEditorNodeModel? node) && node.Selectable && !node.Disabled)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        SelectedNodeIds = selection;
+        SelectedNodeId = selection.Length == 0 ? null : selection[^1];
+        SelectedEdgeId = null;
+        _announcement = selection.Length switch
+        {
+            0 => "Selection cleared",
+            1 => $"Node {selection[0]} selected",
+            _ => $"{selection.Length} nodes selected"
+        };
+
+        await SelectedNodeIdsChanged.InvokeAsync(selection);
+        await SelectedNodeIdChanged.InvokeAsync(SelectedNodeId);
         await SelectedEdgeIdChanged.InvokeAsync(null);
         await InvokeAsync(StateHasChanged);
     }
@@ -408,10 +442,12 @@
     {
         SelectedEdgeId = edgeId;
         SelectedNodeId = null;
+        SelectedNodeIds = [];
         _announcement = edgeId is null ? "Selection cleared" : $"Connection {edgeId} selected";
 
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
         await SelectedNodeIdChanged.InvokeAsync(null);
+        await SelectedNodeIdsChanged.InvokeAsync(SelectedNodeIds);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -434,10 +470,12 @@
         _editingEdgeLabel = edge.Label ?? "";
         SelectedEdgeId = edgeId;
         SelectedNodeId = null;
+        SelectedNodeIds = [];
         _announcement = $"Editing connection {edgeId} label";
 
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
         await SelectedNodeIdChanged.InvokeAsync(null);
+        await SelectedNodeIdsChanged.InvokeAsync(SelectedNodeIds);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -459,6 +497,29 @@
 
         _announcement = $"Node {args.NodeId} moved";
         await OnNodePositionChanged.InvokeAsync(args);
+        await NotifyChanged();
+    }
+
+    /// <summary>
+    /// Applies a completed move for a selected group as one editor mutation.
+    /// </summary>
+    /// <param name="changes">The final position of each moved node.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
+    public async Task InvokeNodesMoved(NodeEditorNodePositionChangedEventArgs[] changes)
+    {
+        foreach (NodeEditorNodePositionChangedEventArgs args in changes)
+        {
+            if (_nodesById.TryGetValue(args.NodeId, out NodeEditorNodeModel? node))
+            {
+                node.X = args.X;
+                node.Y = args.Y;
+            }
+
+            await OnNodePositionChanged.InvokeAsync(args);
+        }
+
+        _announcement = changes.Length == 1 ? $"Node {changes[0].NodeId} moved" : $"{changes.Length} nodes moved";
         await NotifyChanged();
     }
 
@@ -560,8 +621,10 @@
     [JSInvokable]
     public async Task InvokeDeleteRequested(NodeEditorDeleteRequest request)
     {
-        _announcement = request.NodeId is not null
-            ? $"Deletion requested for node {request.NodeId}"
+        _announcement = request.NodeIds.Count > 1
+            ? $"Deletion requested for {request.NodeIds.Count} nodes"
+            : request.NodeId is not null
+                ? $"Deletion requested for node {request.NodeId}"
             : $"Deletion requested for connection {request.EdgeId}";
         await OnDeleteRequested.InvokeAsync(request);
         await NotifyChanged();
@@ -774,6 +837,8 @@
         hashCode.Add(OverlayContent);
         hashCode.Add(ConnectionValidator);
         hashCode.Add(SelectedNodeId);
+        foreach (string nodeId in SelectedNodeIds)
+            hashCode.Add(nodeId);
         hashCode.Add(SelectedEdgeId);
         hashCode.Add(ShowControls);
         hashCode.Add(AutoSave);
@@ -785,6 +850,7 @@
         hashCode.Add(_announcement);
         hashCode.Add(Options.DraggableNodes);
         hashCode.Add(Options.PanEnabled);
+        hashCode.Add(Options.MarqueeSelectionEnabled);
         hashCode.Add(Options.ZoomEnabled);
         hashCode.Add(Options.ConnectionsEnabled);
         hashCode.Add(Options.DeleteKeyEnabled);
@@ -866,15 +932,40 @@
         return context;
     }
 
+    private bool IsNodeSelected(string nodeId)
+    {
+        if (SelectedNodeIds.Any(selectedId => string.Equals(selectedId, nodeId, StringComparison.Ordinal)))
+            return true;
+
+        return SelectedNodeIds.Count == 0 && string.Equals(SelectedNodeId, nodeId, StringComparison.Ordinal);
+    }
+
+    private IReadOnlyList<string> EffectiveSelectedNodeIds() =>
+        SelectedNodeIds.Count > 0 ? SelectedNodeIds : SelectedNodeId is null ? [] : [SelectedNodeId];
+
+    private void ReconcileNodeSelectionParameters()
+    {
+        bool primaryChanged = !string.Equals(SelectedNodeId, _lastSelectedNodeId, StringComparison.Ordinal);
+        if (primaryChanged && (SelectedNodeId is null || !SelectedNodeIds.Contains(SelectedNodeId, StringComparer.Ordinal)))
+            SelectedNodeIds = SelectedNodeId is null ? [] : [SelectedNodeId];
+        else if (SelectedNodeId is null && SelectedNodeIds.Count > 0)
+            SelectedNodeId = SelectedNodeIds[^1];
+
+        _lastSelectedNodeId = SelectedNodeId;
+    }
+
     private int ComputeInteropRefreshKey()
     {
         var hashCode = new HashCode();
         hashCode.Add(NodeTemplate);
         hashCode.Add(SelectedNodeId);
+        foreach (string nodeId in SelectedNodeIds)
+            hashCode.Add(nodeId);
         hashCode.Add(SelectedEdgeId);
         hashCode.Add(_editingEdgeId);
         hashCode.Add(Options.DraggableNodes);
         hashCode.Add(Options.PanEnabled);
+        hashCode.Add(Options.MarqueeSelectionEnabled);
         hashCode.Add(Options.ZoomEnabled);
         hashCode.Add(Options.ConnectionsEnabled);
         hashCode.Add(Options.DeleteKeyEnabled);

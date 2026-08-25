@@ -13,6 +13,7 @@ export function initialize(id, optionsJson, dotNetRef) {
         viewport: root.querySelector("[data-slot='node-editor-viewport']"),
         background: root.querySelector("[data-slot='node-editor-background']"),
         edgeLayer: root.querySelector("[data-slot='node-editor-edge-layer']"),
+        selectionRectangle: root.querySelector("[data-slot='node-editor-selection-rectangle']"),
         preview: root.querySelector("[data-connection-preview]"),
         dotNetRef,
         options: normalizeOptions(JSON.parse(optionsJson)),
@@ -20,6 +21,7 @@ export function initialize(id, optionsJson, dotNetRef) {
         panY: 0,
         zoom: 1,
         selectedNodeId: null,
+        selectedNodeIds: new Set(),
         selectedEdgeId: null,
         copiedNodeId: null,
         interaction: null,
@@ -90,7 +92,7 @@ export function initialize(id, optionsJson, dotNetRef) {
     editors.set(id, state);
 
     applyViewport(state);
-    refresh(id, optionsJson, null, null);
+    refresh(id, optionsJson, null, [], null);
 
     if (state.options.fitViewOnInitialize) {
         requestAnimationFrame(() => {
@@ -106,7 +108,7 @@ export function initialize(id, optionsJson, dotNetRef) {
     }
 }
 
-export function refresh(id, optionsJson, selectedNodeId, selectedEdgeId) {
+export function refresh(id, optionsJson, selectedNodeId, selectedNodeIds, selectedEdgeId) {
     const state = editors.get(id);
     if (!state) {
         return;
@@ -119,16 +121,20 @@ export function refresh(id, optionsJson, selectedNodeId, selectedEdgeId) {
 
     state.options = normalizeOptions(JSON.parse(optionsJson));
     state.selectedNodeId = selectedNodeId;
+    state.selectedNodeIds = new Set(Array.isArray(selectedNodeIds) && selectedNodeIds.length > 0
+        ? selectedNodeIds
+        : selectedNodeId ? [selectedNodeId] : []);
     state.selectedEdgeId = selectedEdgeId;
     state.viewport = state.root.querySelector("[data-slot='node-editor-viewport']");
     state.background = state.root.querySelector("[data-slot='node-editor-background']");
     state.edgeLayer = state.root.querySelector("[data-slot='node-editor-edge-layer']");
+    state.selectionRectangle = state.root.querySelector("[data-slot='node-editor-selection-rectangle']");
     state.preview = state.root.querySelector("[data-connection-preview]");
     rebuildGeometryIndex(state);
     focusEdgeLabelEditor(state);
 
     state.nodeElements.forEach(node => {
-        node.dataset.selected = node.dataset.nodeId === selectedNodeId ? "true" : "false";
+        node.dataset.selected = state.selectedNodeIds.has(node.dataset.nodeId) ? "true" : "false";
         node.setAttribute("aria-selected", node.dataset.selected);
     });
 
@@ -246,11 +252,12 @@ export function destroy(id) {
     if (state.viewportTimer) clearTimeout(state.viewportTimer);
     state.resizeObserver?.disconnect();
     state.root.classList.remove("cursor-grabbing");
+    hideSelectionRectangle(state);
     editors.delete(id);
 }
 
 function handlePointerDown(state, event) {
-    if (event.button !== 0) {
+    if (event.button !== 0 && event.button !== 1) {
         return;
     }
 
@@ -262,7 +269,7 @@ function handlePointerDown(state, event) {
         return;
     }
 
-    const endpoint = event.target.closest("[data-edge-endpoint]");
+    const endpoint = event.button === 0 ? event.target.closest("[data-edge-endpoint]") : null;
     if (endpoint && state.options.connectionsEnabled) {
         event.preventDefault();
         event.stopPropagation();
@@ -270,11 +277,11 @@ function handlePointerDown(state, event) {
         return;
     }
 
-    if (event.target.closest("[data-slot='node-editor-add-handle']")) {
+    if (event.button === 0 && event.target.closest("[data-slot='node-editor-add-handle']")) {
         return;
     }
 
-    const port = event.target.closest("[data-slot='node-editor-port']");
+    const port = event.button === 0 ? event.target.closest("[data-slot='node-editor-port']") : null;
     if (port && state.options.connectionsEnabled && port.dataset.portType === "source") {
         if (!portAvailable(state, port, null)) {
             rejectInteraction(state, portCapacityMessage(port));
@@ -287,7 +294,7 @@ function handlePointerDown(state, event) {
         return;
     }
 
-    const edge = event.target.closest("[data-edge-id]");
+    const edge = event.button === 0 ? event.target.closest("[data-edge-id]") : null;
     if (edge) {
         if (edge.dataset.disabled === "true" || edge.dataset.selectable !== "true") {
             return;
@@ -299,14 +306,25 @@ function handlePointerDown(state, event) {
         return;
     }
 
-    const node = event.target.closest("[data-slot='node-editor-node']");
+    const node = event.button === 0 ? event.target.closest("[data-slot='node-editor-node']") : null;
     if (node && state.root.contains(node)) {
         if (node.dataset.disabled === "true") {
             return;
         }
 
+        const nodeId = node.dataset.nodeId;
+        const wasSelected = state.selectedNodeIds.has(nodeId);
+        const modifiesSelection = event.shiftKey || event.ctrlKey || event.metaKey;
         if (node.dataset.selectable === "true") {
-            selectNode(state, node.dataset.nodeId);
+            if (event.ctrlKey || event.metaKey) {
+                const next = new Set(state.selectedNodeIds);
+                next.has(nodeId) ? next.delete(nodeId) : next.add(nodeId);
+                selectNodes(state, [...next]);
+            } else if (event.shiftKey) {
+                selectNodes(state, [...state.selectedNodeIds, nodeId]);
+            } else if (!wasSelected) {
+                selectNodes(state, [nodeId]);
+            }
             node.focus({ preventScroll: true });
         }
 
@@ -315,17 +333,30 @@ function handlePointerDown(state, event) {
         }
 
         event.preventDefault();
+        if (!state.selectedNodeIds.has(nodeId)) {
+            return;
+        }
+
+        const nodes = state.nodeElements
+            .filter(candidate => state.selectedNodeIds.has(candidate.dataset.nodeId) && candidate.dataset.disabled !== "true")
+            .map(candidate => ({
+                node: candidate,
+                startX: number(candidate.dataset.nodeX),
+                startY: number(candidate.dataset.nodeY)
+            }));
         state.interaction = {
             kind: "node",
             pointerId: event.pointerId,
             node,
+            nodes,
             startClientX: event.clientX,
             startClientY: event.clientY,
             startX: number(node.dataset.nodeX),
             startY: number(node.dataset.nodeY),
+            collapseOnClick: wasSelected && state.selectedNodeIds.size > 1 && !modifiesSelection,
             moved: false
         };
-        node.dataset.dragging = "true";
+        nodes.forEach(item => item.node.dataset.dragging = "true");
         return;
     }
 
@@ -333,9 +364,26 @@ function handlePointerDown(state, event) {
         return;
     }
 
-    selectNode(state, null);
     state.root.focus({ preventScroll: true });
+
+    if (event.button === 0 && state.options.marqueeSelectionEnabled) {
+        event.preventDefault();
+        const rootRect = state.root.getBoundingClientRect();
+        state.interaction = {
+            kind: "marquee",
+            pointerId: event.pointerId,
+            startClientX: event.clientX,
+            startClientY: event.clientY,
+            rootRect,
+            baseSelection: new Set(state.selectedNodeIds),
+            mode: event.ctrlKey || event.metaKey ? "toggle" : event.shiftKey ? "add" : "replace",
+            moved: false
+        };
+        return;
+    }
+
     if (!state.options.panEnabled) {
+        if (event.button === 0) selectNodes(state, []);
         return;
     }
 
@@ -369,10 +417,20 @@ function handlePointerMove(state, event) {
         return;
     }
 
+    if (event.type === "pointercancel") {
+        cancelActiveInteraction(state);
+        return;
+    }
+
     if (interaction.kind === "pan") {
         state.panX = interaction.startPanX + event.clientX - interaction.startClientX;
         state.panY = interaction.startPanY + event.clientY - interaction.startClientY;
         applyViewport(state, true);
+        return;
+    }
+
+    if (interaction.kind === "marquee") {
+        updateMarqueeSelection(state, interaction, event.clientX, event.clientY);
         return;
     }
 
@@ -389,7 +447,9 @@ function handlePointerMove(state, event) {
         y = Math.round(y / state.options.gridSize) * state.options.gridSize;
     }
 
-    setNodePosition(interaction.node, x, y);
+    const deltaX = x - interaction.startX;
+    const deltaY = y - interaction.startY;
+    interaction.nodes.forEach(item => setNodePosition(item.node, item.startX + deltaX, item.startY + deltaY));
     scheduleEdgeUpdate(state);
 }
 
@@ -412,19 +472,37 @@ function handlePointerUp(state, event) {
         return;
     }
 
+    if (event.type === "pointercancel") {
+        cancelActiveInteraction(state);
+        return;
+    }
+
     state.interaction = null;
     state.root.classList.remove("cursor-grabbing");
 
+    if (interaction.kind === "marquee") {
+        hideSelectionRectangle(state);
+        if (!interaction.moved) {
+            if (interaction.mode === "replace") selectNodes(state, []);
+        } else {
+            selectNodes(state, [...state.selectedNodeIds], true, true);
+        }
+        return;
+    }
+
     if (interaction.kind === "node") {
-        interaction.node.dataset.dragging = "false";
+        interaction.nodes.forEach(item => item.node.dataset.dragging = "false");
         if (interaction.moved) {
-            state.dotNetRef.invokeMethodAsync("InvokeNodeMoved", {
-                nodeId: interaction.node.dataset.nodeId,
-                x: number(interaction.node.dataset.nodeX),
-                y: number(interaction.node.dataset.nodeY),
-                previousX: interaction.startX,
-                previousY: interaction.startY
-            }).catch(console.error);
+            const changes = interaction.nodes.map(item => ({
+                nodeId: item.node.dataset.nodeId,
+                x: number(item.node.dataset.nodeX),
+                y: number(item.node.dataset.nodeY),
+                previousX: item.startX,
+                previousY: item.startY
+            }));
+            state.dotNetRef.invokeMethodAsync("InvokeNodesMoved", changes).catch(console.error);
+        } else if (interaction.collapseOnClick) {
+            selectNodes(state, [interaction.node.dataset.nodeId]);
         }
     }
 }
@@ -438,9 +516,14 @@ function cancelActiveInteraction(state) {
     state.interaction = null;
     state.root.classList.remove("cursor-grabbing");
     if (interaction?.kind === "node") {
-        interaction.node.dataset.dragging = "false";
-        setNodePosition(interaction.node, interaction.startX, interaction.startY);
+        interaction.nodes.forEach(item => {
+            item.node.dataset.dragging = "false";
+            setNodePosition(item.node, item.startX, item.startY);
+        });
         scheduleEdgeUpdate(state);
+    } else if (interaction?.kind === "marquee") {
+        hideSelectionRectangle(state);
+        setSelectedNodes(state, interaction.baseSelection);
     }
 }
 
@@ -517,9 +600,9 @@ function handleKeyDown(state, event) {
         return;
     }
 
-    if (event.key === "Escape" && state.connection) {
+    if (event.key === "Escape" && (state.connection || state.interaction)) {
         event.preventDefault();
-        cancelConnection(state);
+        cancelActiveInteraction(state);
         return;
     }
 
@@ -560,6 +643,7 @@ function handleKeyDown(state, event) {
     if ((event.key === "Delete" || event.key === "Backspace") && state.options.deleteKeyEnabled && (state.selectedNodeId || state.selectedEdgeId)) {
         event.preventDefault();
         state.dotNetRef.invokeMethodAsync("InvokeDeleteRequested", {
+            nodeIds: [...state.selectedNodeIds],
             nodeId: state.selectedNodeId,
             edgeId: state.selectedEdgeId
         }).catch(console.error);
@@ -612,15 +696,27 @@ function handleKeyDown(state, event) {
         }
     }
 
-    setNodePosition(node, x, y);
+    const deltaX = x - previousX;
+    const deltaY = y - previousY;
+    const nodes = state.selectedNodeIds.has(node.dataset.nodeId)
+        ? state.nodeElements.filter(candidate => state.selectedNodeIds.has(candidate.dataset.nodeId) && candidate.dataset.disabled !== "true")
+        : [node];
+    const changes = nodes.map(candidate => {
+        const candidatePreviousX = number(candidate.dataset.nodeX);
+        const candidatePreviousY = number(candidate.dataset.nodeY);
+        const nextX = candidatePreviousX + deltaX;
+        const nextY = candidatePreviousY + deltaY;
+        setNodePosition(candidate, nextX, nextY);
+        return {
+            nodeId: candidate.dataset.nodeId,
+            x: nextX,
+            y: nextY,
+            previousX: candidatePreviousX,
+            previousY: candidatePreviousY
+        };
+    });
     scheduleEdgeUpdate(state);
-    state.dotNetRef.invokeMethodAsync("InvokeNodeMoved", {
-        nodeId: node.dataset.nodeId,
-        x,
-        y,
-        previousX,
-        previousY
-    }).catch(console.error);
+    state.dotNetRef.invokeMethodAsync("InvokeNodesMoved", changes).catch(console.error);
 }
 
 function beginConnection(state, port, event) {
@@ -859,23 +955,114 @@ function handlePaletteDrop(state, event) {
 }
 
 function selectNode(state, nodeId) {
-    if (state.selectedNodeId === nodeId && state.selectedEdgeId === null) {
-        return;
-    }
+    selectNodes(state, nodeId ? [nodeId] : []);
+}
 
-    state.selectedNodeId = nodeId;
+function selectNodes(state, nodeIds, notify = true, forceNotify = false) {
+    const uniqueIds = [...new Set(nodeIds)].filter(id => state.nodeElements.some(node =>
+        node.dataset.nodeId === id && node.dataset.selectable === "true" && node.dataset.disabled !== "true"));
+    const unchanged = uniqueIds.length === state.selectedNodeIds.size && uniqueIds.every(id => state.selectedNodeIds.has(id)) && state.selectedEdgeId === null;
+
+    setSelectedNodes(state, uniqueIds);
+    if (notify && (forceNotify || !unchanged)) {
+        state.dotNetRef.invokeMethodAsync("InvokeNodeSelectionChanged", uniqueIds).catch(console.error);
+    }
+}
+
+function setSelectedNodes(state, nodeIds) {
+    const ids = [...nodeIds];
+    state.selectedNodeIds = new Set(ids);
+    state.selectedNodeId = ids.length > 0 ? ids[ids.length - 1] : null;
     state.selectedEdgeId = null;
-    state.dotNetRef.invokeMethodAsync("InvokeNodeSelected", nodeId).catch(console.error);
+    state.nodeElements.forEach(node => {
+        node.dataset.selected = state.selectedNodeIds.has(node.dataset.nodeId) ? "true" : "false";
+        node.setAttribute("aria-selected", node.dataset.selected);
+    });
+    applyEdgeSelectionAppearance(state);
 }
 
 function selectEdge(state, edgeId) {
-    if (state.selectedEdgeId === edgeId && state.selectedNodeId === null) {
+    if (state.selectedEdgeId === edgeId && state.selectedNodeIds.size === 0) {
         return;
     }
 
     state.selectedNodeId = null;
+    state.selectedNodeIds = new Set();
     state.selectedEdgeId = edgeId;
+    state.nodeElements.forEach(node => {
+        node.dataset.selected = "false";
+        node.setAttribute("aria-selected", "false");
+    });
+    applyEdgeSelectionAppearance(state);
     state.dotNetRef.invokeMethodAsync("InvokeEdgeSelected", edgeId).catch(console.error);
+}
+
+function applyEdgeSelectionAppearance(state) {
+    state.edgeElements.forEach(edge => {
+        const selected = edge.dataset.edgeId === state.selectedEdgeId;
+        edge.dataset.selected = selected ? "true" : "false";
+        edge.setAttribute("aria-pressed", edge.dataset.selected);
+        const path = edge.querySelector("[data-edge-path]");
+        if (path) {
+            path.classList.toggle("stroke-primary", selected);
+            path.classList.toggle("stroke-muted-foreground/35", !selected);
+            path.setAttribute("stroke-width", selected ? "2" : "1.5");
+        }
+    });
+}
+
+function updateMarqueeSelection(state, interaction, clientX, clientY) {
+    const distance = Math.hypot(clientX - interaction.startClientX, clientY - interaction.startClientY);
+    if (!interaction.moved && distance < 4) {
+        return;
+    }
+
+    interaction.moved = true;
+    const rootRect = interaction.rootRect;
+    const startX = clamp(interaction.startClientX - rootRect.left, 0, rootRect.width);
+    const startY = clamp(interaction.startClientY - rootRect.top, 0, rootRect.height);
+    const endX = clamp(clientX - rootRect.left, 0, rootRect.width);
+    const endY = clamp(clientY - rootRect.top, 0, rootRect.height);
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+
+    if (state.selectionRectangle) {
+        state.selectionRectangle.classList.remove("hidden");
+        state.selectionRectangle.style.transform = `translate3d(${round(left)}px, ${round(top)}px, 0)`;
+        state.selectionRectangle.style.width = `${round(width)}px`;
+        state.selectionRectangle.style.height = `${round(height)}px`;
+    }
+
+    const selectionBounds = {
+        left: rootRect.left + left,
+        top: rootRect.top + top,
+        right: rootRect.left + left + width,
+        bottom: rootRect.top + top + height
+    };
+    const intersecting = new Set(state.nodeElements
+        .filter(node => node.dataset.selectable === "true" && node.dataset.disabled !== "true")
+        .filter(node => rectanglesIntersect(selectionBounds, node.getBoundingClientRect()))
+        .map(node => node.dataset.nodeId));
+    const next = new Set(interaction.mode === "replace" ? [] : interaction.baseSelection);
+
+    intersecting.forEach(nodeId => {
+        if (interaction.mode === "toggle" && interaction.baseSelection.has(nodeId)) next.delete(nodeId);
+        else next.add(nodeId);
+    });
+    setSelectedNodes(state, [...next]);
+}
+
+function hideSelectionRectangle(state) {
+    if (!state?.selectionRectangle) return;
+    state.selectionRectangle.classList.add("hidden");
+    state.selectionRectangle.style.width = "0";
+    state.selectionRectangle.style.height = "0";
+}
+
+function rectanglesIntersect(first, second) {
+    return first.left <= second.right && first.right >= second.left && first.top <= second.bottom && first.bottom >= second.top;
 }
 
 function setNodePosition(node, x, y) {
@@ -1286,6 +1473,7 @@ function normalizeOptions(options) {
     return {
         draggableNodes: get("draggableNodes", "DraggableNodes", true),
         panEnabled: get("panEnabled", "PanEnabled", true),
+        marqueeSelectionEnabled: get("marqueeSelectionEnabled", "MarqueeSelectionEnabled", true),
         zoomEnabled: get("zoomEnabled", "ZoomEnabled", true),
         connectionsEnabled: get("connectionsEnabled", "ConnectionsEnabled", true),
         deleteKeyEnabled: get("deleteKeyEnabled", "DeleteKeyEnabled", true),

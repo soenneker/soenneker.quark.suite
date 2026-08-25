@@ -11,9 +11,15 @@ public interface INodeEditorOptions
     bool DraggableNodes { get; set; }
 
     /// <summary>
-    /// Gets or sets whether dragging empty editor space pans the viewport.
+    /// Gets or sets whether middle-button dragging empty editor space pans the viewport.
     /// </summary>
     bool PanEnabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether dragging across empty editor space selects every selectable node intersecting the rectangle.
+    /// Middle-button dragging continues to pan when <see cref="PanEnabled"/> is enabled.
+    /// </summary>
+    bool MarqueeSelectionEnabled { get; set; }
 
     /// <summary>
     /// Gets or sets whether wheel gestures and viewport controls can change zoom.

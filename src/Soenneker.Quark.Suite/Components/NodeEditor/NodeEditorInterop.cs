@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
@@ -39,10 +40,10 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         await Invoke("initialize", cancellationToken, id, JsonUtil.Serialize(options)!, callbackReference);
     }
 
-    public async ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, string? selectedEdgeId,
+    public async ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
         CancellationToken cancellationToken = default)
     {
-        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options)!, selectedNodeId, selectedEdgeId);
+        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options)!, selectedNodeId, selectedNodeIds, selectedEdgeId);
     }
 
     public async ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default)

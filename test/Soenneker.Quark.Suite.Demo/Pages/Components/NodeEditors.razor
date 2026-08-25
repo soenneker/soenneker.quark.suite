@@ -77,6 +77,7 @@
                         AddHandles="_addHandles"
                         Options="_options"
                         @bind-SelectedNodeId="_selectedNodeId"
+                        @bind-SelectedNodeIds="_selectedNodeIds"
                         @bind-SelectedEdgeId="_selectedEdgeId"
                         CanUndo="@(_undo.Count > 0)"
                         CanRedo="@(_redo.Count > 0)"
@@ -227,7 +228,7 @@
                      BackdropFilter="BackdropFilter.Blur"
                      Class="z-30">
                     <Icon Name="LucideIcon.MousePointer2" Size="Size.Is3" TextColor="TextColor.MutedForeground" />
-                    <Small TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Drag to move · Drop a step on a connector to insert · Scroll to zoom</Small>
+                    <Small TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Drag empty space to select · Middle-drag to pan · Scroll to zoom</Small>
                 </Div>
 
                 <Div PointerEvents="PointerEvents.None"
@@ -453,6 +454,7 @@
 @code {
     private NodeEditor? _editor;
     private string? _selectedNodeId;
+    private IReadOnlyList<string> _selectedNodeIds = [];
     private string? _selectedEdgeId;
     private int _edgeSequence = 10;
     private int _nodeSequence = 10;
@@ -518,6 +520,7 @@
         _selectedEdgeId is null ? null : _edges.FirstOrDefault(edge => edge.Id == _selectedEdgeId);
 
     private string SelectionText =>
+        _selectedNodeIds.Count > 1 ? $"{_selectedNodeIds.Count} steps selected" :
         SelectedNode?.Tag is DemoNode node ? $"{node.Title} selected" :
         _selectedEdgeId is not null ? "Connection selected" :
         $"{_nodes.Count} nodes · {_edges.Count} connections · {_viewportZoom:P0}";
@@ -633,6 +636,7 @@
         _edges.Add(Edge($"edge-{++_edgeSequence}", request.SourceNodeId, request.SourcePortId, id, "input"));
         _addHandles.RemoveAll(handle => handle.Id == request.HandleId);
         _selectedNodeId = id;
+        _selectedNodeIds = [id];
         return Task.CompletedTask;
     }
 
@@ -663,6 +667,7 @@
         }
 
         _selectedNodeId = id;
+        _selectedNodeIds = [id];
         return Task.CompletedTask;
     }
 
@@ -674,6 +679,7 @@
         _nodes.Add(Node(id, 600 + offset, 80 + offset,
             new DemoNode(item.Kicker, item.Title, item.Description, item.Icon, item.Tone, true, true, item.Type == "decision", "Added from steps")));
         _selectedNodeId = id;
+        _selectedNodeIds = [id];
         await NotifyEditorChanged();
     }
 
@@ -741,7 +747,7 @@
     private async Task DeleteSelected()
     {
         if (_selectedNodeId is not null)
-            await DeleteSelection(new NodeEditorDeleteRequest { NodeId = _selectedNodeId });
+            await DeleteSelection(new NodeEditorDeleteRequest { NodeId = _selectedNodeId, NodeIds = _selectedNodeIds });
         else if (_selectedEdgeId is not null)
             await DeleteSelection(new NodeEditorDeleteRequest { EdgeId = _selectedEdgeId });
         else
@@ -764,9 +770,12 @@
 
     private Task DeleteSelection(NodeEditorDeleteRequest request)
     {
+        IReadOnlyList<string> nodeIds = request.NodeIds.Count > 0
+            ? request.NodeIds
+            : request.NodeId is null ? [] : [request.NodeId];
         bool exists = request.EdgeId is not null
             ? _edges.Any(edge => edge.Id == request.EdgeId)
-            : request.NodeId is not null && _nodes.Any(node => node.Id == request.NodeId);
+            : nodeIds.Any(nodeId => _nodes.Any(node => node.Id == nodeId));
         if (!exists)
             return Task.CompletedTask;
 
@@ -776,12 +785,14 @@
             _edges.RemoveAll(edge => edge.Id == request.EdgeId);
             _selectedEdgeId = null;
         }
-        else if (request.NodeId is not null)
+        else if (nodeIds.Count > 0)
         {
-            _nodes.RemoveAll(node => node.Id == request.NodeId);
-            _edges.RemoveAll(edge => edge.SourceNodeId == request.NodeId || edge.TargetNodeId == request.NodeId);
-            _addHandles.RemoveAll(handle => handle.SourceNodeId == request.NodeId);
+            var selected = new HashSet<string>(nodeIds, StringComparer.Ordinal);
+            _nodes.RemoveAll(node => selected.Contains(node.Id));
+            _edges.RemoveAll(edge => selected.Contains(edge.SourceNodeId) || selected.Contains(edge.TargetNodeId));
+            _addHandles.RemoveAll(handle => selected.Contains(handle.SourceNodeId));
             _selectedNodeId = null;
+            _selectedNodeIds = [];
         }
 
         return Task.CompletedTask;
@@ -821,6 +832,7 @@
         string id = $"step-{++_nodeSequence}";
         _nodes.Add(Node(id, request.SuggestedX, request.SuggestedY, content with { Title = $"{content.Title} copy", Status = null }));
         _selectedNodeId = id;
+        _selectedNodeIds = [id];
         _selectedEdgeId = null;
         return Task.CompletedTask;
     }
@@ -893,6 +905,7 @@
         _addHandles.Clear();
         _addHandles.AddRange(snapshot.AddHandles.Select(CloneHandle));
         _selectedNodeId = snapshot.SelectedNodeId;
+        _selectedNodeIds = _selectedNodeId is null ? [] : [_selectedNodeId];
         _selectedEdgeId = snapshot.SelectedEdgeId;
         _nodeSequence = snapshot.NodeSequence;
         _edgeSequence = snapshot.EdgeSequence;

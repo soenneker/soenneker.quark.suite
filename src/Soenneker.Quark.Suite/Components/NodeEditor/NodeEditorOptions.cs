@@ -7,6 +7,8 @@ public sealed class NodeEditorOptions : INodeEditorOptions
 
     public bool PanEnabled { get; set; } = true;
 
+    public bool MarqueeSelectionEnabled { get; set; } = true;
+
     public bool ZoomEnabled { get; set; } = true;
 
     public bool ConnectionsEnabled { get; set; } = true;
