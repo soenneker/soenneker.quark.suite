@@ -439,6 +439,17 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
+            System.Threading.CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
+
+        public ValueTask ConfigureFileDrop(ElementReference container, ElementReference dropZone, string inputId,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RemoveFileDrop(ElementReference container, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask InsertTextAtDropPosition(ElementReference container, string text,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, System.Threading.CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
 
         public ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef) where T : class => ValueTask.CompletedTask;

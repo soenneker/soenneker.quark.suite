@@ -18,8 +18,8 @@ public sealed class SonnerService : ISonnerService
     private const string _defaultToasterId = "";
     private readonly AsyncLock _sync = new();
     private readonly List<SonnerToast> _toasts = [];
-    private readonly Dictionary<string, TimerState> _timers = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, ToasterRegistration> _toasters = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SonnerTimerState> _timers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SonnerToasterRegistration> _toasters = new(StringComparer.Ordinal);
     private readonly HashSet<(string ToasterId, SonnerPosition Position)> _pausedToasters = [];
     private string _activeToasterId = _defaultToasterId;
     private ValueAtomicBool _disposed = new(false);
@@ -124,7 +124,7 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            _toasters[normalizedToasterId] = new ToasterRegistration(defaultPosition, defaultDuration, closeButton);
+            _toasters[normalizedToasterId] = new SonnerToasterRegistration(defaultPosition, defaultDuration, closeButton);
             _activeToasterId = normalizedToasterId;
         }
     }
@@ -382,7 +382,7 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            var timerState = new TimerState
+            var timerState = new SonnerTimerState
             {
                 RemainingMs = toast.Duration,
                 Paused = _pausedToasters.Contains((toast.ToasterId, toast.Position))
@@ -552,7 +552,7 @@ public sealed class SonnerService : ISonnerService
         StateChanged?.Invoke();
     }
 
-    private async ValueTask<ToasterRegistration?> GetToasterRegistration(string toasterId, CancellationToken cancellationToken)
+    private async ValueTask<SonnerToasterRegistration?> GetToasterRegistration(string toasterId, CancellationToken cancellationToken)
     {
         using (await _sync.Lock(cancellationToken))
         {
@@ -585,7 +585,7 @@ public sealed class SonnerService : ISonnerService
         return string.IsNullOrWhiteSpace(toasterId) ? _defaultToasterId : toasterId;
     }
 
-    private static int GetRemainingMs(TimerState timerState, DateTimeOffset now)
+    private static int GetRemainingMs(SonnerTimerState timerState, DateTimeOffset now)
     {
         var elapsedMs = (int)Math.Ceiling((now - timerState.StartedAt).TotalMilliseconds);
         var remainingMs = timerState.RemainingMs - elapsedMs;
@@ -614,17 +614,4 @@ public sealed class SonnerService : ISonnerService
 
         return _defaultToasterId;
     }
-
-    private sealed class TimerState
-    {
-        public CancellationTokenSource? CancellationTokenSource { get; set; }
-
-        public DateTimeOffset StartedAt { get; set; }
-
-        public int RemainingMs { get; set; }
-
-        public bool Paused { get; set; }
-    }
-
-    private sealed record ToasterRegistration(SonnerPosition? DefaultPosition, int? DefaultDuration, bool? CloseButton);
 }

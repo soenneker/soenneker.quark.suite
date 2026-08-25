@@ -57,7 +57,7 @@ internal sealed class FieldContext
     {
         _descriptionRegistrations++;
         StateChanged?.Invoke();
-        return new Registration(() =>
+        return new FieldRegistration(() =>
         {
             _descriptionRegistrations--;
             StateChanged?.Invoke();
@@ -68,7 +68,7 @@ internal sealed class FieldContext
     {
         _errorRegistrations++;
         StateChanged?.Invoke();
-        return new Registration(() =>
+        return new FieldRegistration(() =>
         {
             _errorRegistrations--;
             StateChanged?.Invoke();
@@ -127,22 +127,5 @@ internal sealed class FieldContext
         }
 
         return false;
-    }
-
-    private sealed class Registration : IDisposable
-    {
-        private Action? _dispose;
-
-        public Registration(Action dispose)
-        {
-            _dispose = dispose;
-        }
-
-        public void Dispose()
-        {
-            var dispose = _dispose;
-            _dispose = null;
-            dispose?.Invoke();
-        }
     }
 }

@@ -10,7 +10,7 @@ namespace Soenneker.Quark;
 public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 {
     private readonly object _sync = new();
-    private readonly HashSet<Registration> _registrations = [];
+    private readonly HashSet<QuarkDateTimeScheduleRegistration> _registrations = [];
     private readonly CancellationTokenSource _disposeCts = new();
     private readonly ILogger<QuarkDateTimeScheduler> _logger;
     private CancellationTokenSource _wakeCts = new();
@@ -32,7 +32,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         ArgumentNullException.ThrowIfNull(getNextInterval);
         ArgumentNullException.ThrowIfNull(callback);
 
-        var registration = new Registration(this, getNextInterval, callback);
+        var registration = new QuarkDateTimeScheduleRegistration(this, getNextInterval, callback);
 
         lock (_sync)
         {
@@ -67,7 +67,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 DateTimeOffset now = DateTimeOffset.UtcNow;
                 DateTimeOffset? earliest = null;
 
-                foreach (Registration registration in _registrations)
+                foreach (QuarkDateTimeScheduleRegistration registration in _registrations)
                 {
                     if (registration.NextUpdate is not null && (!earliest.HasValue || registration.NextUpdate.Value < earliest.Value))
                         earliest = registration.NextUpdate;
@@ -96,12 +96,12 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 return;
             }
 
-            List<(Registration Registration, int Version)> due = [];
+            List<(QuarkDateTimeScheduleRegistration Registration, int Version)> due = [];
             DateTimeOffset tickNow = DateTimeOffset.UtcNow;
 
             lock (_sync)
             {
-                foreach (Registration registration in _registrations)
+                foreach (QuarkDateTimeScheduleRegistration registration in _registrations)
                 {
                     if (registration.NextUpdate is not null && registration.NextUpdate.Value <= tickNow)
                     {
@@ -113,7 +113,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
             for (var i = 0; i < due.Count; i++)
             {
-                (Registration registration, int version) = due[i];
+                (QuarkDateTimeScheduleRegistration registration, int version) = due[i];
 
                 lock (_sync)
                 {
@@ -139,7 +139,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         }
     }
 
-    private void Reschedule(Registration registration)
+    internal void Reschedule(QuarkDateTimeScheduleRegistration registration)
     {
         lock (_sync)
         {
@@ -156,7 +156,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         }
     }
 
-    private void Unregister(Registration registration)
+    internal void Unregister(QuarkDateTimeScheduleRegistration registration)
     {
         lock (_sync)
         {
@@ -171,7 +171,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         }
     }
 
-    private static void ScheduleCore(Registration registration, DateTimeOffset now)
+    private static void ScheduleCore(QuarkDateTimeScheduleRegistration registration, DateTimeOffset now)
     {
         TimeSpan? interval = registration.GetNextInterval(now);
         registration.NextUpdate = interval.HasValue && interval.Value > TimeSpan.Zero ? now + interval.Value : null;
@@ -215,28 +215,5 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
         _wakeCts.Dispose();
         _disposeCts.Dispose();
-    }
-
-    private sealed class Registration : IQuarkDateTimeScheduleRegistration
-    {
-        private readonly QuarkDateTimeScheduler _owner;
-
-        internal Registration(QuarkDateTimeScheduler owner, Func<DateTimeOffset, TimeSpan?> getNextInterval,
-            Func<DateTimeOffset, ValueTask> callback)
-        {
-            _owner = owner;
-            GetNextInterval = getNextInterval;
-            Callback = callback;
-        }
-
-        internal Func<DateTimeOffset, TimeSpan?> GetNextInterval { get; }
-        internal Func<DateTimeOffset, ValueTask> Callback { get; }
-        internal DateTimeOffset? NextUpdate { get; set; }
-        internal int Version { get; set; }
-        internal bool Disposed { get; set; }
-
-        public void Reschedule() => _owner.Reschedule(this);
-
-        public void Dispose() => _owner.Unregister(this);
     }
 }
