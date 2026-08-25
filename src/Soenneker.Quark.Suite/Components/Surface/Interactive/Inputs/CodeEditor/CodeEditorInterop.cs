@@ -182,6 +182,55 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    public async ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
+        CancellationToken cancellationToken = default) where T : class
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("registerContentChangedCallback", linked, container, dotNetRef);
+        }
+    }
+
+    public async ValueTask ConfigureFileDrop(ElementReference container, ElementReference dropZone, string inputId,
+        CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("configureFileDrop", linked, container, dropZone, inputId);
+        }
+    }
+
+    public async ValueTask RemoveFileDrop(ElementReference container, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("removeFileDrop", linked, container);
+        }
+    }
+
+    public async ValueTask InsertTextAtDropPosition(ElementReference container, string text, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("insertTextAtDropPosition", linked, container, text);
+        }
+    }
+
     public async ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
         where T : class
     {
@@ -220,5 +269,4 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         await _moduleImportUtil.DisposeContentModule(_themeModulePath);
     }
 }
-
 

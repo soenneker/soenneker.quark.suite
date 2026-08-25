@@ -131,6 +131,13 @@ function disposeEditorState(state) {
         state.contentChangeDisposable = null;
     }
 
+    if (state.valueChangeDisposable) {
+        state.valueChangeDisposable.dispose();
+        state.valueChangeDisposable = null;
+    }
+
+    removeFileDropState(state);
+
     if (state.editor) {
         const model = state.editor.getModel();
         state.editor.dispose();
@@ -259,6 +266,9 @@ export async function createEditor(container, optionsJson) {
         container,
         editor,
         contentChangeDisposable: null,
+        valueChangeDisposable: null,
+        fileDropCleanup: null,
+        pendingDropPosition: null,
         ownsModel: !options.model
     };
 
@@ -342,6 +352,127 @@ export async function addContentChangeListener(container, minLines, maxLines) {
     state.contentChangeDisposable = model.onDidChangeContent(() => {
         updateContentHeight(container, minLines, maxLines);
     });
+}
+
+export function registerContentChangedCallback(container, dotNetRef) {
+    const state = getEditorState(container);
+
+    state.valueChangeDisposable?.dispose();
+    state.valueChangeDisposable = state.editor.onDidChangeModelContent(() => {
+        dotNetRef.invokeMethodAsync('OnCodeEditorTextChanged', state.editor.getValue());
+    });
+}
+
+function hasFiles(event) {
+    return Array.from(event.dataTransfer?.types ?? []).includes('Files');
+}
+
+function setFileDropActive(dropZone, overlay, active) {
+    dropZone.dataset.fileDropActive = active ? 'true' : 'false';
+    overlay.hidden = !active;
+}
+
+function removeFileDropState(state) {
+    if (state?.fileDropCleanup) {
+        state.fileDropCleanup();
+        state.fileDropCleanup = null;
+    }
+
+    if (state)
+        state.pendingDropPosition = null;
+}
+
+export function configureFileDrop(container, dropZone, inputId) {
+    const state = getEditorState(container);
+    removeFileDropState(state);
+
+    const input = document.getElementById(inputId);
+    const overlay = dropZone?.querySelector('[data-code-editor-drop-overlay]');
+    if (!dropZone || !input || !overlay)
+        return;
+
+    let dragDepth = 0;
+    const dragEnter = event => {
+        if (!hasFiles(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth++;
+        setFileDropActive(dropZone, overlay, true);
+    };
+    const dragOver = event => {
+        if (!hasFiles(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = 'copy';
+    };
+    const dragLeave = event => {
+        if (!hasFiles(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0)
+            setFileDropActive(dropZone, overlay, false);
+    };
+    const drop = event => {
+        if (!hasFiles(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth = 0;
+        setFileDropActive(dropZone, overlay, false);
+
+        state.pendingDropPosition = state.editor.getTargetAtClientPoint(event.clientX, event.clientY)?.position
+            ?? state.editor.getPosition();
+
+        const transfer = new DataTransfer();
+        for (const file of event.dataTransfer.files)
+            transfer.items.add(file);
+
+        input.value = '';
+        input.files = transfer.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    dropZone.addEventListener('dragenter', dragEnter, true);
+    dropZone.addEventListener('dragover', dragOver, true);
+    dropZone.addEventListener('dragleave', dragLeave, true);
+    dropZone.addEventListener('drop', drop, true);
+    state.fileDropCleanup = () => {
+        dropZone.removeEventListener('dragenter', dragEnter, true);
+        dropZone.removeEventListener('dragover', dragOver, true);
+        dropZone.removeEventListener('dragleave', dragLeave, true);
+        dropZone.removeEventListener('drop', drop, true);
+        setFileDropActive(dropZone, overlay, false);
+    };
+}
+
+export function removeFileDrop(container) {
+    removeFileDropState(getEditorState(container));
+}
+
+export function insertTextAtDropPosition(container, text) {
+    const state = getEditorState(container);
+    const editor = state.editor;
+    const model = editor.getModel();
+    if (!model || !text) return;
+
+    const position = state.pendingDropPosition ?? editor.getPosition() ?? model.getPositionAt(model.getValueLength());
+    editor.executeEdits('code-editor-file-drop', [{
+        range: {
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column
+        },
+        text,
+        forceMoveMarkers: true
+    }]);
+
+    const offset = model.getOffsetAt(position) + text.length;
+    const nextPosition = model.getPositionAt(offset);
+    editor.setPosition(nextPosition);
+    editor.revealPositionInCenterIfOutsideViewport(nextPosition);
+    editor.focus();
+    state.pendingDropPosition = null;
 }
 
 

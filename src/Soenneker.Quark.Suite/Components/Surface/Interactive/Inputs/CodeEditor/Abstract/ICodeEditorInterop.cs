@@ -73,6 +73,28 @@ public interface ICodeEditorInterop : IAsyncDisposable
     ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Registers the .NET callback used to propagate Monaco content changes.
+    /// </summary>
+    ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
+        CancellationToken cancellationToken = default) where T : class;
+
+    /// <summary>
+    /// Enables file dropping for an editor.
+    /// </summary>
+    ValueTask ConfigureFileDrop(ElementReference container, ElementReference dropZone, string inputId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes file-drop handling for an editor.
+    /// </summary>
+    ValueTask RemoveFileDrop(ElementReference container, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Inserts text at the most recent file-drop position, or at the current cursor position.
+    /// </summary>
+    ValueTask InsertTextAtDropPosition(ElementReference container, string text, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Registers a .NET callback invoked when the app theme changes (light/dark).
     /// </summary>
     ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)

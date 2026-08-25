@@ -1,4 +1,6 @@
 @page "/components/codeeditors"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Threading
 
 <PageTitle>Code Editor - Quark Suite</PageTitle>
 
@@ -111,6 +113,34 @@
             </Div>
         </DemoSection>
     </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="File drop"
+                     Description="Set AllowFileDrop to opt in. OnFilesDropped receives browser files and returns the text Quark should insert at the drop position; applications remain responsible for uploading files and constructing URLs or markup."
+                     Code="@FileDropDemoCode"
+                     CodeLanguage="razor"
+                     PreviewClass="@FileDropPreviewClass">
+            <Div Class="grid w-full gap-3">
+                <CodeEditor @bind-Text="_fileDropText"
+                            Language="markdown"
+                            Theme="@_theme"
+                            WordWrap="true"
+                            Minimap="false"
+                            AutoHeight="true"
+                            MinLines="10"
+                            MaxLines="18"
+                            AllowFileDrop="true"
+                            FileDropAccept="image/*,.pdf"
+                            FileDropMultiple="true"
+                            MaxDroppedFiles="5"
+                            FileDropLabel="Drop files to insert"
+                            OnFilesDropped="InsertDroppedFiles" />
+                <Small TextColor="TextColor.MutedForeground">
+                    Drop up to five images or PDFs onto the editor. This demo inserts file metadata; a production callback can upload each file and return Markdown containing its public URL.
+                </Small>
+            </Div>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
@@ -139,6 +169,7 @@
     private const string EditorPreviewClass = "preview relative flex min-h-[30rem] w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
     private const string ReadOnlyPreviewClass = "preview relative flex min-h-72 w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
     private const string AutoHeightPreviewClass = "preview relative flex min-h-80 w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
+    private const string FileDropPreviewClass = "preview relative flex min-h-96 w-full p-4 data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
 
     private string _language = "csharp";
     private string _theme = "auto";
@@ -177,6 +208,15 @@ console.log(message);";
     ""auto-height""
   ]
 }";
+
+    private string _fileDropText = "# File drop\n\nDrop images or PDFs anywhere in this editor.";
+
+    private static ValueTask<string?> InsertDroppedFiles(IReadOnlyList<IBrowserFile> files, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        string items = string.Join("\n", files.Select(file => $"- `{file.Name}` ({file.Size:N0} bytes)"));
+        return ValueTask.FromResult<string?>($"\n\n## Dropped files\n\n{items}\n\n");
+    }
 
     private const string EditorDemoCode =
 @"<Div Class=""grid w-full gap-4"">
@@ -266,6 +306,37 @@ console.log(message);";
                 MaxLines=""null""
                 Minimap=""false"" />
 </Div>";
+
+    private const string FileDropDemoCode =
+@"<CodeEditor @bind-Text=""_text""
+            Language=""markdown""
+            AllowFileDrop=""true""
+            FileDropAccept=""image/*,.pdf""
+            FileDropMultiple=""true""
+            MaxDroppedFiles=""5""
+            FileDropLabel=""Drop files to insert""
+            OnFilesDropped=""InsertDroppedFiles"" />
+
+@code {
+    private string _text = ""# File drop"";
+
+    private async ValueTask<string?> InsertDroppedFiles(
+        IReadOnlyList<IBrowserFile> files,
+        CancellationToken cancellationToken)
+    {
+        var markdown = new List<string>();
+
+        foreach (IBrowserFile file in files)
+        {
+            // Uploading is application-specific. Return the text that Quark
+            // should insert at the captured drop position.
+            string publicUrl = await UploadToPublicStorage(file, cancellationToken);
+            markdown.Add($""![{file.Name}]({publicUrl})"");
+        }
+
+        return $""\n\n{string.Join(""\n\n"", markdown)}\n\n"";
+    }
+}";
 
     private readonly record struct SelectOption(string Value, string Label);
 }

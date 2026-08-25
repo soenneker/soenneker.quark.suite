@@ -1,7 +1,10 @@
 @using System.Linq.Expressions
 @using System.Text.Json
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Utils.Clipboard.Abstract
+@using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -10,7 +13,7 @@
 @inject IThemeInterop ThemeInterop
 @inject IClipboardUtil ClipboardUtil
 
-<div class="group/code-editor relative w-full min-w-0">
+<div @ref="_dropZone" class="group/code-editor relative w-full min-w-0">
     @if (ShowCopyButton)
     {
         <button type="button"
@@ -24,6 +27,21 @@
     }
 
     <div @ref="_container" @attributes="BuildContainerAttributes()"></div>
+    @if (AllowFileDrop && !ReadOnly)
+    {
+        <div hidden
+             data-code-editor-drop-overlay
+             class="pointer-events-none absolute inset-0 z-50 flex items-center justify-center rounded-lg border-2 border-primary bg-[color-mix(in_oklch,var(--surface),transparent_8%)] font-semibold text-primary">
+            @FileDropLabel
+        </div>
+        <InputFile id="@_fileInputId"
+                   class="sr-only"
+                   tabindex="-1"
+                   aria-hidden="true"
+                   accept="@FileDropAccept"
+                   multiple="@FileDropMultiple"
+                   OnChange="HandleFilesDropped" />
+    }
 </div>
 
 @code {
@@ -93,6 +111,45 @@
     [Parameter]
     public int? MaxLines { get; set; } = 30;
 
+    /// <summary>
+    /// Gets or sets whether files can be dropped directly onto the editor.
+    /// </summary>
+    [Parameter]
+    public bool AllowFileDrop { get; set; }
+
+    /// <summary>
+    /// Gets or sets the file types accepted by the hidden file input used for drops.
+    /// </summary>
+    [Parameter]
+    public string? FileDropAccept { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether more than one file can be dropped at a time.
+    /// </summary>
+    [Parameter]
+    public bool FileDropMultiple { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the maximum number of files accepted in one drop.
+    /// </summary>
+    [Parameter]
+    public int MaxDroppedFiles { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the text displayed while files are dragged over the editor.
+    /// </summary>
+    [Parameter]
+    public string FileDropLabel { get; set; } = "Drop files to insert";
+
+    /// <summary>
+    /// Handles dropped files and returns the text to insert at the drop position.
+    /// </summary>
+    [Parameter]
+    public Func<IReadOnlyList<IBrowserFile>, CancellationToken, ValueTask<string?>>? OnFilesDropped { get; set; }
+
+    private readonly string _fileInputId = BlazorIdGenerator.New("code-editor-file-input");
+    private readonly CancellationTokenSource _disposeCts = new();
+    private ElementReference _dropZone;
     private ElementReference _container;
     private string? _lastText;
     private string? _lastLanguage;
@@ -104,8 +161,10 @@
     private bool _valueChanged;
     private bool _copyStateChanged;
     private bool _themeIsAuto;
+    private bool _fileDropConfigured;
     private string _copyButtonLabel = "Copy";
     private DotNetObjectReference<CodeEditor>? _themeCallbackRef;
+    private DotNetObjectReference<CodeEditor>? _editorCallbackRef;
     private const string AutoDarkTheme = "vs-dark";
     private static readonly string AutoLightTheme = new(['q', 'u', 'a', 'r', 'k', 'L', 'i', 'g', 'h', 't']);
 
@@ -114,6 +173,18 @@
     {
         if (_themeIsAuto && _initialized)
             await CodeEditorInterop.SetTheme(GetAutoTheme(isDark));
+    }
+
+    [JSInvokable]
+    public async Task OnCodeEditorTextChanged(string value)
+    {
+        if (string.Equals(Text, value, StringComparison.Ordinal))
+            return;
+
+        Text = value;
+        _lastText = value;
+        _valueChanged = true;
+        await TextChanged.InvokeAsync(value);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -146,6 +217,8 @@
 
             var json = JsonSerializer.Serialize(options);
             await CodeEditorInterop.CreateEditor(_container, json);
+            _editorCallbackRef = DotNetObjectReference.Create(this);
+            await CodeEditorInterop.RegisterContentChangedCallback(_container, _editorCallbackRef);
 
             // If auto-height is enabled, set up content change listener
             if (AutoHeight)
@@ -169,6 +242,17 @@
                 await CodeEditorInterop.UpdateContentHeight(_container, MinLines, MaxLines);
             else
                 await CodeEditorInterop.Layout(_container);
+        }
+
+        if (_initialized && AllowFileDrop && !ReadOnly && !_fileDropConfigured)
+        {
+            await CodeEditorInterop.ConfigureFileDrop(_container, _dropZone, _fileInputId);
+            _fileDropConfigured = true;
+        }
+        else if (_initialized && (!AllowFileDrop || ReadOnly) && _fileDropConfigured)
+        {
+            await CodeEditorInterop.RemoveFileDrop(_container);
+            _fileDropConfigured = false;
         }
 
         _valueChanged = false;
@@ -253,8 +337,30 @@
         return attrs;
     }
 
+    private async Task HandleFilesDropped(InputFileChangeEventArgs args)
+    {
+        if (OnFilesDropped is null || args.FileCount == 0)
+            return;
+
+        if (MaxDroppedFiles < 1)
+            throw new InvalidOperationException($"{nameof(MaxDroppedFiles)} must be at least one.");
+
+        if (!FileDropMultiple && args.FileCount > 1)
+            throw new InvalidOperationException("Only one dropped file is allowed.");
+
+        if (args.FileCount > MaxDroppedFiles)
+            throw new InvalidOperationException($"No more than {MaxDroppedFiles} files can be dropped at once.");
+
+        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles(MaxDroppedFiles);
+        string? insertion = await OnFilesDropped(files, _disposeCts.Token);
+        if (!string.IsNullOrEmpty(insertion))
+            await CodeEditorInterop.InsertTextAtDropPosition(_container, insertion, _disposeCts.Token);
+    }
+
     public override async ValueTask DisposeAsync()
     {
+        await _disposeCts.CancelAsync();
+
         if (_themeCallbackRef != null)
         {
             await CodeEditorInterop.UnregisterThemeChangedCallback(_themeCallbackRef);
@@ -274,6 +380,10 @@
             }
         }
 
+        _editorCallbackRef?.Dispose();
+        _editorCallbackRef = null;
+        _disposeCts.Dispose();
+
         await base.DisposeAsync();
     }
 
@@ -289,6 +399,11 @@
         hc.Add(AutoHeight);
         hc.Add(MinLines);
         hc.Add(MaxLines);
+        hc.Add(AllowFileDrop);
+        hc.Add(FileDropAccept);
+        hc.Add(FileDropMultiple);
+        hc.Add(MaxDroppedFiles);
+        hc.Add(FileDropLabel);
     }
 
     private async Task CopyText()
