@@ -177,10 +177,13 @@
     private FloatingWindowOptions? _appliedOptions;
     private readonly CancellationTokenSource _disposeCts = new();
     private DotNetObjectReference<FloatingWindow>? _dotNetRef;
+    private FloatingWindowOptions? _mergedOptions;
 
     private string WindowTitle => Title ?? "Window";
 
-    private FloatingWindowOptions MergedOptions => new()
+    private FloatingWindowOptions MergedOptions => _mergedOptions ??= CreateMergedOptions();
+
+    private FloatingWindowOptions CreateMergedOptions() => new()
     {
         Draggable = Draggable ?? Options.Draggable,
         Resizable = Resizable ?? Options.Resizable,
@@ -259,8 +262,35 @@
     protected override void OnParametersSet()
     {
         _visible = Visible;
+
+        if (_mergedOptions is null || !MergedOptionsMatchInputs(_mergedOptions))
+            _mergedOptions = CreateMergedOptions();
+
         base.OnParametersSet();
     }
+
+    private bool MergedOptionsMatchInputs(FloatingWindowOptions options) =>
+        options.Draggable == (Draggable ?? Options.Draggable) &&
+        options.Resizable == (Resizable ?? Options.Resizable) &&
+        options.ShowCloseButton == (ShowCloseButton ?? Options.ShowCloseButton) &&
+        options.ShowTitleBar == (ShowTitleBar ?? Options.ShowTitleBar) &&
+        options.Enabled == (Enabled ?? Options.Enabled) &&
+        options.Width == Options.Width &&
+        options.Height == Options.Height &&
+        options.InitialX == (InitialX ?? Options.InitialX) &&
+        options.InitialY == (InitialY ?? Options.InitialY) &&
+        options.MinWidth == Options.MinWidth &&
+        options.MinHeight == Options.MinHeight &&
+        options.MaxWidth == Options.MaxWidth &&
+        options.MaxHeight == Options.MaxHeight &&
+        options.ConstrainToViewport == Options.ConstrainToViewport &&
+        options.CenterOnShow == Options.CenterOnShow &&
+        options.FocusOnShow == Options.FocusOnShow &&
+        options.UseCdn == (UseCdn ?? Options.UseCdn) &&
+        options.AutoSizeToContent == (AutoSizeToContent ?? Options.AutoSizeToContent) &&
+        options.DynamicAutoSizeToContent == (DynamicAutoSizeToContent ?? Options.DynamicAutoSizeToContent) &&
+        options.RecenterOnResize == (RecenterOnResize ?? Options.RecenterOnResize) &&
+        options.ZIndex == Options.ZIndex;
 
     protected override void ApplyDefaultParameters()
     {

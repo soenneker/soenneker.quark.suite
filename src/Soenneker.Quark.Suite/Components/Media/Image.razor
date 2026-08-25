@@ -18,6 +18,11 @@ else
 }
 
 @code {
+    private ImageContext? _context;
+    private string? _resolvedSource;
+    private string? _resolvedSourceInput;
+    private string? _resolvedBase64Input;
+    private string? _resolvedMediaTypeInput;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -120,12 +125,43 @@ else
     [Parameter]
     public EventCallback<ProgressEventArgs> OnAbort { get; set; }
 
-    private string? ResolvedSource =>
-        Source.HasContent() ? Source :
-        Base64.HasContent() ? $"data:{(MediaType.HasContent() ? MediaType : "image/png")};base64,{Base64}" :
-        null;
+    private string? ResolvedSource
+    {
+        get
+        {
+            if (string.Equals(_resolvedSourceInput, Source, StringComparison.Ordinal) &&
+                string.Equals(_resolvedBase64Input, Base64, StringComparison.Ordinal) &&
+                string.Equals(_resolvedMediaTypeInput, MediaType, StringComparison.Ordinal))
+                return _resolvedSource;
 
-    private ImageContext Context => new(ResolvedSource, Alt, GetLoadingAttribute(), Decoding, SrcSet, Sizes);
+            _resolvedSourceInput = Source;
+            _resolvedBase64Input = Base64;
+            _resolvedMediaTypeInput = MediaType;
+            _resolvedSource = Source.HasContent() ? Source :
+                Base64.HasContent() ? $"data:{(MediaType.HasContent() ? MediaType : "image/png")};base64,{Base64}" :
+                null;
+            return _resolvedSource;
+        }
+    }
+
+    private ImageContext Context
+    {
+        get
+        {
+            string? source = ResolvedSource;
+            string? loading = GetLoadingAttribute();
+
+            if (_context is null || !string.Equals(_context.Source, source, StringComparison.Ordinal) ||
+                !string.Equals(_context.Alt, Alt, StringComparison.Ordinal) || !string.Equals(_context.Loading, loading, StringComparison.Ordinal) ||
+                !string.Equals(_context.Decoding, Decoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, SrcSet, StringComparison.Ordinal) ||
+                !string.Equals(_context.Sizes, Sizes, StringComparison.Ordinal))
+            {
+                _context = new ImageContext(source, Alt, loading, Decoding, SrcSet, Sizes);
+            }
+
+            return _context;
+        }
+    }
 
     private string? GetLoadingAttribute()
     {
@@ -179,8 +215,9 @@ else
             BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, fluidClass));
         }
 
-        if (ResolvedSource.HasContent())
-            attributes["src"] = ResolvedSource;
+        string? resolvedSource = ResolvedSource;
+        if (resolvedSource.HasContent())
+            attributes["src"] = resolvedSource;
 
         attributes["alt"] = Alt ?? string.Empty;
 

@@ -19,6 +19,12 @@ else
 }
 
 @code {
+    private static readonly string PendingStatus = nameof(ChainOfThoughtStatus.Pending).ToLowerInvariant();
+    private static readonly string RunningStatus = nameof(ChainOfThoughtStatus.Running).ToLowerInvariant();
+    private static readonly string CompletedStatus = nameof(ChainOfThoughtStatus.Completed).ToLowerInvariant();
+    private static readonly string FailedStatus = nameof(ChainOfThoughtStatus.Failed).ToLowerInvariant();
+    private ChainOfThoughtStepContext? _context;
+
     [Parameter]
     public ChainOfThoughtStatus Status { get; set; } = ChainOfThoughtStatus.Running;
 
@@ -30,7 +36,16 @@ else
 
     private bool ResolvedDefaultOpen => HasContent && (!AutoCloseOnComplete || Status != ChainOfThoughtStatus.Completed);
 
-    private ChainOfThoughtStepContext Context => new(HasContent);
+    private ChainOfThoughtStepContext Context
+    {
+        get
+        {
+            if (_context is null || _context.HasContent != HasContent)
+                _context = new ChainOfThoughtStepContext(HasContent);
+
+            return _context;
+        }
+    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -44,10 +59,19 @@ else
     private IReadOnlyDictionary<string, object> BuildStepAttributes()
     {
         var attributes = BuildAttributes();
-        attributes["data-status"] = Status.ToString().ToLowerInvariant();
+        attributes["data-status"] = GetStatusValue(Status);
         attributes["data-has-content"] = HasContent ? "true" : "false";
         return attributes;
     }
+
+    private static string GetStatusValue(ChainOfThoughtStatus status) => status switch
+    {
+        ChainOfThoughtStatus.Pending => PendingStatus,
+        ChainOfThoughtStatus.Running => RunningStatus,
+        ChainOfThoughtStatus.Completed => CompletedStatus,
+        ChainOfThoughtStatus.Failed => FailedStatus,
+        _ => status.ToString().ToLowerInvariant()
+    };
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

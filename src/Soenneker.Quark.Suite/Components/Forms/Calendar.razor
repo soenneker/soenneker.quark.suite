@@ -140,7 +140,6 @@
         "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
         "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
     ];
-    private static readonly string[] ArabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
     private static readonly string[] PersianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
     private static readonly CultureInfo EnUsCulture = CultureInfo.GetCultureInfo("en-US");
 
@@ -738,12 +737,23 @@
 
     private static string ToArabicDigits(int value)
     {
-        var result = value.ToString(CultureInfo.InvariantCulture);
+        Span<char> formatted = stackalloc char[11];
 
-        for (var i = 0; i < ArabicDigits.Length; i++)
-            result = result.Replace(i.ToString(CultureInfo.InvariantCulture), ArabicDigits[i], StringComparison.Ordinal);
+        if (!value.TryFormat(formatted, out int charsWritten, provider: CultureInfo.InvariantCulture))
+            return value.ToString(CultureInfo.InvariantCulture);
 
-        return result;
+        return string.Create(charsWritten, value, static (destination, number) =>
+        {
+            number.TryFormat(destination, out _, provider: CultureInfo.InvariantCulture);
+
+            for (var i = 0; i < destination.Length; i++)
+            {
+                char character = destination[i];
+
+                if (character is >= '0' and <= '9')
+                    destination[i] = (char) ('\u0660' + (character - '0'));
+            }
+        });
     }
 
     private static string GetEnglishOrdinal(int day)
@@ -791,6 +801,33 @@
             nativeDigits = PersianDigits;
         else if (nativeDigits.Length != 10 || nativeDigits[0] == "0")
             return value;
+
+        bool hasMultiCharacterDigit = false;
+
+        for (var i = 0; i < nativeDigits.Length; i++)
+        {
+            if (nativeDigits[i].Length != 1)
+            {
+                hasMultiCharacterDigit = true;
+                break;
+            }
+        }
+
+        if (!hasMultiCharacterDigit)
+        {
+            return string.Create(value.Length, (Value: value, NativeDigits: nativeDigits), static (destination, state) =>
+            {
+                state.Value.AsSpan().CopyTo(destination);
+
+                for (var i = 0; i < destination.Length; i++)
+                {
+                    char character = destination[i];
+
+                    if (character is >= '0' and <= '9')
+                        destination[i] = state.NativeDigits[character - '0'][0];
+                }
+            });
+        }
 
         var result = value;
 

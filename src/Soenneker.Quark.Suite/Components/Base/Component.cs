@@ -291,6 +291,11 @@ public abstract class Component : RenderComponent, IComponent
 
     protected ElementReference ElementRef { get; set; }
 
+    /// <summary>
+    /// Gets the preset context already applied during the current attribute build.
+    /// </summary>
+    protected QuarkPresetContext? AppliedPresetContext { get; private set; }
+
     protected override bool AlwaysRender => QuarkOptions.AlwaysRender;
 
     public override Task SetParametersAsync(ParameterView parameters)
@@ -364,6 +369,7 @@ public abstract class Component : RenderComponent, IComponent
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
         var preset = BuildPresetContext();
+        AppliedPresetContext = preset;
 
         if (Style.HasContent())
             AppendStyleDecl(ref sty, Style!);
@@ -528,6 +534,20 @@ public abstract class Component : RenderComponent, IComponent
     {
         if (attributes is null)
             return false;
+
+        if (attributes is Dictionary<string, object> dictionary)
+        {
+            if (dictionary.ContainsKey("data-slot"))
+                return true;
+
+            foreach (string key in dictionary.Keys)
+            {
+                if (key.Equals("data-slot", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
 
         foreach (var key in attributes.Keys)
         {

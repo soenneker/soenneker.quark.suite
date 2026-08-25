@@ -31,7 +31,7 @@
         _items.Remove(item);
 
         if (ReferenceEquals(_currentItem, item))
-            _currentItem = _items.FirstOrDefault(candidate => !candidate.Disabled);
+            _currentItem = FindFirstEnabledItem();
     }
 
     internal bool IsCurrent(TreeItem item) => !item.Disabled && ReferenceEquals(_currentItem, item);
@@ -49,27 +49,63 @@
 
     internal async Task<bool> MoveFocus(TreeItem item, string? key)
     {
-        List<TreeItem> enabled = _items.Where(candidate => !candidate.Disabled).ToList();
-        if (enabled.Count == 0)
+        TreeItem? first = null;
+        TreeItem? last = null;
+        TreeItem? previous = null;
+        TreeItem? next = null;
+        bool foundCurrent = false;
+
+        for (var i = 0; i < _items.Count; i++)
+        {
+            TreeItem candidate = _items[i];
+
+            if (candidate.Disabled)
+                continue;
+
+            first ??= candidate;
+            last = candidate;
+
+            if (ReferenceEquals(candidate, item))
+            {
+                foundCurrent = true;
+                continue;
+            }
+
+            if (foundCurrent)
+                next ??= candidate;
+            else
+                previous = candidate;
+        }
+
+        if (first is null)
             return false;
 
-        int currentIndex = enabled.IndexOf(item);
-        int targetIndex = key switch
+        TreeItem? target = key switch
         {
-            "ArrowDown" => Math.Min(currentIndex + 1, enabled.Count - 1),
-            "ArrowUp" => Math.Max(currentIndex - 1, 0),
-            "Home" => 0,
-            "End" => enabled.Count - 1,
-            _ => -1
+            "ArrowDown" => foundCurrent ? next ?? last : first,
+            "ArrowUp" => foundCurrent ? previous ?? first : first,
+            "Home" => first,
+            "End" => last,
+            _ => null
         };
 
-        if (targetIndex < 0)
+        if (target is null)
             return false;
 
-        TreeItem target = enabled[targetIndex];
         SetCurrent(target);
         await target.Focus();
         return true;
+    }
+
+    private TreeItem? FindFirstEnabledItem()
+    {
+        for (var i = 0; i < _items.Count; i++)
+        {
+            if (!_items[i].Disabled)
+                return _items[i];
+        }
+
+        return null;
     }
 
     protected override void ApplyDefaultParameters()

@@ -32,7 +32,7 @@ else
 
         attributes["data-variant"] = GetDataVariant(Variant);
 
-        QuarkPresetContext? preset = BuildPresetContext();
+        QuarkPresetContext? preset = AppliedPresetContext;
         bool hasBackgroundColor = BackgroundColor is not null || preset?.BackgroundColor is not null;
         bool hasTextColor = TextColor is not null || preset?.TextColor is not null;
         bool hasBorderColor = BorderColor is not null || preset?.BorderColor is not null;
@@ -40,7 +40,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, _shadcnBadgeBase);
-            AppendClass(ref cls, GetBadgeVariantClass(Variant, hasBackgroundColor, hasTextColor, hasBorderColor));
+            AppendBadgeVariantClasses(ref cls, Variant, hasBackgroundColor, hasTextColor, hasBorderColor);
         });
     }
 
@@ -77,49 +77,62 @@ else
         return "default";
     }
 
-    private static string GetBadgeVariantClass(BadgeVariant? variant, bool hasBackgroundColor, bool hasTextColor, bool hasBorderColor)
+    private static void AppendBadgeVariantClasses(ref PooledStringBuilder classes, BadgeVariant? variant, bool hasBackgroundColor, bool hasTextColor,
+        bool hasBorderColor)
     {
         if (ReferenceEquals(variant, BadgeVariant.Secondary))
-            return BuildVariantClass("border-transparent", "bg-secondary [a]:hover:bg-secondary/80", "text-secondary-foreground", null,
+        {
+            AppendVariantClasses(ref classes, "border-transparent", "bg-secondary [a]:hover:bg-secondary/80", "text-secondary-foreground", null,
                 hasBackgroundColor, hasTextColor, hasBorderColor);
+            return;
+        }
 
         if (ReferenceEquals(variant, BadgeVariant.Destructive))
-            return BuildVariantClass("border-transparent", "bg-destructive/10 dark:bg-destructive/20 [a]:hover:bg-destructive/20", "text-destructive",
+        {
+            AppendVariantClasses(ref classes, "border-transparent", "bg-destructive/10 dark:bg-destructive/20 [a]:hover:bg-destructive/20", "text-destructive",
                 "focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40", hasBackgroundColor, hasTextColor, hasBorderColor);
+            return;
+        }
 
         if (ReferenceEquals(variant, BadgeVariant.Outline))
-            return BuildVariantClass("border-border", "[a]:hover:bg-muted", "text-foreground [a]:hover:text-muted-foreground", null,
+        {
+            AppendVariantClasses(ref classes, "border-border", "[a]:hover:bg-muted", "text-foreground [a]:hover:text-muted-foreground", null,
                 hasBackgroundColor, hasTextColor, hasBorderColor);
+            return;
+        }
 
         if (ReferenceEquals(variant, BadgeVariant.Ghost))
-            return BuildVariantClass("border-transparent", "hover:bg-muted dark:hover:bg-muted/50", "hover:text-muted-foreground", null,
+        {
+            AppendVariantClasses(ref classes, "border-transparent", "hover:bg-muted dark:hover:bg-muted/50", "hover:text-muted-foreground", null,
                 hasBackgroundColor, hasTextColor, hasBorderColor);
+            return;
+        }
 
         if (ReferenceEquals(variant, BadgeVariant.Link))
-            return BuildVariantClass("border-transparent", null, "text-primary", "underline-offset-4 [a]:hover:underline", hasBackgroundColor,
+        {
+            AppendVariantClasses(ref classes, "border-transparent", null, "text-primary", "underline-offset-4 [a]:hover:underline", hasBackgroundColor,
                 hasTextColor, hasBorderColor);
+            return;
+        }
 
-        return BuildVariantClass("border-transparent", "bg-primary [a]:hover:bg-primary/80", "text-primary-foreground", null, hasBackgroundColor,
+        AppendVariantClasses(ref classes, "border-transparent", "bg-primary [a]:hover:bg-primary/80", "text-primary-foreground", null, hasBackgroundColor,
             hasTextColor, hasBorderColor);
     }
 
-    private static string BuildVariantClass(string? borderClasses, string? backgroundClasses, string? textClasses, string? otherClasses,
+    private static void AppendVariantClasses(ref PooledStringBuilder classes, string? borderClasses, string? backgroundClasses, string? textClasses,
+        string? otherClasses,
         bool hasBackgroundColor, bool hasTextColor, bool hasBorderColor)
     {
-        var classes = new List<string>(4);
-
         if (!hasBorderColor && borderClasses is not null)
-            classes.Add(borderClasses);
+            AppendClass(ref classes, borderClasses);
 
         if (!hasBackgroundColor && backgroundClasses is not null)
-            classes.Add(backgroundClasses);
+            AppendClass(ref classes, backgroundClasses);
 
         if (!hasTextColor && textClasses is not null)
-            classes.Add(textClasses);
+            AppendClass(ref classes, textClasses);
 
         if (otherClasses is not null)
-            classes.Add(otherClasses);
-
-        return string.Join(' ', classes);
+            AppendClass(ref classes, otherClasses);
     }
 }

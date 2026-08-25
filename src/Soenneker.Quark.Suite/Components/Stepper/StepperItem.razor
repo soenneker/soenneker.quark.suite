@@ -8,6 +8,7 @@
 </CascadingValue>
 
 @code {
+    private StepperItemContext? _itemContext;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
 
@@ -38,7 +39,27 @@
 
     private bool IsResponsive => ParentStepper?.Responsive == true;
 
-    private StepperItemContext ItemContext => new(Step, ResolvedValue, State, Disabled, IsLoading, ParentStepper?.ResolvedOrientation ?? "horizontal", Variant, IsResponsive);
+    private StepperItemContext ItemContext
+    {
+        get
+        {
+            string value = ResolvedValue;
+            string state = ParentStepper?.GetStepState(Step, value, Completed) ?? "inactive";
+            bool loading = Loading && ParentStepper?.IsStepActive(Step, value) == true;
+            string orientation = ParentStepper?.ResolvedOrientation ?? "horizontal";
+            bool responsive = ParentStepper?.Responsive == true;
+
+            if (_itemContext is null || _itemContext.Step != Step || !string.Equals(_itemContext.Value, value, StringComparison.Ordinal) ||
+                !string.Equals(_itemContext.State, state, StringComparison.Ordinal) || _itemContext.Disabled != Disabled ||
+                _itemContext.Loading != loading || !string.Equals(_itemContext.Orientation, orientation, StringComparison.Ordinal) ||
+                !ReferenceEquals(_itemContext.Variant, Variant) || _itemContext.Responsive != responsive)
+            {
+                _itemContext = new StepperItemContext(Step, value, state, Disabled, loading, orientation, Variant, responsive);
+            }
+
+            return _itemContext;
+        }
+    }
 
     protected override void OnInitialized()
     {

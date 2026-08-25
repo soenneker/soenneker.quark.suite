@@ -12,7 +12,7 @@ public abstract class TypographyElement : Element
         CssValue<TextWrapBuilder>? textWrap = null, CssValue<BorderBuilder>? border = null, CssValue<PaddingBuilder>? padding = null,
         CssValue<TransitionBuilder>? transition = null)
     {
-        var preset = BuildPresetContext();
+        var preset = AppliedPresetContext;
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {

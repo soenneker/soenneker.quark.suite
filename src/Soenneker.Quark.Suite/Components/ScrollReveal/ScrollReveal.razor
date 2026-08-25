@@ -145,7 +145,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-direction"] = Direction.ToString().ToLowerInvariant();
+        attributes["data-direction"] = GetDirectionValue(Direction);
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
@@ -195,6 +195,16 @@
             _ => "none"
         };
     }
+
+    private static string GetDirectionValue(ScrollRevealDirection direction) => direction switch
+    {
+        ScrollRevealDirection.Up => "up",
+        ScrollRevealDirection.Down => "down",
+        ScrollRevealDirection.Left => "left",
+        ScrollRevealDirection.Right => "right",
+        ScrollRevealDirection.None => "none",
+        _ => direction.ToString().ToLowerInvariant()
+    };
 
     private static string Format(double value) => value.ToString("0.###", CultureInfo.InvariantCulture);
 

@@ -124,6 +124,11 @@ else
 
     private ElementReference _elementRef;
     private bool _preventDefault;
+    private QuarkAttributeDictionary _wrapperAttributeDictionaries;
+    private QuarkAttributeDictionary _labelAttributeDictionaries;
+    private QuarkAttributeDictionary _inputAttributeDictionaries;
+    private QuarkAttributeDictionary _indicatorAttributeDictionaries;
+    private QuarkAttributeDictionary _groupedItemAttributeDictionaries;
     private bool _hasObservedGroupedCheckedState;
     private bool _lastGroupedCheckedState;
     private bool HasInlineLabel => ChildContent != null;
@@ -212,7 +217,7 @@ else
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        Dictionary<string, object> attributes = _wrapperAttributeDictionaries.Create(1);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "flex items-center gap-2");
@@ -295,7 +300,7 @@ else
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        Dictionary<string, object> attributes = _labelAttributeDictionaries.Create(2);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "flex items-center gap-3 text-sm font-medium leading-none select-none");
@@ -309,16 +314,14 @@ else
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["id"] = ControlId,
-            ["type"] = "radio",
-            ["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId,
-            ["value"] = Value ?? string.Empty,
-            ["checked"] = EffectiveChecked,
-            ["data-state"] = EffectiveChecked ? "checked" : "unchecked",
-            ["tabindex"] = 0
-        };
+        Dictionary<string, object> attributes = _inputAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
+        attributes["id"] = ControlId;
+        attributes["type"] = "radio";
+        attributes["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId;
+        attributes["value"] = Value ?? string.Empty;
+        attributes["checked"] = EffectiveChecked;
+        attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
+        attributes["tabindex"] = 0;
 
         if (Required)
             attributes["required"] = true;
@@ -356,11 +359,9 @@ else
 
     private Dictionary<string, object> BuildIndicatorAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "radio-group-item",
-            ["data-state"] = EffectiveChecked ? "checked" : "unchecked"
-        };
+        Dictionary<string, object> attributes = _indicatorAttributeDictionaries.Create(4);
+        attributes["data-slot"] = "radio-group-item";
+        attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
 
         if (EffectiveDisabled)
             attributes["data-disabled"] = "true";
@@ -381,10 +382,8 @@ else
 
     private Dictionary<string, object> BuildGroupedItemAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "radio-group-item"
-        };
+        Dictionary<string, object> attributes = _groupedItemAttributeDictionaries.Create(4 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
+        attributes["data-slot"] = "radio-group-item";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

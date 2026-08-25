@@ -13,6 +13,10 @@
     private DateTimeOffset? _startedAt;
     private string? _durationLabel;
     private bool _hasStreamed;
+    private ReasoningContext? _context;
+    private bool _contextHasStreamed;
+    private bool _contextIsStreaming;
+    private string? _contextDurationLabel;
 
     [Parameter]
     public bool IsStreaming { get; set; }
@@ -30,7 +34,22 @@
 
     private bool ResolvedOpen => IsStreaming || (Open ?? _open);
 
-    private ReasoningContext Context => new(IsStreaming, Label);
+    private ReasoningContext Context
+    {
+        get
+        {
+            if (_context is null || _contextHasStreamed != _hasStreamed || _contextIsStreaming != IsStreaming ||
+                !string.Equals(_contextDurationLabel, _durationLabel, StringComparison.Ordinal))
+            {
+                _context = new ReasoningContext(IsStreaming, Label);
+                _contextHasStreamed = _hasStreamed;
+                _contextIsStreaming = IsStreaming;
+                _contextDurationLabel = _durationLabel;
+            }
+
+            return _context;
+        }
+    }
 
     private string Label
     {

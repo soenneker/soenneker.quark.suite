@@ -108,6 +108,10 @@ else
         ["class"] = "grid place-content-center text-current transition-none [&>svg]:size-3.5"
     };
 
+    private QuarkAttributeDictionary _wrapperAttributeDictionaries;
+    private QuarkAttributeDictionary _labelAttributeDictionaries;
+    private QuarkAttributeDictionary _controlAttributeDictionaries;
+
     private readonly AutoSaveController<bool?> _autoSave = new();
 
     [Parameter]
@@ -213,7 +217,7 @@ else
 
     public virtual Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        Dictionary<string, object> attributes = _wrapperAttributeDictionaries.Create(2);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "flex items-center gap-2");
@@ -229,10 +233,8 @@ else
 
     public virtual Dictionary<string, object> BuildLabelAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["for"] = ControlId
-        };
+        Dictionary<string, object> attributes = _labelAttributeDictionaries.Create(2);
+        attributes["for"] = ControlId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -252,11 +254,9 @@ else
 
     public virtual Dictionary<string, object> BuildControlAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["id"] = ControlId,
-            ["data-slot"] = "checkbox"
-        };
+        Dictionary<string, object> attributes = _controlAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
+        attributes["id"] = ControlId;
+        attributes["data-slot"] = "checkbox";
 
         if (AriaLabel.HasContent())
             attributes["aria-label"] = AriaLabel!;

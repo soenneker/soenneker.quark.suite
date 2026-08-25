@@ -142,20 +142,58 @@
 
     internal async Task HandleTriggerKeyDown(int step, KeyboardEventArgs args)
     {
-        var steps = _triggers.Keys.Where(candidate => !_disabledSteps.Contains(candidate)).ToArray();
-        if (steps.Length == 0)
-            return;
+        var first = 0;
+        var last = 0;
+        var previous = 0;
+        var next = 0;
+        bool hasFirst = false;
+        bool hasPrevious = false;
+        bool hasNext = false;
+        bool foundCurrent = false;
 
-        var currentIndex = Array.IndexOf(steps, step);
-        if (currentIndex < 0)
+        foreach (int candidate in _triggers.Keys)
+        {
+            if (_disabledSteps.Contains(candidate))
+                continue;
+
+            if (!hasFirst)
+            {
+                first = candidate;
+                hasFirst = true;
+            }
+
+            last = candidate;
+
+            if (candidate == step)
+            {
+                foundCurrent = true;
+                continue;
+            }
+
+            if (foundCurrent)
+            {
+                if (!hasNext)
+                {
+                    next = candidate;
+                    hasNext = true;
+                }
+            }
+            else
+            {
+                previous = candidate;
+                hasPrevious = true;
+            }
+        }
+
+        if (!foundCurrent)
             return;
 
         var target = args.Key switch
         {
-            "ArrowRight" or "ArrowDown" => steps[(currentIndex + 1) % steps.Length],
-            "ArrowLeft" or "ArrowUp" => steps[(currentIndex - 1 + steps.Length) % steps.Length],
-            "Home" => steps[0],
-            "End" => steps[^1],
+            "ArrowRight" or "ArrowDown" => hasNext ? next : first,
+            "ArrowLeft" or "ArrowUp" => hasPrevious ? previous : last,
+            "Home" => first,
+            "End" => last,
             "Enter" or " " => step,
             _ => 0
         };

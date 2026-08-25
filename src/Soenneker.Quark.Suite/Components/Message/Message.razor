@@ -6,7 +6,18 @@
 </CascadingValue>
 
 @code {
-    private MessageContext Context => new(From);
+    private MessageContext? _context;
+
+    private MessageContext Context
+    {
+        get
+        {
+            if (_context is null || !string.Equals(_context.From, From, StringComparison.Ordinal))
+                _context = new MessageContext(From);
+
+            return _context;
+        }
+    }
 
     [Parameter]
     public string From { get; set; } = "assistant";

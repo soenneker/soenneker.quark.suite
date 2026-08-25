@@ -18,9 +18,12 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private bool _shouldRender = true;
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
+    private Dictionary<string, object>? _attrsA;
+    private Dictionary<string, object>? _attrsB;
     private int _cachedAttrsKey;
     private int _renderVersion;
     private bool _renderKeyDirty;
+    private bool _useAttrsA;
 
     /// <summary>
     /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
@@ -110,7 +113,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
-        var attrs = new Dictionary<string, object>(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, object> attrs = BeginAttributeBuild(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(128);
 
@@ -140,6 +143,22 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             sty.Dispose();
             cls.Dispose();
         }
+    }
+
+    private Dictionary<string, object> BeginAttributeBuild(int capacity)
+    {
+        _useAttrsA = !_useAttrsA;
+        ref Dictionary<string, object>? buffer = ref (_useAttrsA ? ref _attrsA : ref _attrsB);
+
+        if (buffer is null)
+        {
+            buffer = new Dictionary<string, object>(capacity, StringComparer.OrdinalIgnoreCase);
+            return buffer;
+        }
+
+        buffer.Clear();
+        buffer.EnsureCapacity(capacity);
+        return buffer;
     }
 
     protected virtual void BuildOwnedAttributes(Dictionary<string, object> attrs)
@@ -208,6 +227,17 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (attributes is null || attributes.Count == 0)
             return;
 
+        if (attributes is Dictionary<string, object> dictionary)
+        {
+            foreach (KeyValuePair<string, object> kv in dictionary)
+            {
+                hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
+                hc.Add(kv.Value);
+            }
+
+            return;
+        }
+
         foreach (var kv in attributes)
         {
             hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
@@ -220,33 +250,46 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (attributes is null)
             return;
 
-        foreach (var kv in attributes)
+        if (attributes is Dictionary<string, object> dictionary)
         {
-            var k = kv.Key;
-            var v = kv.Value;
+            foreach (KeyValuePair<string, object> kv in dictionary)
+                MergeAttribute(kv, attrs, ref sty, ref cls);
 
-            if (k.Equals("class", StringComparison.OrdinalIgnoreCase))
-            {
-                var s = v as string ?? v?.ToString();
-
-                if (!string.IsNullOrEmpty(s))
-                    AppendClass(ref cls, s);
-
-                continue;
-            }
-
-            if (k.Equals("style", StringComparison.OrdinalIgnoreCase))
-            {
-                var s = v as string ?? v?.ToString();
-
-                if (!string.IsNullOrEmpty(s))
-                    AppendStyleDecl(ref sty, s);
-
-                continue;
-            }
-
-            attrs[k] = v;
+            return;
         }
+
+        foreach (var kv in attributes)
+            MergeAttribute(kv, attrs, ref sty, ref cls);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void MergeAttribute(KeyValuePair<string, object> kv, Dictionary<string, object> attrs, ref PooledStringBuilder sty,
+        ref PooledStringBuilder cls)
+    {
+        var k = kv.Key;
+        var v = kv.Value;
+
+        if (k.Equals("class", StringComparison.OrdinalIgnoreCase))
+        {
+            var s = v as string ?? v?.ToString();
+
+            if (!string.IsNullOrEmpty(s))
+                AppendClass(ref cls, s);
+
+            return;
+        }
+
+        if (k.Equals("style", StringComparison.OrdinalIgnoreCase))
+        {
+            var s = v as string ?? v?.ToString();
+
+            if (!string.IsNullOrEmpty(s))
+                AppendStyleDecl(ref sty, s);
+
+            return;
+        }
+
+        attrs[k] = v;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -356,6 +399,20 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (cls.Length > 0)
             attrs["class"] = cls;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AppendClassAttribute(Dictionary<string, object> attrs, string? className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+            return;
+
+        attrs.TryGetValue("class", out var existingObj);
+        var existing = existingObj as string ?? existingObj?.ToString();
+
+        attrs["class"] = existing.IsNullOrEmpty()
+            ? className
+            : string.Concat(existing, " ", className);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -51,6 +51,17 @@ else
 }
 
 @code {
+    private static readonly IReadOnlyDictionary<string, object> InnerAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "sidebar-inner",
+        ["data-sidebar"] = "sidebar",
+        ["class"] = "flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+    };
+
+    private QuarkAttributeDictionary _rootAttributeDictionaries;
+    private QuarkAttributeDictionary _gapAttributeDictionaries;
+    private QuarkAttributeDictionary _containerAttributeDictionaries;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -366,10 +377,8 @@ else
 
     private Dictionary<string, object> BuildGapAttributes()
     {
-        var attributes = new Dictionary<string, object>(8)
-        {
-            ["data-slot"] = "sidebar-gap"
-        };
+        Dictionary<string, object> attributes = _gapAttributeDictionaries.Create(8);
+        attributes["data-slot"] = "sidebar-gap";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -388,11 +397,9 @@ else
 
     private Dictionary<string, object> BuildContainerAttributes()
     {
-        var attributes = new Dictionary<string, object>(10)
-        {
-            ["data-slot"] = "sidebar-container",
-            ["data-side"] = ToDataSide(Side)
-        };
+        Dictionary<string, object> attributes = _containerAttributeDictionaries.Create(10);
+        attributes["data-slot"] = "sidebar-container";
+        attributes["data-side"] = ToDataSide(Side);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -409,25 +416,11 @@ else
         return attributes;
     }
 
-    private static Dictionary<string, object> BuildInnerAttributes()
-    {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "sidebar-inner",
-            ["data-sidebar"] = "sidebar"
-        };
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border");
-        });
-
-        return attributes;
-    }
+    private static IReadOnlyDictionary<string, object> BuildInnerAttributes() => InnerAttributes;
 
     private Dictionary<string, object> BuildRootAttributes(int capacity)
     {
-        var attributes = new Dictionary<string, object>(capacity + (Attributes?.Count ?? 0));
+        Dictionary<string, object> attributes = _rootAttributeDictionaries.Create(capacity + (Attributes?.Count ?? 0));
         base.BuildOwnedAttributes(attributes);
 
         var cls = new PooledStringBuilder(64);
