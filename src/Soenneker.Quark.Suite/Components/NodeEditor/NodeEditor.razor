@@ -24,7 +24,7 @@
              height="1"
              role="group"
              aria-label="Connections">
-            @foreach (NodeEditorAddHandleModel handle in AddHandles)
+            @foreach (var handle in AddHandles)
             {
                 <g @key="handle.Id"
                    data-add-handle-edge="@handle.Id"
@@ -59,7 +59,7 @@
                 </g>
             }
 
-            @foreach (NodeEditorEdgeModel edge in Edges)
+            @foreach (var edge in Edges)
             {
                 <g @key="edge.Id"
                    data-edge-id="@edge.Id"
@@ -156,7 +156,7 @@
              Left="Quark.Left.Is0"
              Top="Quark.Top.Is0"
              Class="quark-node-editor-node-layer">
-            @foreach (NodeEditorNodeModel node in Nodes)
+            @foreach (var node in Nodes)
             {
                 <CascadingValue @key="node.Id" Value="@GetNodeContext(node.Id)" IsFixed="true">
                     <NodeEditorNode Node="node" Selected="@IsNodeSelected(node.Id)">
@@ -165,7 +165,7 @@
                 </CascadingValue>
             }
 
-            @foreach (NodeEditorAddHandleModel handle in AddHandles)
+            @foreach (var handle in AddHandles)
             {
                 <button @key="handle.Id"
                         type="button"
@@ -472,7 +472,7 @@
         if (!Options.InlineEdgeLabelEditingEnabled)
             return;
 
-        _edgesById.TryGetValue(edgeId, out NodeEditorEdgeModel? edge);
+        _edgesById.TryGetValue(edgeId, out var edge);
         if (edge is null || edge.Disabled || !edge.Selectable || !edge.LabelEditable)
             return;
 
@@ -498,7 +498,7 @@
     [JSInvokable]
     public async Task InvokeNodeMoved(NodeEditorNodePositionChangedEventArgs args)
     {
-        _nodesById.TryGetValue(args.NodeId, out NodeEditorNodeModel? node);
+        _nodesById.TryGetValue(args.NodeId, out var node);
 
         if (node is not null)
         {
@@ -519,9 +519,9 @@
     [JSInvokable]
     public async Task InvokeNodesMoved(NodeEditorNodePositionChangedEventArgs[] changes)
     {
-        foreach (NodeEditorNodePositionChangedEventArgs args in changes)
+        foreach (var args in changes)
         {
-            if (_nodesById.TryGetValue(args.NodeId, out NodeEditorNodeModel? node))
+            if (_nodesById.TryGetValue(args.NodeId, out var node))
             {
                 node.X = args.X;
                 node.Y = args.Y;
@@ -568,7 +568,7 @@
     [JSInvokable]
     public async Task<NodeEditorConnectionValidationResult> InvokeConnectionValidationRequested(NodeEditorConnectionValidationRequest request)
     {
-        NodeEditorConnectionValidationResult result = ConnectionValidator is null
+        var result = ConnectionValidator is null
             ? NodeEditorConnectionValidationResult.Accept()
             : await ConnectionValidator(request);
 
@@ -679,7 +679,7 @@
     [JSInvokable]
     public async Task InvokeDuplicateRequested(string nodeId)
     {
-        _nodesById.TryGetValue(nodeId, out NodeEditorNodeModel? node);
+        _nodesById.TryGetValue(nodeId, out var node);
         if (node is null)
             return;
 
@@ -777,19 +777,19 @@
 
     private async Task CommitEdgeLabelEdit()
     {
-        string? edgeId = _editingEdgeId;
+        var edgeId = _editingEdgeId;
         if (edgeId is null)
             return;
 
-        _edgesById.TryGetValue(edgeId, out NodeEditorEdgeModel? edge);
+        _edgesById.TryGetValue(edgeId, out var edge);
         if (edge is null)
         {
             await CancelEdgeLabelEdit();
             return;
         }
 
-        string? previousLabel = edge.Label;
-        string? label = string.IsNullOrWhiteSpace(_editingEdgeLabel) ? null : _editingEdgeLabel.Trim();
+        var previousLabel = edge.Label;
+        var label = string.IsNullOrWhiteSpace(_editingEdgeLabel) ? null : _editingEdgeLabel.Trim();
         _editingEdgeId = null;
         _editingEdgeLabel = "";
 
@@ -849,7 +849,7 @@
         hashCode.Add(OverlayContent);
         hashCode.Add(ConnectionValidator);
         hashCode.Add(SelectedNodeId);
-        foreach (string nodeId in SelectedNodeIds)
+        foreach (var nodeId in SelectedNodeIds)
             hashCode.Add(nodeId);
         hashCode.Add(SelectedEdgeId);
         hashCode.Add(ShowControls);
@@ -897,7 +897,7 @@
 
     private NodeEditorNodeContext GetNodeContext(string nodeId)
     {
-        if (_nodeContexts.TryGetValue(nodeId, out NodeEditorNodeContext? context))
+        if (_nodeContexts.TryGetValue(nodeId, out var context))
             return context;
 
         // Keep the cache bounded when callers replace nodes over time.
@@ -922,7 +922,7 @@
 
     private void ReconcileNodeSelectionParameters()
     {
-        bool primaryChanged = !string.Equals(SelectedNodeId, _lastSelectedNodeId, StringComparison.Ordinal);
+        var primaryChanged = !string.Equals(SelectedNodeId, _lastSelectedNodeId, StringComparison.Ordinal);
         if (primaryChanged && (SelectedNodeId is null || !SelectedNodeIds.Contains(SelectedNodeId, StringComparer.Ordinal)))
             SelectedNodeIds = SelectedNodeId is null ? [] : [SelectedNodeId];
         else if (SelectedNodeId is null && SelectedNodeIds.Count > 0)
@@ -944,7 +944,7 @@
         var hashCode = new HashCode();
         hashCode.Add(NodeTemplate);
         hashCode.Add(SelectedNodeId);
-        foreach (string nodeId in SelectedNodeIds)
+        foreach (var nodeId in SelectedNodeIds)
             hashCode.Add(nodeId);
         hashCode.Add(SelectedEdgeId);
         hashCode.Add(_editingEdgeId);

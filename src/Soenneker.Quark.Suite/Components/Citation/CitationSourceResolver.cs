@@ -6,8 +6,8 @@ internal static class CitationSourceResolver
 {
     public static ResolvedCitation Resolve(CitationSourceInput input)
     {
-        Uri? url = ParseUrl(input.Url);
-        string host = url?.Host ?? "";
+        var url = ParseUrl(input.Url);
+        var host = url?.Host ?? "";
 
         return new ResolvedCitation
         {
@@ -21,11 +21,11 @@ internal static class CitationSourceResolver
 
     private static Uri? ParseUrl(string value)
     {
-        string trimmed = value.Trim();
+        var trimmed = value.Trim();
         if (trimmed.Length == 0)
             return null;
 
-        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
             Uri.TryCreate($"https://{trimmed}", UriKind.Absolute, out uri);
 
         if (uri is null || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
@@ -39,7 +39,7 @@ internal static class CitationSourceResolver
         if (host.Length == 0)
             return "Source";
 
-        string trimmed = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
+        var trimmed = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
         var labelStart = 0;
         var labelEnd = trimmed.Length;
         var lastDot = trimmed.LastIndexOf('.');

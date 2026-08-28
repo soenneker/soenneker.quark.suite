@@ -236,13 +236,13 @@
 <Chart Labels="@labels" Series="@series" Options="@options" />
 
 @code {
-    string[] labels = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    string[] labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     ChartSeries[] series =
     [
-        new("Requests", new double[] { 320, 410, 380, 590, 650 }) { Color = "#7c5cff" },
-        new("Cached", new double[] { 210, 280, 310, 420, 510 }) { Color = "#00bfa6" }
+        new("Requests", new double[] { 320, 410, 380, 590, 650, 610, 780 }) { Color = "#7c5cff" },
+        new("Cached", new double[] { 210, 280, 310, 420, 510, 505, 630 }) { Color = "#00bfa6" }
     ];
-    ChartOptions options = new() { Curve = ChartCurve.Smooth };
+    ChartOptions options = new() { Curve = ChartCurve.Monotone };
 }
 """;
 
@@ -270,6 +270,21 @@
 </Chart>
 
 @code {
+    string[] labels = ["Aug 20", "Aug 21", "Aug 22", "Aug 23", "Aug 24", "Aug 25", "Aug 26"];
+    ChartSeries[] series =
+    [
+        new("Input tokens", new double[] { 520, 120, 90, 410, 250, 390, 330 })
+        {
+            Color = "#ff6a21",
+            StrokeWidth = 2.5
+        },
+        new("Cached tokens", new double[] { 290, 120, 95, 210, 160, 170, 105 })
+        {
+            Color = "#e91e63",
+            StrokeWidth = 2.5
+        }
+    ];
+
     ChartOptions options = new()
     {
         Height = 150,
@@ -290,10 +305,11 @@
 <Chart Type="ChartType.Area" Labels="@labels" XValues="@unixMilliseconds" Series="@series" />
 
 @code {
-    double[] unixMilliseconds = [1724112000000, 1724198400000, 1724284800000];
+    string[] labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    double[] unixMilliseconds = [0, 1, 2, 4, 5, 8, 9];
     ChartSeries[] series =
     [
-        new("Responses", values)
+        new("Responses", new double[] { 18, 32, 27, 46, 61, 57, 74 })
         {
             Color = "#8b5cf6",
             Gradient = new("#8b5cf6", "#8b5cf6") { StartOpacity = .65, EndOpacity = .02 }
@@ -306,11 +322,31 @@
 <Chart Type="ChartType.Bar" Labels="@quarters" Series="@revenue" />
 <Chart Type="ChartType.Bar" Labels="@quarters" Series="@revenue"
        Options="@(new ChartOptions { Stacked = true })" />
+
+@code {
+    string[] quarters = ["Q1", "Q2", "Q3", "Q4"];
+    ChartSeries[] revenue =
+    [
+        new("Platform", new double[] { 48, 62, 71, 86 }) { Color = "#7c5cff" },
+        new("Usage", new double[] { 31, 42, 54, 61 }) { Color = "#00bfa6" }
+    ];
+}
 """;
 
     private const string PieCode = """
-<Chart Type="ChartType.Pie" Labels="@channels" Series="@traffic"
-       Options="@(new ChartOptions { Palette = [\"#7c5cff\", \"#00bfa6\", \"#ff7a45\"] })" />
+<Chart Type="ChartType.Pie" Labels="@channels" Series="@traffic" Options="@options" />
+
+@code {
+    string[] channels = ["Organic", "Direct", "Social", "Referral", "Email"];
+    ChartSeries[] traffic =
+    [
+        new("Visitors", new double[] { 9300, 6100, 4200, 3100, 2100 })
+    ];
+    ChartOptions options = new()
+    {
+        Palette = ["#7c5cff", "#00bfa6", "#ff7a45", "#3b82f6", "#ec4899"]
+    };
+}
 """;
 
     private const string DonutCode = """
@@ -319,6 +355,20 @@
         <div><strong>24.8k</strong><small>visitors</small></div>
     </DonutContent>
 </Chart>
+
+@code {
+    string[] channels = ["Organic", "Direct", "Social", "Referral", "Email"];
+    ChartSeries[] traffic =
+    [
+        new("Visitors", new double[] { 9300, 6100, 4200, 3100, 2100 })
+    ];
+
+    Task HandleSelection(ChartSelection selection)
+    {
+        // Use selection.Label, selection.Value, and selection.Index here.
+        return Task.CompletedTask;
+    }
+}
 """;
 
     private const string MixedCode = """
@@ -333,10 +383,18 @@
 </Chart>
 
 @code {
+    string[] labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     ChartSeries[] mixed =
     [
-        new("Requests", requests),
-        new("Latency", latency) { Type = ChartType.Line, Color = "#00bfa6" }
+        new("Requests", new double[] { 320, 410, 380, 590, 650, 610, 780 })
+        {
+            Color = "#7c5cff"
+        },
+        new("Latency", new double[] { 180, 165, 172, 148, 140, 155, 132 })
+        {
+            Type = ChartType.Line,
+            Color = "#00bfa6"
+        }
     ];
 }
 """;

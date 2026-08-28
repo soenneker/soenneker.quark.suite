@@ -293,12 +293,12 @@ else
             builder.AddAttribute(sequence++, "class", "h-9 w-[5.25rem] shrink-0 rounded-md border border-input bg-background px-2 text-xs font-medium outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
             builder.AddAttribute(sequence++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleFormatChanged));
 
-            IReadOnlyList<ColorPickerFormat> formats = VisibleFormats;
+            var formats = VisibleFormats;
 
             for (var formatIndex = 0; formatIndex < formats.Count; formatIndex++)
             {
-                ColorPickerFormat format = formats[formatIndex];
-                bool duplicate = false;
+                var format = formats[formatIndex];
+                var duplicate = false;
 
                 for (var previousIndex = 0; previousIndex < formatIndex; previousIndex++)
                 {
@@ -563,7 +563,7 @@ else
     private static bool TryParseHex(string input, out (double H, double S, double L, double A) color)
     {
         color = default;
-        scoped ReadOnlySpan<char> hex = input.AsSpan();
+        scoped var hex = input.AsSpan();
 
         while (!hex.IsEmpty && hex[0] == '#')
             hex = hex[1..];
@@ -582,16 +582,16 @@ else
         }
 
         if (hex.Length is not 6 and not 8 ||
-            !byte.TryParse(hex[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte r) ||
-            !byte.TryParse(hex.Slice(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte g) ||
-            !byte.TryParse(hex.Slice(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte b))
+            !byte.TryParse(hex[..2], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var r) ||
+            !byte.TryParse(hex.Slice(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var g) ||
+            !byte.TryParse(hex.Slice(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var b))
             return false;
 
-        double a = 1d;
+        var a = 1d;
 
         if (hex.Length == 8)
         {
-            if (!byte.TryParse(hex[6..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte alpha))
+            if (!byte.TryParse(hex[6..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var alpha))
                 return false;
 
             a = alpha / 255d;

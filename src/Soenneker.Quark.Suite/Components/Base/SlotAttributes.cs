@@ -13,7 +13,7 @@ internal static class SlotAttributes
 
         if (slotAttributes is Dictionary<string, object> dictionary)
         {
-            foreach (KeyValuePair<string, object> pair in dictionary)
+            foreach (var pair in dictionary)
                 MergePair(attributes, pair);
 
             return;

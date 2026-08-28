@@ -128,8 +128,8 @@ public sealed partial class RenderedShadcnParityTests
                 ? pendingStateGate.Task
                 : Task.CompletedTask));
 
-        Task inputTask = cut.Find("input").InputAsync(new ChangeEventArgs { Value = "f" });
-        Task completed = await Task.WhenAny(inputTask, Task.Delay(250));
+        var inputTask = cut.Find("input").InputAsync(new ChangeEventArgs { Value = "f" });
+        var completed = await Task.WhenAny(inputTask, Task.Delay(250));
 
         completed.Should().Be(inputTask);
         pendingStateGate.SetResult();
@@ -183,8 +183,8 @@ public sealed partial class RenderedShadcnParityTests
         {
             lock (gate)
             {
-                long startMilliseconds = states.First(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry.State, start)).Milliseconds;
-                long endMilliseconds = states.First(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry.State, end)).Milliseconds;
+                var startMilliseconds = states.First(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry.State, start)).Milliseconds;
+                var endMilliseconds = states.First(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry.State, end)).Milliseconds;
 
                 return endMilliseconds - startMilliseconds;
             }

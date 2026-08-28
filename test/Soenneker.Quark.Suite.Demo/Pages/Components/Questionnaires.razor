@@ -1,0 +1,108 @@
+@page "/components/questionnaire"
+
+<PageTitle>Questionnaire - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Description="A guided sequence of questions with progress, validation, shortcuts, freeform answers, and navigation."
+                     Code="@BasicCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex min-h-96 w-full justify-center p-10 data-[align=center]:items-center">
+            <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsLg">
+                <Questionnaire Shortcuts="QuestionnaireShortcutMode.Letters" OnSubmit="HandleSubmit">
+                    <QuestionnaireProgress />
+
+                    <QuestionnaireItem Name="direction" Required="true">
+                        <QuestionnaireTitle>What should we prototype next?</QuestionnaireTitle>
+                        <QuestionnaireDescription>Choose a direction or write your own.</QuestionnaireDescription>
+                        <QuestionnaireChoices>
+                            <QuestionnaireChoice Value="delegation">
+                                <Span FontWeight="FontWeight.Medium">Delegation</Span>
+                                <QuestionnaireChoiceDescription>Show how work moves to a specialist.</QuestionnaireChoiceDescription>
+                            </QuestionnaireChoice>
+                            <QuestionnaireChoice Value="questions">
+                                <Span FontWeight="FontWeight.Medium">Question prompts</Span>
+                                <QuestionnaireChoiceDescription>Show choices while the interface waits.</QuestionnaireChoiceDescription>
+                            </QuestionnaireChoice>
+                            <QuestionnaireChoice Value="both">
+                                <Span FontWeight="FontWeight.Medium">Both together</Span>
+                            </QuestionnaireChoice>
+                            <QuestionnaireInput AriaLabel="Another answer" Placeholder="Type another answer…" />
+                        </QuestionnaireChoices>
+                        <QuestionnaireError />
+                    </QuestionnaireItem>
+
+                    <QuestionnaireItem Name="detail">
+                        <QuestionnaireTitle>How much detail should it include?</QuestionnaireTitle>
+                        <QuestionnaireDescription>Skip this if you are not sure yet.</QuestionnaireDescription>
+                        <QuestionnaireChoices>
+                            <QuestionnaireChoice Value="focused">Focused</QuestionnaireChoice>
+                            <QuestionnaireChoice Value="complete">Complete flow</QuestionnaireChoice>
+                        </QuestionnaireChoices>
+                        <QuestionnaireError />
+                    </QuestionnaireItem>
+
+                    <QuestionnaireActions>
+                        <QuestionnairePrevious />
+                        <QuestionnaireSkip />
+                        <QuestionnaireNext />
+                        <QuestionnaireSubmit>Share answers</QuestionnaireSubmit>
+                    </QuestionnaireActions>
+                </Questionnaire>
+
+                @if (_submitted is not null)
+                {
+                    <Paragraph Margin="Margin.FromTop.Is4" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Submitted: @_submitted</Paragraph>
+                }
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private string? _submitted;
+
+    private void HandleSubmit(QuestionnaireSubmitEventArgs args)
+    {
+        _submitted = string.Join(", ", args.Answers.SelectMany(pair => pair.Value.Select(value => $"{pair.Key}: {value}")));
+    }
+
+    private const string BasicCode =
+@"<Questionnaire Shortcuts=""QuestionnaireShortcutMode.Letters"" OnSubmit=""HandleSubmit"">
+    <QuestionnaireProgress />
+
+    <QuestionnaireItem Name=""direction"" Required=""true"">
+        <QuestionnaireTitle>What should we prototype next?</QuestionnaireTitle>
+        <QuestionnaireDescription>Choose a direction or write your own.</QuestionnaireDescription>
+        <QuestionnaireChoices>
+            <QuestionnaireChoice Value=""delegation"">
+                <Span FontWeight=""FontWeight.Medium"">Delegation</Span>
+                <QuestionnaireChoiceDescription>Show how work moves to a specialist.</QuestionnaireChoiceDescription>
+            </QuestionnaireChoice>
+            <QuestionnaireChoice Value=""questions"">
+                <Span FontWeight=""FontWeight.Medium"">Question prompts</Span>
+                <QuestionnaireChoiceDescription>Show choices while the interface waits.</QuestionnaireChoiceDescription>
+            </QuestionnaireChoice>
+            <QuestionnaireInput AriaLabel=""Another answer"" Placeholder=""Type another answer…"" />
+        </QuestionnaireChoices>
+        <QuestionnaireError />
+    </QuestionnaireItem>
+
+    <QuestionnaireItem Name=""detail"">
+        <QuestionnaireTitle>How much detail should it include?</QuestionnaireTitle>
+        <QuestionnaireDescription>Skip this if you are not sure yet.</QuestionnaireDescription>
+        <QuestionnaireChoices>
+            <QuestionnaireChoice Value=""focused"">Focused</QuestionnaireChoice>
+            <QuestionnaireChoice Value=""complete"">Complete flow</QuestionnaireChoice>
+        </QuestionnaireChoices>
+        <QuestionnaireError />
+    </QuestionnaireItem>
+
+    <QuestionnaireActions>
+        <QuestionnairePrevious />
+        <QuestionnaireSkip />
+        <QuestionnaireNext />
+        <QuestionnaireSubmit>Share answers</QuestionnaireSubmit>
+    </QuestionnaireActions>
+</Questionnaire>";
+}

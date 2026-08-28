@@ -50,7 +50,7 @@ public sealed class DialogOptions : ComponentOptions
 
     private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
-        string dialogScope = baseSelector == "[data-slot='dialog']" ? string.Empty : baseSelector;
+        var dialogScope = baseSelector == "[data-slot='dialog']" ? string.Empty : baseSelector;
 
         AddChildCssRules(buffer, Contents, "[data-slot='dialog-content']", "[data-slot='dialog-content']", dialogScope);
         AddChildCssRules(buffer, Bodies, "[data-slot='dialog-body']", "[data-slot='dialog-body']", dialogScope);

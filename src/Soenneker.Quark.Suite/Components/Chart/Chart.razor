@@ -11,7 +11,7 @@
 
     @if (Options.Legend == ChartLegendPosition.Top)
     {
-        @LegendContent
+        <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
 
     @if (!HasData)
@@ -22,6 +22,7 @@
     {
         <div class="quark-chart-stage relative min-h-40 w-full" style="@StageStyle">
             <svg viewBox="@ViewBox" role="img" aria-label="@(AriaLabel ?? "Chart")" preserveAspectRatio="xMidYMid meet" class="h-full w-full overflow-visible">
+                <ChartRenderBoundary Version="_geometryVersion">
                 <defs>
                     @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
                     {
@@ -72,7 +73,6 @@
                                   fill-opacity="@F(Series[0].FillOpacity)"
                                   class="@AnimationClass"
                                   data-slot="chart-slice"
-                                  data-active="@(_hoveredIndex == sliceIndex ? "true" : null)"
                                   tabindex="0"
                                   role="button"
                                   aria-label="@SliceAriaLabel(sliceIndex)"
@@ -163,7 +163,6 @@
                                               fill-opacity="@F(series.FillOpacity)"
                                               class="@AnimationClass"
                                               data-slot="chart-bar"
-                                              data-active="@(IsActive(currentSeries, currentIndex) ? "true" : null)"
                                               tabindex="0"
                                               role="button"
                                               aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)"
@@ -193,9 +192,9 @@
                                         if (value is not null && ShouldRenderMarker(series, index))
                                         {
                                             var currentIndex = index;
-                                            <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(IsActive(currentSeries, currentIndex) ? Options.ActivePointRadius : Options.PointRadius)"
+                                            <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)"
                                                     fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke"
-                                                    class="quark-chart-point cursor-pointer outline-none transition-all motion-reduce:transition-none" data-active="@(IsActive(currentSeries, currentIndex) ? "true" : null)"
+                                                    class="quark-chart-point cursor-pointer outline-none transition-all motion-reduce:transition-none"
                                                     tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)"
                                                     @onpointerenter="() => HoverPoint(currentIndex, currentSeries)"
                                                     @onpointerdown="() => HoverPoint(currentIndex, currentSeries)"
@@ -210,7 +209,26 @@
                         }
                     }
 
-                    @if (Options.ShowCursor && _hoveredIndex is not null)
+                }
+                </ChartRenderBoundary>
+
+                @if (!IsRadial && _hoveredIndex is not null)
+                {
+                    @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+                    {
+                        var activeSeries = Series[seriesIndex];
+                        var activeType = activeSeries.Type ?? Type;
+                        var activeValue = ValueAt(activeSeries, _hoveredIndex.Value);
+                        if (!IsSeriesHidden(seriesIndex) && (_hoveredSeries is null || _hoveredSeries == seriesIndex) &&
+                            activeValue is not null && (activeType == ChartType.Line || activeType == ChartType.Area))
+                        {
+                            <circle cx="@F(CategoryCenter(_hoveredIndex.Value))" cy="@F(ValueY(activeValue.Value))" r="@F(Options.ActivePointRadius)"
+                                    fill="@Options.PointFill" stroke="@SeriesColor(seriesIndex)" stroke-width="2" vector-effect="non-scaling-stroke"
+                                    class="quark-chart-point-active pointer-events-none" data-active="true" />
+                        }
+                    }
+
+                    @if (Options.ShowCursor)
                     {
                         <line x1="@F(CategoryCenter(_hoveredIndex.Value))" y1="@F(PlotTop)" x2="@F(CategoryCenter(_hoveredIndex.Value))" y2="@F(PlotBottom)" class="quark-chart-cursor pointer-events-none opacity-50" style="stroke:var(--muted-foreground);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke" />
                     }
@@ -247,21 +265,23 @@
             }
         </div>
 
-        <table class="quark-chart-sr-only sr-only">
-            <caption>@(AriaLabel ?? "Chart data")</caption>
-            <thead><tr><th>Label</th>@foreach (var series in AccessibleSeries){<th>@series.Name</th>}</tr></thead>
-            <tbody>
-                @for (var index = 0; index < PointCount; index++)
-                {
-                    <tr><th>@LabelAt(index)</th>@foreach (var series in AccessibleSeries){<td>@(ValueAt(series, index)?.ToString() ?? "")</td>}</tr>
-                }
-            </tbody>
-        </table>
+        <ChartRenderBoundary Version="_geometryVersion">
+            <table class="quark-chart-sr-only sr-only">
+                <caption>@(AriaLabel ?? "Chart data")</caption>
+                <thead><tr><th>Label</th>@foreach (var series in AccessibleSeries){<th>@series.Name</th>}</tr></thead>
+                <tbody>
+                    @for (var index = 0; index < PointCount; index++)
+                    {
+                        <tr><th>@LabelAt(index)</th>@foreach (var series in AccessibleSeries){<td>@(ValueAt(series, index)?.ToString() ?? "")</td>}</tr>
+                    }
+                </tbody>
+            </table>
+        </ChartRenderBoundary>
     }
 
     @if (Options.Legend == ChartLegendPosition.Bottom)
     {
-        @LegendContent
+        <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
 
     @if (FooterContent is not null)
@@ -290,6 +310,13 @@
     private readonly Dictionary<int, string> _areaPaths = [];
     private readonly List<ChartTooltipRow> _tooltipRows = [];
     private IReadOnlyList<ChartSeries>? _initializedSeries;
+    private IReadOnlyList<ChartSeries>? _calculatedSeries;
+    private IReadOnlyList<string>? _calculatedLabels;
+    private IReadOnlyList<double>? _calculatedXValues;
+    private ChartOptions? _calculatedOptions;
+    private ChartType? _calculatedType;
+    private RenderFragment? _renderedDonutContent;
+    private string? _renderedAriaLabel;
     private IReadOnlyList<ChartSeries> _accessibleSeries = [];
     private readonly ChartSeries[] _radialAccessibleSeries = new ChartSeries[1];
     private string[] _legendNames = [];
@@ -297,6 +324,7 @@
     private ChartOverlayContext? _overlayContext;
     private RenderFragment? _legendContent;
     private int _pointCount;
+    private int _geometryVersion;
     private double _radialTotal;
     private bool _hasData;
     private string _viewBox = "0 0 800 320";
@@ -308,6 +336,8 @@
     /// <remarks>
     /// Values at the same index share a category. Null values create gaps in line and area series and are skipped by bars.
     /// Pie and donut charts use the first series and treat its non-negative values as slices.
+    /// Geometry is cached by reference for efficient parent and interaction renders. Replace the series collection or its series instances
+    /// when values or visual properties change instead of mutating an existing instance in place.
     /// </remarks>
     [Parameter, EditorRequired]
     public IReadOnlyList<ChartSeries> Series { get; set; } = [];
@@ -318,6 +348,7 @@
     /// <remarks>
     /// When fewer labels than values are supplied, missing labels fall back to one-based numbers. Labels are passed through
     /// <see cref="ChartOptions.LabelFormatter"/> for visible axes and tooltips.
+    /// Replace the collection when labels change; the chart uses collection identity to avoid rebuilding stable geometry.
     /// </remarks>
     [Parameter]
     public IReadOnlyList<string> Labels { get; set; } = [];
@@ -329,6 +360,7 @@
     /// When supplied, points and bars are spaced proportionally instead of evenly. This supports numeric axes and time axes by passing a stable
     /// numeric representation such as Unix milliseconds while continuing to use <see cref="Labels"/> for display text. Values must be finite,
     /// strictly increasing, and cover every rendered point.
+    /// Replace the collection when coordinates change; the chart uses collection identity to avoid rebuilding stable geometry.
     /// </remarks>
     [Parameter]
     public IReadOnlyList<double>? XValues { get; set; }
@@ -341,7 +373,8 @@
     public ChartType Type { get; set; } = ChartType.Line;
 
     /// <summary>
-    /// Gets or sets the chart configuration. A default configuration is used when this parameter is omitted.
+    /// Gets or sets the chart configuration. A default configuration is used when this parameter is omitted. Options are immutable after
+    /// construction; provide a new instance to change geometry, formatting, or interaction behavior.
     /// </summary>
     [Parameter]
     public ChartOptions Options { get; set; } = new();
@@ -490,7 +523,27 @@
             _initializedSeries = Series;
         }
 
-        Recalculate();
+        var geometryChanged = !ReferenceEquals(_calculatedSeries, Series) || !ReferenceEquals(_calculatedLabels, Labels) ||
+                              !ReferenceEquals(_calculatedXValues, XValues) || !ReferenceEquals(_calculatedOptions, Options) ||
+                              !Equals(_calculatedType, Type);
+
+        if (geometryChanged)
+        {
+            _calculatedSeries = Series;
+            _calculatedLabels = Labels;
+            _calculatedXValues = XValues;
+            _calculatedOptions = Options;
+            _calculatedType = Type;
+            _renderedDonutContent = DonutContent;
+            _renderedAriaLabel = AriaLabel;
+            Recalculate();
+        }
+        else if (!Equals(_renderedDonutContent, DonutContent) || !string.Equals(_renderedAriaLabel, AriaLabel, StringComparison.Ordinal))
+        {
+            _renderedDonutContent = DonutContent;
+            _renderedAriaLabel = AriaLabel;
+            IncrementGeometryVersion();
+        }
     }
 
     protected override void ApplyDefaultParameters()
@@ -588,6 +641,16 @@
             ClearHover();
         else
             RebuildTooltipState();
+
+        IncrementGeometryVersion();
+    }
+
+    private void IncrementGeometryVersion()
+    {
+        unchecked
+        {
+            _geometryVersion++;
+        }
     }
 
     private void CalculateDerivedDataState()
@@ -794,7 +857,6 @@
     }
     private double RadialValue(int index) => Series.Count == 0 ? 0 : Math.Max(0, ValueAt(Series[0], index) ?? 0);
     private bool IsSeriesHidden(int index) => _hiddenSeries.Contains(index);
-    private bool IsActive(int series, int index) => _hoveredIndex == index && (_hoveredSeries is null || _hoveredSeries == series);
     private bool ShouldRenderAnyMarkers(ChartSeries series) => (series.ShowPoints ?? Options.ShowPoints) || Options.ShowEndPoints;
     private bool ShouldRenderMarker(ChartSeries series, int index) =>
         (series.ShowPoints ?? Options.ShowPoints) || (Options.ShowEndPoints && IsLastValue(series, index));

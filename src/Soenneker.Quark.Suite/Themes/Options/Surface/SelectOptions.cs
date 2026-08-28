@@ -50,7 +50,7 @@ public sealed class SelectOptions : ComponentOptions
 
     private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
-        string selectScope = baseSelector == "[data-slot='select']" ? string.Empty : baseSelector;
+        var selectScope = baseSelector == "[data-slot='select']" ? string.Empty : baseSelector;
 
         AddChildCssRules(buffer, Contents, "[data-slot='select-content']", "[data-slot='select-content']", selectScope);
         AddChildCssRules(buffer, Groups, "[data-slot='select-group']", "[data-slot='select-group']", selectScope);

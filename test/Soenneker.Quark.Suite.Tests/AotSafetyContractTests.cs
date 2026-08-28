@@ -19,8 +19,8 @@ public sealed class AotSafetyContractTests
     [Arguments(typeof(ComponentsCssGenerator), "Generate")]
     public void Css_processing_boundaries_must_not_be_inlined(Type declaringType, string methodName)
     {
-        MethodInfo method = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ??
-                            throw new InvalidOperationException($"Could not find {declaringType.FullName}.{methodName}.");
+        var method = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ??
+                     throw new InvalidOperationException($"Could not find {declaringType.FullName}.{methodName}.");
 
         (method.MethodImplementationFlags & MethodImplAttributes.NoInlining).Should().Be(MethodImplAttributes.NoInlining);
     }

@@ -95,6 +95,7 @@ public static class DocsNavigation
         new("Popover", ComponentRoute("popover")),
         new("Progress", ComponentRoute("progress")),
         new("Prompt Input", ComponentRoute("prompt-inputs"), IsNew: true),
+        new("Questionnaire", ComponentRoute("questionnaire"), IsNew: true),
         new("Radio Group", ComponentRoute("radio-group")),
         new("Reasoning", ComponentRoute("reasoning"), IsNew: true),
         new("Resizable", ComponentRoute("resizable")),

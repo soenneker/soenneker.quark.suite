@@ -739,7 +739,7 @@
     {
         Span<char> formatted = stackalloc char[11];
 
-        if (!value.TryFormat(formatted, out int charsWritten, provider: CultureInfo.InvariantCulture))
+        if (!value.TryFormat(formatted, out var charsWritten, provider: CultureInfo.InvariantCulture))
             return value.ToString(CultureInfo.InvariantCulture);
 
         return string.Create(charsWritten, value, static (destination, number) =>
@@ -748,7 +748,7 @@
 
             for (var i = 0; i < destination.Length; i++)
             {
-                char character = destination[i];
+                var character = destination[i];
 
                 if (character is >= '0' and <= '9')
                     destination[i] = (char) ('\u0660' + (character - '0'));
@@ -802,7 +802,7 @@
         else if (nativeDigits.Length != 10 || nativeDigits[0] == "0")
             return value;
 
-        bool hasMultiCharacterDigit = false;
+        var hasMultiCharacterDigit = false;
 
         for (var i = 0; i < nativeDigits.Length; i++)
         {
@@ -821,7 +821,7 @@
 
                 for (var i = 0; i < destination.Length; i++)
                 {
-                    char character = destination[i];
+                    var character = destination[i];
 
                     if (character is >= '0' and <= '9')
                         destination[i] = state.NativeDigits[character - '0'][0];

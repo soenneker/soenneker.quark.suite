@@ -21,8 +21,15 @@ public sealed class QuarkOptions
     public bool FrameworkUseCdn { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets whether to always render components and disable render optimizations
+    /// Gets or sets whether components render normally instead of using render suppression.
     /// </summary>
+    /// <remarks>
+    /// The default is <see langword="false"/>. Quark fingerprints incoming parameters, forces a render whenever
+    /// that fingerprint changes, and automatically invalidates rendering for component event handlers. As with
+    /// Blazor component parameters generally, replace mutable parameter objects when their contents change. Set
+    /// this option to <see langword="true"/> when an application intentionally relies on in-place mutation.
+    /// Attribute dictionaries reuse their backing buffers regardless of this setting.
+    /// </remarks>
     public bool AlwaysRender { get; set; }
 
     /// <summary>

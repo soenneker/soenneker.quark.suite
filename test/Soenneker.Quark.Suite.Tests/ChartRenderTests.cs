@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -16,6 +17,67 @@ public sealed class ChartRenderTests : BunitContext
     public ChartRenderTests()
     {
         Services.AddDefaultQuarkOptionsAsScoped();
+    }
+
+    [Test]
+    public void Chart_rerenders_when_series_parameters_change()
+    {
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, new[] { "Jan", "Feb" })
+            .Add(component => component.Series, new ChartSeries[] { new("Revenue", new[] { 10d, 20d }) }));
+
+        cut.Markup.Should().Contain("20");
+
+        cut.Render(parameters => parameters
+            .Add(component => component.Labels, new[] { "Mar", "Apr" })
+            .Add(component => component.Series, new ChartSeries[] { new("Revenue", new[] { 30d, 40d }) }));
+
+        cut.Markup.Should().Contain("Apr");
+        cut.Markup.Should().Contain("40");
+        cut.Markup.Should().NotContain("Feb");
+    }
+
+    [Test]
+    public void Stable_chart_inputs_do_not_recalculate_geometry()
+    {
+        var values = new CountingReadOnlyList<double?>([10, 20, 30]);
+        ChartSeries[] series = [new("Revenue", values)];
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, Labels)
+            .Add(component => component.Series, series));
+        var readsAfterFirstRender = values.ReadCount;
+
+        cut.Render(parameters => parameters
+            .Add(component => component.Labels, Labels)
+            .Add(component => component.Series, series));
+
+        values.ReadCount.Should().Be(readsAfterFirstRender);
+    }
+
+    [Test]
+    public void Hover_renders_interaction_content_without_rebuilding_static_geometry()
+    {
+        var formattedLabels = 0;
+        var labels = Enumerable.Range(1, 100).Select(index => $"Point {index}").ToArray();
+        ChartSeries[] series = [new("Revenue", Enumerable.Range(1, 100).Select(static value => (double)value).ToArray())];
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, labels)
+            .Add(component => component.Series, series)
+            .Add(component => component.Options, new ChartOptions
+            {
+                LabelFormatter = value =>
+                {
+                    formattedLabels++;
+                    return value;
+                }
+            }));
+        var formatsAfterFirstRender = formattedLabels;
+
+        cut.FindAll(".quark-chart-hit-area")[50].TriggerEvent("onpointerenter", new PointerEventArgs());
+
+        (formattedLabels - formatsAfterFirstRender).Should().BeLessThanOrEqualTo(2);
+        cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Point 51");
+        cut.FindAll(".quark-chart-point-active").Should().ContainSingle();
     }
 
     [Test]
@@ -152,6 +214,9 @@ public sealed class ChartRenderTests : BunitContext
         cut.FindAll(".quark-chart-hit-area")[1].TriggerEvent("onpointerenter", new PointerEventArgs());
         cut.FindAll(".quark-chart-cursor").Should().BeEmpty();
         cut.FindAll(".quark-chart-tooltip").Should().ContainSingle();
+        cut.FindAll(".quark-chart-point-active").Should().HaveCount(2);
+        cut.FindAll(".quark-chart-point-active")[0].GetAttribute("cx").Should().Be(
+            cut.FindAll(".quark-chart-point-active")[1].GetAttribute("cx"));
     }
 
     [Test]
@@ -304,4 +369,28 @@ public sealed class ChartRenderTests : BunitContext
         selection.SeriesIndex.Should().Be(0);
         selection.Value.Should().Be(18);
     }
+}
+
+public sealed class CountingReadOnlyList<T>(IReadOnlyList<T> values) : IReadOnlyList<T>
+{
+    public int ReadCount { get; private set; }
+
+    public T this[int index]
+    {
+        get
+        {
+            ReadCount++;
+            return values[index];
+        }
+    }
+
+    public int Count => values.Count;
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        for (var index = 0; index < values.Count; index++)
+            yield return this[index];
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

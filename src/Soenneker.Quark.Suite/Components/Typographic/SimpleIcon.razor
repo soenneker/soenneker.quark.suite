@@ -43,8 +43,8 @@
     {
         base.BuildAttributesCore(attributes);
 
-        bool hasAccessibleName = HasNonEmptyAttribute(attributes, "aria-label") ||
-                                 HasNonEmptyAttribute(attributes, "aria-labelledby");
+        var hasAccessibleName = HasNonEmptyAttribute(attributes, "aria-label") ||
+                                HasNonEmptyAttribute(attributes, "aria-labelledby");
 
         attributes["focusable"] = "false";
 
@@ -60,7 +60,7 @@
     }
 
     private static bool HasNonEmptyAttribute(IReadOnlyDictionary<string, object> attributes, string name) =>
-        attributes.TryGetValue(name, out object? value) && !string.IsNullOrWhiteSpace(value?.ToString());
+        attributes.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value?.ToString());
 
     protected override void OnParametersSet()
     {

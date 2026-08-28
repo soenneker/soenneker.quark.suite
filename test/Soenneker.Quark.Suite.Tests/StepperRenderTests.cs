@@ -196,9 +196,9 @@ public sealed partial class RenderedShadcnParityTests
     private static void ShouldContainClasses(string? actual, params string[] expectedClasses)
     {
         actual.Should().NotBeNull();
-        string[] actualClasses = actual!.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var actualClasses = actual!.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        foreach (string expectedClass in expectedClasses)
+        foreach (var expectedClass in expectedClasses)
         {
             actualClasses.Should().Contain(expectedClass);
         }

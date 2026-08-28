@@ -36,9 +36,9 @@
                 @if (HasPresets)
                 {
                     <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="menu">
-                    @foreach (PresetDateRangePickerOption preset in EffectivePresets)
+                    @foreach (var preset in EffectivePresets)
                     {
-                        bool active = IsPresetActive(preset);
+                        var active = IsPresetActive(preset);
 
                         <Button Type="@ButtonType.Button"
                                 Variant="ButtonVariant.Ghost"
@@ -291,8 +291,8 @@
         if (range is null)
             return;
 
-        DateOnly? selectedStart = range.From ?? range.To;
-        DateOnly? selectedEnd = range.To;
+        var selectedStart = range.From ?? range.To;
+        var selectedEnd = range.To;
 
         if (selectedStart is null)
             return;
@@ -343,7 +343,7 @@
         if (EffectiveRange is not { } range)
             return false;
 
-        (DateOnly Start, DateOnly End) presetRange = PresetDateRangePickerUtil.Normalize(preset.GetStart(EffectiveMaxDate), preset.GetEnd(EffectiveMaxDate),
+        var presetRange = PresetDateRangePickerUtil.Normalize(preset.GetStart(EffectiveMaxDate), preset.GetEnd(EffectiveMaxDate),
             ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
 
         return range.Start == presetRange.Start && range.End == presetRange.End;
@@ -351,7 +351,7 @@
 
     private string? ActivePresetLabel()
     {
-        foreach (PresetDateRangePickerOption preset in EffectivePresets)
+        foreach (var preset in EffectivePresets)
         {
             if (IsPresetActive(preset))
                 return preset.Label;
@@ -379,7 +379,7 @@
         _lastSyncedFrom = SelectedRange?.From;
         _lastSyncedTo = SelectedRange?.To;
 
-        DateOnly displayDate = SelectedRange?.To ?? SelectedRange?.From ?? EffectiveMaxDate;
+        var displayDate = SelectedRange?.To ?? SelectedRange?.From ?? EffectiveMaxDate;
         _displayMonth = new DateOnly(displayDate.Year, displayDate.Month, 1);
     }
 

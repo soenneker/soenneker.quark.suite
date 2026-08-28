@@ -1,0 +1,49 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<p @attributes="BuildAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else if (ParentItem?.Required == true)
+    {
+        @:Choose an answer to continue.
+    }
+    else
+    {
+        @:Choose an answer or skip this question.
+    }
+</p>
+
+@code {
+    [CascadingParameter]
+    internal QuestionnaireItem? ParentItem { get; set; }
+
+    private bool Visible => ParentItem?.EffectiveInvalid == true;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-error";
+        Margin ??= Quark.Margin.FromTop.Is2;
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.Destructive;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        if (Visible)
+            attributes["role"] = "alert";
+        else
+            attributes["hidden"] = true;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Visible);
+        hc.Add(ParentItem?.Required);
+    }
+}

@@ -1,0 +1,152 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<label @onclick="HandleClick" @onclick:preventDefault @attributes="BuildAttributes()">
+    <input @ref="_input" checked="@IsChecked" @attributes="BuildInputAttributes()" />
+    <span aria-hidden="true" data-slot="questionnaire-choice-indicator" class="pointer-events-none relative flex size-4 shrink-0 translate-y-[0.45rem] items-center justify-center rounded-[4px] border border-input group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[type=radio]/questionnaire-choice:rounded-full group-data-checked/questionnaire-choice:border-primary group-data-checked/questionnaire-choice:bg-primary group-data-checked/questionnaire-choice:text-primary-foreground dark:bg-input/30 dark:group-data-checked/questionnaire-choice:bg-primary">
+        @if (IsChecked && ParentItem?.Multiple == true)
+        {
+            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is3_5" />
+        }
+        else if (IsChecked)
+        {
+            <span data-slot="questionnaire-choice-indicator-dot" class="size-2 rounded-full bg-primary-foreground"></span>
+        }
+    </span>
+    <span data-slot="questionnaire-choice-label" class="flex min-w-0 flex-1 flex-col gap-0.5 leading-snug">@ChildContent</span>
+    @if (Shortcut is not null)
+    {
+        <span data-shortcut="@Shortcut" aria-hidden="true" data-slot="questionnaire-choice-shortcut" class="pointer-events-none ms-auto inline-flex size-5 shrink-0 translate-y-[0.45rem] items-center justify-center rounded-md border border-input bg-background font-mono text-[0.625rem] leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5">@Shortcut</span>
+    }
+</label>
+
+@code {
+    private ElementReference _input;
+
+    [CascadingParameter]
+    internal QuestionnaireItem? ParentItem { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool DefaultChecked { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CheckedChanged { get; set; }
+
+    private bool IsChecked => ParentItem?.IsSelected(Value) == true;
+    private string? Shortcut => ParentItem?.GetShortcut(this);
+
+    protected override void OnInitialized()
+    {
+        ParentItem?.RegisterChoice(this);
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ParentItem?.RegisterChoice(this);
+        base.OnParametersSet();
+    }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        var selected = ParentItem?.Multiple == true ? !IsChecked : true;
+        await (ParentItem?.SetChoice(this, selected) ?? Task.CompletedTask);
+        if (CheckedChanged.HasDelegate)
+            await CheckedChanged.InvokeAsync(selected);
+        await _input.FocusAsync();
+    }
+
+    internal ValueTask Focus() => _input.FocusAsync();
+
+    private IReadOnlyDictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "questionnaire-choice-input",
+            ["class"] = "absolute inset-0 z-10 size-full cursor-pointer opacity-0",
+            ["type"] = ParentItem?.Multiple == true ? "checkbox" : "radio",
+            ["value"] = Value,
+            ["data-type"] = ParentItem?.Multiple == true ? "checkbox" : "radio"
+        };
+
+        if (ParentItem?.IsSkipped != true)
+            attributes["name"] = ParentItem?.Name ?? string.Empty;
+        if (Disabled || ParentItem?.Disabled == true)
+            attributes["disabled"] = true;
+        if (ParentItem?.Required == true && ParentItem.Multiple != true)
+            attributes["required"] = true;
+        if (ParentItem?.EffectiveInvalid == true)
+            attributes["aria-invalid"] = "true";
+        if (Shortcut is not null)
+        {
+            attributes["data-shortcut"] = Shortcut;
+            attributes["aria-keyshortcuts"] = Shortcut;
+        }
+
+        return attributes;
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-choice";
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Start;
+        Gap ??= Quark.Gap.Is2_5;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Input;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.OnX.Is3.OnY.Is2_5;
+        TextSize ??= Quark.TextSize.Sm;
+        TextAlign ??= Quark.TextAlign.Left;
+        Transition ??= Quark.Transition.Colors;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-type"] = ParentItem?.Multiple == true ? "checkbox" : "radio";
+        attributes[IsChecked ? "data-checked" : "data-unchecked"] = string.Empty;
+        if (Disabled || ParentItem?.Disabled == true)
+            attributes["data-disabled"] = string.Empty;
+        if (ParentItem?.EffectiveInvalid == true)
+            attributes["data-invalid"] = string.Empty;
+        if (Shortcut is not null)
+            attributes["data-shortcut"] = Shortcut;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/questionnaire-choice hover:bg-muted/50 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-3 has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted");
+            AppendClass(ref cls, "min-h-11");
+            AppendClass(ref cls, "data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(DefaultChecked);
+        hc.Add(Disabled);
+        hc.Add(IsChecked);
+        hc.Add(Shortcut);
+        hc.Add(ParentItem?.EffectiveInvalid);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        ParentItem?.UnregisterChoice(this);
+        await base.DisposeAsync();
+    }
+}

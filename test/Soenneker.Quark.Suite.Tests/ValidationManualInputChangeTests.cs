@@ -36,7 +36,7 @@ public sealed partial class RenderedShadcnParityTests
         (await cut.Instance.Validate()).Should().BeFalse();
         cut.FindComponent<Validation>().Instance.Status.Should().Be(ValidationStatus.Error);
 
-        IRenderedComponent<BradixCheckbox> checkbox = cut.FindComponent<BradixCheckbox>();
+        var checkbox = cut.FindComponent<BradixCheckbox>();
         await checkbox.InvokeAsync(() => checkbox.Instance.CheckedChanged.InvokeAsync(BradixCheckboxCheckedState.Checked));
 
         cut.WaitForAssertion(() =>

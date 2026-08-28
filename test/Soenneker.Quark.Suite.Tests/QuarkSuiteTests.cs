@@ -82,7 +82,7 @@ public sealed class QuarkSuiteTests : UnitTest
     [Test]
     public void SignaturePad_exposes_quark_parameters_and_drawing_operations()
     {
-        Type component = typeof(Soenneker.Quark.SignaturePad);
+        var component = typeof(Soenneker.Quark.SignaturePad);
 
         component.Should().BeAssignableTo<Soenneker.Quark.ISignaturePad>();
         component.GetProperty(nameof(Soenneker.Quark.SignaturePad.PenColor)).Should().NotBeNull();

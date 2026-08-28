@@ -118,7 +118,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
         var trigger = page.Locator(selector);
         await Assertions.Expect(trigger).ToBeVisibleAsync();
         await trigger.ScrollIntoViewIfNeededAsync();
-        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        var contentId = await trigger.GetAttributeAsync("aria-controls");
         contentId.Should().NotBeNullOrWhiteSpace();
         await trigger.DispatchEventAsync("pointerdown", new { button = 0, ctrlKey = false });
 

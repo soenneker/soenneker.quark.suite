@@ -229,7 +229,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             }
         };
 
-        string result = ComponentsCssGenerator.Generate(theme);
+        var result = ComponentsCssGenerator.Generate(theme);
 
         result.Should().Contain(".q-datatable {\n  width: 100%;\n}");
         result.Should().Contain(".q-datatable tbody td > [data-slot='anchor'] {\n  display: inline-flex;\n  text-decoration: none;\n}");
@@ -260,7 +260,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             }
         };
 
-        string result = ComponentsCssGenerator.Generate(theme);
+        var result = ComponentsCssGenerator.Generate(theme);
 
         result.Should().Be(".q-datatable tbody td > a[data-entity-link] {\n  min-width: 0;\n}");
     }
@@ -429,7 +429,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             }
         };
 
-        string result = ComponentsCssGenerator.Generate(theme);
+        var result = ComponentsCssGenerator.Generate(theme);
 
         result.Should().Contain("[data-slot='card'] [data-slot='card-header'] {\n  display: flex;\n}");
         result.Should().Contain("[data-slot='card'] [data-slot='card-title'] {\n  font-weight: 600;\n}");

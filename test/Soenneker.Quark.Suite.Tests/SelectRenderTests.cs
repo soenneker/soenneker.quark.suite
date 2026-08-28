@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render(CreatePopperSelect());
 
         var viewport = cut.Find("[data-radix-select-viewport][data-position='popper']");
-        string? viewportClass = viewport.GetAttribute("class");
+        var viewportClass = viewport.GetAttribute("class");
 
         viewportClass.Should().Contain("data-[position=popper]:w-full");
         viewportClass.Should().Contain("data-[position=popper]:min-w-(--radix-select-trigger-width)");

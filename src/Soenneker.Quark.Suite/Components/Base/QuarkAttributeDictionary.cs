@@ -15,7 +15,7 @@ internal struct QuarkAttributeDictionary
     public Dictionary<string, object> Create(int capacity = 0)
     {
         _useFirst = !_useFirst;
-        ref Dictionary<string, object>? buffer = ref (_useFirst ? ref _first : ref _second);
+        ref var buffer = ref (_useFirst ? ref _first : ref _second);
 
         if (buffer is null)
         {

@@ -24,8 +24,8 @@ public sealed record PresetDateRangePickerOption(string Key, string Label, int S
         if (days <= 0)
             throw new ArgumentOutOfRangeException(nameof(days), days, "Days must be greater than zero.");
 
-        string resolvedLabel = label ?? $"Last {days.ToString(CultureInfo.InvariantCulture)} days";
-        string resolvedKey = key ?? $"last-{days.ToString(CultureInfo.InvariantCulture)}-days";
+        var resolvedLabel = label ?? $"Last {days.ToString(CultureInfo.InvariantCulture)} days";
+        var resolvedKey = key ?? $"last-{days.ToString(CultureInfo.InvariantCulture)}-days";
 
         return new PresetDateRangePickerOption(resolvedKey, resolvedLabel, -days + 1, 0);
     }

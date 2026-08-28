@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -13,8 +14,9 @@ namespace Soenneker.Quark;
 /// Minimal suite-level render base that owns render invalidation, render-key computation,
 /// attribute caching, attribute merging, and helper utilities.
 /// </summary>
-public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement
+public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IHandleEvent
 {
+    private static readonly ConcurrentDictionary<Type, bool> _mutationSensitiveCascadingParameterTypes = new();
     private bool _shouldRender = true;
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
@@ -22,8 +24,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object>? _attrsB;
     private int _cachedAttrsKey;
     private int _renderVersion;
+    private int _incomingParametersKey;
+    private int _lastIncomingParametersKey;
     private bool _renderKeyDirty;
     private bool _useAttrsA;
+    private bool _hasIncomingParametersKey;
+    private bool _incomingParametersChanged;
+    private bool _defaultsApplied;
+    private bool? _hasMutationSensitiveCascadingParameters;
 
     /// <summary>
     /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
@@ -37,6 +45,22 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// to suite-specific services or options.
     /// </summary>
     protected virtual bool AlwaysRender => true;
+
+    /// <inheritdoc />
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        _defaultsApplied = false;
+        _incomingParametersKey = ComputeIncomingParametersKey(parameters);
+        _incomingParametersChanged = !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
+
+        if (_incomingParametersChanged)
+        {
+            _cachedAttrs = null;
+            _cachedAttrsKey = 0;
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
 
     /// <summary>
     /// Executes the refresh operation.
@@ -68,6 +92,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         // Multiple state changes can be coalesced into one render. Defer the expensive
         // component-wide hash until attributes are actually requested for that render.
         _renderKeyDirty = true;
+        _defaultsApplied = false;
         _cachedAttrs = null;
         _cachedAttrsKey = 0;
         _shouldRender = true;
@@ -83,24 +108,50 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     protected override void OnParametersSet()
     {
-        ApplyDefaultParameters();
+        EnsureDefaultParameters();
 
         if (AlwaysRender)
         {
             _shouldRender = true;
             _renderKeyDirty = false;
+            CommitIncomingParametersKey();
+            return;
+        }
+
+        var hasMutationSensitiveCascadingParameters = HasMutationSensitiveCascadingParameters();
+
+        // An unchanged parameter set is the hot path in large component trees. The inexpensive
+        // ParameterView fingerprint lets us avoid recomputing every inherited and component-local
+        // render-key value. Conversely, any changed parameter forces a render, so a parameter that
+        // a component forgot to include in ComputeRenderKeyCore cannot leave stale UI.
+        if (!_incomingParametersChanged && !_renderKeyDirty && !hasMutationSensitiveCascadingParameters)
+        {
+            _shouldRender = false;
+            return;
+        }
+
+        // Direct parameter changes already guarantee a render and invalidate the attribute cache.
+        // Avoid the detailed component-wide key walk unless a mutable cascading context can affect
+        // output without changing its reference.
+        if (_incomingParametersChanged && !hasMutationSensitiveCascadingParameters)
+        {
+            _lastRenderKey = HashCode.Combine(_incomingParametersKey, _renderVersion);
+            _shouldRender = true;
+            _renderKeyDirty = false;
+            CommitIncomingParametersKey();
             return;
         }
 
         var key = ComputeRenderKey();
-        _shouldRender = key != _lastRenderKey;
+        _shouldRender = _incomingParametersChanged || key != _lastRenderKey;
         _lastRenderKey = key;
         _renderKeyDirty = false;
+        CommitIncomingParametersKey();
     }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        ApplyDefaultParameters();
+        EnsureDefaultParameters();
 
         if (!AlwaysRender && _renderKeyDirty)
         {
@@ -113,7 +164,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
-        Dictionary<string, object> attrs = BeginAttributeBuild(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
+        var attrs = BeginAttributeBuild(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(128);
 
@@ -148,7 +199,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object> BeginAttributeBuild(int capacity)
     {
         _useAttrsA = !_useAttrsA;
-        ref Dictionary<string, object>? buffer = ref (_useAttrsA ? ref _attrsA : ref _attrsB);
+        ref var buffer = ref (_useAttrsA ? ref _attrsA : ref _attrsB);
 
         if (buffer is null)
         {
@@ -176,8 +227,22 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// Components should set inherited builder-backed defaults here instead of hard-coding
     /// competing utility classes in their emitted class contracts.
     /// </summary>
+    /// <remarks>
+    /// The render pipeline invokes this hook at most once for each parameter or internal invalidation generation, even when attributes
+    /// are requested more than once. Implementations should remain idempotent and use default-only assignments such as <c>??=</c>.
+    /// </remarks>
     protected virtual void ApplyDefaultParameters()
     {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnsureDefaultParameters()
+    {
+        if (_defaultsApplied)
+            return;
+
+        ApplyDefaultParameters();
+        _defaultsApplied = true;
     }
 
     /// <summary>
@@ -218,6 +283,100 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         return hc.ToHashCode();
     }
 
+    private static int ComputeIncomingParametersKey(ParameterView parameters)
+    {
+        var hashCode = new HashCode();
+
+        foreach (var parameter in parameters)
+        {
+            hashCode.Add(parameter.Name, StringComparer.Ordinal);
+            AddIncomingParameterValue(ref hashCode, parameter.Value);
+        }
+
+        return hashCode.ToHashCode();
+    }
+
+    private static void AddIncomingParameterValue(ref HashCode hashCode, object? value)
+    {
+        if (value is IReadOnlyDictionary<string, object> attributes)
+        {
+            AddAttributesToRenderKey(ref hashCode, attributes);
+            return;
+        }
+
+        hashCode.Add(value);
+    }
+
+    private void CommitIncomingParametersKey()
+    {
+        _lastIncomingParametersKey = _incomingParametersKey;
+        _hasIncomingParametersKey = true;
+        _incomingParametersChanged = false;
+    }
+
+    private bool HasMutationSensitiveCascadingParameters()
+    {
+        if (_hasMutationSensitiveCascadingParameters.HasValue)
+            return _hasMutationSensitiveCascadingParameters.Value;
+
+        _hasMutationSensitiveCascadingParameters = _mutationSensitiveCascadingParameterTypes.GetOrAdd(GetType(), static componentType =>
+        {
+            for (Type? type = componentType; type is not null && type != typeof(RenderComponent); type = type.BaseType)
+            {
+                var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+                                                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly);
+
+                for (var index = 0; index < properties.Length; index++)
+                {
+                    if (properties[index].IsDefined(typeof(CascadingParameterAttribute), inherit: true) &&
+                        !IsKnownImmutableCascadingType(properties[index].PropertyType))
+                        return true;
+                }
+            }
+
+            return false;
+        });
+
+        return _hasMutationSensitiveCascadingParameters.Value;
+    }
+
+    private static bool IsKnownImmutableCascadingType(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime) ||
+               type == typeof(DateTimeOffset) || type == typeof(TimeSpan) || type == typeof(DateOnly) || type == typeof(TimeOnly) ||
+               type == typeof(Guid) || type == typeof(Type);
+    }
+
+    async Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument)
+    {
+        Task callbackTask = callback.InvokeAsync(argument);
+
+        // Event handlers are allowed to mutate component-local state. Make that mutation visible
+        // without requiring every handler in every component to remember InvalidateRender().
+        InvalidateRender();
+        StateHasChanged();
+
+        if (callbackTask.IsCompletedSuccessfully || callbackTask.IsCanceled)
+            return;
+
+        try
+        {
+            await callbackTask;
+        }
+        catch
+        {
+            if (callbackTask.IsCanceled)
+                return;
+
+            throw;
+        }
+
+        InvalidateRender();
+        StateHasChanged();
+    }
+
     protected virtual void ComputeRenderKeyCore(ref HashCode hc)
     {
     }
@@ -229,7 +388,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (attributes is Dictionary<string, object> dictionary)
         {
-            foreach (KeyValuePair<string, object> kv in dictionary)
+            foreach (var kv in dictionary)
             {
                 hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
                 hc.Add(kv.Value);
@@ -252,7 +411,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (attributes is Dictionary<string, object> dictionary)
         {
-            foreach (KeyValuePair<string, object> kv in dictionary)
+            foreach (var kv in dictionary)
                 MergeAttribute(kv, attrs, ref sty, ref cls);
 
             return;

@@ -45,7 +45,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
         var delay = Math.Max(0, autoSaveDelay);
 
-        Operation? operation = await TryStartOperation();
+        var operation = await TryStartOperation();
         if (operation is null)
             return;
 
@@ -79,7 +79,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         if (_disposed.Value || !CanAutoSave(autoSave, onAutoSave))
             return;
 
-        Operation? operation = await TryStartOperation();
+        var operation = await TryStartOperation();
         if (operation is null)
             return;
 
@@ -120,7 +120,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
         _hasPendingValue = false;
         await SetState(AutoSaveState.Saving, autoSaveStateChanged, refreshAsync);
-        long savingStarted = Environment.TickCount64;
+        var savingStarted = Environment.TickCount64;
 
         try
         {
@@ -196,8 +196,8 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 
     private static async Task DelayForMinimumSavingStateDuration(long savingStarted, CancellationToken cancellationToken)
     {
-        long elapsed = Environment.TickCount64 - savingStarted;
-        long remaining = MinimumSavingStateDuration - elapsed;
+        var elapsed = Environment.TickCount64 - savingStarted;
+        var remaining = MinimumSavingStateDuration - elapsed;
 
         if (remaining > 0)
             await Task.Delay((int)remaining, cancellationToken);

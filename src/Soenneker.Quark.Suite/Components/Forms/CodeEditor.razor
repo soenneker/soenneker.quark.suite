@@ -351,8 +351,8 @@
         if (args.FileCount > MaxDroppedFiles)
             throw new InvalidOperationException($"No more than {MaxDroppedFiles} files can be dropped at once.");
 
-        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles(MaxDroppedFiles);
-        string? insertion = await OnFilesDropped(files, _disposeCts.Token);
+        var files = args.GetMultipleFiles(MaxDroppedFiles);
+        var insertion = await OnFilesDropped(files, _disposeCts.Token);
         if (!string.IsNullOrEmpty(insertion))
             await CodeEditorInterop.InsertTextAtDropPosition(_container, insertion, _disposeCts.Token);
     }

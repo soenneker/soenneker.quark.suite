@@ -187,12 +187,12 @@
 
         try
         {
-            string? value = TextProvider?.Invoke() ?? Text;
+            var value = TextProvider?.Invoke() ?? Text;
 
             if (string.IsNullOrEmpty(value))
                 throw new InvalidOperationException("No text was provided to copy.");
 
-            bool copied = await ClipboardUtil.TryWriteText(value);
+            var copied = await ClipboardUtil.TryWriteText(value);
 
             if (!copied)
                 throw new InvalidOperationException("Clipboard write failed.");
@@ -225,7 +225,7 @@
             return;
 
         _resetCancellationTokenSource = new CancellationTokenSource();
-        CancellationToken cancellationToken = _resetCancellationTokenSource.Token;
+        var cancellationToken = _resetCancellationTokenSource.Token;
 
         _ = ResetLater(cancellationToken);
     }

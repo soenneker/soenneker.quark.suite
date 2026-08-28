@@ -1,0 +1,289 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="false">
+    <fieldset @ref="_element" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+        @ChildContent
+    </fieldset>
+</CascadingValue>
+
+@code {
+    private readonly List<QuestionnaireChoice> _choices = [];
+    private readonly HashSet<string> _selectedValues = new(StringComparer.Ordinal);
+    private ElementReference _element;
+    private bool _skipped;
+    private bool _showError;
+    private string? _inputValue;
+    private QuestionnaireItemStatus _lastNotifiedStatus;
+
+    [CascadingParameter]
+    internal Questionnaire? ParentQuestionnaire { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Invalid { get; set; }
+
+    [Parameter]
+    public EventCallback<QuestionnaireItemStatus> StatusChanged { get; set; }
+
+    internal bool IsActive => ReferenceEquals(ParentQuestionnaire?.ActiveItem, this);
+    internal bool EffectiveInvalid => Invalid || _showError;
+    internal bool IsSkipped => _skipped;
+    internal string? InputValue => _inputValue;
+    internal QuestionnaireItemStatus Status => _skipped ? QuestionnaireItemStatus.Skipped : HasAnswer ? QuestionnaireItemStatus.Answered : QuestionnaireItemStatus.Unanswered;
+    internal bool HasInputAnswer => !string.IsNullOrWhiteSpace(_inputValue);
+    private bool HasAnswer => _selectedValues.Count > 0 || HasInputAnswer;
+
+    protected override void OnInitialized()
+    {
+        ParentQuestionnaire?.RegisterItem(this);
+        _lastNotifiedStatus = Status;
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ParentQuestionnaire?.RegisterItem(this);
+        base.OnParametersSet();
+    }
+
+    internal void RegisterChoice(QuestionnaireChoice choice)
+    {
+        if (!_choices.Contains(choice))
+            _choices.Add(choice);
+
+        if (choice.DefaultChecked)
+            SetChoiceInitial(choice.Value, true);
+    }
+
+    internal void UnregisterChoice(QuestionnaireChoice choice)
+    {
+        _choices.Remove(choice);
+        _selectedValues.Remove(choice.Value);
+    }
+
+    internal bool IsSelected(string value) => _selectedValues.Contains(value);
+
+    internal string? GetShortcut(QuestionnaireChoice choice)
+    {
+        var mode = ParentQuestionnaire?.Shortcuts ?? QuestionnaireShortcutMode.None;
+        if (mode == QuestionnaireShortcutMode.None || choice.Disabled)
+            return null;
+
+        var enabledIndex = 0;
+        foreach (var candidate in _choices)
+        {
+            if (candidate.Disabled)
+                continue;
+
+            if (ReferenceEquals(candidate, choice))
+            {
+                if (mode == QuestionnaireShortcutMode.Letters && enabledIndex < 26)
+                    return ((char)('A' + enabledIndex)).ToString();
+                if (mode == QuestionnaireShortcutMode.Numbers && enabledIndex < 9)
+                    return (enabledIndex + 1).ToString();
+                return null;
+            }
+
+            enabledIndex++;
+        }
+
+        return null;
+    }
+
+    internal async Task SetChoice(QuestionnaireChoice choice, bool selected)
+    {
+        if (Disabled || choice.Disabled)
+            return;
+
+        _skipped = false;
+        _showError = false;
+
+        if (!Multiple)
+        {
+            _selectedValues.Clear();
+            _inputValue = null;
+        }
+
+        if (selected)
+            _selectedValues.Add(choice.Value);
+        else
+            _selectedValues.Remove(choice.Value);
+
+        await NotifyStatusChanged();
+        ParentQuestionnaire?.RequestRefresh();
+    }
+
+    internal async Task SetInputValue(string? value)
+    {
+        _skipped = false;
+        _showError = false;
+        _inputValue = value;
+
+        if (!Multiple && !string.IsNullOrWhiteSpace(value))
+            _selectedValues.Clear();
+
+        await NotifyStatusChanged();
+        ParentQuestionnaire?.RequestRefresh();
+    }
+
+    internal async Task<bool> Validate()
+    {
+        _showError = !_skipped && !HasAnswer;
+        await NotifyStatusChanged();
+        ParentQuestionnaire?.RequestRefresh();
+        return !_showError && !Invalid;
+    }
+
+    internal async Task Skip()
+    {
+        if (Required)
+            return;
+
+        _selectedValues.Clear();
+        _inputValue = null;
+        _skipped = true;
+        _showError = false;
+        await NotifyStatusChanged();
+        ParentQuestionnaire?.RequestRefresh();
+    }
+
+    internal async Task Reset()
+    {
+        _selectedValues.Clear();
+        foreach (var choice in _choices)
+        {
+            if (choice.DefaultChecked)
+                SetChoiceInitial(choice.Value, true);
+        }
+
+        _inputValue = null;
+        _skipped = false;
+        _showError = false;
+        await NotifyStatusChanged();
+    }
+
+    internal IReadOnlyList<string> GetAnswers()
+    {
+        var answers = new List<string>(_selectedValues.Count + 1);
+        answers.AddRange(_selectedValues);
+        if (!string.IsNullOrWhiteSpace(_inputValue))
+            answers.Add(_inputValue.Trim());
+        return answers;
+    }
+
+    internal ValueTask Focus() => _element.FocusAsync();
+
+    internal async Task SelectShortcut(string key)
+    {
+        foreach (var choice in _choices)
+        {
+            if (string.Equals(GetShortcut(choice), key, StringComparison.OrdinalIgnoreCase))
+            {
+                await SetChoice(choice, Multiple ? !IsSelected(choice.Value) : true);
+                await choice.Focus();
+                return;
+            }
+        }
+    }
+
+    private void SetChoiceInitial(string value, bool selected)
+    {
+        if (selected)
+        {
+            if (!Multiple)
+                _selectedValues.Clear();
+            _selectedValues.Add(value);
+        }
+        else
+        {
+            _selectedValues.Remove(value);
+        }
+    }
+
+    private async Task NotifyStatusChanged()
+    {
+        var status = Status;
+        if (status == _lastNotifiedStatus)
+            return;
+
+        _lastNotifiedStatus = status;
+        if (StatusChanged.HasDelegate)
+            await StatusChanged.InvokeAsync(status);
+    }
+
+    private Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && Status == QuestionnaireItemStatus.Answered)
+            return ParentQuestionnaire?.GoNext() ?? Task.CompletedTask;
+
+        return Task.CompletedTask;
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-item";
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Gap ??= Quark.Gap.Is4;
+        Border ??= Quark.Border.Is0;
+        Padding ??= Quark.Padding.Is0;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["tabindex"] = -1;
+        attributes["data-status"] = Status.ToString().ToLowerInvariant();
+
+        if (IsActive)
+            attributes["data-active"] = string.Empty;
+        else
+        {
+            attributes["hidden"] = true;
+            attributes["inert"] = true;
+            attributes["aria-hidden"] = "true";
+        }
+
+        if (Disabled)
+            attributes["disabled"] = true;
+        if (EffectiveInvalid)
+            attributes["aria-invalid"] = "true";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Name);
+        hc.Add(Required);
+        hc.Add(Multiple);
+        hc.Add(Disabled);
+        hc.Add(Invalid);
+        hc.Add(IsActive);
+        hc.Add(Status);
+        hc.Add(EffectiveInvalid);
+        hc.Add(_inputValue);
+        foreach (var value in _selectedValues)
+            hc.Add(value);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        ParentQuestionnaire?.UnregisterItem(this);
+        await base.DisposeAsync();
+    }
+}

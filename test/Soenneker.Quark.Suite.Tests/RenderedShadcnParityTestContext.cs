@@ -555,7 +555,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public C15tConsentState CurrentState { get; private set; } = new();
 
         public bool HasConsent(string category) =>
-            CurrentState.Consents?.TryGetValue(category, out bool value) == true && value;
+            CurrentState.Consents?.TryGetValue(category, out var value) == true && value;
 
         public ValueTask<C15tConsentState?> Initialize(C15tOptions? options = null, CancellationToken cancellationToken = default) =>
             CurrentStateResult();

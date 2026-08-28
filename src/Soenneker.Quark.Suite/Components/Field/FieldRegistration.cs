@@ -13,7 +13,7 @@ internal sealed class FieldRegistration : IDisposable
 
     public void Dispose()
     {
-        Action? dispose = _dispose;
+        var dispose = _dispose;
         _dispose = null;
         dispose?.Invoke();
     }

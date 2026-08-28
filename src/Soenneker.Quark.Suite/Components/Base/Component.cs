@@ -540,7 +540,7 @@ public abstract class Component : RenderComponent, IComponent
             if (dictionary.ContainsKey("data-slot"))
                 return true;
 
-            foreach (string key in dictionary.Keys)
+            foreach (var key in dictionary.Keys)
             {
                 if (key.Equals("data-slot", StringComparison.OrdinalIgnoreCase))
                     return true;

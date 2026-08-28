@@ -14,7 +14,7 @@
                      ActionsDisabled="@(_lines.Count == 0)"
                      Width="Width.IsFull"
                      AriaLabel="Live deployment log">
-                @foreach (string line in _lines)
+                @foreach (var line in _lines)
                 {
                     <Div Display="Display.Grid" Gap="Gap.Is3" Padding="Padding.OnY.Is1" Class="grid-cols-[6.75rem_minmax(0,1fr)]">
                         <Span Whitespace="Whitespace.Nowrap" TextColor="TextColor.MutedForeground">@line[..12]</Span>
@@ -61,7 +61,7 @@
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(messageIndex == 0 ? 250 : 900, cancellationToken);
-                string line = $"{DateTimeOffset.Now:HH:mm:ss.fff}  {Messages[messageIndex % Messages.Length]}";
+                var line = $"{DateTimeOffset.Now:HH:mm:ss.fff}  {Messages[messageIndex % Messages.Length]}";
                 messageIndex++;
 
                 await InvokeAsync(() =>

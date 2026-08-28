@@ -1,0 +1,57 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else if (ParentQuestionnaire is not null && Total > 0)
+    {
+        @($"Question {Current} of {Total}")
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    internal Questionnaire? ParentQuestionnaire { get; set; }
+
+    public int Current => (ParentQuestionnaire?.CurrentIndex ?? -1) + 1;
+    public int Total => ParentQuestionnaire?.EnabledItems.Count ?? 0;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-progress";
+        MinHeight ??= Quark.MinHeight.Token("[1lh]");
+        Width ??= Quark.Width.IsFit;
+        MinWidth ??= Quark.MinWidth.Token("[14ch]");
+        TextSize ??= Quark.TextSize.Xs;
+        FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["role"] = "progressbar";
+        attributes["aria-label"] = "Questionnaire progress";
+        attributes["aria-live"] = "polite";
+        if (Total > 0)
+        {
+            attributes["aria-valuemin"] = 1;
+            attributes["aria-valuemax"] = Total;
+            attributes["aria-valuenow"] = Current;
+            attributes["aria-valuetext"] = $"Question {Current} of {Total}";
+        }
+
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "tabular-nums"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Current);
+        hc.Add(Total);
+    }
+}

@@ -52,12 +52,12 @@ public class ComponentOptions
         if (options is null)
             return;
 
-        string? scopedSelector = ResolveScopedChildSelector(baseSelector, options.Selector, scopedDefaultSelector, optionDefaultSelector);
+        var scopedSelector = ResolveScopedChildSelector(baseSelector, options.Selector, scopedDefaultSelector, optionDefaultSelector);
 
         if (scopedSelector.IsNullOrWhiteSpace())
             return;
 
-        foreach (ComponentCssRule rule in options.GetCssRules(scopedSelector))
+        foreach (var rule in options.GetCssRules(scopedSelector))
         {
             buffer.Add(rule);
         }
@@ -68,8 +68,8 @@ public class ComponentOptions
         if (selector.IsNullOrWhiteSpace())
             return null;
 
-        string trimmed = selector.Trim();
-        string relativeSelector = string.Equals(trimmed, optionDefaultSelector, System.StringComparison.Ordinal) ? scopedDefaultSelector : trimmed;
+        var trimmed = selector.Trim();
+        var relativeSelector = string.Equals(trimmed, optionDefaultSelector, System.StringComparison.Ordinal) ? scopedDefaultSelector : trimmed;
 
         if (relativeSelector.Contains('&', System.StringComparison.Ordinal))
             return relativeSelector.Replace("&", baseSelector, System.StringComparison.Ordinal).Trim();
@@ -661,7 +661,7 @@ public class ComponentOptions
 
         if (!value.IsCssStyle)
         {
-            IEnumerable<string>? declarations = TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
+            var declarations = TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
             return declarations;
         }
 
@@ -977,8 +977,8 @@ public class ComponentOptions
         if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
             return null;
 
-        string token = value.Substring(prefix.Length);
-        string? arbitrary = ConvertArbitraryToken(token);
+        var token = value.Substring(prefix.Length);
+        var arbitrary = ConvertArbitraryToken(token);
 
         if (arbitrary is not null)
             return arbitrary;
@@ -1016,7 +1016,7 @@ public class ComponentOptions
         if (value.Contains(':') || value.Contains(' '))
             return null;
 
-        string token = value;
+        var token = value;
 
         if (token.StartsWith("min-w-", System.StringComparison.Ordinal))
             token = token.Substring("min-w-".Length);
@@ -1027,15 +1027,15 @@ public class ComponentOptions
         else
             return null;
 
-        string? arbitrary = ConvertArbitraryToken(token);
+        var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
             return arbitrary;
 
-        string? spacing = ConvertSpacingScaleToken(token);
+        var spacing = ConvertSpacingScaleToken(token);
         if (spacing is not null)
             return spacing;
 
-        string? fraction = ConvertFractionToken(token);
+        var fraction = ConvertFractionToken(token);
         if (fraction is not null)
             return fraction;
 
@@ -1059,7 +1059,7 @@ public class ComponentOptions
         if (value.Contains(':') || value.Contains(' '))
             return null;
 
-        string token = value;
+        var token = value;
 
         if (token.StartsWith("min-h-", System.StringComparison.Ordinal))
             token = token.Substring("min-h-".Length);
@@ -1070,15 +1070,15 @@ public class ComponentOptions
         else
             return null;
 
-        string? arbitrary = ConvertArbitraryToken(token);
+        var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
             return arbitrary;
 
-        string? spacing = ConvertSpacingScaleToken(token);
+        var spacing = ConvertSpacingScaleToken(token);
         if (spacing is not null)
             return spacing;
 
-        string? fraction = ConvertFractionToken(token);
+        var fraction = ConvertFractionToken(token);
         if (fraction is not null)
             return fraction;
 
@@ -1103,9 +1103,9 @@ public class ComponentOptions
         if (!value.StartsWith("text-", System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
-        string token = value.Substring("text-".Length);
+        var token = value.Substring("text-".Length);
 
-        string? arbitrary = ConvertArbitraryToken(token);
+        var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
             return arbitrary;
 
@@ -1133,7 +1133,7 @@ public class ComponentOptions
         if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
-        string token = value.Substring(prefix.Length);
+        var token = value.Substring(prefix.Length);
         return ConvertArbitraryToken(token) ?? ConvertSpacingScaleToken(token);
     }
 
@@ -1142,7 +1142,7 @@ public class ComponentOptions
         if (value.Contains(':') || value.Contains(' '))
             return null;
 
-        string? property = value switch
+        var property = value switch
         {
             "border" => "border-width",
             "border-x" => "border-inline-width",
@@ -1162,12 +1162,12 @@ public class ComponentOptions
             token = "1";
         else if (value.StartsWith("border-", System.StringComparison.Ordinal))
         {
-            string suffix = value.Substring("border-".Length);
+            var suffix = value.Substring("border-".Length);
             var dash = suffix.IndexOf('-');
 
             if (dash > 0)
             {
-                string side = suffix.Substring(0, dash);
+                var side = suffix.Substring(0, dash);
                 token = suffix.Substring(dash + 1);
                 property = side switch
                 {
@@ -1194,13 +1194,13 @@ public class ComponentOptions
         if (property is null)
             return null;
 
-        string? width = ConvertBorderWidthToken(token);
+        var width = ConvertBorderWidthToken(token);
         return width is null ? null : [$"{property}: {width}", property.Replace("-width", "-style") + ": solid"];
     }
 
     private static string? ConvertBorderWidthToken(string token)
     {
-        string? arbitrary = ConvertArbitraryToken(token);
+        var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
             return arbitrary;
 
@@ -1262,12 +1262,12 @@ public class ComponentOptions
 
     private static bool IsPaletteColorToken(string token)
     {
-        int dash = token.LastIndexOf('-');
+        var dash = token.LastIndexOf('-');
         if (dash <= 0 || dash == token.Length - 1)
             return false;
 
-        string family = token.Substring(0, dash);
-        string shade = token.Substring(dash + 1);
+        var family = token.Substring(0, dash);
+        var shade = token.Substring(dash + 1);
 
         return IsPaletteColorFamily(family) && IsPaletteColorShade(shade);
     }
@@ -1286,19 +1286,19 @@ public class ComponentOptions
 
     private static IEnumerable<string>? ConvertPaddingUtilities(string value)
     {
-        string[] tokens = value.Split(' ');
+        var tokens = value.Split(' ');
         var declarations = new List<string>(tokens.Length * 2);
 
         for (var i = 0; i < tokens.Length; i++)
         {
-            string token = tokens[i].Trim();
+            var token = tokens[i].Trim();
             if (token.Length == 0)
                 continue;
 
             if (token.Contains(':'))
                 return null;
 
-            string? spacing = ConvertSpacingToken(token);
+            var spacing = ConvertSpacingToken(token);
             if (spacing is null)
                 return null;
 
@@ -1335,11 +1335,11 @@ public class ComponentOptions
 
     private static string? ConvertSpacingToken(string utility)
     {
-        int dash = utility.IndexOf('-');
+        var dash = utility.IndexOf('-');
         if (dash < 0 || dash == utility.Length - 1)
             return null;
 
-        string token = utility.Substring(dash + 1);
+        var token = utility.Substring(dash + 1);
 
         return ConvertSpacingScaleToken(token);
     }

@@ -153,7 +153,7 @@ public abstract class DateTimeComponentBase : Element
     {
         base.OnParametersSet();
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var state = new DateTimeParameterState(Format, TimeZone, Culture, CultureName, AutoUpdate, RefreshInterval, NullText,
             DateRelativeFormatStyleCore, ExpiredTextCore, UpdateKind == QuarkDateTimeUpdateKind.Now ? null : GetEffectiveValue(now));
 
@@ -246,7 +246,7 @@ public abstract class DateTimeComponentBase : Element
         var value = GetEffectiveValue(now);
         var options = BuildOptions();
         var text = FormatValue(value, now, options);
-        bool attributesChanged = !ReferenceEquals(_attributeOptions, options) || _attributeValue != value;
+        var attributesChanged = !ReferenceEquals(_attributeOptions, options) || _attributeValue != value;
 
         if (attributesChanged)
         {
@@ -290,7 +290,7 @@ public abstract class DateTimeComponentBase : Element
 
     private void SyncScheduleRegistration()
     {
-        TimeSpan? interval = AutoUpdate ? GetNextInterval(DateTimeOffset.UtcNow) : null;
+        var interval = AutoUpdate ? GetNextInterval(DateTimeOffset.UtcNow) : null;
 
         if (!interval.HasValue)
         {

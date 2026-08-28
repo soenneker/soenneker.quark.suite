@@ -55,7 +55,7 @@ public sealed class TableOptions : ComponentOptions
 
     private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
-        string containerScope = baseSelector == "[data-slot='table']" ? string.Empty : baseSelector;
+        var containerScope = baseSelector == "[data-slot='table']" ? string.Empty : baseSelector;
 
         AddChildCssRules(buffer, Containers, "[data-slot='table-container']", "[data-slot='table-container']", containerScope);
         AddChildCssRules(buffer, Captions, "[data-slot='table-caption']", "[data-slot='table-caption']", baseSelector);

@@ -12,7 +12,7 @@ internal static class PresetDateRangePickerUtil
         if (!disableDatesOutsideMaxRangeWindow || maxRangeDays is null)
             return min;
 
-        DateOnly rangeMin = max.AddDays(-Math.Max(1, maxRangeDays.Value) + 1);
+        var rangeMin = max.AddDays(-Math.Max(1, maxRangeDays.Value) + 1);
         return rangeMin > min ? rangeMin : min;
     }
 
@@ -22,8 +22,8 @@ internal static class PresetDateRangePickerUtil
         if (range is null)
             return null;
 
-        DateOnly? selectedStart = range.From ?? range.To;
-        DateOnly? selectedEnd = range.To ?? range.From;
+        var selectedStart = range.From ?? range.To;
+        var selectedEnd = range.To ?? range.From;
 
         if (selectedStart is null || selectedEnd is null)
             return null;
@@ -51,17 +51,17 @@ internal static class PresetDateRangePickerUtil
         if (maxRangeDays is null)
             return (start, end);
 
-        int effectiveMaxRangeDays = Math.Max(1, maxRangeDays.Value);
+        var effectiveMaxRangeDays = Math.Max(1, maxRangeDays.Value);
 
         if (end.DayNumber - start.DayNumber + 1 <= effectiveMaxRangeDays)
             return (start, end);
 
-        DateOnly clampedEnd = start.AddDays(effectiveMaxRangeDays - 1);
+        var clampedEnd = start.AddDays(effectiveMaxRangeDays - 1);
 
         if (clampedEnd <= max)
             return (start, clampedEnd);
 
-        DateOnly clampedStart = max.AddDays(-effectiveMaxRangeDays + 1);
+        var clampedStart = max.AddDays(-effectiveMaxRangeDays + 1);
         return (Clamp(clampedStart, min, max), max);
     }
 

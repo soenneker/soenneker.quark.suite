@@ -1,0 +1,266 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="false">
+    <form @onsubmit="HandleSubmit" @onsubmit:preventDefault @onreset="HandleReset" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+        @ChildContent
+    </form>
+</CascadingValue>
+
+@code {
+    private readonly List<QuestionnaireItem> _items = [];
+    private string? _currentItem;
+    private QuestionnaireItem? _focusPending;
+    private int _version;
+
+    [Parameter]
+    public string? DefaultItem { get; set; }
+
+    [Parameter]
+    public string? Item { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ItemChanged { get; set; }
+
+    [Parameter]
+    public QuestionnaireShortcutMode Shortcuts { get; set; }
+
+    [Parameter]
+    public EventCallback<QuestionnaireSubmitEventArgs> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnReset { get; set; }
+
+    internal IReadOnlyList<QuestionnaireItem> EnabledItems
+    {
+        get
+        {
+            var result = new List<QuestionnaireItem>(_items.Count);
+            foreach (var item in _items)
+            {
+                if (!item.Disabled)
+                    result.Add(item);
+            }
+
+            return result;
+        }
+    }
+
+    internal QuestionnaireItem? ActiveItem
+    {
+        get
+        {
+            var items = EnabledItems;
+            if (items.Count == 0)
+                return null;
+
+            var activeName = Item ?? _currentItem ?? DefaultItem;
+            foreach (var item in items)
+            {
+                if (string.Equals(item.Name, activeName, StringComparison.Ordinal))
+                    return item;
+            }
+
+            return items[0];
+        }
+    }
+
+    internal int CurrentIndex
+    {
+        get
+        {
+            var active = ActiveItem;
+            if (active is null)
+                return -1;
+
+            var items = EnabledItems;
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (ReferenceEquals(items[i], active))
+                    return i;
+            }
+
+            return -1;
+        }
+    }
+
+    internal bool IsFirst => CurrentIndex <= 0;
+    internal bool IsLast => CurrentIndex >= 0 && CurrentIndex == EnabledItems.Count - 1;
+
+    internal void RegisterItem(QuestionnaireItem item)
+    {
+        if (_items.Contains(item))
+            return;
+
+        _items.Add(item);
+        _currentItem ??= DefaultItem ?? item.Name;
+    }
+
+    internal void UnregisterItem(QuestionnaireItem item)
+    {
+        _items.Remove(item);
+        if (string.Equals(_currentItem, item.Name, StringComparison.Ordinal))
+            _currentItem = EnabledItems.Count > 0 ? EnabledItems[0].Name : null;
+    }
+
+    internal Task GoPrevious()
+    {
+        var index = CurrentIndex;
+        return index > 0 ? SetActiveItem(EnabledItems[index - 1]) : Task.CompletedTask;
+    }
+
+    internal async Task GoNext()
+    {
+        var active = ActiveItem;
+        if (active is null || !await active.Validate())
+            return;
+
+        var index = CurrentIndex;
+        var items = EnabledItems;
+        if (index >= 0 && index < items.Count - 1)
+            await SetActiveItem(items[index + 1]);
+    }
+
+    internal async Task SkipCurrent()
+    {
+        var active = ActiveItem;
+        if (active is null || active.Required)
+            return;
+
+        await active.Skip();
+        if (!IsLast)
+            await SetActiveItem(EnabledItems[CurrentIndex + 1]);
+        else
+            await SubmitValidated();
+    }
+
+    internal void RequestRefresh()
+    {
+        _version++;
+        Refresh();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusPending is not null)
+        {
+            var item = _focusPending;
+            _focusPending = null;
+            await item.Focus();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task SetActiveItem(QuestionnaireItem item)
+    {
+        if (!string.Equals(Item, item.Name, StringComparison.Ordinal))
+            _currentItem = item.Name;
+
+        if (ItemChanged.HasDelegate)
+            await ItemChanged.InvokeAsync(item.Name);
+
+        _focusPending = item;
+        _version++;
+        Refresh();
+    }
+
+    private Task HandleSubmit() => SubmitValidated();
+
+    private async Task SubmitValidated()
+    {
+        foreach (var item in EnabledItems)
+        {
+            if (!await item.Validate())
+            {
+                await SetActiveItem(item);
+                return;
+            }
+        }
+
+        if (!OnSubmit.HasDelegate)
+            return;
+
+        var answers = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var item in EnabledItems)
+        {
+            if (item.Status == QuestionnaireItemStatus.Skipped)
+                continue;
+
+            var values = item.GetAnswers();
+            if (values.Count > 0)
+                answers[item.Name] = values;
+        }
+
+        await OnSubmit.InvokeAsync(new QuestionnaireSubmitEventArgs(answers));
+    }
+
+    private async Task HandleReset()
+    {
+        foreach (var item in _items)
+            await item.Reset();
+
+        var first = FindEnabled(DefaultItem) ?? (EnabledItems.Count > 0 ? EnabledItems[0] : null);
+        if (first is not null)
+            await SetActiveItem(first);
+
+        if (OnReset.HasDelegate)
+            await OnReset.InvokeAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (Shortcuts == QuestionnaireShortcutMode.None || args.CtrlKey || args.MetaKey || args.AltKey || args.Key.Length != 1)
+            return;
+
+        var active = ActiveItem;
+        if (active is null)
+            return;
+
+        var key = Shortcuts == QuestionnaireShortcutMode.Letters ? args.Key.ToUpperInvariant() : args.Key;
+        await active.SelectShortcut(key);
+    }
+
+    private QuestionnaireItem? FindEnabled(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        foreach (var item in EnabledItems)
+        {
+            if (string.Equals(item.Name, name, StringComparison.Ordinal))
+                return item;
+        }
+
+        return null;
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire";
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Gap ??= Quark.Gap.Is4;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["novalidate"] = true;
+        if (Shortcuts != QuestionnaireShortcutMode.None)
+            attributes["data-shortcuts"] = Shortcuts == QuestionnaireShortcutMode.Letters ? "letters" : "numbers";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DefaultItem);
+        hc.Add(Item);
+        hc.Add(_currentItem);
+        hc.Add(_version);
+        hc.Add(Shortcuts);
+    }
+}

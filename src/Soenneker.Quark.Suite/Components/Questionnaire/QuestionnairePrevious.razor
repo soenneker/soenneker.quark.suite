@@ -1,0 +1,84 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @onclick="HandleClick" @attributes="BuildAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @:Previous
+    }
+</button>
+
+@code {
+    [CascadingParameter]
+    internal Questionnaire? ParentQuestionnaire { get; set; }
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Quark.ButtonSize.Default;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private bool Visible => ParentQuestionnaire is { EnabledItems.Count: > 1, IsFirst: false };
+    private Task HandleClick(MouseEventArgs args) => ParentQuestionnaire?.GoPrevious() ?? Task.CompletedTask;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-previous";
+        Display ??= Quark.Display.InlineFlex;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Shrink ??= Quark.Shrink.Is0;
+        Rounded ??= Quark.Rounded.Lg;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Whitespace ??= Quark.Whitespace.Nowrap;
+        Transition ??= Quark.Transition.All;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        Border ??= Quark.Border.Default;
+        UserSelect ??= Quark.UserSelect.None;
+        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["type"] = "button";
+        attributes["data-variant"] = Variant.Value;
+        attributes["data-size"] = ButtonSize?.ToString() ?? "default";
+        if (Disabled) attributes["disabled"] = true;
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, Button.GetButtonFocusClass(Variant));
+            AppendClass(ref cls, Variant.Class);
+            AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
+            AppendClass(ref cls, "col-start-1 row-start-1 min-h-11 justify-self-start sm:min-h-0");
+        });
+        if (!Visible)
+        {
+            attributes["hidden"] = true;
+            attributes["inert"] = true;
+            attributes["aria-hidden"] = "true";
+            attributes["tabindex"] = -1;
+        }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Visible);
+        hc.Add(Disabled);
+        hc.Add(Variant);
+        hc.Add(ButtonSize);
+    }
+}

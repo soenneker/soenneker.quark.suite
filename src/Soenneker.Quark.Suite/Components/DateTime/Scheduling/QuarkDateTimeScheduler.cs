@@ -64,10 +64,10 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                     return;
                 }
 
-                DateTimeOffset now = DateTimeOffset.UtcNow;
+                var now = DateTimeOffset.UtcNow;
                 DateTimeOffset? earliest = null;
 
-                foreach (QuarkDateTimeScheduleRegistration registration in _registrations)
+                foreach (var registration in _registrations)
                 {
                     if (registration.NextUpdate is not null && (!earliest.HasValue || registration.NextUpdate.Value < earliest.Value))
                         earliest = registration.NextUpdate;
@@ -97,11 +97,11 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
             }
 
             List<(QuarkDateTimeScheduleRegistration Registration, int Version)> due = [];
-            DateTimeOffset tickNow = DateTimeOffset.UtcNow;
+            var tickNow = DateTimeOffset.UtcNow;
 
             lock (_sync)
             {
-                foreach (QuarkDateTimeScheduleRegistration registration in _registrations)
+                foreach (var registration in _registrations)
                 {
                     if (registration.NextUpdate is not null && registration.NextUpdate.Value <= tickNow)
                     {
@@ -113,7 +113,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
             for (var i = 0; i < due.Count; i++)
             {
-                (QuarkDateTimeScheduleRegistration registration, int version) = due[i];
+                (var registration, var version) = due[i];
 
                 lock (_sync)
                 {
@@ -173,13 +173,13 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
     private static void ScheduleCore(QuarkDateTimeScheduleRegistration registration, DateTimeOffset now)
     {
-        TimeSpan? interval = registration.GetNextInterval(now);
+        var interval = registration.GetNextInterval(now);
         registration.NextUpdate = interval.HasValue && interval.Value > TimeSpan.Zero ? now + interval.Value : null;
     }
 
     private void WakeRunnerCore()
     {
-        CancellationTokenSource previous = _wakeCts;
+        var previous = _wakeCts;
         _wakeCts = CancellationTokenSource.CreateLinkedTokenSource(_disposeCts.Token);
         previous.Cancel();
         previous.Dispose();

@@ -93,7 +93,7 @@
         if (_disabledSteps.Contains(step))
             return;
 
-        string resolvedValue = GetStepValue(step, value);
+        var resolvedValue = GetStepValue(step, value);
 
         if (Value is null)
             DefaultValue = step;
@@ -112,10 +112,10 @@
 
     internal void RegisterStep(int step, bool disabled, string? value = null)
     {
-        string resolvedValue = GetStepValue(step, value);
-        bool valueChanged = !_stepValues.TryGetValue(step, out string? existingValue) || !string.Equals(existingValue, resolvedValue, StringComparison.Ordinal);
-        bool resolvesActiveStep = HasValueKey && GetStepForValue(ActiveValue) is null && string.Equals(resolvedValue, ActiveValue, StringComparison.Ordinal);
-        int fallbackActiveStep = Value ?? DefaultValue;
+        var resolvedValue = GetStepValue(step, value);
+        var valueChanged = !_stepValues.TryGetValue(step, out var existingValue) || !string.Equals(existingValue, resolvedValue, StringComparison.Ordinal);
+        var resolvesActiveStep = HasValueKey && GetStepForValue(ActiveValue) is null && string.Equals(resolvedValue, ActiveValue, StringComparison.Ordinal);
+        var fallbackActiveStep = Value ?? DefaultValue;
 
         _stepValues[step] = resolvedValue;
 
@@ -146,12 +146,12 @@
         var last = 0;
         var previous = 0;
         var next = 0;
-        bool hasFirst = false;
-        bool hasPrevious = false;
-        bool hasNext = false;
-        bool foundCurrent = false;
+        var hasFirst = false;
+        var hasPrevious = false;
+        var hasNext = false;
+        var foundCurrent = false;
 
-        foreach (int candidate in _triggers.Keys)
+        foreach (var candidate in _triggers.Keys)
         {
             if (_disabledSteps.Contains(candidate))
                 continue;

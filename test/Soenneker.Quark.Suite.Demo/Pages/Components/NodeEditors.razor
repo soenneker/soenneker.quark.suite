@@ -28,7 +28,7 @@
                            TextColor="TextColor.MutedForeground">Click to add or drag onto the flow.</Small>
                 </Div>
 
-                @foreach (PaletteItem item in _palette)
+                @foreach (var item in _palette)
                 {
                     <NodeEditorPaletteItem Type="@item.Type"
                                            Data="@item.Tone"
@@ -99,7 +99,7 @@
                         OnDeleteRequested="DeleteSelection">
             <NodeTemplate Context="node">
                 @{
-                    DemoNode content = (DemoNode)node.Tag!;
+                    var content = (DemoNode)node.Tag!;
                 }
 
                 <Div Width='Width.Token("72")'
@@ -323,7 +323,7 @@
                         {
                             <Div Space="Space.Y.Is2">
                                 <FieldLabel>Outcomes</FieldLabel>
-                                @foreach (NodeEditorEdgeModel outcome in DecisionOutcomes(selectedNode.Id))
+                                @foreach (var outcome in DecisionOutcomes(selectedNode.Id))
                                 {
                                     <TextInput @key="outcome.Id"
                                                Id="@($"node-editor-outcome-{outcome.Id}")"
@@ -532,7 +532,7 @@
         {
             nodes = _nodes.Select(node =>
             {
-                DemoNode content = (DemoNode)node.Tag!;
+                var content = (DemoNode)node.Tag!;
                 return new
                 {
                     node.Id,
@@ -583,7 +583,7 @@
 
     private Task AddConnection(NodeEditorConnectionRequest request)
     {
-        bool exists = _edges.Any(edge =>
+        var exists = _edges.Any(edge =>
             edge.SourceNodeId == request.SourceNodeId &&
             edge.SourcePortId == request.SourcePortId &&
             edge.TargetNodeId == request.TargetNodeId &&
@@ -600,7 +600,7 @@
 
     private Task ChangeConnection(NodeEditorConnectionChangeRequest request)
     {
-        NodeEditorEdgeModel? edge = _edges.FirstOrDefault(candidate => candidate.Id == request.EdgeId);
+        var edge = _edges.FirstOrDefault(candidate => candidate.Id == request.EdgeId);
         if (edge is not null)
         {
             RecordHistory();
@@ -615,7 +615,7 @@
 
     private ValueTask<NodeEditorConnectionValidationResult> ValidateConnection(NodeEditorConnectionValidationRequest request)
     {
-        bool duplicate = _edges.Any(edge =>
+        var duplicate = _edges.Any(edge =>
             edge.Id != request.EdgeId &&
             edge.SourceNodeId == request.SourceNodeId &&
             edge.SourcePortId == request.SourcePortId &&
@@ -630,7 +630,7 @@
     private Task AddStep(NodeEditorAddRequest request)
     {
         RecordHistory();
-        string id = $"step-{++_nodeSequence}";
+        var id = $"step-{++_nodeSequence}";
         _nodes.Add(Node(id, request.X - 144, request.Y + 64,
             new DemoNode("Kitchen step", "New kitchen step", "Add instructions for this part of service.", LucideIcon.Plus, "violet", true, true, false, "Ready to assign")));
         _edges.Add(Edge($"edge-{++_edgeSequence}", request.SourceNodeId, request.SourcePortId, id, "input"));
@@ -643,14 +643,14 @@
     private Task AddDroppedNode(NodeEditorDropRequest request)
     {
         RecordHistory();
-        PaletteItem item = _palette.First(candidate => candidate.Type == request.Type);
-        string id = $"step-{++_nodeSequence}";
+        var item = _palette.First(candidate => candidate.Type == request.Type);
+        var id = $"step-{++_nodeSequence}";
         _nodes.Add(Node(id, request.X - 144, request.Y - 54,
             new DemoNode(item.Kicker, item.Title, item.Description, item.Icon, item.Tone, true, true, item.Type == "decision", "Dropped from steps")));
 
         if (request.EdgeId is not null)
         {
-            NodeEditorEdgeModel? replaced = _edges.FirstOrDefault(edge => edge.Id == request.EdgeId);
+            var replaced = _edges.FirstOrDefault(edge => edge.Id == request.EdgeId);
             if (replaced is not null)
             {
                 _edges.Remove(replaced);
@@ -674,7 +674,7 @@
     private async Task AddPaletteNode(PaletteItem item)
     {
         RecordHistory();
-        string id = $"step-{++_nodeSequence}";
+        var id = $"step-{++_nodeSequence}";
         double offset = (_nodeSequence % 4) * 32;
         _nodes.Add(Node(id, 600 + offset, 80 + offset,
             new DemoNode(item.Kicker, item.Title, item.Description, item.Icon, item.Tone, true, true, item.Type == "decision", "Added from steps")));
@@ -694,8 +694,8 @@
 
     private async Task UpdateSelectedEdgeLabel(string? value)
     {
-        NodeEditorEdgeModel? edge = SelectedEdge;
-        string? label = string.IsNullOrWhiteSpace(value) ? null : value;
+        var edge = SelectedEdge;
+        var label = string.IsNullOrWhiteSpace(value) ? null : value;
         if (edge is null || !edge.LabelEditable || edge.Label == label)
             return;
 
@@ -709,8 +709,8 @@
 
     private async Task UpdateDecisionOutcome(string edgeId, string? value)
     {
-        NodeEditorEdgeModel? edge = _edges.FirstOrDefault(candidate => candidate.Id == edgeId);
-        string? label = string.IsNullOrWhiteSpace(value) ? null : value.TrimStart();
+        var edge = _edges.FirstOrDefault(candidate => candidate.Id == edgeId);
+        var label = string.IsNullOrWhiteSpace(value) ? null : value.TrimStart();
         if (edge is null || edge.Label == label)
             return;
 
@@ -721,8 +721,8 @@
 
     private Task HandleEdgeLabelChanged(NodeEditorEdgeLabelChangedEventArgs args)
     {
-        GraphSnapshot previous = CaptureSnapshot();
-        NodeEditorEdgeModel? edge = previous.Edges.FirstOrDefault(candidate => candidate.Id == args.EdgeId);
+        var previous = CaptureSnapshot();
+        var edge = previous.Edges.FirstOrDefault(candidate => candidate.Id == args.EdgeId);
         if (edge is not null)
         {
             edge.Label = args.PreviousLabel;
@@ -735,7 +735,7 @@
 
     private async Task UpdateSelectedContent(Func<DemoNode, DemoNode> update)
     {
-        NodeEditorNodeModel? node = SelectedNode;
+        var node = SelectedNode;
         if (node?.Tag is DemoNode content)
         {
             RecordHistory();
@@ -770,10 +770,10 @@
 
     private Task DeleteSelection(NodeEditorDeleteRequest request)
     {
-        IReadOnlyList<string> nodeIds = request.NodeIds.Count > 0
+        var nodeIds = request.NodeIds.Count > 0
             ? request.NodeIds
             : request.NodeId is null ? [] : [request.NodeId];
-        bool exists = request.EdgeId is not null
+        var exists = request.EdgeId is not null
             ? _edges.Any(edge => edge.Id == request.EdgeId)
             : nodeIds.Any(nodeId => _nodes.Any(node => node.Id == nodeId));
         if (!exists)
@@ -800,8 +800,8 @@
 
     private Task HandleNodeMoved(NodeEditorNodePositionChangedEventArgs args)
     {
-        GraphSnapshot previous = CaptureSnapshot();
-        NodeEditorNodeModel? moved = previous.Nodes.FirstOrDefault(node => node.Id == args.NodeId);
+        var previous = CaptureSnapshot();
+        var moved = previous.Nodes.FirstOrDefault(node => node.Id == args.NodeId);
         if (moved is not null)
         {
             moved.X = args.PreviousX;
@@ -809,9 +809,9 @@
             _undo.Push(previous);
             _redo.Clear();
 
-            double deltaX = args.X - args.PreviousX;
-            double deltaY = args.Y - args.PreviousY;
-            foreach (NodeEditorAddHandleModel handle in _addHandles.Where(handle => handle.SourceNodeId == args.NodeId))
+            var deltaX = args.X - args.PreviousX;
+            var deltaY = args.Y - args.PreviousY;
+            foreach (var handle in _addHandles.Where(handle => handle.SourceNodeId == args.NodeId))
             {
                 handle.X += deltaX;
                 handle.Y += deltaY;
@@ -824,12 +824,12 @@
 
     private Task DuplicateNode(NodeEditorDuplicateRequest request)
     {
-        NodeEditorNodeModel? source = _nodes.FirstOrDefault(node => node.Id == request.NodeId);
+        var source = _nodes.FirstOrDefault(node => node.Id == request.NodeId);
         if (source?.Tag is not DemoNode content)
             return Task.CompletedTask;
 
         RecordHistory();
-        string id = $"step-{++_nodeSequence}";
+        var id = $"step-{++_nodeSequence}";
         _nodes.Add(Node(id, request.SuggestedX, request.SuggestedY, content with { Title = $"{content.Title} copy", Status = null }));
         _selectedNodeId = id;
         _selectedNodeIds = [id];

@@ -1,0 +1,22 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-actions";
+        Display ??= Quark.Display.Grid;
+        Width ??= Quark.Width.IsFull;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is2;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "min-h-11 grid-cols-[minmax(0,1fr)_auto_auto] sm:min-h-8"));
+    }
+}

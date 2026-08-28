@@ -1,0 +1,91 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div data-slot="questionnaire-input-wrapper" class="group/questionnaire-input relative w-full min-w-0">
+    <input value="@EffectiveValue" @oninput="HandleInput" @onkeydown:stopPropagation @attributes="BuildAttributes()" />
+</div>
+
+@code {
+    [CascadingParameter]
+    internal QuestionnaireItem? ParentItem { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Type { get; set; } = "text";
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private string? EffectiveValue => Value ?? ParentItem?.InputValue;
+    private bool Filled => !string.IsNullOrWhiteSpace(EffectiveValue);
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString();
+        await (ParentItem?.SetInputValue(value) ?? Task.CompletedTask);
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(value);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "questionnaire-input";
+        Height ??= Quark.Height.Is8;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
+        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        Transition ??= Quark.Transition.All;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
+        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes.Remove("value");
+        attributes["type"] = Type;
+        attributes[Filled ? "data-filled" : "data-empty"] = string.Empty;
+
+        if (Filled && ParentItem?.IsSkipped != true)
+            attributes["name"] = ParentItem?.Name ?? string.Empty;
+        else
+            attributes.Remove("name");
+        if (Disabled || ParentItem?.Disabled == true)
+            attributes["disabled"] = true;
+        if (ParentItem?.EffectiveInvalid == true)
+            attributes["aria-invalid"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "focus-visible:ring-3 disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80");
+            AppendClass(ref cls, "min-h-11 sm:min-h-0");
+            AppendClass(ref cls, "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(EffectiveValue);
+        hc.Add(Type);
+        hc.Add(Disabled);
+        hc.Add(Filled);
+        hc.Add(ParentItem?.EffectiveInvalid);
+    }
+}

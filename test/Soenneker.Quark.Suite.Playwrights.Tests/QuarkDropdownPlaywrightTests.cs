@@ -30,7 +30,7 @@ public sealed class QuarkDropdownPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(content).ToBeVisibleAsync();
         await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bdata-\[state=closed\]:animate-out\b"));
         await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bdata-\[state=closed\]:fade-out-0\b"));
-        string animationDuration = await content.EvaluateAsync<string>("element => getComputedStyle(element).animationDuration");
+        var animationDuration = await content.EvaluateAsync<string>("element => getComputedStyle(element).animationDuration");
         animationDuration.Should().Be("0.15s");
 
         await page.Keyboard.PressAsync("Escape");

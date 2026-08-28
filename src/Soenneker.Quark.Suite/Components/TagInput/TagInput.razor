@@ -342,7 +342,7 @@
         {
             case "Enter":
             {
-                IReadOnlyList<string> filteredAutocompleteOptions = GetFilteredAutocompleteOptions();
+                var filteredAutocompleteOptions = GetFilteredAutocompleteOptions();
                 if (_activeAutocompleteIndex >= 0 && _activeAutocompleteIndex < filteredAutocompleteOptions.Count)
                     await AddAutocompleteTag(filteredAutocompleteOptions[_activeAutocompleteIndex]);
                 else
@@ -442,7 +442,7 @@
         var candidates = raw.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var nextTags = new List<string>(Values.Length + candidates.Length);
         nextTags.AddRange(Values);
-        List<string>? added = OnTagAdd.HasDelegate ? new List<string>(candidates.Length) : null;
+        var added = OnTagAdd.HasDelegate ? new List<string>(candidates.Length) : null;
         var addedCount = 0;
 
         foreach (var candidate in candidates)

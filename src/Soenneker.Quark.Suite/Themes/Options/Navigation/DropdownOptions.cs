@@ -45,7 +45,7 @@ public sealed class DropdownOptions : ComponentOptions
 
     private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
-        string dropdownScope = baseSelector == "[data-slot='dropdown-menu']" ? string.Empty : baseSelector;
+        var dropdownScope = baseSelector == "[data-slot='dropdown-menu']" ? string.Empty : baseSelector;
 
         AddChildCssRules(buffer, Dividers, "[data-slot='dropdown-menu-separator']", "[data-slot='dropdown-menu-separator']", dropdownScope);
         AddChildCssRules(buffer, Items, "[data-slot='dropdown-menu-item']", "[data-slot='dropdown-menu-item']", dropdownScope);
