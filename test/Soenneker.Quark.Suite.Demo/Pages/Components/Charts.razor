@@ -3,37 +3,6 @@
 <PageTitle>Charts - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
-    <DemoSection Title="Usage dashboard chart"
-                 Description="A compact dashboard sparkline with composable header controls, monotone series, terminal markers, and a shared tooltip."
-                 Code="@UsageCode"
-                 CodeLanguage="razor">
-        <TooltipProvider DelayDuration="100">
-            <Chart Labels="@UsageLabels" Series="@UsageSeries" Options="@UsageOptions" AriaLabel="Total token usage over seven days"
-                   Class="dark w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-[#202020] px-2 pb-2 text-white shadow-sm">
-                <HeaderContent>
-                    <div class="flex items-start justify-between gap-4 px-3 pt-5">
-                        <div>
-                            <Anchor Href="#usage-details" Class="text-sm text-white/60 no-underline transition-colors hover:text-white focus-visible:text-white">
-                                Total tokens <span aria-hidden="true">›</span>
-                            </Anchor>
-                            <div class="mt-1 text-2xl font-semibold tracking-tight">607,262</div>
-                        </div>
-                        <Tooltip>
-                            <TooltipTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
-                                        Class="text-white/60 hover:bg-white/10 hover:text-white focus-visible:ring-white/70"
-                                        aria-label="About total tokens">
-                                    <Icon Name="LucideIcon.Info" Class="size-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent Side="Side.Left">Includes input and cached tokens.</TooltipContent>
-                        </Tooltip>
-                    </div>
-                </HeaderContent>
-            </Chart>
-        </TooltipProvider>
-    </DemoSection>
-
     <DemoSection Title="Line chart"
                  Description="Responsive, smooth line series with shared hover tooltips, keyboard-accessible points, and legend toggling."
                  Code="@LineCode"
@@ -122,6 +91,68 @@
             </Chart>
         </div>
     </DemoSection>
+
+    <DemoSection Title="Neutral shadcn charts"
+                 Description="Classic dashboard cards rendered with adaptive neutral tones instead of a colorful series palette."
+                 Code="@NeutralCode"
+                 CodeLanguage="razor">
+        <div class="grid w-full gap-4 xl:grid-cols-3">
+            <div class="rounded-xl border bg-card p-4 shadow-sm">
+                <div class="font-semibold">Browser usage</div>
+                <div class="mb-4 text-xs text-muted-foreground">Desktop and mobile · January–June</div>
+                <Chart Type="ChartType.Bar" Labels="@NeutralLabels" Series="@NeutralBarSeries" Options="@NeutralBarOptions" AriaLabel="Browser usage by device" />
+                <div class="mt-3 text-sm font-medium">Trending up by 5.2% this month</div>
+                <div class="text-xs text-muted-foreground">Showing total visitors for the last six months</div>
+            </div>
+
+            <div class="rounded-xl border bg-card p-4 shadow-sm">
+                <div class="font-semibold">Visitors</div>
+                <div class="mb-4 text-xs text-muted-foreground">Returning and new visitors</div>
+                <Chart Labels="@NeutralLabels" Series="@NeutralLineSeries" Options="@NeutralLineOptions" AriaLabel="Returning and new visitors" />
+                <div class="mt-3 text-sm font-medium">Steady growth across both audiences</div>
+                <div class="text-xs text-muted-foreground">January–June 2026</div>
+            </div>
+
+            <div class="rounded-xl border bg-card p-4 shadow-sm">
+                <div class="font-semibold">Revenue</div>
+                <div class="mb-4 text-xs text-muted-foreground">Recurring and services revenue</div>
+                <Chart Type="ChartType.Area" Labels="@NeutralLabels" Series="@NeutralAreaSeries" Options="@NeutralAreaOptions" AriaLabel="Revenue by source" />
+                <div class="mt-3 text-sm font-medium">Recurring revenue leads the mix</div>
+                <div class="text-xs text-muted-foreground">Monthly revenue in thousands</div>
+            </div>
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Usage dashboard chart"
+                 Description="A compact dashboard sparkline with composable header controls, monotone series, terminal markers, and a shared tooltip."
+                 Code="@UsageCode"
+                 CodeLanguage="razor">
+        <TooltipProvider DelayDuration="100">
+            <Chart Labels="@UsageLabels" Series="@UsageSeries" Options="@UsageOptions" AriaLabel="Total token usage over seven days"
+                   Class="dark w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-[#202020] px-2 pb-2 text-white shadow-sm">
+                <HeaderContent>
+                    <div class="flex items-start justify-between gap-4 px-3 pt-5">
+                        <div>
+                            <Anchor Href="#usage-details" Class="text-sm text-white/60 no-underline transition-colors hover:text-white focus-visible:text-white">
+                                Total tokens <span aria-hidden="true">›</span>
+                            </Anchor>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight">607,262</div>
+                        </div>
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
+                                        Class="text-white/60 hover:bg-white/10 hover:text-white focus-visible:ring-white/70"
+                                        aria-label="About total tokens">
+                                    <Icon Name="LucideIcon.Info" Class="size-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent Side="Side.Left">Includes input and cached tokens.</TooltipContent>
+                        </Tooltip>
+                    </div>
+                </HeaderContent>
+            </Chart>
+        </TooltipProvider>
+    </DemoSection>
 </Div>
 
 @code {
@@ -130,7 +161,42 @@
     private static readonly double[] IrregularDayOffsets = [0, 1, 2, 4, 5, 8, 9];
     private static readonly string[] QuarterLabels = ["Q1", "Q2", "Q3", "Q4"];
     private static readonly string[] ChannelLabels = ["Organic", "Direct", "Social", "Referral", "Email"];
+    private static readonly string[] NeutralLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     private ChartSelection? _selection;
+
+    private const string NeutralStrong = "color-mix(in oklab, var(--foreground) 88%, var(--background))";
+    private const string NeutralMedium = "color-mix(in oklab, var(--foreground) 62%, var(--background))";
+    private const string NeutralSoft = "color-mix(in oklab, var(--foreground) 36%, var(--background))";
+
+    private static readonly ChartSeries[] NeutralBarSeries =
+    [
+        new("Desktop", new double[] { 186, 305, 237, 273, 209, 214 }) { Color = NeutralStrong },
+        new("Mobile", new double[] { 80, 200, 120, 190, 130, 140 }) { Color = NeutralSoft }
+    ];
+
+    private static readonly ChartSeries[] NeutralLineSeries =
+    [
+        new("Returning", new double[] { 142, 168, 155, 201, 224, 248 }) { Color = NeutralStrong, StrokeWidth = 3 },
+        new("New", new double[] { 92, 118, 109, 146, 162, 181 }) { Color = NeutralMedium, StrokeWidth = 2.5 }
+    ];
+
+    private static readonly ChartSeries[] NeutralAreaSeries =
+    [
+        new("Recurring", new double[] { 42, 48, 46, 57, 63, 71 })
+        {
+            Color = NeutralStrong,
+            Gradient = new ChartGradient(NeutralStrong, NeutralStrong) { StartOpacity = 0.45, EndOpacity = 0.03 }
+        },
+        new("Services", new double[] { 24, 31, 28, 36, 34, 41 })
+        {
+            Color = NeutralMedium,
+            Gradient = new ChartGradient(NeutralMedium, NeutralMedium) { StartOpacity = 0.3, EndOpacity = 0.02 }
+        }
+    ];
+
+    private static readonly ChartOptions NeutralBarOptions = new() { Height = 230, ShowPoints = false };
+    private static readonly ChartOptions NeutralLineOptions = new() { Height = 230, Curve = ChartCurve.Monotone, ShowPoints = false };
+    private static readonly ChartOptions NeutralAreaOptions = new() { Height = 230, Curve = ChartCurve.Monotone, ShowPoints = false, Unit = "k" };
 
     private static readonly ChartSeries[] UsageSeries =
     [
@@ -396,6 +462,60 @@
             Color = "#00bfa6"
         }
     ];
+}
+""";
+
+    private const string NeutralCode = """
+<div class="grid gap-4 xl:grid-cols-3">
+    <div class="rounded-xl border bg-card p-4 shadow-sm">
+        <h3>Browser usage</h3>
+        <Chart Type="ChartType.Bar" Labels="@labels" Series="@bars" Options="@barOptions" />
+    </div>
+    <div class="rounded-xl border bg-card p-4 shadow-sm">
+        <h3>Visitors</h3>
+        <Chart Labels="@labels" Series="@lines" Options="@lineOptions" />
+    </div>
+    <div class="rounded-xl border bg-card p-4 shadow-sm">
+        <h3>Revenue</h3>
+        <Chart Type="ChartType.Area" Labels="@labels" Series="@areas" Options="@areaOptions" />
+    </div>
+</div>
+
+@code {
+    const string strong = "color-mix(in oklab, var(--foreground) 88%, var(--background))";
+    const string medium = "color-mix(in oklab, var(--foreground) 62%, var(--background))";
+    const string soft = "color-mix(in oklab, var(--foreground) 36%, var(--background))";
+    string[] labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+
+    ChartSeries[] bars =
+    [
+        new("Desktop", new double[] { 186, 305, 237, 273, 209, 214 }) { Color = strong },
+        new("Mobile", new double[] { 80, 200, 120, 190, 130, 140 }) { Color = soft }
+    ];
+
+    ChartSeries[] lines =
+    [
+        new("Returning", new double[] { 142, 168, 155, 201, 224, 248 }) { Color = strong },
+        new("New", new double[] { 92, 118, 109, 146, 162, 181 }) { Color = medium }
+    ];
+
+    ChartSeries[] areas =
+    [
+        new("Recurring", new double[] { 42, 48, 46, 57, 63, 71 })
+        {
+            Color = strong,
+            Gradient = new(strong, strong) { StartOpacity = .45, EndOpacity = .03 }
+        },
+        new("Services", new double[] { 24, 31, 28, 36, 34, 41 })
+        {
+            Color = medium,
+            Gradient = new(medium, medium) { StartOpacity = .3, EndOpacity = .02 }
+        }
+    ];
+
+    ChartOptions barOptions = new() { Height = 230, ShowPoints = false };
+    ChartOptions lineOptions = new() { Height = 230, ShowPoints = false, Curve = ChartCurve.Monotone };
+    ChartOptions areaOptions = new() { Height = 230, ShowPoints = false, Curve = ChartCurve.Monotone, Unit = "k" };
 }
 """;
 }
