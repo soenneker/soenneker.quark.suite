@@ -305,12 +305,16 @@
     private readonly Dictionary<string, NodeEditorNodeModel> _nodesById = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NodeEditorEdgeModel> _edgesById = new(StringComparer.Ordinal);
     private readonly HashSet<string> _handleIds = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _selectedNodeIdsSet = new(StringComparer.Ordinal);
+    private readonly List<string> _selectionScratch = [];
     private readonly Dictionary<string, NodeEditorNodeContext> _nodeContexts = new(StringComparer.Ordinal);
     private DotNetObjectReference<NodeEditor>? _dotNetReference;
     private bool _initialized;
     private int _lastInteropRefreshKey;
     private bool _interopSynchronized;
     private int _changeVersion;
+    private int _graphRenderKey;
+    private int _graphInteropKey;
     private string _announcement = "";
     private string? _lastSelectedNodeId;
     private string? _editingEdgeId;
@@ -411,10 +415,15 @@
     [JSInvokable]
     public async Task InvokeNodeSelectionChanged(string[] nodeIds)
     {
-        string[] selection = nodeIds
-            .Where(id => _nodesById.TryGetValue(id, out NodeEditorNodeModel? node) && node.Selectable && !node.Disabled)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
+        _selectedNodeIdsSet.Clear();
+        _selectionScratch.Clear();
+        for (var index = 0; index < nodeIds.Length; index++)
+        {
+            var id = nodeIds[index];
+            if (_nodesById.TryGetValue(id, out var node) && node.Selectable && !node.Disabled && _selectedNodeIdsSet.Add(id))
+                _selectionScratch.Add(id);
+        }
+        var selection = _selectionScratch.ToArray();
 
         SelectedNodeIds = selection;
         SelectedNodeId = selection.Length == 0 ? null : selection[^1];
@@ -443,6 +452,7 @@
         SelectedEdgeId = edgeId;
         SelectedNodeId = null;
         SelectedNodeIds = [];
+        _selectedNodeIdsSet.Clear();
         _announcement = edgeId is null ? "Selection cleared" : $"Connection {edgeId} selected";
 
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
@@ -471,6 +481,7 @@
         SelectedEdgeId = edgeId;
         SelectedNodeId = null;
         SelectedNodeIds = [];
+        _selectedNodeIdsSet.Clear();
         _announcement = $"Editing connection {edgeId} label";
 
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
@@ -693,6 +704,7 @@
 
     public Task NotifyChanged()
     {
+        RefreshGraphKeys();
         unchecked
         {
             _changeVersion++;
@@ -874,42 +886,7 @@
         hashCode.Add(_editingEdgeId);
         hashCode.Add(_editingEdgeLabel);
 
-        foreach (NodeEditorNodeModel node in Nodes)
-        {
-            hashCode.Add(node.Id);
-            hashCode.Add(node.X);
-            hashCode.Add(node.Y);
-            hashCode.Add(node.Disabled);
-            hashCode.Add(node.Selectable);
-            hashCode.Add(node.Tag);
-            hashCode.Add(node.RenderKey);
-        }
-
-        foreach (NodeEditorEdgeModel edge in Edges)
-        {
-            hashCode.Add(edge.Id);
-            hashCode.Add(edge.SourceNodeId);
-            hashCode.Add(edge.SourcePortId);
-            hashCode.Add(edge.TargetNodeId);
-            hashCode.Add(edge.TargetPortId);
-            hashCode.Add(edge.Label);
-            hashCode.Add(edge.LabelEditable);
-            hashCode.Add(edge.AccessibleLabel);
-            hashCode.Add(edge.Disabled);
-            hashCode.Add(edge.Selectable);
-        }
-
-        foreach (NodeEditorAddHandleModel handle in AddHandles)
-        {
-            hashCode.Add(handle.Id);
-            hashCode.Add(handle.SourceNodeId);
-            hashCode.Add(handle.SourcePortId);
-            hashCode.Add(handle.X);
-            hashCode.Add(handle.Y);
-            hashCode.Add(handle.Label);
-            hashCode.Add(handle.AccessibleLabel);
-            hashCode.Add(handle.Disabled);
-        }
+        hashCode.Add(_graphRenderKey);
     }
 
     private static string EdgeAccessibleLabel(NodeEditorEdgeModel edge) =>
@@ -934,10 +911,10 @@
 
     private bool IsNodeSelected(string nodeId)
     {
-        if (SelectedNodeIds.Any(selectedId => string.Equals(selectedId, nodeId, StringComparison.Ordinal)))
+        if (_selectedNodeIdsSet.Contains(nodeId))
             return true;
 
-        return SelectedNodeIds.Count == 0 && string.Equals(SelectedNodeId, nodeId, StringComparison.Ordinal);
+        return _selectedNodeIdsSet.Count == 0 && string.Equals(SelectedNodeId, nodeId, StringComparison.Ordinal);
     }
 
     private IReadOnlyList<string> EffectiveSelectedNodeIds() =>
@@ -952,6 +929,14 @@
             SelectedNodeId = SelectedNodeIds[^1];
 
         _lastSelectedNodeId = SelectedNodeId;
+        RebuildSelectionIndex();
+    }
+
+    private void RebuildSelectionIndex()
+    {
+        _selectedNodeIdsSet.Clear();
+        for (var index = 0; index < SelectedNodeIds.Count; index++)
+            _selectedNodeIdsSet.Add(SelectedNodeIds[index]);
     }
 
     private int ComputeInteropRefreshKey()
@@ -980,39 +965,7 @@
         hashCode.Add(Options.SnapToGrid);
         hashCode.Add(Options.FitViewOnInitialize);
 
-        foreach (NodeEditorNodeModel node in Nodes)
-        {
-            hashCode.Add(node.Id);
-            hashCode.Add(node.X);
-            hashCode.Add(node.Y);
-            hashCode.Add(node.Disabled);
-            hashCode.Add(node.Selectable);
-            hashCode.Add(node.RenderKey);
-        }
-
-        foreach (NodeEditorEdgeModel edge in Edges)
-        {
-            hashCode.Add(edge.Id);
-            hashCode.Add(edge.SourceNodeId);
-            hashCode.Add(edge.SourcePortId);
-            hashCode.Add(edge.TargetNodeId);
-            hashCode.Add(edge.TargetPortId);
-            hashCode.Add(edge.Label);
-            hashCode.Add(edge.LabelEditable);
-            hashCode.Add(edge.Disabled);
-            hashCode.Add(edge.Selectable);
-        }
-
-        foreach (NodeEditorAddHandleModel handle in AddHandles)
-        {
-            hashCode.Add(handle.Id);
-            hashCode.Add(handle.SourceNodeId);
-            hashCode.Add(handle.SourcePortId);
-            hashCode.Add(handle.X);
-            hashCode.Add(handle.Y);
-            hashCode.Add(handle.Label);
-            hashCode.Add(handle.Disabled);
-        }
+        hashCode.Add(_graphInteropKey);
 
         return hashCode.ToHashCode();
     }
@@ -1046,8 +999,11 @@
         if (!double.IsFinite(Options.GridSize) || Options.GridSize <= 0)
             throw new InvalidOperationException($"{nameof(NodeEditorOptions.GridSize)} must be a finite value greater than zero.");
 
+        var renderHash = new HashCode();
+        var interopHash = new HashCode();
+
         _nodesById.Clear();
-        foreach (NodeEditorNodeModel node in Nodes)
+        foreach (var node in Nodes)
         {
             if (node is null)
                 throw new InvalidOperationException($"{nameof(NodeEditor.Nodes)} cannot contain null entries.");
@@ -1060,10 +1016,12 @@
 
             if (!double.IsFinite(node.X) || !double.IsFinite(node.Y))
                 throw new InvalidOperationException($"Node '{node.Id}' must have finite X and Y positions.");
+
+            AddNodeToGraphKeys(ref renderHash, ref interopHash, node);
         }
 
         _edgesById.Clear();
-        foreach (NodeEditorEdgeModel edge in Edges)
+        foreach (var edge in Edges)
         {
             if (edge is null)
                 throw new InvalidOperationException($"{nameof(NodeEditor.Edges)} cannot contain null entries.");
@@ -1083,10 +1041,12 @@
 
             if (!_nodesById.ContainsKey(edge.TargetNodeId))
                 throw new InvalidOperationException($"Edge '{edge.Id}' references missing target node '{edge.TargetNodeId}'.");
+
+            AddEdgeToGraphKeys(ref renderHash, ref interopHash, edge);
         }
 
         _handleIds.Clear();
-        foreach (NodeEditorAddHandleModel handle in AddHandles)
+        foreach (var handle in AddHandles)
         {
             if (handle is null)
                 throw new InvalidOperationException($"{nameof(NodeEditor.AddHandles)} cannot contain null entries.");
@@ -1105,7 +1065,63 @@
 
             if (!double.IsFinite(handle.X) || !double.IsFinite(handle.Y))
                 throw new InvalidOperationException($"Add handle '{handle.Id}' must have finite X and Y positions.");
+
+            AddHandleToGraphKeys(ref renderHash, ref interopHash, handle);
         }
+
+        _graphRenderKey = renderHash.ToHashCode();
+        _graphInteropKey = interopHash.ToHashCode();
+    }
+
+    private void RefreshGraphKeys()
+    {
+        var renderHash = new HashCode();
+        var interopHash = new HashCode();
+        foreach (var node in Nodes)
+            AddNodeToGraphKeys(ref renderHash, ref interopHash, node);
+        foreach (var edge in Edges)
+            AddEdgeToGraphKeys(ref renderHash, ref interopHash, edge);
+        foreach (var handle in AddHandles)
+            AddHandleToGraphKeys(ref renderHash, ref interopHash, handle);
+        _graphRenderKey = renderHash.ToHashCode();
+        _graphInteropKey = interopHash.ToHashCode();
+    }
+
+    private static void AddNodeToGraphKeys(ref HashCode renderHash, ref HashCode interopHash, NodeEditorNodeModel node)
+    {
+        renderHash.Add(node.Id); interopHash.Add(node.Id);
+        renderHash.Add(node.X); interopHash.Add(node.X);
+        renderHash.Add(node.Y); interopHash.Add(node.Y);
+        renderHash.Add(node.Disabled); interopHash.Add(node.Disabled);
+        renderHash.Add(node.Selectable); interopHash.Add(node.Selectable);
+        renderHash.Add(node.RenderKey); interopHash.Add(node.RenderKey);
+        renderHash.Add(node.Tag);
+    }
+
+    private static void AddEdgeToGraphKeys(ref HashCode renderHash, ref HashCode interopHash, NodeEditorEdgeModel edge)
+    {
+        renderHash.Add(edge.Id); interopHash.Add(edge.Id);
+        renderHash.Add(edge.SourceNodeId); interopHash.Add(edge.SourceNodeId);
+        renderHash.Add(edge.SourcePortId); interopHash.Add(edge.SourcePortId);
+        renderHash.Add(edge.TargetNodeId); interopHash.Add(edge.TargetNodeId);
+        renderHash.Add(edge.TargetPortId); interopHash.Add(edge.TargetPortId);
+        renderHash.Add(edge.Label); interopHash.Add(edge.Label);
+        renderHash.Add(edge.LabelEditable); interopHash.Add(edge.LabelEditable);
+        renderHash.Add(edge.Disabled); interopHash.Add(edge.Disabled);
+        renderHash.Add(edge.Selectable); interopHash.Add(edge.Selectable);
+        renderHash.Add(edge.AccessibleLabel);
+    }
+
+    private static void AddHandleToGraphKeys(ref HashCode renderHash, ref HashCode interopHash, NodeEditorAddHandleModel handle)
+    {
+        renderHash.Add(handle.Id); interopHash.Add(handle.Id);
+        renderHash.Add(handle.SourceNodeId); interopHash.Add(handle.SourceNodeId);
+        renderHash.Add(handle.SourcePortId); interopHash.Add(handle.SourcePortId);
+        renderHash.Add(handle.X); interopHash.Add(handle.X);
+        renderHash.Add(handle.Y); interopHash.Add(handle.Y);
+        renderHash.Add(handle.Label); interopHash.Add(handle.Label);
+        renderHash.Add(handle.Disabled); interopHash.Add(handle.Disabled);
+        renderHash.Add(handle.AccessibleLabel);
     }
 
     private static string HandleStyle(NodeEditorAddHandleModel handle) =>

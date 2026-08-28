@@ -5,16 +5,17 @@
 {
     @foreach (var item in Items)
     {
+        var isActive = IsItemActive(item);
         @if (item.Href is not null)
         {
             <Anchor Href="@item.Href"
                     data-slot="button"
                     data-variant="ghost"
                     data-size="sm"
-                    data-active="@BoolString(IsItemActive(item))"
+                    data-active="@BoolString(isActive)"
                     data-new="@BoolString(item.IsNew)"
-                    aria-current="@(IsItemActive(item) ? "page" : null)"
-                    class="@GetHeaderItemClass(item)">
+                    aria-current="@(isActive ? "page" : null)"
+                    class="@GetHeaderItemClass(isActive)">
                 @item.Title
             </Anchor>
         }
@@ -25,7 +26,7 @@
                   data-size="sm"
                   data-active="false"
                   data-new="@BoolString(item.IsNew)"
-                  class="@($"{GetHeaderItemClass(item)} opacity-75")">
+                  class="@($"{GetHeaderItemClass(false)} opacity-75")">
                 @item.Title
             </Span>
         }
@@ -42,9 +43,10 @@ else if (ReferenceEquals(Mode, NavigationLinksMode.Stack))
         <Div Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is3">
             @foreach (var item in Items)
             {
+                var isActive = IsItemActive(item);
                 @if (item.Href is not null)
                 {
-                    <Anchor Href="@item.Href" PreventDefault="@ShouldHandleStackNavigation(item)" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
+                    <Anchor Href="@item.Href" PreventDefault="@ShouldHandleStackNavigation(item)" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(isActive ? "page" : null)" class="@GetStackItemClass(isActive)">
                         @item.Title
                         @if (item.IsNew)
                         {
@@ -54,7 +56,7 @@ else if (ReferenceEquals(Mode, NavigationLinksMode.Stack))
                 }
                 else
                 {
-                    <Span class="@($"{GetStackItemClass(item)} opacity-70")">
+                    <Span class="@($"{GetStackItemClass(false)} opacity-70")">
                         @item.Title
                     </Span>
                 }
@@ -74,12 +76,13 @@ else
             <SidebarMenu>
                 @foreach (var item in Items)
                 {
+                    var isActive = IsItemActive(item);
                     <SidebarMenuItem>
                         @if (item.Href is not null)
                         {
                             <SidebarMenuButton Href="@item.Href"
-                                               Active="@IsItemActive(item)"
-                                               aria-current="@(IsItemActive(item) ? "page" : null)"
+                                               Active="@isActive"
+                                               aria-current="@(isActive ? "page" : null)"
                                                Variant="SidebarMenuButtonVariant.Navigation">
                                 <Span>@item.Title</Span>
                                 @if (item.IsNew)
@@ -189,20 +192,20 @@ else
                !Uri.TryCreate(item.Href, UriKind.Absolute, out _);
     }
 
-    private string GetHeaderItemClass(NavigationItem item)
+    private static string GetHeaderItemClass(bool isActive)
     {
         const string baseClass = "inline-flex shrink-0 items-center justify-center text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 gap-1.5 rounded-md has-[>svg]:px-2.5 px-2.5 relative items-center";
 
-        return IsItemActive(item)
+        return isActive
             ? $"{baseClass} bg-accent text-accent-foreground dark:bg-accent/50"
             : baseClass;
     }
 
-    private string GetStackItemClass(NavigationItem item)
+    private static string GetStackItemClass(bool isActive)
     {
         const string baseClass = "inline-flex items-center gap-2 text-2xl leading-none font-medium transition-all";
 
-        return IsItemActive(item)
+        return isActive
             ? $"{baseClass} text-foreground"
             : $"{baseClass} text-foreground hover:text-foreground/80";
     }

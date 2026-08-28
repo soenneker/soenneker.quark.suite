@@ -1,13 +1,20 @@
 const autoScrollObservers = new WeakMap();
 
-function scrollToBottom(element) {
-    window.requestAnimationFrame(() => {
+function scheduleScrollToBottom(element, state) {
+    if (state.frame) {
+        return;
+    }
+
+    state.frame = window.requestAnimationFrame(() => {
+        state.frame = 0;
         element.scrollTop = element.scrollHeight;
     });
 }
 
 export function initializeAutoScroll(element) {
     destroyAutoScroll(element);
+
+    const state = { observer: null, frame: 0 };
 
     const observer = new MutationObserver((mutations) => {
         const hasConsolePanelMutation = mutations.some((mutation) => {
@@ -19,9 +26,11 @@ export function initializeAutoScroll(element) {
         });
 
         if (hasConsolePanelMutation) {
-            scrollToBottom(element);
+            scheduleScrollToBottom(element, state);
         }
     });
+
+    state.observer = observer;
 
     observer.observe(element, {
         childList: true,
@@ -29,18 +38,21 @@ export function initializeAutoScroll(element) {
         characterData: true
     });
 
-    autoScrollObservers.set(element, observer);
-    scrollToBottom(element);
+    autoScrollObservers.set(element, state);
+    scheduleScrollToBottom(element, state);
 }
 
 export function destroyAutoScroll(element) {
-    const observer = autoScrollObservers.get(element);
+    const state = autoScrollObservers.get(element);
 
-    if (!observer) {
+    if (!state) {
         return;
     }
 
-    observer.disconnect();
+    state.observer?.disconnect();
+    if (state.frame) {
+        window.cancelAnimationFrame(state.frame);
+    }
     autoScrollObservers.delete(element);
 }
 

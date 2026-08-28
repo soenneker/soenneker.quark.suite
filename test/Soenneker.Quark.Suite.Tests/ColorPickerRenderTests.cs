@@ -110,4 +110,15 @@ public sealed partial class RenderedShadcnParityTests
 
         value.Should().EndWith(", 0.35)");
     }
+
+    [Test]
+    public void ColorPicker_parses_space_separated_hsl()
+    {
+        var cut = Render<ColorPicker>(parameters => parameters
+            .Add(p => p.Inline, true)
+            .Add(p => p.Format, ColorPickerFormat.Css)
+            .Add(p => p.Value, "hsl(240 100% 50% / 0.5)"));
+
+        cut.Find("[data-slot='color-picker-value']").GetAttribute("value").Should().Be("rgba(0, 0, 255, 0.5)");
+    }
 }

@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @using System.Globalization
-@using System.Text.RegularExpressions
 @using Microsoft.AspNetCore.Components.Rendering
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -605,24 +604,19 @@ else
     private static bool TryParseRgb(string input, out (double H, double S, double L, double A) color)
     {
         color = default;
-        var match = Regex.Match(input, @"rgba?\(([^)]+)\)", RegexOptions.IgnoreCase);
-
-        if (!match.Success)
+        if (!TryGetFunctionBody(input, "rgb", "rgba", out var body) ||
+            !TryReadCssToken(ref body, out var red) ||
+            !TryReadCssToken(ref body, out var green) ||
+            !TryReadCssToken(ref body, out var blue))
             return false;
-
-        var parts = match.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length < 3)
+        if (!int.TryParse(red, NumberStyles.Integer, CultureInfo.InvariantCulture, out var r) ||
+            !int.TryParse(green, NumberStyles.Integer, CultureInfo.InvariantCulture, out var g) ||
+            !int.TryParse(blue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b))
             return false;
-
-        if (!int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var r) ||
-            !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var g) ||
-            !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var b))
+        var alpha = 1d;
+        if (TryReadCssToken(ref body, out var alphaToken) &&
+            !double.TryParse(alphaToken, NumberStyles.Float, CultureInfo.InvariantCulture, out alpha))
             return false;
-
-        var alpha = parts.Length > 3 && double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedAlpha)
-            ? parsedAlpha
-            : 1d;
 
         color = RgbToHsl(Math.Clamp(r, 0, 255), Math.Clamp(g, 0, 255), Math.Clamp(b, 0, 255), Math.Clamp(alpha, 0, 1));
         return true;
@@ -631,29 +625,71 @@ else
     private static bool TryParseHsl(string input, out (double H, double S, double L, double A) color)
     {
         color = default;
-        var match = Regex.Match(input, @"hsla?\(([^)]+)\)", RegexOptions.IgnoreCase);
-
-        if (!match.Success)
+        if (!TryGetFunctionBody(input, "hsl", "hsla", out var body) ||
+            !TryReadCssToken(ref body, out var hue) ||
+            !TryReadCssToken(ref body, out var saturation) ||
+            !TryReadCssToken(ref body, out var lightness))
             return false;
-
-        var raw = match.Groups[1].Value.Replace("/", " ", StringComparison.Ordinal);
-        var parts = raw.Split([' ', ','], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length < 3)
+        if (hue.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
+            hue = hue[..^3];
+        if (!double.TryParse(hue, NumberStyles.Float, CultureInfo.InvariantCulture, out var h) ||
+            !double.TryParse(saturation.TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var s) ||
+            !double.TryParse(lightness.TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var l))
             return false;
-
-        if (!double.TryParse(parts[0].TrimEnd('d', 'e', 'g'), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) ||
-            !double.TryParse(parts[1].TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var s) ||
-            !double.TryParse(parts[2].TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out var l))
+        var alpha = 1d;
+        if (TryReadCssToken(ref body, out var alphaToken) &&
+            !double.TryParse(alphaToken, NumberStyles.Float, CultureInfo.InvariantCulture, out alpha))
             return false;
-
-        var alpha = parts.Length > 3 && double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedAlpha)
-            ? parsedAlpha
-            : 1d;
 
         color = (NormalizeHue(h), Math.Clamp(s, 0, 100), Math.Clamp(l, 0, 100), Math.Clamp(alpha, 0, 1));
         return true;
     }
+
+    private static bool TryGetFunctionBody(string input, string name, string alternateName, out ReadOnlySpan<char> body)
+    {
+        var value = input.AsSpan().Trim();
+        var openingParenthesis = value.IndexOf('(');
+        if (openingParenthesis <= 0 || value.Length < openingParenthesis + 2 || value[^1] != ')')
+        {
+            body = default;
+            return false;
+        }
+
+        var functionName = value[..openingParenthesis].Trim();
+        if (!functionName.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+            !functionName.Equals(alternateName, StringComparison.OrdinalIgnoreCase))
+        {
+            body = default;
+            return false;
+        }
+
+        body = value[(openingParenthesis + 1)..^1];
+        return true;
+    }
+
+    private static bool TryReadCssToken(ref ReadOnlySpan<char> input, out ReadOnlySpan<char> token)
+    {
+        var start = 0;
+        while (start < input.Length && IsCssSeparator(input[start]))
+            start++;
+
+        if (start == input.Length)
+        {
+            input = default;
+            token = default;
+            return false;
+        }
+
+        var end = start;
+        while (end < input.Length && !IsCssSeparator(input[end]))
+            end++;
+
+        token = input[start..end];
+        input = input[end..];
+        return true;
+    }
+
+    private static bool IsCssSeparator(char value) => value == ',' || value == '/' || char.IsWhiteSpace(value);
 
     private static string HslToHex(double h, double s, double l)
     {

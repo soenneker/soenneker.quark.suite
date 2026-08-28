@@ -1,0 +1,343 @@
+@page "/components/charts"
+
+<PageTitle>Charts - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <DemoSection Title="Usage dashboard chart"
+                 Description="A compact dashboard sparkline with composable header controls, monotone series, terminal markers, and a shared tooltip."
+                 Code="@UsageCode"
+                 CodeLanguage="razor">
+        <TooltipProvider DelayDuration="100">
+            <Chart Labels="@UsageLabels" Series="@UsageSeries" Options="@UsageOptions" AriaLabel="Total token usage over seven days"
+                   Class="dark w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-[#202020] px-2 pb-2 text-white shadow-sm">
+                <HeaderContent>
+                    <div class="flex items-start justify-between gap-4 px-3 pt-5">
+                        <div>
+                            <Anchor Href="#usage-details" Class="text-sm text-white/60 no-underline transition-colors hover:text-white focus-visible:text-white">
+                                Total tokens <span aria-hidden="true">›</span>
+                            </Anchor>
+                            <div class="mt-1 text-2xl font-semibold tracking-tight">607,262</div>
+                        </div>
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
+                                        Class="text-white/60 hover:bg-white/10 hover:text-white focus-visible:ring-white/70"
+                                        aria-label="About total tokens">
+                                    <Icon Name="LucideIcon.Info" Class="size-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent Side="Side.Left">Includes input and cached tokens.</TooltipContent>
+                        </Tooltip>
+                    </div>
+                </HeaderContent>
+            </Chart>
+        </TooltipProvider>
+    </DemoSection>
+
+    <DemoSection Title="Line chart"
+                 Description="Responsive, smooth line series with shared hover tooltips, keyboard-accessible points, and legend toggling."
+                 Code="@LineCode"
+                 CodeLanguage="razor">
+        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+            <div class="mb-4">
+                <div class="text-sm font-medium">API requests</div>
+                <div class="text-xs text-muted-foreground">Last seven days</div>
+            </div>
+            <Chart Labels="@WeekLabels" Series="@LineSeries" Options="@LineOptions" AriaLabel="API requests over the last seven days" />
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Area chart with gradients"
+                 Description="Areas accept native CSS colors and SVG gradients, including theme variables, hex, RGB, HSL, and OKLCH."
+                 Code="@AreaCode"
+                 CodeLanguage="razor">
+        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+            <div class="mb-2 text-sm font-medium">Response volume</div>
+            <Chart Type="ChartType.Area" Labels="@WeekLabels" XValues="@IrregularDayOffsets" Series="@AreaSeries" Options="@AreaOptions" AriaLabel="Response volume" />
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Grouped and stacked bars"
+                 Description="Bar charts can be grouped or stacked with positive and negative values, rounded corners, custom spacing, and mixed-series support."
+                 Code="@BarCode"
+                 CodeLanguage="razor">
+        <div class="grid w-full gap-4 lg:grid-cols-2">
+            <div class="rounded-xl border bg-card p-4">
+                <div class="mb-2 text-sm font-medium">Grouped revenue</div>
+                <Chart Type="ChartType.Bar" Labels="@QuarterLabels" Series="@BarSeries" Options="@BarOptions" AriaLabel="Grouped quarterly revenue" />
+            </div>
+            <div class="rounded-xl border bg-card p-4">
+                <div class="mb-2 text-sm font-medium">Stacked revenue</div>
+                <Chart Type="ChartType.Bar" Labels="@QuarterLabels" Series="@BarSeries" Options="@StackedBarOptions" AriaLabel="Stacked quarterly revenue" />
+            </div>
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Pie chart"
+                 Description="Radial charts reuse the same labels and series model, with per-slice palettes and precise value formatting."
+                 Code="@PieCode"
+                 CodeLanguage="razor">
+        <div class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
+            <Chart Type="ChartType.Pie" Labels="@ChannelLabels" Series="@ChannelSeries" Options="@RadialOptions" AriaLabel="Traffic by channel" />
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Donut chart"
+                 Description="Donuts expose their center as normal Blazor content and support selection callbacks for interactive dashboards."
+                 Code="@DonutCode"
+                 CodeLanguage="razor">
+        <div class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
+            <Chart Type="ChartType.Donut" Labels="@ChannelLabels" Series="@ChannelSeries" Options="@DonutOptions" OnSelect="HandleSelection" AriaLabel="Traffic by channel">
+                <DonutContent>
+                    <div>
+                        <div class="text-2xl font-semibold">24.8k</div>
+                        <div class="text-xs text-muted-foreground">visitors</div>
+                    </div>
+                </DonutContent>
+            </Chart>
+            @if (_selection is not null)
+            {
+                <div class="mt-2 text-center text-xs text-muted-foreground">Selected @_selection.Label: @_selection.Value.ToString("N0")</div>
+            }
+        </div>
+    </DemoSection>
+
+    <DemoSection Title="Mixed series and custom tooltip"
+                 Description="Override the type per series and supply any RenderFragment as the tooltip while keeping chart geometry and interactions built in."
+                 Code="@MixedCode"
+                 CodeLanguage="razor">
+        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+            <Chart Type="ChartType.Bar" Labels="@WeekLabels" Series="@MixedSeries" Options="@MixedOptions" AriaLabel="Requests and latency">
+                <TooltipTemplate Context="point">
+                    <div class="font-medium">@point.Label</div>
+                    @foreach (var row in point.Rows)
+                    {
+                        <div class="mt-1 flex items-center gap-2">
+                            <span class="size-2 rounded-sm" style="background:@row.Color"></span>
+                            <span>@row.Series</span>
+                            <strong class="ml-auto">@row.Value.ToString("N0")</strong>
+                        </div>
+                    }
+                </TooltipTemplate>
+            </Chart>
+        </div>
+    </DemoSection>
+</Div>
+
+@code {
+    private static readonly string[] WeekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    private static readonly string[] UsageLabels = ["Aug 20", "Aug 21", "Aug 22", "Aug 23", "Aug 24", "Aug 25", "Aug 26"];
+    private static readonly double[] IrregularDayOffsets = [0, 1, 2, 4, 5, 8, 9];
+    private static readonly string[] QuarterLabels = ["Q1", "Q2", "Q3", "Q4"];
+    private static readonly string[] ChannelLabels = ["Organic", "Direct", "Social", "Referral", "Email"];
+    private ChartSelection? _selection;
+
+    private static readonly ChartSeries[] UsageSeries =
+    [
+        new("Input tokens", new double[] { 520, 120, 90, 410, 250, 390, 330 }) { Color = "#ff6a21", StrokeWidth = 2.5 },
+        new("Cached tokens", new double[] { 290, 120, 95, 210, 160, 170, 105 }) { Color = "#e91e63", StrokeWidth = 2.5 }
+    ];
+
+    private static readonly ChartOptions UsageOptions = new()
+    {
+        Height = 150,
+        PaddingTop = 12,
+        PaddingRight = 22,
+        PaddingBottom = 12,
+        PaddingLeft = 22,
+        ShowGrid = false,
+        ShowXAxis = false,
+        ShowYAxis = false,
+        ShowPoints = false,
+        ShowEndPoints = true,
+        ShowCursor = false,
+        IncludeZero = false,
+        Legend = ChartLegendPosition.None,
+        Curve = ChartCurve.Monotone,
+        PointRadius = 4,
+        PointFill = "#202020",
+        ValueFormatter = value => value.ToString("N0")
+    };
+
+    private static readonly ChartSeries[] LineSeries =
+    [
+        new("Requests", new double[] { 320, 410, 380, 590, 650, 610, 780 }) { Color = "#7c5cff", StrokeWidth = 3 },
+        new("Cached", new double[] { 210, 280, 310, 420, 510, 505, 630 }) { Color = "#00bfa6", StrokeWidth = 2.5 }
+    ];
+
+    private static readonly ChartOptions LineOptions = new()
+    {
+        Height = 300,
+        Curve = ChartCurve.Monotone,
+        ValueFormatter = value => value.ToString("N0")
+    };
+
+    private static readonly ChartSeries[] AreaSeries =
+    [
+        new("Responses", new double[] { 18, 32, 27, 46, 61, 57, 74 })
+        {
+            Color = "#8b5cf6",
+            Gradient = new ChartGradient("#8b5cf6", "#8b5cf6") { StartOpacity = 0.65, EndOpacity = 0.02 },
+            FillOpacity = 0.9
+        }
+    ];
+
+    private static readonly ChartOptions AreaOptions = new()
+    {
+        Height = 280,
+        ShowPoints = false,
+        Legend = ChartLegendPosition.None,
+        IncludeZero = false
+    };
+
+    private static readonly ChartSeries[] BarSeries =
+    [
+        new("Platform", new double[] { 48, 62, 71, 86 }) { Color = "#7c5cff", Gradient = new ChartGradient("#9b87ff", "#6243dc") { Horizontal = true, EndOpacity = 1 } },
+        new("Usage", new double[] { 31, 42, 54, 61 }) { Color = "#00bfa6", Gradient = new ChartGradient("#27dbc1", "#009b88") { Horizontal = true, EndOpacity = 1 } }
+    ];
+
+    private static readonly ChartOptions BarOptions = new() { Height = 290, Unit = "k", ShowPoints = false };
+    private static readonly ChartOptions StackedBarOptions = new() { Height = 290, Unit = "k", ShowPoints = false, Stacked = true };
+
+    private static readonly ChartSeries[] ChannelSeries =
+    [
+        new("Visitors", new double[] { 9300, 6100, 4200, 3100, 2100 })
+        {
+            SliceGradients =
+            [
+                new("#9b87ff", "#6243dc") { Horizontal = true, EndOpacity = 1 },
+                new("#27dbc1", "#009b88") { Horizontal = true, EndOpacity = 1 },
+                new("#ff9a65", "#ff6230") { Horizontal = true, EndOpacity = 1 },
+                new("#60a5fa", "#2563eb") { Horizontal = true, EndOpacity = 1 },
+                new("#f472b6", "#db2777") { Horizontal = true, EndOpacity = 1 }
+            ]
+        }
+    ];
+
+    private static readonly string[] RadialPalette = ["#7c5cff", "#00bfa6", "#ff7a45", "#3b82f6", "#ec4899"];
+    private static readonly ChartOptions RadialOptions = new() { Height = 340, Palette = RadialPalette, ValueFormatter = value => value.ToString("N0") };
+    private static readonly ChartOptions DonutOptions = new() { Height = 340, Palette = RadialPalette, DonutThickness = 0.3, ValueFormatter = value => value.ToString("N0") };
+
+    private static readonly ChartSeries[] MixedSeries =
+    [
+        new("Requests", new double[] { 320, 410, 380, 590, 650, 610, 780 }) { Color = "#7c5cff" },
+        new("Latency", new double[] { 180, 165, 172, 148, 140, 155, 132 }) { Type = ChartType.Line, Color = "#00bfa6", StrokeWidth = 3, ShowPoints = false }
+    ];
+
+    private static readonly ChartOptions MixedOptions = new() { Height = 300, Curve = ChartCurve.Smooth };
+
+    private Task HandleSelection(ChartSelection selection)
+    {
+        _selection = selection;
+        return Task.CompletedTask;
+    }
+
+    private const string LineCode = """
+<Chart Labels="@labels" Series="@series" Options="@options" />
+
+@code {
+    string[] labels = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    ChartSeries[] series =
+    [
+        new("Requests", new double[] { 320, 410, 380, 590, 650 }) { Color = "#7c5cff" },
+        new("Cached", new double[] { 210, 280, 310, 420, 510 }) { Color = "#00bfa6" }
+    ];
+    ChartOptions options = new() { Curve = ChartCurve.Smooth };
+}
+""";
+
+    private const string UsageCode = """
+<Chart Labels="@labels" Series="@series" Options="@options"
+       Class="dark rounded-xl bg-[#202020] text-white">
+    <HeaderContent>
+        <div class="flex items-start justify-between px-5 pt-5">
+            <div>
+                <Anchor Href="/usage">Total tokens ›</Anchor>
+                <div class="text-2xl font-semibold">607,262</div>
+            </div>
+            <Tooltip>
+                <TooltipTrigger AsChild="true">
+                    <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
+                            aria-label="About total tokens">ⓘ</Button>
+                </TooltipTrigger>
+                <TooltipContent>Includes input and cached tokens.</TooltipContent>
+            </Tooltip>
+        </div>
+    </HeaderContent>
+    <OverlayContent Context="overlay">
+        <a class="pointer-events-auto" style="@overlay.Style(3, 410)" href="/details">Details</a>
+    </OverlayContent>
+</Chart>
+
+@code {
+    ChartOptions options = new()
+    {
+        Height = 150,
+        ShowGrid = false,
+        ShowXAxis = false,
+        ShowYAxis = false,
+        ShowPoints = false,
+        ShowEndPoints = true,
+        ShowCursor = false,
+        IncludeZero = false,
+        Legend = ChartLegendPosition.None,
+        PointFill = "#202020"
+    };
+}
+""";
+
+    private const string AreaCode = """
+<Chart Type="ChartType.Area" Labels="@labels" XValues="@unixMilliseconds" Series="@series" />
+
+@code {
+    double[] unixMilliseconds = [1724112000000, 1724198400000, 1724284800000];
+    ChartSeries[] series =
+    [
+        new("Responses", values)
+        {
+            Color = "#8b5cf6",
+            Gradient = new("#8b5cf6", "#8b5cf6") { StartOpacity = .65, EndOpacity = .02 }
+        }
+    ];
+}
+""";
+
+    private const string BarCode = """
+<Chart Type="ChartType.Bar" Labels="@quarters" Series="@revenue" />
+<Chart Type="ChartType.Bar" Labels="@quarters" Series="@revenue"
+       Options="@(new ChartOptions { Stacked = true })" />
+""";
+
+    private const string PieCode = """
+<Chart Type="ChartType.Pie" Labels="@channels" Series="@traffic"
+       Options="@(new ChartOptions { Palette = [\"#7c5cff\", \"#00bfa6\", \"#ff7a45\"] })" />
+""";
+
+    private const string DonutCode = """
+<Chart Type="ChartType.Donut" Labels="@channels" Series="@traffic" OnSelect="HandleSelection">
+    <DonutContent>
+        <div><strong>24.8k</strong><small>visitors</small></div>
+    </DonutContent>
+</Chart>
+""";
+
+    private const string MixedCode = """
+<Chart Type="ChartType.Bar" Labels="@labels" Series="@mixed">
+    <TooltipTemplate Context="point">
+        <strong>@point.Label</strong>
+        @foreach (var row in point.Rows)
+        {
+            <span>@row.Series: @row.Value</span>
+        }
+    </TooltipTemplate>
+</Chart>
+
+@code {
+    ChartSeries[] mixed =
+    [
+        new("Requests", requests),
+        new("Latency", latency) { Type = ChartType.Line, Color = "#00bfa6" }
+    ];
+}
+""";
+}

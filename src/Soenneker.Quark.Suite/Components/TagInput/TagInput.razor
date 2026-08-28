@@ -62,6 +62,15 @@
     private int _activeAutocompleteIndex = -1;
     private bool _preventDefaultKeys;
     private bool _isFocused;
+    private QuarkAttributeDictionary _inputContainerAttributeBuffer;
+    private QuarkAttributeDictionary _tagListAttributeBuffer;
+    private QuarkAttributeDictionary _inputAttributeBuffer;
+    private QuarkAttributeDictionary _autocompleteAttributeBuffer;
+    private QuarkAttributeDictionary _footerAttributeBuffer;
+    private QuarkAttributeDictionary _clearAllAttributeBuffer;
+    private QuarkAttributeDictionary[] _tagAttributeBuffers = [];
+    private QuarkAttributeDictionary[] _removeButtonAttributeBuffers = [];
+    private QuarkAttributeDictionary[] _autocompleteItemAttributeBuffers = [];
 
     [Parameter]
     public string[] Values { get; set; } = [];
@@ -715,11 +724,9 @@
 
     private Dictionary<string, object> BuildInputContainerAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = InlineTags ? "tag-input-inline-container" : "tag-input-field-container",
-            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => _inputRef.FocusAsync())
-        };
+        var attributes = _inputContainerAttributeBuffer.Create(4);
+        attributes["data-slot"] = InlineTags ? "tag-input-inline-container" : "tag-input-field-container";
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => _inputRef.FocusAsync());
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -738,11 +745,9 @@
 
     private Dictionary<string, object> BuildTagListAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "tag-input-list",
-            ["role"] = "list"
-        };
+        var attributes = _tagListAttributeBuffer.Create(4);
+        attributes["data-slot"] = "tag-input-list";
+        attributes["role"] = "list";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -763,13 +768,12 @@
     private Dictionary<string, object> BuildTagAttributes(int index)
     {
         var tag = Values[index];
-        var attributes = new Dictionary<string, object>(6)
-        {
-            ["data-slot"] = "tag-input-tag",
-            ["data-active"] = CurrentActiveTagIndex == index ? "true" : "false",
-            ["role"] = "listitem",
-            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, index))
-        };
+        EnsureAttributeBufferCapacity(ref _tagAttributeBuffers, index + 1);
+        var attributes = _tagAttributeBuffers[index].Create(6);
+        attributes["data-slot"] = "tag-input-tag";
+        attributes["data-active"] = CurrentActiveTagIndex == index ? "true" : "false";
+        attributes["role"] = "listitem";
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, index));
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -786,12 +790,11 @@
 
     private Dictionary<string, object> BuildRemoveButtonAttributes(string tag, int index)
     {
-        var attributes = new Dictionary<string, object>(6)
-        {
-            ["data-slot"] = "tag-input-tag-remove",
-            ["aria-label"] = $"Remove {tag}",
-            ["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => RemoveTagAt(index, moveToPrevious: true))
-        };
+        EnsureAttributeBufferCapacity(ref _removeButtonAttributeBuffers, index + 1);
+        var attributes = _removeButtonAttributeBuffers[index].Create(6);
+        attributes["data-slot"] = "tag-input-tag-remove";
+        attributes["aria-label"] = $"Remove {tag}";
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => RemoveTagAt(index, moveToPrevious: true));
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -803,15 +806,13 @@
 
     private Dictionary<string, object> BuildInputAttributes(bool shouldRenderAutocomplete)
     {
-        var attributes = new Dictionary<string, object>(16)
-        {
-            ["data-slot"] = "tag-input-input",
-            ["type"] = "text",
-            ["autocomplete"] = "off",
-            ["placeholder"] = Values.Length == 0 || !InlineTags ? EffectivePlaceholder : string.Empty,
-            ["aria-expanded"] = shouldRenderAutocomplete ? "true" : "false",
-            ["aria-autocomplete"] = EnableAutocomplete ? "list" : "none"
-        };
+        var attributes = _inputAttributeBuffer.Create(16);
+        attributes["data-slot"] = "tag-input-input";
+        attributes["type"] = "text";
+        attributes["autocomplete"] = "off";
+        attributes["placeholder"] = Values.Length == 0 || !InlineTags ? EffectivePlaceholder : string.Empty;
+        attributes["aria-expanded"] = shouldRenderAutocomplete ? "true" : "false";
+        attributes["aria-autocomplete"] = EnableAutocomplete ? "list" : "none";
 
         if (Disabled || IsFull)
             attributes["disabled"] = true;
@@ -841,11 +842,9 @@
 
     private Dictionary<string, object> BuildAutocompleteAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "tag-input-autocomplete",
-            ["role"] = "listbox"
-        };
+        var attributes = _autocompleteAttributeBuffer.Create(4);
+        attributes["data-slot"] = "tag-input-autocomplete";
+        attributes["role"] = "listbox";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -860,12 +859,11 @@
 
     private Dictionary<string, object> BuildAutocompleteItemAttributes(int index)
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "tag-input-autocomplete-item",
-            ["data-active"] = index == _activeAutocompleteIndex ? "true" : "false",
-            ["role"] = "option"
-        };
+        EnsureAttributeBufferCapacity(ref _autocompleteItemAttributeBuffers, index + 1);
+        var attributes = _autocompleteItemAttributeBuffers[index].Create(4);
+        attributes["data-slot"] = "tag-input-autocomplete-item";
+        attributes["data-active"] = index == _activeAutocompleteIndex ? "true" : "false";
+        attributes["role"] = "option";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -877,10 +875,8 @@
 
     private Dictionary<string, object> BuildFooterAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "tag-input-footer"
-        };
+        var attributes = _footerAttributeBuffer.Create(4);
+        attributes["data-slot"] = "tag-input-footer";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -892,10 +888,8 @@
 
     private Dictionary<string, object> BuildClearAllAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-slot"] = "tag-input-clear-all"
-        };
+        var attributes = _clearAllAttributeBuffer.Create(4);
+        attributes["data-slot"] = "tag-input-clear-all";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -903,6 +897,15 @@
         });
 
         return attributes;
+    }
+
+    private static void EnsureAttributeBufferCapacity(ref QuarkAttributeDictionary[] buffers, int requiredLength)
+    {
+        if (buffers.Length >= requiredLength)
+            return;
+
+        var nextLength = Math.Max(requiredLength, Math.Max(4, buffers.Length * 2));
+        Array.Resize(ref buffers, nextLength);
     }
 
     private string GetTagVariantClass()

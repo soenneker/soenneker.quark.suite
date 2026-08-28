@@ -1,0 +1,1147 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()" @onpointerleave="ClearHover">
+    @if (HeaderContent is not null)
+    {
+        <div class="quark-chart-header" data-slot="chart-header">
+            @HeaderContent
+        </div>
+    }
+
+    @if (Options.Legend == ChartLegendPosition.Top)
+    {
+        @LegendContent
+    }
+
+    @if (!HasData)
+    {
+        <div class="quark-chart-empty grid min-h-48 place-items-center rounded-lg border border-dashed text-sm text-muted-foreground" role="status">@Options.EmptyText</div>
+    }
+    else
+    {
+        <div class="quark-chart-stage relative min-h-40 w-full" style="@StageStyle">
+            <svg viewBox="@ViewBox" role="img" aria-label="@(AriaLabel ?? "Chart")" preserveAspectRatio="xMidYMid meet" class="h-full w-full overflow-visible">
+                <defs>
+                    @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+                    {
+                        var gradient = Series[seriesIndex].Gradient;
+                        if (gradient is not null)
+                        {
+                            <linearGradient id="@GradientId(seriesIndex)" x1="0%" y1="0%" x2="@(gradient.Horizontal ? "100%" : "0%")" y2="@(gradient.Horizontal ? "0%" : "100%")">
+                                <stop offset="0%" stop-color="@gradient.StartColor" stop-opacity="@F(gradient.StartOpacity)" />
+                                <stop offset="100%" stop-color="@gradient.EndColor" stop-opacity="@F(gradient.EndOpacity)" />
+                            </linearGradient>
+                        }
+                    }
+                    @if (IsRadial && Series.Count > 0 && Series[0].SliceGradients is not null)
+                    {
+                        @for (var sliceIndex = 0; sliceIndex < PointCount; sliceIndex++)
+                        {
+                            var sliceGradient = SliceGradient(sliceIndex);
+                            if (sliceGradient is not null)
+                            {
+                                <linearGradient id="@SliceGradientId(sliceIndex)" x1="0%" y1="0%" x2="@(sliceGradient.Horizontal ? "100%" : "0%")" y2="@(sliceGradient.Horizontal ? "0%" : "100%")">
+                                    <stop offset="0%" stop-color="@sliceGradient.StartColor" stop-opacity="@F(sliceGradient.StartOpacity)" />
+                                    <stop offset="100%" stop-color="@sliceGradient.EndColor" stop-opacity="@F(sliceGradient.EndOpacity)" />
+                                </linearGradient>
+                            }
+                        }
+                    }
+                </defs>
+
+                @if (IsRadial)
+                {
+                    var total = RadialTotal;
+                    double angle = -90;
+                    var cx = Options.Width / 2;
+                    var cy = Options.Height / 2;
+                    var radius = Math.Max(1, Math.Min(Options.Width, Options.Height) / 2 - 18);
+
+                    @for (var index = 0; index < PointCount; index++)
+                    {
+                        var value = RadialValue(index);
+                        var sweep = total <= 0 ? 0 : value / total * 360;
+                        var sliceIndex = index;
+                        var path = ArcPath(cx, cy, radius, angle, sweep, Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0);
+
+                        if (sweep > 0)
+                        {
+                            <path d="@path"
+                                  fill="@SliceFill(sliceIndex)"
+                                  fill-opacity="@F(Series[0].FillOpacity)"
+                                  class="@AnimationClass"
+                                  data-slot="chart-slice"
+                                  data-active="@(_hoveredIndex == sliceIndex ? "true" : null)"
+                                  tabindex="0"
+                                  role="button"
+                                  aria-label="@SliceAriaLabel(sliceIndex)"
+                                  @onpointerenter="() => HoverSlice(sliceIndex)"
+                                  @onpointerdown="() => HoverSlice(sliceIndex)"
+                                  @onfocus="() => HoverSlice(sliceIndex)"
+                                  @onblur="ClearHover"
+                                  @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)"
+                                  @onclick="() => SelectSlice(sliceIndex)" />
+                        }
+
+                        angle += sweep;
+                    }
+
+                    @if (Type == ChartType.Donut && DonutContent is not null)
+                    {
+                        <foreignObject x="@(cx - radius * 0.48)" y="@(cy - radius * 0.25)" width="@(radius * 0.96)" height="@(radius * 0.5)" class="quark-chart-donut-content pointer-events-none overflow-visible">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 class="flex h-full w-full items-center justify-center text-center"
+                                 style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;text-align:center">
+                                @DonutContent
+                            </div>
+                        </foreignObject>
+                    }
+                }
+                else
+                {
+                    @if (Options.ShowGrid)
+                    {
+                        @for (var tick = 0; tick < TickCount; tick++)
+                        {
+                            var y = TickY(tick);
+                            <line x1="@F(PlotLeft)" y1="@F(y)" x2="@F(PlotRight)" y2="@F(y)" class="quark-chart-grid" style="stroke:var(--border);stroke-width:1;vector-effect:non-scaling-stroke" />
+                        }
+                    }
+
+                    @if (Options.ShowYAxis)
+                    {
+                        @for (var tick = 0; tick < TickCount; tick++)
+                        {
+                            var y = TickY(tick);
+                            <g transform="translate(@F(PlotLeft - 10) @F(y))" class="quark-chart-axis-label" style="fill:var(--muted-foreground);font-size:11px;user-select:none" text-anchor="end" dominant-baseline="middle"><text>@Options.FormatValue(TickValue(tick))</text></g>
+                        }
+                    }
+
+                    @if (Options.ShowXAxis)
+                    {
+                        @for (var index = 0; index < PointCount; index++)
+                        {
+                            if (ShouldRenderXAxisLabel(index))
+                            {
+                                <g transform="translate(@F(CategoryCenter(index)) @F(PlotBottom + 22)) rotate(@F(Options.XAxisLabelRotation))" class="quark-chart-axis-label" style="fill:var(--muted-foreground);font-size:11px;user-select:none" text-anchor="@XAxisTextAnchor"><text>@Options.FormatLabel(LabelAt(index))</text></g>
+                            }
+                        }
+                    }
+
+                    @if (Options.ShowTooltip || Options.ShowCursor)
+                    {
+                        @for (var index = 0; index < PointCount; index++)
+                        {
+                            var currentIndex = index;
+                            <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-hit-area"
+                                  @onpointerenter="() => HoverCategory(currentIndex)" @onpointerdown="() => HoverCategory(currentIndex)" />
+                        }
+                    }
+
+                    @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+                    {
+                        var series = Series[seriesIndex];
+                        var seriesType = series.Type ?? Type;
+                        var color = SeriesColor(seriesIndex);
+                        var currentSeries = seriesIndex;
+
+                        if (!IsSeriesHidden(seriesIndex))
+                        {
+                            @if (seriesType == ChartType.Bar)
+                            {
+                                @for (var index = 0; index < PointCount; index++)
+                                {
+                                    var value = ValueAt(series, index);
+                                    if (value is not null)
+                                    {
+                                        var bar = GetBarRect(currentSeries, index, value.Value);
+                                        var currentIndex = index;
+                                        <rect x="@F(bar.X)" y="@F(bar.Y)" width="@F(bar.Width)" height="@F(bar.Height)"
+                                              rx="@F(Math.Min(Options.BarRadius, bar.Width / 2))"
+                                              fill="@SeriesFill(currentSeries)"
+                                              fill-opacity="@F(series.FillOpacity)"
+                                              class="@AnimationClass"
+                                              data-slot="chart-bar"
+                                              data-active="@(IsActive(currentSeries, currentIndex) ? "true" : null)"
+                                              tabindex="0"
+                                              role="button"
+                                              aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)"
+                                              @onpointerenter="() => HoverPoint(currentIndex, currentSeries)"
+                                              @onpointerdown="() => HoverPoint(currentIndex, currentSeries)"
+                                              @onfocus="() => HoverPoint(currentIndex, currentSeries)"
+                                              @onblur="ClearHover"
+                                              @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)"
+                                              @onclick="() => SelectPoint(currentIndex, currentSeries)" />
+                                    }
+                                }
+                            }
+                            else if (seriesType == ChartType.Line || seriesType == ChartType.Area)
+                            {
+                                @if (seriesType == ChartType.Area)
+                                {
+                                    <path d="@AreaPath(currentSeries)" fill="@SeriesFill(currentSeries)" fill-opacity="@F(series.FillOpacity * 0.36)" class="@AnimationClass" data-slot="chart-area" />
+                                }
+
+                                <path d="@LinePath(currentSeries)" fill="none" stroke="@color" stroke-width="@F(series.StrokeWidth)" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" class="@AnimationClass" data-slot="chart-line" />
+
+                                @if (ShouldRenderAnyMarkers(series))
+                                {
+                                    @for (var index = 0; index < PointCount; index++)
+                                    {
+                                        var value = ValueAt(series, index);
+                                        if (value is not null && ShouldRenderMarker(series, index))
+                                        {
+                                            var currentIndex = index;
+                                            <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(IsActive(currentSeries, currentIndex) ? Options.ActivePointRadius : Options.PointRadius)"
+                                                    fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke"
+                                                    class="quark-chart-point cursor-pointer outline-none transition-all motion-reduce:transition-none" data-active="@(IsActive(currentSeries, currentIndex) ? "true" : null)"
+                                                    tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)"
+                                                    @onpointerenter="() => HoverPoint(currentIndex, currentSeries)"
+                                                    @onpointerdown="() => HoverPoint(currentIndex, currentSeries)"
+                                                    @onfocus="() => HoverPoint(currentIndex, currentSeries)"
+                                                    @onblur="ClearHover"
+                                                    @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)"
+                                                    @onclick="() => SelectPoint(currentIndex, currentSeries)" />
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    @if (Options.ShowCursor && _hoveredIndex is not null)
+                    {
+                        <line x1="@F(CategoryCenter(_hoveredIndex.Value))" y1="@F(PlotTop)" x2="@F(CategoryCenter(_hoveredIndex.Value))" y2="@F(PlotBottom)" class="quark-chart-cursor pointer-events-none opacity-50" style="stroke:var(--muted-foreground);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke" />
+                    }
+                }
+            </svg>
+
+            @if (OverlayContent is not null)
+            {
+                <div class="quark-chart-overlay pointer-events-none absolute inset-0" data-slot="chart-overlay">
+                    @OverlayContent(OverlayContext)
+                </div>
+            }
+
+            @if (Options.ShowTooltip && _hoveredIndex is not null)
+            {
+                <div class="quark-chart-tooltip pointer-events-none absolute z-10 min-w-36 rounded-md border bg-popover px-2.5 py-2 text-xs leading-tight text-popover-foreground shadow-xl" style="@TooltipStyle" role="status">
+                    @if (TooltipTemplate is not null && TooltipContext is not null)
+                    {
+                        @TooltipTemplate(TooltipContext)
+                    }
+                    else
+                    {
+                        <div class="quark-chart-tooltip-label mb-2 font-medium text-muted-foreground">@Options.FormatLabel(LabelAt(_hoveredIndex.Value))</div>
+                        @foreach (var row in TooltipRows)
+                        {
+                            <div class="quark-chart-tooltip-row mt-1 grid grid-cols-[0.55rem_minmax(4rem,1fr)_auto] items-center gap-2">
+                                <span class="quark-chart-tooltip-swatch inline-block size-2 rounded-sm" style="background:@row.Color"></span>
+                                <span class="quark-chart-tooltip-name whitespace-nowrap">@row.Series</span>
+                                <strong>@Options.FormatValue(row.Value)</strong>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+
+        <table class="quark-chart-sr-only sr-only">
+            <caption>@(AriaLabel ?? "Chart data")</caption>
+            <thead><tr><th>Label</th>@foreach (var series in AccessibleSeries){<th>@series.Name</th>}</tr></thead>
+            <tbody>
+                @for (var index = 0; index < PointCount; index++)
+                {
+                    <tr><th>@LabelAt(index)</th>@foreach (var series in AccessibleSeries){<td>@(ValueAt(series, index)?.ToString() ?? "")</td>}</tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (Options.Legend == ChartLegendPosition.Bottom)
+    {
+        @LegendContent
+    }
+
+    @if (FooterContent is not null)
+    {
+        <div class="quark-chart-footer" data-slot="chart-footer">
+            @FooterContent
+        </div>
+    }
+</div>
+
+@code {
+    private readonly string _instanceId = $"quark-chart-{Guid.NewGuid():N}";
+    private readonly HashSet<int> _hiddenSeries = [];
+    private int? _hoveredIndex;
+    private int? _hoveredSeries;
+    private double _minimum;
+    private double _maximum = 1;
+    private double _xMinimum;
+    private double _xMaximum = 1;
+    private bool _useContinuousX;
+    private double[] _tickValues = [1, 0];
+    private int[] _barSeries = [];
+    private int _barSeriesCount;
+    private readonly Dictionary<int, int> _barSeriesPositions = [];
+    private readonly Dictionary<int, string> _linePaths = [];
+    private readonly Dictionary<int, string> _areaPaths = [];
+    private readonly List<ChartTooltipRow> _tooltipRows = [];
+    private IReadOnlyList<ChartSeries>? _initializedSeries;
+    private IReadOnlyList<ChartSeries> _accessibleSeries = [];
+    private readonly ChartSeries[] _radialAccessibleSeries = new ChartSeries[1];
+    private string[] _legendNames = [];
+    private ChartTooltipContext? _tooltipContext;
+    private ChartOverlayContext? _overlayContext;
+    private RenderFragment? _legendContent;
+    private int _pointCount;
+    private double _radialTotal;
+    private bool _hasData;
+    private string _viewBox = "0 0 800 320";
+    private string _stageStyle = "aspect-ratio:800/320";
+
+    /// <summary>
+    /// Gets or sets the data series to render. This parameter is required.
+    /// </summary>
+    /// <remarks>
+    /// Values at the same index share a category. Null values create gaps in line and area series and are skipped by bars.
+    /// Pie and donut charts use the first series and treat its non-negative values as slices.
+    /// </remarks>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ChartSeries> Series { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets category or slice labels in the same order as the series values.
+    /// </summary>
+    /// <remarks>
+    /// When fewer labels than values are supplied, missing labels fall back to one-based numbers. Labels are passed through
+    /// <see cref="ChartOptions.LabelFormatter"/> for visible axes and tooltips.
+    /// </remarks>
+    [Parameter]
+    public IReadOnlyList<string> Labels { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets optional numeric x coordinates corresponding to category indexes.
+    /// </summary>
+    /// <remarks>
+    /// When supplied, points and bars are spaced proportionally instead of evenly. This supports numeric axes and time axes by passing a stable
+    /// numeric representation such as Unix milliseconds while continuing to use <see cref="Labels"/> for display text. Values must be finite,
+    /// strictly increasing, and cover every rendered point.
+    /// </remarks>
+    [Parameter]
+    public IReadOnlyList<double>? XValues { get; set; }
+
+    /// <summary>
+    /// Gets or sets the default rendering type for the chart. The default is <see cref="ChartType.Line"/>.
+    /// </summary>
+    /// <remarks>Cartesian series can override this value with <see cref="ChartSeries.Type"/> to create mixed charts.</remarks>
+    [Parameter]
+    public ChartType Type { get; set; } = ChartType.Line;
+
+    /// <summary>
+    /// Gets or sets the chart configuration. A default configuration is used when this parameter is omitted.
+    /// </summary>
+    [Parameter]
+    public ChartOptions Options { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets arbitrary content rendered above the legend and plot area.
+    /// </summary>
+    /// <remarks>
+    /// Use this slot to compose chart titles, values, links, buttons, tooltip triggers, badges, or other application-specific controls.
+    /// The chart does not impose layout or typography on the fragment.
+    /// </remarks>
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets arbitrary HTML content layered over the SVG plot area.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The fragment receives a <see cref="ChartOverlayContext"/> and is rendered inside an absolutely positioned wrapper that fills the chart stage.
+    /// Use <see cref="ChartOverlayContext.Style"/> to anchor content to a category and y value, or position elements directly with CSS.
+    /// </para>
+    /// <para>
+    /// The wrapper ignores pointer events so normal chart hover behavior remains available. Add <c>pointer-events-auto</c> to an overlay element
+    /// when it must be interactive, such as an anchor, button, popover, or tooltip trigger. The fragment is rendered only when the chart has data.
+    /// </para>
+    /// </remarks>
+    [Parameter]
+    public RenderFragment<ChartOverlayContext>? OverlayContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets arbitrary content rendered below the plot area and bottom legend.
+    /// </summary>
+    /// <remarks>Use this slot for captions, source links, status text, or chart-level actions.</remarks>
+    [Parameter]
+    public RenderFragment? FooterContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets custom content for the interactive tooltip.
+    /// </summary>
+    /// <remarks>
+    /// The template receives the active <see cref="ChartTooltipContext"/>, including all shared values in <see cref="ChartTooltipContext.Rows"/>.
+    /// When omitted, the built-in tooltip displays the category and every applicable visible series value. Tooltip visibility and sharing are
+    /// controlled by <see cref="ChartOptions.ShowTooltip"/> and <see cref="ChartOptions.SharedTooltip"/>.
+    /// </remarks>
+    [Parameter]
+    public RenderFragment<ChartTooltipContext>? TooltipTemplate { get; set; }
+
+    /// <summary>
+    /// Gets or sets content centered inside the ring of a <see cref="ChartType.Donut"/> chart.
+    /// </summary>
+    /// <remarks>The fragment is ignored for other chart types and does not receive pointer events, so it cannot block slice interaction.</remarks>
+    [Parameter]
+    public RenderFragment? DonutContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked when a user selects a bar, point, pie slice, or donut slice.
+    /// </summary>
+    /// <remarks>
+    /// The supplied <see cref="ChartSelection"/> identifies the label, series, numeric value, and zero-based category, slice, and series indexes.
+    /// </remarks>
+    [Parameter]
+    public EventCallback<ChartSelection> OnSelect { get; set; }
+
+    private bool IsRadial => Type == ChartType.Pie || Type == ChartType.Donut;
+    private bool HasData => _hasData;
+    private int PointCount => _pointCount;
+    private double PlotLeft => Options.PaddingLeft;
+    private double PlotRight => Options.Width - Options.PaddingRight;
+    private double PlotTop => Options.PaddingTop;
+    private double PlotBottom => Options.Height - Options.PaddingBottom;
+    private double PlotWidth => Math.Max(1, PlotRight - PlotLeft);
+    private double PlotHeight => Math.Max(1, PlotBottom - PlotTop);
+    private int TickCount => _tickValues.Length;
+    private string ViewBox => _viewBox;
+    private string StageStyle => _stageStyle;
+    private string AnimationClass => Options.Animate ? "quark-chart-mark animate-in fade-in zoom-in-95 duration-500 motion-reduce:animate-none" : "quark-chart-mark";
+    private double RadialTotal => _radialTotal;
+    private string XAxisTextAnchor => Options.XAxisLabelRotation > 0 ? "start" : Options.XAxisLabelRotation < 0 ? "end" : "middle";
+    private ChartOverlayContext OverlayContext => _overlayContext!;
+    private IReadOnlyList<ChartSeries> AccessibleSeries => _accessibleSeries;
+
+    private RenderFragment LegendContent => _legendContent ??= RenderLegend;
+
+    private void RenderLegend(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "quark-chart-legend flex flex-wrap justify-center gap-x-4 gap-y-1.5 px-1 py-2.5");
+        builder.AddAttribute(2, "aria-label", "Chart legend");
+        builder.AddAttribute(3, "role", "group");
+
+        for (var index = 0; index < _legendNames.Length; index++)
+        {
+            var itemIndex = index;
+            var interactive = !IsRadial && Options.ToggleSeriesFromLegend;
+            builder.OpenElement(10, interactive ? "button" : "span");
+            if (interactive)
+                builder.AddAttribute(11, "type", "button");
+            builder.AddAttribute(12, "class", $"quark-chart-legend-item inline-flex items-center gap-1.5 rounded-md text-xs text-muted-foreground transition-opacity data-[hidden=true]:opacity-35 data-[hidden=true]:line-through{(interactive ? " cursor-pointer hover:text-foreground" : "")}");
+            builder.AddAttribute(13, "data-hidden", !IsRadial && IsSeriesHidden(index) ? "true" : null);
+            if (interactive)
+                builder.AddAttribute(14, "onclick", EventCallback.Factory.Create(this, () => ToggleSeries(itemIndex)));
+            builder.OpenElement(15, "span");
+            builder.AddAttribute(16, "class", "quark-chart-legend-swatch inline-block size-2 rounded-sm");
+            builder.AddAttribute(17, "style", $"background:{(IsRadial ? SliceLegendBackground(index) : SeriesColor(index))}");
+            builder.CloseElement();
+            builder.OpenElement(18, "span");
+            builder.AddContent(19, _legendNames[index]);
+            builder.CloseElement();
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    }
+
+    private IReadOnlyList<ChartTooltipRow> TooltipRows => _tooltipRows;
+    private ChartTooltipContext? TooltipContext => _tooltipContext;
+
+    private string TooltipStyle
+    {
+        get
+        {
+            if (_hoveredIndex is null)
+                return "display:none";
+
+            var x = IsRadial ? 50 : CategoryCenter(_hoveredIndex.Value) / Options.Width * 100;
+            var y = IsRadial ? 50 : TooltipY(_hoveredIndex.Value) / Options.Height * 100;
+            var horizontal = x > 72 ? "-100%" : x < 28 ? "0" : "-50%";
+            var vertical = y < 28 ? "12px" : "-115%";
+            var shift = $"translate({horizontal},{vertical})";
+            return $"left:{F(x)}%;top:{F(y)}%;transform:{shift}";
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (!ReferenceEquals(_initializedSeries, Series))
+        {
+            _hiddenSeries.Clear();
+            for (var index = 0; index < Series.Count; index++)
+            {
+                if (Series[index].Hidden)
+                    _hiddenSeries.Add(index);
+            }
+            _initializedSeries = Series;
+        }
+
+        Recalculate();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "chart";
+        Width ??= Quark.Width.IsFull;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "quark-chart relative min-w-0 text-foreground"));
+    }
+
+    private void CalculateDomain()
+    {
+        var hasValue = false;
+        var minimum = double.PositiveInfinity;
+        var maximum = double.NegativeInfinity;
+        var hasStackedBars = false;
+
+        for (var index = 0; index < Series.Count; index++)
+        {
+            if (IsSeriesHidden(index))
+                continue;
+
+            if ((Series[index].Type ?? Type) == ChartType.Bar)
+                hasStackedBars = true;
+
+            for (var point = 0; point < Series[index].Values.Count; point++)
+            {
+                var value = ValueAt(Series[index], point);
+                if (value is null)
+                    continue;
+
+                hasValue = true;
+                minimum = Math.Min(minimum, value.Value);
+                maximum = Math.Max(maximum, value.Value);
+            }
+        }
+
+        if (Options.Stacked && hasStackedBars)
+        {
+            for (var point = 0; point < PointCount; point++)
+            {
+                var positive = 0d;
+                var negative = 0d;
+                for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+                {
+                    if (IsSeriesHidden(seriesIndex) || (Series[seriesIndex].Type ?? Type) != ChartType.Bar)
+                        continue;
+
+                    var value = ValueAt(Series[seriesIndex], point) ?? 0;
+                    if (value >= 0)
+                        positive += value;
+                    else
+                        negative += value;
+                }
+
+                hasValue = true;
+                minimum = Math.Min(minimum, negative);
+                maximum = Math.Max(maximum, positive);
+            }
+        }
+
+        _minimum = Options.Minimum ?? (hasValue ? minimum : 0);
+        _maximum = Options.Maximum ?? (hasValue ? maximum : 1);
+        if (Options.IncludeZero)
+        {
+            _minimum = Math.Min(0, _minimum);
+            _maximum = Math.Max(0, _maximum);
+        }
+        if (Math.Abs(_maximum - _minimum) < 0.0000001)
+        {
+            var padding = Math.Abs(_maximum) < 1 ? 1 : Math.Abs(_maximum) * 0.1;
+            _minimum -= padding;
+            _maximum += padding;
+        }
+    }
+
+    private void Recalculate()
+    {
+        CalculateDerivedDataState();
+        ValidateConfiguration();
+        PrepareXAxis();
+        CalculateDomain();
+        CalculateTicks();
+        RebuildGeometry();
+        _viewBox = $"0 0 {F(Options.Width)} {F(Options.Height)}";
+        _stageStyle = $"aspect-ratio:{F(Options.Width)}/{F(Options.Height)}";
+        _overlayContext = new ChartOverlayContext(Options.Width, Options.Height, PlotLeft, PlotTop, PlotRight, PlotBottom, CategoryCenter, ValueY);
+
+        if (_hoveredIndex >= PointCount)
+            ClearHover();
+        else
+            RebuildTooltipState();
+    }
+
+    private void CalculateDerivedDataState()
+    {
+        var maximumValueCount = 0;
+        var hasFiniteValue = false;
+        _radialTotal = 0;
+
+        for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+        {
+            var values = Series[seriesIndex].Values;
+            maximumValueCount = Math.Max(maximumValueCount, values.Count);
+            for (var valueIndex = 0; valueIndex < values.Count; valueIndex++)
+            {
+                var value = values[valueIndex];
+                if (value is not { } finiteValue || !double.IsFinite(finiteValue))
+                    continue;
+
+                hasFiniteValue = true;
+                if (IsRadial && seriesIndex == 0)
+                    _radialTotal += Math.Max(0, finiteValue);
+            }
+        }
+
+        _pointCount = IsRadial
+            ? Math.Max(Labels.Count, Series.Count == 0 ? 0 : Series[0].Values.Count)
+            : Math.Max(Labels.Count, maximumValueCount);
+        _hasData = IsRadial ? _radialTotal > 0 : Series.Count > 0 && _pointCount > 0 && hasFiniteValue;
+        if (IsRadial && Series.Count > 0)
+        {
+            _radialAccessibleSeries[0] = Series[0];
+            _accessibleSeries = _radialAccessibleSeries;
+        }
+        else
+        {
+            _accessibleSeries = IsRadial ? Array.Empty<ChartSeries>() : Series;
+        }
+
+        var legendCount = IsRadial ? _pointCount : Series.Count;
+        if (_legendNames.Length != legendCount)
+            Array.Resize(ref _legendNames, legendCount);
+        for (var index = 0; index < _legendNames.Length; index++)
+            _legendNames[index] = IsRadial ? LabelAt(index) : Series[index].Name;
+    }
+
+    private void ValidateConfiguration()
+    {
+        if (!double.IsFinite(Options.Width) || Options.Width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Options.Width), "Chart width must be finite and greater than zero.");
+        if (!double.IsFinite(Options.Height) || Options.Height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Options.Height), "Chart height must be finite and greater than zero.");
+        if (Options.PaddingLeft < 0 || Options.PaddingRight < 0 || Options.PaddingTop < 0 || Options.PaddingBottom < 0 ||
+            !double.IsFinite(Options.PaddingLeft) || !double.IsFinite(Options.PaddingRight) || !double.IsFinite(Options.PaddingTop) || !double.IsFinite(Options.PaddingBottom))
+            throw new ArgumentOutOfRangeException(nameof(Options), "Chart padding must be finite and non-negative.");
+        if (PlotRight <= PlotLeft || PlotBottom <= PlotTop)
+            throw new ArgumentException("Chart padding must leave a positive plot width and height.", nameof(Options));
+        if (Options.Minimum is not null && !double.IsFinite(Options.Minimum.Value))
+            throw new ArgumentOutOfRangeException(nameof(Options.Minimum), "The minimum must be finite.");
+        if (Options.Maximum is not null && !double.IsFinite(Options.Maximum.Value))
+            throw new ArgumentOutOfRangeException(nameof(Options.Maximum), "The maximum must be finite.");
+        if (Options.Minimum is not null && Options.Maximum is not null && Options.Minimum >= Options.Maximum)
+            throw new ArgumentException("The chart minimum must be less than the maximum.", nameof(Options));
+
+        if (XValues is null)
+            return;
+        if (XValues.Count < PointCount)
+            throw new ArgumentException("XValues must contain at least one finite value for every rendered point.", nameof(XValues));
+        for (var index = 0; index < PointCount; index++)
+        {
+            if (!double.IsFinite(XValues[index]))
+                throw new ArgumentException("XValues must contain only finite values.", nameof(XValues));
+            if (index > 0 && XValues[index] <= XValues[index - 1])
+                throw new ArgumentException("XValues must be strictly increasing.", nameof(XValues));
+        }
+    }
+
+    private void PrepareXAxis()
+    {
+        _useContinuousX = XValues is not null && PointCount > 1;
+        if (!_useContinuousX)
+        {
+            _xMinimum = 0;
+            _xMaximum = Math.Max(1, PointCount - 1);
+            return;
+        }
+
+        _xMinimum = XValues![0];
+        _xMaximum = XValues[PointCount - 1];
+        if (Series.Any(series => (series.Type ?? Type) == ChartType.Bar))
+        {
+            _xMinimum -= (XValues[1] - XValues[0]) / 2;
+            _xMaximum += (XValues[PointCount - 1] - XValues[PointCount - 2]) / 2;
+        }
+    }
+
+    private void CalculateTicks()
+    {
+        var requested = Math.Clamp(Options.YAxisTicks, 2, 100);
+        if (Options.NiceYAxis && Options.Minimum is null && Options.Maximum is null)
+        {
+            var step = NiceNumber((_maximum - _minimum) / (requested - 1), true);
+            if (step > 0 && double.IsFinite(step))
+            {
+                _minimum = Math.Floor(_minimum / step) * step;
+                _maximum = Math.Ceiling(_maximum / step) * step;
+                var count = Math.Clamp((int)Math.Round((_maximum - _minimum) / step) + 1, 2, 100);
+                if (_tickValues.Length != count)
+                    Array.Resize(ref _tickValues, count);
+                for (var index = 0; index < count; index++)
+                    _tickValues[index] = _maximum - index * step;
+                _tickValues[^1] = _minimum;
+                return;
+            }
+        }
+
+        if (_tickValues.Length != requested)
+            Array.Resize(ref _tickValues, requested);
+        for (var index = 0; index < requested; index++)
+            _tickValues[index] = _maximum - index * (_maximum - _minimum) / (requested - 1);
+    }
+
+    private static double NiceNumber(double value, bool round)
+    {
+        if (value <= 0 || !double.IsFinite(value))
+            return 0;
+        var exponent = Math.Floor(Math.Log10(value));
+        var fraction = value / Math.Pow(10, exponent);
+        var niceFraction = round
+            ? fraction < 1.5 ? 1 : fraction < 3 ? 2 : fraction < 7 ? 5 : 10
+            : fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+        return niceFraction * Math.Pow(10, exponent);
+    }
+
+    private void RebuildGeometry()
+    {
+        _linePaths.Clear();
+        _areaPaths.Clear();
+        _barSeriesPositions.Clear();
+        if (_barSeries.Length < Series.Count)
+            Array.Resize(ref _barSeries, Series.Count);
+        _barSeriesCount = 0;
+        for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+        {
+            if (IsSeriesHidden(seriesIndex) || (Series[seriesIndex].Type ?? Type) != ChartType.Bar)
+                continue;
+
+            _barSeries[_barSeriesCount] = seriesIndex;
+            _barSeriesPositions[seriesIndex] = _barSeriesCount;
+            _barSeriesCount++;
+        }
+
+        for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+        {
+            var seriesType = Series[seriesIndex].Type ?? Type;
+            if (IsSeriesHidden(seriesIndex) || (seriesType != ChartType.Line && seriesType != ChartType.Area))
+                continue;
+            var segments = BuildSegments(Series[seriesIndex]);
+            _linePaths[seriesIndex] = BuildLinePath(segments);
+            if (seriesType == ChartType.Area)
+                _areaPaths[seriesIndex] = BuildAreaPath(segments);
+        }
+    }
+
+    private double CategoryStart(int index)
+    {
+        if (PointCount <= 1)
+            return PlotLeft;
+        var center = CategoryCenter(index);
+        return index == 0 ? PlotLeft : (CategoryCenter(index - 1) + center) / 2;
+    }
+
+    private double CategoryCenter(int index)
+    {
+        if (!_useContinuousX)
+            return PlotLeft + (index + 0.5) * PlotWidth / Math.Max(1, PointCount);
+        return PlotLeft + (XValues![index] - _xMinimum) / (_xMaximum - _xMinimum) * PlotWidth;
+    }
+
+    private double CategoryWidthAt(int index)
+    {
+        if (PointCount <= 1)
+            return PlotWidth;
+        var right = index == PointCount - 1 ? PlotRight : (CategoryCenter(index) + CategoryCenter(index + 1)) / 2;
+        return Math.Max(1, right - CategoryStart(index));
+    }
+
+    private double ValueY(double value) => PlotBottom - (value - _minimum) / (_maximum - _minimum) * PlotHeight;
+    private double TickValue(int tick) => _tickValues[tick];
+    private double TickY(int tick) => ValueY(TickValue(tick));
+    private bool ShouldRenderXAxisLabel(int index)
+    {
+        var maximum = Math.Max(2, Options.MaximumXAxisLabels);
+        if (PointCount <= maximum || index == 0 || index == PointCount - 1)
+            return true;
+        var step = (int)Math.Ceiling((PointCount - 1d) / (maximum - 1));
+        return index % step == 0;
+    }
+    private string LabelAt(int index) => index < Labels.Count ? Labels[index] : (index + 1).ToString(System.Globalization.CultureInfo.CurrentCulture);
+    private static double? ValueAt(ChartSeries series, int index)
+    {
+        if (index >= series.Values.Count || series.Values[index] is not { } value || !double.IsFinite(value))
+            return null;
+        return value;
+    }
+    private double RadialValue(int index) => Series.Count == 0 ? 0 : Math.Max(0, ValueAt(Series[0], index) ?? 0);
+    private bool IsSeriesHidden(int index) => _hiddenSeries.Contains(index);
+    private bool IsActive(int series, int index) => _hoveredIndex == index && (_hoveredSeries is null || _hoveredSeries == series);
+    private bool ShouldRenderAnyMarkers(ChartSeries series) => (series.ShowPoints ?? Options.ShowPoints) || Options.ShowEndPoints;
+    private bool ShouldRenderMarker(ChartSeries series, int index) =>
+        (series.ShowPoints ?? Options.ShowPoints) || (Options.ShowEndPoints && IsLastValue(series, index));
+
+    private static bool IsLastValue(ChartSeries series, int index)
+    {
+        for (var next = index + 1; next < series.Values.Count; next++)
+        {
+            if (ValueAt(series, next) is not null)
+                return false;
+        }
+
+        return true;
+    }
+
+    private string SeriesColor(int index) => Series[index].Color ?? PaletteColor(index);
+    private string SliceColor(int index) => PaletteColor(index);
+    private ChartGradient? SliceGradient(int index)
+    {
+        var gradients = Series.Count == 0 ? null : Series[0].SliceGradients;
+        return gradients is null || index >= gradients.Count ? null : gradients[index];
+    }
+    private string SliceFill(int index) => SliceGradient(index) is null ? SliceColor(index) : $"url(#{SliceGradientId(index)})";
+    private string SliceLegendBackground(int index)
+    {
+        var gradient = SliceGradient(index);
+        return gradient is null
+            ? SliceColor(index)
+            : $"linear-gradient({(gradient.Horizontal ? "90deg" : "180deg")},{gradient.StartColor},{gradient.EndColor})";
+    }
+    private string PaletteColor(int index) => Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[index % Options.Palette.Count];
+    private string SeriesFill(int index) => Series[index].Gradient is null ? SeriesColor(index) : $"url(#{GradientId(index)})";
+    private string GradientId(int index) => $"{_instanceId}-gradient-{index}";
+    private string SliceGradientId(int index) => $"{_instanceId}-slice-gradient-{index}";
+    private string LinePath(int seriesIndex) => _linePaths.GetValueOrDefault(seriesIndex, string.Empty);
+    private string AreaPath(int seriesIndex) => _areaPaths.GetValueOrDefault(seriesIndex, string.Empty);
+    private static string F(double value) => value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+
+    private string BuildLinePath(IReadOnlyList<List<ChartPoint>> segments)
+    {
+        var builder = new System.Text.StringBuilder();
+        foreach (var points in segments)
+        {
+            if (points.Count == 0)
+                continue;
+            builder.Append(BuildPathForPoints(points));
+        }
+        return builder.ToString();
+    }
+
+    private string BuildAreaPath(IReadOnlyList<List<ChartPoint>> segments)
+    {
+        var baseline = ValueY(Math.Clamp(0, _minimum, _maximum));
+        var builder = new System.Text.StringBuilder();
+        foreach (var segment in segments)
+        {
+            if (segment.Count == 0)
+                continue;
+            var line = BuildPathForPoints(segment);
+            builder.Append('M').Append(F(segment[0].X)).Append(',').Append(F(baseline)).Append('L').Append(line.AsSpan(1)).Append('L').Append(F(segment[^1].X)).Append(',').Append(F(baseline)).Append('Z');
+        }
+        return builder.ToString();
+    }
+
+    private string BuildPathForPoints(List<ChartPoint> points)
+    {
+        var builder = new System.Text.StringBuilder();
+        builder.Append('M').Append(F(points[0].X)).Append(',').Append(F(points[0].Y));
+        if (Options.Curve == ChartCurve.Monotone && points.Count > 1)
+        {
+            AppendMonotoneCurve(builder, points);
+            return builder.ToString();
+        }
+
+        for (var index = 1; index < points.Count; index++)
+        {
+            var previous = points[index - 1];
+            var point = points[index];
+            if (Options.Curve == ChartCurve.Step)
+            {
+                var middle = (previous.X + point.X) / 2;
+                builder.Append('H').Append(F(middle)).Append('V').Append(F(point.Y)).Append('H').Append(F(point.X));
+            }
+            else if (Options.Curve == ChartCurve.Smooth)
+            {
+                var before = index > 1 ? points[index - 2] : previous;
+                var after = index + 1 < points.Count ? points[index + 1] : point;
+                builder.Append('C').Append(F(previous.X + (point.X - before.X) / 6)).Append(',').Append(F(previous.Y + (point.Y - before.Y) / 6)).Append(' ')
+                    .Append(F(point.X - (after.X - previous.X) / 6)).Append(',').Append(F(point.Y - (after.Y - previous.Y) / 6)).Append(' ')
+                    .Append(F(point.X)).Append(',').Append(F(point.Y));
+            }
+            else
+                builder.Append('L').Append(F(point.X)).Append(',').Append(F(point.Y));
+        }
+        return builder.ToString();
+    }
+
+    private static void AppendMonotoneCurve(System.Text.StringBuilder builder, IReadOnlyList<ChartPoint> points)
+    {
+        var count = points.Count;
+        var slopes = new double[count - 1];
+        var tangents = new double[count];
+        for (var index = 0; index < count - 1; index++)
+            slopes[index] = (points[index + 1].Y - points[index].Y) / (points[index + 1].X - points[index].X);
+
+        tangents[0] = slopes[0];
+        tangents[^1] = slopes[^1];
+        for (var index = 1; index < count - 1; index++)
+        {
+            var previous = slopes[index - 1];
+            var next = slopes[index];
+            if (previous * next <= 0)
+            {
+                tangents[index] = 0;
+                continue;
+            }
+
+            var previousWidth = points[index].X - points[index - 1].X;
+            var nextWidth = points[index + 1].X - points[index].X;
+            var weighted = (previous * nextWidth + next * previousWidth) / (previousWidth + nextWidth);
+            tangents[index] = (Math.Sign(previous) + Math.Sign(next)) * Math.Min(Math.Min(Math.Abs(previous), Math.Abs(next)), 0.5 * Math.Abs(weighted));
+        }
+
+        for (var index = 0; index < count - 1; index++)
+        {
+            var current = points[index];
+            var next = points[index + 1];
+            var width = next.X - current.X;
+            builder.Append('C')
+                .Append(F(current.X + width / 3)).Append(',').Append(F(current.Y + tangents[index] * width / 3)).Append(' ')
+                .Append(F(next.X - width / 3)).Append(',').Append(F(next.Y - tangents[index + 1] * width / 3)).Append(' ')
+                .Append(F(next.X)).Append(',').Append(F(next.Y));
+        }
+    }
+
+    private List<List<ChartPoint>> BuildSegments(ChartSeries series)
+    {
+        List<List<ChartPoint>> segments = [];
+        List<ChartPoint> current = [];
+        for (var index = 0; index < PointCount; index++)
+        {
+            var value = ValueAt(series, index);
+            if (value is null)
+            {
+                if (current.Count > 0) segments.Add(current);
+                current = [];
+            }
+            else
+                current.Add(new ChartPoint(CategoryCenter(index), ValueY(value.Value), value.Value));
+        }
+        if (current.Count > 0) segments.Add(current);
+        return segments;
+    }
+
+    private BarRect GetBarRect(int seriesIndex, int pointIndex, double value)
+    {
+        var position = _barSeriesPositions.GetValueOrDefault(seriesIndex);
+        var usableWidth = CategoryWidthAt(pointIndex) * 0.76;
+        var width = Options.Stacked ? usableWidth : Math.Max(1, (usableWidth - Options.BarGap * Math.Max(0, _barSeriesCount - 1)) / Math.Max(1, _barSeriesCount));
+        var x = CategoryCenter(pointIndex) - usableWidth / 2 + (Options.Stacked ? 0 : position * (width + Options.BarGap));
+        double start = 0;
+        if (Options.Stacked)
+        {
+            for (var index = 0; index < position && index < _barSeriesCount; index++)
+            {
+                var other = ValueAt(Series[_barSeries[index]], pointIndex) ?? 0;
+                if (Math.Sign(other) == Math.Sign(value)) start += other;
+            }
+        }
+        var y1 = ValueY(start);
+        var y2 = ValueY(start + value);
+        return new BarRect(x, Math.Min(y1, y2), width, Math.Max(0.5, Math.Abs(y2 - y1)));
+    }
+
+    private static string ArcPath(double cx, double cy, double outer, double startAngle, double sweep, double inner)
+    {
+        sweep = Math.Min(359.999, Math.Max(0, sweep));
+        var endAngle = startAngle + sweep;
+        (var sx, var sy) = Polar(cx, cy, outer, startAngle);
+        (var ex, var ey) = Polar(cx, cy, outer, endAngle);
+        var large = sweep > 180 ? 1 : 0;
+        if (inner <= 0)
+            return $"M{F(cx)},{F(cy)}L{F(sx)},{F(sy)}A{F(outer)},{F(outer)} 0 {large} 1 {F(ex)},{F(ey)}Z";
+        (var isx, var isy) = Polar(cx, cy, inner, startAngle);
+        (var iex, var iey) = Polar(cx, cy, inner, endAngle);
+        return $"M{F(sx)},{F(sy)}A{F(outer)},{F(outer)} 0 {large} 1 {F(ex)},{F(ey)}L{F(iex)},{F(iey)}A{F(inner)},{F(inner)} 0 {large} 0 {F(isx)},{F(isy)}Z";
+    }
+
+    private static (double X, double Y) Polar(double cx, double cy, double radius, double angle)
+    {
+        var radians = angle * Math.PI / 180;
+        return (cx + radius * Math.Cos(radians), cy + radius * Math.Sin(radians));
+    }
+
+    private void HoverCategory(int index) { _hoveredIndex = index; _hoveredSeries = null; RebuildTooltipState(); }
+    private void HoverPoint(int index, int series) { _hoveredIndex = index; _hoveredSeries = Options.SharedTooltip ? null : series; RebuildTooltipState(); }
+    private void HoverSlice(int index) { _hoveredIndex = index; _hoveredSeries = 0; RebuildTooltipState(); }
+    private void ClearHover() { _hoveredIndex = null; _hoveredSeries = null; _tooltipRows.Clear(); _tooltipContext = null; }
+
+    private void RebuildTooltipState()
+    {
+        _tooltipRows.Clear();
+        _tooltipContext = null;
+        if (_hoveredIndex is not { } hoveredIndex || hoveredIndex < 0 || hoveredIndex >= PointCount)
+            return;
+
+        if (IsRadial)
+        {
+            if (Series.Count > 0)
+                _tooltipRows.Add(new ChartTooltipRow(Series[0].Name, RadialValue(hoveredIndex), SliceColor(hoveredIndex), 0));
+        }
+        else
+        {
+            for (var index = 0; index < Series.Count; index++)
+            {
+                if (IsSeriesHidden(index) || (_hoveredSeries is not null && _hoveredSeries != index))
+                    continue;
+
+                var value = ValueAt(Series[index], hoveredIndex);
+                if (value is not null)
+                    _tooltipRows.Add(new ChartTooltipRow(Series[index].Name, value.Value, SeriesColor(index), index));
+            }
+        }
+
+        if (_tooltipRows.Count == 0)
+            return;
+
+        var row = _tooltipRows[0];
+        _tooltipContext = new ChartTooltipContext(LabelAt(hoveredIndex), row.Series, row.Value, hoveredIndex, row.Color) { Rows = _tooltipRows };
+    }
+
+    private void ToggleSeries(int index)
+    {
+        if (IsRadial || !Options.ToggleSeriesFromLegend) return;
+        if (!_hiddenSeries.Add(index)) _hiddenSeries.Remove(index);
+        Recalculate();
+        ClearHover();
+    }
+
+    private Task SelectPoint(int index, int series)
+    {
+        var value = ValueAt(Series[series], index);
+        return value is null || !OnSelect.HasDelegate ? Task.CompletedTask : OnSelect.InvokeAsync(new ChartSelection(LabelAt(index), Series[series].Name, value.Value, index, series));
+    }
+
+    private Task SelectSlice(int index) => OnSelect.HasDelegate ? OnSelect.InvokeAsync(new ChartSelection(LabelAt(index), Series[0].Name, RadialValue(index), index, 0)) : Task.CompletedTask;
+
+    private Task HandlePointKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args, int index, int series)
+    {
+        switch (args.Key)
+        {
+            case "Enter":
+            case " ":
+            case "Spacebar":
+                return SelectPoint(_hoveredIndex ?? index, _hoveredSeries ?? series);
+            case "ArrowLeft":
+                HoverPoint(FindPoint(series, _hoveredIndex ?? index, -1), series);
+                break;
+            case "ArrowRight":
+                HoverPoint(FindPoint(series, _hoveredIndex ?? index, 1), series);
+                break;
+            case "ArrowUp":
+                HoverAdjacentSeries(_hoveredIndex ?? index, _hoveredSeries ?? series, -1);
+                break;
+            case "ArrowDown":
+                HoverAdjacentSeries(_hoveredIndex ?? index, _hoveredSeries ?? series, 1);
+                break;
+            case "Home":
+                HoverPoint(FindPoint(series, -1, 1), series);
+                break;
+            case "End":
+                HoverPoint(FindPoint(series, PointCount, -1), series);
+                break;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSliceKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args, int index)
+    {
+        switch (args.Key)
+        {
+            case "Enter":
+            case " ":
+            case "Spacebar":
+                return SelectSlice(_hoveredIndex ?? index);
+            case "ArrowLeft":
+            case "ArrowUp":
+                HoverSlice(FindSlice(_hoveredIndex ?? index, -1));
+                break;
+            case "ArrowRight":
+            case "ArrowDown":
+                HoverSlice(FindSlice(_hoveredIndex ?? index, 1));
+                break;
+            case "Home":
+                HoverSlice(FindSlice(-1, 1));
+                break;
+            case "End":
+                HoverSlice(FindSlice(PointCount, -1));
+                break;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private int FindPoint(int series, int start, int direction)
+    {
+        for (var index = start + direction; index >= 0 && index < PointCount; index += direction)
+        {
+            if (ValueAt(Series[series], index) is not null)
+                return index;
+        }
+
+        return Math.Clamp(start, 0, Math.Max(0, PointCount - 1));
+    }
+
+    private int FindSlice(int start, int direction)
+    {
+        for (var index = start + direction; index >= 0 && index < PointCount; index += direction)
+        {
+            if (RadialValue(index) > 0)
+                return index;
+        }
+
+        return Math.Clamp(start, 0, Math.Max(0, PointCount - 1));
+    }
+
+    private void HoverAdjacentSeries(int point, int series, int direction)
+    {
+        for (var candidate = series + direction; candidate >= 0 && candidate < Series.Count; candidate += direction)
+        {
+            if (!IsSeriesHidden(candidate) && ValueAt(Series[candidate], point) is not null)
+            {
+                HoverPoint(point, candidate);
+                return;
+            }
+        }
+    }
+    private string PointAriaLabel(int series, int index, double value) => $"{Series[series].Name}, {LabelAt(index)}: {Options.FormatValue(value)}";
+    private string SliceAriaLabel(int index) => $"{LabelAt(index)}: {Options.FormatValue(RadialValue(index))}";
+
+    private double TooltipY(int index)
+    {
+        var y = Series.Where((series, seriesIndex) => !IsSeriesHidden(seriesIndex)).Select(series => ValueAt(series, index)).Where(static value => value.HasValue).Select(value => ValueY(value!.Value)).DefaultIfEmpty(PlotTop).Min();
+        return Math.Max(PlotTop + 8, y);
+    }
+
+    private readonly record struct ChartPoint(double X, double Y, double Value);
+    private readonly record struct BarRect(double X, double Y, double Width, double Height);
+}
