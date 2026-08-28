@@ -74,13 +74,13 @@ public sealed class ChartOptions
     public bool ShowPoints { get; init; } = true;
 
     /// <summary>
-    /// Gets whether the last non-null value in each line or area series receives a point marker. The default is <see langword="false"/>.
+    /// Gets whether the last non-null value in each line or area series receives a point marker. The default is <see langword="true"/>.
     /// </summary>
     /// <remarks>
     /// This is useful for sparklines. It remains effective when <see cref="ShowPoints"/> or a series-level point setting is disabled.
     /// When all points are visible, enabling this option does not create a duplicate marker.
     /// </remarks>
-    public bool ShowEndPoints { get; init; }
+    public bool ShowEndPoints { get; init; } = true;
 
     /// <summary>
     /// Gets whether a vertical guide follows the hovered category in Cartesian charts. The default is <see langword="true"/>.

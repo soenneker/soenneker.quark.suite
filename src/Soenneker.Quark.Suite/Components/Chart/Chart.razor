@@ -191,7 +191,7 @@
 
                     @if (Options.ShowCursor)
                     {
-                        <line x1="@F(CategoryCenter(_hoveredIndex.Value))" y1="@F(PlotTop)" x2="@F(CategoryCenter(_hoveredIndex.Value))" y2="@F(PlotBottom)" class="quark-chart-cursor pointer-events-none opacity-50" style="stroke:var(--muted-foreground);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke"/>
+                        <line x1="@F(CategoryCenter(_hoveredIndex.Value))" y1="@F(PlotTop)" x2="@F(CategoryCenter(_hoveredIndex.Value))" y2="@F(PlotBottom)" class="quark-chart-cursor pointer-events-none opacity-70" style="stroke:var(--muted-foreground);stroke-width:1;vector-effect:non-scaling-stroke"/>
                     }
                 }
             </svg>
@@ -477,8 +477,8 @@
 
             var x = IsRadial ? 50 : CategoryCenter(_hoveredIndex.Value) / Options.Width * 100;
             var y = IsRadial ? 50 : TooltipY(_hoveredIndex.Value) / Options.Height * 100;
-            var horizontal = x > 72 ? "-100%" : x < 28 ? "0" : "-50%";
-            var vertical = y < 28 ? "12px" : "-115%";
+            var horizontal = IsRadial ? "-50%" : x > 58 ? "calc(-100% - 12px)" : "12px";
+            var vertical = IsRadial ? "-50%" : y < 35 ? "12px" : "calc(-100% - 12px)";
             var shift = $"translate({horizontal},{vertical})";
             return $"left:{F(x)}%;top:{F(y)}%;transform:{shift}";
         }

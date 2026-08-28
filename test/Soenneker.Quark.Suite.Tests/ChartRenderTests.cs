@@ -186,8 +186,22 @@ public sealed class ChartRenderTests : BunitContext
         cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Feb");
         cut.Find(".quark-chart-tooltip-row").TextContent.Should().Contain("Revenue").And.Contain("18");
         cut.Find(".quark-chart-tooltip").GetAttribute("class").Should().Contain("min-w-48").And.Contain("w-max");
+        cut.Find(".quark-chart-tooltip").GetAttribute("style").Should().Contain("transform:translate(12px,12px)");
         cut.Find(".quark-chart-tooltip-row").GetAttribute("class").Should().Contain("minmax(max-content,1fr)");
-        cut.FindAll(".quark-chart-cursor").Should().ContainSingle();
+        cut.FindAll(".quark-chart-cursor").Should().ContainSingle().Which.GetAttribute("class").Should().Contain("opacity-70");
+    }
+
+    [Test]
+    public void Line_chart_shows_its_terminal_marker_when_regular_points_are_hidden()
+    {
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, Labels)
+            .Add(component => component.Series, new ChartSeries[] { new("Execution time", new double[] { 5.2, 5.1, 5.0 }) })
+            .Add(component => component.Options, new ChartOptions { ShowPoints = false }));
+
+        var marker = cut.Find(".quark-chart-point");
+        double.Parse(marker.GetAttribute("cx")!, CultureInfo.InvariantCulture).Should().BeGreaterThan(600);
+        marker.GetAttribute("aria-label").Should().Contain("Mar").And.Contain("5");
     }
 
     [Test]
