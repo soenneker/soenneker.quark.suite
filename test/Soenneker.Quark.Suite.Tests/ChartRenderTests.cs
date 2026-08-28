@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -184,7 +185,25 @@ public sealed class ChartRenderTests : BunitContext
 
         cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Feb");
         cut.Find(".quark-chart-tooltip-row").TextContent.Should().Contain("Revenue").And.Contain("18");
+        cut.Find(".quark-chart-tooltip").GetAttribute("class").Should().Contain("min-w-48").And.Contain("w-max");
+        cut.Find(".quark-chart-tooltip-row").GetAttribute("class").Should().Contain("minmax(max-content,1fr)");
         cut.FindAll(".quark-chart-cursor").Should().ContainSingle();
+    }
+
+    [Test]
+    public void Smooth_curve_does_not_overshoot_the_plot_bounds()
+    {
+        string[] labels = ["One", "Two", "Three", "Four", "Five"];
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, labels)
+            .Add(component => component.Series, new ChartSeries[] { new("Calls", new double[] { 0, 100, 0, 0, 100 }) })
+            .Add(component => component.Options, new ChartOptions { Curve = ChartCurve.Smooth }));
+
+        var path = cut.Find("[data-slot='chart-line']").GetAttribute("d")!;
+        var yCoordinates = Regex.Matches(path, @",(-?\d+(?:\.\d+)?)")
+            .Select(match => double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture));
+
+        yCoordinates.Should().AllSatisfy(y => y.Should().BeInRange(16, 282));
     }
 
     [Test]

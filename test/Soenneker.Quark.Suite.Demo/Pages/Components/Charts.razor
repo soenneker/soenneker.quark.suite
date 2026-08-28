@@ -3,6 +3,37 @@
 <PageTitle>Charts - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <DemoSection Title="Neutral shadcn charts"
+                 Description="Classic dashboard cards rendered with adaptive neutral tones instead of a colorful series palette."
+                 Code="@NeutralCode"
+                 CodeLanguage="razor">
+        <Grid Columns="GridCols.Is1.OnXl.Is3" Width="Width.IsFull" Gap="Gap.Is4">
+            <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Browser usage</Strong>
+                <Small Display="Display.Block" Margin="Margin.Is4.FromBottom" TextColor="TextColor.MutedForeground">Desktop and mobile · January–June</Small>
+                <Chart Type="ChartType.Bar" Labels="@NeutralLabels" Series="@NeutralBarSeries" Options="@NeutralBarOptions" AriaLabel="Browser usage by device" />
+                <Strong Display="Display.Block" Margin="Margin.Is3.FromTop" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Trending up by 5.2% this month</Strong>
+                <Small Display="Display.Block" TextColor="TextColor.MutedForeground">Showing total visitors for the last six months</Small>
+            </Div>
+
+            <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Visitors</Strong>
+                <Small Display="Display.Block" Margin="Margin.Is4.FromBottom" TextColor="TextColor.MutedForeground">Returning and new visitors</Small>
+                <Chart Labels="@NeutralLabels" Series="@NeutralLineSeries" Options="@NeutralLineOptions" AriaLabel="Returning and new visitors" />
+                <Strong Display="Display.Block" Margin="Margin.Is3.FromTop" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Steady growth across both audiences</Strong>
+                <Small Display="Display.Block" TextColor="TextColor.MutedForeground">January–June 2026</Small>
+            </Div>
+
+            <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4" Shadow="Shadow.Sm">
+                <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Revenue</Strong>
+                <Small Display="Display.Block" Margin="Margin.Is4.FromBottom" TextColor="TextColor.MutedForeground">Recurring and services revenue</Small>
+                <Chart Type="ChartType.Area" Labels="@NeutralLabels" Series="@NeutralAreaSeries" Options="@NeutralAreaOptions" AriaLabel="Revenue by source" />
+                <Strong Display="Display.Block" Margin="Margin.Is3.FromTop" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Recurring revenue leads the mix</Strong>
+                <Small Display="Display.Block" TextColor="TextColor.MutedForeground">Monthly revenue in thousands</Small>
+            </Div>
+        </Grid>
+    </DemoSection>
+
     <DemoSection Title="Line chart"
                  Description="Responsive, smooth line series with shared hover tooltips, keyboard-accessible points, and legend toggling."
                  Code="@LineCode"
@@ -89,37 +120,6 @@
                     }
                 </TooltipTemplate>
             </Chart>
-        </div>
-    </DemoSection>
-
-    <DemoSection Title="Neutral shadcn charts"
-                 Description="Classic dashboard cards rendered with adaptive neutral tones instead of a colorful series palette."
-                 Code="@NeutralCode"
-                 CodeLanguage="razor">
-        <div class="grid w-full gap-4 xl:grid-cols-3">
-            <div class="rounded-xl border bg-card p-4 shadow-sm">
-                <div class="font-semibold">Browser usage</div>
-                <div class="mb-4 text-xs text-muted-foreground">Desktop and mobile · January–June</div>
-                <Chart Type="ChartType.Bar" Labels="@NeutralLabels" Series="@NeutralBarSeries" Options="@NeutralBarOptions" AriaLabel="Browser usage by device" />
-                <div class="mt-3 text-sm font-medium">Trending up by 5.2% this month</div>
-                <div class="text-xs text-muted-foreground">Showing total visitors for the last six months</div>
-            </div>
-
-            <div class="rounded-xl border bg-card p-4 shadow-sm">
-                <div class="font-semibold">Visitors</div>
-                <div class="mb-4 text-xs text-muted-foreground">Returning and new visitors</div>
-                <Chart Labels="@NeutralLabels" Series="@NeutralLineSeries" Options="@NeutralLineOptions" AriaLabel="Returning and new visitors" />
-                <div class="mt-3 text-sm font-medium">Steady growth across both audiences</div>
-                <div class="text-xs text-muted-foreground">January–June 2026</div>
-            </div>
-
-            <div class="rounded-xl border bg-card p-4 shadow-sm">
-                <div class="font-semibold">Revenue</div>
-                <div class="mb-4 text-xs text-muted-foreground">Recurring and services revenue</div>
-                <Chart Type="ChartType.Area" Labels="@NeutralLabels" Series="@NeutralAreaSeries" Options="@NeutralAreaOptions" AriaLabel="Revenue by source" />
-                <div class="mt-3 text-sm font-medium">Recurring revenue leads the mix</div>
-                <div class="text-xs text-muted-foreground">Monthly revenue in thousands</div>
-            </div>
         </div>
     </DemoSection>
 
@@ -466,20 +466,23 @@
 """;
 
     private const string NeutralCode = """
-<div class="grid gap-4 xl:grid-cols-3">
-    <div class="rounded-xl border bg-card p-4 shadow-sm">
-        <h3>Browser usage</h3>
+<Grid Columns="GridCols.Is1.OnXl.Is3" Gap="Gap.Is4">
+    <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card"
+         Padding="Padding.Is4" Shadow="Shadow.Sm">
+        <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Browser usage</Strong>
         <Chart Type="ChartType.Bar" Labels="@labels" Series="@bars" Options="@barOptions" />
-    </div>
-    <div class="rounded-xl border bg-card p-4 shadow-sm">
-        <h3>Visitors</h3>
+    </Div>
+    <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card"
+         Padding="Padding.Is4" Shadow="Shadow.Sm">
+        <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Visitors</Strong>
         <Chart Labels="@labels" Series="@lines" Options="@lineOptions" />
-    </div>
-    <div class="rounded-xl border bg-card p-4 shadow-sm">
-        <h3>Revenue</h3>
+    </Div>
+    <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Card"
+         Padding="Padding.Is4" Shadow="Shadow.Sm">
+        <Strong Display="Display.Block" FontWeight="FontWeight.Semibold">Revenue</Strong>
         <Chart Type="ChartType.Area" Labels="@labels" Series="@areas" Options="@areaOptions" />
-    </div>
-</div>
+    </Div>
+</Grid>
 
 @code {
     const string strong = "color-mix(in oklab, var(--foreground) 88%, var(--background))";
