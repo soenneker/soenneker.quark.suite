@@ -10,7 +10,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-///<inheritdoc cref="ISonnerService"/>
+/// <inheritdoc cref="ISonnerService"/>
 public sealed class SonnerService : ISonnerService
 {
     private const int _mountDelayMs = 16;

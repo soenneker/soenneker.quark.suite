@@ -5,9 +5,7 @@ using Soenneker.Atomics.Resources;
 
 namespace Soenneker.Quark;
 
-/// <summary>
-/// A base layout that provides a per-component CancellationTokenSource, lazily
-/// </summary>
+/// <inheritdoc cref="ICancellableLayout"/>
 public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayout
 {
     private readonly AtomicResource<CancellationTokenSource> _atomic;

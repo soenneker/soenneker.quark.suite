@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
 
-///<inheritdoc cref="IElement"/>
+/// <inheritdoc cref="IElement"/>
 public abstract class Element : Component, IElement
 {
     [Parameter]

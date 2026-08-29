@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
 
-///<inheritdoc cref="ISonnerUtil"/>
+/// <inheritdoc cref="ISonnerUtil"/>
 public sealed class SonnerUtil : ISonnerUtil
 {
     private readonly ISonnerService _sonner;

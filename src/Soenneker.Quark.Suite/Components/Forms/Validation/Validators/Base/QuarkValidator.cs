@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark.Base;
 
-/// <summary>
-/// Base implementation of IQuarkValidator that provides common validation functionality.
-/// </summary>
+/// <inheritdoc cref="IQuarkValidator"/>
 public abstract class QuarkValidator : IQuarkValidator
 {
     public abstract ValidationResult Validate(object value);

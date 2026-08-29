@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Base for visually styled titles that may optionally participate in the document heading outline.
-/// </summary>
+/// <inheritdoc cref="ISemanticTitleElement"/>
 public abstract class SemanticTitleElement : TypographyElement, ISemanticTitleElement
 {
     /// <summary>

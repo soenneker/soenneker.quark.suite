@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Simple validator that uses a function for validation logic.
-/// </summary>
+/// <inheritdoc cref="IQuarkValidator"/>
 public class SimpleValidator : IQuarkValidator
 {
     private readonly string _errorMessage;

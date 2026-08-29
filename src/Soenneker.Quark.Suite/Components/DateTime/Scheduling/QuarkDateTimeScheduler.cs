@@ -25,7 +25,6 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         _logger = logger;
     }
 
-    /// <inheritdoc />
     public IQuarkDateTimeScheduleRegistration Register(Func<DateTimeOffset, TimeSpan?> getNextInterval,
         Func<DateTimeOffset, ValueTask> callback)
     {
@@ -185,7 +184,6 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
         previous.Dispose();
     }
 
-    /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
         Task? runner;

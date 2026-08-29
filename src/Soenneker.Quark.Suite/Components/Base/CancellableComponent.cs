@@ -4,7 +4,7 @@ using Soenneker.Atomics.Resources;
 
 namespace Soenneker.Quark;
 
-///<inheritdoc cref="ICancellableComponent"/>
+/// <inheritdoc cref="ICancellableComponent"/>
 public abstract class CancellableComponent : Component, ICancellableComponent
 {
     public CancellationToken CancellationToken =>

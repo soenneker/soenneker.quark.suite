@@ -46,7 +46,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// </summary>
     protected virtual bool AlwaysRender => true;
 
-    /// <inheritdoc />
     public override Task SetParametersAsync(ParameterView parameters)
     {
         _defaultsApplied = false;
