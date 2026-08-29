@@ -12,6 +12,8 @@ public static class DocsOnThisPageRegistrar
     /// <summary>
     /// Adds <see cref="IOnThisPageInterop"/> as a scoped service.
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkOnThisPageAsScoped(this IServiceCollection services)
     {
         services.AddModuleImportUtilAsScoped().TryAddScoped<IOnThisPageInterop, OnThisPageInterop>();

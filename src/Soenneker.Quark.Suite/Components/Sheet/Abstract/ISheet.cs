@@ -51,13 +51,13 @@ public interface ISheet : IElement
     /// </summary>
     EventCallback OnBackdropClick { get; set; }
     /// <summary>
-    /// Executes the show operation.
+    /// Shows sheet for the Sheet.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the show operation is complete.</returns>
     Task Show();
     /// <summary>
-    /// Executes the hide operation.
+    /// Hides sheet for the Sheet.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the hide operation is complete.</returns>
     Task Hide();
 }

@@ -13,51 +13,51 @@ namespace Soenneker.Quark;
 public interface ISonnerInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Executes the initialize operation.
+    /// Initializes the Sonner so it is ready for use.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the Sonner is ready for use.</returns>
     ValueTask Initialize(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the register hotkey operation.
+    /// Registers hotkey for the Sonner.
     /// </summary>
-    /// <param name="section">The section.</param>
-    /// <param name="hotkey">The hotkey.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="section">Configuration section to read.</param>
+    /// <param name="hotkey">hotkey to process.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the hotkey registration is complete.</returns>
     ValueTask RegisterHotkey(ElementReference section, IReadOnlyList<string>? hotkey, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister hotkey operation.
+    /// Unregisters hotkey for the Sonner.
     /// </summary>
-    /// <param name="section">The section.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="section">Configuration section to read.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the hotkey registration has been removed.</returns>
     ValueTask UnregisterHotkey(ElementReference section, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the register swipe handlers operation.
+    /// Registers swipe Handlers for the Sonner.
     /// </summary>
-    /// <param name="section">The section.</param>
-    /// <param name="callbackReference">The callback reference.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="section">Configuration section to read.</param>
+    /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>true if registers swipe Handlers for the Sonner; otherwise, false.</returns>
     ValueTask<bool> RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister swipe handlers operation.
+    /// Unregisters swipe Handlers for the Sonner.
     /// </summary>
-    /// <param name="section">The section.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="section">Configuration section to read.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the swipe handlers registration has been removed.</returns>
     ValueTask UnregisterSwipeHandlers(ElementReference section, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the measure toast heights operation.
+    /// Measures toast Heights.
     /// </summary>
-    /// <param name="section">The section.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="section">Configuration section to read.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested dictionary.</returns>
     ValueTask<Dictionary<string, double>> MeasureToastHeights(ElementReference section, CancellationToken cancellationToken = default);
 }

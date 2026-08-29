@@ -13,5 +13,6 @@ public interface IScoreInterop : IAsyncDisposable
     /// Ensures the score stylesheet is loaded and ready.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel initialization.</param>
+    /// <returns>A task that completes when the Score is ready for use.</returns>
     ValueTask Initialize(CancellationToken cancellationToken = default);
 }

@@ -55,9 +55,10 @@ public interface IDataTable : ICancellableElement
     DataTableOptions Options { get; }
 
     /// <summary>
-    /// Handles column sorting for the component-driven approach
+    /// Handles the column sort callback.
     /// </summary>
-    /// <param name="columnIndex">The column index to sort</param>
+    /// <param name="columnIndex">Column Index for the handle column sort operation.</param>
+    /// <returns>A task that completes when the handle column sort operation is complete.</returns>
     ValueTask HandleColumnSort(int columnIndex);
 
     /// <summary>
@@ -70,35 +71,41 @@ public interface IDataTable : ICancellableElement
     /// <summary>
     /// Handles search from child components
     /// </summary>
-    /// <param name="searchTerm">The search term</param>
+    /// <param name="searchTerm">Search Term for the handle search operation.</param>
+    /// <returns>A task that completes when the handle search operation is complete.</returns>
     ValueTask HandleSearch(string searchTerm);
 
     /// <summary>
     /// Handles navigation to a specific page
     /// </summary>
-    /// <param name="page">The page number to navigate to</param>
+    /// <param name="page">Browser page to inspect or control.</param>
+    /// <returns>A task that completes when the handle go to page operation is complete.</returns>
     ValueTask HandleGoToPage(int page);
 
     /// <summary>
     /// Handles changing the number of records requested per page.
     /// </summary>
-    /// <param name="pageSize">The number of records to request per page</param>
+    /// <param name="pageSize">Maximum number of items to request per page.</param>
+    /// <returns>A task that completes when the handle page size changed operation is complete.</returns>
     ValueTask HandlePageSizeChanged(int pageSize);
 
     /// <summary>
     /// Navigates to a specific page
     /// </summary>
-    /// <param name="page">The page number to navigate to</param>
+    /// <param name="page">Browser page to inspect or control.</param>
+    /// <returns>A task that completes when the go to page operation is complete.</returns>
     ValueTask GoToPage(int page);
 
     /// <summary>
     /// Clears all current sorting and resets to first page
     /// </summary>
+    /// <returns>A task that completes when the Data Table has been cleared.</returns>
     ValueTask ClearSorting();
 
     /// <summary>
     /// Resets the table to its initial state (clears sorting and goes to first page)
     /// </summary>
+    /// <returns>A task that completes when the reset operation is complete.</returns>
     ValueTask Reset();
 
     /// <summary>
@@ -110,7 +117,8 @@ public interface IDataTable : ICancellableElement
     /// <summary>
     /// Sets the orders programmatically and triggers a reload
     /// </summary>
-    /// <param name="orders">The orders to set</param>
+    /// <param name="orders">orders to process.</param>
+    /// <returns>A task that completes when the orders has been stored.</returns>
     ValueTask SetOrders(List<DataTableOrderRequest> orders);
 
     /// <summary>
@@ -137,6 +145,7 @@ public interface IDataTable : ICancellableElement
     /// <summary>
     /// Cancels any ongoing operations and resets the loading state
     /// </summary>
+    /// <returns>A task that completes when the cancel operations operation is complete.</returns>
     ValueTask CancelOperations();
 
     /// <summary>

@@ -66,13 +66,12 @@ public interface IDialog : IElement
     /// <summary>
     /// Shows the dialog.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the show operation is complete.</returns>
     Task Show();
 
     /// <summary>
     /// Hides the dialog.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the hide operation is complete.</returns>
     Task Hide();
 }
-

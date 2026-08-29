@@ -65,16 +65,18 @@ public interface IInput : IComponent
     /// <summary>
     /// Gets the validation class for the input based on validation status.
     /// </summary>
+    /// <returns>The requested text.</returns>
     string? GetValidationClass();
 
     /// <summary>
     /// Gets the color class for the input based on background color.
     /// </summary>
+    /// <returns>The requested text.</returns>
     string? GetColorClass();
 
     /// <summary>
     /// Gets the size class for the input based on size.
     /// </summary>
+    /// <returns>The requested text.</returns>
     string? GetSizeClass();
 }
-

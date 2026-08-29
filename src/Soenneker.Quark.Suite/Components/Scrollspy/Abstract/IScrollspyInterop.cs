@@ -11,21 +11,21 @@ namespace Soenneker.Quark;
 public interface IScrollspyInterop
 {
     /// <summary>
-    /// Executes the initialize operation.
+    /// Initializes the Scrollspy so it is ready for use.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="options">The options.</param>
-    /// <param name="callbackReference">The callback reference.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="element">DOM element to inspect or update.</param>
+    /// <param name="options">Options to configure for the Scrollspy.</param>
+    /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the Scrollspy is ready for use.</returns>
     ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the destroy operation.
+    /// Releases the resources held by the Scrollspy.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="element">DOM element to inspect or update.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the destroy operation is complete.</returns>
     ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default);
 }

@@ -23,6 +23,7 @@ public sealed class CarouselApi
     /// <summary>
     /// Gets the zero-based selected slide index.
     /// </summary>
+    /// <returns>The requested value.</returns>
     public int SelectedScrollSnap()
     {
         return SelectedIndexAccessor?.Invoke() ?? 0;
@@ -31,6 +32,7 @@ public sealed class CarouselApi
     /// <summary>
     /// Gets a list of slide indices that can be scrolled to.
     /// </summary>
+    /// <returns>The requested collection.</returns>
     public IReadOnlyList<int> ScrollSnapList()
     {
         return ScrollSnapListAccessor?.Invoke() ?? Array.Empty<int>();
@@ -39,6 +41,7 @@ public sealed class CarouselApi
     /// <summary>
     /// Gets whether the carousel can scroll to the previous slide.
     /// </summary>
+    /// <returns>true if gets whether the carousel can scroll to the previous slide; otherwise, false.</returns>
     public bool CanScrollPrev()
     {
         return CanScrollPreviousAccessor?.Invoke() ?? false;
@@ -47,6 +50,7 @@ public sealed class CarouselApi
     /// <summary>
     /// Gets whether the carousel can scroll to the next slide.
     /// </summary>
+    /// <returns>true if gets whether the carousel can scroll to the next slide; otherwise, false.</returns>
     public bool CanScrollNext()
     {
         return CanScrollNextAccessor?.Invoke() ?? false;

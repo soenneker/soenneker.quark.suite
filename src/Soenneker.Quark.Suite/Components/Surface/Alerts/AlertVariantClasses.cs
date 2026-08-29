@@ -8,6 +8,9 @@ public static class AlertVariantClasses
     /// <summary>
     /// Gets the variant-specific Tailwind classes for the given variant and accent border option.
     /// </summary>
+    /// <param name="variant">Variant for the get variant classes operation.</param>
+    /// <param name="accentBorder">Whether accent border.</param>
+    /// <returns>The requested text.</returns>
     public static string GetVariantClasses(AlertVariant variant, bool accentBorder)
     {
         if (ReferenceEquals(variant, AlertVariant.Destructive) || string.Equals(variant?.Value, "danger", System.StringComparison.Ordinal))

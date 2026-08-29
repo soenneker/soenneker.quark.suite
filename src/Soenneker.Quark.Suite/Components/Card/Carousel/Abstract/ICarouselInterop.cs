@@ -12,34 +12,34 @@ namespace Soenneker.Quark;
 public interface ICarouselInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Executes the initialize operation.
+    /// Initializes the Carousel so it is ready for use.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="callbackReference">The callback reference.</param>
-    /// <param name="currentIndex">The current index.</param>
-    /// <param name="isVertical">The is vertical.</param>
-    /// <param name="align">The align.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="element">DOM element to inspect or update.</param>
+    /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
+    /// <param name="currentIndex">Current Index for the initialize operation.</param>
+    /// <param name="isVertical">Whether vertical.</param>
+    /// <param name="align">Align for the initialize operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the Carousel is ready for use.</returns>
     ValueTask Initialize(ElementReference element, DotNetObjectReference<Carousel> callbackReference, int currentIndex, bool isVertical, string? align,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the measure offset operation.
+    /// Measures offset.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="currentIndex">The current index.</param>
-    /// <param name="isVertical">The is vertical.</param>
-    /// <param name="align">The align.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="element">DOM element to inspect or update.</param>
+    /// <param name="currentIndex">Current Index for the measure offset operation.</param>
+    /// <param name="isVertical">Whether vertical.</param>
+    /// <param name="align">Align for the measure offset operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested value.</returns>
     ValueTask<double> MeasureOffset(ElementReference element, int currentIndex, bool isVertical, string? align, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the destroy operation.
+    /// Releases the resources held by the Carousel.
     /// </summary>
-    /// <param name="element">The element.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="element">DOM element to inspect or update.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the destroy operation is complete.</returns>
     ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default);
 }

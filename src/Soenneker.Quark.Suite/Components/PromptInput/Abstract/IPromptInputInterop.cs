@@ -12,45 +12,45 @@ namespace Soenneker.Quark;
 public interface IPromptInputInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Executes the register textarea operation.
+    /// Registers textarea.
     /// </summary>
-    /// <param name="textarea">The textarea.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="textarea">Textarea for the register textarea operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the textarea registration is complete.</returns>
     ValueTask RegisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister textarea operation.
+    /// Unregisters textarea.
     /// </summary>
-    /// <param name="textarea">The textarea.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="textarea">Textarea for the unregister textarea operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the textarea registration has been removed.</returns>
     ValueTask UnregisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the open file dialog by id operation.
+    /// Opens file Dialog By ID for the Prompt Input.
     /// </summary>
-    /// <param name="inputId">The input id.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="inputId">input ID to read or transform.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the open file dialog by id operation is complete.</returns>
     ValueTask OpenFileDialogById(string inputId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the register attachments by id operation.
+    /// Registers attachments By ID.
     /// </summary>
-    /// <param name="inputId">The input id.</param>
-    /// <param name="callbackReference">The callback reference.</param>
-    /// <param name="globalDrop">The global drop.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="inputId">input ID to read or transform.</param>
+    /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
+    /// <param name="globalDrop">Whether global drop.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the attachments by id registration is complete.</returns>
     ValueTask RegisterAttachmentsById(string inputId, DotNetObjectReference<PromptInputActionAddAttachments> callbackReference, bool globalDrop,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister attachments by id operation.
+    /// Unregisters attachments By ID for the Prompt Input.
     /// </summary>
-    /// <param name="inputId">The input id.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="inputId">input ID to read or transform.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the attachments by id registration has been removed.</returns>
     ValueTask UnregisterAttachmentsById(string inputId, CancellationToken cancellationToken = default);
 }

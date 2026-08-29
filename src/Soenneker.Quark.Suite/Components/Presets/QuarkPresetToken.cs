@@ -21,9 +21,9 @@ public readonly struct QuarkPresetToken : IEquatable<QuarkPresetToken>
     public string Name { get; }
 
     /// <summary>
-    /// Executes the apply operation.
+    /// Applies quark Preset Token for the Quark Preset Token.
     /// </summary>
-    /// <param name="context">The context.</param>
+    /// <param name="context">HTTP context containing the Authorization header.</param>
     public void Apply(QuarkPresetContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -33,8 +33,8 @@ public readonly struct QuarkPresetToken : IEquatable<QuarkPresetToken>
     /// <summary>
     /// Determines whether the specified object is equal to the current object.
     /// </summary>
-    /// <param name="other">The other.</param>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <param name="other">Value to compare with this instance.</param>
+    /// <returns>true if the specified object is equal to the current object; otherwise, false.</returns>
     public bool Equals(QuarkPresetToken other) => string.Equals(Name, other.Name, StringComparison.Ordinal);
 
     /// <summary>
@@ -57,18 +57,18 @@ public readonly struct QuarkPresetToken : IEquatable<QuarkPresetToken>
     public override string ToString() => Name;
 
     /// <summary>
-    /// Executes the operator == operation.
+    /// Determines whether two Quark Preset Token values are equal.
     /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <param name="left">Left for the operator == operation.</param>
+    /// <param name="right">Right for the operator == operation.</param>
+    /// <returns>true if the two values are equal; otherwise, false.</returns>
     public static bool operator ==(QuarkPresetToken left, QuarkPresetToken right) => left.Equals(right);
 
     /// <summary>
-    /// Executes the operator != operation.
+    /// Determines whether two Quark Preset Token values are different.
     /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <param name="left">Left for the operator != operation.</param>
+    /// <param name="right">Right for the operator != operation.</param>
+    /// <returns>true if the two values differ; otherwise, false.</returns>
     public static bool operator !=(QuarkPresetToken left, QuarkPresetToken right) => !left.Equals(right);
 }

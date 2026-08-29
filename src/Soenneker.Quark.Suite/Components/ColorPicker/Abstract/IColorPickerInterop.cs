@@ -19,20 +19,20 @@ public interface IColorPickerInterop : IAsyncDisposable
     ValueTask<string?> PickColor(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the register canvas operation.
+    /// Registers canvas.
     /// </summary>
-    /// <param name="root">The color picker root.</param>
-    /// <param name="callbackReference">The callback reference.</param>
-    /// <param name="disabled">The disabled.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="root">Root directory or repository to process.</param>
+    /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
+    /// <param name="disabled">Whether disabled.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>true if registers canvas for the Color Picker; otherwise, false.</returns>
     ValueTask<bool> RegisterCanvas(ElementReference root, DotNetObjectReference<ColorPicker> callbackReference, bool disabled, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the unregister canvas operation.
+    /// Unregisters canvas.
     /// </summary>
-    /// <param name="root">The color picker root.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="root">Root directory or repository to process.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the canvas registration has been removed.</returns>
     ValueTask UnregisterCanvas(ElementReference root, CancellationToken cancellationToken = default);
 }

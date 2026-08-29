@@ -11,6 +11,9 @@ public interface IQuarkDateTimeScheduler : IAsyncDisposable
     /// <summary>
     /// Registers a component update and returns a handle that can be rescheduled or disposed.
     /// </summary>
+    /// <param name="getNextInterval">Callback used by register.</param>
+    /// <param name="callback">Callback to invoke when a matching payload is received.</param>
+    /// <returns>The resulting quark Date Time Schedule Registration.</returns>
     IQuarkDateTimeScheduleRegistration Register(Func<DateTimeOffset, TimeSpan?> getNextInterval,
         Func<DateTimeOffset, ValueTask> callback);
 }

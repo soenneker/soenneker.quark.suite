@@ -11,100 +11,100 @@ namespace Soenneker.Quark;
 public interface ISonnerUtil
 {
     /// <summary>
-    /// Executes the toast operation.
+    /// Creates sonner.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by toast.</returns>
     ValueTask<string> Toast(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the toast operation.
+    /// Creates sonner.
     /// </summary>
-    /// <param name="content">The content.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="content">Content to render, store, or send.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by toast.</returns>
     ValueTask<string> Toast(RenderFragment content, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the success operation.
+    /// Creates a successful result containing the supplied payload.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by success.</returns>
     ValueTask<string> Success(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the info operation.
+    /// Returns the value produced by info.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by info.</returns>
     ValueTask<string> Info(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the warning operation.
+    /// Returns the value produced by warning.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by warning.</returns>
     ValueTask<string> Warning(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the error operation.
+    /// Returns the value produced by error.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by error.</returns>
     ValueTask<string> Error(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the loading operation.
+    /// Loads ing.
     /// </summary>
-    /// <param name="title">The title.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by loading.</returns>
     ValueTask<string> Loading(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the custom operation.
+    /// Adds the supplied custom utility token without interpreting its value.
     /// </summary>
-    /// <param name="content">The content.</param>
-    /// <param name="configure">The configure.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="content">Content to render, store, or send.</param>
+    /// <param name="configure">Callback used to configure the registered service or operation.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by custom.</returns>
     ValueTask<string> Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the promise operation.
+    /// Creates sonner.
     /// </summary>
-    /// <param name="task">The task.</param>
-    /// <param name="options">The options.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="task">Asynchronous operation to run.</param>
+    /// <param name="options">Options to configure for the Sonner.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by promise.</returns>
     ValueTask<string> Promise(ValueTask task, SonnerPromiseOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the promise operation.
+    /// Creates sonner.
     /// </summary>
-    /// <param name="taskFactory">The task factory.</param>
-    /// <param name="options">The options.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="taskFactory">Callback used by promise.</param>
+    /// <param name="options">Options to configure for the Sonner.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the text returned by promise.</returns>
     ValueTask<string> Promise(Func<ValueTask> taskFactory, SonnerPromiseOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the dismiss operation.
+    /// Dismisses sonner.
     /// </summary>
-    /// <param name="id">The identifier.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="id">Identifier of the Sonner instance or registration to target.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the dismiss operation is complete.</returns>
     ValueTask Dismiss(string? id = null, CancellationToken cancellationToken = default);
 }

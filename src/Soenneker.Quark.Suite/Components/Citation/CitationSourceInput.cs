@@ -23,12 +23,12 @@ public sealed class CitationSourceInput
     public RenderFragment? Description { get; set; }
 
     /// <summary>
-    /// Executes the create operation.
+    /// Creates a Citation Source Input instance from the supplied inputs.
     /// </summary>
-    /// <param name="url">The url.</param>
-    /// <param name="title">The title.</param>
-    /// <param name="description">The description.</param>
-    /// <returns>The result of the operation.</returns>
+    /// <param name="url">URL of the resource to target.</param>
+    /// <param name="title">Page title, when available.</param>
+    /// <param name="description">Description for the create operation.</param>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static CitationSourceInput Create(string url, string? title = null, string? description = null)
     {
         return new CitationSourceInput

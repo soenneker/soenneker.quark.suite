@@ -9,7 +9,11 @@ namespace Soenneker.Quark;
 /// </summary>
 public static class ConsolePanelRegistrar
 {
-    /// <summary>Adds console panel services as scoped services.</summary>
+    /// <summary>
+    /// Adds console panel services as scoped services.
+    /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkConsolePanelAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped()

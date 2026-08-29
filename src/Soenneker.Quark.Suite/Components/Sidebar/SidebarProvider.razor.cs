@@ -134,25 +134,25 @@ public partial class SidebarProvider
     /// <summary>
     /// Gets open.
     /// </summary>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
     public bool GetOpen() => Open ?? _openInternal;
 
     /// <summary>
     /// Gets open mobile.
     /// </summary>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
     public bool GetOpenMobile() => OpenMobile ?? _openMobileInternal;
 
     /// <summary>
     /// Gets is mobile.
     /// </summary>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
     public bool GetIsMobile() => IsMobile ?? _isMobileDetected;
 
     /// <summary>
     /// Gets state.
     /// </summary>
-    /// <returns>The result of the operation.</returns>
+    /// <returns>The requested sidebar Context State.</returns>
     public SidebarContextState GetState()
     {
         return new SidebarContextState
@@ -206,8 +206,8 @@ public partial class SidebarProvider
     /// <summary>
     /// Sets open.
     /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>A task that completes when the open has been stored.</returns>
     public async Task SetOpen(bool value)
     {
         if (Open is null)
@@ -223,8 +223,8 @@ public partial class SidebarProvider
     /// <summary>
     /// Sets open mobile.
     /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>A task that completes when the open mobile has been stored.</returns>
     public async Task SetOpenMobile(bool value)
     {
         if (OpenMobile is null)
@@ -237,19 +237,19 @@ public partial class SidebarProvider
     }
 
     /// <summary>
-    /// Executes the toggle sidebar operation.
+    /// Toggles sidebar for the Sidebar Provider.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the toggle sidebar operation is complete.</returns>
     public Task ToggleSidebar()
     {
         return GetIsMobile() ? SetOpenMobile(!GetOpenMobile()) : SetOpen(!GetOpen());
     }
 
     /// <summary>
-    /// Executes the on mobile change operation.
+    /// Responds when mobile change occurs.
     /// </summary>
-    /// <param name="isMobile">The is mobile.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="isMobile">Whether mobile.</param>
+    /// <returns>A task that completes when the on mobile change operation is complete.</returns>
     [JSInvokable]
     public async Task OnMobileChange(bool isMobile)
     {
@@ -262,9 +262,9 @@ public partial class SidebarProvider
     }
 
     /// <summary>
-    /// Executes the on toggle shortcut operation.
+    /// Responds when toggle shortcut occurs.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the on toggle shortcut operation is complete.</returns>
     [JSInvokable]
     public Task OnToggleShortcut()
     {

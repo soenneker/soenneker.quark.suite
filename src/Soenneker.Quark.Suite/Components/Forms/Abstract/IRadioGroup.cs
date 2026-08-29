@@ -43,5 +43,7 @@ public interface IRadioGroup : IElement
     /// <summary>
     /// Called by child Radio when selected. Sets Value and invokes ValueChanged.
     /// </summary>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>A task that completes when the value has been stored.</returns>
     Task SetValue(string? value);
 }

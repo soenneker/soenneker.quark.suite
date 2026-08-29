@@ -12,6 +12,8 @@ public static class PaymentCardRegistrar
     /// <summary>
     /// Adds payment card display services as scoped services.
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkPaymentCardAsScoped(this IServiceCollection services)
     {
         services.AddModuleImportUtilAsScoped()

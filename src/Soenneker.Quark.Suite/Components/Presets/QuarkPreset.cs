@@ -6,8 +6,8 @@ namespace Soenneker.Quark;
 public abstract class QuarkPreset
 {
     /// <summary>
-    /// Executes the apply operation.
+    /// Applies quark Preset for the Quark Preset.
     /// </summary>
-    /// <param name="context">The context.</param>
+    /// <param name="context">HTTP context containing the Authorization header.</param>
     public abstract void Apply(QuarkPresetContext context);
 }

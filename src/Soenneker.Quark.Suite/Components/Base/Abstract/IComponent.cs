@@ -370,12 +370,12 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     EventCallback<ElementReference> OnElementRefReady { get; set; }
 
     /// <summary>
-    /// Executes the refresh operation.
+    /// Refreshes component for the Component.
     /// </summary>
     void Refresh();
     /// <summary>
-    /// Executes the refresh off thread operation.
+    /// Refreshes off Thread for the Component.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that completes when the refresh off thread operation is complete.</returns>
     Task RefreshOffThread();
 }

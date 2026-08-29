@@ -45,6 +45,9 @@ public sealed class ChartOverlayContext
     /// <summary>
     /// Converts a category index and y value into SVG and CSS percentage coordinates.
     /// </summary>
+    /// <param name="index">Zero-based position of the target item.</param>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>The resulting chart Overlay Point.</returns>
     public ChartOverlayPoint Point(int index, double value)
     {
         var x = _categoryX(index);
@@ -56,8 +59,9 @@ public sealed class ChartOverlayContext
     /// Builds an inline CSS position for an absolutely positioned overlay element anchored to a datum.
     /// </summary>
     /// <param name="index">The zero-based category index.</param>
-    /// <param name="value">The y value to anchor.</param>
+    /// <param name="value">CSS value used to construct the utility class.</param>
     /// <param name="transform">An optional CSS transform. The default centers the element on the datum.</param>
+    /// <returns>The text produced by style.</returns>
     public string Style(int index, double value, string transform = "translate(-50%,-50%)")
     {
         var point = Point(index, value);

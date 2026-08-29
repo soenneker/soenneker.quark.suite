@@ -101,69 +101,69 @@ public interface IFloatingWindow : ILeptonCancellableIdentifiableContentElement
     bool? RecenterOnResize { get; set; }
 
     /// <summary>
-    /// Executes the show operation.
+    /// Shows floating Window for the Floating Window.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the show operation is complete.</returns>
     ValueTask Show(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the hide operation.
+    /// Hides floating Window for the Floating Window.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the hide operation is complete.</returns>
     ValueTask Hide(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the toggle operation.
+    /// Toggles floating Window for the Floating Window.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the toggle operation is complete.</returns>
     ValueTask Toggle(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the close operation.
+    /// Closes floating Window for the Floating Window.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the close operation is complete.</returns>
     ValueTask Close(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets position.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested (int x, int y).</returns>
     ValueTask<(int x, int y)> GetPosition(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets position.
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="x">Operand passed to the accumulator function.</param>
+    /// <param name="y">Vertical coordinate to apply.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the position has been stored.</returns>
     ValueTask SetPosition(int x, int y, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets size.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested floating Window Size.</returns>
     ValueTask<FloatingWindowSize> GetSize(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets size.
     /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="width">Width to apply.</param>
+    /// <param name="height">Height to apply.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the size has been stored.</returns>
     ValueTask SetSize(int width, int height, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Executes the center operation.
+    /// Centers floating Window.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task that completes when the center operation is complete.</returns>
     ValueTask Center(CancellationToken cancellationToken = default);
 }

@@ -61,10 +61,12 @@ public interface IAlertDialog : IElement
     /// <summary>
     /// Shows the alert dialog.
     /// </summary>
+    /// <returns>A task that completes when the show operation is complete.</returns>
     Task Show();
 
     /// <summary>
     /// Hides the alert dialog.
     /// </summary>
+    /// <returns>A task that completes when the hide operation is complete.</returns>
     Task Hide();
 }

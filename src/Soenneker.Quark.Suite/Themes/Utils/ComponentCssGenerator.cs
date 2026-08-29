@@ -9,7 +9,11 @@ namespace Soenneker.Quark;
 /// <summary>Generates CSS rules from ComponentOptions without reflection — optimized.</summary>
 public static class ComponentCssGenerator
 {
-    /// <summary>Generates CSS rules for a ComponentOptions object (e.g., AnchorOptions) with aggressive caching and minimal allocations.</summary>
+    /// <summary>
+    /// Generates CSS rules for a ComponentOptions object (e.g., AnchorOptions) with aggressive caching and minimal allocations.
+    /// </summary>
+    /// <param name="options">Options to configure for the Component CSS Generator.</param>
+    /// <returns>The text produced by generate.</returns>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static string Generate(ComponentOptions options)
     {

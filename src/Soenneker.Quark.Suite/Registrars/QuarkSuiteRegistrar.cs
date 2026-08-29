@@ -59,6 +59,7 @@ public static class QuarkSuiteRegistrar
     /// <summary>
     /// Loads Quark resources early to prevent flicker
     /// </summary>
+    /// <param name="serviceProvider">Service Provider for the load quark resources operation.</param>
     /// <returns>Task representing the loading operation</returns>
     public static async Task LoadQuarkResources(this IServiceProvider serviceProvider)
     {

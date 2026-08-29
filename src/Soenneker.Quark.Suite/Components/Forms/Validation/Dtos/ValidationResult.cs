@@ -32,17 +32,20 @@ public sealed class ValidationResult
     /// <summary>
     /// Creates a successful validation result.
     /// </summary>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static ValidationResult Success() => new() { Status = ValidationStatus.Success };
 
     /// <summary>
     /// Creates a validation result with no validation performed yet.
     /// </summary>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static ValidationResult None() => new() { Status = ValidationStatus.None };
 
     /// <summary>
     /// Creates a failed validation result with an error message.
     /// </summary>
-    /// <param name="errorText">The error message.</param>
+    /// <param name="errorText">Error Text for the error operation.</param>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static ValidationResult Error(string errorText) => new() 
     { 
         Status = ValidationStatus.Error, 
@@ -52,8 +55,9 @@ public sealed class ValidationResult
     /// <summary>
     /// Creates a failed validation result with an error message and member names.
     /// </summary>
-    /// <param name="errorText">The error message.</param>
-    /// <param name="memberNames">The member names that have errors.</param>
+    /// <param name="errorText">Error Text for the error operation.</param>
+    /// <param name="memberNames">member Names to process.</param>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static ValidationResult Error(string errorText, IEnumerable<string> memberNames) => new() 
     { 
         Status = ValidationStatus.Error, 
@@ -65,6 +69,8 @@ public sealed class ValidationResult
     /// Combines multiple validation results into a single result.
     /// Returns Error if any result is an error, otherwise returns Success if all are successful.
     /// </summary>
+    /// <param name="results">results to process.</param>
+    /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
     public static ValidationResult Combine(params ValidationResult[] results)
     {
         if (results == null || results.Length == 0)
