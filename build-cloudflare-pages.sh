@@ -12,6 +12,10 @@ curl --fail --silent --show-error --location https://dot.net/v1/dotnet-install.s
 chmod +x "$install_script"
 
 "$install_script" --channel 10.0 --install-dir "$dotnet_dir"
+
+export DOTNET_ROOT="$dotnet_dir"
+export PATH="$dotnet_dir:$PATH"
+
 "$dotnet_dir/dotnet" workload install wasm-tools
 
 PipelineEnvironment=true \
