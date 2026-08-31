@@ -59,6 +59,7 @@
     <!-- Local project control -->
     <PropertyGroup>
         <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">false</UseLocalProjects>
+        <UseLocalCloudflareAiSearchProject Condition="'$(UseLocalCloudflareAiSearchProject)' == ''">false</UseLocalCloudflareAiSearchProject>
 
         <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">
             ..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj
@@ -92,6 +93,10 @@
             ..\..\..\..\Blazor\soenneker.blazor.signaturepads\src\Soenneker.Blazor.SignaturePads\Soenneker.Blazor.SignaturePads.csproj
         </LocalSignaturePadsProject>
 
+        <LocalCloudflareAiSearchProject Condition="'$(LocalCloudflareAiSearchProject)' == ''">
+            ..\..\..\..\Blazor\soenneker.blazor.cloudflare.aisearch\src\Soenneker.Blazor.Cloudflare.AiSearch\Soenneker.Blazor.Cloudflare.AiSearch.csproj
+        </LocalCloudflareAiSearchProject>
+
 
 
     </PropertyGroup>
@@ -124,8 +129,9 @@
     <!-- Always-on dependencies -->
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.C15t" Version="4.0.61" />
+        <PackageReference Include="Soenneker.Blazor.Cloudflare.AiSearch" Version="4.0.28" Condition="'$(UseLocalProjects)' != 'true' And '$(UseLocalCloudflareAiSearchProject)' != 'true'" />
         <PackageReference Include="Soenneker.Gen.EnumValues" Version="4.0.46" />
-        <PackageReference Include="Soenneker.Blazor.CreditCards" Version="4.0.557" Condition="'$(UseLocalProjects)' != 'true'" />
+        <PackageReference Include="Soenneker.Blazor.CreditCards" Version="4.0.558" Condition="'$(UseLocalProjects)' != 'true'" />
         <PackageReference Include="Soenneker.Blazor.SignaturePads" Version="4.0.115" Condition="'$(UseLocalProjects)' != 'true'" />
         <PackageReference Include="Soenneker.Blazor.Utils.Clipboard" Version="4.0.72" Condition="'$(UseLocalProjects)' != 'true'" />
         <PackageReference Include="Soenneker.Blazor.Utils.Ids" Version="4.0.26" />
@@ -181,6 +187,10 @@
         <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
         <ProjectReference Include="$(LocalQuarkGenSimpleIconsAbstractionsProject)" />
         <ProjectReference Include="$(LocalQuarkGenSimpleIconsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseLocalProjects)' == 'true' Or '$(UseLocalCloudflareAiSearchProject)' == 'true'">
+        <ProjectReference Include="$(LocalCloudflareAiSearchProject)" />
     </ItemGroup>
 
     <!-- Tailwind manifest pack -->

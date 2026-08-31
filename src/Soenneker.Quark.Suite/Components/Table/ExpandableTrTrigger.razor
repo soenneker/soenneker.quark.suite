@@ -1,0 +1,99 @@
+@namespace Soenneker.Quark
+@inherits Element
+
+@if (AsChild)
+{
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets whether the child component should act as the expansion trigger.
+    /// </summary>
+    [Parameter]
+    public bool AsChild { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether this trigger is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked when the trigger is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [CascadingParameter]
+    private ExpandableTr? Row { get; set; }
+
+    private bool EffectiveDisabled => Disabled || Row?.Disabled == true;
+
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            DataSlot = "table-row-trigger",
+            TriggerId = Row?.TriggerId,
+            ParentDisabled = EffectiveDisabled,
+            IsOpen = Row?.IsExpanded == true,
+            DataState = Row?.IsExpanded == true ? "open" : "closed",
+            AriaControls = Row?.ContentId,
+            OnClick = OnClick.HasDelegate ? () => OnClick.InvokeAsync(default(MouseEventArgs)) : null,
+            Toggle = Row is null ? null : Row.Toggle
+        };
+    }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        if (EffectiveDisabled)
+            return;
+
+        if (Row is not null)
+            await Row.Toggle();
+
+        await OnClick.InvokeAsync(args);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "table-row-trigger";
+        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["aria-expanded"] = Row?.IsExpanded == true ? "true" : "false";
+        attributes["data-state"] = Row?.IsExpanded == true ? "open" : "closed";
+
+        if (Row is not null)
+        {
+            attributes["id"] = Row.TriggerId;
+            attributes["aria-controls"] = Row.ContentId;
+        }
+
+        if (EffectiveDisabled)
+            attributes["disabled"] = true;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
+        hc.Add(Disabled);
+        hc.Add(OnClick.HasDelegate);
+        hc.Add(Row?.IsExpanded == true);
+    }
+}

@@ -1,0 +1,30 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@if (_searchConfiguration is not null)
+{
+    <Div Class="w-52 shrink-0">
+        <CloudflareAiSearch Configuration="_searchConfiguration" />
+    </Div>
+}
+
+@code {
+    private CloudflareAiSearchBarConfiguration? _searchConfiguration;
+
+    protected override void OnInitialized()
+    {
+        string? apiUrl = Configuration["CloudflareAiSearch:ApiUrl"];
+
+        if (string.IsNullOrWhiteSpace(apiUrl))
+            return;
+
+        _searchConfiguration = new CloudflareAiSearchBarConfiguration
+        {
+            ApiUrl = apiUrl,
+            Placeholder = "Search",
+            MaxResults = 50,
+            MaxRenderResults = 10,
+            DebounceMilliseconds = 250,
+            ShowUrl = true
+        };
+    }
+}

@@ -1,0 +1,65 @@
+@using Soenneker.Blazor.Cloudflare.AiSearch.Configuration
+@using System.Collections.Generic
+
+@namespace Soenneker.Quark
+@inherits Element
+
+<Soenneker.Blazor.Cloudflare.AiSearch.CloudflareAiSearchBar Configuration="_configuration"
+                                                                  @attributes="BuildAttributes()" />
+
+@code {
+    private CloudflareAiSearchBarConfiguration _configuration = new();
+
+    /// <summary>
+    /// Configuration passed to the underlying Cloudflare AI Search bar.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public CloudflareAiSearchBarConfiguration Configuration { get; set; } = new();
+
+    /// <summary>
+    /// Hides the submit button so the search input fills the Quark control.
+    /// </summary>
+    [Parameter]
+    public bool HideSubmitButton { get; set; } = true;
+
+    protected override void OnParametersSet()
+    {
+        _configuration = new CloudflareAiSearchBarConfiguration
+        {
+            ApiUrl = Configuration.ApiUrl,
+            Placeholder = Configuration.Placeholder,
+            Theme = Configuration.Theme,
+            HideBranding = Configuration.HideBranding,
+            Translations = Configuration.Translations,
+            ScriptUrl = Configuration.ScriptUrl,
+            ScriptVersion = Configuration.ScriptVersion,
+            MaxResults = Configuration.MaxResults,
+            MaxRenderResults = Configuration.MaxRenderResults,
+            DebounceMilliseconds = Configuration.DebounceMilliseconds,
+            ShowUrl = Configuration.ShowUrl,
+            ShowDate = Configuration.ShowDate,
+            GroupBy = Configuration.GroupBy,
+            RequestOptions = Configuration.RequestOptions,
+            HideSubmitButton = HideSubmitButton
+        };
+
+        base.OnParametersSet();
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "cloudflare-ai-search";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "block w-full");
+            AppendStyleDecl(ref sty, "--search-snippet-width: 100%; --search-snippet-max-width: 100%; --search-snippet-min-width: 0; --search-snippet-background: var(--background); --search-snippet-surface: var(--muted); --search-snippet-text-color: var(--foreground); --search-snippet-text-secondary: var(--muted-foreground); --search-snippet-border-color: var(--input); --search-snippet-hover-background: var(--accent); --search-snippet-primary-color: var(--primary); --search-snippet-primary-hover: var(--primary); --search-snippet-focus-ring: color-mix(in oklab, var(--ring) 35%, transparent); --search-snippet-font-family: var(--font-sans); --search-snippet-font-size-base: 14px; --search-snippet-spacing-sm: 5px; --search-snippet-border-radius: 6px; --search-snippet-icon-size: 16px; --search-snippet-icon-margin-left: 5px; --search-snippet-shadow: none;");
+        });
+    }
+}

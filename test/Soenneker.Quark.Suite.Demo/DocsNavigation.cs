@@ -46,6 +46,7 @@ public static class DocsNavigation
         new("Chain of Thought", ComponentRoute("chain-of-thought"), IsNew: true),
         new("Checkbox", ComponentRoute("checkbox")),
         new("Citation", ComponentRoute("citation"), IsNew: true),
+        new("Cloudflare AI Search", ComponentRoute("cloudflare-ai-search"), IsNew: true),
         new("CodeEditor", ComponentRoute("codeeditors"), IsNew: true),
         new("Collapsible", ComponentRoute("collapsible")),
         new("Color Picker", ComponentRoute("color-picker"), IsNew: true),

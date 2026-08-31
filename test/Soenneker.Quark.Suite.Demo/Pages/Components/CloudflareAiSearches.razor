@@ -1,0 +1,115 @@
+@page "/components/cloudflare-ai-search"
+@using Soenneker.Blazor.Cloudflare.AiSearch.Configuration
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<PageTitle>Cloudflare AI Search - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Description="A Quark-styled search experience backed by Cloudflare AI Search."
+                     Code="@BasicCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex min-h-64 w-full items-start justify-center p-6 sm:p-10"
+                     PreviewInnerClass="w-full max-w-xl">
+            @if (_searchConfiguration is not null)
+            {
+                <CloudflareAiSearch Configuration="_searchConfiguration" />
+            }
+            else
+            {
+                <Alert>
+                    <AlertTitle>Search endpoint not configured</AlertTitle>
+                    <AlertDescription>
+                        Add <CodeChip>CloudflareAiSearch:ApiUrl</CodeChip> to the demo configuration to enable the live preview.
+                    </AlertDescription>
+                </Alert>
+            }
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="With submit button"
+                     Description="Set HideSubmitButton to false when the search action should remain visible."
+                     Code="@SubmitButtonCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex min-h-64 w-full items-start justify-center p-6 sm:p-10"
+                     PreviewInnerClass="w-full max-w-xl">
+            @if (_searchConfiguration is not null)
+            {
+                <CloudflareAiSearch Configuration="_searchConfiguration" HideSubmitButton="false" />
+            }
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" Margin="Margin.Is0">Registration</H2>
+        <Paragraph TextColor="TextColor.MutedForeground">
+            Register the Cloudflare AI Search interop alongside Quark Suite during application startup.
+        </Paragraph>
+        <CodeEditor Text="@RegistrationCode"
+                    Language="csharp"
+                    ReadOnly="true"
+                    AutoHeight="true"
+                    Minimap="false"
+                    ShowCopyButton="true" />
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" Margin="Margin.Is0">Configuration</H2>
+        <Paragraph TextColor="TextColor.MutedForeground">
+            Pass a Cloudflare AI Search configuration to the component. Quark preserves the provider behavior while applying its design tokens and responsive sizing.
+        </Paragraph>
+        <CodeEditor Text="@ConfigurationCode"
+                    Language="csharp"
+                    ReadOnly="true"
+                    AutoHeight="true"
+                    Minimap="false"
+                    ShowCopyButton="true" />
+    </Section>
+</Div>
+
+@code {
+    private CloudflareAiSearchBarConfiguration? _searchConfiguration;
+
+    protected override void OnInitialized()
+    {
+        string? apiUrl = Configuration["CloudflareAiSearch:ApiUrl"];
+
+        if (!string.IsNullOrWhiteSpace(apiUrl))
+        {
+            _searchConfiguration = new CloudflareAiSearchBarConfiguration
+            {
+                ApiUrl = apiUrl,
+                Placeholder = "Search the Quark Suite docs...",
+                MaxResults = 50,
+                MaxRenderResults = 10,
+                DebounceMilliseconds = 250,
+                ShowUrl = true
+            };
+        }
+
+        base.OnInitialized();
+    }
+
+    private const string BasicCode =
+@"<CloudflareAiSearch Configuration=""_searchConfiguration"" />";
+
+    private const string SubmitButtonCode =
+@"<CloudflareAiSearch Configuration=""_searchConfiguration""
+                    HideSubmitButton=""false"" />";
+
+    private const string RegistrationCode =
+@"builder.Services.AddQuarkSuiteAsScoped();
+builder.Services.AddQuarkCloudflareAiSearchAsScoped();";
+
+    private const string ConfigurationCode =
+@"private readonly CloudflareAiSearchBarConfiguration _searchConfiguration = new()
+{
+    ApiUrl = configuration[""CloudflareAiSearch:ApiUrl""]!,
+    Placeholder = ""Search documentation..."",
+    MaxResults = 50,
+    MaxRenderResults = 10,
+    DebounceMilliseconds = 250,
+    ShowUrl = true
+};";
+}

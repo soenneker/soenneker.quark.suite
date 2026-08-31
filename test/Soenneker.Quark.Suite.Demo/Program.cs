@@ -43,6 +43,7 @@ public sealed class Program
             builder.Services.AddQuarkOptionsAsScoped(quarkOptions);
 
             builder.Services.AddQuarkSuiteAsScoped();
+            builder.Services.AddQuarkCloudflareAiSearchAsScoped();
             builder.Services.AddLucideIconsAsScoped();
             builder.Services.AddSimpleIconsAsScoped();
 

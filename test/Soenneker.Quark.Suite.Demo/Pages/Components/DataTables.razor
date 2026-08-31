@@ -123,6 +123,69 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Expandable rows"
+                     Description="Reveal a full-width detail panel beneath a table row while keeping the table markup accessible."
+                     Code="@ExpandableRowsCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
+                     PreviewInnerClass="w-full">
+            <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl" Rounded="Rounded.Md" Border="Border.Default" Overflow="Overflow.Hidden">
+                <DataTable>
+                    <TableContent>
+                        <Thead>
+                            <Tr>
+                                <Th Width='Width.Token("3rem")'><Span Class="sr-only">Expand</Span></Th>
+                                <Th>Public ID</Th>
+                                <Th>Status</Th>
+                                <Th>Last seen</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            @foreach (ExpandableFileRow file in _expandableRows)
+                            {
+                                <ExpandableTr Key="@file.Id"
+                                              Expanded="@(_expandedRowId == file.Id)"
+                                              ExpandedChanged="@((bool expanded) => SetExpandedRow(file.Id, expanded))"
+                                              Colspan="4">
+                                    <ChildContent>
+                                        <Td>
+                                            <ExpandableTrTrigger AsChild="true">
+                                                <Button Variant="ButtonVariant.Ghost"
+                                                        ButtonSize="ButtonSize.IconXs"
+                                                        aria-label="@($"{(_expandedRowId == file.Id ? "Collapse" : "Expand")} details for {file.Id}")">
+                                                    <Icon Name="LucideIcon.ChevronRight" Class="transition-transform duration-200 group-aria-expanded/button:rotate-90" />
+                                                </Button>
+                                            </ExpandableTrTrigger>
+                                        </Td>
+                                        <Td FontWeight="FontWeight.Medium">@file.Id</Td>
+                                        <Td>
+                                            <Span Class="inline-flex rounded-md border px-2 py-1 text-xs font-medium">@file.Status</Span>
+                                        </Td>
+                                        <Td TextColor="TextColor.MutedForeground">@file.LastSeen</Td>
+                                    </ChildContent>
+                                    <DetailContent>
+                                        <Div Class="grid gap-4 border-t bg-muted/20 p-5 md:grid-cols-2">
+                                            <Div Space="Space.Y.Is2">
+                                                <H4 Margin="Margin.Is0" FontWeight="FontWeight.Semibold">File details</H4>
+                                                <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm"><strong>Key:</strong> @file.Key</Paragraph>
+                                                <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm"><strong>Source:</strong> @file.Source</Paragraph>
+                                            </Div>
+                                            <Div Space="Space.Y.Is2">
+                                                <H4 Margin="Margin.Is0" FontWeight="FontWeight.Semibold">Processing log</H4>
+                                                <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">@file.Log</Paragraph>
+                                            </Div>
+                                        </Div>
+                                    </DetailContent>
+                                </ExpandableTr>
+                            }
+                        </Tbody>
+                    </TableContent>
+                </DataTable>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="Page Size Selector"
                      Description="Use DataTableOptions to render an optional page size selector in the table footer."
                      Code="@PageSizeSelectorCode"
@@ -315,6 +378,13 @@
 
     private readonly HashSet<string> _selectedRowIds = [];
     private readonly HashSet<string> _rtlSelectedRowIds = [];
+    private readonly List<ExpandableFileRow> _expandableRows =
+    [
+        new("3b5a577f", "Indexed", "https://quark.soenneker.com/components/datatable", "web-crawler", "Indexed successfully", "Aug 31, 3:43 PM"),
+        new("0d7e317d", "Errored", "https://quark.soenneker.com/components/table", "web-crawler", "Browser run timed out", "Aug 31, 3:43 PM"),
+        new("139dc3a1", "Errored", "https://quark.soenneker.com/components/collapsible", "web-crawler", "Connection was closed", "Aug 31, 3:42 PM")
+    ];
+    private string? _expandedRowId = "0d7e317d";
     private string? _emailFilter;
     private string? _rtlEmailFilter;
     private bool _showStatus = true;
@@ -457,8 +527,14 @@
             : new Dictionary<string, object>();
     }
 
+    private void SetExpandedRow(string rowId, bool expanded)
+    {
+        _expandedRowId = expanded ? rowId : null;
+    }
+
     private sealed record PaymentRow(string Id, string Status, string StatusArabic, string Email, string Amount, string AmountArabic);
     private sealed record ProjectRow(string Name, string Status, string Owner);
+    private sealed record ExpandableFileRow(string Id, string Status, string Key, string Source, string Log, string LastSeen);
 
     private const string DataTableCode =
 @"<Div Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsXl"" Space=""Space.Y.Is4"">
@@ -573,6 +649,50 @@
         </Div>
     </Div>
 </Div>";
+
+    private const string ExpandableRowsCode =
+@"<DataTable>
+    <TableContent>
+        <Thead>
+            <Tr>
+                <Th><Span Class=""sr-only"">Expand</Span></Th>
+                <Th>Public ID</Th>
+                <Th>Status</Th>
+                <Th>Last seen</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (FileRow file in _files)
+            {
+                <ExpandableTr Key=""@file.Id""
+                              Expanded=""@(_expandedRowId == file.Id)""
+                              ExpandedChanged=""@((bool expanded) => SetExpandedRow(file.Id, expanded))""
+                              Colspan=""4"">
+                    <ChildContent>
+                        <Td>
+                            <ExpandableTrTrigger AsChild=""true"">
+                                <Button Variant=""ButtonVariant.Ghost"" ButtonSize=""ButtonSize.IconXs"">
+                                    <Icon Name=""LucideIcon.ChevronRight""
+                                          Class=""transition-transform group-aria-expanded/button:rotate-90"" />
+                                    <Span Class=""sr-only"">Toggle details</Span>
+                                </Button>
+                            </ExpandableTrTrigger>
+                        </Td>
+                        <Td>@file.Id</Td>
+                        <Td>@file.Status</Td>
+                        <Td>@file.LastSeen</Td>
+                    </ChildContent>
+                    <DetailContent>
+                        <Div Class=""grid gap-4 border-t bg-muted/20 p-5 md:grid-cols-2"">
+                            <Div>Key: @file.Key</Div>
+                            <Div>Processing log: @file.Log</Div>
+                        </Div>
+                    </DetailContent>
+                </ExpandableTr>
+            }
+        </Tbody>
+    </TableContent>
+</DataTable>";
 
     private const string PageSizeSelectorCode =
 @"@code {
