@@ -244,6 +244,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
+        Services.AddScoped<ISpinnerInterop, FakeSpinnerInterop>();
         Services.AddScoped<IScrollspyInterop, FakeScrollspyInterop>();
         Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
@@ -472,6 +473,13 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
         public ValueTask UnregisterCanvas(ElementReference canvas, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeSpinnerInterop : ISpinnerInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

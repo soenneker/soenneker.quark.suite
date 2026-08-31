@@ -1,63 +1,255 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISpinner
+@inject ISpinnerInterop SpinnerInterop
 
-<svg @attributes="BuildAttributes()"
-     xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="currentColor"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round">
-    @if (Name == LucideIcon.Loader)
+<span @attributes="BuildAttributes()">
+    @if (Name.HasValue)
     {
-        <path d="M12 2v4" />
-        <path d="m16.2 7.8 2.9-2.9" />
-        <path d="M18 12h4" />
-        <path d="m16.2 16.2 2.9 2.9" />
-        <path d="M12 18v4" />
-        <path d="m4.9 19.1 2.9-2.9" />
-        <path d="M2 12h4" />
-        <path d="m4.9 4.9 2.9 2.9" />
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24"
+             width="100%"
+             height="100%"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round"
+             focusable="false">
+            @if (Name == LucideIcon.Loader)
+            {
+                <path d="M12 2v4" />
+                <path d="m16.2 7.8 2.9-2.9" />
+                <path d="M18 12h4" />
+                <path d="m16.2 16.2 2.9 2.9" />
+                <path d="M12 18v4" />
+                <path d="m4.9 19.1 2.9-2.9" />
+                <path d="M2 12h4" />
+                <path d="m4.9 4.9 2.9 2.9" />
+            }
+            else
+            {
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            }
+        </svg>
     }
     else
     {
-        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        @if (ShowTrack)
+        {
+            <span data-slot="spinner-track" class="quark-spinner-track"></span>
+        }
+
+        <span data-slot="spinner-motion" class="quark-spinner-linear">
+            <span class="quark-spinner-arc">
+                <span class="quark-spinner-clipper quark-spinner-left">
+                    <span class="quark-spinner-circle"></span>
+                </span>
+                <span class="quark-spinner-clipper quark-spinner-right">
+                    <span class="quark-spinner-circle"></span>
+                </span>
+            </span>
+        </span>
     }
-</svg>
+</span>
 
 @code {
+    private bool _styleInitialized;
+
     [Parameter]
-    public LucideIcon Name { get; set; } = LucideIcon.LoaderCircle;
+    public string? ForegroundColor { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? ForegroundColors { get; set; }
+
+    [Parameter]
+    public string TrackColor { get; set; } = "currentColor";
+
+    [Parameter]
+    public bool ShowTrack { get; set; }
+
+    [Parameter]
+    public double TrackOpacity { get; set; } = 0.15;
+
+    [Parameter]
+    public double StrokeWidth { get; set; } = 4;
+
+    [Parameter]
+    public double? TrackStrokeWidth { get; set; }
+
+    [Parameter]
+    public double MinimumArcLength { get; set; } = 1;
+
+    [Parameter]
+    public double MaximumArcLength { get; set; } = 72;
+
+    [Parameter]
+    public double ArcTravel { get; set; } = 100;
+
+    [Parameter]
+    public double Speed { get; set; } = 1;
+
+    [Parameter]
+    public double? RotationDuration { get; set; }
+
+    [Parameter]
+    public double ArcDuration { get; set; } = 1.8;
+
+    [Parameter]
+    public double? ColorDuration { get; set; }
+
+    [Parameter]
+    public string ArcEasing { get; set; } = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+    [Parameter]
+    public bool Reverse { get; set; }
+
+    [Parameter]
+    public bool Decorative { get; set; }
+
+    [Parameter]
+    public LucideIcon? Name { get; set; }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
+        DataSlot ??= "spinner";
 
         if (!HasExplicitSizeClass())
             Size ??= Quark.Size.Is4;
 
-        Animation ??= Quark.Animation.Spin;
-
+        Display ??= Quark.Display.InlineBlock;
+        Position ??= Quark.Position.Relative;
+        Shrink ??= Quark.Shrink.Is0;
+        PointerEvents ??= Quark.PointerEvents.None;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["role"] = "status";
-        attributes["aria-label"] = "Loading";
-        attributes["class"] = $"{GetLucideClass()} {attributes.GetValueOrDefault("class")}".Trim();
+        attributes["data-reverse"] = Reverse ? "true" : "false";
+        attributes["data-decorative"] = Decorative ? "true" : "false";
 
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "quark-spinner align-middle");
+
+            if (HasColorAnimation)
+                AppendClass(ref cls, "quark-spinner-multicolor");
+
+            if (Name.HasValue)
+                AppendClass(ref cls, $"{GetLucideClass()} animate-spin");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, "contain:strict");
+            AppendStyleDecl(ref sty, "content-visibility:auto");
+            AppendStyleDecl(ref sty, "container-type:size");
+
+            if (!Name.HasValue)
+            {
+                AppendStyleDecl(ref sty, $"--spinner-foreground:{ResolvedForegroundColor}");
+                AppendStyleDecl(ref sty, $"--spinner-track-color:{TrackColor}");
+                AppendStyleDecl(ref sty, $"--spinner-track-opacity:{Format(ResolvedTrackOpacity)}");
+                AppendStyleDecl(ref sty, $"--spinner-stroke-width:{Format(ResolvedStrokeWidth * 2)}cqi");
+                AppendStyleDecl(ref sty, $"--spinner-track-stroke-width:{Format(ResolvedTrackStrokeWidth * 2)}cqi");
+                AppendStyleDecl(ref sty, $"--spinner-rotation-duration:{EffectiveRotationDuration}");
+                AppendStyleDecl(ref sty, $"--spinner-arc-duration:{EffectiveArcDuration}");
+                AppendStyleDecl(ref sty, $"--spinner-cycle-duration:{EffectiveCycleDuration}");
+                AppendStyleDecl(ref sty, $"--spinner-color-duration:{EffectiveColorDuration}");
+                AppendStyleDecl(ref sty, $"--spinner-easing:{ResolvedArcEasing}");
+                AppendStyleDecl(ref sty, $"--spinner-arc-travel:{Format(ResolvedArcTravel)}");
+                AppendStyleDecl(ref sty, "--spinner-expand-start:265deg");
+                AppendStyleDecl(ref sty, $"--spinner-expand-end:{Format(265 - ((ResolvedMaximumArcLength - ResolvedMinimumArcLength) * 1.8))}deg");
+                AppendStyleDecl(ref sty, $"--spinner-color-1:{GetPaletteColor(0)}");
+                AppendStyleDecl(ref sty, $"--spinner-color-2:{GetPaletteColor(1)}");
+                AppendStyleDecl(ref sty, $"--spinner-color-3:{GetPaletteColor(2)}");
+                AppendStyleDecl(ref sty, $"--spinner-color-4:{GetPaletteColor(3)}");
+            }
+        });
+
+        if (Decorative)
+        {
+            attributes["aria-hidden"] = "true";
+            attributes.Remove("role");
+            attributes.Remove("aria-label");
+        }
+        else
+        {
+            attributes.TryAdd("role", "status");
+            attributes.TryAdd("aria-label", "Loading");
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ForegroundColor);
+
+        if (ForegroundColors is not null)
+        {
+            for (var i = 0; i < ForegroundColors.Count; i++)
+                hc.Add(ForegroundColors[i]);
+        }
+
+        hc.Add(TrackColor);
+        hc.Add(ShowTrack);
+        hc.Add(TrackOpacity);
+        hc.Add(StrokeWidth);
+        hc.Add(TrackStrokeWidth);
+        hc.Add(MinimumArcLength);
+        hc.Add(MaximumArcLength);
+        hc.Add(ArcTravel);
+        hc.Add(Speed);
+        hc.Add(RotationDuration);
+        hc.Add(ArcDuration);
+        hc.Add(ColorDuration);
+        hc.Add(ArcEasing);
+        hc.Add(Reverse);
+        hc.Add(Decorative);
         hc.Add(Name);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_styleInitialized && !Name.HasValue)
+        {
+            await SpinnerInterop.Initialize();
+            _styleInitialized = true;
+        }
+    }
+
+    private double ResolvedStrokeWidth => Math.Clamp(StrokeWidth, 0.1, 20);
+    private double ResolvedTrackStrokeWidth => Math.Clamp(TrackStrokeWidth ?? StrokeWidth, 0.1, 20);
+    private double ResolvedTrackOpacity => Math.Clamp(TrackOpacity, 0, 1);
+    private double ResolvedMinimumArcLength => Math.Clamp(MinimumArcLength, 0.1, 99.9);
+    private double ResolvedMaximumArcLength => Math.Clamp(MaximumArcLength, ResolvedMinimumArcLength, 99.9);
+    private double ResolvedArcTravel => Math.Clamp(ArcTravel, 0, 200);
+    private double ResolvedSpeed => Math.Max(Speed, 0.001);
+    private string ResolvedArcEasing => string.IsNullOrWhiteSpace(ArcEasing) ? "cubic-bezier(0.4, 0, 0.2, 1)" : ArcEasing;
+    private string ResolvedForegroundColor => ForegroundColor ?? (ForegroundColors is { Count: > 0 } ? ForegroundColors[0] : "currentColor");
+    private bool HasColorAnimation => ForegroundColor is null && ForegroundColors is { Count: > 1 };
+    private const double GoogleLinearRotationRatio = 360d / 306d;
+
+    private string EffectiveRotationDuration => FormatDuration(RotationDuration ?? ArcDuration * GoogleLinearRotationRatio);
+    private string EffectiveArcDuration => FormatDuration(ArcDuration);
+    private string EffectiveCycleDuration => FormatDuration(ArcDuration * 4);
+    private string EffectiveColorDuration => FormatDuration(ColorDuration ?? ArcDuration * 4);
+
+    private string GetPaletteColor(int index)
+    {
+        if (ForegroundColor is not null || ForegroundColors is not { Count: > 0 })
+            return ResolvedForegroundColor;
+
+        return ForegroundColors[index % Math.Min(ForegroundColors.Count, 4)];
+    }
+
+    private string FormatDuration(double duration) => $"{Format(Math.Max(duration, 0.001) / ResolvedSpeed)}s";
+    private static string Format(double value) => value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
     private string GetLucideClass() => Name == LucideIcon.Loader ? "lucide lucide-loader" : "lucide lucide-loader-circle";
 
     private bool HasExplicitSizeClass()
@@ -70,11 +262,8 @@
 
         foreach (var attribute in Attributes)
         {
-            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) &&
-                ClassHasExplicitSize(attribute.Value?.ToString()))
-            {
+            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
                 return true;
-            }
         }
 
         return false;
@@ -90,7 +279,6 @@
         while (!remaining.IsEmpty)
         {
             remaining = remaining.TrimStart();
-
             var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
             var token = separator < 0 ? remaining : remaining[..separator];
 

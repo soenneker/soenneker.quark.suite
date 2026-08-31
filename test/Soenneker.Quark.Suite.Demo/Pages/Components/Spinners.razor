@@ -25,10 +25,26 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Customization" Description="You can replace the default spinner icon with any other icon by editing the Spinner component."
-                        Code="@CustomizationCode"
-                        CodeLanguage="razor">
-                <Spinner Name="LucideIcon.Loader" />
+            <DemoSection Title="Colors" Description="Use one foreground color or supply a sequence to animate through a custom palette."
+                         Code="@CustomizationCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is6">
+                    <Spinner Size="Quark.Size.Is8" ForegroundColor="var(--primary)" />
+                    <Spinner Size="Quark.Size.Is8" ForegroundColors="@SpinnerColorPalettes.Google" ColorDuration="5" />
+                    <Spinner Size="Quark.Size.Is8" ShowTrack="true" TrackColor="var(--muted-foreground)" ForegroundColor="var(--destructive)" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Motion" Description="Tune all motion with Speed, or control rotation, arc growth, color timing, direction, and arc geometry independently."
+                         Code="@MotionCode"
+                         CodeLanguage="razor">
+                <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is6">
+                    <Spinner Size="Quark.Size.Is8" Speed="0.55" />
+                    <Spinner Size="Quark.Size.Is8" Speed="1.75" />
+                    <Spinner Size="Quark.Size.Is8" Reverse="true" RotationDuration="0.8" ArcDuration="2.2" MinimumArcLength="8" MaximumArcLength="55" />
+                </Div>
             </DemoSection>
         </Section>
 
@@ -51,7 +67,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Button" Description="Add a spinner to a button to indicate a loading state. Place the <Spinner /> before the label with data-icon=&quot;inline-start&quot; for a start position, or after the label with data-icon=&quot;inline-end&quot; for an end position."
+            <DemoSection Title="Button" Description="Add a spinner before or after the button label. Set data-icon to inline-start or inline-end for the correct spacing."
                         CodeLanguage="razor"
                         Code="@(@"<Div Display=""Display.Flex"" FlexDirection=""FlexDirection.Col"" Gap=""Gap.Is4"" ItemsAlign=""Items.Center"">
     <Button Variant=""ButtonVariant.Default"" ButtonSize=""ButtonSize.Sm""><Spinner data-icon=""inline-start"" />Loading...</Button>
@@ -66,7 +82,7 @@
             </DemoSection>
         </Section>
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Badge" Description="Add a spinner to a badge to indicate a loading state. Place the <Spinner /> before the label with data-icon=&quot;inline-start&quot; for a start position, or after the label with data-icon=&quot;inline-end&quot; for an end position."
+            <DemoSection Title="Badge" Description="Add a spinner before or after the badge label. Set data-icon to inline-start or inline-end for the correct spacing."
                         CodeLanguage="razor"
                         Code="@(@"<Div Display=""Display.Flex"" Gap=""Gap.Is4"" ItemsAlign=""Items.Center"" Class=""[--radius:1.2rem]"">
     <Badge Variant=""BadgeVariant.Default""><Spinner data-icon=""inline-start"" />Syncing</Badge>
@@ -158,7 +174,20 @@
 </Div>";
 
     private const string CustomizationCode =
-@"<Spinner Name=""LucideIcon.Loader"" />";
+@"<Spinner ForegroundColor=""var(--primary)"" />
+<Spinner ForegroundColors=""@SpinnerColorPalettes.Google"" ColorDuration=""5"" />
+<Spinner ShowTrack=""true""
+         TrackColor=""var(--muted-foreground)""
+         ForegroundColor=""var(--destructive)"" />";
+
+    private const string MotionCode =
+@"<Spinner Speed=""0.55"" />
+<Spinner Speed=""1.75"" />
+<Spinner Reverse=""true""
+         RotationDuration=""0.8""
+         ArcDuration=""2.2""
+         MinimumArcLength=""8""
+         MaximumArcLength=""55"" />";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
