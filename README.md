@@ -2,14 +2,14 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.quark.suite/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.quark.suite/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.quark.suite/build-and-test.yml?label=Build&style=for-the-badge)](https://github.com/soenneker/soenneker.quark.suite/actions/workflows/build-and-test.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.quark.suite.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.quark.suite/)
-[![](https://img.shields.io/badge/Demo-Live-blueviolet?style=for-the-badge&logo=github)](https://soenneker.github.io/soenneker.quark.suite/)
+[![](https://img.shields.io/badge/Demo-Live-blueviolet?style=for-the-badge&logo=github)](https://quark.soenneker.com/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.quark.suite/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.quark.suite/actions/workflows/codeql.yml)
 
 # Soenneker.Quark.Suite
 
 A shadcn-inspired Blazor component suite with Bradix-backed interaction behavior and Tailwind-oriented styling.
 
-Quark includes application layout, navigation, buttons, menus, dialogs, forms, validation, tables, data-entry controls, feedback, typography, date and time controls, code editing, AI/chat surfaces, and other product UI. See the [live component demo](https://soenneker.github.io/soenneker.quark.suite/) before adopting it.
+Quark includes application layout, navigation, buttons, menus, dialogs, forms, validation, tables, data-entry controls, feedback, typography, date and time controls, code editing, AI/chat surfaces, and other product UI. See the [live component demo](https://quark.soenneker.com/) before adopting it.
 
 ## Install
 
