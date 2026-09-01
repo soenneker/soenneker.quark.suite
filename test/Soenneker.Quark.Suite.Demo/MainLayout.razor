@@ -5,6 +5,11 @@
 @inject Services.ThemeService ThemeService
 @implements IDisposable
 
+<HeadContent>
+    <meta name="title" content="@CurrentMetadataTitle" />
+    <meta property="og:title" content="@CurrentMetadataTitle" />
+</HeadContent>
+
 <CascadingValue Value="ThemeService">
     <SidebarProvider Class="@ShellClass" SidebarWidth="calc(var(--spacing) * 72)" SidebarWidthMobile="100vw" style="--header-height: 4.5rem;">
         @if (IsLandingPage)
@@ -209,6 +214,25 @@
     private bool ShouldRenderLayoutPageTitle => !IsComponentsIndexPage && CurrentPath is not ("/introduction" or "/installation");
     private bool IsLandingPage => CurrentPath == "/";
     private bool ShowSidebarTrigger => true;
+
+    private string CurrentMetadataTitle
+    {
+        get
+        {
+            if (CurrentPageTitle is { } pageTitle)
+                return $"{pageTitle} - Quark Suite";
+
+            if (IsLandingPage)
+                return "Quark Suite - Blazor Components";
+
+            string routeName = CurrentPath[(CurrentPath.LastIndexOf('/') + 1)..];
+            string title = string.Join(' ', routeName.Split('-', StringSplitOptions.RemoveEmptyEntries)
+                                                       .Select(static segment => char.ToUpperInvariant(segment[0]) + segment[1..]));
+
+            return $"{title} - Quark Suite";
+        }
+    }
+
     private bool IsHeaderNavActive(NavigationItem item)
     {
         var normalized = NormalizeRoute(item.Href);
