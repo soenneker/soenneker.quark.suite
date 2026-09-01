@@ -3,9 +3,11 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordion
 
-<BradixAccordion Type="@ResolvedType" Collapsible="@Collapsible" Disabled="@Disabled" Orientation="@Orientation" Value="@Value" DefaultValue="@DefaultValue" ValueChanged="@ValueChanged" Values="@Values" DefaultValues="@DefaultValues" ValuesChanged="@ValuesChanged" AdditionalAttributes="@RootAttributes">
-    @ChildContent
-</BradixAccordion>
+<CascadingValue Name="ParentAccordion" Value="this">
+    <BradixAccordion Type="@ResolvedType" Collapsible="@Collapsible" Disabled="@Disabled" Orientation="@Orientation" Value="@Value" DefaultValue="@DefaultValue" ValueChanged="@HandleValueChanged" Values="@Values" DefaultValues="@DefaultValues" ValuesChanged="@HandleValuesChanged" AdditionalAttributes="@RootAttributes">
+        @ChildContent
+    </BradixAccordion>
+</CascadingValue>
 
 @code {
 
@@ -44,7 +46,21 @@
     [Parameter]
     public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
 
+    internal bool AnimationsEnabled { get; private set; }
+
     private SelectionMode ResolvedType => Multiple ? SelectionMode.Multiple : Type;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            AnimationsEnabled = true;
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private Task HandleValueChanged(string? value) => ValueChanged.InvokeAsync(value);
+
+    private Task HandleValuesChanged(IReadOnlyCollection<string> values) => ValuesChanged.InvokeAsync(values);
 
     protected override void ApplyDefaultParameters()
     {

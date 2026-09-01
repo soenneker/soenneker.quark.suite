@@ -65,7 +65,7 @@ public interface ISpinner : IElement
 
     /// <summary>
     /// Gets or sets the duration, in seconds, of one full rotation before <see cref="Speed"/> is applied.
-    /// Leave unset to derive Google's synchronized rotation timing from <see cref="ArcDuration"/>.
+    /// Leave unset to derive Material's synchronized rotation timing from <see cref="ArcDuration"/>.
     /// </summary>
     double? RotationDuration { get; set; }
 

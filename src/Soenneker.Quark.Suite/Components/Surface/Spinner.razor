@@ -37,16 +37,27 @@
     {
         @if (ShowTrack)
         {
-            <span data-slot="spinner-track" class="quark-spinner-track"></span>
+            <svg class="quark-spinner-track-graphic" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                <circle data-slot="spinner-track" class="quark-spinner-track" cx="50" cy="50" />
+            </svg>
         }
 
-        <span data-slot="spinner-motion" class="quark-spinner-linear">
-            <span class="quark-spinner-arc">
+        <span data-slot="spinner-motion" class="quark-spinner-indeterminate" aria-hidden="true">
+            <span class="quark-spinner-layer">
                 <span class="quark-spinner-clipper quark-spinner-left">
-                    <span class="quark-spinner-circle"></span>
+                    <svg class="quark-spinner-circle-graphic" viewBox="0 0 100 100" focusable="false">
+                        <circle class="quark-spinner-circle" cx="50" cy="50" pathLength="100" stroke-dasharray="100" stroke-dashoffset="50" />
+                    </svg>
+                </span>
+                <span class="quark-spinner-gap-patch">
+                    <svg class="quark-spinner-circle-graphic" viewBox="0 0 100 100" focusable="false">
+                        <circle class="quark-spinner-circle" cx="50" cy="50" pathLength="100" stroke-dasharray="100" stroke-dashoffset="50" />
+                    </svg>
                 </span>
                 <span class="quark-spinner-clipper quark-spinner-right">
-                    <span class="quark-spinner-circle"></span>
+                    <svg class="quark-spinner-circle-graphic" viewBox="0 0 100 100" focusable="false">
+                        <circle class="quark-spinner-circle" cx="50" cy="50" pathLength="100" stroke-dasharray="100" stroke-dashoffset="50" />
+                    </svg>
                 </span>
             </span>
         </span>
@@ -78,10 +89,10 @@
     public double? TrackStrokeWidth { get; set; }
 
     [Parameter]
-    public double MinimumArcLength { get; set; } = 1;
+    public double MinimumArcLength { get; set; } = 2.778;
 
     [Parameter]
-    public double MaximumArcLength { get; set; } = 72;
+    public double MaximumArcLength { get; set; } = 77.778;
 
     [Parameter]
     public double ArcTravel { get; set; } = 100;
@@ -93,7 +104,7 @@
     public double? RotationDuration { get; set; }
 
     [Parameter]
-    public double ArcDuration { get; set; } = 1.8;
+    public double ArcDuration { get; set; } = 1.333;
 
     [Parameter]
     public double? ColorDuration { get; set; }
@@ -145,24 +156,36 @@
         BuildStyleAttribute(attributes, (ref sty) =>
         {
             AppendStyleDecl(ref sty, "contain:strict");
-            AppendStyleDecl(ref sty, "content-visibility:auto");
-            AppendStyleDecl(ref sty, "container-type:size");
 
             if (!Name.HasValue)
             {
                 AppendStyleDecl(ref sty, $"--spinner-foreground:{ResolvedForegroundColor}");
                 AppendStyleDecl(ref sty, $"--spinner-track-color:{TrackColor}");
                 AppendStyleDecl(ref sty, $"--spinner-track-opacity:{Format(ResolvedTrackOpacity)}");
-                AppendStyleDecl(ref sty, $"--spinner-stroke-width:{Format(ResolvedStrokeWidth * 2)}cqi");
-                AppendStyleDecl(ref sty, $"--spinner-track-stroke-width:{Format(ResolvedTrackStrokeWidth * 2)}cqi");
+                AppendStyleDecl(ref sty, $"--spinner-stroke-width:{Format(ResolvedStrokeWidth * 2)}");
+                AppendStyleDecl(ref sty, $"--spinner-track-stroke-width:{Format(ResolvedTrackStrokeWidth * 2)}");
+                AppendStyleDecl(ref sty, $"--spinner-radius:{Format(50 - ResolvedStrokeWidth)}");
+                AppendStyleDecl(ref sty, $"--spinner-track-radius:{Format(50 - ResolvedTrackStrokeWidth)}");
+                AppendStyleDecl(ref sty, $"--spinner-minimum-arc:{Format(ResolvedMinimumArcLength)}");
+                AppendStyleDecl(ref sty, $"--spinner-maximum-arc:{Format(ResolvedMaximumArcLength)}");
+                AppendStyleDecl(ref sty, $"--spinner-left-start:{Format(270 - ResolvedMinimumArcLength * 1.8)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-left-middle:{Format(270 - ResolvedMaximumArcLength * 1.8)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-right-start:{Format((270 - ResolvedMinimumArcLength * 1.8) * -1)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-right-middle:{Format((270 - ResolvedMaximumArcLength * 1.8) * -1)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-1:{Format(ResolvedArcTravel * 1.35)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-2:{Format(ResolvedArcTravel * 2.7)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-3:{Format(ResolvedArcTravel * 4.05)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-4:{Format(ResolvedArcTravel * 5.4)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-5:{Format(ResolvedArcTravel * 6.75)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-6:{Format(ResolvedArcTravel * 8.1)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-7:{Format(ResolvedArcTravel * 9.45)}deg");
+                AppendStyleDecl(ref sty, $"--spinner-layer-8:{Format(ResolvedArcTravel * 10.8)}deg");
                 AppendStyleDecl(ref sty, $"--spinner-rotation-duration:{EffectiveRotationDuration}");
                 AppendStyleDecl(ref sty, $"--spinner-arc-duration:{EffectiveArcDuration}");
                 AppendStyleDecl(ref sty, $"--spinner-cycle-duration:{EffectiveCycleDuration}");
                 AppendStyleDecl(ref sty, $"--spinner-color-duration:{EffectiveColorDuration}");
                 AppendStyleDecl(ref sty, $"--spinner-easing:{ResolvedArcEasing}");
                 AppendStyleDecl(ref sty, $"--spinner-arc-travel:{Format(ResolvedArcTravel)}");
-                AppendStyleDecl(ref sty, "--spinner-expand-start:265deg");
-                AppendStyleDecl(ref sty, $"--spinner-expand-end:{Format(265 - ((ResolvedMaximumArcLength - ResolvedMinimumArcLength) * 1.8))}deg");
                 AppendStyleDecl(ref sty, $"--spinner-color-1:{GetPaletteColor(0)}");
                 AppendStyleDecl(ref sty, $"--spinner-color-2:{GetPaletteColor(1)}");
                 AppendStyleDecl(ref sty, $"--spinner-color-3:{GetPaletteColor(2)}");
@@ -233,9 +256,9 @@
     private string ResolvedArcEasing => string.IsNullOrWhiteSpace(ArcEasing) ? "cubic-bezier(0.4, 0, 0.2, 1)" : ArcEasing;
     private string ResolvedForegroundColor => ForegroundColor ?? (ForegroundColors is { Count: > 0 } ? ForegroundColors[0] : "currentColor");
     private bool HasColorAnimation => ForegroundColor is null && ForegroundColors is { Count: > 1 };
-    private const double GoogleLinearRotationRatio = 360d / 306d;
+    private const double MaterialLinearRotationRatio = 1568.2352941176d / 1333d;
 
-    private string EffectiveRotationDuration => FormatDuration(RotationDuration ?? ArcDuration * GoogleLinearRotationRatio);
+    private string EffectiveRotationDuration => FormatDuration(RotationDuration ?? ArcDuration * MaterialLinearRotationRatio);
     private string EffectiveArcDuration => FormatDuration(ArcDuration);
     private string EffectiveCycleDuration => FormatDuration(ArcDuration * 4);
     private string EffectiveColorDuration => FormatDuration(ColorDuration ?? ArcDuration * 4);

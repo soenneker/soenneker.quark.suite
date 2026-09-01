@@ -49,8 +49,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     public override Task SetParametersAsync(ParameterView parameters)
     {
         _defaultsApplied = false;
-        _incomingParametersKey = ComputeIncomingParametersKey(parameters);
-        _incomingParametersChanged = !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
+        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment);
+
+        // A render fragment can keep the same delegate identity while reading mutated state from its owner.
+        // Re-render fragment-bearing components so they do not freeze otherwise valid descendant updates.
+        _incomingParametersChanged = hasRenderFragment || !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
 
         if (_incomingParametersChanged)
         {
@@ -282,17 +285,30 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         return hc.ToHashCode();
     }
 
-    private static int ComputeIncomingParametersKey(ParameterView parameters)
+    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment)
     {
         var hashCode = new HashCode();
+        hasRenderFragment = false;
 
         foreach (var parameter in parameters)
         {
             hashCode.Add(parameter.Name, StringComparer.Ordinal);
             AddIncomingParameterValue(ref hashCode, parameter.Value);
+
+            if (IsRenderFragment(parameter.Value))
+                hasRenderFragment = true;
         }
 
         return hashCode.ToHashCode();
+    }
+
+    private static bool IsRenderFragment(object? value)
+    {
+        if (value is RenderFragment)
+            return true;
+
+        Type? type = value?.GetType();
+        return type is { IsGenericType: true } && type.GetGenericTypeDefinition() == typeof(RenderFragment<>);
     }
 
     private static void AddIncomingParameterValue(ref HashCode hashCode, object? value)

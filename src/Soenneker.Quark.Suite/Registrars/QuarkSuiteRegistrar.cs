@@ -44,6 +44,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkScrollRevealAsScoped()
                 .AddQuarkCodeEditorAsScoped()
                 .AddQuarkSpinnerAsScoped()
+                .AddQuarkNativeDialogAsScoped()
                 .AddQuarkScoreAsScoped()
                 .AddQuarkColorPickerAsScoped()
                 .AddQuarkConsolePanelAsScoped()

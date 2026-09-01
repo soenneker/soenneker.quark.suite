@@ -1,0 +1,141 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.InteractiveElement
+@implements INativeDialog
+
+<dialog @ref="ElementRef"
+        @oncancel="HandleCancel"
+        @oncancel:preventDefault="@(!CloseOnEscape)"
+        @onclose="HandleClose"
+        @attributes="BuildAttributes()">
+    @ChildContent
+</dialog>
+
+@code {
+    [Inject]
+    private INativeDialogInterop Interop { get; set; } = null!;
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool Modal { get; set; } = true;
+
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> OnClose { get; set; }
+
+    private bool _domOpen;
+    public Task Show() => SetOpen(true, false);
+
+    public Task ShowModal() => SetOpen(true, true);
+
+    public async Task Close(string? returnValue = null)
+    {
+        if (!_domOpen)
+        {
+            await SetOpen(false, Modal);
+            return;
+        }
+
+        await Interop.Close(ElementRef, returnValue);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "native-dialog";
+
+        Margin ??= Quark.Margin.Auto;
+        Width ??= Quark.Width.IsFull;
+        MaxWidth ??= "max-w-[calc(100%-2rem)] sm:max-w-lg";
+        Rounded ??= Quark.Rounded.Xl;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Border;
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        Padding ??= Quark.Padding.Is6;
+        TextColor ??= Quark.TextColor.PopoverForeground;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "shadow-lg backdrop:bg-black/50 backdrop:backdrop-blur-xs");
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (Open == _domOpen)
+            return;
+
+        if (!Open)
+        {
+            if (_domOpen)
+                await Interop.Close(ElementRef);
+
+            return;
+        }
+
+        if (Modal)
+            await Interop.ShowModal(ElementRef);
+        else
+            await Interop.Show(ElementRef);
+
+        _domOpen = true;
+    }
+
+    private async Task SetOpen(bool open, bool modal)
+    {
+        if (Open == open)
+            return;
+
+        Open = open;
+        Modal = modal;
+        await OpenChanged.InvokeIfHasDelegate(Open);
+        await RefreshOffThread();
+    }
+
+    private Task HandleCancel() => OnCancel.InvokeIfHasDelegate();
+
+    private async Task HandleClose()
+    {
+        _domOpen = false;
+
+        string? returnValue = await Interop.GetReturnValue(ElementRef);
+
+        if (Open)
+        {
+            Open = false;
+            await OpenChanged.InvokeIfHasDelegate(false);
+        }
+
+        await OnClose.InvokeIfHasDelegate(returnValue);
+        await RefreshOffThread();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Open);
+        hc.Add(Modal);
+        hc.Add(CloseOnEscape);
+        hc.Add(OpenChanged.HasDelegate);
+        hc.Add(OnCancel.HasDelegate);
+        hc.Add(OnClose.HasDelegate);
+    }
+}

@@ -17,17 +17,22 @@ public sealed partial class RenderedShadcnParityTests
 
         root.ClassList.Should().NotContain("quark-spinner-multicolor");
         root.GetAttribute("style").Should().Contain("contain:strict");
-        root.GetAttribute("style").Should().Contain("content-visibility:auto");
+        root.GetAttribute("style").Should().NotContain("content-visibility");
         root.GetAttribute("style").Should().Contain("--spinner-foreground:currentColor");
-        root.GetAttribute("style").Should().Contain("--spinner-rotation-duration:2.118s");
-        root.GetAttribute("style").Should().Contain("--spinner-arc-duration:1.8s");
-        root.GetAttribute("style").Should().Contain("--spinner-cycle-duration:7.2s");
-        root.GetAttribute("style").Should().Contain("--spinner-color-duration:7.2s");
-        cut.FindAll("svg").Should().BeEmpty();
+        root.GetAttribute("style").Should().Contain("--spinner-rotation-duration:1.568s");
+        root.GetAttribute("style").Should().Contain("--spinner-arc-duration:1.333s");
+        root.GetAttribute("style").Should().Contain("--spinner-minimum-arc:2.778");
+        root.GetAttribute("style").Should().Contain("--spinner-maximum-arc:77.778");
+        root.GetAttribute("style").Should().Contain("--spinner-left-start:265deg");
+        root.GetAttribute("style").Should().Contain("--spinner-left-middle:130deg");
+        root.GetAttribute("style").Should().Contain("--spinner-cycle-duration:5.332s");
+        root.GetAttribute("style").Should().Contain("--spinner-color-duration:5.332s");
+        cut.FindAll("svg").Should().HaveCount(3);
         cut.FindAll("style").Should().BeEmpty();
         cut.FindAll("link").Should().BeEmpty();
+        cut.FindAll(".quark-spinner-circle").Should().HaveCount(3);
         cut.FindAll(".quark-spinner-clipper").Should().HaveCount(2);
-        cut.FindAll(".quark-spinner-circle").Should().HaveCount(2);
+        cut.FindAll(".quark-spinner-gap-patch").Should().HaveCount(1);
     }
 
     [Test]
@@ -66,14 +71,14 @@ public sealed partial class RenderedShadcnParityTests
         var style = root.GetAttribute("style");
         style.Should().Contain("--spinner-track-color:#111827");
         style.Should().Contain("--spinner-track-opacity:0.35");
-        style.Should().Contain("--spinner-track-stroke-width:4cqi");
+        style.Should().Contain("--spinner-track-stroke-width:4");
         style.Should().Contain("--spinner-foreground:#f9fafb");
-        style.Should().Contain("--spinner-stroke-width:12cqi");
+        style.Should().Contain("--spinner-stroke-width:12");
         style.Should().Contain("--spinner-rotation-duration:1s");
         style.Should().Contain("--spinner-arc-duration:1.5s");
         style.Should().Contain("--spinner-arc-travel:80");
         var motion = cut.Find("[data-slot='spinner-motion']");
-        motion.ClassList.Should().Contain("quark-spinner-linear");
+        motion.ClassList.Should().Contain("quark-spinner-indeterminate");
     }
 
     [Test]
@@ -88,6 +93,6 @@ public sealed partial class RenderedShadcnParityTests
         root.HasAttribute("role").Should().BeFalse();
         root.HasAttribute("aria-label").Should().BeFalse();
         root.GetAttribute("data-reverse").Should().Be("true");
-        cut.Find("[data-slot='spinner-motion']").ClassList.Should().Contain("quark-spinner-linear");
+        cut.Find("[data-slot='spinner-motion']").ClassList.Should().Contain("quark-spinner-indeterminate");
     }
 }

@@ -1,0 +1,54 @@
+@page "/components/native-dialog"
+
+<PageTitle>Native Dialog - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Paragraph MaxWidth="MaxWidth.Is3xl" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+        A styled native HTML dialog that uses the browser's built-in modal behavior, focus handling, and top layer.
+    </Paragraph>
+
+    <DemoSection Code="@BasicCode" CodeLanguage="razor">
+        <Button OnClick="OpenDialog">Open native dialog</Button>
+
+        <NativeDialog @ref="_dialog" AriaLabelledBy="native-dialog-title">
+            <Div Space="Space.Y.Is4">
+                <Div Space="Space.Y.Is2">
+                    <Heading Id="native-dialog-title" Level="HeadingLevel.H3" TextSize="TextSize.Lg" FontWeight="FontWeight.Semibold">
+                        Native dialog
+                    </Heading>
+                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        This content is rendered inside the browser's native dialog element.
+                    </Paragraph>
+                </Div>
+
+                <Div Display="Display.Flex" Justify="Justify.End">
+                    <Button Variant="ButtonVariant.Outline" OnClick="CloseDialog">Close</Button>
+                </Div>
+            </Div>
+        </NativeDialog>
+    </DemoSection>
+</Div>
+
+@code {
+    private NativeDialog? _dialog;
+
+    private Task OpenDialog() => _dialog?.ShowModal() ?? Task.CompletedTask;
+
+    private Task CloseDialog() => _dialog?.Close() ?? Task.CompletedTask;
+
+    private const string BasicCode =
+@"<Button OnClick=""OpenDialog"">Open native dialog</Button>
+
+<NativeDialog @ref=""_dialog"" AriaLabelledBy=""native-dialog-title"">
+    <Heading Id=""native-dialog-title"" Level=""HeadingLevel.H3"">Native dialog</Heading>
+    <Paragraph>This content uses the browser's native dialog element.</Paragraph>
+    <Button OnClick=""CloseDialog"">Close</Button>
+</NativeDialog>
+
+@code {
+    private NativeDialog? _dialog;
+
+    private Task OpenDialog() => _dialog?.ShowModal() ?? Task.CompletedTask;
+    private Task CloseDialog() => _dialog?.Close() ?? Task.CompletedTask;
+}";
+}

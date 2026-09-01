@@ -7,17 +7,25 @@
         @ChildContent
     </tr>
 
-    @if (IsExpanded && DetailContent is not null)
+    @if (DetailContent is not null)
     {
         <tr id="@ContentId"
             data-slot="table-row-detail"
-            data-state="open"
+            data-state="@(IsExpanded ? "open" : "closed")"
+            aria-hidden="@(!IsExpanded ? "true" : "false")"
             aria-labelledby="@TriggerId"
             class="@DetailRowClass">
             <td colspan="@Colspan"
                 data-slot="table-row-detail-cell"
                 class="@DetailCellClass">
-                @DetailContent
+                <div data-slot="table-row-detail-transition"
+                     class="@DetailTransitionClass">
+                    <div data-slot="table-row-detail-inner"
+                         class="min-h-0 overflow-hidden"
+                         inert="@(!IsExpanded ? string.Empty : null)">
+                        @DetailContent
+                    </div>
+                </div>
             </td>
         </tr>
     }
@@ -91,6 +99,10 @@
     internal string TriggerId => _generatedTriggerId;
     internal string ContentId => _generatedContentId;
 
+    private string DetailTransitionClass => IsExpanded
+        ? "grid grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none"
+        : "grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none pointer-events-none";
+
     protected override void OnParametersSet()
     {
         if (!_initialized)
@@ -110,7 +122,12 @@
         bool next = !IsExpanded;
 
         if (!Expanded.HasValue)
+        {
             _expanded = next;
+
+            InvalidateRender();
+            await InvokeAsync(StateHasChanged);
+        }
 
         await ExpandedChanged.InvokeAsync(next);
     }
