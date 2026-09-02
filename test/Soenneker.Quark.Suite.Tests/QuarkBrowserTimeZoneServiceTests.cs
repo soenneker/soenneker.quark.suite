@@ -9,24 +9,24 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class QuarkBrowserTimeZoneServiceTests
 {
     [Test]
-    public async Task Browser_timezone_service_returns_null_when_js_fails()
+    public async Task Browser_timezone_service_returns_null_when_js_fails(CancellationToken cancellationToken)
     {
         var interop = new ThrowingBrowserTimeZoneInterop();
         var service = new QuarkBrowserTimeZoneService(interop, NullLogger<QuarkBrowserTimeZoneService>.Instance);
 
-        var result = await service.GetTimeZoneId();
+        var result = await service.GetTimeZoneId(cancellationToken: cancellationToken);
 
         result.Should().BeNull();
     }
 
     [Test]
-    public async Task Browser_timezone_service_caches_detected_timezone()
+    public async Task Browser_timezone_service_caches_detected_timezone(CancellationToken cancellationToken)
     {
         var interop = new CountingBrowserTimeZoneInterop("UTC");
         var service = new QuarkBrowserTimeZoneService(interop, NullLogger<QuarkBrowserTimeZoneService>.Instance);
 
-        var first = await service.GetTimeZoneId();
-        var second = await service.GetTimeZoneId();
+        var first = await service.GetTimeZoneId(cancellationToken: cancellationToken);
+        var second = await service.GetTimeZoneId(cancellationToken: cancellationToken);
 
         first.Should().Be("UTC");
         second.Should().Be("UTC");
