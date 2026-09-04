@@ -300,6 +300,7 @@
     private RenderFragment? _legendContent;
     private int _pointCount;
     private int _geometryVersion;
+    private long _calculatedDataVersion;
     private double _radialTotal;
     private bool _hasData;
     private string _viewBox = "0 0 800 320";
@@ -311,11 +312,19 @@
     /// <remarks>
     /// Values at the same index share a category. Null values create gaps in line and area series and are skipped by bars.
     /// Pie and donut charts use the first series and treat its non-negative values as slices.
-    /// Geometry is cached by reference for efficient parent and interaction renders. Replace the series collection or its series instances
-    /// when values or visual properties change instead of mutating an existing instance in place.
+    /// Geometry is cached by reference for efficient parent and interaction renders. Replace the series collection
+    /// when values or visual properties change, or increment <see cref="DataVersion"/> after mutating existing data.
     /// </remarks>
     [Parameter, EditorRequired]
     public IReadOnlyList<ChartSeries> Series { get; set; } = [];
+
+    /// <summary>Gets or sets the revision of mutable chart data. Change this value to rebuild geometry after appending or removing samples.</summary>
+    /// <remarks>
+    /// Bind to <see cref="RealtimeChartData.Version"/> for a bounded realtime line chart. Mutate data on the Blazor dispatcher
+    /// and request a parent render after each update or batch. Keeping the series collection preserves legend visibility.
+    /// </remarks>
+    [Parameter]
+    public long DataVersion { get; set; }
 
     /// <summary>
     /// Gets or sets category or slice labels in the same order as the series values.
@@ -499,10 +508,13 @@
             _initializedSeries = Series;
         }
 
-        var geometryChanged = !ReferenceEquals(_calculatedSeries, Series) || !ReferenceEquals(_calculatedLabels, Labels) || !ReferenceEquals(_calculatedXValues, XValues) || !ReferenceEquals(_calculatedOptions, Options) || !Equals(_calculatedType, Type);
+        var geometryChanged = _calculatedDataVersion != DataVersion || !ReferenceEquals(_calculatedSeries, Series) || !ReferenceEquals(_calculatedLabels, Labels) || !ReferenceEquals(_calculatedXValues, XValues) || !ReferenceEquals(_calculatedOptions, Options) || !Equals(_calculatedType, Type);
 
         if (geometryChanged)
         {
+            if (_calculatedDataVersion != DataVersion)
+                ClearHover();
+            _calculatedDataVersion = DataVersion;
             _calculatedSeries = Series;
             _calculatedLabels = Labels;
             _calculatedXValues = XValues;
