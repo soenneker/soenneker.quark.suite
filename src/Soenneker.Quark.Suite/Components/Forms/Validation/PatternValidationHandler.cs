@@ -4,6 +4,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
+/// <inheritdoc cref="IValidationHandler" />
 internal sealed class PatternValidationHandler : IValidationHandler
 {
     public void Validate(Validation ctx, object value)

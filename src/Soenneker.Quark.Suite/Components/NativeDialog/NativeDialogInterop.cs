@@ -8,6 +8,7 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
+/// <inheritdoc cref="INativeDialogInterop" />
 public sealed class NativeDialogInterop : INativeDialogInterop
 {
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/nativedialoginterop.js";

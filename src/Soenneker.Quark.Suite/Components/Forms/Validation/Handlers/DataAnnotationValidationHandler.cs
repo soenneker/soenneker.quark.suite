@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace Soenneker.Quark;
 
+/// <inheritdoc cref="IValidationHandler" />
 internal sealed class DataAnnotationValidationHandler : IValidationHandler
 {
     public void Validate(Validation ctx, object value)

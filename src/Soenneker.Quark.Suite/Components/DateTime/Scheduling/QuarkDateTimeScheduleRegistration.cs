@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
+/// <inheritdoc cref="IQuarkDateTimeScheduleRegistration" />
 internal sealed class QuarkDateTimeScheduleRegistration : IQuarkDateTimeScheduleRegistration
 {
     private readonly QuarkDateTimeScheduler _owner;

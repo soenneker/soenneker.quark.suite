@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
+/// <inheritdoc cref="ISpinnerInterop" />
 public sealed class SpinnerInterop : ISpinnerInterop
 {
     private const string _stylePath = "_content/Soenneker.Quark.Suite/css/spinner.css";
