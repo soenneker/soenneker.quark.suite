@@ -114,23 +114,27 @@
         });
     }
 
-    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
+    private static readonly IReadOnlyDictionary<string, object> PopperViewportAttributes = CreatePopperViewportAttributes();
+
+    private static IReadOnlyDictionary<string, object> CreatePopperViewportAttributes()
     {
-        var attributes = new Dictionary<string, object>
+        var attributes = new Dictionary<string, object> { ["data-position"] = "popper" };
+        // Keep the utility declaration visible to the Tailwind manifest generator.
+        RenderComponent.BuildClassAttribute(attributes, static (ref cls) =>
         {
-            ["data-position"] = ContentPosition == SelectPosition.Popper ? "popper" : "item-aligned"
-        };
-
-        if (ContentPosition == SelectPosition.Popper)
-        {
-            RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)");
-            });
-        }
-
-        return attributes;
+            AppendClass(ref cls, "data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)");
+        });
+        return new System.Collections.ObjectModel.ReadOnlyDictionary<string, object>(attributes);
     }
+
+    private static readonly IReadOnlyDictionary<string, object> ItemAlignedViewportAttributes =
+        new System.Collections.ObjectModel.ReadOnlyDictionary<string, object>(new Dictionary<string, object>
+        {
+            ["data-position"] = "item-aligned"
+        });
+
+    private IReadOnlyDictionary<string, object> BuildViewportAttributes() =>
+        ContentPosition == SelectPosition.Popper ? PopperViewportAttributes : ItemAlignedViewportAttributes;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

@@ -1,19 +1,26 @@
-# Quark rendering benchmarks
+# Suite performance benchmarks
 
-Run the rendering comparison in Release mode:
+Run from the Quark repository root in Release mode, using the sibling Bradix checkout:
 
 ```powershell
-dotnet run --project test/Soenneker.Quark.Suite.Benchmarks/Soenneker.Quark.Suite.Benchmarks.csproj -c Release -- --filter "*RenderingBenchmarks*"
+dotnet run --project test/Soenneker.Quark.Suite.Benchmarks -c Release -p:UseLocalBradixProject=true -- --filter "*RenderingBenchmarks*" "*SelectFocusBenchmarks*"
+dotnet run --project test/Soenneker.Quark.Suite.Benchmarks -c Release -p:UseLocalBradixProject=true -- --filter "*AttributeBenchmarks*" "*RealtimeAppendBenchmarks*"
 ```
 
-The benchmark compares plain Blazor rendering, Quark rendering with suppression disabled (`AlwaysRender = true`), and Quark's default hash-based render suppression. It covers stable complex parameters, where Blazor must conservatively revisit a child, and changing values, where every child must render.
+`UseLocalBradixProject` switches only Bradix to a project reference; other dependencies remain on NuGet. `Program.cs` forwards this setting into BenchmarkDotNet's generated builds. The usual sibling Bradix checkout is expected; override `LocalBradixProject` if necessary, including in the benchmark build arguments.
 
-`ChartRenderingBenchmarks` separately measures stable chart parameters, changed data references, and hover-only updates at 100 and 1,000 points. This keeps expensive geometry work and interaction rendering visible as independent performance signals.
+For a short diagnostic run, append `--warmupCount 2 --iterationCount 4`. Use longer runs for small timing differences, and profile browser/WASM workloads separately before making application-level claims.
 
-`CascadingRenderingBenchmarks` compares unchanged children receiving a known immutable cascade with children receiving a mutable reference context, which intentionally retains detailed render-key evaluation for correctness.
+| Benchmark | What it measures |
+| --- | --- |
+| `GlobalRenderingBenchmarks` | Plain Blazor, Quark buffered and Quark suppressed; both unchanged and changing children at 100/500 components. Compare matching scenarios rather than the default ratio column across all methods. |
+| `ChartRenderingBenchmarks` | Stable parameters, changed geometry, moving hover, and repeated hover on the same point at 100/1,000 points. |
+| `CascadingRenderingBenchmarks` | Immutable versus mutable cascading contexts; mutable contexts retain detailed key evaluation. |
+| `SelectFocusBenchmarks` | Repeated and changing focused items at 100/500 items, using real Bradix components with mocked JS. |
+| `BradixAttributeBenchmarks` | Nine-attribute calls through an explicit tuple array and the params span overload. No renderer or JS. |
+| `QuarkAttributeBenchmarks` | Attribute rebuilds with unchanged or changing class output. No renderer or JS. |
+| `RealtimeAppendBenchmarks` | Explicit arrays, params spans, and batches of 16 samples. Batch results are normalized per sample. Labels are not read. |
 
-On the first optimized .NET 10 run, stable 1,000-point delivery took approximately 4 microseconds and allocated 6 KB. Replacing the data reference and rebuilding the complete geometry took approximately 4.93 milliseconds and allocated 10.94 MB. A hover-only update retained the static SVG, legend, and accessibility table and took approximately 1.13 milliseconds with 3.15 MB allocated in bUnit—about 77% less time and 71% less allocation than a geometry rebuild. bUnit synchronizes its parsed DOM after an event, so treat the interaction result as a conservative signal rather than isolated browser render cost.
+bUnit updates its parsed DOM after renders. Its allocations include the harness, DOM processing, event dispatch and parameter construction; they are not isolated library allocations. The plain-Blazor changing baseline reproduces most of the large allocation reported for changing Quark leaves. The isolated benchmarks deliberately exclude this overhead, as well as initial component construction and dictionary capacity growth.
 
-For 500 unchanged children, a known immutable cascading value used the fast path in approximately 143 microseconds, versus approximately 352 microseconds for a mutable reference context that correctly retained detailed render-key evaluation. The immutable path was about 2.5 times faster; allocation differences include the different generic `CascadingValue<T>` representations and are not directly comparable.
-
-On the initial .NET 10 workstation run, suppression offered essentially no improvement for unchanged immutable scalar parameters because Blazor already skipped those children. With stable complex parameters, the optimized suppression path reduced a 500-component update from approximately 481 microseconds to 77 microseconds and reduced allocations from approximately 93 KB to 27 KB. The earlier detailed-key implementation took approximately 135 microseconds for the same suppressed update. The latest full run measured approximately 39–40 milliseconds when all 500 child values changed, with suppression and normal rendering remaining effectively equivalent. Treat results as machine-specific and rerun them when changing the rendering pipeline.
+[September 4, 2026 results and implementation notes](PERFORMANCE-2026-09-04.md) record the current measurements and validation. The August 28 artifacts predate these changes and are not a controlled before/after comparison.

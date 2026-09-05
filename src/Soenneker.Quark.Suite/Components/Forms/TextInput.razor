@@ -25,7 +25,7 @@
            Style="@Style"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
-           @attributes="BuildInputAttributes()"
+           AdditionalAttributes="BuildInputAttributes()"
            OnInput="HandleInput"
            OnChange="HandleChange"
            AutoSave="@AutoSave"
@@ -43,6 +43,7 @@
 </div>
 
 @code {
+    private readonly RenderAttributeDictionary _wrapperAttributes = new();
     /// <summary>
     /// Gets or sets the value.
     /// </summary>
@@ -253,15 +254,7 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-
-        if (AdditionalAttributes is not null)
-        {
-            foreach (var attribute in AdditionalAttributes)
-            {
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
+        var attributes = _wrapperAttributes.Create(AdditionalAttributes, 3);
 
         // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
         if (MaxLength > 0) attributes["maxlength"] = MaxLength;

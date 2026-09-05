@@ -13,7 +13,9 @@ namespace Soenneker.Quark;
 /// </remarks>
 public sealed class RealtimeChartData
 {
-    private readonly Ring<string> _labels;
+    private readonly Ring<string?> _labels;
+    private readonly Ring<DateTimeOffset> _timestamps;
+    private readonly LabelList _labelView;
     private readonly Ring<double> _xValues;
     private readonly Ring<double?>[] _values;
 
@@ -26,7 +28,9 @@ public sealed class RealtimeChartData
             throw new ArgumentException("At least one series is required.", nameof(seriesNames));
 
         Capacity = capacity;
-        _labels = new Ring<string>(capacity);
+        _labels = new Ring<string?>(capacity);
+        _timestamps = new Ring<DateTimeOffset>(capacity);
+        _labelView = new LabelList(this);
         _xValues = new Ring<double>(capacity);
         _values = new Ring<double?>[seriesNames.Length];
         var series = new ChartSeries[seriesNames.Length];
@@ -46,7 +50,7 @@ public sealed class RealtimeChartData
     /// <summary>Gets stable series collections in constructor order.</summary>
     public IReadOnlyList<ChartSeries> Series { get; }
     /// <summary>Gets the display labels for retained samples.</summary>
-    public IReadOnlyList<string> Labels => _labels;
+    public IReadOnlyList<string> Labels => _labelView;
     /// <summary>Gets retained timestamps as Unix milliseconds for proportional spacing.</summary>
     public IReadOnlyList<double> XValues => _xValues;
     /// <summary>Gets the data revision to bind to Chart.DataVersion.</summary>
@@ -57,32 +61,91 @@ public sealed class RealtimeChartData
     public void Append(DateTimeOffset timestamp, params double?[] values)
     {
         ArgumentNullException.ThrowIfNull(values);
+        Append(timestamp, values.AsSpan());
+    }
+
+    /// <summary>Appends a sample without allocating an argument array. Null values create gaps.</summary>
+    /// <param name="timestamp">A timestamp later than the last retained sample by at least one millisecond.</param>
+    /// <param name="values">One finite or null value per series.</param>
+    public void Append(DateTimeOffset timestamp, params ReadOnlySpan<double?> values)
+    {
         if (values.Length != _values.Length)
             throw new ArgumentException("Supply one value per series.", nameof(values));
-        var x = timestamp.ToUnixTimeMilliseconds();
-        if (Count > 0 && x <= _xValues[Count - 1])
+        ValidateTimestamp(timestamp, Count > 0 ? _xValues[Count - 1] : double.NegativeInfinity);
+        ValidateValues(values);
+        AppendCore(timestamp, values);
+        Version++;
+    }
+
+    /// <summary>Appends a batch and advances the data version once. Validation completes before any samples are changed.</summary>
+    /// <param name="timestamps">Strictly increasing timestamps, later than the last retained sample.</param>
+    /// <param name="values">Sample-major values: all series for the first timestamp, then all series for the next.</param>
+    /// <remarks>Request one chart render after the batch. Labels are formatted lazily when read.</remarks>
+    public void AppendBatch(ReadOnlySpan<DateTimeOffset> timestamps, ReadOnlySpan<double?> values)
+    {
+        if (values.Length % _values.Length != 0 || values.Length / _values.Length != timestamps.Length)
+            throw new ArgumentException("Supply one value per series for every timestamp.", nameof(values));
+        if (timestamps.IsEmpty)
+            return;
+
+        double previous = Count > 0 ? _xValues[Count - 1] : double.NegativeInfinity;
+        foreach (var timestamp in timestamps)
+        {
+            ValidateTimestamp(timestamp, previous);
+            previous = timestamp.ToUnixTimeMilliseconds();
+        }
+        ValidateValues(values);
+        for (var index = 0; index < timestamps.Length; index++)
+            AppendCore(timestamps[index], values.Slice(index * _values.Length, _values.Length));
+        Version++;
+    }
+
+    private static void ValidateTimestamp(DateTimeOffset timestamp, double previous)
+    {
+        if (timestamp.ToUnixTimeMilliseconds() <= previous)
             throw new ArgumentException("Timestamps must be strictly increasing in milliseconds.", nameof(timestamp));
+    }
+
+    private static void ValidateValues(ReadOnlySpan<double?> values)
+    {
         foreach (var value in values)
         {
             if (value.HasValue && !double.IsFinite(value.Value))
                 throw new ArgumentException("Values must be finite or null.", nameof(values));
         }
+    }
 
-        _labels.Add(timestamp.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture));
-        _xValues.Add(x);
+    private void AppendCore(DateTimeOffset timestamp, ReadOnlySpan<double?> values)
+    {
+        _labels.Add(null);
+        _timestamps.Add(timestamp);
+        _xValues.Add(timestamp.ToUnixTimeMilliseconds());
         for (var index = 0; index < values.Length; index++)
             _values[index].Add(values[index]);
-        Version++;
     }
 
     /// <summary>Removes all samples while preserving series identity and legend state.</summary>
     public void Clear()
     {
         _labels.Clear();
+        _timestamps.Clear();
         _xValues.Clear();
         foreach (var values in _values)
             values.Clear();
         Version++;
+    }
+
+    private sealed class LabelList(RealtimeChartData owner) : IReadOnlyList<string>
+    {
+        public int Count => owner.Count;
+        public string this[int index] => owner._labels[index] ??=
+            owner._timestamps[index].ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+        public IEnumerator<string> GetEnumerator()
+        {
+            for (var index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     private sealed class Ring<T>(int capacity) : IReadOnlyList<T>
@@ -90,7 +153,14 @@ public sealed class RealtimeChartData
         private readonly T[] _items = new T[capacity];
         private int _start;
         public int Count { get; private set; }
-        public T this[int index] => index >= 0 && index < Count ? _items[(_start + index) % capacity] : throw new ArgumentOutOfRangeException(nameof(index));
+        public T this[int index]
+        {
+            get => _items[PhysicalIndex(index)];
+            set => _items[PhysicalIndex(index)] = value;
+        }
+
+        private int PhysicalIndex(int index) => index >= 0 && index < Count
+            ? (_start + index) % capacity : throw new ArgumentOutOfRangeException(nameof(index));
 
         public void Add(T value)
         {

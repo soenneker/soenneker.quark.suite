@@ -32,6 +32,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private bool _incomingParametersChanged;
     private bool _defaultsApplied;
     private bool? _hasMutationSensitiveCascadingParameters;
+    private string? _lastClass;
+    private string? _lastStyle;
 
     /// <summary>
     /// Quark-level explicit attribute bag. Unmatched attributes are still captured by the inherited
@@ -98,6 +100,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         _cachedAttrs = null;
         _cachedAttrsKey = 0;
         _shouldRender = true;
+    }
+
+    /// <summary>Renders content after a local change that cannot affect this component's attributes.</summary>
+    /// <remarks>Use only when all attribute inputs are unchanged. Parameter delivery and Refresh still invalidate attributes normally.</remarks>
+    protected void RequestContentRender()
+    {
+        _shouldRender = true;
+        StateHasChanged();
     }
 
     protected override bool ShouldRender()
@@ -178,10 +188,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             MergeAttributes(Attributes, attrs, ref sty, ref cls);
 
             if (cls.Length > 0)
-                attrs["class"] = cls.ToString();
+                attrs["class"] = ReuseString(ref cls, ref _lastClass);
+            else
+                _lastClass = null;
 
             if (sty.Length > 0)
-                attrs["style"] = sty.ToString();
+                attrs["style"] = ReuseString(ref sty, ref _lastStyle);
+            else
+                _lastStyle = null;
 
             BuildAttributesCore(attrs);
             BuildFinalAttributes(attrs);
@@ -212,6 +226,15 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         buffer.Clear();
         buffer.EnsureCapacity(capacity);
         return buffer;
+    }
+
+    private static string ReuseString(ref PooledStringBuilder builder, ref string? previous)
+    {
+        // Compare actual output, not input identity: mutable presets, cascades and
+        // derived attribute hooks must still be evaluated on an invalidated render.
+        if (previous is null || !builder.AsSpan().SequenceEqual(previous.AsSpan()))
+            previous = builder.ToString();
+        return previous;
     }
 
     protected virtual void BuildOwnedAttributes(Dictionary<string, object> attrs)

@@ -47,6 +47,7 @@ else
 }
 
 @code {
+    private RenderAttributeDictionary? _wrapperAttributes;
 
     [CascadingParameter]
     public IButtonGroup? ButtonGroup { get; set; }
@@ -324,7 +325,7 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes());
+        var attributes = (_wrapperAttributes ??= new()).Create(BuildAttributes(), 0);
 
         attributes.Remove("type");
         attributes.Remove("disabled");

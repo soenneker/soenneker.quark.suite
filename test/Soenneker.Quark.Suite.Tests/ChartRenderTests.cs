@@ -21,6 +21,24 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Repeated_hover_and_clear_skip_noop_renders()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Revenue", new double[] { 10, 20, 30 }) }));
+        var hit = cut.FindAll(".quark-chart-hit-area")[1];
+        hit.TriggerEvent("onpointerenter", new PointerEventArgs());
+        int renders = cut.RenderCount;
+        hit.TriggerEvent("onpointerdown", new PointerEventArgs());
+        cut.RenderCount.Should().Be(renders);
+        cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Feb");
+        cut.Find("[data-slot=chart]").TriggerEvent("onpointerleave", new PointerEventArgs());
+        cut.FindAll(".quark-chart-tooltip").Should().BeEmpty();
+        renders = cut.RenderCount;
+        cut.Find("[data-slot=chart]").TriggerEvent("onpointerleave", new PointerEventArgs());
+        cut.RenderCount.Should().Be(renders);
+    }
+
+    [Test]
     public void Chart_rerenders_when_series_parameters_change()
     {
         var cut = Render<Chart>(parameters => parameters

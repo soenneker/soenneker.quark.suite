@@ -19,6 +19,27 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public async Task Content_refresh_preserves_attributes_but_parameter_changes_still_invalidate_them()
+    {
+        var attrs = new Dictionary<string, object> { ["data-test"] = "before" };
+        var cut = Render<AttributeCacheProbe>(p => p.Add(c => c.Attributes, attrs));
+        int builds = cut.Instance.AttributeBuilds;
+        string classString = cut.Instance.LastClass!;
+        await cut.InvokeAsync(() => cut.Instance.SetContent("updated"));
+        cut.Instance.AttributeBuilds.Should().Be(builds);
+        cut.Markup.Should().Contain("updated");
+        attrs["data-test"] = "after";
+        cut.Render(p => p.Add(c => c.Attributes, attrs));
+        cut.Find("div").GetAttribute("data-test").Should().Be("after");
+        ReferenceEquals(classString, cut.Instance.LastClass).Should().BeTrue();
+        cut.Render(p => p.Add(c => c.VisualClass, "changed"));
+        cut.Find("div").GetAttribute("class").Should().Be("changed");
+        attrs.Remove("data-test");
+        cut.Render(p => p.Add(c => c.Attributes, attrs));
+        cut.Find("div").HasAttribute("data-test").Should().BeFalse();
+    }
+
+    [Test]
     public void Default_suppression_renders_when_an_untracked_parameter_reference_changes()
     {
         var model = new RenderProbeModel { Value = 1 };
@@ -221,5 +242,33 @@ public sealed class CascadeKeyProbe : Element
         base.ComputeRenderKeyCore(ref hashCode);
         hashCode.Add(CascadeValue);
         hashCode.Add(Payload);
+    }
+}
+
+public sealed class AttributeCacheProbe : RenderComponent
+{
+    [Parameter] public string VisualClass { get; set; } = "initial";
+    public int AttributeBuilds { get; private set; }
+    public string? LastClass { get; private set; }
+    private string _content = "initial";
+    protected override bool AlwaysRender => false;
+    public void SetContent(string content)
+    {
+        _content = content;
+        RequestContentRender();
+    }
+    protected override void BuildOwnedClassAndStyle(ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder style,
+        ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder classes) => AppendClass(ref classes, VisualClass);
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
+    {
+        AttributeBuilds++;
+        LastClass = (string)attrs["class"];
+    }
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddMultipleAttributes(1, BuildAttributes());
+        builder.AddContent(2, _content);
+        builder.CloseElement();
     }
 }

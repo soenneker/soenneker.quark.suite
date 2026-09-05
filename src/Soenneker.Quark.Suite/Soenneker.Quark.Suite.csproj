@@ -59,6 +59,7 @@
     <!-- Local project control -->
     <PropertyGroup>
         <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">false</UseLocalProjects>
+        <UseLocalBradixProject Condition="'$(UseLocalBradixProject)' == ''">false</UseLocalBradixProject>
         <UseLocalCloudflareAiSearchProject Condition="'$(UseLocalCloudflareAiSearchProject)' == ''">false</UseLocalCloudflareAiSearchProject>
 
         <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">
@@ -147,7 +148,7 @@
 
     <!-- Switch: NuGet -->
     <ItemGroup Condition="'$(UseLocalProjects)' != 'true'">
-        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.261" />
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.261" Condition="'$(UseLocalBradixProject)' != 'true'" />
         <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.259" />
 
         <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.14">
@@ -175,8 +176,11 @@
     </ItemGroup>
 
     <!-- Switch: Local -->
-    <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
+    <ItemGroup Condition="'$(UseLocalProjects)' == 'true' Or '$(UseLocalBradixProject)' == 'true'">
         <ProjectReference Include="$(LocalBradixProject)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
         <ProjectReference Include="$(LocalClipboardProject)" />
         <ProjectReference Include="$(LocalCreditCardsProject)" />
         <ProjectReference Include="$(LocalSignaturePadsProject)" />

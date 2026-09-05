@@ -17,6 +17,8 @@ public class ChartRenderingBenchmarks
     private BunitContext _stableContext = null!;
     private BunitContext _changingContext = null!;
     private BunitContext _hoverContext = null!;
+    private BunitContext _repeatHoverContext = null!;
+    private AngleSharp.Dom.IElement _repeatHitArea = null!;
     private IRenderedComponent<Chart> _stableChart = null!;
     private IRenderedComponent<Chart> _changingChart = null!;
     private IRenderedComponent<Chart> _hoverChart = null!;
@@ -42,10 +44,14 @@ public class ChartRenderingBenchmarks
         _stableContext = CreateContext();
         _changingContext = CreateContext();
         _hoverContext = CreateContext();
+        _repeatHoverContext = CreateContext();
         _stableChart = RenderChart(_stableContext, _seriesA);
         _changingChart = RenderChart(_changingContext, _seriesA);
         _hoverChart = RenderChart(_hoverContext, _seriesA);
         _hitAreas = _hoverChart.FindAll(".quark-chart-hit-area").ToArray();
+        var repeatChart = RenderChart(_repeatHoverContext, _seriesA);
+        _repeatHitArea = repeatChart.Find(".quark-chart-hit-area");
+        _repeatHitArea.TriggerEvent("onpointerenter", new PointerEventArgs());
     }
 
     [GlobalCleanup]
@@ -54,6 +60,7 @@ public class ChartRenderingBenchmarks
         _stableContext.Dispose();
         _changingContext.Dispose();
         _hoverContext.Dispose();
+        _repeatHoverContext.Dispose();
     }
 
     [Benchmark(Baseline = true, Description = "Chart: stable data and options")]
@@ -72,6 +79,9 @@ public class ChartRenderingBenchmarks
         _hoverIndex = (_hoverIndex + 1) % _hitAreas.Length;
         _hitAreas[_hoverIndex].TriggerEvent("onpointerenter", new PointerEventArgs());
     }
+
+    [Benchmark(Description = "Chart: repeated hover on same point")]
+    public void RepeatedHover() => _repeatHitArea.TriggerEvent("onpointerenter", new PointerEventArgs());
 
     private IRenderedComponent<Chart> RenderChart(BunitContext context, ChartSeries[] series) =>
         context.Render<Chart>(parameters => parameters

@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()" @onpointerleave="ClearHover">
+<div @attributes="BuildAttributes()" @onpointerleave="HoverEvents.Clear">
     @if (HeaderContent is not null)
     {
         <div class="quark-chart-header" data-slot="chart-header">
@@ -68,7 +68,8 @@
 
                             if (sweep > 0)
                             {
-                                <path d="@path" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="() => HoverSlice(sliceIndex)" @onpointerdown="() => HoverSlice(sliceIndex)" @onfocus="() => HoverSlice(sliceIndex)" @onblur="ClearHover" @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)" @onclick="() => SelectSlice(sliceIndex)"/>
+                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Slice(sliceIndex));
+                                <path d="@path" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)" @onclick="() => SelectSlice(sliceIndex)"/>
                             }
 
                             angle += sweep;
@@ -123,7 +124,8 @@
                             @for (var index = 0; index < PointCount; index++)
                             {
                                 var currentIndex = index;
-                                <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-hit-area" @onpointerenter="() => HoverCategory(currentIndex)" @onpointerdown="() => HoverCategory(currentIndex)"/>
+                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Category(currentIndex));
+                                <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-hit-area" @onpointerenter="hover" @onpointerdown="hover"/>
                             }
                         }
 
@@ -145,7 +147,8 @@
                                         {
                                             var bar = GetBarRect(currentSeries, index, value.Value);
                                             var currentIndex = index;
-                                            <rect x="@F(bar.X)" y="@F(bar.Y)" width="@F(bar.Width)" height="@F(bar.Height)" rx="@F(Math.Min(Options.BarRadius, bar.Width / 2))" fill="@SeriesFill(currentSeries)" fill-opacity="@F(series.FillOpacity)" class="@AnimationClass" data-slot="chart-bar" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="() => HoverPoint(currentIndex, currentSeries)" @onpointerdown="() => HoverPoint(currentIndex, currentSeries)" @onfocus="() => HoverPoint(currentIndex, currentSeries)" @onblur="ClearHover" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => SelectPoint(currentIndex, currentSeries)"/>
+                                            var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Point(currentIndex, currentSeries));
+                                            <rect x="@F(bar.X)" y="@F(bar.Y)" width="@F(bar.Width)" height="@F(bar.Height)" rx="@F(Math.Min(Options.BarRadius, bar.Width / 2))" fill="@SeriesFill(currentSeries)" fill-opacity="@F(series.FillOpacity)" class="@AnimationClass" data-slot="chart-bar" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => SelectPoint(currentIndex, currentSeries)"/>
                                         }
                                     }
                                 }
@@ -166,7 +169,8 @@
                                             if (value is not null && ShouldRenderMarker(series, index))
                                             {
                                                 var currentIndex = index;
-                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="quark-chart-point cursor-pointer outline-none transition-all motion-reduce:transition-none" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="() => HoverPoint(currentIndex, currentSeries)" @onpointerdown="() => HoverPoint(currentIndex, currentSeries)" @onfocus="() => HoverPoint(currentIndex, currentSeries)" @onblur="ClearHover" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => SelectPoint(currentIndex, currentSeries)"/>
+                                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Point(currentIndex, currentSeries));
+                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="quark-chart-point cursor-pointer outline-none transition-all motion-reduce:transition-none" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => SelectPoint(currentIndex, currentSeries)"/>
                                             }
                                         }
                                     }
@@ -1047,8 +1051,29 @@
         return (cx + radius * Math.Cos(radians), cy + radius * Math.Sin(radians));
     }
 
+    private ChartHoverEvents? _hoverEvents;
+    private ChartHoverEvents HoverEvents => _hoverEvents ??= new(this);
+
+    private sealed class ChartHoverEvents(Chart owner) : IHandleEvent
+    {
+        public void Category(int index) => owner.HoverCategory(index);
+        public void Point(int index, int series) => owner.HoverPoint(index, series);
+        public void Slice(int index) => owner.HoverSlice(index);
+        public void Clear() => owner.ClearHover();
+
+        public async Task HandleEventAsync(EventCallbackWorkItem callback, object? argument)
+        {
+            var previous = (owner._hoveredIndex, owner._hoveredSeries);
+            await callback.InvokeAsync(argument);
+            if (previous != (owner._hoveredIndex, owner._hoveredSeries))
+                owner.RequestContentRender();
+        }
+    }
+
     private void HoverCategory(int index)
     {
+        if (_hoveredIndex == index && _hoveredSeries is null)
+            return;
         _hoveredIndex = index;
         _hoveredSeries = null;
         RebuildTooltipState();
@@ -1056,6 +1081,8 @@
 
     private void HoverPoint(int index, int series)
     {
+        if (_hoveredIndex == index && _hoveredSeries == (Options.SharedTooltip ? (int?)null : series))
+            return;
         _hoveredIndex = index;
         _hoveredSeries = Options.SharedTooltip ? null : series;
         RebuildTooltipState();
@@ -1063,6 +1090,8 @@
 
     private void HoverSlice(int index)
     {
+        if (_hoveredIndex == index && _hoveredSeries == 0)
+            return;
         _hoveredIndex = index;
         _hoveredSeries = 0;
         RebuildTooltipState();

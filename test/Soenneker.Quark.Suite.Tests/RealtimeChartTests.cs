@@ -10,6 +10,34 @@ public sealed class RealtimeChartTests : BunitContext
     public RealtimeChartTests() => Services.AddDefaultQuarkOptionsAsScoped();
 
     [Test]
+    public void Batch_validates_atomically_and_formats_rolling_labels_lazily()
+    {
+        var data = new RealtimeChartData(2, "API", "Worker");
+        var start = new DateTimeOffset(2026, 9, 4, 12, 30, 1, TimeSpan.FromHours(2));
+        DateTimeOffset[] timestamps = [start, start.AddSeconds(1), start.AddSeconds(2)];
+        double?[] values = [1, 2, 3, null, 5, 6];
+        data.AppendBatch(timestamps, values);
+        data.Version.Should().Be(1);
+        data.Series[0].Values.Should().Equal(3d, 5d);
+        data.Labels.Should().Equal("12:30:02.000", "12:30:03.000");
+        string label = data.Labels[0];
+        ReferenceEquals(label, data.Labels[0]).Should().BeTrue();
+        Action invalid = () => data.AppendBatch([start.AddSeconds(3), start.AddSeconds(4)], [7, 8, double.NaN, 9]);
+        invalid.Should().Throw<ArgumentException>();
+        data.Version.Should().Be(1);
+        data.Series[0].Values.Should().Equal(3d, 5d);
+        Action invalidTimestamp = () => data.AppendBatch([start.AddSeconds(3), start.AddSeconds(2)], [7, 8, 9, 10]);
+        invalidTimestamp.Should().Throw<ArgumentException>();
+        data.AppendBatch([], []);
+        data.Version.Should().Be(1);
+        data.Append(start.AddSeconds(3), (ReadOnlySpan<double?>)[7, 8]);
+        data.Labels.Should().Equal("12:30:03.000", "12:30:04.000");
+        data.Clear();
+        data.Append(start, (ReadOnlySpan<double?>)[9, 10]);
+        data.Labels.Should().Equal("12:30:01.000");
+    }
+
+    [Test]
     public void Buffer_rolls_all_series_and_validates_before_mutation()
     {
         var data = new RealtimeChartData(2, "API", "Worker");

@@ -56,6 +56,9 @@ public class GlobalRenderingBenchmarks
     [Benchmark(Description = "Quark suppressed: unchanged children")]
     public void QuarkSuppressedUnchanged() => Render(_suppressed, ++_suppressedTick, valuesChange: false);
 
+    [Benchmark(Description = "Plain Blazor: changing children")]
+    public void PlainBlazorChanging() => Render(_plain, ++_plainTick, valuesChange: true);
+
     [Benchmark(Description = "Quark buffered: changing children")]
     public void QuarkBufferedChanging() => Render(_buffered, ++_bufferedTick, valuesChange: true);
 
