@@ -1,0 +1,64 @@
+@implements IAsyncDisposable
+@using System.Threading
+
+<Chart Series="@_data.Series" Labels="@_data.Labels" Type="ChartType.Donut" DataVersion="@_data.Version"
+       Options="@Options" AriaLabel="Live request status">
+    <HeaderContent>
+        <div class="mb-4 flex items-center justify-between gap-4">
+            <div>
+                <div class="text-sm font-medium">Live request status</div>
+                <div class="text-xs text-muted-foreground">Current totals · updates every second</div>
+            </div>
+            <button type="button" class="rounded-md border px-3 py-1 text-sm" @onclick="TogglePaused">@(_paused ? "Resume" : "Pause")</button>
+        </div>
+    </HeaderContent>
+</Chart>
+
+@code {
+    private readonly RealtimeRadialChartData _data = new("Requests", "Completed", "Processing", "Failed");
+    private readonly CancellationTokenSource _cancellation = new();
+    private Task? _updates;
+    private bool _paused;
+    private static readonly ChartOptions Options = new()
+    {
+        Animate = false
+    };
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            _updates = UpdateAsync();
+    }
+
+    private void TogglePaused() => _paused = !_paused;
+
+    private async Task UpdateAsync()
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(_cancellation.Token))
+            {
+                await InvokeAsync(() =>
+                {
+                    if (_paused || _cancellation.IsCancellationRequested)
+                        return;
+                    _data.Update(Random.Shared.Next(50, 100), Random.Shared.Next(10, 40), Random.Shared.Next(1, 10));
+                    StateHasChanged();
+                });
+            }
+        }
+        catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _cancellation.CancelAsync();
+        if (_updates is not null)
+            await _updates;
+        _cancellation.Dispose();
+    }
+}
+

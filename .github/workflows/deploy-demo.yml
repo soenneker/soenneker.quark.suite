@@ -2,7 +2,6 @@ name: deploy-demo
 
 permissions:
   contents: read
-  deployments: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,13 +41,12 @@ jobs:
           dotnet publish test/Soenneker.Quark.Suite.Demo/Soenneker.Quark.Suite.Demo.csproj
           --configuration Release
           --no-restore
-          --output artifacts/cloudflare-pages
+          --output artifacts/cloudflare-workers
           --verbosity minimal
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy artifacts/cloudflare-pages/wwwroot --project-name=soenneker-quark-suite --branch=main
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: deploy --config wrangler.jsonc

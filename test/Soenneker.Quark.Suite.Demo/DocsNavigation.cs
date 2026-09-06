@@ -100,6 +100,7 @@ public static class DocsNavigation
         new("Questionnaire", ComponentRoute("questionnaire"), IsNew: true),
         new("Radio Group", ComponentRoute("radio-group")),
         new("Reasoning", ComponentRoute("reasoning")),
+        new("Realtime Charts", ComponentRoute("realtime-charts"), IsNew: true),
         new("Resizable", ComponentRoute("resizable")),
         new("Score", ComponentRoute("scores")),
         new("Scroll Area", ComponentRoute("scroll-area")),

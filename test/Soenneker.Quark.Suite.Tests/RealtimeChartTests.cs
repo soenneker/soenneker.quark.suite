@@ -10,6 +10,58 @@ public sealed class RealtimeChartTests : BunitContext
     public RealtimeChartTests() => Services.AddDefaultQuarkOptionsAsScoped();
 
     [Test]
+    public void Radial_updates_validate_atomically_and_preserve_collection_identity()
+    {
+        string[] labels = ["Completed", "Failed"];
+        var data = new RealtimeRadialChartData("Requests", labels);
+        var series = data.Series;
+        labels[0] = "Changed";
+        data.Labels[0].Should().Be("Completed");
+        data.Update(3, 1);
+        Action invalid = () => data.Update(10, double.NaN);
+        invalid.Should().Throw<ArgumentException>();
+        Action negative = () => data.Update(10, -1);
+        negative.Should().Throw<ArgumentException>();
+        Action wrongCount = () => data.Update(10);
+        wrongCount.Should().Throw<ArgumentException>();
+        data.Version.Should().Be(1);
+        data.Series[0].Values.Should().Equal(3d, 1d);
+        data.Update((ReadOnlySpan<double>)[1, 9]);
+        data.Version.Should().Be(2);
+        data.Clear();
+        data.Version.Should().Be(3);
+        data.Series.Should().BeSameAs(series);
+        data.Series[0].Values.Should().Equal(0d, 0d);
+    }
+
+    [Test]
+    public void Radial_version_updates_pie_and_donut_geometry_and_recovers_from_empty()
+    {
+        foreach (var type in new[] { ChartType.Pie, ChartType.Donut })
+        {
+            var data = new RealtimeRadialChartData("Requests", "Completed", "Failed");
+            data.Update(3, 1);
+            var cut = Render<Chart>(p => p.Add(c => c.Type, type).Add(c => c.Series, data.Series)
+                .Add(c => c.Labels, data.Labels).Add(c => c.DataVersion, data.Version));
+            var before = cut.Find("[data-slot=chart-slice]").GetAttribute("d");
+            data.Update(1, 9);
+            cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+            cut.Find("[data-slot=chart-slice]").GetAttribute("d").Should().NotBe(before);
+            cut.FindAll("[data-slot=chart-slice]")[1].GetAttribute("aria-label").Should().Contain("9");
+            cut.Find("table").TextContent.Should().Contain("9");
+            data.Update(0, 9);
+            cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+            cut.FindAll("[data-slot=chart-slice]").Count.Should().Be(1);
+            data.Clear();
+            cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+            cut.Find("[role=status]").TextContent.Should().Be("No chart data");
+            data.Update(2, 3);
+            cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+            cut.FindAll("[data-slot=chart-slice]").Count.Should().Be(2);
+        }
+    }
+
+    [Test]
     public void Batch_validates_atomically_and_formats_rolling_labels_lazily()
     {
         var data = new RealtimeChartData(2, "API", "Worker");
