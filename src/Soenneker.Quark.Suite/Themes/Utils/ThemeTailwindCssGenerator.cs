@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Soenneker.Quark.Tokens;
@@ -29,7 +30,10 @@ public static class ThemeTailwindCssGenerator
         builder.AppendLine();
         AppendInlineTheme(builder, tokens.InlineVariables);
 
-        return builder.ToString().TrimEnd();
+        while (builder.Length > 0 && char.IsWhiteSpace(builder[builder.Length - 1]))
+            builder.Length--;
+
+        return builder.ToString();
     }
 
     private static void AppendScheme(StringBuilder builder, string selector, ThemeTokenScheme scheme)
@@ -150,9 +154,9 @@ public static class ThemeTailwindCssGenerator
             return;
 
         builder.Append("  --");
-        builder.Append(name.Trim());
+        builder.Append(name.AsSpan().Trim());
         builder.Append(": ");
-        builder.Append(value.Trim());
+        builder.Append(value.AsSpan().Trim());
         builder.AppendLine(";");
     }
 }

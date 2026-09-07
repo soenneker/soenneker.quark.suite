@@ -110,13 +110,19 @@
         });
     }
 
-    private string BuildTabsTriggerBaseClass()
+    private static readonly string LtrTabsTriggerBaseClass = CreateTabsTriggerBaseClass(false);
+    private static readonly string RtlTabsTriggerBaseClass = CreateTabsTriggerBaseClass(true);
+
+    private string BuildTabsTriggerBaseClass() =>
+        string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase) ? RtlTabsTriggerBaseClass : LtrTabsTriggerBaseClass;
+
+    private static string CreateTabsTriggerBaseClass(bool isRtl)
     {
-        var iconPaddingClass = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase)
+        var iconPaddingClass = isRtl
             ? "has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1"
             : "has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1";
 
-        var verticalIndicatorClass = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase)
+        var verticalIndicatorClass = isRtl
             ? "group-data-[orientation=vertical]/tabs:after:-end-1"
             : "group-data-[orientation=vertical]/tabs:after:-right-1";
 

@@ -89,6 +89,15 @@ public sealed class ChartOptions
     public bool ShowCursor { get; init; } = true;
 
     /// <summary>
+    /// Gets whether a user can drag across a Cartesian chart to select a contiguous range of categories. The default is <see langword="false"/>.
+    /// </summary>
+    /// <remarks>
+    /// While dragging, the selected range is highlighted and snapped to category boundaries. When enabled, the range interaction layer takes
+    /// precedence over selecting individual chart marks. Handle <see cref="Chart.OnRangeSelect"/> to receive the completed range.
+    /// </remarks>
+    public bool EnableRangeSelection { get; init; }
+
+    /// <summary>
     /// Gets whether the automatically calculated y-axis domain must include zero. The default is <see langword="true"/>.
     /// </summary>
     /// <remarks>

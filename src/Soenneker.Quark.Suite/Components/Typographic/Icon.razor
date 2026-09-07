@@ -194,110 +194,109 @@
             return svg;
 
         var attrSb = new PooledStringBuilder(128);
-
-        foreach (var kv in attributes)
+        try
         {
-            var key = kv.Key;
-            var v = kv.Value;
-
-            if (key.Length == 0)
-                continue;
-
-            if (IsClassKey(key))
+            attrSb.Append(svg.AsSpan(0, tagEnd));
+            foreach (var kv in attributes)
             {
-                if (v is string cls && cls.Length > 0)
+                var key = kv.Key;
+                var v = kv.Value;
+
+                if (key.Length == 0)
+                    continue;
+
+                if (IsClassKey(key))
                 {
-                    attrSb.Append(" class=\"");
-                    AppendEscapedHtmlAttribute(ref attrSb, cls);
-                    attrSb.Append('"');
+                    if (v is string cls && cls.Length > 0)
+                    {
+                        attrSb.Append(" class=\"");
+                        AppendEscapedHtmlAttribute(ref attrSb, cls);
+                        attrSb.Append('"');
+                    }
+
+                    continue;
                 }
 
-                continue;
-            }
-
-            if (IsStyleKey(key))
-            {
-                if (v is string sty && sty.Length > 0)
+                if (IsStyleKey(key))
                 {
-                    attrSb.Append(" style=\"");
-                    AppendEscapedHtmlAttribute(ref attrSb, sty);
-                    attrSb.Append('"');
+                    if (v is string sty && sty.Length > 0)
+                    {
+                        attrSb.Append(" style=\"");
+                        AppendEscapedHtmlAttribute(ref attrSb, sty);
+                        attrSb.Append('"');
+                    }
+
+                    continue;
                 }
 
-                continue;
-            }
+                if (IsHiddenKey(key))
+                {
+                    if (v is true || (v is string hs && (hs == "true" || hs == "hidden")))
+                        attrSb.Append(" hidden");
+                    continue;
+                }
 
-            if (IsHiddenKey(key))
-            {
-                if (v is true || (v is string hs && (hs == "true" || hs == "hidden")))
-                    attrSb.Append(" hidden");
-                continue;
-            }
+                if (!IsSvgSafeAttribute(key) || v is null)
+                    continue;
 
-            if (!IsSvgSafeAttribute(key) || v is null)
-                continue;
+                if (v is bool b)
+                {
+                    if (b)
+                    {
+                        attrSb.Append(' ');
+                        attrSb.Append(key);
+                    }
 
-            if (v is bool b)
-            {
-                if (b)
+                    continue;
+                }
+
+                if (v is string s)
+                {
+                    if (s.Length == 0)
+                        continue;
+
+                    attrSb.Append(' ');
+                    attrSb.Append(key);
+                    attrSb.Append("=\"");
+                    AppendEscapedHtmlAttribute(ref attrSb, s);
+                    attrSb.Append('"');
+                    continue;
+                }
+
+                var val = v switch
+                {
+                    int i => i.ToString(CultureInfo.InvariantCulture),
+                    long l => l.ToString(CultureInfo.InvariantCulture),
+                    uint ui => ui.ToString(CultureInfo.InvariantCulture),
+                    ulong ul => ul.ToString(CultureInfo.InvariantCulture),
+                    float f => f.ToString("R", CultureInfo.InvariantCulture),
+                    double d => d.ToString("R", CultureInfo.InvariantCulture),
+                    decimal m => m.ToString(CultureInfo.InvariantCulture),
+                    IFormattable fmt => fmt.ToString(null, CultureInfo.InvariantCulture),
+                    _ => v.ToString()
+                };
+
+                if (val.HasContent())
                 {
                     attrSb.Append(' ');
                     attrSb.Append(key);
+                    attrSb.Append("=\"");
+                    AppendEscapedHtmlAttribute(ref attrSb, val);
+                    attrSb.Append('"');
                 }
-
-                continue;
             }
 
-            if (v is string s)
-            {
-                if (s.Length == 0)
-                    continue;
 
-                attrSb.Append(' ');
-                attrSb.Append(key);
-                attrSb.Append("=\"");
-                AppendEscapedHtmlAttribute(ref attrSb, s);
-                attrSb.Append('"');
-                continue;
-            }
+            if (attrSb.Length == tagEnd)
+                return svg;
 
-            var val = v switch
-            {
-                int i => i.ToString(CultureInfo.InvariantCulture),
-                long l => l.ToString(CultureInfo.InvariantCulture),
-                uint ui => ui.ToString(CultureInfo.InvariantCulture),
-                ulong ul => ul.ToString(CultureInfo.InvariantCulture),
-                float f => f.ToString("R", CultureInfo.InvariantCulture),
-                double d => d.ToString("R", CultureInfo.InvariantCulture),
-                decimal m => m.ToString(CultureInfo.InvariantCulture),
-                IFormattable fmt => fmt.ToString(null, CultureInfo.InvariantCulture),
-                _ => v.ToString()
-            };
-
-            if (val.HasContent())
-            {
-                attrSb.Append(' ');
-                attrSb.Append(key);
-                attrSb.Append("=\"");
-                AppendEscapedHtmlAttribute(ref attrSb, val);
-                attrSb.Append('"');
-            }
+            attrSb.Append(svg.AsSpan(tagEnd));
+            return attrSb.ToString();
         }
-
-        if (attrSb.Length == 0)
-            return svg;
-
-        // Compose final string (no Insert, no string.Create, no intermediate attr string)
-        var prefix = svg.AsSpan(0, tagEnd); // excludes '>'
-        var suffix = svg.AsSpan(tagEnd); // includes '>'
-
-        using var final = new PooledStringBuilder(svg.Length + attrSb.Length);
-
-        final.Append(prefix);
-        final.Append(attrSb.AsSpan()); // <-- remove this line if you don't have AsSpan()
-        final.Append(suffix);
-
-        return final.ToStringAndDispose();
+        finally
+        {
+            attrSb.Dispose();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

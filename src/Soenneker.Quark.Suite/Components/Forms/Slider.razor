@@ -147,10 +147,17 @@
 			if (Values is { Length: > 0 })
 				return NormalizeValues(Values, allowMultiple: true);
 
-			return NormalizeValues(Max > Min ? [Min, Max] : [Min], allowMultiple: true);
+			if (Max > Min)
+			{
+				double[] defaults = [NormalizeValue(Min), NormalizeValue(Max)];
+				Array.Sort(defaults);
+				return defaults;
+			}
+
+			return [NormalizeValue(Min)];
 		}
 
-		return NormalizeValues([SliderValue], allowMultiple: false);
+		return [NormalizeValue(SliderValue)];
 	}
 
 	private double[] NormalizeValues(IReadOnlyList<double> source, bool allowMultiple)
@@ -540,8 +547,7 @@
 			return;
 
 		_valuesBeforeSlideStart = GetResolvedValues();
-
-		var currentValues = GetResolvedValues();
+		var currentValues = _valuesBeforeSlideStart;
 		var index = thumbIndex >= 0
 			? thumbIndex
 			: FindNearestThumbIndex(currentValues, GetValueFromFractions(xFraction, yFraction));

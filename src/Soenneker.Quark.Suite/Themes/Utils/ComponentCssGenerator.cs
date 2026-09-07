@@ -65,7 +65,7 @@ public static class ComponentCssGenerator
                     continue;
 
                 sb.Append("  ");
-                var trimmed = declaration.TrimEnd(';', ' ');
+                var trimmed = declaration.AsSpan().TrimEnd("; ");
                 sb.Append(trimmed);
                 sb.Append(";\n");
             }
@@ -73,7 +73,6 @@ public static class ComponentCssGenerator
             sb.Append("}\n");
         }
 
-        return sb.ToString()
-                 .TrimEnd();
+        return sb.AsSpan().TrimEnd().ToString();
     }
 }

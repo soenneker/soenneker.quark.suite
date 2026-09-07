@@ -1,3 +1,4 @@
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -1478,7 +1479,7 @@ public class ComponentOptions
             if (i < value.Length && value[i] != ';')
                 continue;
 
-            var segment = value.Substring(segmentStart, i - segmentStart).Trim();
+            var segment = value.AsSpan(segmentStart, i - segmentStart).Trim().ToString();
 
             if (segment.Length > 0)
                 yield return segment;

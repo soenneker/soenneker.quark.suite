@@ -959,8 +959,28 @@ function selectNode(state, nodeId) {
 }
 
 function selectNodes(state, nodeIds, notify = true, forceNotify = false) {
-    const uniqueIds = [...new Set(nodeIds)].filter(id => state.nodeElements.some(node =>
-        node.dataset.nodeId === id && node.dataset.selectable === "true" && node.dataset.disabled !== "true"));
+    const requestedIds = new Set(nodeIds);
+    const uniqueIds = [];
+    if (requestedIds.size <= 4) {
+        for (const id of requestedIds) {
+            for (const node of state.nodeElements) {
+                if (node.dataset.nodeId === id && node.dataset.selectable === "true" && node.dataset.disabled !== "true") {
+                    uniqueIds.push(id);
+                    break;
+                }
+            }
+        }
+    } else {
+        const selectableIds = new Set();
+        for (const node of state.nodeElements) {
+            if (node.dataset.selectable === "true" && node.dataset.disabled !== "true") {
+                selectableIds.add(node.dataset.nodeId);
+            }
+        }
+        for (const id of requestedIds) {
+            if (selectableIds.has(id)) uniqueIds.push(id);
+        }
+    }
     const unchanged = uniqueIds.length === state.selectedNodeIds.size && uniqueIds.every(id => state.selectedNodeIds.has(id)) && state.selectedEdgeId === null;
 
     setSelectedNodes(state, uniqueIds);
@@ -1041,10 +1061,13 @@ function updateMarqueeSelection(state, interaction, clientX, clientY) {
         right: rootRect.left + left + width,
         bottom: rootRect.top + top + height
     };
-    const intersecting = new Set(state.nodeElements
-        .filter(node => node.dataset.selectable === "true" && node.dataset.disabled !== "true")
-        .filter(node => rectanglesIntersect(selectionBounds, node.getBoundingClientRect()))
-        .map(node => node.dataset.nodeId));
+    const intersecting = new Set();
+    for (const node of state.nodeElements) {
+        if (node.dataset.selectable === "true" && node.dataset.disabled !== "true" &&
+            rectanglesIntersect(selectionBounds, node.getBoundingClientRect())) {
+            intersecting.add(node.dataset.nodeId);
+        }
+    }
     const next = new Set(interaction.mode === "replace" ? [] : interaction.baseSelection);
 
     intersecting.forEach(nodeId => {

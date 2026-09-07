@@ -582,10 +582,18 @@ public abstract class Component : RenderComponent, IComponent
             builder(ref cls);
 
             attrs.TryGetValue("class", out var existing);
-            var combined = AppendToClass(cls.ToString(), existing?.ToString() ?? string.Empty);
+            var existingString = existing?.ToString();
+            if (cls.Length == 0)
+            {
+                if (!string.IsNullOrEmpty(existingString))
+                    attrs["class"] = existingString;
+                return;
+            }
 
-            if (combined.Length > 0)
-                attrs["class"] = combined;
+            if (!string.IsNullOrEmpty(existingString))
+                AppendClass(ref cls, existingString);
+
+            attrs["class"] = cls.ToString();
         }
         finally
         {

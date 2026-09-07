@@ -74,7 +74,16 @@ function emitMove(clientX, clientY, pointerId) {
 }
 
 function scheduleMove(clientX, clientY, pointerId) {
-  pendingMove = { clientX, clientY, pointerId };
+  if (!activeDrag) {
+    return;
+  }
+  if (pendingMove) {
+    pendingMove.clientX = clientX;
+    pendingMove.clientY = clientY;
+    pendingMove.pointerId = pointerId;
+  } else {
+    pendingMove = { clientX, clientY, pointerId };
+  }
 
   if (moveFrame) {
     return;

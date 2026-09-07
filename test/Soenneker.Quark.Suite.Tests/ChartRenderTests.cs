@@ -420,6 +420,30 @@ public sealed class ChartRenderTests : BunitContext
         selection.SeriesIndex.Should().Be(0);
         selection.Value.Should().Be(18);
     }
+
+    [Test]
+    public void Dragging_across_chart_categories_highlights_and_emits_a_normalized_range()
+    {
+        ChartRangeSelection? selection = null;
+        var options = new ChartOptions { EnableRangeSelection = true };
+        var cut = Render<Chart>(parameters => parameters
+            .Add(component => component.Labels, Labels)
+            .Add(component => component.XValues, new double[] { 10, 20, 30 })
+            .Add(component => component.Series, new ChartSeries[] { new("Revenue", new double[] { 12, 18, 15 }) })
+            .Add(component => component.Options, options)
+            .Add(component => component.OnRangeSelect, selected => selection = selected));
+
+        var hitAreas = cut.FindAll("[data-slot='chart-range-hit-area']");
+        hitAreas.Should().HaveCount(3);
+
+        hitAreas[2].PointerDown();
+        cut.FindAll("[data-slot='chart-range-hit-area']")[0].PointerEnter();
+        cut.FindAll("[data-slot='chart-range-selection']").Should().ContainSingle();
+        cut.FindAll("[data-slot='chart-range-hit-area']")[0].PointerUp();
+
+        selection.Should().Be(new ChartRangeSelection("Jan", "Mar", 0, 2, 10, 30));
+        cut.FindAll("[data-slot='chart-range-selection']").Should().ContainSingle();
+    }
 }
 
 public sealed class CountingReadOnlyList<T>(IReadOnlyList<T> values) : IReadOnlyList<T>

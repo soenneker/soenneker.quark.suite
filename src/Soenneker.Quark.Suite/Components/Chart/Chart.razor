@@ -177,8 +177,26 @@
                                 }
                             }
                         }
+
+                        @if (Options.EnableRangeSelection)
+                        {
+                            @for (var index = 0; index < PointCount; index++)
+                            {
+                                var rangeIndex = index;
+                                <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-range-hit-area cursor-crosshair" data-slot="chart-range-hit-area" style="touch-action:none" @onpointerdown="() => BeginRangeSelection(rangeIndex)" @onpointerenter="() => ContinueRangeSelection(rangeIndex)" @onpointerup="() => CompleteRangeSelection(rangeIndex)" @onpointercancel="CancelRangeSelection" @onpointerdown:preventDefault="true"/>
+                            }
+                        }
                     }
                 </ChartRenderBoundary>
+
+                @if (!IsRadial && Options.EnableRangeSelection && _rangeAnchorIndex is not null && _rangeCurrentIndex is not null)
+                {
+                    var rangeStart = Math.Min(_rangeAnchorIndex.Value, _rangeCurrentIndex.Value);
+                    var rangeEnd = Math.Max(_rangeAnchorIndex.Value, _rangeCurrentIndex.Value);
+                    var rangeX = CategoryStart(rangeStart);
+                    var rangeRight = CategoryStart(rangeEnd) + CategoryWidthAt(rangeEnd);
+                    <rect x="@F(rangeX)" y="@F(PlotTop)" width="@F(rangeRight - rangeX)" height="@F(PlotHeight)" class="quark-chart-range-selection pointer-events-none" data-slot="chart-range-selection" fill="var(--primary)" fill-opacity="0.14" stroke="var(--primary)" stroke-opacity="0.65" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                }
 
                 @if (!IsRadial && _hoveredIndex is not null)
                 {
@@ -276,6 +294,9 @@
     private readonly HashSet<int> _hiddenSeries = [];
     private int? _hoveredIndex;
     private int? _hoveredSeries;
+    private int? _rangeAnchorIndex;
+    private int? _rangeCurrentIndex;
+    private bool _isRangeSelecting;
     private double _minimum;
     private double _maximum = 1;
     private double _xMinimum;
@@ -426,6 +447,14 @@
     /// </remarks>
     [Parameter]
     public EventCallback<ChartSelection> OnSelect { get; set; }
+
+    /// <summary>Gets or sets the callback invoked after the user finishes dragging a range across a Cartesian chart.</summary>
+    /// <remarks>
+    /// Enable <see cref="ChartOptions.EnableRangeSelection"/> to activate the interaction. The result is normalized so its start index is always
+    /// less than or equal to its end index, regardless of drag direction.
+    /// </remarks>
+    [Parameter]
+    public EventCallback<ChartRangeSelection> OnRangeSelect { get; set; }
 
     private bool IsRadial => Type == ChartType.Pie || Type == ChartType.Donut;
     private bool HasData => _hasData;
@@ -632,6 +661,9 @@
             ClearHover();
         else
             RebuildTooltipState();
+
+        if (IsRadial || !Options.EnableRangeSelection || _rangeAnchorIndex >= PointCount || _rangeCurrentIndex >= PointCount)
+            ClearRangeSelection();
 
         IncrementGeometryVersion();
     }
@@ -895,7 +927,7 @@
         {
             if (points.Count == 0)
                 continue;
-            builder.Append(BuildPathForPoints(points));
+            AppendPathForPoints(builder, points);
         }
 
         return builder.ToString();
@@ -909,21 +941,21 @@
         {
             if (segment.Count == 0)
                 continue;
-            var line = BuildPathForPoints(segment);
-            builder.Append('M').Append(F(segment[0].X)).Append(',').Append(F(baseline)).Append('L').Append(line.AsSpan(1)).Append('L').Append(F(segment[^1].X)).Append(',').Append(F(baseline)).Append('Z');
+            builder.Append('M').Append(F(segment[0].X)).Append(',').Append(F(baseline));
+            AppendPathForPoints(builder, segment, 'L');
+            builder.Append('L').Append(F(segment[^1].X)).Append(',').Append(F(baseline)).Append('Z');
         }
 
         return builder.ToString();
     }
 
-    private string BuildPathForPoints(List<ChartPoint> points)
+    private void AppendPathForPoints(System.Text.StringBuilder builder, List<ChartPoint> points, char startCommand = 'M')
     {
-        var builder = new System.Text.StringBuilder();
-        builder.Append('M').Append(F(points[0].X)).Append(',').Append(F(points[0].Y));
+        builder.Append(startCommand).Append(F(points[0].X)).Append(',').Append(F(points[0].Y));
         if (Options.Curve == ChartCurve.Monotone && points.Count > 1)
         {
             AppendMonotoneCurve(builder, points);
-            return builder.ToString();
+            return;
         }
 
         for (var index = 1; index < points.Count; index++)
@@ -949,7 +981,7 @@
                 builder.Append('L').Append(F(point.X)).Append(',').Append(F(point.Y));
         }
 
-        return builder.ToString();
+        return;
     }
 
     private static void AppendMonotoneCurve(System.Text.StringBuilder builder, IReadOnlyList<ChartPoint> points)
@@ -990,21 +1022,21 @@
     private List<List<ChartPoint>> BuildSegments(ChartSeries series)
     {
         List<List<ChartPoint>> segments = [];
-        List<ChartPoint> current = [];
+        List<ChartPoint>? current = null;
         for (var index = 0; index < PointCount; index++)
         {
             var value = ValueAt(series, index);
             if (value is null)
             {
-                if (current.Count > 0)
+                if (current is { Count: > 0 })
                     segments.Add(current);
-                current = [];
+                current = null;
             }
             else
-                current.Add(new ChartPoint(CategoryCenter(index), ValueY(value.Value), value.Value));
+                (current ??= []).Add(new ChartPoint(CategoryCenter(index), ValueY(value.Value), value.Value));
         }
 
-        if (current.Count > 0)
+        if (current is { Count: > 0 })
             segments.Add(current);
         return segments;
     }
@@ -1154,6 +1186,53 @@
     }
 
     private Task SelectSlice(int index) => OnSelect.HasDelegate ? OnSelect.InvokeAsync(new ChartSelection(LabelAt(index), Series[0].Name, RadialValue(index), index, 0)) : Task.CompletedTask;
+
+    private void BeginRangeSelection(int index)
+    {
+        _isRangeSelecting = true;
+        _rangeAnchorIndex = index;
+        _rangeCurrentIndex = index;
+        RequestContentRender();
+    }
+
+    private void ContinueRangeSelection(int index)
+    {
+        if (_isRangeSelecting && _rangeCurrentIndex != index)
+        {
+            _rangeCurrentIndex = index;
+            RequestContentRender();
+        }
+    }
+
+    private Task CompleteRangeSelection(int index)
+    {
+        if (!_isRangeSelecting || _rangeAnchorIndex is not { } anchor)
+            return Task.CompletedTask;
+
+        _isRangeSelecting = false;
+        _rangeCurrentIndex = index;
+        RequestContentRender();
+        var start = Math.Min(anchor, index);
+        var end = Math.Max(anchor, index);
+        var startX = XValues is not null && start < XValues.Count ? XValues[start] : (double?)null;
+        var endX = XValues is not null && end < XValues.Count ? XValues[end] : (double?)null;
+        return OnRangeSelect.HasDelegate
+            ? OnRangeSelect.InvokeAsync(new ChartRangeSelection(LabelAt(start), LabelAt(end), start, end, startX, endX))
+            : Task.CompletedTask;
+    }
+
+    private void CancelRangeSelection()
+    {
+        ClearRangeSelection();
+        RequestContentRender();
+    }
+
+    private void ClearRangeSelection()
+    {
+        _isRangeSelecting = false;
+        _rangeAnchorIndex = null;
+        _rangeCurrentIndex = null;
+    }
 
     private Task HandlePointKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args, int index, int series)
     {

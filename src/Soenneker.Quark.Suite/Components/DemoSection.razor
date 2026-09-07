@@ -236,7 +236,24 @@
 
     private bool _showCode;
     private string _copyButtonLabel = "Copy";
-    private string? ResolvedTitleId => TitleId ?? CreateTitleId(Title);
+    private string? _titleForGeneratedId;
+    private string? _generatedTitleId;
+    private string? ResolvedTitleId
+    {
+        get
+        {
+            if (TitleId is not null)
+                return TitleId;
+
+            if (!string.Equals(_titleForGeneratedId, Title, StringComparison.Ordinal))
+            {
+                _generatedTitleId = CreateTitleId(Title);
+                _titleForGeneratedId = Title;
+            }
+
+            return _generatedTitleId;
+        }
+    }
     private bool ShouldRenderTitleAnchor => ShowTitleAnchor && ResolvedTitleId.HasContent();
     private string? ResolvedTitleHref => ShouldRenderTitleAnchor ? $"#{ResolvedTitleId}" : null;
     private CssValue<ScrollMarginBuilder>? ResolvedTitleScrollMargin
@@ -259,7 +276,7 @@
             "he" => "Hebrew (עברית)",
             _ => PreviewLang
         };
-    private bool ShouldShowViewCodeButton => GetCodeLineCount() > 0;
+    private bool ShouldShowViewCodeButton => !string.IsNullOrEmpty(Code);
     private bool ShouldShowCollapsedCodeOverlay => ShouldShowViewCodeButton && !_showCode;
     private bool ShouldRenderIntroDescription => Title is null;
     private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 4 : 1;
@@ -285,22 +302,6 @@
     private void ShowCode()
     {
         _showCode = true;
-    }
-
-    private int GetCodeLineCount()
-    {
-        if (string.IsNullOrEmpty(Code))
-            return 0;
-
-        var count = 1;
-
-        for (var i = 0; i < Code.Length; i++)
-        {
-            if (Code[i] == '\n')
-                count++;
-        }
-
-        return count;
     }
 
     private async Task CopyCode()
