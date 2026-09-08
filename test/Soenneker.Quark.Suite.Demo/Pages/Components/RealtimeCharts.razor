@@ -11,9 +11,37 @@
     </DemoSection>
 
     <DemoSection Title="Realtime line chart"
-                 Description="A bounded timestamp buffer keeps the latest 60 samples, preserves legend selections, and updates proportional time spacing. Append samples on the Blazor dispatcher, bind Version to DataVersion, and request a render. Disable entrance animation for live updates.">
+                 Code="@ScrollingCode"
+                 Description="The line chart updates every 500 ms. Press and drag to pause the feed and select a time range, with dots kept visible. Enable expansion to fill the chart with your selected range, then reset the zoom or resume live updates.">
         <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
             <RealtimeChartExample />
         </div>
     </DemoSection>
 </Div>
+
+@code {
+    private const string ScrollingCode = """
+<Chart Series="@data.Series" Labels="@data.Labels" XValues="@data.XValues"
+       DataVersion="@data.Version" Options="@options" @bind-ScrollPaused="paused" />
+
+@code {
+    private readonly ChartOptions options = new()
+    {
+        Animate = false,
+        EnableRealtimeScrolling = true,
+        EnableRangeSelection = true,
+        PauseOnRangeSelection = true,
+        ShowPoints = true,
+        ZoomOnRangeSelection = true,
+        RealtimeScrollDuration = TimeSpan.FromMilliseconds(500),
+        Minimum = 60,
+        Maximum = 140,
+        Curve = ChartCurve.Monotone
+    };
+}
+// Keep the visible X span and Y bounds stable so retained samples can translate.
+// Bind paused to your feed's pause state to stop collecting samples when dragging starts.
+// ZoomOnRangeSelection expands the selected range; call chart.ResetZoom() to restore it.
+// The library loads and disposes its scrolling module automatically.
+""";
+}

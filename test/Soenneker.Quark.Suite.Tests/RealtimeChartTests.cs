@@ -10,6 +10,108 @@ public sealed class RealtimeChartTests : BunitContext
     public RealtimeChartTests() => Services.AddDefaultQuarkOptionsAsScoped();
 
     [Test]
+    public void Scrolling_is_opt_in_and_owns_its_module_lifecycle()
+    {
+        var data = new RealtimeChartData(3, "API");
+        var start = DateTimeOffset.UtcNow;
+        data.Append(start, 10);
+        data.Append(start.AddMilliseconds(500), 20);
+        data.Append(start.AddMilliseconds(1000), 30);
+        var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series)
+            .Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version));
+        JSInterop.Invocations.Should().BeEmpty();
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-enabled").Should().Be("false");
+
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        var initialize = module.SetupVoid("initialize", _ => true);
+        initialize.SetVoidResult();
+        var destroy = module.SetupVoid("destroy", _ => true);
+        destroy.SetVoidResult();
+        var options = new ChartOptions
+        {
+            EnableRealtimeScrolling = true,
+            RealtimeScrollDuration = TimeSpan.FromMilliseconds(500),
+            Minimum = 0,
+            Maximum = 50
+        };
+        cut.Render(p => p.Add(c => c.Options, options));
+        initialize.Invocations.Count.Should().Be(1);
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-duration").Should().Be("500");
+        cut.Find("[data-slot=chart-plot]").ParentElement!.GetAttribute("clip-path").Should().StartWith("url(#");
+        data.Append(start.AddMilliseconds(1500), 40);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version).Add(c => c.ScrollPaused, true));
+        initialize.Invocations.Count.Should().Be(1);
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-paused").Should().Be("true");
+        cut.Render(p => p.Add(c => c.Options, new ChartOptions()));
+        destroy.Invocations.Count.Should().Be(1);
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-enabled").Should().Be("false");
+    }
+
+    [Test]
+    public void Scrolling_rejects_nonpositive_duration()
+    {
+        Action render = () => Render<Chart>(p => p.Add(c => c.Options,
+            new ChartOptions { EnableRealtimeScrolling = true, RealtimeScrollDuration = TimeSpan.Zero }));
+        render.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void Scrolling_retains_outgoing_segments_without_changing_buffer_capacity()
+    {
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        module.SetupVoid("initialize", _ => true).SetVoidResult();
+        module.SetupVoid("destroy", _ => true).SetVoidResult();
+        var data = new RealtimeChartData(5, "API");
+        var start = DateTimeOffset.UtcNow;
+        for (var i = 0; i < 5; i++)
+            data.Append(start.AddSeconds(i), (i + 1) * 10);
+        var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series)
+            .Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version)
+            .Add(c => c.Options, new ChartOptions
+            {
+                EnableRealtimeScrolling = true, Curve = ChartCurve.Linear, Minimum = 0, Maximum = 100
+            }));
+        data.Append(start.AddSeconds(5), 60);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        // The outgoing point is left of the final viewport but its segment remains visible during translation.
+        cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().StartWith("M-128,255.4L54,228.8");
+        cut.Find("[data-slot=chart-scroll-point]").GetAttribute("cx").Should().Be("-128");
+        cut.FindAll(".quark-chart-point").Count.Should().Be(5);
+        data.Count.Should().Be(5);
+
+        data.AppendBatch([start.AddSeconds(6), start.AddSeconds(7)], [70, 80]);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().StartWith("M-492,255.4L-310,228.8L-128,202.2L54,175.6");
+        data.Count.Should().Be(5);
+
+        data.Clear();
+        data.Append(start, 90);
+        data.Append(start.AddSeconds(1), 100);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        cut.FindAll("[data-slot=chart-scroll-point]").Should().BeEmpty();
+        cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().StartWith("M54,");
+    }
+
+    [Test]
+    public void Outgoing_history_preserves_null_gaps()
+    {
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        module.SetupVoid("initialize", _ => true).SetVoidResult();
+        module.SetupVoid("destroy", _ => true).SetVoidResult();
+        var data = new RealtimeChartData(4, "API");
+        var start = DateTimeOffset.UtcNow;
+        data.AppendBatch([start, start.AddSeconds(1), start.AddSeconds(2), start.AddSeconds(3)], [10, null, 30, 40]);
+        var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series)
+            .Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version)
+            .Add(c => c.Options, new ChartOptions { EnableRealtimeScrolling = true, Curve = ChartCurve.Linear, Minimum = 0, Maximum = 100 }));
+        data.Append(start.AddSeconds(4), 50);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        var path = cut.Find("[data-slot=chart-line]").GetAttribute("d")!;
+        path.Split('M').Length.Should().Be(3);
+        cut.FindAll(".quark-chart-point").Count.Should().Be(3);
+    }
+
+    [Test]
     public void Radial_updates_validate_atomically_and_preserve_collection_identity()
     {
         string[] labels = ["Completed", "Failed"];

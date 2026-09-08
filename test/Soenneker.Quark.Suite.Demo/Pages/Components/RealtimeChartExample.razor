@@ -1,33 +1,64 @@
 @implements IAsyncDisposable
 @using System.Threading
 
-<Chart Series="@_data.Series" Labels="@_data.Labels" XValues="@_data.XValues" DataVersion="@_data.Version"
-       Options="@Options" AriaLabel="Live request latency">
+<div>
+<Chart @ref="_chart" Series="@_data.Series" Labels="@_data.Labels" XValues="@_data.XValues" DataVersion="@_data.Version"
+       Options="@(_expandSelection ? ZoomOptions : SelectionOptions)" @bind-ScrollPaused="_paused" OnSelect="HandleSelection" OnRangeSelect="HandleRangeSelection" AriaLabel="Live request latency">
     <HeaderContent>
-        <div class="mb-4 flex items-center justify-between gap-4">
+        <div class="mb-4 flex items-center justify-between gap-4" @onpointerdown:stopPropagation="true" @onfocusin:stopPropagation="true">
             <div>
                 <div class="text-sm font-medium">Live request latency</div>
-                <div class="text-xs text-muted-foreground">Latest 60 samples · updates every second</div>
+                <div class="text-xs text-muted-foreground">Latest 60 samples · updates every 500 ms</div>
             </div>
             <button type="button" class="rounded-md border px-3 py-1 text-sm" @onclick="TogglePaused">@(_paused ? "Resume" : "Pause")</button>
         </div>
     </HeaderContent>
 </Chart>
+</div>
+
+<div class="mt-4 space-y-2 text-sm">
+    <label class="flex items-center gap-2"><input type="checkbox" @bind="_expandSelection" /> Expand selection to full width</label>
+    <button type="button" class="rounded-md border px-3 py-1" disabled="@(_chart?.IsZoomed != true)" @onclick="ResetZoom">Reset zoom</button>
+    <p class="text-muted-foreground">Press and drag on the chart to pause and select a range. Dots stay visible. Enable expansion before dragging to zoom into that range. Reset zoom shows the full window; Resume returns to live updates.</p>
+    <div role="status" aria-live="polite">@_selectionText</div>
+</div>
 
 @code {
-    private readonly RealtimeChartData _data = new(60, "API", "Worker");
+    private readonly RealtimeChartData _data = new(61, "API", "Worker");
+    private DateTimeOffset _sampleTime;
     private readonly CancellationTokenSource _cancellation = new();
     private Task? _updates;
     private bool _paused;
-    private static readonly ChartOptions Options = new()
+    private bool _expandSelection;
+    private Chart? _chart;
+    private string _selectionText = "No selection yet.";
+    private static readonly ChartOptions SelectionOptions = CreateOptions(false);
+    private static readonly ChartOptions ZoomOptions = CreateOptions(true);
+
+    private static ChartOptions CreateOptions(bool expandSelection) => new()
     {
         Animate = false,
-        ShowPoints = false,
+        ShowPoints = true,
+        EnableRangeSelection = true,
+        PauseOnRangeSelection = true,
+        ZoomOnRangeSelection = expandSelection,
         IncludeZero = false,
-        Curve = ChartCurve.Linear,
+        Minimum = 60,
+        Maximum = 140,
+        EnableRealtimeScrolling = true,
+        RealtimeScrollDuration = TimeSpan.FromMilliseconds(500),
+        Curve = ChartCurve.Monotone,
         MaximumXAxisLabels = 5,
         Unit = "ms"
     };
+
+    protected override void OnInitialized()
+    {
+        _sampleTime = DateTimeOffset.UtcNow;
+        // Empty history reserves a stable thirty-second viewport without inventing samples.
+        for (var index = 0; index < _data.Capacity; index++)
+            _data.Append(_sampleTime.AddMilliseconds((index - _data.Capacity + 1) * 500), null, null);
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -35,11 +66,38 @@
             _updates = UpdateAsync();
     }
 
-    private void TogglePaused() => _paused = !_paused;
+    private void PauseForSelection() => _paused = true;
+
+    private void TogglePaused()
+    {
+        _paused = !_paused;
+        if (!_paused)
+            ResetZoom();
+    }
+
+    private void ResetZoom()
+    {
+        _chart?.ResetZoom();
+        _selectionText = "No selection yet.";
+    }
+
+    private void HandleSelection(ChartSelection selection)
+    {
+        PauseForSelection();
+        var timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)_data.XValues[selection.Index]);
+        _selectionText = $"Selected {selection.Series}: {selection.Value:N1} ms at {timestamp:HH:mm:ss.fff} UTC.";
+    }
+
+    private void HandleRangeSelection(ChartRangeSelection selection)
+    {
+        var start = DateTimeOffset.FromUnixTimeMilliseconds((long)selection.StartXValue!.Value);
+        var end = DateTimeOffset.FromUnixTimeMilliseconds((long)selection.EndXValue!.Value);
+        _selectionText = $"Selected {selection.EndIndex - selection.StartIndex + 1} samples per series from {start:HH:mm:ss.fff} to {end:HH:mm:ss.fff} UTC ({(end - start).TotalSeconds:N1} s).";
+    }
 
     private async Task UpdateAsync()
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
         try
         {
             while (await timer.WaitForNextTickAsync(_cancellation.Token))
@@ -48,7 +106,9 @@
                 {
                     if (_paused || _cancellation.IsCancellationRequested)
                         return;
-                    _data.Append(DateTimeOffset.UtcNow, 100 + Random.Shared.NextDouble() * 40, 70 + Random.Shared.NextDouble() * 25);
+                    // Advance the sample clock only while running, so resume does not create a gap.
+                    _sampleTime = _sampleTime.AddMilliseconds(500);
+                    _data.Append(_sampleTime, 100 + Random.Shared.NextDouble() * 40, 70 + Random.Shared.NextDouble() * 25);
                     StateHasChanged();
                 });
             }

@@ -39,6 +39,41 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Range_selection_preserves_point_tooltips_and_drags_between_marks_and_background()
+    {
+        ChartRangeSelection? range = null;
+        ChartSelection? pointSelection = null;
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[]
+            {
+                new("API", new double[] { 10, 20, 30 }),
+                new("Worker", new double[] { 5, 15, 25 })
+            })
+            .Add(c => c.Options, new ChartOptions { EnableRangeSelection = true, SharedTooltip = false })
+            .Add(c => c.OnRangeSelect, value => range = value)
+            .Add(c => c.OnSelect, value => pointSelection = value));
+
+        var points = cut.FindAll(".quark-chart-point");
+        points[1].PointerEnter();
+        cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Feb");
+        cut.FindAll(".quark-chart-tooltip-name").Should().ContainSingle().Which.TextContent.Should().Be("API");
+        points[4].PointerEnter();
+        cut.FindAll(".quark-chart-tooltip-name").Should().ContainSingle().Which.TextContent.Should().Be("Worker");
+        points[0].PointerDown();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[2].PointerEnter();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[2].PointerUp();
+        range.Should().Be(new ChartRangeSelection("Jan", "Mar", 0, 2));
+
+        cut.FindAll("[data-slot=chart-range-hit-area]")[2].PointerDown();
+        points[1].PointerEnter();
+        points[1].PointerUp();
+        points[1].Click();
+        range.Should().Be(new ChartRangeSelection("Feb", "Mar", 1, 2));
+        pointSelection.Should().BeNull();
+        cut.FindAll(".quark-chart-point").Should().HaveCount(6);
+    }
+
+    [Test]
     public void Chart_rerenders_when_series_parameters_change()
     {
         var cut = Render<Chart>(parameters => parameters
@@ -443,6 +478,80 @@ public sealed class ChartRenderTests : BunitContext
 
         selection.Should().Be(new ChartRangeSelection("Jan", "Mar", 0, 2, 10, 30));
         cut.FindAll("[data-slot='chart-range-selection']").Should().ContainSingle();
+    }
+
+    [Test]
+    public async System.Threading.Tasks.Task Range_selection_pauses_on_press_keeps_points_and_expands_selected_domain()
+    {
+        bool paused = false;
+        ChartRangeSelection? selected = null;
+        var cut = Render<Chart>(p => p
+            .Add(c => c.Labels, new[] { "A", "B", "C", "D", "E" })
+            .Add(c => c.XValues, new double[] { 0, 10, 20, 30, 40 })
+            .Add(c => c.Series, new ChartSeries[] { new("Latency", new double[] { 10, 20, 30, 20, 10 }) })
+            .Add(c => c.Options, new ChartOptions
+            {
+                EnableRangeSelection = true, PauseOnRangeSelection = true,
+                ZoomOnRangeSelection = true, ShowPoints = true
+            })
+            .Add(c => c.ScrollPausedChanged, value => paused = value)
+            .Add(c => c.OnRangeSelect, value => selected = value));
+
+        cut.FindAll("[data-slot=chart-range-hit-area]")[3].PointerDown();
+        paused.Should().BeTrue();
+        cut.Instance.ScrollPaused.Should().BeTrue();
+        cut.FindAll(".quark-chart-point").Should().HaveCount(5);
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerEnter();
+        cut.FindAll(".quark-chart-point").Should().HaveCount(5);
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerUp();
+
+        selected.Should().Be(new ChartRangeSelection("B", "D", 1, 3, 10, 30));
+        cut.Instance.IsZoomed.Should().BeTrue();
+        var points = cut.FindAll(".quark-chart-point");
+        points.Should().HaveCount(3);
+        points[0].GetAttribute("cx").Should().Be("54");
+        points[2].GetAttribute("cx").Should().Be("782");
+        cut.FindAll("[data-slot=chart-range-hit-area]").Should().HaveCount(3);
+        await cut.InvokeAsync(() => cut.Instance.ResetZoom());
+        cut.Instance.IsZoomed.Should().BeFalse();
+        cut.FindAll(".quark-chart-point").Should().HaveCount(5);
+        cut.Instance.ScrollPaused.Should().BeTrue();
+    }
+
+    [Test]
+    public void Single_category_does_not_zoom_and_new_data_restores_full_domain()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.XValues, new double[] { 10, 20, 30 })
+            .Add(c => c.Series, new ChartSeries[] { new("Latency", new double[] { 10, 20, 30 }) })
+            .Add(c => c.Options, new ChartOptions { EnableRangeSelection = true, ZoomOnRangeSelection = true }));
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerDown();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerUp();
+        cut.Instance.IsZoomed.Should().BeFalse();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerDown();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[2].PointerUp();
+        cut.Instance.IsZoomed.Should().BeTrue();
+        cut.Render(p => p.Add(c => c.DataVersion, 1));
+        cut.Instance.IsZoomed.Should().BeFalse();
+        cut.FindAll(".quark-chart-point").Should().HaveCount(3);
+    }
+
+    [Test]
+    public void Category_zoom_spans_plot_width_and_keeps_the_visible_endpoint()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Latency", new double[] { 10, 20, 30 }) })
+            .Add(c => c.Options, new ChartOptions
+            {
+                EnableRangeSelection = true, ZoomOnRangeSelection = true,
+                ShowPoints = false, ShowEndPoints = true, Curve = ChartCurve.Linear
+            }));
+        cut.FindAll("[data-slot=chart-range-hit-area]")[0].PointerDown();
+        cut.FindAll("[data-slot=chart-range-hit-area]")[1].PointerUp();
+        cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().StartWith("M54,");
+        var point = cut.Find(".quark-chart-point");
+        point.GetAttribute("cx").Should().Be("782");
+        point.GetAttribute("aria-label").Should().Contain("Feb");
     }
 }
 

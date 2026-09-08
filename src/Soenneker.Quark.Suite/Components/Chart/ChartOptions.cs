@@ -19,6 +19,21 @@ namespace Soenneker.Quark;
 /// </remarks>
 public sealed class ChartOptions
 {
+    /// <summary>Gets whether timestamped line and area charts scroll retained samples horizontally when their X domain advances. Defaults to false.</summary>
+    /// <remarks>
+    /// Supply XValues and advance Chart.DataVersion when mutating data. Keep the visible X span and Y bounds stable for scrolling;
+    /// changes to either scale render immediately. Plot clipping is enabled automatically. Other chart types are not animated.
+    /// Reduced-motion preferences are respected. The application owns sample collection and pauses its feed separately.
+    /// </remarks>
+    public bool EnableRealtimeScrolling { get; init; }
+
+    /// <summary>Gets the duration of each realtime scroll. Defaults to 200 milliseconds. Must be positive when scrolling is enabled.</summary>
+    /// <remarks>Match this to the expected update interval. This is independent of the entrance animation controlled by Animate.</remarks>
+    public TimeSpan RealtimeScrollDuration { get; init; } = TimeSpan.FromMilliseconds(200);
+
+    /// <summary>Gets whether Cartesian marks and selection targets are clipped to the plot bounds.</summary>
+    public bool ClipPlot { get; init; }
+
     /// <summary>
     /// Gets the intrinsic SVG width used for geometry and aspect-ratio calculations. The default is <c>800</c>.
     /// </summary>
@@ -92,10 +107,18 @@ public sealed class ChartOptions
     /// Gets whether a user can drag across a Cartesian chart to select a contiguous range of categories. The default is <see langword="false"/>.
     /// </summary>
     /// <remarks>
-    /// While dragging, the selected range is highlighted and snapped to category boundaries. When enabled, the range interaction layer takes
-    /// precedence over selecting individual chart marks. Handle <see cref="Chart.OnRangeSelect"/> to receive the completed range.
+    /// While dragging, the selected range is highlighted and snapped to category boundaries. Point hover and tooltips remain available;
+    /// pointer presses on marks begin a range instead of selecting a single value. Handle <see cref="Chart.OnRangeSelect"/> to receive the completed range.
     /// </remarks>
     public bool EnableRangeSelection { get; init; }
+
+    /// <summary>Gets whether beginning a range selection sets Chart.ScrollPaused and notifies Chart.ScrollPausedChanged. Defaults to false.</summary>
+    /// <remarks>Bind ScrollPaused to the application's feed state to pause sample collection on the first pointer press or keyboard focus of a chart mark. Legend controls do not pause the chart.</remarks>
+    public bool PauseOnRangeSelection { get; init; }
+
+    /// <summary>Gets whether completing a range spanning at least two categories expands it across the plot width. Defaults to false.</summary>
+    /// <remarks>Requires EnableRangeSelection. Call Chart.ResetZoom to restore the full domain. New data also resets the zoom.</remarks>
+    public bool ZoomOnRangeSelection { get; init; }
 
     /// <summary>
     /// Gets whether the automatically calculated y-axis domain must include zero. The default is <see langword="true"/>.
