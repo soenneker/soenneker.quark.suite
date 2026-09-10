@@ -56,60 +56,66 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public async Task AutoSave_debounces_initial_value_change_before_saving()
     {
-        var saveCount = 0;
-        string? savedValue = null;
-        var states = new List<AutoSaveState>();
+        const int debounceDelay = 250;
+        var stopwatch = new Stopwatch();
+        var saves = new List<(string? Value, long Milliseconds)>();
+        var savingTimes = new List<long>();
         var gate = new object();
 
         Func<string?, CancellationToken, ValueTask> onAutoSave = (value, _) =>
         {
-            saveCount++;
-            savedValue = value;
+            lock (gate)
+            {
+                saves.Add((value, stopwatch.ElapsedMilliseconds));
+            }
+
             return ValueTask.CompletedTask;
         };
 
         var cut = Render<TextInput>(parameters => parameters
             .Add(p => p.Value, string.Empty)
             .Add(p => p.AutoSave, true)
-            .Add(p => p.AutoSaveDelay, 250)
+            .Add(p => p.AutoSaveDelay, debounceDelay)
             .Add(p => p.OnAutoSave, onAutoSave)
             .Add(p => p.AutoSaveStateChanged, state =>
             {
-                lock (gate)
+                if (state == AutoSaveState.Saving)
                 {
-                    states.Add(state);
+                    lock (gate)
+                    {
+                        savingTimes.Add(stopwatch.ElapsedMilliseconds);
+                    }
                 }
 
                 return Task.CompletedTask;
             }));
 
+        stopwatch.Start();
         cut.Find("input").Input("f");
 
+        // A busy runner can resume this wait after the debounce has already expired.
+        // Check the actual save timestamps instead of assuming the wait resumes on time.
         await Task.Delay(100);
-
-        saveCount.Should().Be(0);
-        HasState(AutoSaveState.Saving).Should().BeFalse();
-
+        var secondInputTime = stopwatch.ElapsedMilliseconds;
         cut.Find("input").Input("fi");
-
-        await Task.Delay(100);
-
-        saveCount.Should().Be(0);
-        HasState(AutoSaveState.Saving).Should().BeFalse();
 
         cut.WaitForAssertion(() =>
         {
-            saveCount.Should().Be(1);
-            savedValue.Should().Be("fi");
-        }, TimeSpan.FromSeconds(2));
-
-        bool HasState(AutoSaveState state)
-        {
             lock (gate)
             {
-                return states.Any(entry => EqualityComparer<AutoSaveState>.Default.Equals(entry, state));
+                saves.Should().ContainSingle(save => save.Value == "fi");
+                saves.Should().OnlyContain(save => save.Value == "f" || save.Value == "fi");
+                saves.Count(save => save.Value == "f").Should().BeLessThanOrEqualTo(1);
+                foreach (var save in saves)
+                {
+                    var inputTime = save.Value == "fi" ? secondInputTime : 0;
+                    (save.Milliseconds - inputTime).Should().BeGreaterThanOrEqualTo(debounceDelay);
+                }
+
+                savingTimes.Should().NotBeEmpty();
+                savingTimes.Should().OnlyContain(time => time >= debounceDelay);
             }
-        }
+        }, TimeSpan.FromSeconds(2));
     }
 
     [Test]
