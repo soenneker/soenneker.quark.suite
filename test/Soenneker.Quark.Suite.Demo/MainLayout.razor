@@ -5,11 +5,6 @@
 @inject Services.ThemeService ThemeService
 @implements IDisposable
 
-<HeadContent>
-    <meta name="title" content="@CurrentMetadataTitle" />
-    <meta property="og:title" content="@CurrentMetadataTitle" />
-</HeadContent>
-
 <CascadingValue Value="ThemeService">
     <SidebarProvider Class="@ShellClass" SidebarWidth="calc(var(--spacing) * 72)" SidebarWidthMobile="100vw" style="--header-height: 4.5rem;">
         @if (IsLandingPage)
@@ -163,6 +158,10 @@
                             }
                             else
                             {
+                                @if (ShouldRenderLayoutPageTitle && CurrentPageTitle is not null)
+                                {
+                                    <H1 Margin="Margin.Is4.FromBottom" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight">@CurrentPageTitle</H1>
+                                }
                                 @Body
                             }
                         </Main>
@@ -219,27 +218,10 @@
     private bool IsComponentsIndexPage => CurrentPath == "/components";
     private bool UsesWideComponentPreview => CurrentPath is "/components/stepper" or "/components/node-editor";
     private bool ShouldRenderOnThisPage => !UsesWideComponentPreview && (IsComponentsIndexPage || IsDocumentedComponentPage);
-    private bool ShouldRenderLayoutPageTitle => !IsComponentsIndexPage && CurrentPath is not ("/introduction" or "/installation");
+    private bool ShouldRenderLayoutPageTitle => !IsComponentsIndexPage && CurrentPath is not
+        ("/introduction" or "/installation" or "/components/container" or "/components/containers" or "/components/divs" or "/components/padding");
     private bool IsLandingPage => CurrentPath == "/";
     private bool ShowSidebarTrigger => true;
-
-    private string CurrentMetadataTitle
-    {
-        get
-        {
-            if (CurrentPageTitle is { } pageTitle)
-                return $"{pageTitle} - Quark Suite";
-
-            if (IsLandingPage)
-                return "Quark Suite - Blazor Components";
-
-            string routeName = CurrentPath[(CurrentPath.LastIndexOf('/') + 1)..];
-            string title = string.Join(' ', routeName.Split('-', StringSplitOptions.RemoveEmptyEntries)
-                                                       .Select(static segment => char.ToUpperInvariant(segment[0]) + segment[1..]));
-
-            return $"{title} - Quark Suite";
-        }
-    }
 
     private bool IsHeaderNavActive(NavigationItem item)
     {

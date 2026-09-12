@@ -317,6 +317,9 @@
 
 	private async Task HandleBradixValuesChange(IReadOnlyList<double> values)
 	{
+		if (!IsInteractive)
+			return;
+
 		var normalized = NormalizeValues(values, UsesValuesApi);
 
 		if (UsesValuesApi)
@@ -349,6 +352,9 @@
 
 	private async Task HandleBradixValueCommit(IReadOnlyList<double> values)
 	{
+		if (!IsInteractive)
+			return;
+
 		var normalized = NormalizeValues(values, UsesValuesApi);
 
 		if (ParentValidation is not null)
@@ -438,6 +444,8 @@
 		else if (Id is not null)
 			attributes["id"] = Id;
 
+		attributes["role"] = "group";
+
 		if (!string.IsNullOrWhiteSpace(AriaLabel))
 			attributes["aria-label"] = AriaLabel!;
 
@@ -453,9 +461,6 @@
 
 		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
 			attributes["aria-invalid"] = "true";
-
-		if (ReadOnly)
-			attributes["aria-readonly"] = "true";
 
 		return attributes;
 	}
@@ -512,6 +517,33 @@
 			}
 		}
 
+		// Shared descriptions and labels belong on every focusable thumb.
+		if (Attributes is not null)
+		{
+			foreach (var attribute in Attributes)
+			{
+				if (attribute.Key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase))
+					attributes[attribute.Key] = attribute.Value;
+			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
+			attributes["aria-labelledby"] = AriaLabelledBy;
+
+		if (!string.IsNullOrWhiteSpace(AriaDescribedBy))
+			attributes["aria-describedby"] = AriaDescribedBy;
+
+		if (ReadOnly)
+			attributes["aria-readonly"] = "true";
+
+		var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+			? existingDescribedBy?.ToString() : null, ParentValidation?.Status == ValidationStatus.Error);
+		if (!string.IsNullOrWhiteSpace(describedBy))
+			attributes["aria-describedby"] = describedBy;
+
+		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
+			attributes["aria-invalid"] = "true";
+
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
 			AppendClass(ref cls, "relative block");
@@ -524,24 +556,10 @@
 
 	private string? ResolveThumbLabel(int index, int totalValues)
 	{
-		if (!string.IsNullOrWhiteSpace(AriaLabel) || !string.IsNullOrWhiteSpace(AriaLabelledBy))
-		{
-			if (totalValues == 2)
-				return index == 0 ? "Minimum" : "Maximum";
-
-			if (totalValues > 2)
-				return $"Value {index + 1} of {totalValues}";
-
-			return null;
-		}
-
-		if (totalValues > 2)
-			return $"Value {index + 1} of {totalValues}";
-
-		if (totalValues == 2)
-			return index == 0 ? "Minimum" : "Maximum";
-
-		return null;
+		var label = !string.IsNullOrWhiteSpace(AriaLabel) ? AriaLabel : Label;
+		var suffix = totalValues == 2 ? (index == 0 ? "Minimum" : "Maximum")
+			: totalValues > 2 ? $"Value {index + 1} of {totalValues}" : null;
+		return string.IsNullOrWhiteSpace(label) ? suffix : suffix is null ? label : $"{label} {suffix}";
 	}
 
 	[JSInvokable]

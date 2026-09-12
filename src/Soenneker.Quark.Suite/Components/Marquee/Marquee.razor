@@ -8,7 +8,17 @@
 }
 
 [data-slot="marquee"][data-pause-on-hover="true"]:hover [data-slot="marquee-track"] {
-    animation-play-state: paused;
+    animation-play-state: paused !important;
+}
+
+[data-slot="marquee"]:focus-within [data-slot="marquee-track"] {
+    animation-play-state: paused !important;
+}
+
+@@media (prefers-reduced-motion: reduce) {
+    [data-slot="marquee"] [data-slot="marquee-track"] {
+        animation: none !important;
+    }
 }
 </style>
 
@@ -20,6 +30,7 @@
     </div>
     <div data-slot="marquee-track"
          aria-hidden="true"
+         inert
          class="@GetTrackClass()"
          style="@GetTrackStyle()">
         @ChildContent

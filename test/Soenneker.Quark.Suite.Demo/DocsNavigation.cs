@@ -123,6 +123,7 @@ public static class DocsNavigation
         new("Tabs", ComponentRoute("tabs")),
         new("Tag Input", ComponentRoute("tag-input")),
         new("Text Shimmer", ComponentRoute("text-shimmer")),
+        new("Text Input", ComponentRoute("textinputs")),
         new("Textarea", ComponentRoute("textarea")),
         new("Theme Toggle Button", ComponentRoute("theme-toggle-button")),
         new("Thread", ComponentRoute("threads")),
@@ -131,7 +132,17 @@ public static class DocsNavigation
         new("Toggle", ComponentRoute("toggle")),
         new("Toggle Group", ComponentRoute("toggle-groups")),
         new("Tooltip", ComponentRoute("tooltip")),
-        new("Typography", ComponentRoute("typography"))
+        new("Typography", ComponentRoute("typography")),
+        new("DataTable Bar Layout", ComponentRoute("barlayouts")),
+        new("Collapse", ComponentRoute("collapses")),
+        new("Date Input", ComponentRoute("dateinputs")),
+        new("Loading", ComponentRoute("loading")),
+        new("Memo Input", ComponentRoute("memoinputs")),
+        new("Advanced DataTable", ComponentRoute("modern")),
+        new("Numeric Input", ComponentRoute("numericinputs")),
+        new("Paged Results", ComponentRoute("pagedresults")),
+        new("DataTable Request Options", ComponentRoute("requestdataoptions")),
+        new("Tree", ComponentRoute("tree"))
     ];
 
     public static IReadOnlyList<NavigationItem> PrimitiveLinks { get; } =
@@ -156,6 +167,14 @@ public static class DocsNavigation
         new("Span", ComponentRoute("spans")),
         new("Strong", ComponentRoute("strong")),
         new("Svg", ComponentRoute("svgs")),
-        new("Text", ComponentRoute("texts"))
+        new("Text", ComponentRoute("texts")),
+        new("Details and Summary", ComponentRoute("details")),
+        new("Headings", ComponentRoute("headings")),
+        new("Horizontal Rule", ComponentRoute("hr")),
+        new("Iframe", ComponentRoute("iframes")),
+        new("Ordered List", ComponentRoute("orderedlists")),
+        new("Text Styles", ComponentRoute("textstyles")),
+        new("Unordered List", ComponentRoute("unorderedlists")),
+        new("Video and Audio", ComponentRoute("videos"))
     ];
 }

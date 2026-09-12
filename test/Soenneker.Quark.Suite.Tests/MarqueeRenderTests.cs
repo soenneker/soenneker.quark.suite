@@ -18,6 +18,8 @@ public sealed partial class RenderedShadcnParityTests
         root.GetAttribute("style").Should().Contain("mask-image:linear-gradient");
         cut.FindAll("[data-slot='marquee-track']").Should().HaveCount(2);
         cut.FindAll("[data-slot='marquee-track']")[1].GetAttribute("aria-hidden").Should().Be("true");
+        cut.FindAll("[data-slot='marquee-track']")[1].HasAttribute("inert").Should().BeTrue();
+        cut.FindAll("[data-slot='marquee-track']")[0].HasAttribute("inert").Should().BeFalse();
     }
 
     [Test]
