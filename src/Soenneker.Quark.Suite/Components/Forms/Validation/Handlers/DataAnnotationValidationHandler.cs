@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
@@ -12,9 +12,8 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
     {
         if (ctx.EditContext is not null)
         {
-            var store = new ValidationMessageStore(ctx.EditContext);
+            var store = ctx.GetDataAnnotationMessageStore();
             var field = ctx.FieldIdentifier;
-            store.Clear(field);
 
             var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
             var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(field.Model)

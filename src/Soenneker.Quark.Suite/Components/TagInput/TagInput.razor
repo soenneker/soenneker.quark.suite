@@ -62,15 +62,10 @@
     private int _activeAutocompleteIndex = -1;
     private bool _preventDefaultKeys;
     private bool _isFocused;
-    private QuarkAttributeDictionary _inputContainerAttributeBuffer;
-    private QuarkAttributeDictionary _tagListAttributeBuffer;
-    private QuarkAttributeDictionary _inputAttributeBuffer;
-    private QuarkAttributeDictionary _autocompleteAttributeBuffer;
-    private QuarkAttributeDictionary _footerAttributeBuffer;
-    private QuarkAttributeDictionary _clearAllAttributeBuffer;
-    private QuarkAttributeDictionary[] _tagAttributeBuffers = [];
-    private QuarkAttributeDictionary[] _removeButtonAttributeBuffers = [];
-    private QuarkAttributeDictionary[] _autocompleteItemAttributeBuffers = [];
+    private RenderFragment? _tagListFragment;
+    private RenderFragment? _inputWithAutocomplete;
+    private RenderFragment? _inputWithoutAutocomplete;
+    private List<string>? _filteredOptions;
 
     [Parameter]
     public string[] Values { get; set; } = [];
@@ -203,11 +198,12 @@
 
     private IReadOnlyList<string> GetFilteredAutocompleteOptions()
     {
+        _filteredOptions?.Clear();
         if (!_isFocused || Disabled || ReadOnly || !EnableAutocomplete || AutocompleteOptions.Length == 0)
             return Array.Empty<string>();
 
         var input = _inputValue.Trim();
-        List<string>? options = null;
+        var options = _filteredOptions;
 
         foreach (var option in AutocompleteOptions)
         {
@@ -217,7 +213,7 @@
             if (!(AutocompleteFilter?.Invoke(option, input) ?? option.Contains(input, StringComparison.OrdinalIgnoreCase)))
                 continue;
 
-            options ??= new List<string>(Math.Min(8, AutocompleteOptions.Length));
+            options ??= _filteredOptions = new List<string>(Math.Min(8, AutocompleteOptions.Length));
             options.Add(option);
 
             if (options.Count == 8)
@@ -235,7 +231,11 @@
         Width ??= Quark.Width.IsFull;
     }
 
-    private RenderFragment RenderInputContainer(bool shouldRenderAutocomplete) => builder =>
+    private RenderFragment RenderInputContainer(bool autocomplete) => autocomplete
+        ? _inputWithAutocomplete ??= CreateInputContainer(true)
+        : _inputWithoutAutocomplete ??= CreateInputContainer(false);
+
+    private RenderFragment CreateInputContainer(bool shouldRenderAutocomplete) => builder =>
     {
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "data-slot", InlineTags ? "tag-input-inline-container" : "tag-input-field-container");
@@ -271,7 +271,7 @@
         builder.CloseElement();
     };
 
-    private RenderFragment RenderTagList() => builder =>
+    private RenderFragment RenderTagList() => _tagListFragment ??= builder =>
     {
         if (Values.Length == 0)
             return;
@@ -281,6 +281,7 @@
         builder.AddAttribute(2, "role", "list");
         builder.AddAttribute(3, "class", GetTagListClass());
 
+        var tagClass = GetTagClass();
         for (var i = 0; i < Values.Length; i++)
         {
             var tag = Values[i];
@@ -290,7 +291,7 @@
             builder.AddAttribute(6, "data-active", CurrentActiveTagIndex == i ? "true" : "false");
             builder.AddAttribute(7, "role", "listitem");
             builder.AddAttribute(8, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, tagIndex)));
-            builder.AddAttribute(9, "class", GetTagClass());
+            builder.AddAttribute(9, "class", tagClass);
 
             builder.OpenElement(10, "span");
             builder.AddAttribute(11, "data-slot", "tag-input-tag-text");
@@ -720,192 +721,6 @@
     {
         var cls = "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md";
         return AutocompleteClass.HasContent() ? AppendToClass(cls, AutocompleteClass!) : cls;
-    }
-
-    private Dictionary<string, object> BuildInputContainerAttributes()
-    {
-        var attributes = _inputContainerAttributeBuffer.Create(4);
-        attributes["data-slot"] = InlineTags ? "tag-input-inline-container" : "tag-input-field-container";
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => _inputRef.FocusAsync());
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50");
-            AppendClass(ref cls, "has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40");
-
-            if (Disabled)
-                AppendClass(ref cls, "cursor-not-allowed opacity-50");
-
-            if (InputClass.HasContent())
-                AppendClass(ref cls, InputClass!);
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildTagListAttributes()
-    {
-        var attributes = _tagListAttributeBuffer.Create(4);
-        attributes["data-slot"] = "tag-input-list";
-        attributes["role"] = "list";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, ReferenceEquals(Direction, TagInputDirection.Column)
-                ? "flex w-full flex-col gap-1"
-                : "flex flex-wrap items-center gap-1");
-
-            if (!InlineTags)
-                AppendClass(ref cls, "mb-2");
-
-            if (TagListClass.HasContent())
-                AppendClass(ref cls, TagListClass!);
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildTagAttributes(int index)
-    {
-        var tag = Values[index];
-        EnsureAttributeBufferCapacity(ref _tagAttributeBuffers, index + 1);
-        var attributes = _tagAttributeBuffers[index].Create(6);
-        attributes["data-slot"] = "tag-input-tag";
-        attributes["data-active"] = CurrentActiveTagIndex == index ? "true" : "false";
-        attributes["role"] = "listitem";
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, index));
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "inline-flex max-w-full items-center gap-1 border font-medium transition-colors data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-1");
-            AppendClass(ref cls, GetTagVariantClass());
-            AppendClass(ref cls, GetTagSizeClass());
-
-            if (TagClass.HasContent())
-                AppendClass(ref cls, TagClass!);
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildRemoveButtonAttributes(string tag, int index)
-    {
-        EnsureAttributeBufferCapacity(ref _removeButtonAttributeBuffers, index + 1);
-        var attributes = _removeButtonAttributeBuffers[index].Create(6);
-        attributes["data-slot"] = "tag-input-tag-remove";
-        attributes["aria-label"] = $"Remove {tag}";
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, () => RemoveTagAt(index, moveToPrevious: true));
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildInputAttributes(bool shouldRenderAutocomplete)
-    {
-        var attributes = _inputAttributeBuffer.Create(16);
-        attributes["data-slot"] = "tag-input-input";
-        attributes["type"] = "text";
-        attributes["autocomplete"] = "off";
-        attributes["placeholder"] = Values.Length == 0 || !InlineTags ? EffectivePlaceholder : string.Empty;
-        attributes["aria-expanded"] = shouldRenderAutocomplete ? "true" : "false";
-        attributes["aria-autocomplete"] = EnableAutocomplete ? "list" : "none";
-
-        if (Disabled || IsFull)
-            attributes["disabled"] = true;
-
-        if (ReadOnly)
-            attributes["readonly"] = true;
-
-        if (Name.HasContent())
-            attributes["name"] = Name!;
-
-        if (Id.HasContent())
-            attributes["id"] = Id!;
-
-        if (AriaLabel.HasContent())
-            attributes["aria-label"] = AriaLabel!;
-
-        if (AriaDescribedBy.HasContent())
-            attributes["aria-describedby"] = AriaDescribedBy!;
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "min-w-24 flex-1 bg-transparent px-1 py-1 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed");
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildAutocompleteAttributes()
-    {
-        var attributes = _autocompleteAttributeBuffer.Create(4);
-        attributes["data-slot"] = "tag-input-autocomplete";
-        attributes["role"] = "listbox";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
-
-            if (AutocompleteClass.HasContent())
-                AppendClass(ref cls, AutocompleteClass!);
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildAutocompleteItemAttributes(int index)
-    {
-        EnsureAttributeBufferCapacity(ref _autocompleteItemAttributeBuffers, index + 1);
-        var attributes = _autocompleteItemAttributeBuffers[index].Create(4);
-        attributes["data-slot"] = "tag-input-autocomplete-item";
-        attributes["data-active"] = index == _activeAutocompleteIndex ? "true" : "false";
-        attributes["role"] = "option";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground");
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildFooterAttributes()
-    {
-        var attributes = _footerAttributeBuffer.Create(4);
-        attributes["data-slot"] = "tag-input-footer";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground");
-        });
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildClearAllAttributes()
-    {
-        var attributes = _clearAllAttributeBuffer.Create(4);
-        attributes["data-slot"] = "tag-input-clear-all";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "font-medium text-foreground underline-offset-4 hover:underline");
-        });
-
-        return attributes;
-    }
-
-    private static void EnsureAttributeBufferCapacity(ref QuarkAttributeDictionary[] buffers, int requiredLength)
-    {
-        if (buffers.Length >= requiredLength)
-            return;
-
-        var nextLength = Math.Max(requiredLength, Math.Max(4, buffers.Length * 2));
-        Array.Resize(ref buffers, nextLength);
     }
 
     private string GetTagVariantClass()

@@ -11,6 +11,7 @@
 </BradixProgress>
 
 @code {
+    private QuarkAttributeDictionary _indicatorAttributesBuffer;
     /// <summary>
     /// Gets or sets the current progress value (0–100).
     /// </summary>
@@ -85,12 +86,10 @@
     }
     private IReadOnlyDictionary<string, object> BuildIndicatorAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "progress-indicator",
-            ["class"] = IndicatorClass,
-            ["style"] = GetIndicatorStyle()
-        };
+        var attributes = _indicatorAttributesBuffer.Create(3);
+        attributes["data-slot"] = "progress-indicator";
+        attributes["class"] = IndicatorClass;
+        attributes["style"] = GetIndicatorStyle();
 
         return attributes;
     }

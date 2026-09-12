@@ -148,6 +148,9 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+
         if (firstRender)
         {
             InputGroupContext?.RegisterControl(_elementRef);
@@ -157,7 +160,6 @@ else
         if (firstRender && ParentValidation is not null)
         {
             await ParentValidation.InitializeInput(this);
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 
             if (ValueExpression is not null)
                 await ParentValidation.InitializeInputExpression(ValueExpression);
@@ -192,7 +194,8 @@ else
             Value = next;
         }
 
-        await OnInput.InvokeIfHasDelegate(new ChangeEventArgs { Value = Value });
+        if (OnInput.HasDelegate)
+            await OnInput.InvokeAsync(new ChangeEventArgs { Value = Value });
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
@@ -347,8 +350,7 @@ else
     {
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-
-        await _autoSave.DisposeAsync();
-        await base.DisposeAsync();
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
     }
 }

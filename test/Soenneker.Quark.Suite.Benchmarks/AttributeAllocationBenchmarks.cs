@@ -61,3 +61,38 @@ public sealed class QuarkAttributeProbe : RenderComponent
         AppendStyleDecl(ref style, "opacity: 1");
     }
 }
+
+[MemoryDiagnoser]
+public class StaticClassBenchmarks
+{
+    private readonly StaticClassProbe _probe = new();
+
+    [Params(null, "consumer-class")]
+    public string? ExistingClass { get; set; }
+
+    [Benchmark(Baseline = true)]
+    public object PooledBuilder() => _probe.Build(ExistingClass, false);
+
+    [Benchmark]
+    public object LiteralPrefix() => _probe.Build(ExistingClass, true);
+}
+
+public sealed class StaticClassProbe : RenderComponent
+{
+    private readonly Dictionary<string, object> _attributes = new(1);
+
+    public object Build(string? existingClass, bool literal)
+    {
+        _attributes.Clear();
+        if (existingClass is not null)
+            _attributes["class"] = existingClass;
+
+        if (literal)
+            PrependClassAttribute(_attributes, "flex items-center gap-2 rounded-lg border border-input px-3 py-2");
+        else
+            BuildClassAttribute(_attributes, static (ref PooledStringBuilder cls) =>
+                AppendClass(ref cls, "flex items-center gap-2 rounded-lg border border-input px-3 py-2"));
+
+        return _attributes;
+    }
+}

@@ -1,4 +1,4 @@
-@page "/components/combobox"
+﻿@page "/components/combobox"
 @using System.Linq
 
 <PageTitle>Combobox - Quark Suite</PageTitle>
@@ -135,9 +135,10 @@
                     <ComboboxContent>
                         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
                         <ComboboxList>
-                            @for (var groupIndex = 0; groupIndex < FilterTimezoneGroups(_timezoneSearch).Count; groupIndex++)
+                            @{ var timezoneGroups = FilterTimezoneGroups(_timezoneSearch); }
+                            @for (var groupIndex = 0; groupIndex < timezoneGroups.Count; groupIndex++)
                             {
-                                var group = FilterTimezoneGroups(_timezoneSearch)[groupIndex];
+                                var group = timezoneGroups[groupIndex];
                                 <ComboboxGroup>
                                     <ComboboxLabel>@group.Label</ComboboxLabel>
                                     @foreach (var item in group.Items)
@@ -146,7 +147,7 @@
                                     }
                                 </ComboboxGroup>
 
-                                @if (groupIndex < FilterTimezoneGroups(_timezoneSearch).Count - 1)
+                                @if (groupIndex < timezoneGroups.Count - 1)
                                 {
                                     <ComboboxSeparator />
                                 }

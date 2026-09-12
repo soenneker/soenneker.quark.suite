@@ -34,6 +34,8 @@ else
 
     private ElementReference _elementRef;
 
+    private QuarkAttributeDictionary _triggerAttributesBuffer;
+
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -45,7 +47,7 @@ else
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _triggerAttributesBuffer.Create(BuildAttributes());
 
         attributes.Remove("type");
         attributes.Remove("id");

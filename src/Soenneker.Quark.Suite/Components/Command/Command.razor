@@ -10,6 +10,7 @@
 
 @code {
     private readonly List<CommandEntry> _entries = [];
+    private readonly Dictionary<CommandItem, CommandEntry> _entryLookup = new(ReferenceEqualityComparer.Instance);
     private CommandItem? _activeItem;
     private string? _search;
     private readonly string _listId = BlazorIdGenerator.New("quark-command-list");
@@ -33,7 +34,9 @@
             return;
         }
 
-        _entries.Add(new CommandEntry { Item = item, Group = group });
+        var entry = new CommandEntry { Item = item, Group = group };
+        _entries.Add(entry);
+        _entryLookup.Add(item, entry);
 
         if (_activeItem is null && item.IsVisibleResolved && !item.Disabled)
             _activeItem = item;
@@ -55,6 +58,7 @@
             return;
 
         _entries.Remove(entry);
+        _entryLookup.Remove(item);
 
         if (ReferenceEquals(_activeItem, item))
             _activeItem = GetFirstVisibleEntry()?.Item;
@@ -206,16 +210,7 @@
         await _activeItem.Select();
     }
 
-    private CommandEntry? FindEntry(CommandItem item)
-    {
-        foreach (var entry in _entries)
-        {
-            if (ReferenceEquals(entry.Item, item))
-                return entry;
-        }
-
-        return null;
-    }
+    private CommandEntry? FindEntry(CommandItem item) => _entryLookup.GetValueOrDefault(item);
 
     private bool HasAnyVisibleEntry()
     {
@@ -297,10 +292,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "size-full rounded-xl!");
-        });
+        PrependClassAttribute(attributes, "size-full rounded-xl!");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

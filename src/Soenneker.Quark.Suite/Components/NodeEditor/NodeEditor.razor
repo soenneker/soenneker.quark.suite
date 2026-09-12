@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Utils.Ids
 @using System.Threading
@@ -310,6 +311,8 @@
     private readonly Dictionary<string, NodeEditorNodeContext> _nodeContexts = new(StringComparer.Ordinal);
     private DotNetObjectReference<NodeEditor>? _dotNetReference;
     private bool _initialized;
+    private ValueAtomicBool _disposed;
+    private Task? _initializeTask;
     private int _lastInteropRefreshKey;
     private bool _interopSynchronized;
     private int _changeVersion;
@@ -374,15 +377,12 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        if (_disposed.Read())
+            return;
 
         if (firstRender)
         {
-            _dotNetReference = DotNetObjectReference.Create(this);
-            await EditorInterop.Initialize(Id!, Options, _dotNetReference);
-            await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
-            _initialized = true;
-            _lastInteropRefreshKey = ComputeInteropRefreshKey();
-            _interopSynchronized = true;
+            await (_initializeTask ??= InitializeEditor());
             return;
         }
 
@@ -403,6 +403,16 @@
     /// </summary>
     /// <param name="nodeId">The selected node identifier, or <c>null</c> to clear the selection.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task InitializeEditor()
+    {
+        _dotNetReference = DotNetObjectReference.Create(this);
+        await EditorInterop.Initialize(Id!, Options, _dotNetReference);
+        await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
+        _initialized = true;
+        _lastInteropRefreshKey = ComputeInteropRefreshKey();
+        _interopSynchronized = true;
+    }
+
     [JSInvokable]
     public Task InvokeNodeSelected(string? nodeId) =>
         InvokeNodeSelectionChanged(nodeId is null ? [] : [nodeId]);
@@ -704,6 +714,8 @@
 
     public Task NotifyChanged()
     {
+        if (_disposed.Read())
+            return Task.CompletedTask;
         RefreshGraphKeys();
         unchecked
         {
@@ -828,18 +840,29 @@
     /// <inheritdoc/>
     public override async ValueTask DisposeAsync()
     {
+        if (!_disposed.TrySetTrue())
+            return;
         try
         {
-            if (_initialized)
-                await EditorInterop.Destroy(Id!, CancellationToken.None);
+            try
+            {
+                if (_initializeTask is not null)
+                    await _initializeTask;
+            }
+            finally
+            {
+                if (_initializeTask is not null)
+                    await EditorInterop.Destroy(Id!, CancellationToken.None);
+            }
         }
-        catch (Exception exception) when (exception is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        catch (Exception exception) when (exception is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException) { }
+        finally
         {
+            _dotNetReference?.Dispose();
+            _dotNetReference = null;
+            try { await _autoSave.DisposeAsync(); }
+            finally { await base.DisposeAsync(); }
         }
-
-        _dotNetReference?.Dispose();
-        await _autoSave.DisposeAsync();
-        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hashCode)
@@ -1125,5 +1148,5 @@
     }
 
     private static string HandleStyle(NodeEditorAddHandleModel handle) =>
-        System.FormattableString.Invariant($"transform: translate3d({handle.X:0.###}px, {handle.Y:0.###}px, 0) translate(-50%, -50%)");
+        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"transform: translate3d({handle.X:0.###}px, {handle.Y:0.###}px, 0) translate(-50%, -50%)");
 }

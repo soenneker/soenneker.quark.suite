@@ -26,6 +26,7 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _slotAttributesBuffer;
     [Parameter]
     public bool AsChild { get; set; }
 
@@ -50,7 +51,9 @@ else
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-muted-foreground hover:text-foreground"));
     }
 
-    private RenderFragment RenderAction() => builder =>
+    private RenderFragment? _actionContent;
+
+    private RenderFragment RenderAction() => _actionContent ??= builder =>
     {
         if (AsChild)
         {
@@ -71,7 +74,7 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes());
+        var attributes = _slotAttributesBuffer.Create(BuildAttributes(), 1);
         attributes.Remove("type");
         attributes.Remove("disabled");
         return attributes;

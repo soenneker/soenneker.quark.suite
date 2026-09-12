@@ -32,7 +32,19 @@ export function create(id, optionsJson) {
         cleanupResizing: [],
         cleanupActivation: null,
         cleanupActiveInteraction: null,
-        showFrame: 0
+        showFrame: 0,
+        interactionFrame: 0,
+        pointerX: 0,
+        pointerY: 0,
+        applyInteraction: null
+    };
+    windowData.applyInteraction = () => {
+        windowData.interactionFrame = 0;
+        if (windowData.isDragging) {
+            updateDragPosition(windowData, windowData.pointerX, windowData.pointerY);
+        } else if (windowData.isResizing) {
+            updateResizePosition(windowData, windowData.pointerX, windowData.pointerY);
+        }
     };
 
     floatingWindows.set(id, windowData);
@@ -310,7 +322,7 @@ function startDragging(id, event) {
     const onPointerMove = moveEvent => {
         if (moveEvent.pointerId === windowData.activePointerId && windowData.isDragging) {
             moveEvent.preventDefault();
-            updateDragPosition(id, moveEvent);
+            scheduleInteraction(windowData, moveEvent);
         }
     };
 
@@ -319,6 +331,7 @@ function startDragging(id, event) {
             return;
         }
 
+        flushInteraction(windowData);
         finishDragging(windowData, true);
     };
 
@@ -355,7 +368,7 @@ function startResizing(id, event, direction) {
     const onPointerMove = moveEvent => {
         if (moveEvent.pointerId === windowData.activePointerId && windowData.isResizing) {
             moveEvent.preventDefault();
-            updateResizePosition(id, moveEvent);
+            scheduleInteraction(windowData, moveEvent);
         }
     };
 
@@ -364,6 +377,7 @@ function startResizing(id, event, direction) {
             return;
         }
 
+        flushInteraction(windowData);
         finishResizing(windowData);
     };
 
@@ -398,6 +412,8 @@ function finishResizing(windowData) {
 }
 
 function cancelActiveInteraction(windowData, notifyDragEnd) {
+    cancelAnimationFrame(windowData.interactionFrame);
+    windowData.interactionFrame = 0;
     if (windowData.isDragging) {
         finishDragging(windowData, notifyDragEnd);
     } else if (windowData.isResizing) {
@@ -409,15 +425,24 @@ function cancelActiveInteraction(windowData, notifyDragEnd) {
     }
 }
 
-function updateDragPosition(id, event) {
-    const windowData = floatingWindows.get(id);
-
-    if (!windowData?.isDragging) {
-        return;
+function scheduleInteraction(windowData, event) {
+    windowData.pointerX = event.clientX;
+    windowData.pointerY = event.clientY;
+    if (!windowData.interactionFrame) {
+        windowData.interactionFrame = requestAnimationFrame(windowData.applyInteraction);
     }
+}
 
-    let newX = event.clientX - windowData.dragStart.x;
-    let newY = event.clientY - windowData.dragStart.y;
+function flushInteraction(windowData) {
+    if (windowData.interactionFrame) {
+        cancelAnimationFrame(windowData.interactionFrame);
+        windowData.applyInteraction();
+    }
+}
+
+function updateDragPosition(windowData, pointerX, pointerY) {
+    let newX = pointerX - windowData.dragStart.x;
+    let newY = pointerY - windowData.dragStart.y;
 
     if (windowData.options.constrainToViewport) {
         const viewport = getViewportSize();
@@ -430,16 +455,10 @@ function updateDragPosition(id, event) {
     windowData.element.style.top = `${newY}px`;
 }
 
-function updateResizePosition(id, event) {
-    const windowData = floatingWindows.get(id);
-
-    if (!windowData?.isResizing) {
-        return;
-    }
-
+function updateResizePosition(windowData, pointerX, pointerY) {
     const { options, resizeStart } = windowData;
-    const deltaX = event.clientX - resizeStart.pointerX;
-    const deltaY = event.clientY - resizeStart.pointerY;
+    const deltaX = pointerX - resizeStart.pointerX;
+    const deltaY = pointerY - resizeStart.pointerY;
     const direction = windowData.resizeDirection;
     const viewport = getViewportSize();
     const minWidth = Math.min(options.minWidth, viewport.width);
@@ -808,7 +827,9 @@ function detachViewportListenersIfUnused() {
 }
 
 function scheduleViewportReconciliation() {
-    cancelAnimationFrame(viewportResizeFrame);
+    if (viewportResizeFrame) {
+        return;
+    }
     viewportResizeFrame = requestAnimationFrame(() => {
         viewportResizeFrame = 0;
 

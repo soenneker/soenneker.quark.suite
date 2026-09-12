@@ -71,8 +71,23 @@ function wireCanvas(canvas, dotNetRef) {
 
   let dragging = false;
   let pointerId = null;
-  let latest = null;
+  let hasValue = false;
+  let saturation = 0;
+  let lightness = 0;
+  let frame = 0;
   let suppressClick = false;
+
+  const renderThumb = () => {
+    frame = 0;
+    const hue = Number.parseFloat(canvas.getAttribute("data-hue") || "0");
+    const alpha = Number.parseFloat(canvas.getAttribute("data-alpha") || "1");
+    const thumb = canvas.querySelector("[data-slot='color-picker-thumb']");
+    if (thumb) {
+      thumb.style.left = `clamp(0.5rem, ${saturation}%, calc(100% - 0.5rem))`;
+      thumb.style.top = `clamp(0.5rem, ${100 - lightness}%, calc(100% - 0.5rem))`;
+      thumb.style.background = `hsl(${hue} ${saturation}% ${lightness}% / ${alpha})`;
+    }
+  };
 
   const updateFromEvent = (event, requireInside = false) => {
     const rect = canvas.getBoundingClientRect();
@@ -91,27 +106,21 @@ function wireCanvas(canvas, dotNetRef) {
       return;
     }
 
-    const saturation = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
-    const lightness = clamp(100 - (((event.clientY - rect.top) / rect.height) * 100), 0, 100);
-    const hue = Number.parseFloat(canvas.getAttribute("data-hue") || "0");
-    const alpha = Number.parseFloat(canvas.getAttribute("data-alpha") || "1");
-
-    const thumb = canvas.querySelector("[data-slot='color-picker-thumb']");
-    if (thumb) {
-      thumb.style.left = `clamp(0.5rem, ${saturation}%, calc(100% - 0.5rem))`;
-      thumb.style.top = `clamp(0.5rem, ${100 - lightness}%, calc(100% - 0.5rem))`;
-      thumb.style.background = `hsl(${hue} ${saturation}% ${lightness}% / ${alpha})`;
+    saturation = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+    lightness = clamp(100 - (((event.clientY - rect.top) / rect.height) * 100), 0, 100);
+    hasValue = true;
+    if (!frame) {
+      frame = requestAnimationFrame(renderThumb);
     }
-
-    latest = { saturation, lightness };
   };
 
   const pointerDown = event => {
-    if (event.button !== undefined && event.button !== 0) {
+    if (dragging || event.isPrimary === false || (event.button !== undefined && event.button !== 0)) {
       return;
     }
 
     dragging = true;
+    hasValue = false;
     pointerId = event.pointerId;
     suppressClick = true;
     canvas.setPointerCapture?.(pointerId);
@@ -134,12 +143,18 @@ function wireCanvas(canvas, dotNetRef) {
     }
 
     dragging = false;
-    canvas.releasePointerCapture?.(pointerId);
+    if (canvas.hasPointerCapture?.(pointerId)) {
+      canvas.releasePointerCapture(pointerId);
+    }
     pointerId = null;
     event.preventDefault();
 
-    if (latest) {
-      dotNetRef.invokeMethodAsync("SetCanvasColor", latest.saturation, latest.lightness);
+    if (frame) {
+      cancelAnimationFrame(frame);
+      renderThumb();
+    }
+    if (hasValue) {
+      dotNetRef.invokeMethodAsync("SetCanvasColor", saturation, lightness);
     }
   };
 
@@ -155,12 +170,21 @@ function wireCanvas(canvas, dotNetRef) {
   canvas.addEventListener("pointermove", pointerMove);
   canvas.addEventListener("pointerup", stopDragging);
   canvas.addEventListener("pointercancel", stopDragging);
+  canvas.addEventListener("lostpointercapture", stopDragging);
   canvas.addEventListener("click", click, true);
   return () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    dragging = false;
+    if (canvas.hasPointerCapture?.(pointerId)) {
+      canvas.releasePointerCapture(pointerId);
+    }
+    pointerId = null;
     canvas.removeEventListener("pointerdown", pointerDown);
     canvas.removeEventListener("pointermove", pointerMove);
     canvas.removeEventListener("pointerup", stopDragging);
     canvas.removeEventListener("pointercancel", stopDragging);
+    canvas.removeEventListener("lostpointercapture", stopDragging);
     canvas.removeEventListener("click", click, true);
   };
 }

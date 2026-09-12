@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements ITabs
@@ -10,6 +10,7 @@
 </CascadingValue>
 
 @code {
+    private QuarkAttributeDictionary _rootAttributes;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -77,7 +78,7 @@
 
     private IReadOnlyDictionary<string, object> BuildRootAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        var attributes = _rootAttributes.Create(BuildAttributes());
         attributes.Remove("data-orientation");
         attributes.Remove("dir");
         return attributes;
@@ -104,10 +105,7 @@
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/tabs data-[orientation=horizontal]:flex-col");
-        });
+        PrependClassAttribute(attributes, "group/tabs data-[orientation=horizontal]:flex-col");
     }
 
     private static readonly string LtrTabsTriggerBaseClass = CreateTabsTriggerBaseClass(false);

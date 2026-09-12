@@ -1,4 +1,4 @@
-@using Soenneker.Bradix
+﻿@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 @using System.Threading
 
@@ -29,6 +29,7 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _toggleAttributes;
     private readonly AutoSaveController<bool?> _autoSave = new();
 
     /// <summary>
@@ -131,7 +132,7 @@ else
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes());
+            var attributes = _toggleAttributes.Create(BuildAttributes(), 3);
 
             attributes.Remove("disabled");
             attributes.Remove("aria-pressed");
@@ -242,7 +243,27 @@ else
         return string.IsNullOrEmpty(resolved) ? value : resolved;
     }
 
+    private static readonly string[] _toggleTokenClasses = CreateToggleTokenClasses();
+
+    private static string[] CreateToggleTokenClasses()
+    {
+        var classes = new string[12];
+        string[] sizes = ["sm", "lg", "default"];
+        for (int i = 0; i < sizes.Length; i++)
+        {
+            for (int flags = 0; flags < 4; flags++)
+                classes[i * 4 + flags] = CreateToggleTokenSizeClass(sizes[i], (flags & 2) != 0, (flags & 1) != 0);
+        }
+        return classes;
+    }
+
     internal static string ResolveToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl = false)
+    {
+        int index = size switch { "sm" => 0, "lg" => 1, "default" => 2, _ => -1 };
+        return index < 0 ? string.Empty : _toggleTokenClasses[index * 4 + (includeShrink ? 2 : 0) + (isRtl ? 1 : 0)];
+    }
+
+    private static string CreateToggleTokenSizeClass(string? size, bool includeShrink, bool isRtl)
     {
         var prefix = includeShrink ? "shrink-0 " : string.Empty;
         var iconPadding = isRtl ? "has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2" : "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2";

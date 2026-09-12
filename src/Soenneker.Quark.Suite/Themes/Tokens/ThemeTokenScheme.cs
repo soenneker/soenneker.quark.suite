@@ -126,7 +126,7 @@ public sealed class ThemeTokenScheme
             Input = "#e5e5e5",
             Ring = "#a1a1a1",
             Radius = ".625rem",
-            Series = new ThemeSeriesTokens
+            Series =
             {
                 First = "var(--color-blue-300)",
                 Second = "var(--color-blue-500)",
@@ -134,7 +134,7 @@ public sealed class ThemeTokenScheme
                 Fourth = "var(--color-blue-700)",
                 Fifth = "var(--color-blue-800)"
             },
-            Sidebar = new ThemeSidebarTokens
+            Sidebar =
             {
                 Background = "#fafafa",
                 Foreground = "#0a0a0a",
@@ -145,7 +145,7 @@ public sealed class ThemeTokenScheme
                 Border = "#e5e5e5",
                 Ring = "#a1a1a1"
             },
-            Variables = new Dictionary<string, string>
+            Variables =
             {
                 ["surface"] = "#f8f8f8",
                 ["surface-foreground"] = "var(--foreground)",
@@ -182,7 +182,7 @@ public sealed class ThemeTokenScheme
             Input = "#ffffff26",
             Ring = "#737373",
             Radius = ".625rem",
-            Series = new ThemeSeriesTokens
+            Series =
             {
                 First = "var(--color-blue-300)",
                 Second = "var(--color-blue-500)",
@@ -190,7 +190,7 @@ public sealed class ThemeTokenScheme
                 Fourth = "var(--color-blue-700)",
                 Fifth = "var(--color-blue-800)"
             },
-            Sidebar = new ThemeSidebarTokens
+            Sidebar =
             {
                 Background = "#171717",
                 Foreground = "#fafafa",
@@ -201,7 +201,7 @@ public sealed class ThemeTokenScheme
                 Border = "#ffffff1a",
                 Ring = "#525252"
             },
-            Variables = new Dictionary<string, string>
+            Variables =
             {
                 ["surface"] = "#161616",
                 ["surface-foreground"] = "#a1a1a1",

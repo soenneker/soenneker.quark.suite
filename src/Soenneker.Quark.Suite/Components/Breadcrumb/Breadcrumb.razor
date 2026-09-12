@@ -67,10 +67,12 @@
 
     internal int RegisterItem(BreadcrumbItem item)
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
+        var index = _items.IndexOf(item);
+        if (index >= 0)
+            return index;
 
-        return _items.IndexOf(item);
+        _items.Add(item);
+        return _items.Count - 1;
     }
 
     internal void UnregisterItem(BreadcrumbItem item)

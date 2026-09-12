@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -74,4 +75,63 @@ public sealed class DateTimeComponentRenderTests : BunitContext
     {
         public ValueTask<string?> GetTimeZoneId(CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>("UTC");
     }
+
+    [Test]
+    public async Task Pending_time_zone_detection_does_not_register_after_disposal()
+    {
+        var detection = new PendingBrowserTimeZoneService();
+        var scheduler = new CountingScheduler();
+        using var services = new ServiceCollection().AddSingleton<IQuarkDateTimeScheduler>(scheduler).BuildServiceProvider();
+        var probe = new DateTimeLifecycleProbe();
+        probe.Configure(detection, services);
+        var pendingRender = probe.AfterRender();
+        pendingRender.IsCompleted.Should().BeFalse();
+        await probe.DisposeAsync();
+        detection.Completion.SetResult(null);
+        await pendingRender;
+        scheduler.Registrations.Should().Be(0);
+    }
+
+    [Test]
+    public void Date_time_fragment_reuses_delegate_and_reads_updated_parameters()
+    {
+        var value = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var cut = Render<DateTimeLifecycleProbe>(p => p.Add(c => c.Value, value)
+            .Add(c => c.Format, "yyyy").Add(c => c.Prefix, "Before ").Add(c => c.AutoUpdate, false));
+        var fragment = cut.Instance.Content();
+        cut.Render(p => p.Add(c => c.Value, value.AddYears(1)).Add(c => c.Prefix, "After "));
+        cut.Instance.Content().Should().BeSameAs(fragment);
+        cut.Find("time").TextContent.Should().Be("After 2027");
+    }
+
+    private sealed class PendingBrowserTimeZoneService : IQuarkBrowserTimeZoneService
+    {
+        public TaskCompletionSource<string?> Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public ValueTask<string?> GetTimeZoneId(CancellationToken cancellationToken = default) => new(Completion.Task);
+    }
+
+    private sealed class CountingScheduler : IQuarkDateTimeScheduler, IQuarkDateTimeScheduleRegistration
+    {
+        public int Registrations { get; private set; }
+        public IQuarkDateTimeScheduleRegistration Register(Func<DateTimeOffset, TimeSpan?> interval, Func<DateTimeOffset, ValueTask> callback)
+        {
+            Registrations++;
+            return this;
+        }
+        public void Reschedule() { }
+        public void Dispose() { }
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+}
+
+public sealed class DateTimeLifecycleProbe : DateTimeText
+{
+    public void Configure(IQuarkBrowserTimeZoneService detection, IServiceProvider services)
+    {
+        BrowserTimeZoneService = detection;
+        Services = services;
+        RefreshInterval = TimeSpan.FromSeconds(1);
+    }
+    public Task AfterRender() => OnAfterRenderAsync(false);
+    public RenderFragment Content() => RenderContent();
 }

@@ -1,3 +1,6 @@
+@using Soenneker.Atomics.ValueBools
+@implements IDisposable
+@using System.Threading
 @using System.Text
 @using Soenneker.Blazor.Utils.Clipboard.Abstract
 
@@ -133,7 +136,13 @@
                     }
 
                     <Div BackgroundColor='Quark.BackgroundColor.Utility("bg-muted/25")'>
-                        <CodeEditor @key="_showCode"
+                        @if (ShouldShowCollapsedCodeOverlay)
+                        {
+                            <pre aria-hidden="true" class="m-0 h-[104px] overflow-hidden px-4 py-3 font-mono text-sm leading-6"><code>@CollapsedCode</code></pre>
+                        }
+                        else
+                        {
+                        <CodeEditor
                                     ReadOnly="true"
                                     Language="@(CodeLanguage ?? "html")"
                                     AutoHeight="true"
@@ -144,6 +153,7 @@
                                     Width="Quark.Width.IsFull"
                                     MinWidth="Quark.MinWidth.Is0"
                                     TextSize="Quark.TextSize.Sm"/>
+                        }
                     </Div>
 
                     @if (ShouldShowCollapsedCodeOverlay)
@@ -235,6 +245,10 @@
     private IClipboardUtil ClipboardUtil { get; set; } = null!;
 
     private bool _showCode;
+    private ValueAtomicBool _disposed;
+    private CancellationTokenSource? _copyReset;
+    private string? _previewCodeSource;
+    private string? _previewCode;
     private string _copyButtonLabel = "Copy";
     private string? _titleForGeneratedId;
     private string? _generatedTitleId;
@@ -304,23 +318,61 @@
         _showCode = true;
     }
 
+    private string? CollapsedCode
+    {
+        get
+        {
+            if (string.Equals(_previewCodeSource, Code, StringComparison.Ordinal))
+                return _previewCode;
+            _previewCodeSource = Code;
+            var end = 0;
+            for (var line = 0; line < 4 && Code is not null && end < Code.Length; line++)
+            {
+                var next = Code.IndexOf('\n', end);
+                end = next < 0 ? Code.Length : next + 1;
+            }
+            return _previewCode = Code?[..end];
+        }
+    }
+
     private async Task CopyCode()
     {
-        if (string.IsNullOrEmpty(Code))
+        if (_disposed.Read() || string.IsNullOrEmpty(Code))
             return;
+        _copyReset?.Cancel();
+        var cancellation = new CancellationTokenSource();
+        _copyReset = cancellation;
         try
         {
             await ClipboardUtil.WriteText(Code);
+            if (_disposed.Read() || cancellation.IsCancellationRequested)
+                return;
             _copyButtonLabel = "Copied!";
             StateHasChanged();
-            await Task.Delay(1500);
+            await Task.Delay(1500, cancellation.Token);
             _copyButtonLabel = "Copy";
             StateHasChanged();
         }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch
         {
-            _copyButtonLabel = "Copy";
+            if (!_disposed.Read())
+                _copyButtonLabel = "Copy";
         }
+        finally
+        {
+            if (ReferenceEquals(_copyReset, cancellation))
+                _copyReset = null;
+            cancellation.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        _copyReset?.Cancel();
+        _copyReset = null;
     }
 
     private static string? CreateTitleId(string? title)

@@ -9,6 +9,8 @@
 </pre>
 
 @code {
+    private QuarkAttributeDictionary _preAttributesBuffer;
+    private QuarkAttributeDictionary _codeAttributesBuffer;
     [Parameter]
     public string? Language { get; set; }
 
@@ -23,10 +25,8 @@
 
     protected virtual Dictionary<string, object> BuildPreAttributes()
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes())
-        {
-            ["data-slot"] = "pre-code"
-        };
+        var attributes = _preAttributesBuffer.Create(BuildAttributes(), 1);
+        attributes["data-slot"] = "pre-code";
 
         if (!Class.HasContent())
         {
@@ -61,7 +61,7 @@
 
     protected virtual Dictionary<string, object> BuildCodeAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _codeAttributesBuffer.Create(4);
 
         if (Language.HasContent())
             attributes["Language"] = Language;

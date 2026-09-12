@@ -74,13 +74,14 @@
     {
         base.OnParametersSet();
 
-        if (_registeredValue.HasContent() && !string.Equals(_registeredValue, ResolvedValue, StringComparison.Ordinal))
+        var resolvedValue = ResolvedValue;
+        if (_registeredValue.HasContent() && !string.Equals(_registeredValue, resolvedValue, StringComparison.Ordinal))
             ParentSelect?.UnregisterItemValue(_registeredValue!);
 
-        if (ResolvedValue.HasContent())
+        if (resolvedValue.HasContent())
         {
-            ParentSelect?.RegisterItemValue(ResolvedValue, ItemValue);
-            _registeredValue = ResolvedValue;
+            ParentSelect?.RegisterItemValue(resolvedValue, ItemValue);
+            _registeredValue = resolvedValue;
         }
     }
 

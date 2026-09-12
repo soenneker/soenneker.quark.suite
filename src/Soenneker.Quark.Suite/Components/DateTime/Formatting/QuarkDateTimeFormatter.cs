@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 
 namespace Soenneker.Quark;
@@ -203,12 +203,12 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
     private static string FormatShortUnit(int value, string unit, string? pluralUnit = null)
     {
         var resolvedUnit = value == 1 ? unit : pluralUnit ?? unit;
-        return $"{value.ToString(CultureInfo.InvariantCulture)} {resolvedUnit}";
+        return string.Create(CultureInfo.InvariantCulture, $"{value} {resolvedUnit}");
     }
 
     private static string FormatUnit(int value, string unit)
     {
-        return value == 1 ? $"1 {unit}" : $"{value.ToString(CultureInfo.InvariantCulture)} {unit}s";
+        return value == 1 ? $"1 {unit}" : string.Create(CultureInfo.InvariantCulture, $"{value} {unit}s");
     }
 
     private static int GetWholeMonthDifference(DateTimeOffset value, DateTimeOffset now)

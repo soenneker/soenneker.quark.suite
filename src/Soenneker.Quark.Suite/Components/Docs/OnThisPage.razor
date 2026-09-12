@@ -1,4 +1,4 @@
-@using System.Threading
+﻿@using System.Threading
 @using Microsoft.AspNetCore.Components.Routing
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -52,6 +52,8 @@
     private const string _defaultAsideClass = "top-[calc(var(--header-height)+1rem)]";
 
     private CancellationTokenSource? _refreshCts;
+    private string? _linkUri;
+    private string _linkPath = string.Empty;
     private readonly AsyncLock _refreshLock = new();
     private IReadOnlyList<OnThisPageTocItem> _items = [];
     private ValueAtomicBool _disposed = new(false);
@@ -160,12 +162,16 @@
 
     private string GetLinkHref(string id)
     {
-        var relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
-        var hashIndex = relativePath.IndexOf('#');
+        var uri = Navigation.Uri;
+        if (!string.Equals(_linkUri, uri, StringComparison.Ordinal))
+        {
+            var path = Navigation.ToBaseRelativePath(uri);
+            var hashIndex = path.IndexOf('#');
+            _linkPath = hashIndex >= 0 ? path[..hashIndex] : path;
+            _linkUri = uri;
+        }
 
-        if (hashIndex >= 0)
-            relativePath = relativePath[..hashIndex];
-
+        var relativePath = _linkPath;
         var builder = new PooledStringBuilder(relativePath.Length + id.Length + 1);
 
         if (!string.IsNullOrWhiteSpace(relativePath))
@@ -193,24 +199,27 @@
         if (_disposed.Value)
             return;
 
-        if (_refreshCts != null)
-        {
-            await _refreshCts.CancelAsync();
-            _refreshCts.Dispose();
-        }
-
-        _refreshCts = new CancellationTokenSource();
-        var token = _refreshCts.Token;
-
+        var source = new CancellationTokenSource();
+        var token = source.Token;
+        var previous = _refreshCts;
+        _refreshCts = source;
         try
         {
-            await Task.Delay(75, token);
+            if (previous is not null)
+                await previous.CancelAsync();
 
+            await Task.Delay(75, token);
             if (!token.IsCancellationRequested)
                 await Refresh();
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
+        }
+        finally
+        {
+            if (ReferenceEquals(_refreshCts, source))
+                _refreshCts = null;
+            source.Dispose();
         }
     }
 

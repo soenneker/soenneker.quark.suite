@@ -26,6 +26,7 @@
 </BradixDialogPortal>
 
 @code {
+    private QuarkAttributeDictionary _overlayAttributesBuffer;
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
@@ -96,7 +97,7 @@
 
     private Dictionary<string, object> BuildOverlayAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _overlayAttributesBuffer.Create(4);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

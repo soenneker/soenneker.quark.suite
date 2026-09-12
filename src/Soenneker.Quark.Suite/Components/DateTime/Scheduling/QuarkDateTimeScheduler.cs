@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IQuarkDateTimeScheduler"/>
 public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 {
     private readonly object _sync = new();
@@ -17,9 +16,6 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
     private Task? _runner;
     private bool _disposed;
 
-    /// <summary>
-    /// Initializes a new instance of the scheduler.
-    /// </summary>
     public QuarkDateTimeScheduler(ILogger<QuarkDateTimeScheduler> logger)
     {
         _logger = logger;
@@ -39,10 +35,10 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
             _registrations.Add(registration);
             ScheduleCore(registration, DateTimeOffset.UtcNow);
 
+            WakeRunnerCore();
+
             if (registration.NextUpdate is not null)
                 _runner ??= Run();
-
-            WakeRunnerCore();
         }
 
         return registration;
@@ -50,6 +46,10 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
     private async Task Run()
     {
+        // Publish the runner before it can invoke callbacks that reenter the scheduler.
+        await Task.Yield();
+        List<(QuarkDateTimeScheduleRegistration Registration, int Version)> due = [];
+
         while (true)
         {
             TimeSpan delay;
@@ -79,6 +79,11 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 }
 
                 delay = earliest.Value <= now ? TimeSpan.Zero : earliest.Value - now;
+                if (_wakeCts.IsCancellationRequested)
+                {
+                    _wakeCts.Dispose();
+                    _wakeCts = new CancellationTokenSource();
+                }
                 wakeToken = _wakeCts.Token;
             }
 
@@ -95,7 +100,6 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 return;
             }
 
-            List<(QuarkDateTimeScheduleRegistration Registration, int Version)> due = [];
             var tickNow = DateTimeOffset.UtcNow;
 
             lock (_sync)
@@ -135,6 +139,9 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                         ScheduleCore(registration, DateTimeOffset.UtcNow);
                 }
             }
+
+            // Retain capacity for the next tick without retaining component callbacks during the delay.
+            due.Clear();
         }
     }
 
@@ -148,10 +155,10 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
             registration.Version++;
             ScheduleCore(registration, DateTimeOffset.UtcNow);
 
+            WakeRunnerCore();
+
             if (registration.NextUpdate is not null)
                 _runner ??= Run();
-
-            WakeRunnerCore();
         }
     }
 
@@ -178,10 +185,9 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
     private void WakeRunnerCore()
     {
-        var previous = _wakeCts;
-        _wakeCts = CancellationTokenSource.CreateLinkedTokenSource(_disposeCts.Token);
-        previous.Cancel();
-        previous.Dispose();
+        // A burst of registrations needs one wake-up; the runner replaces the source when it waits again.
+        if (!_disposed && _runner is not null)
+            _wakeCts.Cancel();
     }
 
     public async ValueTask DisposeAsync()

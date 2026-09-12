@@ -15,22 +15,26 @@ export function measureToastHeights(section) {
     }
 
     const toasts = section.querySelectorAll("[data-sonner-toast][data-toast-id]");
+    const originalHeights = new Array(toasts.length);
 
-    for (const toast of toasts) {
-        const id = toast.getAttribute("data-toast-id");
-
-        if (!id) {
-            continue;
+    try {
+        // Toasts are absolutely positioned. Prepare all natural heights before
+        // reading geometry so each toast does not force a separate layout.
+        for (let i = 0; i < toasts.length; i++) {
+            const toast = toasts[i];
+            if (!toast.getAttribute("data-toast-id")) continue;
+            originalHeights[i] = toast.style.height;
+            toast.style.height = "auto";
         }
 
-        const originalHeight = toast.style.height;
-
-        try {
-            // Match Sonner's DOMRect measurement while temporarily ignoring animated/stacked height.
-            toast.style.height = "auto";
-            heights[id] = toast.getBoundingClientRect().height;
-        } finally {
-            toast.style.height = originalHeight;
+        for (let i = 0; i < toasts.length; i++) {
+            if (originalHeights[i] === undefined) continue;
+            const toast = toasts[i];
+            heights[toast.getAttribute("data-toast-id")] = toast.getBoundingClientRect().height;
+        }
+    } finally {
+        for (let i = 0; i < toasts.length; i++) {
+            if (originalHeights[i] !== undefined) toasts[i].style.height = originalHeights[i];
         }
     }
 
@@ -92,9 +96,30 @@ export function registerSwipeHandlers(section, callbackReference) {
     unregisterSwipeHandlers(section);
 
     let activeSwipe = null;
+    let swipeFrame = 0;
+
+    const cancelFrame = () => {
+        if (swipeFrame) cancelAnimationFrame(swipeFrame);
+        swipeFrame = 0;
+    };
+
+    const applySwipe = () => {
+        swipeFrame = 0;
+        if (activeSwipe) activeSwipe.toast.style.setProperty("--swipe-amount", `${activeSwipe.deltaX}px`);
+    };
+
+    const cancelSwipe = () => {
+        cancelFrame();
+        const swipe = activeSwipe;
+        activeSwipe = null;
+        if (swipe) {
+            releaseSwipeCapture(swipe);
+            resetSwipeState(swipe.toast);
+        }
+    };
 
     const pointerDown = event => {
-        if (event.button !== 0 || event.defaultPrevented) {
+        if (event.button !== 0 || event.defaultPrevented || event.isPrimary === false || activeSwipe) {
             return;
         }
 
@@ -113,6 +138,7 @@ export function registerSwipeHandlers(section, callbackReference) {
             pointerId: event.pointerId,
             startX: event.clientX,
             startY: event.clientY,
+            deltaX: 0,
             started: false
         };
 
@@ -141,7 +167,8 @@ export function registerSwipeHandlers(section, callbackReference) {
         }
 
         event.preventDefault();
-        activeSwipe.toast.style.setProperty("--swipe-amount", `${deltaX}px`);
+        activeSwipe.deltaX = deltaX;
+        if (!swipeFrame) swipeFrame = requestAnimationFrame(applySwipe);
     };
 
     const pointerEnd = event => {
@@ -151,11 +178,8 @@ export function registerSwipeHandlers(section, callbackReference) {
 
         const swipe = activeSwipe;
         activeSwipe = null;
-
-        try {
-            swipe.toast.releasePointerCapture(event.pointerId);
-        } catch {
-        }
+        cancelFrame();
+        releaseSwipeCapture(swipe);
 
         const deltaX = event.clientX - swipe.startX;
         const shouldDismiss = swipe.started && passedSwipeThreshold(swipe.toast, deltaX);
@@ -176,7 +200,7 @@ export function registerSwipeHandlers(section, callbackReference) {
         swipe.toast.style.setProperty("--swipe-out-amount", `${direction * (width + 48)}px`);
 
         if (toastId) {
-            void callbackReference.invokeMethodAsync("DismissToastFromSwipe", toastId);
+            void callbackReference.invokeMethodAsync("DismissToastFromSwipe", toastId).catch(console.error);
         }
     };
 
@@ -185,9 +209,7 @@ export function registerSwipeHandlers(section, callbackReference) {
             return;
         }
 
-        const toast = activeSwipe.toast;
-        activeSwipe = null;
-        resetSwipeState(toast);
+        cancelSwipe();
     };
 
     section.addEventListener("pointerdown", pointerDown);
@@ -201,7 +223,8 @@ export function registerSwipeHandlers(section, callbackReference) {
         pointerDown,
         pointerMove,
         pointerEnd,
-        pointerCancel
+        pointerCancel,
+        cancelSwipe
     });
 
     return true;
@@ -223,8 +246,17 @@ export function unregisterSwipeHandlers(section) {
     section.removeEventListener("pointerup", registration.pointerEnd);
     section.removeEventListener("pointercancel", registration.pointerCancel);
     section.removeEventListener("lostpointercapture", registration.pointerCancel);
+    registration.cancelSwipe();
     delete section.__quarkSonnerSwipeRegistered;
     swipeRegistrations.delete(section);
+}
+
+function releaseSwipeCapture(swipe) {
+    try {
+        swipe.toast.releasePointerCapture(swipe.pointerId);
+    } catch {
+        // The browser may already have released capture on cancellation or removal.
+    }
 }
 
 function passedSwipeThreshold(toast, deltaX) {

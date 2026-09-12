@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -20,6 +21,7 @@ public partial class SidebarProvider
     private const string _defaultShortcutKey = "b";
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
 
+    private ValueAtomicBool _disposed;
     private IJSObjectReference? _module;
     private DotNetObjectReference<SidebarProvider>? _dotNetRef;
     private bool _openInternal = true;
@@ -167,12 +169,18 @@ public partial class SidebarProvider
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (_disposed.Read() || !firstRender)
             return;
 
         try
         {
             _module = await ModuleImportUtil.GetContentModuleReference(_modulePath);
+            if (_disposed.Read())
+            {
+                await ModuleImportUtil.DisposeContentModule(_modulePath);
+                return;
+            }
+
             _dotNetRef = DotNetObjectReference.Create(this);
 
             bool? savedOpen = null;
@@ -188,14 +196,25 @@ public partial class SidebarProvider
                 };
             }
 
+            if (_disposed.Read())
+                return;
+
             if (Open is null)
                 _openInternal = savedOpen ?? DefaultOpen;
 
             await _module.InvokeVoidAsync("initializeSidebar", _dotNetRef, KeyboardShortcutKey);
+            if (_disposed.Read())
+            {
+                await _module.InvokeVoidAsync("cleanup");
+                return;
+            }
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
+            if (_disposed.Read())
+                return;
+
             if (Open is null)
                 _openInternal = DefaultOpen;
 
@@ -210,6 +229,9 @@ public partial class SidebarProvider
     /// <returns>A task that completes when the open has been stored.</returns>
     public async Task SetOpen(bool value)
     {
+        if (_disposed.Read())
+            return;
+
         if (Open is null)
             _openInternal = value;
 
@@ -227,6 +249,9 @@ public partial class SidebarProvider
     /// <returns>A task that completes when the open mobile has been stored.</returns>
     public async Task SetOpenMobile(bool value)
     {
+        if (_disposed.Read())
+            return;
+
         if (OpenMobile is null)
             _openMobileInternal = value;
 
@@ -253,6 +278,9 @@ public partial class SidebarProvider
     [JSInvokable]
     public async Task OnMobileChange(bool isMobile)
     {
+        if (_disposed.Read())
+            return;
+
         _isMobileDetected = isMobile;
 
         if (!isMobile && GetOpenMobile())
@@ -273,7 +301,7 @@ public partial class SidebarProvider
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
-        if (!CloseMobileOnNavigation || !GetOpenMobile())
+        if (_disposed.Read() || !CloseMobileOnNavigation || !GetOpenMobile())
             return;
 
         _ = InvokeAsync(CloseMobileAfterNavigation);
@@ -364,22 +392,36 @@ public partial class SidebarProvider
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
-        if (_module is not null)
+        if (!_disposed.TrySetTrue())
+            return;
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        try
         {
-            try
+            if (_module is not null)
             {
-                await _module.InvokeVoidAsync("cleanup");
-            }
-            catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
-            {
+                try
+                {
+                    await _module.InvokeVoidAsync("cleanup");
+                }
+                catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+                {
+                }
             }
         }
-
-        NavigationManager.LocationChanged -= OnLocationChanged;
-        _dotNetRef?.Dispose();
-        if (_module is not null)
-            await ModuleImportUtil.DisposeContentModule(_modulePath);
-        await base.DisposeAsync();
-        GC.SuppressFinalize(this);
+        finally
+        {
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            try
+            {
+                if (_module is not null)
+                    await ModuleImportUtil.DisposeContentModule(_modulePath);
+            }
+            finally
+            {
+                await base.DisposeAsync();
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }

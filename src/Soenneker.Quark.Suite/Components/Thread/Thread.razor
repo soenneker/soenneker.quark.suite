@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
@@ -11,6 +12,7 @@
 @code {
     private DotNetObjectReference<Thread>? _dotNetRef;
     private bool _initialized;
+    private ValueAtomicBool _disposed;
 
     internal bool IsAtBottom { get; private set; } = true;
 
@@ -31,7 +33,7 @@
     [JSInvokable]
     public void SetIsAtBottom(bool isAtBottom)
     {
-        if (IsAtBottom == isAtBottom)
+        if (_disposed.Read() || IsAtBottom == isAtBottom)
             return;
 
         IsAtBottom = isAtBottom;
@@ -61,12 +63,14 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender || _initialized)
+        if (_disposed.Read() || !firstRender || _initialized)
             return;
 
         _initialized = true;
         _dotNetRef = DotNetObjectReference.Create(this);
         await ThreadsInterop.InitializeThread(ElementRef, _dotNetRef, Initial, ResizeBehavior, StickToBottom);
+        if (_disposed.Read())
+            await ThreadsInterop.Destroy(ElementRef);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -80,9 +84,18 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await ThreadsInterop.Destroy(ElementRef);
-
-        _dotNetRef?.Dispose();
-        await base.DisposeAsync();
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_initialized)
+                await ThreadsInterop.Destroy(ElementRef);
+        }
+        finally
+        {
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            await base.DisposeAsync();
+        }
     }
 }

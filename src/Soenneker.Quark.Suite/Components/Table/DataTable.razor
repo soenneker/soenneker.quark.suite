@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.DataTables.Dtos.ServerSideRequest
@@ -136,7 +137,6 @@
 
     public string? SortDirection => _currentOrders.Count == 0 ? null : _currentOrders[0].Dir;
 
-    private readonly Debouncer _debouncer = new();
     private readonly List<DataTableOrderRequest> _currentOrders = [];
     private readonly DataTableContinuationTokenPaging _continuationTokenPaging = new();
     private readonly List<Th> _registeredColumns = [];
@@ -149,6 +149,8 @@
     private bool _dataLoaded;
     private bool _hasLoadedOnce; // Flag to track if data has been loaded at least once
     private bool _isUpdatingParameters; // Flag to prevent infinite loops
+    private bool _pendingInteraction;
+    private ValueAtomicBool _disposed;
     private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private DataTableOptions? _previousOptions;
@@ -176,11 +178,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-datatable");
-            AppendClass(ref cls, "caption-bottom");
-        });
+        PrependClassAttribute(attributes, "q-datatable caption-bottom");
     }
 
     protected override async Task OnInitializedAsync()
@@ -293,7 +291,7 @@
 
     public async ValueTask HandleGoToPage(int page)
     {
-        if (page < 1 || page > TotalPages)
+        if (page < 1 || page > TotalPages || page == CurrentPage)
             return;
 
         CurrentPage = page;
@@ -473,7 +471,11 @@
         };
 
         // Remove existing order for this column
-        _currentOrders.RemoveAll(o => o.Column == columnIndex);
+        for (var i = _currentOrders.Count - 1; i >= 0; i--)
+        {
+            if (_currentOrders[i].Column == columnIndex)
+                _currentOrders.RemoveAt(i);
+        }
 
         // Add new order if direction is not null
         if (nextDirection != null)
@@ -508,12 +510,35 @@
 
     public int RegisterColumn(Th columnHeader)
     {
+        var existingIndex = _registeredColumns.IndexOf(columnHeader);
+        if (existingIndex >= 0)
+            return existingIndex;
         _registeredColumns.Add(columnHeader);
         var columnIndex = _registeredColumns.Count - 1;
 
         _ = RefreshOffThread(); // fire-and-forget is ok here
 
         return columnIndex;
+    }
+
+    internal void UnregisterColumn(Th columnHeader)
+    {
+        var index = _registeredColumns.IndexOf(columnHeader);
+        if (index < 0)
+            return;
+        _registeredColumns.RemoveAt(index);
+        for (var i = index; i < _registeredColumns.Count; i++)
+            _registeredColumns[i].SetColumnIndex(i);
+        for (var i = _currentOrders.Count - 1; i >= 0; i--)
+        {
+            var order = _currentOrders[i];
+            if (order.Column == index)
+                _currentOrders.RemoveAt(i);
+            else if (order.Column > index)
+                _currentOrders[i] = new DataTableOrderRequest { Column = order.Column - 1, Dir = order.Dir };
+        }
+        if (!_disposed.Read())
+            _ = RefreshOffThread();
     }
 
     private Th? GetColumn(int columnIndex)
@@ -568,19 +593,14 @@
     private async ValueTask OnInteractionInternal()
     {
         // Prevent multiple simultaneous calls to OnInteractionInternal
+        if (_disposed.Read())
+            return;
+
         if (_isHandlingManualRequest)
         {
+            _pendingInteraction = true;
             if (Options.Debug)
-                Logger.LogDebug("OnInteractionInternal called while already handling a request - skipping");
-
-            return;
-        }
-
-        // Prevent infinite loops by limiting consecutive calls
-        if (_manualRequestCount > 100)
-        {
-            if (Options.Debug)
-                Logger.LogWarning("OnInteractionInternal called too many times ({Count}) - possible infinite loop detected", _manualRequestCount);
+                Logger.LogDebug("OnInteractionInternal called while already handling a request - queued latest state");
 
             return;
         }
@@ -601,55 +621,62 @@
         _isHandlingManualRequest = true;
         _isLoading = true;
 
-        await RefreshOffThread();
-
         try
         {
-            // Calculate the actual start position based on current page
-            var actualStart = (CurrentPage - 1) * PageSize;
-
-            // Use continuation token paging to get the appropriate token
-            var continuationToken = _continuationTokenPaging.UpdateVirtualPage(actualStart, PageSize, _continuationToken);
-
-            var request = new DataTableServerSideRequest
+            await RefreshOffThread();
+            do
             {
-                Start = actualStart,
-                Length = PageSize,
-                Search = _searchTerm.HasContent() ? new DataTableSearchRequest {Value = _searchTerm} : null,
-                Order = _currentOrders.Count > 0 ? _currentOrders : null,
-                Columns = _registeredColumns.Count > 0 ? BuildColumns() : null,
-                ContinuationToken = continuationToken
-            };
+                _pendingInteraction = false;
+                try
+                {
+                    // Calculate the actual start position based on current page
+                    var actualStart = (CurrentPage - 1) * PageSize;
 
-            if (Options.Debug)
-                Logger.LogDebug("Sending request: Start={Start}, Length={Length}, Search='{Search}', ContinuationToken='{Token}'", request.Start, request.Length, request.Search?.Value ?? "null", request.ContinuationToken ?? "null");
+                    // Use continuation token paging to get the appropriate token
+                    var continuationToken = _continuationTokenPaging.UpdateVirtualPage(actualStart, PageSize, _continuationToken);
 
-            await OnInteraction.InvokeAsync(request);
+                    var request = new DataTableServerSideRequest
+                    {
+                        Start = actualStart,
+                        Length = PageSize,
+                        Search = _searchTerm.HasContent() ? new DataTableSearchRequest {Value = _searchTerm} : null,
+                        Order = _currentOrders.Count > 0 ? [.. _currentOrders] : null,
+                        Columns = _registeredColumns.Count > 0 ? BuildColumns() : null,
+                        ContinuationToken = continuationToken
+                    };
 
-            // Mark that we've loaded data at least once after a successful request
-            if (!_hasLoadedOnce)
-            {
-                _hasLoadedOnce = true;
-                HasLoadedOnce = true;
-                if (Options.Debug)
-                    Logger.LogDebug("Set HasLoadedOnce to true after first successful data load");
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            if (Options.Debug)
-                Logger.LogDebug("OnInteractionInternal was cancelled");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "OnInteractionInternal error: {Message}", ex.Message);
+                    if (Options.Debug)
+                        Logger.LogDebug("Sending request: Start={Start}, Length={Length}, Search='{Search}', ContinuationToken='{Token}'", request.Start, request.Length, request.Search?.Value ?? "null", request.ContinuationToken ?? "null");
+
+                    await OnInteraction.InvokeAsync(request);
+
+                    // Mark that we've loaded data at least once after a successful request
+                    if (!_hasLoadedOnce)
+                    {
+                        _hasLoadedOnce = true;
+                        HasLoadedOnce = true;
+                        if (Options.Debug)
+                            Logger.LogDebug("Set HasLoadedOnce to true after first successful data load");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    if (Options.Debug)
+                        Logger.LogDebug("OnInteractionInternal was cancelled");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "OnInteractionInternal error: {Message}", ex.Message);
+                }
+            } while (_pendingInteraction && !_disposed.Read());
         }
         finally
         {
             _isLoading = false;
             _isHandlingManualRequest = false;
 
-            await RefreshOffThread();
+            if (!_disposed.Read())
+                await RefreshOffThread();
         }
     }
 
@@ -660,7 +687,6 @@
         _continuationTokenPaging.Reset();
         _continuationToken = null;
         _manualRequestCount = 0; // Reset the counter
-        _registeredColumns.Clear(); // Reset column registration
         _hasLoadedOnce = false; // Reset the loaded flag
         HasLoadedOnce = false;
 
@@ -674,7 +700,6 @@
         _continuationToken = null;
         _continuationTokenPaging.Reset();
         _manualRequestCount = 0; // Reset the counter
-        _registeredColumns.Clear(); // Reset column registration
         _hasLoadedOnce = false; // Reset the loaded flag
         HasLoadedOnce = false;
 
@@ -728,16 +753,11 @@
 
     public override async ValueTask DisposeAsync()
     {
-        try
-        {
-            await base.DisposeAsync();
-
-            await _debouncer.DisposeAsync();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error during DataTable disposal: {Message}", ex.Message);
-        }
+        if (!_disposed.TrySetTrue())
+            return;
+        _pendingInteraction = false;
+        _registeredColumns.Clear();
+        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -40,6 +40,8 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _inputAttributesBuffer;
+    private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private readonly AutoSaveController<DateTime?> _dateAutoSave = new();
     private readonly AutoSaveController<DateOnly?> _dateOnlyAutoSave = new();
 
@@ -273,6 +275,7 @@
 	{
 		if (firstRender && ParentValidation is not null)
 		{
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 			if (DateExpression is not null)
 			{
 				await ParentValidation.InitializeInputExpression(DateExpression);
@@ -281,7 +284,6 @@
 			{
 				await ParentValidation.InitializeInputExpression(DateOnlyExpression);
 			}
-			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -339,13 +341,15 @@
 	/// </summary>
 	public override async ValueTask DisposeAsync()
     {
-		await base.DisposeAsync();
-        await _dateAutoSave.DisposeAsync();
-        await _dateOnlyAutoSave.DisposeAsync();
-
-		if (ParentValidation is not null)
-			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-	    }
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        try { await _dateAutoSave.DisposeAsync(); }
+        finally
+        {
+            try { await _dateOnlyAutoSave.DisposeAsync(); }
+            finally { await base.DisposeAsync(); }
+        }
+    }
 
 	private async Task HandleChange(ChangeEventArgs e)
 	{
@@ -365,7 +369,7 @@
 
 	private Dictionary<string, object> BuildInputAttributes()
 	{
-		var attributes = new Dictionary<string, object>((AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
+		var attributes = _inputAttributesBuffer.Create((AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
 
         if (AdditionalAttributes is not null)
         {
@@ -426,7 +430,7 @@
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _wrapperAttributesBuffer.Create(1);
 
         if (UsesAutoSaveStatusSlot)
             attributes["class"] = "inline-flex w-full min-w-0 items-center gap-2";

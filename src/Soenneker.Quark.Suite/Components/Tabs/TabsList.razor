@@ -8,6 +8,7 @@
 </BradixTabsList>
 
 @code {
+    private QuarkAttributeDictionary _attributesBuffer;
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
 
@@ -15,7 +16,7 @@
 
     private IReadOnlyDictionary<string, object> BuildListAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes());
         attributes.Remove("role");
         attributes.Remove("aria-orientation");
         attributes.Remove("tabindex");

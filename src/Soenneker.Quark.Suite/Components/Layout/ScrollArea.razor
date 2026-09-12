@@ -26,6 +26,8 @@
 </BradixScrollArea>
 
 @code {
+    private QuarkAttributeDictionary _viewportAttributesBuffer;
+    private QuarkAttributeDictionary _cornerAttributesBuffer;
     [Parameter]
     public bool ShowVerticalScrollBar { get; set; } = true;
 
@@ -77,26 +79,20 @@
 
     private IReadOnlyDictionary<string, object> BuildViewportAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "scroll-area-viewport",
-        };
+        var attributes = _viewportAttributesBuffer.Create(2);
+        attributes["data-slot"] = "scroll-area-viewport";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
-        });
+        PrependClassAttribute(attributes, "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
 
         return attributes;
     }
 
     private IReadOnlyDictionary<string, object> BuildCornerAttributes()
     {
-        return new Dictionary<string, object>
-        {
-            ["data-slot"] = "scroll-area-corner",
-            ["class"] = "bg-border/40 size-2.5"
-        };
+        var attributes = _cornerAttributesBuffer.Create(2);
+        attributes["data-slot"] = "scroll-area-corner";
+        attributes["class"] = "bg-border/40 size-2.5";
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

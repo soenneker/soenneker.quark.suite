@@ -91,7 +91,7 @@
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
                                     <TdPrimitive @key="day.Date" Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@($"{CalendarDayButtonSize} {buttonCss}")" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
+                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
                                             @if (DayContent is not null)
                                             {
                                                 @DayContent(dayContext)
@@ -241,6 +241,7 @@
     private string[] _dayNames = [];
     private string[] _fullDayNames = [];
     private CultureInfo _resolvedCulture = CultureInfo.CurrentCulture;
+    private string[] _nativeDigits = [];
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private readonly Dictionary<DateOnly, List<Cell[]>> _monthWeeks = [];
     private CalendarGridState _calendarGridState;
@@ -259,6 +260,9 @@
         base.OnParametersSet();
         _today = DateOnly.FromDateTime(DateTime.Today);
         _resolvedCulture = ResolveCultureCore();
+        _nativeDigits = _resolvedCulture.Name.StartsWith("fa", StringComparison.OrdinalIgnoreCase)
+            ? PersianDigits
+            : _resolvedCulture.NumberFormat.NativeDigits;
         InitializeDayNames();
 
         var gridState = new CalendarGridState(_resolvedCulture.Name, GetFirstDayOfWeek(_resolvedCulture), UseCultureCalendar,
@@ -379,7 +383,8 @@
                     lastWeekWithMonthDays = weeks.Count;
 
                 weeks.Add(currentWeek);
-                currentWeek = new Cell[7];
+                if (i < 41)
+                    currentWeek = new Cell[7];
             }
         }
 
@@ -793,9 +798,9 @@
         return date == _today;
     }
 
-    private static string ToNativeDigits(string value, CultureInfo culture)
+    private string ToNativeDigits(string value, CultureInfo culture)
     {
-        var nativeDigits = culture.NumberFormat.NativeDigits;
+        var nativeDigits = _nativeDigits;
 
         if (culture.Name.StartsWith("fa", StringComparison.OrdinalIgnoreCase))
             nativeDigits = PersianDigits;
@@ -918,20 +923,20 @@
         return new CalendarDayContext(day.Date, day.InMonth, day.Disabled, day.Date == _today, IsDateSelected(day.Date), EffectiveSelectedRange?.From == day.Date, EffectiveSelectedRange?.To == day.Date, IsDateInRange(day.Date), modifiers);
     }
 
-    private List<string> GetModifierNames(DateOnly date)
+    private IReadOnlyList<string> GetModifierNames(DateOnly date)
     {
         if (Modifiers is null || Modifiers.Count == 0)
             return [];
 
-        var matches = new List<string>();
+        List<string>? matches = null;
 
         foreach (var pair in Modifiers)
         {
             if (pair.Value.Invoke(date))
-                matches.Add(pair.Key);
+                (matches ??= new List<string>()).Add(pair.Key);
         }
 
-        return matches;
+        return matches is null ? Array.Empty<string>() : matches;
     }
 
     private string AppendModifierClasses(string css, IReadOnlyList<string> modifiers)
@@ -948,44 +953,54 @@
         return css;
     }
 
-    private string GetDayCellClass(CalendarDayContext dayContext, Cell day)
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, string> DayCellClasses = new();
+
+    private string GetDayCellClass(CalendarDayContext context, Cell day)
+    {
+        var state = (ShowWeekNumber ? 1 : 0) | (context.IsRangeStart ? 2 : 0) |
+            (context.IsRangeEnd ? 4 : 0) | (context.IsRangeMiddle ? 8 : 0) |
+            (!ShowOutsideDays && !day.InMonth ? 16 : 0) | (!day.InMonth ? 32 : 0) |
+            (context.IsToday ? 64 : 0) | (day.Disabled ? 128 : 0);
+        return AppendModifierClasses(DayCellClasses.GetOrAdd(state, static key => CreateDayCellClass(key)), context.Modifiers);
+    }
+
+    private static string CreateDayCellClass(int state)
     {
         var css = "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none";
 
-        if (ShowWeekNumber)
+        if ((state & 1) != 0)
             css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) [&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)";
         else
             css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) [&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)";
 
         css += " rdp-day";
 
-        if (dayContext.IsRangeStart)
+        if ((state & 2) != 0)
             css += " relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted";
-        if (dayContext.IsRangeEnd)
+        if ((state & 4) != 0)
             css += " relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted";
-        if (dayContext.IsRangeMiddle)
+        if ((state & 8) != 0)
             css += " rounded-none";
 
-        if (!ShowOutsideDays && !day.InMonth)
+        if ((state & 16) != 0)
             css += " invisible";
 
-        if (!day.InMonth)
+        if ((state & 32) != 0)
             css += " text-muted-foreground aria-selected:text-muted-foreground rdp-outside";
 
-        if (dayContext.IsToday)
+        if ((state & 64) != 0)
             css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none rdp-today";
 
-        if (day.Disabled)
+        if ((state & 128) != 0)
             css += " text-muted-foreground opacity-50";
 
-        css = AppendModifierClasses(css, dayContext.Modifiers);
 
         return css;
     }
 
     private string GetDayButtonClass(CalendarDayContext dayContext, Cell day)
     {
-        const string css = "relative isolate z-10 aspect-square size-auto min-w-(--cell-size) rounded-(--cell-radius) rounded-lg border-0" +
+        const string css = CalendarDayButtonSize + " " + "relative isolate z-10 aspect-square size-auto min-w-(--cell-size) rounded-(--cell-radius) rounded-lg border-0" +
             " group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring" +
             " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50" +
             " data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius)" +
@@ -1104,9 +1119,19 @@
         hc.Add(UseCultureCalendar);
         hc.Add(Dir);
         hc.Add(DirectionProviderDir);
-        hc.Add(DisabledDates?.Length ?? 0);
-        hc.Add(Modifiers?.Count ?? 0);
-        hc.Add(ModifierClasses?.Count ?? 0);
+        hc.Add(_calendarGridState);
+        if (Modifiers is not null)
+            foreach (var modifier in Modifiers)
+            {
+                hc.Add(modifier.Key);
+                hc.Add(modifier.Value);
+            }
+        if (ModifierClasses is not null)
+            foreach (var modifier in ModifierClasses)
+            {
+                hc.Add(modifier.Key);
+                hc.Add(modifier.Value);
+            }
 
         if (SelectedDates is not null)
         {

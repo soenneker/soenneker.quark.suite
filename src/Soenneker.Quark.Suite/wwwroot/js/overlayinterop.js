@@ -11,7 +11,7 @@ const focusableSelectors = [
 
 const traps = new Map();
 const overlayStack = [];
-let scrollLockCount = 0;
+const scrollLockOwners = new Set();
 let originalBodyOverflow = '';
 let originalBodyPaddingRight = '';
 
@@ -40,9 +40,15 @@ function isFocusable(element) {
     return style.display !== 'none' && style.visibility !== 'hidden';
 }
 
-function getFocusableElements(container) {
-    return Array.from(container.querySelectorAll(focusableSelectors))
-        .filter((element) => isFocusable(element));
+function findFocusableElement(elements, fromEnd = false) {
+    for (let index = fromEnd ? elements.length - 1 : 0;
+        fromEnd ? index >= 0 : index < elements.length;
+        index += fromEnd ? -1 : 1) {
+        if (isFocusable(elements[index])) {
+            return elements[index];
+        }
+    }
+    return null;
 }
 
 function resolveInitialFocusTarget(container, initialFocusSelector) {
@@ -63,8 +69,7 @@ function resolveInitialFocusTarget(container, initialFocusSelector) {
         return autoFocusTarget;
     }
 
-    const focusableElements = getFocusableElements(container);
-    return focusableElements.length > 0 ? focusableElements[0] : container;
+    return findFocusableElement(container.querySelectorAll(focusableSelectors)) ?? container;
 }
 
 function focusInitial(container, initialFocusSelector) {
@@ -89,8 +94,6 @@ function disposeFocusTrap(overlayId) {
 }
 
 function createFocusTrap(overlayId, container) {
-    disposeFocusTrap(overlayId);
-
     const handleKeyDown = (event) => {
         if (event.key !== 'Tab') {
             return;
@@ -100,16 +103,16 @@ function createFocusTrap(overlayId, container) {
             return;
         }
 
-        const focusableElements = getFocusableElements(container);
+        const candidates = container.querySelectorAll(focusableSelectors);
+        const firstElement = findFocusableElement(candidates);
 
-        if (focusableElements.length === 0) {
+        if (!firstElement) {
             event.preventDefault();
             container.focus();
             return;
         }
 
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
+        const lastElement = findFocusableElement(candidates, true);
         const activeElement = document.activeElement;
 
         if (event.shiftKey) {
@@ -131,8 +134,12 @@ function createFocusTrap(overlayId, container) {
     traps.set(overlayId, { container, handleKeyDown });
 }
 
-function lockBodyScroll() {
-    if (scrollLockCount === 0) {
+function lockBodyScroll(overlayId) {
+    if (scrollLockOwners.has(overlayId)) {
+        return;
+    }
+
+    if (scrollLockOwners.size === 0) {
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         originalBodyOverflow = document.body.style.overflow;
         originalBodyPaddingRight = document.body.style.paddingRight;
@@ -144,17 +151,15 @@ function lockBodyScroll() {
         }
     }
 
-    scrollLockCount++;
+    scrollLockOwners.add(overlayId);
 }
 
-function unlockBodyScroll() {
-    if (scrollLockCount === 0) {
+function unlockBodyScroll(overlayId) {
+    if (!scrollLockOwners.delete(overlayId)) {
         return;
     }
 
-    scrollLockCount--;
-
-    if (scrollLockCount === 0) {
+    if (scrollLockOwners.size === 0) {
         document.body.style.overflow = originalBodyOverflow;
         document.body.style.paddingRight = originalBodyPaddingRight;
     }
@@ -165,13 +170,16 @@ export function activate(overlayId, container, trapFocus, lockScroll, initialFoc
         return;
     }
 
-    const alreadyActive = overlayStack.includes(overlayId);
     removeOverlay(overlayId);
     overlayStack.push(overlayId);
 
-    if (lockScroll && !alreadyActive) {
-        lockBodyScroll();
+    if (lockScroll) {
+        lockBodyScroll(overlayId);
+    } else {
+        unlockBodyScroll(overlayId);
     }
+
+    disposeFocusTrap(overlayId);
 
     if (!container) {
         return;
@@ -189,13 +197,10 @@ export function activateScrollLock(overlayId) {
         return;
     }
 
-    const alreadyActive = overlayStack.includes(overlayId);
     removeOverlay(overlayId);
     overlayStack.push(overlayId);
 
-    if (!alreadyActive) {
-        lockBodyScroll();
-    }
+    lockBodyScroll(overlayId);
 }
 
 export function deactivate(overlayId, unlockScroll) {
@@ -203,13 +208,11 @@ export function deactivate(overlayId, unlockScroll) {
         return;
     }
 
-    const wasActive = overlayStack.includes(overlayId);
-
     disposeFocusTrap(overlayId);
     removeOverlay(overlayId);
 
-    if (unlockScroll && wasActive) {
-        unlockBodyScroll();
+    if (unlockScroll) {
+        unlockBodyScroll(overlayId);
     }
 }
 
@@ -217,7 +220,9 @@ export function releaseScrollLocks() {
     traps.forEach((trap, overlayId) => disposeFocusTrap(overlayId));
     overlayStack.length = 0;
 
-    scrollLockCount = 0;
-    document.body.style.overflow = originalBodyOverflow;
-    document.body.style.paddingRight = originalBodyPaddingRight;
+    if (scrollLockOwners.size > 0) {
+        scrollLockOwners.clear();
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.paddingRight = originalBodyPaddingRight;
+    }
 }

@@ -1,19 +1,22 @@
-using System;
+﻿using System;
 
 namespace Soenneker.Quark;
 
 internal static class ValidationHandlerFactory
 {
+    private static readonly ValidatorHandler _validator = new();
+    private static readonly PatternValidationHandler _pattern = new();
+    private static readonly DataAnnotationValidationHandler _dataAnnotation = new();
     public static IValidationHandler Create(Type type)
     {
         if (type == ValidationHandlerType.Validator)
-            return new ValidatorHandler();
+            return _validator;
 
         if (type == ValidationHandlerType.Pattern)
-            return new PatternValidationHandler();
+            return _pattern;
 
         if (type == ValidationHandlerType.DataAnnotation)
-            return new DataAnnotationValidationHandler();
+            return _dataAnnotation;
 
         throw new NotSupportedException();
     }

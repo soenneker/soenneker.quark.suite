@@ -22,6 +22,7 @@
 </button>
 
 @code {
+    private QuarkAttributeDictionary _triggerAttributesBuffer;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -79,12 +80,10 @@
 
     private Dictionary<string, object> BuildTriggerAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-sidebar"] = "rail-trigger",
-            ["aria-hidden"] = "true",
-            ["style"] = $"top: {TriggerTop}; --sidebar-rail-trigger-offset: {(State?.Open == true ? "2.75rem" : "1rem")};"
-        };
+        var attributes = _triggerAttributesBuffer.Create(4);
+        attributes["data-sidebar"] = "rail-trigger";
+        attributes["aria-hidden"] = "true";
+        attributes["style"] = $"top: {TriggerTop}; --sidebar-rail-trigger-offset: {(State?.Open == true ? "2.75rem" : "1rem")};";
 
         RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
         {

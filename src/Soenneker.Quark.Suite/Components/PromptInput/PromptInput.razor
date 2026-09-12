@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="true">
@@ -79,8 +79,18 @@
 
     internal async Task RemoveAttachment(string id)
     {
-        if (_attachments.RemoveAll(x => string.Equals(x.Id, id, StringComparison.Ordinal)) == 0)
+        int kept = 0;
+        for (int i = 0; i < _attachments.Count; i++)
+        {
+            var attachment = _attachments[i];
+            if (!string.Equals(attachment.Id, id, StringComparison.Ordinal))
+                _attachments[kept++] = attachment;
+        }
+
+        if (kept == _attachments.Count)
             return;
+
+        _attachments.RemoveRange(kept, _attachments.Count - kept);
 
         await NotifyAttachmentsChanged();
     }
@@ -170,10 +180,7 @@
         attributes["data-global-drop"] = GlobalDrop ? "true" : "false";
         attributes["data-multiple"] = Multiple ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "dark:border-border/50 dark:bg-input/30");
-        });
+        PrependClassAttribute(attributes, "dark:border-border/50 dark:bg-input/30");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -261,11 +261,19 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     private async ValueTask<Soenneker.Playwrights.Session.BrowserSession> CreateHarnessSession()
     {
         var session = await CreateSession();
-        await session.Page.GotoAndWaitForReady(
-            $"{BaseUrl}test/floating-window",
-            static page => page.GetByTestId("open-a"),
-            expectedTitle: "Floating Window Test Harness");
-        return session;
+        try
+        {
+            await session.Page.GotoAndWaitForReady(
+                $"{BaseUrl}test/floating-window",
+                static page => page.GetByTestId("open-a"),
+                expectedTitle: "Floating Window Test Harness");
+            return session;
+        }
+        catch
+        {
+            await session.DisposeAsync();
+            throw;
+        }
     }
 
     private static async Task DispatchTouchPointer(ILocator target, string type, int pointerId, double x, double y, int buttons)

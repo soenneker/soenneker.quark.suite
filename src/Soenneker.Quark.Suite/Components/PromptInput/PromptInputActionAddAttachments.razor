@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
@@ -42,6 +43,7 @@
     private readonly string _inputId = BlazorIdGenerator.New("prompt-input-file");
     private DotNetObjectReference<PromptInputActionAddAttachments>? _dotNetReference;
     private bool _registered;
+    private ValueAtomicBool _disposed;
 
     [CascadingParameter]
     public PromptInput? PromptInput { get; set; }
@@ -134,11 +136,17 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (_disposed.Read() || !firstRender)
             return;
 
         _dotNetReference = DotNetObjectReference.Create(this);
         await PromptInputInterop.RegisterAttachmentsById(_inputId, _dotNetReference, PromptInput?.GlobalDrop == true);
+        if (_disposed.Read())
+        {
+            await UnregisterAttachments();
+            return;
+        }
+
         _registered = true;
     }
 
@@ -158,18 +166,29 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (_registered)
+        if (!_disposed.TrySetTrue())
+            return;
+        try
         {
-            try
-            {
-                await PromptInputInterop.UnregisterAttachmentsById(_inputId);
-            }
-            catch (JSDisconnectedException)
-            {
-            }
+            if (_registered)
+                await UnregisterAttachments();
         }
+        finally
+        {
+            _dotNetReference?.Dispose();
+            _dotNetReference = null;
+            await base.DisposeAsync();
+        }
+    }
 
-        _dotNetReference?.Dispose();
-        await base.DisposeAsync();
+    private async ValueTask UnregisterAttachments()
+    {
+        try
+        {
+            await PromptInputInterop.UnregisterAttachmentsById(_inputId);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
     }
 }

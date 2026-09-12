@@ -36,12 +36,10 @@ public sealed class SonnerService : ISonnerService
     {
         using (await _sync.Lock(cancellationToken))
         {
-            var toasts = new SonnerToast[_toasts.Count];
+            if (_toasts.Count == 0)
+                return Array.Empty<SonnerToast>();
 
-            for (var i = 0; i < _toasts.Count; i++)
-            {
-                toasts[i] = _toasts[i];
-            }
+            var toasts = _toasts.ToArray();
 
             Array.Sort(toasts, static (left, right) => left.CreatedAt.CompareTo(right.CreatedAt));
             return toasts;
@@ -80,11 +78,7 @@ public sealed class SonnerService : ISonnerService
 
     public ValueTask<string> Loading(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Loading, options =>
-        {
-            options.Dismissible = false;
-            configure?.Invoke(options);
-        }, cancellationToken);
+        return CreateOrUpdate(title, null, SonnerToastType.Loading, configure, cancellationToken);
     }
 
     public ValueTask<string> Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
@@ -153,7 +147,7 @@ public sealed class SonnerService : ISonnerService
         if (_disposed.Value)
             return;
 
-        List<CancellationTokenSource> timersToCancel = [];
+        List<CancellationTokenSource>? timersToCancel = null;
         var now = DateTimeOffset.UtcNow;
         var normalizedToasterId = NormalizeToasterId(toasterId);
         var pausedKey = (normalizedToasterId, position);
@@ -176,10 +170,13 @@ public sealed class SonnerService : ISonnerService
 
                 timerState.RemainingMs = GetRemainingMs(timerState, now);
                 timerState.Paused = true;
-                timersToCancel.Add(timerState.CancellationTokenSource);
+                (timersToCancel ??= []).Add(timerState.CancellationTokenSource);
                 timerState.CancellationTokenSource = null;
             }
         }
+
+        if (timersToCancel is null)
+            return;
 
         foreach (var timer in timersToCancel)
         {
@@ -194,8 +191,8 @@ public sealed class SonnerService : ISonnerService
         if (_disposed.Value)
             return;
 
-        List<(string Id, int RemainingMs, CancellationTokenSource TokenSource)> timersToStart = [];
-        List<string> toastsToDismiss = [];
+        List<(string Id, int RemainingMs, CancellationTokenSource TokenSource)>? timersToStart = null;
+        List<string>? toastsToDismiss = null;
         var normalizedToasterId = NormalizeToasterId(toasterId);
         var pausedKey = (normalizedToasterId, position);
 
@@ -215,7 +212,7 @@ public sealed class SonnerService : ISonnerService
                 if (timerState.RemainingMs <= 0)
                 {
                     _timers.Remove(toast.Id);
-                    toastsToDismiss.Add(toast.Id);
+                    (toastsToDismiss ??= []).Add(toast.Id);
                     continue;
                 }
 
@@ -223,20 +220,26 @@ public sealed class SonnerService : ISonnerService
                 timerState.CancellationTokenSource = tokenSource;
                 timerState.StartedAt = DateTimeOffset.UtcNow;
                 timerState.Paused = false;
-                timersToStart.Add((toast.Id, timerState.RemainingMs, tokenSource));
+                (timersToStart ??= []).Add((toast.Id, timerState.RemainingMs, tokenSource));
             }
         }
 
-        foreach ((var id, var remainingMs, var tokenSource) in timersToStart)
+        if (timersToStart is not null)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            _ = AutoDismiss(id, remainingMs, tokenSource.Token);
+            foreach ((var id, var remainingMs, var tokenSource) in timersToStart)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _ = AutoDismiss(id, remainingMs, tokenSource.Token);
+            }
         }
 
-        foreach (var id in toastsToDismiss)
+        if (toastsToDismiss is not null)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            _ = DismissCore(id, invokeAutoClose: true, cancellationToken);
+            foreach (var id in toastsToDismiss)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _ = DismissCore(id, invokeAutoClose: true, cancellationToken);
+            }
         }
     }
 
@@ -278,7 +281,7 @@ public sealed class SonnerService : ISonnerService
         if (_disposed.Value)
             return string.Empty;
 
-        var options = new SonnerToastOptions();
+        var options = new SonnerToastOptions { Dismissible = type != SonnerToastType.Loading };
         configure?.Invoke(options);
 
         var id = options.Id ?? BlazorIdGenerator.New("quark-sonner-toast");
@@ -297,10 +300,9 @@ public sealed class SonnerService : ISonnerService
         var position = options.Position ?? registration?.DefaultPosition ?? DefaultPosition;
 
         var isExistingToast = previous is not null && !previous.Removed;
-        var toast = new SonnerToast
+        var toast = new SonnerToast(id, previous?.CreatedAt ?? DateTimeOffset.UtcNow)
         {
             ToasterId = toasterId,
-            Id = id,
             Title = title,
             Description = options.Description,
             Content = options.Content ?? content,
@@ -315,8 +317,7 @@ public sealed class SonnerService : ISonnerService
             OnAutoClose = options.OnAutoClose,
             Promise = previous?.Promise == true || type == SonnerToastType.Loading,
             Mounted = isExistingToast && previous is not null && previous.Mounted,
-            Removed = false,
-            CreatedAt = previous?.CreatedAt ?? DateTimeOffset.UtcNow
+            Removed = false
         };
 
         using (await _sync.Lock(cancellationToken))
@@ -439,17 +440,15 @@ public sealed class SonnerService : ISonnerService
 
         await Task.Delay(_removeDelayMs, cancellationToken);
 
-        if (toast is null)
-            return;
-
+        bool removed;
         using (await _sync.Lock(cancellationToken))
         {
-            var index = _toasts.FindIndex(item => item.Id == id);
-            if (index >= 0)
-                _toasts.RemoveAt(index);
+            // An update may replace this toast during its exit animation.
+            removed = _toasts.Remove(toast);
         }
 
-        NotifyStateChanged();
+        if (removed)
+            NotifyStateChanged();
 
         try
         {

@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IDisposable
 
@@ -90,10 +90,7 @@
             attributes["disabled"] = "disabled";
         }
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "ps-[var(--tree-padding)] not-last:pb-0.5 focus:z-20");
-        });
+        PrependClassAttribute(attributes, "ps-[var(--tree-padding)] not-last:pb-0.5 focus:z-20");
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
@@ -134,13 +131,21 @@
 
     internal ValueTask Focus() => _element.FocusAsync();
 
-    internal void RefreshTreeItem() => _ = InvokeAsync(StateHasChanged);
+    internal void RefreshTreeItem() => _ = RefreshOffThread();
 
     public void Dispose() => ParentTree?.Unregister(this);
+
+    public override async ValueTask DisposeAsync()
+    {
+        Dispose();
+        await base.DisposeAsync();
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentTree?.IsCurrent(this));
+        hc.Add(ParentTree?.Indent);
         hc.Add(Level);
         hc.Add(Folder);
         hc.Add(Expanded);

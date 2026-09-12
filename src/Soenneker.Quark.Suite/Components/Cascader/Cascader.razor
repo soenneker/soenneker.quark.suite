@@ -46,6 +46,8 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _rootAttributes;
+    private RenderFragment? _columnsFragment;
     private bool _open;
     private string[] _internalValue = [];
     private string[] _expandedPath = [];
@@ -130,7 +132,7 @@
         base.OnInitialized();
     }
 
-    private RenderFragment RenderColumns() => builder =>
+    private RenderFragment RenderColumns() => _columnsFragment ??= builder =>
     {
         var columns = GetColumns();
 
@@ -341,7 +343,7 @@
 
     private IReadOnlyList<IReadOnlyList<CascaderOption>> GetColumns()
     {
-        if (PathCacheMatches(_columnsOptionsSource, _columnsPathSnapshot, _expandedPath))
+        if (PathCacheMatches(_columnsOptionsSource, _columnsPathSnapshot, _expandedPath) && ColumnsMatch())
             return _columnsCache;
 
         var columns = new List<IReadOnlyList<CascaderOption>> { Options };
@@ -386,7 +388,7 @@
     private IReadOnlyList<CascaderOption> GetSelectedOptionsCached()
     {
         var values = CurrentValue;
-        if (PathCacheMatches(_selectionOptionsSource, _selectionPathSnapshot, values))
+        if (PathCacheMatches(_selectionOptionsSource, _selectionPathSnapshot, values) && SelectionMatches(values))
             return _selectedOptionsCache;
 
         var selected = GetSelectedOptions(values);
@@ -399,6 +401,40 @@
         _selectedOptionsCache = selected;
         _selectedLabelsCache = labels;
         return selected;
+    }
+
+    private bool ColumnsMatch()
+    {
+        var options = Options;
+        var count = 1;
+        foreach (var value in _expandedPath)
+        {
+            var found = FindOption(options, value);
+            if (found?.HasChildren != true)
+                break;
+            if (count >= _columnsCache.Count || !ReferenceEquals(_columnsCache[count], found.Children))
+                return false;
+            options = found.Children;
+            count++;
+        }
+        return count == _columnsCache.Count;
+    }
+
+    private bool SelectionMatches(IReadOnlyList<string> values)
+    {
+        var options = Options;
+        var count = 0;
+        foreach (var value in values)
+        {
+            var found = FindOption(options, value);
+            if (found is null)
+                break;
+            if (count >= _selectedOptionsCache.Count || !ReferenceEquals(_selectedOptionsCache[count], found))
+                return false;
+            options = found.Children;
+            count++;
+        }
+        return count == _selectedOptionsCache.Count;
     }
 
     private bool PathCacheMatches(IReadOnlyList<CascaderOption>? optionsSource, IReadOnlyList<string> snapshot, IReadOnlyList<string> path)
@@ -459,7 +495,7 @@
 
     private Dictionary<string, object> BuildRootAttributes()
     {
-        var attributes = BuildAttributes();
+        var attributes = _rootAttributes.Create(BuildAttributes(), 2);
         ApplyFieldControlAttributes(attributes);
         AppendToClassAttr(attributes, "relative inline-block");
         return attributes;
@@ -475,7 +511,14 @@
             hc.Add(value);
         hc.Add(_focusedColumn);
         hc.Add(_focusedIndex);
-        hc.Add(Options.Count);
+        foreach (var column in GetColumns())
+        {
+            hc.Add(column.Count);
+            foreach (var option in column)
+                hc.Add(option);
+        }
+        foreach (var option in SelectedOptions)
+            hc.Add(option);
         foreach (var value in Value ?? [])
             hc.Add(value);
         foreach (var value in DefaultValue ?? [])

@@ -5,6 +5,7 @@
 @inject ISonnerInterop SonnerInterop
 @using Microsoft.JSInterop
 @using Soenneker.Atomics.ValueBools
+@using System.Globalization
 
 @{
     var groups = _groups;
@@ -35,7 +36,9 @@
                 @onfocusin="(() => SetFocused(group.Position, true))"
                 @onfocusout="(() => SetFocused(group.Position, false))"
                 @onpointerdown="(() => SetInteracting(group.Position, true))"
-                @onpointerup="(() => SetInteracting(group.Position, false))">
+                @onpointerup="(() => SetInteracting(group.Position, false))"
+                @onpointercancel="(() => SetInteracting(group.Position, false))"
+                @onlostpointercapture="(() => SetInteracting(group.Position, false))">
                 @for (var i = 0; i < group.Toasts.Count; i++)
                 {
                     var toast = group.Toasts[i];
@@ -318,7 +321,7 @@
     {
         var frontHeight = toasts.Count > 0 ? GetToastHeight(toasts[0]) : 0;
         var baseStyle =
-            $"--front-toast-height: {frontHeight}px; --width: {DefaultToastWidth}px; --gap: {DefaultGap}px; --normal-bg: var(--popover); --normal-text: var(--popover-foreground); --normal-border: var(--border); --border-radius: var(--radius); --offset-top: {DesktopOffset}px; --offset-right: {DesktopOffset}px; --offset-bottom: {DesktopOffset}px; --offset-left: {DesktopOffset}px; --mobile-offset-top: {MobileOffset}px; --mobile-offset-right: {MobileOffset}px; --mobile-offset-bottom: {MobileOffset}px; --mobile-offset-left: {MobileOffset}px;";
+            string.Create(CultureInfo.InvariantCulture, $"--front-toast-height: {frontHeight}px; --width: {DefaultToastWidth}px; --gap: {DefaultGap}px; --normal-bg: var(--popover); --normal-text: var(--popover-foreground); --normal-border: var(--border); --border-radius: var(--radius); --offset-top: {DesktopOffset}px; --offset-right: {DesktopOffset}px; --offset-bottom: {DesktopOffset}px; --offset-left: {DesktopOffset}px; --mobile-offset-top: {MobileOffset}px; --mobile-offset-right: {MobileOffset}px; --mobile-offset-bottom: {MobileOffset}px; --mobile-offset-left: {MobileOffset}px;");
 
         return Style.HasContent() ? $"{baseStyle} {Style}" : baseStyle;
     }
@@ -326,7 +329,7 @@
     private static string GetToastStyle(int toastCount, int index, double offset, double initialHeight)
     {
         var zIndex = toastCount - index;
-        return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
+        return string.Create(CultureInfo.InvariantCulture, $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;");
     }
 
     private static string? GetDataType(SonnerToast toast)
@@ -370,52 +373,55 @@
 
     private static bool HasIcon(SonnerToast toast) => !ReferenceEquals(toast.Type, SonnerToastType.Default);
 
-    private static RenderFragment GetIcon(SonnerToast toast) => builder =>
+    private static RenderFragment GetIcon(SonnerToast toast)
     {
         if (ReferenceEquals(toast.Type, SonnerToastType.Success))
-        {
-            builder.OpenComponent<Icon>(0);
-            builder.AddAttribute(1, "Name", LucideIcon.CircleCheck);
-            builder.AddAttribute(2, "Class", "size-4");
-            builder.CloseComponent();
-            return;
-        }
+            return static builder =>
+            {
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", LucideIcon.CircleCheck);
+                builder.AddAttribute(2, "Class", "size-4");
+                builder.CloseComponent();
+            };
 
         if (ReferenceEquals(toast.Type, SonnerToastType.Info))
-        {
-            builder.OpenComponent<Icon>(0);
-            builder.AddAttribute(1, "Name", LucideIcon.Info);
-            builder.AddAttribute(2, "Class", "size-4");
-            builder.CloseComponent();
-            return;
-        }
+            return static builder =>
+            {
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", LucideIcon.Info);
+                builder.AddAttribute(2, "Class", "size-4");
+                builder.CloseComponent();
+            };
 
         if (ReferenceEquals(toast.Type, SonnerToastType.Warning))
-        {
-            builder.OpenComponent<Icon>(0);
-            builder.AddAttribute(1, "Name", LucideIcon.TriangleAlert);
-            builder.AddAttribute(2, "Class", "size-4");
-            builder.CloseComponent();
-            return;
-        }
+            return static builder =>
+            {
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", LucideIcon.TriangleAlert);
+                builder.AddAttribute(2, "Class", "size-4");
+                builder.CloseComponent();
+            };
 
         if (ReferenceEquals(toast.Type, SonnerToastType.Error))
-        {
-            builder.OpenComponent<Icon>(0);
-            builder.AddAttribute(1, "Name", LucideIcon.OctagonX);
-            builder.AddAttribute(2, "Class", "size-4");
-            builder.CloseComponent();
-            return;
-        }
+            return static builder =>
+            {
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", LucideIcon.OctagonX);
+                builder.AddAttribute(2, "Class", "size-4");
+                builder.CloseComponent();
+            };
 
         if (ReferenceEquals(toast.Type, SonnerToastType.Loading))
-        {
-            builder.OpenComponent<Icon>(0);
-            builder.AddAttribute(1, "Name", LucideIcon.LoaderCircle);
-            builder.AddAttribute(2, "Class", "size-4 animate-spin");
-            builder.CloseComponent();
-        }
-    };
+            return static builder =>
+            {
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", LucideIcon.LoaderCircle);
+                builder.AddAttribute(2, "Class", "size-4 animate-spin");
+                builder.CloseComponent();
+            };
+
+        return static _ => { };
+    }
 
     private async Task HandleDismiss(string id)
     {

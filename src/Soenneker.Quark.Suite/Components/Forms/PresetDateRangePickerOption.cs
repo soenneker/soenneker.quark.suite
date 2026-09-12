@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -31,8 +31,8 @@ public sealed record PresetDateRangePickerOption(string Key, string Label, int S
         if (days <= 0)
             throw new ArgumentOutOfRangeException(nameof(days), days, "Days must be greater than zero.");
 
-        var resolvedLabel = label ?? $"Last {days.ToString(CultureInfo.InvariantCulture)} days";
-        var resolvedKey = key ?? $"last-{days.ToString(CultureInfo.InvariantCulture)}-days";
+        var resolvedLabel = label ?? string.Create(CultureInfo.InvariantCulture, $"Last {days} days");
+        var resolvedKey = key ?? string.Create(CultureInfo.InvariantCulture, $"last-{days}-days");
 
         return new PresetDateRangePickerOption(resolvedKey, resolvedLabel, -days + 1, 0);
     }

@@ -25,12 +25,12 @@
            Style="@Style"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
-           @attributes="BuildInputAttributes()" 
+           AdditionalAttributes="BuildInputAttributes()"
            OnInput="HandleInput"
            OnChange="HandleChange"
            OnBlur="HandleInputBlur"
            OnKeyDown="HandleInputKeyDown"
-           ValidationValueSelector="@(() => (object?)Value)" />
+           ValidationValueSelector="@(_validationValueSelector ??= () => Value)" />
     <AutoSaveStatus State="@_autoSave.State"
                     HasSaved="@_autoSave.HasSaved"
                     Visible="@UsesAutoSaveStatusSlot"
@@ -41,6 +41,9 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _inputAttributes;
+    private QuarkAttributeDictionary _wrapperAttributes;
+    private Func<object?>? _validationValueSelector;
     private readonly AutoSaveController<decimal?> _autoSave = new();
 
     /// <summary>
@@ -260,7 +263,7 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _inputAttributes.Create(3);
 
         // Add NumericInput-specific attributes
         if (Min.HasValue)
@@ -277,7 +280,7 @@
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _wrapperAttributes.Create(1);
 
         if (UsesAutoSaveStatusSlot)
             attributes["class"] = "inline-flex w-full min-w-0 items-center gap-2";

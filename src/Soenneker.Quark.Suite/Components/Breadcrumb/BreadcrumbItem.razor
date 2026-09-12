@@ -59,6 +59,10 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _listItemAttributesBuffer;
+    private QuarkAttributeDictionary _separatorLiAttributesBuffer;
+    private QuarkAttributeDictionary _linkAttributesBuffer;
+    private QuarkAttributeDictionary _pageAttributesBuffer;
     [CascadingParameter(Name = "ParentBreadcrumb")]
     private Breadcrumb? ParentBreadcrumb { get; set; }
 
@@ -129,10 +133,8 @@ else
 
     private Dictionary<string, object> BuildListItemAttributes()
     {
-        var attributes = new Dictionary<string, object>(BuildAttributes())
-        {
-            ["data-slot"] = "breadcrumb-item"
-        };
+        var attributes = _listItemAttributesBuffer.Create(BuildAttributes(), 1);
+        attributes["data-slot"] = "breadcrumb-item";
 
         return attributes;
     }
@@ -140,32 +142,22 @@ else
     /// <summary>Matches <see cref="BreadcrumbSeparator"/>: its own <c>li</c>, not a span inside the content item.</summary>
     private Dictionary<string, object> BuildSeparatorLiAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "breadcrumb-separator",
-            ["role"] = "presentation",
-            ["aria-hidden"] = "true"
-        };
+        var attributes = _separatorLiAttributesBuffer.Create(4);
+        attributes["data-slot"] = "breadcrumb-separator";
+        attributes["role"] = "presentation";
+        attributes["aria-hidden"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "[&>svg]:block [&>svg]:size-3.5");
-        });
+        PrependClassAttribute(attributes, "[&>svg]:block [&>svg]:size-3.5");
 
         return attributes;
     }
 
     private Dictionary<string, object> BuildLinkAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "breadcrumb-link"
-        };
+        var attributes = _linkAttributesBuffer.Create(3);
+        attributes["data-slot"] = "breadcrumb-link";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "transition-colors hover:text-foreground");
-        });
+        PrependClassAttribute(attributes, "transition-colors hover:text-foreground");
 
         if (Active)
             attributes["aria-current"] = "page";
@@ -175,16 +167,11 @@ else
 
     private Dictionary<string, object> BuildPageAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "breadcrumb-page",
-            ["aria-current"] = "page"
-        };
+        var attributes = _pageAttributesBuffer.Create(3);
+        attributes["data-slot"] = "breadcrumb-page";
+        attributes["aria-current"] = "page";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "font-normal text-foreground");
-        });
+        PrependClassAttribute(attributes, "font-normal text-foreground");
 
         return attributes;
     }

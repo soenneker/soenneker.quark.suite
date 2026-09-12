@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +15,8 @@ namespace Soenneker.Quark;
 public abstract class DateTimeComponentBase : Element
 {
     private bool _browserTimeZoneResolved;
+    private ValueAtomicBool _dateTimeDisposed;
+    private RenderFragment? _contentFragment;
     private bool _restartTimerAfterRender = true;
     private string? _browserTimeZone;
     private string _displayText = string.Empty;
@@ -171,10 +174,15 @@ public abstract class DateTimeComponentBase : Element
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        if (_dateTimeDisposed.Read())
+            return;
+
         if (!_browserTimeZoneResolved)
         {
             _browserTimeZoneResolved = true;
             var timeZone = await BrowserTimeZoneService.GetTimeZoneId();
+            if (_dateTimeDisposed.Read())
+                return;
 
             if (!string.Equals(_browserTimeZone, timeZone, StringComparison.Ordinal))
             {
@@ -217,7 +225,7 @@ public abstract class DateTimeComponentBase : Element
     /// <returns>A render fragment.</returns>
     protected RenderFragment RenderContent()
     {
-        return builder =>
+        return _contentFragment ??= builder =>
         {
             if (Template is not null)
             {
@@ -290,6 +298,9 @@ public abstract class DateTimeComponentBase : Element
 
     private void SyncScheduleRegistration()
     {
+        if (_dateTimeDisposed.Read())
+            return;
+
         var interval = AutoUpdate ? GetNextInterval(DateTimeOffset.UtcNow) : null;
 
         if (!interval.HasValue)
@@ -336,7 +347,7 @@ public abstract class DateTimeComponentBase : Element
 
     private async ValueTask OnScheduledUpdate(DateTimeOffset now)
     {
-        if (UpdateDisplay(now))
+        if (!_dateTimeDisposed.Read() && UpdateDisplay(now))
         {
             InvalidateRender();
             await InvokeAsync(StateHasChanged);
@@ -349,6 +360,8 @@ public abstract class DateTimeComponentBase : Element
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
+        if (!_dateTimeDisposed.TrySetTrue())
+            return;
         _scheduleRegistration?.Dispose();
         _scheduleRegistration = null;
 

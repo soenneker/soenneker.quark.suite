@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Element
 
 <th @attributes="BuildAttributes()">
@@ -56,6 +56,19 @@
 		}
 	}
 
+    internal void SetColumnIndex(int index)
+    {
+        _columnIndex = index;
+        InvalidateRender();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (DataTable is Soenneker.Quark.DataTable table)
+            table.UnregisterColumn(this);
+        await base.DisposeAsync();
+    }
+
 	private async Task HandleClick(MouseEventArgs e)
 	{
 		if (!Sortable || DataTable == null)
@@ -85,15 +98,11 @@
 		if (HeaderAlign.IsNullOrWhiteSpace())
 			return string.Empty;
 
-		var align = HeaderAlign.ToLowerInvariantFast();
-
-		return align switch
-		{
-			"left" => "text-align: left;",
-			"center" => "text-align: center;",
-			"right" => "text-align: right;",
-			_ => string.Empty
-		};
+        if (string.Equals(HeaderAlign, "left", StringComparison.OrdinalIgnoreCase))
+            return "text-align: left;";
+        if (string.Equals(HeaderAlign, "center", StringComparison.OrdinalIgnoreCase))
+            return "text-align: center;";
+        return string.Equals(HeaderAlign, "right", StringComparison.OrdinalIgnoreCase) ? "text-align: right;" : string.Empty;
 	}
 
 	protected override void ApplyDefaultParameters()
@@ -153,12 +162,9 @@
 	private string GetSortButtonClass()
 	{
 		const string baseClass = "inline-flex w-full cursor-pointer items-center gap-1 bg-transparent p-0 text-inherit";
-		return HeaderAlign.ToLowerInvariantFast() switch
-		{
-			"center" => $"{baseClass} justify-center",
-			"right" => $"{baseClass} justify-end",
-			_ => baseClass
-		};
+        if (string.Equals(HeaderAlign, "center", StringComparison.OrdinalIgnoreCase))
+            return baseClass + " justify-center";
+        return string.Equals(HeaderAlign, "right", StringComparison.OrdinalIgnoreCase) ? baseClass + " justify-end" : baseClass;
 	}
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -170,5 +176,6 @@
 		hc.Add(Data);
 		hc.Add(Name);
 		hc.Add(_columnIndex);
+        hc.Add(DataTable?.GetSortDirection(_columnIndex));
 	}
 }

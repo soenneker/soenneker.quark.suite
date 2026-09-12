@@ -11,6 +11,19 @@ namespace Soenneker.Quark;
 public sealed class SonnerToast
 {
     /// <summary>
+    /// Creates a toast with a generated identifier and the current creation time.
+    /// </summary>
+    public SonnerToast() : this(BlazorIdGenerator.New("quark-sonner-toast"), DateTimeOffset.UtcNow)
+    {
+    }
+
+    internal SonnerToast(string id, DateTimeOffset createdAt)
+    {
+        Id = id;
+        CreatedAt = createdAt;
+    }
+
+    /// <summary>
     /// Gets or sets toaster id.
     /// </summary>
     public string ToasterId { get; set; } = string.Empty;
@@ -18,7 +31,7 @@ public sealed class SonnerToast
     /// <summary>
     /// Gets or sets id.
     /// </summary>
-    public string Id { get; set; } = BlazorIdGenerator.New("quark-sonner-toast");
+    public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets title.
@@ -98,5 +111,5 @@ public sealed class SonnerToast
     /// <summary>
     /// Gets or sets created at.
     /// </summary>
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; }
 }

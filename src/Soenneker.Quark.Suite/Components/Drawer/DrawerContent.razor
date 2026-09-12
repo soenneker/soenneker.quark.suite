@@ -20,6 +20,7 @@
 </BradixDialogPortal>
 
 @code {
+    private QuarkAttributeDictionary _overlayAttributesBuffer;
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
@@ -61,22 +62,12 @@
 
         attributes["data-vaul-drawer-direction"] = ResolvedSide.Value;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/drawer-content text-sm text-popover-foreground");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[50vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b");
-            AppendClass(ref cls, "data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom-10 data-[vaul-drawer-direction=left]:data-[state=open]:slide-in-from-left-10 data-[vaul-drawer-direction=right]:data-[state=open]:slide-in-from-right-10 data-[vaul-drawer-direction=top]:data-[state=open]:slide-in-from-top-10");
-            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[vaul-drawer-direction=bottom]:data-[state=closed]:slide-out-to-bottom-10 data-[vaul-drawer-direction=left]:data-[state=closed]:slide-out-to-left-10 data-[vaul-drawer-direction=right]:data-[state=closed]:slide-out-to-right-10 data-[vaul-drawer-direction=top]:data-[state=closed]:slide-out-to-top-10");
-        });
+        PrependClassAttribute(attributes, "group/drawer-content text-sm text-popover-foreground data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[50vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom-10 data-[vaul-drawer-direction=left]:data-[state=open]:slide-in-from-left-10 data-[vaul-drawer-direction=right]:data-[state=open]:slide-in-from-right-10 data-[vaul-drawer-direction=top]:data-[state=open]:slide-in-from-top-10 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[vaul-drawer-direction=bottom]:data-[state=closed]:slide-out-to-bottom-10 data-[vaul-drawer-direction=left]:data-[state=closed]:slide-out-to-left-10 data-[vaul-drawer-direction=right]:data-[state=closed]:slide-out-to-right-10 data-[vaul-drawer-direction=top]:data-[state=closed]:slide-out-to-top-10");
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
     {
-        var attrs = new Dictionary<string, object>();
+        var attrs = _overlayAttributesBuffer.Create(3);
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");

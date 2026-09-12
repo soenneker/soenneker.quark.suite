@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Text.RegularExpressions
 @using System.Linq.Expressions
 @using System.Threading
@@ -24,6 +25,9 @@
     private FieldIdentifier _fieldIdentifier;
     private bool _hasFieldIdentifier;
     private CancellationTokenSource? _cts;
+    private ValueAtomicBool _disposed;
+    private EditContext? _messageEditContext;
+    private ValidationMessageStore? _messageStore;
 
     /// <summary>
     /// Gets or sets the parent validations context.
@@ -158,6 +162,9 @@
 
     public void Dispose()
     {
+        if (!_disposed.TrySetTrue())
+            return;
+        ClearDataAnnotationMessages();
         CurrentFieldContext?.SetValidationInvalid(false);
 
         if (ParentValidations is not null)
@@ -166,8 +173,10 @@
             ParentValidations.NotifyValidationRemoved(this);
         }
 
-        _cts?.Dispose();
+        var pending = _cts;
         _cts = null;
+        pending?.Cancel();
+        pending?.Dispose();
     }
 
     public async Task InitializeInput(IValidationInput input)
@@ -239,8 +248,7 @@
                 if (_hasFieldIdentifier && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
                     (ParentValidations?.ValidateOnLoad ?? false) && _initialized)
                 {
-                    await NotifyInputChanged(expression.Compile()
-                        .Invoke(), true);
+                    await NotifyInputChanged(_lastKnownValue, true);
                 }
 
                 _hasFieldIdentifier = true;
@@ -286,7 +294,8 @@
 
     public ValidationStatus Validate(object newValidationValue)
     {
-        if (_input is not null && !_input.Disabled)
+        _cts?.Cancel();
+        if (!_disposed.Read() && _input is not null && !_input.Disabled)
         {
             var handler = GetValidationHandler();
             handler?.Validate(this, newValidationValue);
@@ -303,34 +312,57 @@
 
     public async Task<ValidationStatus> ValidateValue(object newValidationValue)
     {
-        if (_input is not null && !_input.Disabled)
+        if (_disposed.Read() || _input is null || _input.Disabled)
+            return Status;
+
+        _explicitlyValidated = true;
+        var source = new CancellationTokenSource();
+        var token = source.Token;
+        var previous = _cts;
+        _cts = source;
+        try
         {
-            _explicitlyValidated = true;
-            if (_cts != null)
-            {
-                await _cts.CancelAsync();
-                _cts.Dispose();
-            }
+            if (previous is not null)
+                await previous.CancelAsync();
 
-            _cts = new CancellationTokenSource();
-
-            var token = _cts.Token;
-
-            try
-            {
-                var handler = GetValidationHandler();
-                if (handler is not null)
-                {
-                    token.ThrowIfCancellationRequested();
-                    await handler.Validate(this, newValidationValue, token);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
+            token.ThrowIfCancellationRequested();
+            var handler = GetValidationHandler();
+            if (handler is not null)
+                await handler.Validate(this, newValidationValue, token);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+        }
+        finally
+        {
+            if (ReferenceEquals(_cts, source))
+                _cts = null;
+            source.Dispose();
         }
 
-        return await Task.FromResult(Status);
+        return Status;
+    }
+
+    internal ValidationMessageStore GetDataAnnotationMessageStore()
+    {
+        if (!ReferenceEquals(_messageEditContext, EditContext))
+        {
+            ClearDataAnnotationMessages();
+            _messageEditContext = EditContext;
+            _messageStore = EditContext is null ? null : new ValidationMessageStore(EditContext);
+        }
+
+        _messageStore!.Clear();
+        return _messageStore;
+    }
+
+    private void ClearDataAnnotationMessages()
+    {
+        if (_messageStore is null)
+            return;
+
+        _messageStore.Clear();
+        _messageEditContext?.NotifyValidationStateChanged();
     }
 
     private IValidationHandler? GetValidationHandler()
@@ -360,6 +392,8 @@
 
     public void Clear()
     {
+        _cts?.Cancel();
+        ClearDataAnnotationMessages();
         NotifyValidationStatusChanged(ValidationStatus.None);
     }
 
@@ -370,9 +404,12 @@
 
     public void NotifyValidationStatusChanged(ValidationStatus status, IEnumerable<string>? messages = null)
     {
+        if (_disposed.Read())
+            return;
+
         var shouldShowInvalidBefore = ShouldShowInvalid;
 
-        if (Status != status || Messages?.SequenceEqual(messages ?? []) == false)
+        if (Status != status || !(Messages ?? []).SequenceEqual(messages ?? []))
         {
             Status = status;
             Messages = messages;

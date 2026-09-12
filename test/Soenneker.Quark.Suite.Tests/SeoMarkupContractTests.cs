@@ -27,6 +27,29 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Semantic_title_fragment_reuses_delegate_and_observes_current_parameters()
+    {
+        var cut = Render<SemanticTitleProbe>(p => p
+            .Add(c => c.HeadingLevel, HeadingLevel.H2)
+            .Add(c => c.Class, "before")
+            .Add(c => c.ChildContent, "Before"));
+        RenderFragment fragment = cut.Instance.Fragment;
+
+        cut.Render(p => p
+            .Add(c => c.HeadingLevel, HeadingLevel.H3)
+            .Add(c => c.Class, "after")
+            .Add(c => c.ChildContent, "After"));
+
+        cut.Instance.Fragment.Should().BeSameAs(fragment);
+        cut.Find("h3").TextContent.Should().Be("After");
+        cut.Find("h3").ClassList.Should().Contain("after");
+        cut.FindAll("h2").Should().BeEmpty();
+
+        cut.Render(p => p.Add(c => c.HeadingLevel, (HeadingLevel?)null));
+        cut.Find("div").TextContent.Should().Be("After");
+    }
+
+    [Test]
     public void Heading_level_is_independent_from_visual_scale()
     {
         var cut = Render<Heading>(parameters => parameters
@@ -85,4 +108,14 @@ public sealed partial class RenderedShadcnParityTests
         }));
         builder.CloseComponent();
     };
+}
+
+public sealed class SemanticTitleProbe : SemanticTitleElement
+{
+    public RenderFragment Fragment => RenderSemanticTitle();
+
+    protected override void BuildRenderTree(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder)
+    {
+        builder.AddContent(0, RenderSemanticTitle());
+    }
 }

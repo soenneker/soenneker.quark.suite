@@ -28,6 +28,7 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _inputAttributes;
 	// shadcn input in table toolbar - new-york-v4 ui/input.tsx
 	protected override void ApplyDefaultParameters()
 	{
@@ -44,24 +45,15 @@
 	{
 		base.BuildAttributesCore(attributes);
 
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "sm:max-w-sm");
-		});
+		PrependClassAttribute(attributes, "sm:max-w-sm");
 	}
 
 	private Dictionary<string, object> BuildInputAttributes()
 	{
-		var attributes = new Dictionary<string, object>
-		{
-			["data-slot"] = "datatable-search-input",
-			["aria-label"] = AriaLabel ?? "Search table"
-		};
-
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "focus-visible:ring-[3px]");
-		});
+		var attributes = _inputAttributes.Create(3);
+		attributes["data-slot"] = "datatable-search-input";
+		attributes["aria-label"] = AriaLabel ?? "Search table";
+		attributes["class"] = "focus-visible:ring-[3px]";
 
 		return attributes;
 	}

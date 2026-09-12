@@ -1,15 +1,15 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Atomics.Resources;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="ICancellableComponent"/>
 public abstract class CancellableComponent : Component, ICancellableComponent
 {
     public CancellationToken CancellationToken =>
         IsDisposed ? CancellationToken.None
-            : _cancellationTokenSource.TryGet()
+            : _cancellationTokenSource.GetOrCreate()
                                       ?.Token ?? CancellationToken.None;
 
     private readonly AtomicResource<CancellationTokenSource> _cancellationTokenSource;
@@ -21,8 +21,8 @@ public abstract class CancellableComponent : Component, ICancellableComponent
     protected CancellableComponent(CancellationToken linkedToken)
     {
         _cancellationTokenSource = new AtomicResource<CancellationTokenSource>(
-            factory: () => linkedToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(linkedToken) : new CancellationTokenSource(),
-            teardown: async cts =>
+            factory: linkedToken.CanBeCanceled ? CreateLinkedFactory(linkedToken) : static () => new CancellationTokenSource(),
+            teardown: static async cts =>
             {
                 try
                 {
@@ -37,6 +37,9 @@ public abstract class CancellableComponent : Component, ICancellableComponent
             });
     }
 
+    private static Func<CancellationTokenSource> CreateLinkedFactory(CancellationToken linkedToken) =>
+        () => CancellationTokenSource.CreateLinkedTokenSource(linkedToken);
+
     public Task Cancel()
     {
         var cts = _cancellationTokenSource.TryGet();
@@ -45,10 +48,6 @@ public abstract class CancellableComponent : Component, ICancellableComponent
 
     public ValueTask ResetCancellation() => _cancellationTokenSource.Reset();
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
         await _cancellationTokenSource.DisposeAsync();

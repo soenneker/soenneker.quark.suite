@@ -1,19 +1,22 @@
 let activeDrag = null;
-let pendingMove = null;
+let pendingClientX = 0;
+let pendingClientY = 0;
 let moveFrame = 0;
 let listenersInstalled = false;
-let handleRegistrationCount = 0;
 const handleRegistrations = new WeakMap();
 
 function invokeDotNet(handleElement, dotNetRef, methodName, handleIndex, percentage, size) {
+  const registration = handleRegistrations.get(handleElement);
   try {
     return dotNetRef
       .invokeMethodAsync(methodName, handleIndex, percentage, size)
       .then(() => {
+        if (handleRegistrations.get(handleElement) !== registration) return;
         handleElement.dataset.resizableDotnet = "ok";
         delete handleElement.dataset.resizableDotnetError;
       })
       .catch((error) => {
+        if (handleRegistrations.get(handleElement) !== registration) return;
         handleElement.dataset.resizableDotnet = "error";
         handleElement.dataset.resizableDotnetError = String(error);
       });
@@ -28,9 +31,11 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-function getMetrics(groupElement, clientX, clientY, orientation) {
+function getMetrics(groupElement, clientX, clientY, orientation, metrics) {
   if (!groupElement) {
-    return { percentage: 50, size: 0 };
+    metrics.percentage = 50;
+    metrics.size = 0;
+    return metrics;
   }
 
   const rect = groupElement.getBoundingClientRect();
@@ -38,14 +43,15 @@ function getMetrics(groupElement, clientX, clientY, orientation) {
   const size = isVertical ? rect.height : rect.width;
 
   if (size <= 0) {
-    return { percentage: 50, size: 0 };
+    metrics.percentage = 50;
+    metrics.size = 0;
+    return metrics;
   }
 
+  metrics.size = size;
   if (isVertical) {
-    return {
-      percentage: clamp(((clientY - rect.top) / rect.height) * 100, 0, 100),
-      size,
-    };
+    metrics.percentage = clamp(((clientY - rect.top) / rect.height) * 100, 0, 100);
+    return metrics;
   }
 
   const isRtl = window.getComputedStyle(groupElement).direction === "rtl";
@@ -53,75 +59,73 @@ function getMetrics(groupElement, clientX, clientY, orientation) {
     ? (rect.right - clientX) / rect.width
     : (clientX - rect.left) / rect.width;
 
-  return {
-    percentage: clamp(ratio * 100, 0, 100),
-    size,
-  };
+  metrics.percentage = clamp(ratio * 100, 0, 100);
+  return metrics;
 }
 
-function emitMove(clientX, clientY, pointerId) {
+function emitMove() {
+  moveFrame = 0;
   if (!activeDrag) {
     return;
   }
 
-  if (activeDrag.usePointerId && pointerId != null && pointerId !== activeDrag.pointerId) {
-    return;
-  }
-
-  const metrics = getMetrics(activeDrag.groupElement, clientX, clientY, activeDrag.orientation);
+  const metrics = getMetrics(activeDrag.groupElement, pendingClientX, pendingClientY, activeDrag.orientation, activeDrag);
   activeDrag.handleElement.dataset.resizableLastPercentage = String(metrics.percentage);
   invokeDotNet(activeDrag.handleElement, activeDrag.dotNetRef, "HandlePointerDragMove", activeDrag.handleIndex, metrics.percentage, metrics.size);
 }
 
 function scheduleMove(clientX, clientY, pointerId) {
-  if (!activeDrag) {
+  if (!ownsPointer(pointerId)) {
     return;
   }
-  if (pendingMove) {
-    pendingMove.clientX = clientX;
-    pendingMove.clientY = clientY;
-    pendingMove.pointerId = pointerId;
-  } else {
-    pendingMove = { clientX, clientY, pointerId };
-  }
+  pendingClientX = clientX;
+  pendingClientY = clientY;
 
   if (moveFrame) {
     return;
   }
 
-  moveFrame = window.requestAnimationFrame(() => {
-    moveFrame = 0;
-    const move = pendingMove;
-    pendingMove = null;
-
-    if (move) {
-      emitMove(move.clientX, move.clientY, move.pointerId);
-    }
-  });
+  moveFrame = window.requestAnimationFrame(emitMove);
 }
 
 function cancelPendingMove() {
-  pendingMove = null;
-
   if (moveFrame) {
     window.cancelAnimationFrame(moveFrame);
     moveFrame = 0;
   }
 }
 
-function emitEnd(clientX, clientY, pointerId) {
-  if (!activeDrag) {
-    return;
-  }
+function ownsPointer(pointerId) {
+  return activeDrag && (activeDrag.usePointerId
+    ? pointerId === activeDrag.pointerId
+    : pointerId == null);
+}
 
-  if (activeDrag.usePointerId && pointerId != null && pointerId !== activeDrag.pointerId) {
-    return;
-  }
-
-  cancelPendingMove();
-  const metrics = getMetrics(activeDrag.groupElement, clientX, clientY, activeDrag.orientation);
+function cancelActiveDrag() {
   const drag = activeDrag;
   activeDrag = null;
+  cancelPendingMove();
+  uninstallListeners();
+
+  if (drag?.usePointerId) {
+    try {
+      if (drag.handleElement.hasPointerCapture?.(drag.pointerId)) {
+        drag.handleElement.releasePointerCapture(drag.pointerId);
+      }
+    } catch {
+      // Capture may already have been released by the browser or a detached handle.
+    }
+  }
+}
+
+function emitEnd(clientX, clientY, pointerId) {
+  if (!ownsPointer(pointerId)) {
+    return;
+  }
+
+  const metrics = getMetrics(activeDrag.groupElement, clientX, clientY, activeDrag.orientation, activeDrag);
+  const drag = activeDrag;
+  cancelActiveDrag();
   drag.handleElement.dataset.resizableLastPercentage = String(metrics.percentage);
   invokeDotNet(drag.handleElement, drag.dotNetRef, "HandlePointerDragEnd", drag.handleIndex, metrics.percentage, metrics.size);
 }
@@ -170,7 +174,7 @@ function uninstallListeners() {
 }
 
 function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, pointerId, clientX, clientY) {
-  cancelPendingMove();
+  cancelActiveDrag();
 
   activeDrag = {
     dotNetRef,
@@ -179,8 +183,11 @@ function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIn
     handleIndex,
     orientation,
     pointerId,
+    percentage: 50,
+    size: 0,
     usePointerId: Number.isFinite(pointerId) && pointerId > 0,
   };
+  installListeners();
 
   if (activeDrag.usePointerId && typeof handleElement?.setPointerCapture === "function") {
     try {
@@ -190,11 +197,14 @@ function beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIn
     }
   }
 
-  const metrics = getMetrics(groupElement, clientX, clientY, orientation);
+  const metrics = getMetrics(groupElement, clientX, clientY, orientation, activeDrag);
   handleElement.dataset.resizableLastPercentage = String(metrics.percentage);
 }
 
 function disposeHandleRegistration(handleElement) {
+  if (activeDrag?.handleElement === handleElement) {
+    cancelActiveDrag();
+  }
   const registration = handleRegistrations.get(handleElement);
   if (!registration) {
     return;
@@ -209,13 +219,6 @@ function disposeHandleRegistration(handleElement) {
   delete handleElement.dataset.resizableDotnetError;
   delete handleElement.dataset.resizableDown;
   handleRegistrations.delete(handleElement);
-  handleRegistrationCount = Math.max(0, handleRegistrationCount - 1);
-
-  if (handleRegistrationCount === 0) {
-    activeDrag = null;
-    cancelPendingMove();
-    uninstallListeners();
-  }
 }
 
 export function initialize() {
@@ -226,23 +229,27 @@ export function startDrag(groupElement, pointerId, clientX, clientY, orientation
     return;
   }
 
-  const handleElement = Array.from(groupElement.children)
-    .filter((element) => element.dataset?.slot === "resizable-handle")[handleIndex];
+  let handleElement;
+  let index = 0;
+  for (const child of groupElement.children) {
+    if (child.dataset?.slot === "resizable-handle" && index++ === handleIndex) {
+      handleElement = child;
+      break;
+    }
+  }
 
   if (!handleElement) {
     return;
   }
 
-  installListeners();
   beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, pointerId, clientX, clientY);
 }
 
 export function registerHandle(handleElement, groupElement, orientation, dotNetRef, handleIndex) {
   disposeHandleRegistration(handleElement);
-  installListeners();
 
   const onPointerDown = (event) => {
-    if (event.button !== 0) {
+    if (event.button !== 0 || event.isPrimary === false || activeDrag) {
       return;
     }
 
@@ -252,16 +259,12 @@ export function registerHandle(handleElement, groupElement, orientation, dotNetR
   };
 
   const onMouseDown = (event) => {
-    if (event.button !== 0) {
+    if (event.button !== 0 || activeDrag) {
       return;
     }
 
     event.preventDefault();
     handleElement.dataset.resizableDown = "mouse";
-
-    if (activeDrag?.handleElement === handleElement && activeDrag.usePointerId) {
-      return;
-    }
 
     beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, null, event.clientX, event.clientY);
   };
@@ -287,23 +290,12 @@ export function registerHandle(handleElement, groupElement, orientation, dotNetR
     onMouseDown,
     onKeyDown,
   });
-  handleRegistrationCount += 1;
 }
 
 export function unregisterHandle(handleElement) {
   disposeHandleRegistration(handleElement);
-
-  if (activeDrag?.handleElement === handleElement) {
-    activeDrag = null;
-    cancelPendingMove();
-  }
 }
 
 export function stopDrag() {
-  activeDrag = null;
-  cancelPendingMove();
-
-  if (handleRegistrationCount === 0) {
-    uninstallListeners();
-  }
+  cancelActiveDrag();
 }

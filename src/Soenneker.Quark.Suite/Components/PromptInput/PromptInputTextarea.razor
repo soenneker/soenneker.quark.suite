@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Microsoft.JSInterop
 @inherits Soenneker.Quark.Component
@@ -15,6 +16,8 @@
 @code {
     private ElementReference _element;
     private bool _registered;
+    private ValueAtomicBool _disposed;
+    private QuarkAttributeDictionary _attributesBuffer;
 
     [CascadingParameter]
     public PromptInput? PromptInput { get; set; }
@@ -41,7 +44,7 @@
     {
         get
         {
-            var attributes = new Dictionary<string, object>(BuildAttributes());
+            var attributes = _attributesBuffer.Create(BuildAttributes(), 2);
             attributes.TryGetValue("class", out var existingClass);
             attributes["aria-label"] = "Message input";
             const string baseClass =
@@ -71,10 +74,16 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (_disposed.Read() || !firstRender)
             return;
 
         await PromptInputInterop.RegisterTextarea(_element);
+        if (_disposed.Read())
+        {
+            await UnregisterTextarea();
+            return;
+        }
+
         _registered = true;
     }
 
@@ -86,14 +95,8 @@
         hc.Add(Rows);
     }
 
-    public override async ValueTask DisposeAsync()
+    private async ValueTask UnregisterTextarea()
     {
-        if (!_registered)
-        {
-            await base.DisposeAsync();
-            return;
-        }
-
         try
         {
             await PromptInputInterop.UnregisterTextarea(_element);
@@ -101,7 +104,23 @@
         catch (JSDisconnectedException)
         {
         }
+    }
 
-        await base.DisposeAsync();
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_registered)
+            {
+                _registered = false;
+                await UnregisterTextarea();
+            }
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
     }
 }

@@ -1,4 +1,4 @@
-@page "/components/calendar"
+﻿@page "/components/calendar"
 
 <PageTitle>Calendar - Quark Suite</PageTitle>
 
@@ -195,12 +195,13 @@
     private CalendarDateRange? _customDayRange = new(new DateOnly(2026, 12, 8), new DateOnly(2026, 12, 18));
     private DateOnly? _rtlDate = new(2026, 4, 30);
 
-    private Dictionary<string, Func<DateOnly, bool>> BookedModifiers => new()
+    private Dictionary<string, Func<DateOnly, bool>>? _bookedModifiers;
+    private Dictionary<string, Func<DateOnly, bool>> BookedModifiers => _bookedModifiers ??= new()
     {
         ["booked"] = date => _bookedDates.Contains(date)
     };
 
-    private static Dictionary<string, string> BookedModifierClasses => new()
+    private static readonly Dictionary<string, string> BookedModifierClasses = new()
     {
         ["booked"] = "[&>button]:line-through opacity-100"
     };

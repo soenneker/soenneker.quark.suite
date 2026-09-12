@@ -9,6 +9,7 @@
 </BradixTabsContent>
 
 @code {
+    private QuarkAttributeDictionary _attributesBuffer;
     [Parameter]
     public string? Value { get; set; }
 
@@ -25,7 +26,7 @@
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes());
         attributes.Remove("role");
         attributes.Remove("tabindex");
         attributes.Remove("hidden");

@@ -75,6 +75,9 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _labelAttributesBuffer;
+    private QuarkAttributeDictionary _controlAttributesBuffer;
+    private QuarkAttributeDictionary _thumbAttributesBuffer;
     private readonly AutoSaveController<bool?> _autoSave = new();
 
     [Parameter]
@@ -146,11 +149,11 @@ else
     {
         if (firstRender && ParentValidation is not null)
         {
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
             if (CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
 
             await ParentValidation.InitializeInput(this);
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -171,14 +174,14 @@ else
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _labelAttributesBuffer.Create(1);
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium leading-none"));
         return attributes;
     }
 
     private Dictionary<string, object> BuildControlAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = _controlAttributesBuffer.Create(7);
         var sm = IsSmSize();
 
         attributes["id"] = ControlId;
@@ -217,33 +220,17 @@ else
 
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none");
-            AppendClass(ref cls, "after:absolute after:-inset-x-3 after:-inset-y-2");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px]");
-            AppendClass(ref cls, "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50");
-        });
+        PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50");
 
         return attributes;
     }
 
     private Dictionary<string, object> BuildThumbAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "switch-thumb"
-        };
+        var attributes = _thumbAttributesBuffer.Create(2);
+        attributes["data-slot"] = "switch-thumb";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "pointer-events-none block rounded-full bg-background ring-0 transition-transform");
-            AppendClass(ref cls, "group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3");
-            AppendClass(ref cls, "data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0");
-            AppendClass(ref cls, "dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
-        });
+        PrependClassAttribute(attributes, "pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
 
         return attributes;
     }
@@ -260,7 +247,8 @@ else
             await ParentValidation.NotifyInputChanged(next);
         }
 
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
+        if (OnChange.HasDelegate)
+            await OnChange.InvokeAsync(new ChangeEventArgs { Value = next });
         Refresh();
     }
 
@@ -308,7 +296,7 @@ else
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
 
-        await _autoSave.DisposeAsync();
-        await base.DisposeAsync();
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
     }
 }

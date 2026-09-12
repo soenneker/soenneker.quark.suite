@@ -79,6 +79,7 @@ else
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
 
+    private RenderFragment? _triggerChildContent;
     private ElementReference _elementRef;
     private bool _triggerElementRegistered;
     private string? _registeredTriggerId;
@@ -247,7 +248,7 @@ else
         if (TriggerContext is null || ChildContent is null)
             return ChildContent;
 
-        return @<CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
+        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
             @ChildContent
         </CascadingValue>;
     }

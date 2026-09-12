@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <span @ref="ElementRef" @attributes="BuildAttributes()">
@@ -21,6 +21,7 @@
 </span>
 
 @code {
+    private QuarkAttributeDictionary _textAttributes;
     /// <summary>Text displayed by the component.</summary>
     [Parameter]
     public string? Text { get; set; }
@@ -181,9 +182,9 @@
     private static string AppendClass(string defaultClass, string? additionalClass) =>
         string.IsNullOrWhiteSpace(additionalClass) ? defaultClass.Trim() : $"{defaultClass.Trim()} {additionalClass}";
 
-    private static Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source)
+    private Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source)
     {
-        var attributes = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        var attributes = _textAttributes.Create((source?.Count ?? 0) + 3, StringComparer.OrdinalIgnoreCase);
 
         if (source is not null)
         {

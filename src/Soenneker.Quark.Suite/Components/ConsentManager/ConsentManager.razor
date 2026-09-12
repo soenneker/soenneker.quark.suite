@@ -297,9 +297,9 @@
 
     private static bool HasHorizontalPositionClass(string positionClass)
     {
-        foreach (var token in positionClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        foreach (var token in positionClass.AsSpan().Split(' '))
         {
-            var utility = token.AsSpan();
+            var utility = positionClass.AsSpan()[token];
             var variantSeparatorIndex = utility.LastIndexOf(':');
 
             if (variantSeparatorIndex >= 0 && variantSeparatorIndex + 1 < utility.Length)

@@ -120,13 +120,14 @@
     {
         _items.Remove(item);
         if (string.Equals(_currentItem, item.Name, StringComparison.Ordinal))
-            _currentItem = EnabledItemCount > 0 ? EnabledItems[0].Name : null;
+            _currentItem = GetEnabledItemAt(0)?.Name;
     }
 
     internal Task GoPrevious()
     {
         var index = CurrentIndex;
-        return index > 0 ? SetActiveItem(EnabledItems[index - 1]) : Task.CompletedTask;
+        var previous = index > 0 ? GetEnabledItemAt(index - 1) : null;
+        return previous is not null ? SetActiveItem(previous) : Task.CompletedTask;
     }
 
     internal async Task GoNext()
@@ -136,9 +137,9 @@
             return;
 
         var index = CurrentIndex;
-        var items = EnabledItems;
-        if (index >= 0 && index < items.Count - 1)
-            await SetActiveItem(items[index + 1]);
+        var next = index >= 0 ? GetEnabledItemAt(index + 1) : null;
+        if (next is not null)
+            await SetActiveItem(next);
     }
 
     internal async Task SkipCurrent()
@@ -148,8 +149,9 @@
             return;
 
         await active.Skip();
-        if (!IsLast)
-            await SetActiveItem(EnabledItems[CurrentIndex + 1]);
+        var next = GetEnabledItemAt(CurrentIndex + 1);
+        if (next is not null)
+            await SetActiveItem(next);
         else
             await SubmitValidated();
     }
@@ -202,9 +204,9 @@
             return;
 
         var answers = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-        foreach (var item in EnabledItems)
+        foreach (var item in _items)
         {
-            if (item.Status == QuestionnaireItemStatus.Skipped)
+            if (item.Disabled || item.Status == QuestionnaireItemStatus.Skipped)
                 continue;
 
             var values = item.GetAnswers();
@@ -217,10 +219,10 @@
 
     private async Task HandleReset()
     {
-        foreach (var item in _items)
+        foreach (var item in _items.ToArray())
             await item.Reset();
 
-        var first = FindEnabled(DefaultItem) ?? (EnabledItemCount > 0 ? EnabledItems[0] : null);
+        var first = FindEnabled(DefaultItem) ?? GetEnabledItemAt(0);
         if (first is not null)
             await SetActiveItem(first);
 
@@ -241,14 +243,24 @@
         await active.SelectShortcut(key);
     }
 
+    private QuestionnaireItem? GetEnabledItemAt(int index)
+    {
+        foreach (var item in _items)
+        {
+            if (!item.Disabled && index-- == 0)
+                return item;
+        }
+        return null;
+    }
+
     private QuestionnaireItem? FindEnabled(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return null;
 
-        foreach (var item in EnabledItems)
+        foreach (var item in _items)
         {
-            if (string.Equals(item.Name, name, StringComparison.Ordinal))
+            if (!item.Disabled && string.Equals(item.Name, name, StringComparison.Ordinal))
                 return item;
         }
 

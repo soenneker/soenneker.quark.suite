@@ -10,6 +10,7 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _textSkeletonAttributesBuffer;
     [Parameter]
     public bool ShowIcon { get; set; }
 
@@ -43,10 +44,8 @@
 
     private Dictionary<string, object> BuildTextSkeletonAttributes()
     {
-        var attributes = new Dictionary<string, object>(4)
-        {
-            ["data-sidebar"] = "menu-skeleton-text"
-        };
+        var attributes = _textSkeletonAttributesBuffer.Create(4);
+        attributes["data-sidebar"] = "menu-skeleton-text";
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {

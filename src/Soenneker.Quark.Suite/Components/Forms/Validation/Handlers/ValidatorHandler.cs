@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Extensions.String;
@@ -76,6 +76,8 @@ internal sealed class ValidatorHandler : IValidationHandler
         {
             ctx.Action.Invoke(args);
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (args.Status == ValidationStatus.Error)
         {

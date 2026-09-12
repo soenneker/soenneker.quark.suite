@@ -25,11 +25,13 @@
     [Parameter]
     public bool ForceMount { get; set; }
 
+    private QuarkAttributeDictionary _attributesBuffer;
+
     private IReadOnlyDictionary<string, object> ContentAttributes
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes());
+            Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 1);
 
             if (Motion.HasContent())
                 attributes["data-motion"] = Motion!;

@@ -177,6 +177,8 @@
 
 @code {
     private string? _lastScrolledPath;
+    private string? _currentUri;
+    private string _currentPath = "/";
     private bool _docsLayoutExpanded = true;
 
     private static readonly IReadOnlyList<QuarkPresetToken> ContainerWrapperPresets = [QuarkPresets.ContainerWrapper];
@@ -191,13 +193,19 @@
     {
         get
         {
-            var path = Navigation.ToBaseRelativePath(Navigation.Uri);
-            var separatorIndex = path.IndexOfAny(['?', '#']);
+            string uri = Navigation.Uri;
+            if (_currentUri == uri)
+                return _currentPath;
+
+            var path = Navigation.ToBaseRelativePath(uri);
+            var separatorIndex = path.AsSpan().IndexOfAny('?', '#');
 
             if (separatorIndex >= 0)
                 path = path[..separatorIndex];
 
-            return string.IsNullOrWhiteSpace(path) ? "/" : $"/{path.Trim('/')}";
+            _currentPath = string.IsNullOrWhiteSpace(path) ? "/" : $"/{path.Trim('/')}";
+            _currentUri = uri;
+            return _currentPath;
         }
     }
 
@@ -255,21 +263,21 @@
             if (!IsDocsPage)
                 return null;
 
-            NavigationItem[] groups =
-            [
-                ..DocsNavigation.ComponentLinks,
-                ..DocsNavigation.PrimitiveLinks,
-                ..DocsNavigation.SectionLinks
-            ];
-
-            foreach (var item in groups)
-            {
-                if (IsCurrentPath(item))
-                    return item.Title;
-            }
-
-            return null;
+            return FindPageTitle(DocsNavigation.ComponentLinks)
+                   ?? FindPageTitle(DocsNavigation.PrimitiveLinks)
+                   ?? FindPageTitle(DocsNavigation.SectionLinks);
         }
+    }
+
+    private string? FindPageTitle(IReadOnlyList<NavigationItem> items)
+    {
+        for (var index = 0; index < items.Count; index++)
+        {
+            if (IsCurrentPath(items[index]))
+                return items[index].Title;
+        }
+
+        return null;
     }
 
     private IReadOnlyList<QuarkPresetToken>? HeaderContainerPresets => _docsLayoutExpanded ? null : ContainerWrapperPresets;
@@ -322,9 +330,10 @@
 
     private bool IsCurrentPath(string? href, bool exactMatch)
     {
-        var normalized = NormalizeRoute(href);
+        if (string.IsNullOrWhiteSpace(href) || href is "." or "./")
+            return CurrentPath == "/";
 
-        return exactMatch ? CurrentPath == normalized : CurrentPath == normalized;
+        return CurrentPath.AsSpan().Trim('/').SequenceEqual(href.AsSpan().Trim('/'));
     }
 
     private static string NormalizeRoute(string? href)

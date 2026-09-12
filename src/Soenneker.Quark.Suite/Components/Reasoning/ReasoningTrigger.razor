@@ -33,7 +33,9 @@
 
     private string LabelClass => "group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
 
-    private RenderFragment DefaultLabel => builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
+    private RenderFragment? _defaultLabel;
+
+    private RenderFragment DefaultLabel => _defaultLabel ??= builder => builder.AddContent(0, ReasoningContext?.Label ?? "Thinking...");
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {

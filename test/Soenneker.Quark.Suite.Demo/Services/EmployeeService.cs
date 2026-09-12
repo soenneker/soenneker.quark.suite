@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Microsoft.Extensions.Logging;
 using Soenneker.DataTables.Dtos.ServerResponse;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
@@ -19,13 +19,12 @@ public class EmployeeService
 {
     private readonly ILogger<EmployeeService> _logger;
     private readonly List<Employee> _employees;
-    private readonly Faker<Employee> _faker;
 
     public EmployeeService(ILogger<EmployeeService> logger)
     {
         _logger = logger;
         
-        _faker = new AutoFaker<Employee>()
+        var faker = new AutoFaker<Employee>()
             .RuleFor(e => e.Id, f => f.Random.Int(1, 1000))
             .RuleFor(e => e.Name, f => f.Person.FullName)
             .RuleFor(e => e.Email, (f, e) => f.Internet.Email(e.Name))
@@ -34,7 +33,7 @@ public class EmployeeService
             .RuleFor(e => e.HireDate, f => f.Date.Past(5))
             .RuleFor(e => e.Status, f => f.PickRandom("Active", "Inactive", "On Leave"));
 
-        _employees = _faker.Generate(150);
+        _employees = faker.Generate(150);
         _logger.LogInformation("EmployeeService initialized with {Count} employee records", _employees.Count);
     }
 

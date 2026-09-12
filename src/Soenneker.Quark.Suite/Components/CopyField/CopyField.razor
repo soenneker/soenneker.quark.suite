@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 
 <div @attributes="BuildRootAttributes()">
     <span @attributes="BuildTextAttributes()">@DisplayText</span>
@@ -20,6 +20,8 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _rootAttributes;
+    private QuarkAttributeDictionary _textAttributes;
     /// <summary>
     /// Gets or sets the root id.
     /// </summary>
@@ -196,7 +198,7 @@
 
     private Dictionary<string, object> BuildRootAttributes()
     {
-        var attributes = CopyAttributes(Attributes);
+        var attributes = CopyAttributes(Attributes, ref _rootAttributes, 7);
 
         attributes["data-slot"] = "copy-field";
 
@@ -223,7 +225,7 @@
 
     private Dictionary<string, object> BuildTextAttributes()
     {
-        var attributes = CopyAttributes(TextAttributes);
+        var attributes = CopyAttributes(TextAttributes, ref _textAttributes, 1);
         MergeAttribute(attributes, "class", ResolvedTextClass);
 
         return attributes;
@@ -237,9 +239,9 @@
         return $"{defaultClass} {additionalClass}";
     }
 
-    private static Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source)
+    private static Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source, ref QuarkAttributeDictionary buffer, int extraCapacity)
     {
-        var attributes = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        var attributes = buffer.Create((source?.Count ?? 0) + extraCapacity, StringComparer.OrdinalIgnoreCase);
 
         if (source is null)
             return attributes;

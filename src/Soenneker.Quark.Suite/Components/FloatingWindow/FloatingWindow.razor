@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Threading
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -171,6 +172,8 @@
     public bool IsVisible => _visible;
 
     private bool _initialized;
+    private ValueAtomicBool _disposed;
+    private Task? _initializeTask;
     private bool _visible;
     private bool _appliedVisible;
     private readonly TaskCompletionSource<bool> _initialization = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -216,6 +219,8 @@
     [JSInvokable]
     public async Task InvokeOnShow()
     {
+        if (_disposed.Read())
+            return;
         _visible = true;
         Visible = true;
         _appliedVisible = true;
@@ -230,6 +235,8 @@
     [JSInvokable]
     public async Task InvokeOnHide()
     {
+        if (_disposed.Read())
+            return;
         _visible = false;
         Visible = false;
         _appliedVisible = false;
@@ -242,15 +249,15 @@
     }
 
     [JSInvokable]
-    public Task InvokeOnDragStart() => OnDragStart.InvokeIfHasDelegate();
+    public Task InvokeOnDragStart() => _disposed.Read() ? Task.CompletedTask : OnDragStart.InvokeIfHasDelegate();
 
     [JSInvokable]
-    public Task InvokeOnDragEnd() => OnDragEnd.InvokeIfHasDelegate();
+    public Task InvokeOnDragEnd() => _disposed.Read() ? Task.CompletedTask : OnDragEnd.InvokeIfHasDelegate();
 
     [JSInvokable]
     public async Task OnContentResized()
     {
-        if (MergedOptions.RecenterOnResize)
+        if (!_disposed.Read() && MergedOptions.RecenterOnResize)
             await Center();
     }
 
@@ -316,46 +323,18 @@
         attrs["aria-modal"] = "false";
         attrs.TryAdd("tabindex", "-1");
 
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "quark-floating-window");
-            AppendClass(ref cls, "hidden min-w-[12.5rem] min-h-[9.375rem] box-border fixed isolate flex-col outline-none");
-            AppendClass(ref cls, "transition-[opacity,transform] duration-150 ease-out");
-            AppendClass(ref cls, "data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=closed]:scale-95");
-            AppendClass(ref cls, "data-[state=open]:flex data-[state=open]:opacity-100 data-[state=open]:scale-100");
-        });
+        PrependClassAttribute(attrs, "quark-floating-window hidden min-w-[12.5rem] min-h-[9.375rem] box-border fixed isolate flex-col outline-none transition-[opacity,transform] duration-150 ease-out data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=closed]:scale-95 data-[state=open]:flex data-[state=open]:opacity-100 data-[state=open]:scale-100");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        if (_disposed.Read())
+            return;
 
         if (firstRender)
         {
-            try
-            {
-                var options = MergedOptions;
-                await WindowInterop.Initialize(options.UseCdn, _disposeCts.Token);
-                _dotNetRef = DotNetObjectReference.Create(this);
-                await WindowInterop.Create(Id!, options, _disposeCts.Token);
-                await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
-                _initialized = true;
-                _initialization.TrySetResult(true);
-                _appliedVisible = false;
-                _appliedOptions = options;
-
-                if (Visible && options.Enabled)
-                {
-                    await Show(_disposeCts.Token);
-                    _appliedVisible = true;
-                }
-            }
-            catch (Exception exception)
-            {
-                _initialization.TrySetException(exception);
-                throw;
-            }
-
+            await (_initializeTask ??= InitializeWindow());
             return;
         }
 
@@ -385,6 +364,34 @@
 
             _appliedVisible = Visible;
         }
+    }
+
+    private async Task InitializeWindow()
+    {
+        try
+        {
+            var options = MergedOptions;
+            await WindowInterop.Initialize(options.UseCdn, _disposeCts.Token);
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await WindowInterop.Create(Id!, options, _disposeCts.Token);
+            await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
+            _initialized = true;
+            _initialization.TrySetResult(true);
+            _appliedVisible = false;
+            _appliedOptions = options;
+
+            if (Visible && options.Enabled)
+            {
+                await Show(_disposeCts.Token);
+                _appliedVisible = true;
+            }
+        }
+        catch (Exception exception)
+        {
+            _initialization.TrySetException(exception);
+            throw;
+        }
+
     }
 
     private static bool OptionsEqual(FloatingWindowOptions left, FloatingWindowOptions right) =>
@@ -517,19 +524,32 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (!_disposed.TrySetTrue())
+            return;
+        _initialization.TrySetCanceled();
         try
         {
-            if (_initialized)
-                await WindowInterop.Destroy(Id!, CancellationToken.None);
+            await _disposeCts.CancelAsync();
+            try
+            {
+                if (_initializeTask is not null)
+                    await _initializeTask;
+            }
+            finally
+            {
+                if (_initializeTask is not null)
+                    await WindowInterop.Destroy(Id!, CancellationToken.None);
+            }
         }
-        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or OperationCanceledException or ObjectDisposedException) { }
+        finally
         {
+            _initialized = false;
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            _disposeCts.Dispose();
+            await base.DisposeAsync();
         }
-
-        _dotNetRef?.Dispose();
-        await _disposeCts.CancelAsync();
-        _disposeCts.Dispose();
-        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

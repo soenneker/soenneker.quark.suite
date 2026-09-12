@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace Soenneker.Quark;
@@ -74,19 +74,9 @@ public sealed class DataTableOptions
     /// <returns>A new instance with the same values</returns>
     public DataTableOptions Clone()
     {
-        return new DataTableOptions
-        {
-            DefaultPageSize = DefaultPageSize,
-            ShowPageSizeSelector = ShowPageSizeSelector,
-            PageSizeOptions = PageSizeOptions.ToArray(),
-            PageSizeItemSingularText = PageSizeItemSingularText,
-            PageSizeItemPluralText = PageSizeItemPluralText,
-            PageInfoRecordText = PageInfoRecordText,
-            PageSizeSelectorLabel = PageSizeSelectorLabel,
-            PageSizeSelectorSuffix = PageSizeSelectorSuffix,
-            SearchDebounceMs = SearchDebounceMs,
-            Debug = Debug
-        };
+        var clone = (DataTableOptions)MemberwiseClone();
+        clone.PageSizeOptions = PageSizeOptions.ToArray();
+        return clone;
     }
 
     /// <summary>

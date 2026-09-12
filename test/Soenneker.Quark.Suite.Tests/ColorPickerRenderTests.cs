@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Linq;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
@@ -8,6 +9,35 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public async Task ColorPicker_canvas_cells_preserve_selection_and_disabled_state_across_color_changes()
+    {
+        var cut = Render<ColorPicker>(parameters => parameters.Add(p => p.Inline, true).Add(p => p.Value, "#ff0000"));
+        cut.FindAll("[data-slot='color-picker-canvas-cell']").Count.Should().Be(121);
+        var grid = cut.FindComponents<ComponentBase>().Single(component => component.Instance.GetType().Name == "ColorPickerCanvasGrid");
+        var initialGridRenders = grid.RenderCount;
+
+        await cut.Find("[aria-label='Saturation 100, lightness 50']").ClickAsync(new MouseEventArgs());
+        cut.Instance.Value.Should().Be("#ff0000");
+        cut.Render(parameters => parameters.Add(p => p.Value, "#0000ff"));
+        await cut.Find("[aria-label='Saturation 100, lightness 50']").ClickAsync(new MouseEventArgs());
+        cut.Instance.Value.Should().Be("#0000ff");
+        grid.RenderCount.Should().Be(initialGridRenders);
+
+        cut.Render(parameters => parameters.Add(p => p.Disabled, true));
+        grid.RenderCount.Should().Be(initialGridRenders + 1);
+        foreach (var cell in cut.FindAll("[data-slot='color-picker-canvas-cell']"))
+            cell.HasAttribute("disabled").Should().BeTrue();
+
+        cut.Render(parameters => parameters.Add(p => p.Disabled, false).Add(p => p.ReadOnly, true));
+        foreach (var cell in cut.FindAll("[data-slot='color-picker-canvas-cell']"))
+            cell.HasAttribute("disabled").Should().BeTrue();
+
+        cut.Render(parameters => parameters.Add(p => p.ReadOnly, false));
+        await cut.Find("[aria-label='Saturation 0, lightness 100']").ClickAsync(new MouseEventArgs());
+        cut.Instance.Value.Should().Be("#ffffff");
+    }
+
     [Test]
     public void ColorPicker_renders_inline_picker_surface()
     {

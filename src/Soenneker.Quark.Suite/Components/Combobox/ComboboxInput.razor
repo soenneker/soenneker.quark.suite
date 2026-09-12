@@ -61,6 +61,9 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _wrapperAttributesBuffer;
+    private QuarkAttributeDictionary _buttonAttributesBuffer;
+    private QuarkAttributeDictionary _clearButtonAttributesBuffer;
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
@@ -185,93 +188,50 @@ else
         if (ParentCombobox?.Disabled == true)
             attributes["disabled"] = true;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "file:h-6 file:border-0 file:bg-transparent file:text-sm file:text-foreground");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm");
-            AppendClass(ref cls, "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "aria-invalid:ring-0");
-        });
+        PrependClassAttribute(attributes, "file:h-6 file:border-0 file:bg-transparent file:text-sm file:text-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 aria-invalid:ring-0");
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "input-group",
-            ["data-combobox-slot"] = "combobox-control",
-            ["role"] = "group"
-        };
+        var attributes = _wrapperAttributesBuffer.Create(4);
+        attributes["data-slot"] = "input-group";
+        attributes["data-combobox-slot"] = "combobox-control";
+        attributes["role"] = "group";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/input-group relative flex h-8 min-w-0 items-center rounded-lg border border-input");
-            AppendClass(ref cls, "transition-[color,box-shadow] outline-none dark:bg-input/30");
-            AppendClass(ref cls, "has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
-            AppendClass(ref cls, "has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50");
-            AppendClass(ref cls, "has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40");
-            AppendClass(ref cls, "has-[>textarea]:h-auto");
-            AppendClass(ref cls, "has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col");
-            AppendClass(ref cls, "has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col");
-            AppendClass(ref cls, "has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3");
-            AppendClass(ref cls, "has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5");
-            AppendClass(ref cls, "w-auto");
-        });
+        PrependClassAttribute(attributes, "group/input-group relative flex h-8 min-w-0 items-center rounded-lg border border-input transition-[color,box-shadow] outline-none dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>textarea]:h-auto has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 w-auto");
 
         return attributes;
     }
 
     private Dictionary<string, object> BuildButtonAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "combobox-trigger",
-            ["data-align"] = "inline-end",
-            ["type"] = "button",
-            ["aria-controls"] = ParentCombobox?.ContentId ?? string.Empty,
-            ["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false",
-            ["tabindex"] = -1
-        };
+        var attributes = _buttonAttributesBuffer.Create(8);
+        attributes["data-slot"] = "combobox-trigger";
+        attributes["data-align"] = "inline-end";
+        attributes["type"] = "button";
+        attributes["aria-controls"] = ParentCombobox?.ContentId ?? string.Empty;
+        attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
+        attributes["tabindex"] = -1;
 
         if (ParentCombobox?.Disabled == true)
             attributes["disabled"] = true;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap");
-            AppendClass(ref cls, "transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50");
-            AppendClass(ref cls, "has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex items-center gap-2 text-sm shadow-none");
-            AppendClass(ref cls, "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent");
-            AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
-        });
+        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex items-center gap-2 text-sm shadow-none size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent [&_svg:not([class*='size-'])]:size-4");
 
         return attributes;
     }
 
     private Dictionary<string, object> BuildClearButtonAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "combobox-clear",
-            ["data-align"] = "inline-end",
-            ["type"] = "button"
-        };
+        var attributes = _clearButtonAttributesBuffer.Create(5);
+        attributes["data-slot"] = "combobox-clear";
+        attributes["data-align"] = "inline-end";
+        attributes["type"] = "button";
 
         if (ParentCombobox?.Disabled == true)
             attributes["disabled"] = true;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap");
-            AppendClass(ref cls, "transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50");
-            AppendClass(ref cls, "flex size-6 items-center gap-2 rounded-[calc(var(--radius)-3px)] p-0 text-sm text-muted-foreground hover:text-foreground");
-        });
+        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 flex size-6 items-center gap-2 rounded-[calc(var(--radius)-3px)] p-0 text-sm text-muted-foreground hover:text-foreground");
 
         return attributes;
     }

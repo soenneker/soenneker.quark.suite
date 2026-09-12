@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Soenneker.Bradix
 
@@ -23,6 +23,7 @@
 </PopoverContent>
 
 @code {
+    private QuarkAttributeDictionary _contentAttributes;
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
@@ -53,13 +54,11 @@
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes())
-            {
-                ["data-slot"] = "combobox-content",
-                ["data-chips"] = ParentCombobox?.Multiple == true ? "true" : "false",
-                ["role"] = "presentation",
-                ["tabindex"] = -1
-            };
+            var attributes = _contentAttributes.Create(BuildAttributes(), 7);
+            attributes["data-slot"] = "combobox-content";
+            attributes["data-chips"] = ParentCombobox?.Multiple == true ? "true" : "false";
+            attributes["role"] = "presentation";
+            attributes["tabindex"] = -1;
 
             if (ParentCombobox?.HasVisibleItems != true)
                 attributes["data-empty"] = string.Empty;

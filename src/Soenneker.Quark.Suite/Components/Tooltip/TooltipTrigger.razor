@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Bradix
 @using Microsoft.JSInterop
 
@@ -19,6 +20,8 @@ else
 }
 
 @code {
+    private ValueAtomicBool _disposed;
+    private QuarkAttributeDictionary _triggerAttributes;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -51,17 +54,24 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        if (_triggerRegistered)
-            await Interop.UnregisterTooltipTrigger(_triggerElement);
-
-        _dotNetReference?.Dispose();
-
-        await base.DisposeAsync();
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_triggerRegistered)
+                await Interop.UnregisterTooltipTrigger(_triggerElement);
+        }
+        finally
+        {
+            _dotNetReference?.Dispose();
+            _dotNetReference = null;
+            await base.DisposeAsync();
+        }
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        var attributes = _triggerAttributes.Create(BuildAttributes());
         attributes.Remove("type");
         attributes.Remove("data-state");
         attributes.Remove("id");
@@ -149,11 +159,17 @@ else
 
     private async Task EnsureTriggerRegistered()
     {
-        if (_triggerRegistered || Tooltip is null || _triggerElement.Context is null)
+        if (_disposed.Read() || _triggerRegistered || Tooltip is null || _triggerElement.Context is null)
             return;
 
         _dotNetReference ??= DotNetObjectReference.Create(this);
         await Interop.RegisterTooltipTrigger(_triggerElement, _dotNetReference);
+        if (_disposed.Read())
+        {
+            await Interop.UnregisterTooltipTrigger(_triggerElement);
+            return;
+        }
+
         _triggerRegistered = true;
     }
 

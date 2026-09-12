@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @using Microsoft.JSInterop
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -214,10 +214,7 @@
         base.BuildAttributesCore(attributes);
         attributes["aria-live"] = "polite";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
-        });
+        PrependClassAttribute(attributes, "h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
@@ -248,7 +245,10 @@
         {
         }
 
-        await base.DisposeAsync();
+        finally
+        {
+            await base.DisposeAsync();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

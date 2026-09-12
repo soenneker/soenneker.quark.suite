@@ -40,37 +40,43 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
     onScroll: null,
     mutationObserver: null,
     resizeObserver: null,
+    frame: 0,
+    initialPending: true,
+  };
+
+  const scheduleUpdate = () => {
+    if (instance.frame) {
+      return;
+    }
+
+    instance.frame = requestAnimationFrame(() => {
+      instance.frame = 0;
+      if (instances.get(element) !== instance) {
+        return;
+      }
+
+      if (instance.initialPending || (stickToBottom && instance.lastIsAtBottom)) {
+        scrollToBottomInternal(element, instance.initialPending ? initial : resize);
+      }
+      instance.initialPending = false;
+      notify(instance);
+    });
   };
 
   instance.onScroll = () => notify(instance);
   element.addEventListener("scroll", instance.onScroll, { passive: true });
 
-  instance.mutationObserver = new MutationObserver(() => {
-    if (stickToBottom && instance.lastIsAtBottom) {
-      scrollToBottomInternal(element, resize);
-    }
-
-    notify(instance);
-  });
+  instance.mutationObserver = new MutationObserver(scheduleUpdate);
   instance.mutationObserver.observe(element, { childList: true, subtree: true, characterData: true });
 
   if ("ResizeObserver" in window) {
-    instance.resizeObserver = new ResizeObserver(() => {
-      if (stickToBottom && instance.lastIsAtBottom) {
-        scrollToBottomInternal(element, resize);
-      }
-
-      notify(instance);
-    });
+    instance.resizeObserver = new ResizeObserver(scheduleUpdate);
     instance.resizeObserver.observe(element);
   }
 
   instances.set(element, instance);
 
-  requestAnimationFrame(() => {
-    scrollToBottomInternal(element, initial);
-    notify(instance);
-  });
+  scheduleUpdate();
 }
 
 export function scrollToBottom(element, behavior = "smooth") {
@@ -91,5 +97,8 @@ export function dispose(element) {
   element.removeEventListener("scroll", instance.onScroll);
   instance.mutationObserver?.disconnect();
   instance.resizeObserver?.disconnect();
+  if (instance.frame) {
+    cancelAnimationFrame(instance.frame);
+  }
   instances.delete(element);
 }

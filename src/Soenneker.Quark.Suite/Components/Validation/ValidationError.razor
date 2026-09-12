@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
 @if (ShowErrorMessages && ParentValidation?.ShouldShowInvalid == true && HasRenderableMessage(ParentValidation.Messages))
@@ -95,14 +95,18 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
         attributes.TryAdd("role", "alert");
     }
 
-    private static RenderFragment RenderMessages(IEnumerable<string> messages)
+    private IEnumerable<string> _renderedMessages = [];
+    private RenderFragment? _messagesContent;
+
+    private RenderFragment RenderMessages(IEnumerable<string> messages)
     {
-        return builder =>
+        _renderedMessages = messages;
+        return _messagesContent ??= builder =>
         {
             string? single = null;
             List<string>? list = null;
 
-            foreach (var message in messages)
+            foreach (var message in _renderedMessages)
             {
                 if (string.IsNullOrWhiteSpace(message) || ContainsMessage(single, list, message))
                     continue;
@@ -131,8 +135,8 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
 
             for (var i = 0; i < list.Count; i++)
             {
-                builder.OpenElement(3 + i * 2, "li");
-                builder.AddContent(4 + i * 2, list[i]);
+                builder.OpenElement(3, "li");
+                builder.AddContent(4, list[i]);
                 builder.CloseElement();
             }
 
@@ -195,14 +199,14 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
     public override async ValueTask DisposeAsync()
     {
         _registration?.Dispose();
-        await base.DisposeAsync();
-
         if (ParentValidations is not null)
         {
             ParentValidations._statusChanged -= OnStatusChanged;
             ParentValidations.ClearingAll -= OnClearingAll;
         }
-        }
+
+        await base.DisposeAsync();
+    }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{

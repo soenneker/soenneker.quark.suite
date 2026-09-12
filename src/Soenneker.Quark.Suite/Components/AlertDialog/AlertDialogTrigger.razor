@@ -1,4 +1,4 @@
-@using Soenneker.Bradix
+﻿@using Soenneker.Bradix
 @using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
@@ -21,6 +21,7 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _triggerAttributes;
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
@@ -64,7 +65,7 @@ else
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        var attributes = _triggerAttributes.Create(BuildAttributes());
 
         attributes.Remove("type");
         attributes.Remove("id");

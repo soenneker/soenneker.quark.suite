@@ -24,6 +24,8 @@
     [Parameter]
     public CssValue<ToggleSizeBuilder>? ToggleSize { get; set; }
 
+    private QuarkAttributeDictionary _itemAttributesBuffer;
+
     private string ResolvedValue => Value ?? string.Empty;
 
     private IReadOnlyDictionary<string, object> ItemAttributes
@@ -32,7 +34,7 @@
         {
             var variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
             var size = ToggleSize ?? ParentToggleGroup?.ToggleSize ?? "default";
-            Dictionary<string, object> attributes = new(BuildAttributes());
+            Dictionary<string, object> attributes = _itemAttributesBuffer.Create(BuildAttributes(), 5);
 
             attributes.Remove("disabled");
             attributes.Remove("value");

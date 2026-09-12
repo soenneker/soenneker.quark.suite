@@ -154,12 +154,12 @@
     {
         if (firstRender && ParentValidation is not null)
         {
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
             await ParentValidation.InitializeInput(this);
 
             if (SelectedValueExpression is not null)
                 await ParentValidation.InitializeInputExpression(SelectedValueExpression);
 
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -199,7 +199,8 @@
         if (valueChanged)
             await _autoSave.NotifyValueChanged(nextValue, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
 
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
+        if (OnChange.HasDelegate)
+            await OnChange.InvokeAsync(new ChangeEventArgs { Value = value });
 
         if (ParentValidation is not null)
         {
@@ -272,12 +273,11 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
-
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-        }
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

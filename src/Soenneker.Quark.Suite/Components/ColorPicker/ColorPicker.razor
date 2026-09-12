@@ -50,6 +50,10 @@ else
 }
 
 @code {
+    // Keep cell classes in the Razor source scanned by the suite Tailwind manifest generator.
+    internal const string CanvasCellClass = "absolute opacity-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring";
+    internal const string CanvasCellSlot = "color-picker-canvas-cell";
+
     private double _hue = 262;
     private double _saturation = 83;
     private double _lightness = 58;
@@ -215,24 +219,10 @@ else
         builder.AddAttribute(sequence++, "aria-label", "Saturation and lightness");
         builder.AddAttribute(sequence++, "data-hue", _hue.ToString("0.##", CultureInfo.InvariantCulture));
         builder.AddAttribute(sequence++, "data-alpha", _alpha.ToString("0.##", CultureInfo.InvariantCulture));
-        for (var lightnessIndex = 0; lightnessIndex <= 10; lightnessIndex++)
-        {
-            for (var saturationIndex = 0; saturationIndex <= 10; saturationIndex++)
-            {
-                var saturation = saturationIndex * 10d;
-                var lightness = 100 - (lightnessIndex * 10d);
-
-                builder.OpenElement(sequence++, "button");
-                builder.AddAttribute(sequence++, "type", "button");
-                builder.AddAttribute(sequence++, "data-slot", "color-picker-canvas-cell");
-                builder.AddAttribute(sequence++, "aria-label", $"Saturation {saturation:0}, lightness {lightness:0}");
-                builder.AddAttribute(sequence++, "class", "absolute opacity-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring");
-                builder.AddAttribute(sequence++, "style", $"left:{saturationIndex * 10}%;top:{lightnessIndex * 10}%;width:10%;height:10%;");
-                builder.AddAttribute(sequence++, "disabled", ControlsDisabled);
-                builder.AddAttribute(sequence++, "onclick", EventCallback.Factory.Create(this, () => SetSaturationLightness(saturation, lightness)));
-                builder.CloseElement();
-            }
-        }
+        builder.OpenComponent<ColorPickerCanvasGrid>(sequence++);
+        builder.AddAttribute(sequence++, nameof(ColorPickerCanvasGrid.Owner), this);
+        builder.AddAttribute(sequence++, nameof(ColorPickerCanvasGrid.Disabled), ControlsDisabled);
+        builder.CloseComponent();
 
         builder.OpenElement(sequence++, "span");
         builder.AddAttribute(sequence++, "data-slot", "color-picker-thumb");

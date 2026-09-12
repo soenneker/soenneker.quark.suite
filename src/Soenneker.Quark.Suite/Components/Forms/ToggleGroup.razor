@@ -45,6 +45,7 @@
 </CascadingValue>
 
 @code {
+    private QuarkAttributeDictionary _groupAttributes;
     private readonly AutoSaveController<string?> _autoSave = new();
     private readonly AutoSaveController<string[]?> _autoSaveMultiple = new();
 
@@ -162,7 +163,7 @@
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes());
+            var attributes = _groupAttributes.Create(BuildAttributes(), 6);
 
             attributes.Remove("disabled");
             attributes.Remove("value");

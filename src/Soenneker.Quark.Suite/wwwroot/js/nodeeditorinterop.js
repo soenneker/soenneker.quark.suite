@@ -28,6 +28,11 @@ export function initialize(id, optionsJson, dotNetRef) {
         connection: null,
         resizeObserver: null,
         edgeFrame: 0,
+        edgesDirty: false,
+        renderingFrame: false,
+        hasPendingPointerMove: false,
+        pendingPointerMove: { clientX: 0, clientY: 0, pointerId: 0, type: "pointermove" },
+        renderFrame: null,
         viewportTimer: 0,
         validationSequence: 0,
         destroyed: false,
@@ -43,9 +48,10 @@ export function initialize(id, optionsJson, dotNetRef) {
     state.panX = state.options.initialX;
     state.panY = state.options.initialY;
     state.zoom = clamp(state.options.initialZoom, state.options.minZoom, state.options.maxZoom);
+    state.renderFrame = () => renderEditorFrame(state);
 
     const onPointerDown = event => handlePointerDown(state, event);
-    const onPointerMove = event => handlePointerMove(state, event);
+    const onPointerMove = event => schedulePointerMove(state, event);
     const onPointerUp = event => handlePointerUp(state, event);
     const onWheel = event => handleWheel(state, event);
     const onKeyDown = event => handleKeyDown(state, event);
@@ -177,6 +183,7 @@ export function resetView(id) {
         return;
     }
 
+    flushPointerMove(state);
     state.panX = state.options.initialX;
     state.panY = state.options.initialY;
     state.zoom = clamp(state.options.initialZoom, state.options.minZoom, state.options.maxZoom);
@@ -189,6 +196,7 @@ export function fitView(id) {
         return;
     }
 
+    flushPointerMove(state);
     const nodes = [...state.root.querySelectorAll("[data-slot='node-editor-node']")];
     if (nodes.length === 0) {
         resetView(id);
@@ -247,6 +255,7 @@ export function destroy(id) {
 
     state.cleanup.forEach(cleanup => cleanup());
     state.destroyed = true;
+    state.hasPendingPointerMove = false;
     state.validationSequence++;
     if (state.edgeFrame) cancelAnimationFrame(state.edgeFrame);
     if (state.viewportTimer) clearTimeout(state.viewportTimer);
@@ -399,6 +408,37 @@ function handlePointerDown(state, event) {
     state.root.classList.add("cursor-grabbing");
 }
 
+function schedulePointerMove(state, event) {
+    if (state.destroyed) return;
+
+    if (state.connection) {
+        if (state.connection.pointerId !== null && state.connection.pointerId !== event.pointerId) return;
+    } else {
+        const interaction = state.interaction;
+        if (!interaction || interaction.pointerId !== event.pointerId) return;
+
+        // Detect intent on every event, even if the pointer returns to its origin
+        // before the next frame. Such a gesture must not become a plain click.
+        if (!interaction.moved && (interaction.kind === "node" || interaction.kind === "marquee")) {
+            const threshold = interaction.kind === "node" ? 3 : 4;
+            if (Math.hypot(event.clientX - interaction.startClientX, event.clientY - interaction.startClientY) < threshold) return;
+            interaction.moved = true;
+        }
+    }
+
+    state.pendingPointerMove.clientX = event.clientX;
+    state.pendingPointerMove.clientY = event.clientY;
+    state.pendingPointerMove.pointerId = event.pointerId;
+    state.hasPendingPointerMove = true;
+    scheduleEditorFrame(state);
+}
+
+function flushPointerMove(state) {
+    if (!state.hasPendingPointerMove || state.destroyed) return;
+    state.hasPendingPointerMove = false;
+    handlePointerMove(state, state.pendingPointerMove);
+}
+
 function handlePointerMove(state, event) {
     if (state.connection) {
         if (state.connection.pointerId !== null && state.connection.pointerId !== event.pointerId) {
@@ -477,6 +517,7 @@ function handlePointerUp(state, event) {
         return;
     }
 
+    flushPointerMove(state);
     state.interaction = null;
     state.root.classList.remove("cursor-grabbing");
 
@@ -508,6 +549,7 @@ function handlePointerUp(state, event) {
 }
 
 function cancelActiveInteraction(state) {
+    state.hasPendingPointerMove = false;
     if (state.connection) {
         cancelConnection(state);
     }
@@ -860,6 +902,7 @@ async function completeConnection(state, port) {
 }
 
 function cancelConnection(state) {
+    state.hasPendingPointerMove = false;
     state.root.querySelectorAll("[aria-pressed='true'][data-slot='node-editor-port'], [aria-pressed='true'][data-edge-endpoint]")
         .forEach(element => element.removeAttribute("aria-pressed"));
     state.connection = null;
@@ -1048,13 +1091,6 @@ function updateMarqueeSelection(state, interaction, clientX, clientY) {
     const width = Math.abs(endX - startX);
     const height = Math.abs(endY - startY);
 
-    if (state.selectionRectangle) {
-        state.selectionRectangle.classList.remove("hidden");
-        state.selectionRectangle.style.transform = `translate3d(${round(left)}px, ${round(top)}px, 0)`;
-        state.selectionRectangle.style.width = `${round(width)}px`;
-        state.selectionRectangle.style.height = `${round(height)}px`;
-    }
-
     const selectionBounds = {
         left: rootRect.left + left,
         top: rootRect.top + top,
@@ -1074,6 +1110,13 @@ function updateMarqueeSelection(state, interaction, clientX, clientY) {
         if (interaction.mode === "toggle" && interaction.baseSelection.has(nodeId)) next.delete(nodeId);
         else next.add(nodeId);
     });
+
+    if (state.selectionRectangle) {
+        state.selectionRectangle.classList.remove("hidden");
+        state.selectionRectangle.style.transform = `translate3d(${round(left)}px, ${round(top)}px, 0)`;
+        state.selectionRectangle.style.width = `${round(width)}px`;
+        state.selectionRectangle.style.height = `${round(height)}px`;
+    }
     setSelectedNodes(state, [...next]);
 }
 
@@ -1121,6 +1164,8 @@ function revealViewport(state) {
 }
 
 function zoomAt(state, viewportX, viewportY, requestedZoom) {
+    // Apply earlier pointer input using its original viewport before changing zoom.
+    flushPointerMove(state);
     const nextZoom = clamp(requestedZoom, state.options.minZoom, state.options.maxZoom);
     const graphX = (viewportX - state.panX) / state.zoom;
     const graphY = (viewportY - state.panY) / state.zoom;
@@ -1132,16 +1177,30 @@ function zoomAt(state, viewportX, viewportY, requestedZoom) {
 }
 
 function scheduleEdgeUpdate(state) {
-    if (state.destroyed || state.edgeFrame) {
-        return;
-    }
+    state.edgesDirty = true;
+    scheduleEditorFrame(state);
+}
 
-    state.edgeFrame = requestAnimationFrame(() => {
-        state.edgeFrame = 0;
-        if (!state.destroyed) {
+function scheduleEditorFrame(state) {
+    if (!state.destroyed && !state.edgeFrame && !state.renderingFrame) {
+        state.edgeFrame = requestAnimationFrame(state.renderFrame);
+    }
+}
+
+function renderEditorFrame(state) {
+    state.edgeFrame = 0;
+    if (state.destroyed) return;
+
+    state.renderingFrame = true;
+    try {
+        flushPointerMove(state);
+        if (state.edgesDirty) {
+            state.edgesDirty = false;
             updateEdges(state);
         }
-    });
+    } finally {
+        state.renderingFrame = false;
+    }
 }
 
 function scheduleViewportChanged(state) {
@@ -1217,6 +1276,19 @@ function updateEdges(state) {
         }
         return center;
     };
+
+    // Read port geometry before changing any SVG paths. Interleaving these reads with
+    // path/label writes forces layout repeatedly on graphs with many connections.
+    for (const edge of state.edgeElements) {
+        const source = state.ports.get(portKey(edge.dataset.sourceNode, edge.dataset.sourcePort));
+        const target = state.ports.get(portKey(edge.dataset.targetNode, edge.dataset.targetPort));
+        if (source) getPortCenter(source);
+        if (target) getPortCenter(target);
+    }
+    for (const placeholder of state.addHandleElements) {
+        const source = state.ports.get(portKey(placeholder.dataset.sourceNode, placeholder.dataset.sourcePort));
+        if (source) getPortCenter(source);
+    }
 
     state.edgeElements.forEach(edge => {
         const source = state.ports.get(portKey(edge.dataset.sourceNode, edge.dataset.sourcePort));

@@ -176,8 +176,8 @@ else
     {
         if (firstRender && ParentValidation is not null)
         {
-            await ParentValidation.InitializeInput(this);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+            await ParentValidation.InitializeInput(this);
 
             if (ParentRadioGroup is null && CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
@@ -196,7 +196,8 @@ else
 
                 if (EffectiveChecked)
                 {
-                    await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
+                    if (OnChange.HasDelegate)
+                        await OnChange.InvokeAsync(new ChangeEventArgs { Value = true });
 
                     if (ParentValidation is not null)
                     {
@@ -262,7 +263,8 @@ else
         if (ParentRadioGroup != null)
         {
             await ParentRadioGroup.SetValue(Value);
-            await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
+            if (OnChange.HasDelegate)
+                await OnChange.InvokeAsync(new ChangeEventArgs { Value = true });
             if (ParentValidation is not null)
             {
                 ParentValidation.MarkTouched();
@@ -278,7 +280,9 @@ else
             InvalidateRender();
         }
 
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = Checked });
+        if (OnChange.HasDelegate)
+
+            await OnChange.InvokeAsync(new ChangeEventArgs { Value = Checked });
 
         if (ParentValidation is not null)
         {
@@ -346,10 +350,7 @@ else
             }
         }
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "peer sr-only");
-        });
+        PrependClassAttribute(attributes, "peer sr-only");
 
         if (ParentRadioGroup is null)
             ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);

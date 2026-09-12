@@ -11,6 +11,7 @@
 </div>
 
 @code {
+    private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private ElementReference _inputElement;
     private bool _focusAfterSelect;
 
@@ -88,15 +89,10 @@
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attrs = new Dictionary<string, object>
-        {
-            ["data-slot"] = "command-input-wrapper"
-            ,["cmdk-input-wrapper"] = string.Empty
-        };
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "p-1 pb-0");
-        });
+        var attrs = _wrapperAttributesBuffer.Create(3);
+        attrs["data-slot"] = "command-input-wrapper";
+        attrs["cmdk-input-wrapper"] = string.Empty;
+        PrependClassAttribute(attrs, "p-1 pb-0");
         return attrs;
     }
 

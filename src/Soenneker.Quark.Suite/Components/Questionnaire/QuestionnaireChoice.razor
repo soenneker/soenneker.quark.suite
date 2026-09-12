@@ -21,6 +21,7 @@
 </label>
 
 @code {
+    private QuarkAttributeDictionary _inputAttributesBuffer;
     private ElementReference _input;
 
     [CascadingParameter]
@@ -66,14 +67,12 @@
 
     private IReadOnlyDictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "questionnaire-choice-input",
-            ["class"] = "absolute inset-0 z-10 size-full cursor-pointer opacity-0",
-            ["type"] = ParentItem?.Multiple == true ? "checkbox" : "radio",
-            ["value"] = Value,
-            ["data-type"] = ParentItem?.Multiple == true ? "checkbox" : "radio"
-        };
+        var attributes = _inputAttributesBuffer.Create(11);
+        attributes["data-slot"] = "questionnaire-choice-input";
+        attributes["class"] = "absolute inset-0 z-10 size-full cursor-pointer opacity-0";
+        attributes["type"] = ParentItem?.Multiple == true ? "checkbox" : "radio";
+        attributes["value"] = Value;
+        attributes["data-type"] = ParentItem?.Multiple == true ? "checkbox" : "radio";
 
         if (ParentItem?.IsSkipped != true)
             attributes["name"] = ParentItem?.Name ?? string.Empty;
@@ -125,12 +124,7 @@
         if (Shortcut is not null)
             attributes["data-shortcut"] = Shortcut;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/questionnaire-choice hover:bg-muted/50 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-3 has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted");
-            AppendClass(ref cls, "min-h-11");
-            AppendClass(ref cls, "data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50");
-        });
+        PrependClassAttribute(attributes, "group/questionnaire-choice hover:bg-muted/50 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-3 has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted min-h-11 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

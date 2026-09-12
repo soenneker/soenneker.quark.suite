@@ -119,11 +119,15 @@
             Refresh();
     }
 
-    internal string BuildPanelStyle(ResizablePanel panel, int index)
+    internal double GetPanelSize(int index)
     {
         EnsureLayoutState();
+        return _sizes is not null && index >= 0 && index < _sizes.Length ? _sizes[index] : 0d;
+    }
 
-        var size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
+    internal string BuildPanelStyle(ResizablePanel panel, int index)
+    {
+        var size = GetPanelSize(index);
         var styles = new PooledStringBuilder(256);
 
         try
@@ -433,10 +437,7 @@
         if (!attributes.ContainsKey("dir") && !string.IsNullOrWhiteSpace(DirectionProviderDir))
             attributes["dir"] = DirectionProviderDir!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "aria-[orientation=vertical]:flex-col");
-        });
+        PrependClassAttribute(attributes, "aria-[orientation=vertical]:flex-col");
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {

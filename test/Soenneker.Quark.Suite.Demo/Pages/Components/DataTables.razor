@@ -1,4 +1,4 @@
-@page "/components/datatables"
+﻿@page "/components/datatables"
 
 <PageTitle>Data Table - Quark Suite</PageTitle>
 
@@ -407,10 +407,16 @@
         new("Website redesign", "Active", "Design team")
     ];
 
+    private List<PaymentRow>? _filteredRows;
+    private (string?, bool?) _filteredKey;
     private List<PaymentRow> FilteredRows
     {
         get
         {
+            var key = (_emailFilter, _emailSortDescending);
+            if (_filteredRows is not null && _filteredKey == key)
+                return _filteredRows;
+            _filteredKey = key;
             IEnumerable<PaymentRow> rows = _rows;
 
             if (!string.IsNullOrWhiteSpace(_emailFilter))
@@ -423,7 +429,7 @@
                     : rows.OrderBy(row => row.Email, StringComparer.Ordinal);
             }
 
-            return rows.ToList();
+            return _filteredRows = rows.ToList();
         }
     }
 
@@ -431,10 +437,16 @@
     private bool AllVisibleRowsSelected => FilteredRows.Count > 0 && SelectedVisibleRowsCount == FilteredRows.Count;
     private bool SomeVisibleRowsSelected => SelectedVisibleRowsCount > 0 && !AllVisibleRowsSelected;
 
+    private List<PaymentRow>? _rtlFilteredRows;
+    private (string?, bool?) _rtlFilteredKey;
     private List<PaymentRow> FilteredRtlRows
     {
         get
         {
+            var key = (_rtlEmailFilter, _rtlEmailSortDescending);
+            if (_rtlFilteredRows is not null && _rtlFilteredKey == key)
+                return _rtlFilteredRows;
+            _rtlFilteredKey = key;
             IEnumerable<PaymentRow> rows = _rows;
 
             if (!string.IsNullOrWhiteSpace(_rtlEmailFilter))
@@ -447,7 +459,7 @@
                     : rows.OrderBy(row => row.Email, StringComparer.Ordinal);
             }
 
-            return rows.ToList();
+            return _rtlFilteredRows = rows.ToList();
         }
     }
 
@@ -513,18 +525,21 @@
             _rtlSelectedRowIds.Remove(rowId);
     }
 
+    private static readonly IReadOnlyDictionary<string, object> SelectedRowAttributes = new Dictionary<string, object> { ["data-state"] = "selected" };
+    private static readonly IReadOnlyDictionary<string, object> EmptyRowAttributes = new Dictionary<string, object>();
+
     private IReadOnlyDictionary<string, object> GetRowAttributes(string rowId)
     {
         return _selectedRowIds.Contains(rowId)
-            ? new Dictionary<string, object> { ["data-state"] = "selected" }
-            : new Dictionary<string, object>();
+            ? SelectedRowAttributes
+            : EmptyRowAttributes;
     }
 
     private IReadOnlyDictionary<string, object> GetRtlRowAttributes(string rowId)
     {
         return _rtlSelectedRowIds.Contains(rowId)
-            ? new Dictionary<string, object> { ["data-state"] = "selected" }
-            : new Dictionary<string, object>();
+            ? SelectedRowAttributes
+            : EmptyRowAttributes;
     }
 
     private void SetExpandedRow(string rowId, bool expanded)

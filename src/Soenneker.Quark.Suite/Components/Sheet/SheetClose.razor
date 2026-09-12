@@ -26,6 +26,7 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _wrapperAttributesBuffer;
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
@@ -50,15 +51,10 @@ else
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "sheet-close-wrapper"
-        };
+        var attributes = _wrapperAttributesBuffer.Create(2);
+        attributes["data-slot"] = "sheet-close-wrapper";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "contents");
-        });
+        PrependClassAttribute(attributes, "contents");
 
         return attributes;
     }

@@ -14,6 +14,25 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Docs_layout_metadata_tracks_navigation_and_history()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        await page.GotoAndWaitForReady($"{BaseUrl}components/headers?audit=1#overview",
+            static p => p.Locator("[data-docs-content]"), expectedTitle: "Header - Quark Suite");
+        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Header - Quark Suite");
+
+        await page.GetByRole(AriaRole.Link, new() { Name = "Alert", Exact = true }).First.ClickAsync();
+        await Assertions.Expect(page).ToHaveTitleAsync("Alerts - Quark Suite");
+        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Alert - Quark Suite");
+        await Assertions.Expect(page.Locator("[data-docs-content] h1").First).ToHaveTextAsync("Alert");
+
+        await page.GoBackAsync();
+        await Assertions.Expect(page).ToHaveTitleAsync("Header - Quark Suite");
+        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Header - Quark Suite");
+    }
+
+    [Test]
     public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout()
     {
         await using var session = await CreateSession();

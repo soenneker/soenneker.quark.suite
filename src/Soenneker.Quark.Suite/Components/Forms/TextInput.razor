@@ -198,8 +198,8 @@
 
         if (firstRender && ParentValidation is not null && ValueExpression is not null)
         {
-            await ParentValidation.InitializeInputExpression(ValueExpression);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+            await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -247,10 +247,10 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-        }
+        await base.DisposeAsync();
+    }
 
     private Dictionary<string, object> BuildInputAttributes()
     {

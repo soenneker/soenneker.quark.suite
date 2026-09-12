@@ -10,6 +10,7 @@
 </CascadingValue>
 
 @code {
+    private QuarkAttributeDictionary _attributesBuffer;
 
     [Parameter]
     public bool Multiple { get; set; }
@@ -75,11 +76,9 @@
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes())
-            {
-                ["data-slot"] = "accordion",
-                ["data-multiple"] = ResolvedType == SelectionMode.Multiple ? "true" : "false"
-            };
+            Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 2);
+            attributes["data-slot"] = "accordion";
+            attributes["data-multiple"] = ResolvedType == SelectionMode.Multiple ? "true" : "false";
 
             return attributes;
         }

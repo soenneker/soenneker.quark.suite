@@ -31,6 +31,8 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    private QuarkAttributeDictionary _attributesBuffer;
+
     private IReadOnlyDictionary<string, object> LinkAttributes => BuildAttributes();
     private bool UsesTriggerStyle => Class?.Contains("group/navigation-menu-trigger", StringComparison.Ordinal) == true;
 
@@ -76,7 +78,7 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 2);
 
         if (Active)
         {

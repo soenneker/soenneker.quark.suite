@@ -335,17 +335,31 @@
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
     private readonly record struct MonthCellState(DateOnly DisplayMonth, string CultureName, DayOfWeek FirstDayOfWeek, DateOnly? Min, DateOnly? Max);
 
-    private string GetDayClass(Cell day)
+    private static readonly string[] DayClasses = CreateDayClasses();
+
+    private static string[] CreateDayClasses()
+    {
+        var classes = new string[8];
+        for (var i = 0; i < classes.Length; i++)
+            classes[i] = CreateDayClass(i);
+        return classes;
+    }
+
+    private string GetDayClass(Cell day) => DayClasses[
+        (day.InMonth ? 0 : 1) | (day.Date == _today ? 2 : 0) |
+        (SelectedDateTime.HasValue && day.Date == DateOnly.FromDateTime(SelectedDateTime.Value) ? 4 : 0)];
+
+    private static string CreateDayClass(int state)
     {
         var css = "relative flex aspect-square h-8 w-8 items-center justify-center rounded-lg text-sm outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 
-        if (!day.InMonth)
+        if ((state & 1) != 0)
             css += " text-muted-foreground opacity-50";
 
-        if (day.Date == _today)
+        if ((state & 2) != 0)
             css += " bg-accent text-accent-foreground";
 
-        if (SelectedDateTime.HasValue && day.Date == DateOnly.FromDateTime(SelectedDateTime.Value))
+        if ((state & 4) != 0)
             css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
         else
             css += " hover:bg-muted hover:text-foreground";

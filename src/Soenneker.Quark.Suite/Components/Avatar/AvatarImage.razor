@@ -11,12 +11,14 @@
     [Parameter]
     public string? Src { get; set; }
 
+    private QuarkAttributeDictionary _imageAttributesBuffer;
+
     private string ResolvedAlt => Alt ?? string.Empty;
     private IReadOnlyDictionary<string, object> ImageAttributes => BuildImageAttributes();
 
     private IReadOnlyDictionary<string, object> BuildImageAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _imageAttributesBuffer.Create(BuildAttributes());
         attributes.Remove("src");
         attributes.Remove("alt");
         attributes.Remove("onload");

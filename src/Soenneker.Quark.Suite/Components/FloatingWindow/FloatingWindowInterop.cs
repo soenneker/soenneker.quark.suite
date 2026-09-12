@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
@@ -79,13 +79,13 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         }
     }
 
-    public async ValueTask Show(string id, CancellationToken cancellationToken = default) => await Invoke(id, "show", cancellationToken);
+    public ValueTask Show(string id, CancellationToken cancellationToken = default) => Invoke(id, "show", cancellationToken);
 
-    public async ValueTask Hide(string id, CancellationToken cancellationToken = default) => await Invoke(id, "hide", cancellationToken);
+    public ValueTask Hide(string id, CancellationToken cancellationToken = default) => Invoke(id, "hide", cancellationToken);
 
-    public async ValueTask Toggle(string id, CancellationToken cancellationToken = default) => await Invoke(id, "toggle", cancellationToken);
+    public ValueTask Toggle(string id, CancellationToken cancellationToken = default) => Invoke(id, "toggle", cancellationToken);
 
-    public async ValueTask Close(string id, CancellationToken cancellationToken = default) => await Invoke(id, "close", cancellationToken);
+    public ValueTask Close(string id, CancellationToken cancellationToken = default) => Invoke(id, "close", cancellationToken);
 
     public async ValueTask<(int x, int y)> GetPosition(string id, CancellationToken cancellationToken = default)
     {
@@ -131,7 +131,7 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         }
     }
 
-    public async ValueTask BringToFront(string id, CancellationToken cancellationToken = default) => await Invoke(id, "bringToFront", cancellationToken);
+    public ValueTask BringToFront(string id, CancellationToken cancellationToken = default) => Invoke(id, "bringToFront", cancellationToken);
 
     public async ValueTask<FloatingWindowSize> GetViewportSize(CancellationToken cancellationToken = default)
     {
@@ -144,7 +144,7 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         }
     }
 
-    public async ValueTask CenterInViewport(string id, CancellationToken cancellationToken = default) => await Invoke(id, "centerInViewport", cancellationToken);
+    public ValueTask CenterInViewport(string id, CancellationToken cancellationToken = default) => Invoke(id, "centerInViewport", cancellationToken);
 
     private async ValueTask Invoke(string id, string identifier, CancellationToken cancellationToken)
     {

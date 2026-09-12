@@ -1,4 +1,5 @@
 const editors = new WeakMap();
+const pendingEditors = new WeakMap();
 const activeEditors = new Set();
 let configured = false;
 let configuration = null;
@@ -250,7 +251,23 @@ export async function createEditor(container, optionsJson) {
         return;
     }
 
-    const monaco = await ensureMonacoLoaded();
+    const request = {};
+    pendingEditors.set(container, request);
+    let monaco;
+    try {
+        monaco = await ensureMonacoLoaded();
+    } catch (error) {
+        if (pendingEditors.get(container) === request) {
+            pendingEditors.delete(container);
+        }
+        throw error;
+    }
+
+    if (pendingEditors.get(container) !== request) {
+        return;
+    }
+    pendingEditors.delete(container);
+    if (!container.isConnected) return;
     ensureThemesDefined();
     cleanupDetachedEditors();
 
@@ -302,6 +319,7 @@ export async function setTheme(theme) {
 }
 
 export function disposeEditor(container) {
+    pendingEditors.delete(container);
     const state = editors.get(container);
 
     if (state) {
@@ -321,7 +339,13 @@ export function layoutEditor(container) {
 
 export async function updateContentHeight(container, minLines, maxLines) {
     const monaco = await ensureMonacoLoaded();
-    const editor = getEditor(container);
+    const state = editors.get(container);
+    if (!state?.editor) return;
+    applyContentHeight(state, monaco, minLines, maxLines);
+}
+
+function applyContentHeight(state, monaco, minLines, maxLines) {
+    const { editor, container } = state;
     const model = editor.getModel();
 
     if (!model) return;
@@ -332,8 +356,11 @@ export async function updateContentHeight(container, minLines, maxLines) {
     const contentHeight = effectiveLines * lineHeight;
     const totalHeight = contentHeight + 20;
 
-    container.style.height = totalHeight + 'px';
-    editor.layout();
+    const height = totalHeight + 'px';
+    if (container.style.height !== height) {
+        container.style.height = height;
+        editor.layout();
+    }
 }
 
 export async function addContentChangeListener(container, minLines, maxLines) {
@@ -343,14 +370,14 @@ export async function addContentChangeListener(container, minLines, maxLines) {
 
     if (!model) return;
 
-    if (state.contentChangeDisposable) {
-        state.contentChangeDisposable.dispose();
-    }
+    const monaco = await ensureMonacoLoaded();
+    if (editors.get(container) !== state || !state.editor) return;
 
-    await updateContentHeight(container, minLines, maxLines);
+    state.contentChangeDisposable?.dispose();
+    applyContentHeight(state, monaco, minLines, maxLines);
 
     state.contentChangeDisposable = model.onDidChangeContent(() => {
-        updateContentHeight(container, minLines, maxLines);
+        applyContentHeight(state, monaco, minLines, maxLines);
     });
 }
 

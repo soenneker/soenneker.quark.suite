@@ -36,6 +36,7 @@
 </Div>
 
 @code {
+    private QuarkAttributeDictionary _inputAttributesBuffer;
     private readonly AutoSaveController<decimal?> _autoSave = new();
 
     [Parameter]
@@ -130,6 +131,8 @@
 
     public object? ValidationValue => Value;
 
+    private string? _cultureNameSnapshot;
+    private CultureInfo? _cultureSnapshot;
     private string _editingValue = string.Empty;
     private bool _isFocused;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
@@ -202,8 +205,8 @@
     {
         if (firstRender && ParentValidation is not null && ValueExpression is not null)
         {
-            await ParentValidation.InitializeInputExpression(ValueExpression);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+            await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -284,7 +287,7 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+        var attributes = _inputAttributesBuffer.Create(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
 
         if (Attributes is not null)
         {
@@ -403,23 +406,21 @@
         if (string.IsNullOrWhiteSpace(CultureName))
             return CultureInfo.CurrentCulture;
 
-        try
+        if (!string.Equals(_cultureNameSnapshot, CultureName, StringComparison.Ordinal))
         {
-            return CultureInfo.GetCultureInfo(CultureName);
+            _cultureNameSnapshot = CultureName;
+            try { _cultureSnapshot = CultureInfo.GetCultureInfo(CultureName); }
+            catch (CultureNotFoundException) { _cultureSnapshot = null; }
         }
-        catch (CultureNotFoundException)
-        {
-            return CultureInfo.CurrentCulture;
-        }
+        return _cultureSnapshot ?? CultureInfo.CurrentCulture;
     }
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
-
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

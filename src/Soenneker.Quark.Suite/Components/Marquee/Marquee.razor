@@ -87,7 +87,7 @@
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
-            AppendStyleDecl(ref sty, $"--marquee-duration:{Math.Max(ScrollDuration, 0.001):0.###}s");
+            AppendStyleDecl(ref sty, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--marquee-duration:{Math.Max(ScrollDuration, 0.001):0.###}s"));
             AppendStyleDecl(ref sty, $"--marquee-gap:{ItemGap}");
 
             if (ShowFade)
@@ -106,13 +106,14 @@
         hc.Add(FadeWidth);
     }
 
-    private string GetTrackClass() => $"{_trackClass} {ClassForGap()}";
+    private static string GetTrackClass() => _trackClass + " [&>*]:mx-[calc(var(--marquee-gap)/2)]";
 
     private string GetTrackStyle()
     {
-        var direction = Reverse ? "reverse" : "normal";
-        return $"gap:var(--marquee-gap);animation:quark-marquee var(--marquee-duration) linear infinite;animation-direction:{direction};";
+        return Reverse
+            ? "gap:var(--marquee-gap);animation:quark-marquee var(--marquee-duration) linear infinite;animation-direction:reverse;"
+            : "gap:var(--marquee-gap);animation:quark-marquee var(--marquee-duration) linear infinite;animation-direction:normal;";
     }
 
-    private string ClassForGap() => "[&>*]:mx-[calc(var(--marquee-gap)/2)]";
+
 }

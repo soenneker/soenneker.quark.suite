@@ -52,6 +52,8 @@
 </Popover>
 
 @code {
+    private QuarkAttributeDictionary _triggerAttributesBuffer;
+    private QuarkAttributeDictionary _hiddenInputAttributesBuffer;
 
     /// <summary>
     /// Gets or sets the selected date value.
@@ -149,10 +151,8 @@
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["id"] = TriggerId
-        };
+        var attributes = _triggerAttributesBuffer.Create(2);
+        attributes["id"] = TriggerId;
 
         if (!SelectedDate.HasValue)
             attributes["data-empty"] = "true";
@@ -185,12 +185,10 @@
 
     private IReadOnlyDictionary<string, object> BuildHiddenInputAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["aria-hidden"] = "true",
-            ["tabindex"] = "-1",
-            ["value"] = GetSerializedValue()
-        };
+        var attributes = _hiddenInputAttributesBuffer.Create(5);
+        attributes["aria-hidden"] = "true";
+        attributes["tabindex"] = "-1";
+        attributes["value"] = GetSerializedValue();
 
         if (Name.HasContent())
             attributes["name"] = Name!;

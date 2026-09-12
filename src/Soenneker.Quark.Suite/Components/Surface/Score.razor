@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.CancellableElement
@@ -76,11 +76,11 @@
             _sizePx = ScoreSize <= 0 ? 88 : ScoreSize;
             _thicknessPx = Thickness <= 0 ? 8 : Thickness;
 
-            _sizeCss = string.Concat(_sizePx.ToString(_inv), "px");
-            _thicknessCss = string.Concat(_thicknessPx.ToString(_inv), "px");
+            _sizeCss = string.Create(_inv, $"{_sizePx}px");
+            _thicknessCss = string.Create(_inv, $"{_thicknessPx}px");
 
             // angle = value * 3.6
-            _angleCss = string.Concat(FormatDouble0To2(_normalizedValue * 3.6d), "deg");
+            _angleCss = string.Create(_inv, $"{_normalizedValue * 3.6d:0.##}deg");
 
             _colorCss = Colored ? GetColoredScoreColor(_normalizedValue) : NeutralScoreColor;
         }
@@ -127,19 +127,7 @@
             : 60d + ((value - 50d) / 50d) * 60d;
 
         // hsl(<hue> 75% 45%)
-        return string.Concat("hsl(", FormatDouble0To2(hue), " 75% 45%)");
-    }
-
-    // Fast invariant formatting without allocating intermediary strings in common cases.
-    private static string FormatDouble0To2(double value)
-    {
-        Span<char> buffer = stackalloc char[32];
-
-        // "0.##" keeps output short (same as your original intent)
-        if (value.TryFormat(buffer, out var written, "0.##", _inv))
-            return new string(buffer[..written]);
-
-        return value.ToString("0.##", _inv);
+        return string.Create(_inv, $"hsl({hue:0.##} 75% 45%)");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,4 +1,4 @@
-@page "/components/divs"
+﻿@page "/components/divs"
 
 <PageTitle>Quark Divs</PageTitle>
 
@@ -178,37 +178,44 @@
 
     private void OnDivClick(MouseEventArgs e)
     {
-        _eventLogs.Add($"Click at ({e.ClientX}, {e.ClientY})");
+        AddEventLog($"Click at ({e.ClientX}, {e.ClientY})");
     }
 
     private void OnDivDoubleClick(MouseEventArgs e)
     {
-        _eventLogs.Add($"Double click at ({e.ClientX}, {e.ClientY})");
+        AddEventLog($"Double click at ({e.ClientX}, {e.ClientY})");
     }
 
     private void OnDivMouseOver(MouseEventArgs e)
     {
-        _eventLogs.Add($"Mouse over at ({e.ClientX}, {e.ClientY})");
+        AddEventLog($"Mouse over at ({e.ClientX}, {e.ClientY})");
     }
 
     private void OnDivMouseOut(MouseEventArgs e)
     {
-        _eventLogs.Add($"Mouse out at ({e.ClientX}, {e.ClientY})");
+        AddEventLog($"Mouse out at ({e.ClientX}, {e.ClientY})");
     }
 
     private void OnDivKeyDown(KeyboardEventArgs e)
     {
-        _eventLogs.Add($"Key down: {e.Key}");
+        AddEventLog($"Key down: {e.Key}");
     }
 
     private void OnDivFocus(FocusEventArgs e)
     {
-        _eventLogs.Add("Div focused");
+        AddEventLog("Div focused");
     }
 
     private void OnDivBlur(FocusEventArgs e)
     {
-        _eventLogs.Add("Div blurred");
+        AddEventLog("Div blurred");
+    }
+
+    private void AddEventLog(string message)
+    {
+        if (_eventLogs.Count == 200)
+            _eventLogs.RemoveAt(0);
+        _eventLogs.Add(message);
     }
 
     private void ClearLogs()

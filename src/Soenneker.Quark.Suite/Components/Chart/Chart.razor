@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Microsoft.JSInterop
@@ -329,11 +330,11 @@
     private IJSObjectReference? _scrollModule;
     private Task _scrollWork = Task.CompletedTask;
     private bool _scrollAttached;
-    private bool _scrollDisposed;
+    private ValueAtomicBool _scrollDisposed;
     private ScrollSnapshot? _scrollSnapshot;
     private ScrollSnapshot? _scrollHistory;
     private bool RealtimeScrollingEnabled => Options.EnableRealtimeScrolling && !IsRadial && _useContinuousX &&
-        Series.All(series => (series.Type ?? Type) == ChartType.Line || (series.Type ?? Type) == ChartType.Area);
+        _allLineOrAreaSeries;
     private bool ClipPlot => Options.ClipPlot || RealtimeScrollingEnabled || IsZoomed;
     private int? _zoomStartIndex;
     private int? _zoomEndIndex;
@@ -374,12 +375,12 @@
     private async Task SynchronizeScrollingAsync(Task previous)
     {
         await previous;
-        if (_scrollDisposed)
+        if (_scrollDisposed.Read())
             return;
         if (RealtimeScrollingEnabled)
         {
             _scrollModule ??= await ChartJS.InvokeAsync<IJSObjectReference>("import", "./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
-            if (!_scrollDisposed && !_scrollAttached)
+            if (!_scrollDisposed.Read() && !_scrollAttached)
             {
                 await _scrollModule.InvokeVoidAsync("initialize", _scrollElement);
                 _scrollAttached = true;
@@ -394,7 +395,8 @@
 
     public override async ValueTask DisposeAsync()
     {
-        _scrollDisposed = true;
+        if (!_scrollDisposed.TrySetTrue())
+            return;
         try
         {
             await _scrollWork;
@@ -452,6 +454,8 @@
     private long _calculatedDataVersion;
     private double _radialTotal;
     private bool _hasData;
+    private bool _hasBarSeries;
+    private bool _allLineOrAreaSeries;
     private string _viewBox = "0 0 800 320";
     private string _stageStyle = "aspect-ratio:800/320";
 
@@ -814,9 +818,14 @@
         var maximumValueCount = 0;
         var hasFiniteValue = false;
         _radialTotal = 0;
+        _hasBarSeries = false;
+        _allLineOrAreaSeries = true;
 
         for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
         {
+            var seriesType = Series[seriesIndex].Type ?? Type;
+            _hasBarSeries |= seriesType == ChartType.Bar;
+            _allLineOrAreaSeries &= seriesType == ChartType.Line || seriesType == ChartType.Area;
             var values = Series[seriesIndex].Values;
             maximumValueCount = Math.Max(maximumValueCount, values.Count);
             for (var valueIndex = 0; valueIndex < values.Count; valueIndex++)
@@ -894,7 +903,7 @@
 
         _xMinimum = XValues![VisibleStart];
         _xMaximum = XValues[VisibleEnd];
-        if (Series.Any(series => (series.Type ?? Type) == ChartType.Bar))
+        if (_hasBarSeries)
         {
             _xMinimum -= (XValues[VisibleStart + 1] - XValues[VisibleStart]) / 2;
             _xMaximum += (XValues[VisibleEnd] - XValues[VisibleEnd - 1]) / 2;
@@ -979,7 +988,7 @@
     {
         if (!_useContinuousX)
         {
-            if (IsZoomed && !Series.Any(series => (series.Type ?? Type) == ChartType.Bar))
+            if (IsZoomed && !_hasBarSeries)
                 return PlotLeft + (index - VisibleStart) * PlotWidth / Math.Max(1, VisibleCount - 1);
             return PlotLeft + (index - VisibleStart + 0.5) * PlotWidth / Math.Max(1, VisibleCount);
         }
@@ -1565,7 +1574,14 @@
 
     private double TooltipY(int index)
     {
-        var y = Series.Where((series, seriesIndex) => !IsSeriesHidden(seriesIndex)).Select(series => ValueAt(series, index)).Where(static value => value.HasValue).Select(value => ValueY(value!.Value)).DefaultIfEmpty(PlotTop).Min();
+        var y = double.PositiveInfinity;
+        for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+        {
+            if (!IsSeriesHidden(seriesIndex) && ValueAt(Series[seriesIndex], index) is { } value)
+                y = Math.Min(y, ValueY(value));
+        }
+        if (double.IsPositiveInfinity(y))
+            y = PlotTop;
         return Math.Max(PlotTop + 8, y);
     }
 

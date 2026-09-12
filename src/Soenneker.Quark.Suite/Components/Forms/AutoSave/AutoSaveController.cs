@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Soenneker.Asyncs.Locks;
 using Soenneker.Atomics.ValueBools;
 
 namespace Soenneker.Quark;
@@ -12,7 +11,9 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
 {
     private const int MinimumSavingStateDuration = 500;
 
-    private readonly AsyncLock _operationLock = new();
+    // Only source/version swaps are protected; callbacks and cancellation run outside
+    // this short synchronous section, so an async lock and its waiter queue are unnecessary.
+    private readonly object _operationSync = new();
     private CancellationTokenSource? _operationCancellationTokenSource;
     private int _version;
     private bool _hasPendingValue;
@@ -203,15 +204,15 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
             await Task.Delay((int)remaining, cancellationToken);
     }
 
-    private async ValueTask<Operation?> TryStartOperation()
+    private ValueTask<Operation?> TryStartOperation()
     {
         CancellationTokenSource? previous;
         Operation operation;
 
-        using (await _operationLock.Lock())
+        lock (_operationSync)
         {
             if (_disposed.Value)
-                return null;
+                return ValueTask.FromResult<Operation?>(null);
 
             previous = _operationCancellationTokenSource;
             _operationCancellationTokenSource = new CancellationTokenSource();
@@ -225,16 +226,16 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         }
 
         CancelAndDispose(previous);
-        return operation;
+        return ValueTask.FromResult<Operation?>(operation);
     }
 
     private bool IsCurrent(int version) => version == Volatile.Read(ref _version);
 
-    private async ValueTask CancelOperation()
+    private ValueTask CancelOperation()
     {
         CancellationTokenSource? source;
 
-        using (await _operationLock.Lock())
+        lock (_operationSync)
         {
             source = _operationCancellationTokenSource;
             _operationCancellationTokenSource = null;
@@ -246,6 +247,7 @@ internal sealed class AutoSaveController<TValue> : IAsyncDisposable
         }
 
         CancelAndDispose(source);
+        return ValueTask.CompletedTask;
     }
 
     private static void CancelAndDispose(CancellationTokenSource? source)

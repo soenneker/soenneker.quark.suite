@@ -13,6 +13,7 @@
 </CascadingValue>
 
 @code {
+    private QuarkAttributeDictionary _attributesBuffer;
     [Parameter]
     public string? Value { get; set; }
 
@@ -31,15 +32,10 @@
     {
         get
         {
-            Dictionary<string, object> attributes = new(BuildAttributes())
-            {
-                ["data-slot"] = "accordion-item"
-            };
+            Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 1);
+            attributes["data-slot"] = "accordion-item";
 
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "not-last:border-b");
-            });
+            PrependClassAttribute(attributes, "not-last:border-b");
 
             return attributes;
         }

@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 
@@ -10,6 +10,8 @@
 @code {
     private ElementReference _elementRef;
     private string _searchText = string.Empty;
+    private string? _searchValueSnapshot;
+    private string[]? _keywordsSnapshot;
 
     [Parameter]
     public EventCallback OnSelect { get; set; }
@@ -63,7 +65,12 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        _searchText = BuildSearchText();
+        if (!string.Equals(_searchValueSnapshot, SearchValue, StringComparison.Ordinal) || !Keywords.AsSpan().SequenceEqual(_keywordsSnapshot))
+        {
+            _searchText = BuildSearchText();
+            _searchValueSnapshot = SearchValue;
+            _keywordsSnapshot = Keywords is null ? null : [.. Keywords];
+        }
         ParentCommand?.UpdateItemGroup(this, ParentCommandGroup);
     }
 
@@ -110,13 +117,7 @@
         if (ParentCommand?.GetItemOrder(this) is { } order)
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "order: ", order.ToString()));
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/command-item in-data-[slot=dialog-content]:rounded-lg!");
-            AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
-            AppendClass(ref cls, "data-selected:bg-muted data-selected:text-foreground");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground");
-        });
+        PrependClassAttribute(attributes, "group/command-item in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

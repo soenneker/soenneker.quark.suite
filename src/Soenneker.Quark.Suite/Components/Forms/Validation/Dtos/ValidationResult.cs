@@ -9,6 +9,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ValidationResult
 {
+    private static readonly ValidationResult _success = new() { Status = ValidationStatus.Success };
+    private static readonly ValidationResult _none = new() { Status = ValidationStatus.None };
+
     /// <summary>
     /// Gets the validation status.
     /// </summary>
@@ -33,13 +36,13 @@ public sealed class ValidationResult
     /// Creates a successful validation result.
     /// </summary>
     /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
-    public static ValidationResult Success() => new() { Status = ValidationStatus.Success };
+    public static ValidationResult Success() => _success;
 
     /// <summary>
     /// Creates a validation result with no validation performed yet.
     /// </summary>
     /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
-    public static ValidationResult None() => new() { Status = ValidationStatus.None };
+    public static ValidationResult None() => _none;
 
     /// <summary>
     /// Creates a failed validation result with an error message.

@@ -21,6 +21,7 @@ else
 }
 
 @code {
+    private QuarkAttributeDictionary _linkAttributesBuffer;
     [Parameter]
     public string? Href { get; set; }
 
@@ -29,15 +30,10 @@ else
 
     private Dictionary<string, object> BuildLinkAttributes()
     {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "breadcrumb-link"
-        };
+        var attributes = _linkAttributesBuffer.Create(2);
+        attributes["data-slot"] = "breadcrumb-link";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "transition-colors hover:text-foreground");
-        });
+        PrependClassAttribute(attributes, "transition-colors hover:text-foreground");
 
         return attributes;
     }

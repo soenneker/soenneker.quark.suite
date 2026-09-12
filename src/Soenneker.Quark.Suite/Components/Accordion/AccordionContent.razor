@@ -10,6 +10,7 @@
 </BradixAccordionContent>
 
 @code {
+    private QuarkAttributeDictionary _attributesBuffer;
 
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
@@ -38,10 +39,8 @@
         {
             Class = null;
 
-            Dictionary<string, object> attributes = new(BuildAttributes())
-            {
-                ["data-slot"] = "accordion-content"
-            };
+            Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 1);
+            attributes["data-slot"] = "accordion-content";
 
             BuildClassAttribute(attributes, (ref cls) =>
             {

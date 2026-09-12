@@ -55,6 +55,8 @@
     [Parameter]
     public string Variant { get; set; } = "default";
 
+    private QuarkAttributeDictionary _itemAttributesBuffer;
+
     private IReadOnlyDictionary<string, object> ItemAttributes => BuildItemAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -83,14 +85,7 @@
         if (Indented)
             attributes["data-inset"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/dropdown-menu-item");
-            AppendClass(ref cls, "not-data-[variant=destructive]:focus:**:text-accent-foreground");
-            AppendClass(ref cls, "data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7");
-            AppendClass(ref cls, "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive");
-        });
+        PrependClassAttribute(attributes, "group/dropdown-menu-item not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive");
 
         if (Active)
         {
@@ -100,7 +95,7 @@
 
     private IReadOnlyDictionary<string, object> BuildItemAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
+        Dictionary<string, object> attributes = _itemAttributesBuffer.Create(BuildAttributes());
         attributes.Remove("href");
         attributes.Remove("target");
         attributes.Remove("type");

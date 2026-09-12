@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Element
 
@@ -23,9 +23,10 @@
         </SelectTrigger>
         <SelectContent MinWidth="@ContentMinWidth">
             <SelectGroup>
-                @for (var i = 0; i < ResolvedPageSizeOptions.Length; i++)
+                @{ var pageSizes = ResolvedPageSizeOptions; }
+                @for (var i = 0; i < pageSizes.Length; i++)
                 {
-                    var size = ResolvedPageSizeOptions[i];
+                    var size = pageSizes[i];
                     <SelectItem @key="size" TValue="int" ItemValue="@size" Text="@GetPageSizeText(size)" />
                 }
             </SelectGroup>
@@ -206,8 +207,9 @@
         AddIf(ref hc, TriggerWidth);
         AddIf(ref hc, ResolvedTriggerTextColor);
         AddIf(ref hc, ContentMinWidth);
-        hc.Add(ResolvedPageSizeOptions.Length);
-        foreach (var size in ResolvedPageSizeOptions)
+        var pageSizes = ResolvedPageSizeOptions;
+        hc.Add(pageSizes.Length);
+        foreach (var size in pageSizes)
             hc.Add(size);
     }
 }

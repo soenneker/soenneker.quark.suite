@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @using Microsoft.JSInterop
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -125,8 +125,12 @@
         {
         }
 
-        _dotNetRef?.Dispose();
-        await base.DisposeAsync();
+        finally
+        {
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            await base.DisposeAsync();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -13,7 +13,8 @@ export function initialize(element, options, dotNetRef) {
   const history = options?.history !== false;
   const throttleTime = Number.isFinite(options?.throttleTime) ? options.throttleTime : 0;
   const anchorSelector = `[data-${dataAttribute}-anchor]`;
-  let anchors = Array.from(element.querySelectorAll(anchorSelector));
+  let anchors = element.querySelectorAll(anchorSelector);
+  const initialHash = window.location.hash.replace("#", "");
   let previousId = null;
   let timeout = 0;
   let frame = 0;
@@ -78,7 +79,7 @@ export function initialize(element, options, dotNetRef) {
   };
 
   const handleScroll = () => {
-    anchors = Array.from(element.querySelectorAll(anchorSelector));
+    anchors = element.querySelectorAll(anchorSelector);
 
     if (!anchors.length) {
       return;
@@ -182,12 +183,11 @@ export function initialize(element, options, dotNetRef) {
   };
 
   const scrollToHashSection = () => {
-    const hash = window.location.hash.replace("#", "");
-    if (!hash) {
+    if (!initialHash) {
       return;
     }
 
-    const escaped = window.CSS?.escape ? CSS.escape(hash) : hash.replace(/"/g, '\\"');
+    const escaped = window.CSS?.escape ? CSS.escape(initialHash) : initialHash.replace(/"/g, '\\"');
     const anchor = element.querySelector(`[data-${dataAttribute}-anchor="${escaped}"]`);
 
     if (anchor) {

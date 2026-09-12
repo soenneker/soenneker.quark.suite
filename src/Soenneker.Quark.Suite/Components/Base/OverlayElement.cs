@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -87,6 +88,7 @@ public abstract class OverlayElement : InteractiveElement
     private ElementReference _overlayContentElement;
     private bool _hasOverlayContentElement;
     private bool _overlayBehaviorActive;
+    private ValueAtomicBool _overlayDisposed;
 
     protected override bool ShouldRender()
     {
@@ -135,6 +137,9 @@ public abstract class OverlayElement : InteractiveElement
 
     protected virtual async Task OnOverlayShown()
     {
+        if (_overlayDisposed.Read() || !Visible)
+            return;
+
         try
         {
             if (!_hasOverlayContentElement)
@@ -143,11 +148,15 @@ public abstract class OverlayElement : InteractiveElement
                     await OverlayInterop.ActivateScrollLock(_overlayId);
 
                 _overlayBehaviorActive = true;
-                return;
+            }
+            else
+            {
+                await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
+                _overlayBehaviorActive = true;
             }
 
-            await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
-            _overlayBehaviorActive = true;
+            if (_overlayDisposed.Read() || !Visible)
+                await DeactivateOverlayBehavior();
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
@@ -181,7 +190,9 @@ public abstract class OverlayElement : InteractiveElement
 
         try
         {
-            await OverlayInterop.Deactivate(_overlayId, LockScroll);
+            // JavaScript tracks the lock owned by this overlay. Current parameters may
+            // have changed since activation, so always release that owned lock.
+            await OverlayInterop.Deactivate(_overlayId);
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
@@ -198,6 +209,8 @@ public abstract class OverlayElement : InteractiveElement
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
+        if (!_overlayDisposed.TrySetTrue())
+            return;
         await DeactivateOverlayBehavior();
         await base.DisposeAsync();
     }

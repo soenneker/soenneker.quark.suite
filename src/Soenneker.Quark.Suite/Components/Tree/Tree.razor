@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentTree" Value="@this" IsFixed="true">
@@ -31,7 +31,10 @@
         _items.Remove(item);
 
         if (ReferenceEquals(_currentItem, item))
+        {
             _currentItem = FindFirstEnabledItem();
+            _currentItem?.RefreshTreeItem();
+        }
     }
 
     internal bool IsCurrent(TreeItem item) => !item.Disabled && ReferenceEquals(_currentItem, item);

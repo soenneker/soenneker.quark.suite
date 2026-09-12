@@ -13,7 +13,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
+    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -30,7 +30,7 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -47,6 +47,7 @@ else
 }
 
 @code {
+    private RenderFragment? _triggerChildContent;
     private RenderAttributeDictionary? _wrapperAttributes;
 
     [CascadingParameter]
@@ -341,7 +342,7 @@ else
         if (TriggerContext is null || ChildContent is null)
             return ChildContent;
 
-        return @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true">
+        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true">
                    @ChildContent
                </CascadingValue>;
     }
@@ -536,10 +537,6 @@ else
         }
     }
 
-    private static Task HandleKeyUp(KeyboardEventArgs args)
-    {
-        return Task.CompletedTask;
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

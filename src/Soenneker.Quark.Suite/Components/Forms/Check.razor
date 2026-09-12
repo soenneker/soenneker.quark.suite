@@ -199,12 +199,14 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+
+        if (firstRender && ParentValidation is not null)
         {
             if (CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
 
             await ParentValidation.InitializeInput(this);
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -342,7 +344,8 @@ else
             await ParentValidation.NotifyInputChanged(next);
         }
 
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
+        if (OnChange.HasDelegate)
+            await OnChange.InvokeAsync(new ChangeEventArgs { Value = next });
         await base.HandleClick(new MouseEventArgs());
     }
 
@@ -364,11 +367,11 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-        }
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

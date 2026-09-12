@@ -6,6 +6,8 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="ISemanticTitleElement"/>
 public abstract class SemanticTitleElement : TypographyElement, ISemanticTitleElement
 {
+    private RenderFragment? _titleFragment;
+
     /// <summary>
     /// Gets or sets the semantic heading level. When omitted, the component retains its neutral default element.
     /// </summary>
@@ -20,7 +22,7 @@ public abstract class SemanticTitleElement : TypographyElement, ISemanticTitleEl
     /// <summary>
     /// Renders the title using the selected semantic element.
     /// </summary>
-    protected RenderFragment RenderSemanticTitle() => builder =>
+    protected RenderFragment RenderSemanticTitle() => _titleFragment ??= builder =>
     {
         builder.OpenElement(0, ResolveTitleTag());
         builder.AddMultipleAttributes(1, BuildAttributes());

@@ -147,6 +147,9 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
+        if (firstRender && ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+
         if (firstRender)
             await InputInterop.Initialize();
 
@@ -157,7 +160,6 @@ else
 			if (ValueExpression is not null)
 				await ParentValidation.InitializeInputExpression(ValueExpression);
 			
-			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
         await RestorePendingSelection();
@@ -348,13 +350,12 @@ else
     }
 
 	public override async ValueTask DisposeAsync()
-    {
-		await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
-
-		if (ParentValidation is not null)
-			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-	    }
+        {
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
+    }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{

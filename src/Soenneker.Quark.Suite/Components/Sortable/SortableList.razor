@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Utils.Ids
 @namespace Soenneker.Quark
@@ -16,8 +17,11 @@
     private readonly string _listId = BlazorIdGenerator.New("quark-sortable");
     private DotNetObjectReference<SortableList>? _dotNetRef;
     private string? _initializationError;
-    private string? _lastInitializationKey;
-    private string? _lastFailedInitializationKey;
+    private ValueAtomicBool _disposed;
+    private InitializationKey? _lastInitializationKey;
+    private InitializationKey? _lastFailedInitializationKey;
+    private readonly record struct InitializationKey(bool Disabled, bool Sort, int AnimationMs, bool ForceFallback,
+        string ItemSelector, string? HandleSelector, string? FilterSelector, string? Group, string ListId, bool NotifyOnReorder);
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -111,17 +115,28 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_disposed.Read())
+            return;
+
+        var initializationKey = new InitializationKey(Disabled, Sort, AnimationMs, ForceFallback, ItemSelector,
+            ResolveHandleSelector(), FilterSelector, Group, ResolveListId(), OnReorder.HasDelegate);
         try
         {
-            await SortableInterop.Initialize();
-
-            _dotNetRef ??= DotNetObjectReference.Create(this);
-            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}|{ResolveListId()}|{OnReorder.HasDelegate}";
-
-            if (firstRender || !string.Equals(_lastInitializationKey, initializationKey, StringComparison.Ordinal))
+            if (firstRender || _lastInitializationKey != initializationKey)
             {
+                await SortableInterop.Initialize();
+                if (_disposed.Read())
+                    return;
+
+                _dotNetRef ??= DotNetObjectReference.Create(this);
                 await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ForceFallback, ItemSelector, ResolveHandleSelector(), FilterSelector,
                     Group, OnReorder.HasDelegate, _dotNetRef);
+                if (_disposed.Read())
+                {
+                    await SortableInterop.Destroy(ElementRef);
+                    return;
+                }
+
                 _lastInitializationKey = initializationKey;
                 _lastFailedInitializationKey = null;
             }
@@ -134,11 +149,11 @@
         }
         catch (Exception ex)
         {
-            var initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}|{ResolveListId()}|{OnReorder.HasDelegate}";
-            var error = ex.GetType().Name;
+            if (_disposed.Read())
+                return;
 
-            if (!string.Equals(_initializationError, error, StringComparison.Ordinal) ||
-                !string.Equals(_lastFailedInitializationKey, initializationKey, StringComparison.Ordinal))
+            var error = ex.GetType().Name;
+            if (!string.Equals(_initializationError, error, StringComparison.Ordinal) || _lastFailedInitializationKey != initializationKey)
             {
                 _initializationError = error;
                 _lastFailedInitializationKey = initializationKey;
@@ -151,6 +166,8 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (!_disposed.TrySetTrue())
+            return;
         try
         {
             await SortableInterop.Destroy(ElementRef);
@@ -158,9 +175,12 @@
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
         }
-
-        _dotNetRef?.Dispose();
-        await base.DisposeAsync();
+        finally
+        {
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            await base.DisposeAsync();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -64,6 +64,19 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Literal_class_prefix_matches_builder_and_reuses_literal_without_existing_class()
+    {
+        var probe = new LiteralClassProbe();
+        object?[] existingValues = [null, "", "  ", "caller", " caller ", 123];
+        foreach (object? existing in existingValues)
+        {
+            probe.Build(existing, true).Should().Be(probe.Build(existing, false));
+        }
+
+        ReferenceEquals(probe.Build(null, true), LiteralClassProbe.Classes).Should().BeTrue();
+    }
+
+    [Test]
     public async Task Default_rendering_observes_internal_event_state_after_parent_rerender()
     {
         var cut = Render<InteractiveRenderProbe>(parameters => parameters.Add(component => component.Label, "Count"));
@@ -114,6 +127,24 @@ public sealed class RenderOptimizationTests : BunitContext
             .Add(component => component.Tick, 1));
 
         CascadeKeyProbe.KeyCount.Should().Be(initialKeyCount);
+    }
+}
+
+public sealed class LiteralClassProbe : RenderComponent
+{
+    public const string Classes = "flex items-center gap-2";
+
+    public object Build(object? existing, bool literal)
+    {
+        var attrs = new Dictionary<string, object>();
+        if (existing is not null)
+            attrs["class"] = existing;
+        if (literal)
+            PrependClassAttribute(attrs, Classes);
+        else
+            BuildClassAttribute(attrs, static (ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder cls) =>
+                AppendClass(ref cls, Classes));
+        return attrs["class"];
     }
 }
 

@@ -38,7 +38,9 @@
 
     private bool HasText => Label is not null || ShowSiteName || !ShowFavicon;
 
-    private RenderFragment LabelContent => builder =>
+    private RenderFragment? _labelContent;
+
+    private RenderFragment LabelContent => _labelContent ??= builder =>
     {
         if (Label is not null)
             builder.AddContent(0, Label);
@@ -83,9 +85,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "not-prose hover:bg-border data-[state=open]:opacity-100");
-        });
+        PrependClassAttribute(attributes, "not-prose hover:bg-border data-[state=open]:opacity-100");
     }
 }

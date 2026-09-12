@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
@@ -11,6 +12,7 @@
 </div>
 
 @code {
+    private ValueAtomicBool _disposed;
     /// <summary>
     /// Gets or sets whether the collapse is expanded.
     /// </summary>
@@ -36,7 +38,12 @@
         if (Id.IsNullOrEmpty())
             Id = BlazorIdGenerator.New("quark-collapse");
 
+        if (_disposed.Read())
+            return;
+
         await CollapseCoordinator.Register(this);
+        if (_disposed.Read())
+            await CollapseCoordinator.Unregister(this);
     }
 
     protected override void ApplyDefaultParameters()
@@ -147,7 +154,15 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await CollapseCoordinator.Unregister(this);
-        await base.DisposeAsync();
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            await CollapseCoordinator.Unregister(this);
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
     }
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
+using System;
 
 namespace Soenneker.Quark;
 
@@ -13,8 +13,13 @@ public sealed class ChartSeries
     }
 
     public ChartSeries(string name, IReadOnlyList<double> values)
-        : this(name, values.Select(static value => (double?) value).ToArray())
     {
+        ArgumentNullException.ThrowIfNull(values);
+        Name = name;
+        var snapshot = values.Count == 0 ? Array.Empty<double?>() : new double?[values.Count];
+        for (var index = 0; index < snapshot.Length; index++)
+            snapshot[index] = values[index];
+        Values = snapshot;
     }
 
     /// <summary>Gets the series name used in legends and tooltips.</summary>

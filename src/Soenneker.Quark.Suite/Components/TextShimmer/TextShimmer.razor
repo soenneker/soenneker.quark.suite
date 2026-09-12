@@ -57,14 +57,11 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]");
-        });
+        PrependClassAttribute(attributes, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]");
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
-            AppendStyleDecl(ref sty, $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s");
+            AppendStyleDecl(ref sty, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s"));
             AppendStyleDecl(ref sty, $"background-image:{BuildGradient()}");
             AppendStyleDecl(ref sty, "-webkit-text-fill-color:transparent");
         });

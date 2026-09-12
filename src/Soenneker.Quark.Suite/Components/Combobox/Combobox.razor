@@ -21,6 +21,8 @@
     }
 
     private readonly string _comboboxId = BlazorIdGenerator.New("quark-combobox");
+    private string? _inputId;
+    private string? _contentId;
     private readonly List<ComboboxItem> _items = [];
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
@@ -56,9 +58,9 @@
     [Parameter]
     public bool ShowClear { get; set; }
 
-    internal string InputId => BlazorIdGenerator.Child(_comboboxId, "input");
+    internal string InputId => _inputId ??= BlazorIdGenerator.Child(_comboboxId, "input");
 
-    internal string ContentId => BlazorIdGenerator.Child(_comboboxId, "listbox");
+    internal string ContentId => _contentId ??= BlazorIdGenerator.Child(_comboboxId, "listbox");
 
     internal string? ActiveItemId => GetActiveItemId();
 

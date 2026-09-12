@@ -107,6 +107,9 @@
 	private string? DirectionProviderDir { get; set; }
 
 	private const string ThumbSizeClass = "size-3";
+	private double[]? _resolvedValues;
+	private double[] _sourceValuesSnapshot = [];
+	private (double Min, double Max, double Step, double Value, bool Multiple) _resolvedValuesState;
 	private double[] _valuesBeforeSlideStart = [];
 	private int _focusedThumbIndex = -1;
 	private int _draggingThumbIndex = -1;
@@ -115,7 +118,7 @@
 	private bool IsVertical => Orientation == Orientation.Vertical;
 	private string OrientationValue => Orientation.Value;
 	private bool IsInteractive => !Disabled && !ReadOnly;
-	public object? ValidationValue => UsesValuesApi ? GetResolvedValues() : SliderValue;
+	public object? ValidationValue => UsesValuesApi ? (double[])GetResolvedValues().Clone() : SliderValue;
 
 	private bool ResolveIsRtl()
 	{
@@ -140,7 +143,17 @@
 		return false;
 	}
 
-	private double[] GetResolvedValues()
+    private double[] GetResolvedValues()
+    {
+        var state = (Min, Max, Step, SliderValue, UsesValuesApi);
+        if (_resolvedValues is not null && _resolvedValuesState.Equals(state) && Values.AsSpan().SequenceEqual(_sourceValuesSnapshot))
+            return _resolvedValues;
+        _resolvedValuesState = state;
+        _sourceValuesSnapshot = Values is null ? [] : (double[])Values.Clone();
+        return _resolvedValues = CreateResolvedValues();
+    }
+
+	private double[] CreateResolvedValues()
 	{
 		if (UsesValuesApi)
 		{
@@ -290,10 +303,10 @@
 			await ParentValidation.NotifyInputChanged(ValidationValue);
 		}
 
-		if (notifyInput && valueChanged)
+		if (notifyInput && valueChanged && OnInput.HasDelegate)
 			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
 
-		if (notifyChange && (valueChanged || markTouched))
+		if (notifyChange && (valueChanged || markTouched) && OnChange.HasDelegate)
 			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
 
 		if (valueChanged)
@@ -328,7 +341,7 @@
 		if (ParentValidation is not null)
 			await ParentValidation.NotifyInputChanged(ValidationValue);
 
-		if (normalized.Length > 0)
+		if (normalized.Length > 0 && OnInput.HasDelegate)
 			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
 
 		Refresh();
@@ -344,7 +357,7 @@
 			await ParentValidation.NotifyInputChanged(ValidationValue);
 		}
 
-		if (normalized.Length > 0)
+		if (normalized.Length > 0 && OnChange.HasDelegate)
 			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
 	}
 
@@ -452,27 +465,18 @@
 		var attributes = _trackAttributeDictionaries.Create(2);
 		attributes["data-slot"] = "slider-track";
 
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1");
-		});
+		PrependClassAttribute(attributes, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1");
 
 		return attributes;
 	}
 
 	private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
 	{
-		var startPercent = values.Count > 1 ? ValueToPercent(values[0]) : 0d;
-		var endPercent = ValueToPercent(values[^1]);
-		var sizePercent = Math.Max(0d, endPercent - startPercent);
 
 		var attributes = _rangeAttributeDictionaries.Create(4);
 		attributes["data-slot"] = "slider-range";
 
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "absolute bg-primary select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
-		});
+		PrependClassAttribute(attributes, "absolute bg-primary select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
 
 		return attributes;
 	}
@@ -480,7 +484,7 @@
 	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
 	{
 		if (_thumbAttributeDictionaries.Length <= index)
-			Array.Resize(ref _thumbAttributeDictionaries, index + 1);
+			Array.Resize(ref _thumbAttributeDictionaries, Math.Max(index + 1, Math.Max(2, _thumbAttributeDictionaries.Length * 2)));
 
 		var attributes = _thumbAttributeDictionaries[index].Create(12 + (index == 0 ? Attributes?.Count ?? 0 : 0));
 		attributes["data-slot"] = "slider-thumb";

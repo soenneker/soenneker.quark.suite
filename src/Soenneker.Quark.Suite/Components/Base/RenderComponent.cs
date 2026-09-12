@@ -82,7 +82,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     public Task RefreshOffThread()
     {
         InvalidateRender();
-        return InvokeAsync(StateHasChanged);
+        return RequestRender();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -330,8 +330,13 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (value is RenderFragment)
             return true;
 
-        Type? type = value?.GetType();
-        return type is { IsGenericType: true } && type.GetGenericTypeDefinition() == typeof(RenderFragment<>);
+        // Only delegates can be render fragments. Most values here are boxed CSS builders
+        // and event callbacks; avoid generic reflection for every such parameter.
+        if (value is not Delegate callback)
+            return false;
+
+        Type type = callback.GetType();
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(RenderFragment<>);
     }
 
     private static void AddIncomingParameterValue(ref HashCode hashCode, object? value)
@@ -641,6 +646,19 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         {
             builder.Dispose();
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void PrependClassAttribute(Dictionary<string, object> attrs, string className)
+    {
+        if (string.IsNullOrEmpty(className))
+            return;
+
+        attrs.TryGetValue("class", out var existing);
+        var existingString = existing as string ?? existing?.ToString();
+        attrs["class"] = existingString.HasContent()
+            ? string.Concat(className, " ", existingString)
+            : className;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
