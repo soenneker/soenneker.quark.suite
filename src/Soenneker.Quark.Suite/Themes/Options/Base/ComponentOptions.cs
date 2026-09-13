@@ -1464,10 +1464,10 @@ public class ComponentOptions
             tokenStart = -1;
         }
 
-        if (!hasFlexDisplay || resolvedValue is null)
+        if (resolvedValue is null)
             return null;
 
-        return ["display: flex", $"{fallbackProperty}: {resolvedValue}"];
+        return hasFlexDisplay ? ["display: flex", $"{fallbackProperty}: {resolvedValue}"] : [$"{fallbackProperty}: {resolvedValue}"];
     }
 
     private static IEnumerable<string> SplitDeclarations(string value)

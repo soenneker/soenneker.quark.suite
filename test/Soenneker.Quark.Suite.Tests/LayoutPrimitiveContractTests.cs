@@ -68,6 +68,7 @@ public sealed partial class RenderedShadcnParityTests
         verticalClasses.Should().Contain("flex-col");
         verticalClasses.Should().Contain("gap-3");
         horizontalClasses.Should().Contain("inline-flex");
+        horizontalClasses.Split(' ').Should().NotContain("flex");
         horizontalClasses.Should().Contain("flex-row");
         horizontalClasses.Should().Contain("flex-wrap");
     }

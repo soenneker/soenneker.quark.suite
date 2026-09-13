@@ -208,11 +208,11 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// </summary>
     CssValue<FlexBuilder>? Flex { get; set; }
     /// <summary>
-    /// Gets or sets flex direction.
+    /// Gets or sets flex direction without changing display. Set Display to Flex or InlineFlex explicitly.
     /// </summary>
     CssValue<FlexDirectionBuilder>? FlexDirection { get; set; }
     /// <summary>
-    /// Gets or sets flex wrap.
+    /// Gets or sets flex wrapping without changing display. Set Display to Flex or InlineFlex explicitly.
     /// </summary>
     CssValue<FlexWrapBuilder>? FlexWrap { get; set; }
     /// <summary>

@@ -130,17 +130,32 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         var box = cut.Find("[data-slot='test-box']");
         var classes = box.GetAttribute("class")!;
 
-        classes.Should().Contain("flex");
+        classes.Split(' ').Should().NotContain("flex");
         classes.Should().Contain("flex-col");
-        classes.Should().Contain("md:flex");
+        classes.Split(' ').Should().NotContain("md:flex");
         classes.Should().Contain("md:flex-row");
         classes.Should().Contain("flex-wrap");
-        classes.Should().Contain("lg:flex");
+        classes.Split(' ').Should().NotContain("lg:flex");
         classes.Should().Contain("lg:flex-nowrap");
         classes.Should().Contain("grow-0");
         classes.Should().Contain("sm:grow");
     }
 
+    [Test]
+    public void Component_flex_wrap_preserves_explicit_inline_display()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.Display, Display.InlineFlex)
+            .Add(p => p.FlexDirection, FlexDirection.Col.OnMd.Row)
+            .Add(p => p.FlexWrap, FlexWrap.Wrap.OnLg.NoWrap));
+
+        var classes = cut.Find("[data-slot='test-box']").GetAttribute("class")!.Split(' ');
+        classes.Should().Contain("inline-flex");
+        classes.Should().Contain("flex-wrap");
+        classes.Should().Contain("lg:flex-nowrap");
+        classes.Should().NotContain("flex");
+        classes.Should().NotContain("lg:flex");
+    }
     [Test]
     public void Component_duration_property_uses_builder_output()
     {

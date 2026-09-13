@@ -98,9 +98,27 @@ public class ComponentsCssGeneratorTests
 
         var result = ComponentsCssGenerator.Generate(theme);
 
-        result.Should().Be("[data-slot='div'] {\n  display: flex;\n  flex-direction: column;\n  display: flex;\n  flex-wrap: wrap;\n  flex-grow: 0;\n}");
+        result.Should().Be("[data-slot='div'] {\n  flex-direction: column;\n  flex-wrap: wrap;\n  flex-grow: 0;\n}");
     }
 
+    [Test]
+    public void Generate_WithFlexWrap_PreservesInlineFlexDisplay()
+    {
+        var theme = new Theme
+        {
+            Divs = new DivOptions
+            {
+                Display = Display.InlineFlex,
+                FlexDirection = FlexDirection.Col,
+                FlexWrap = FlexWrap.Wrap
+            }
+        };
+
+        var result = ComponentsCssGenerator.Generate(theme);
+        result.Should().Contain("display: inline-flex;");
+        result.Should().Contain("flex-wrap: wrap;");
+        result.Should().NotContain("display: flex;");
+    }
     [Test]
     public void Generate_WithQuarkBuilderValues_ReturnsComponentCss()
     {

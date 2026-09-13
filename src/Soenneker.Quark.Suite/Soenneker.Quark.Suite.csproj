@@ -127,6 +127,10 @@
         <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(UseLocalProjects)' == 'true' Or '$(UseLocalQuarkBuildersProject)' == 'true'">
+        <ProjectReference Include="$(LocalQuarkBuildersProject)" />
+    </ItemGroup>
+
     <!-- Always-on dependencies -->
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.C15t" Version="4.0.77" />
@@ -149,7 +153,7 @@
     <!-- Switch: NuGet -->
     <ItemGroup Condition="'$(UseLocalProjects)' != 'true'">
         <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.288" Condition="'$(UseLocalBradixProject)' != 'true'" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.272" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.272" Condition="'$(UseLocalQuarkBuildersProject)' != 'true'" />
 
         <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.16">
             <PrivateAssets>all</PrivateAssets>
@@ -184,7 +188,7 @@
         <ProjectReference Include="$(LocalClipboardProject)" />
         <ProjectReference Include="$(LocalCreditCardsProject)" />
         <ProjectReference Include="$(LocalSignaturePadsProject)" />
-        <ProjectReference Include="$(LocalQuarkBuildersProject)" />
+
 
         <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
         <ProjectReference Include="$(LocalQuarkGenSimpleIconsAbstractionsProject)" />
