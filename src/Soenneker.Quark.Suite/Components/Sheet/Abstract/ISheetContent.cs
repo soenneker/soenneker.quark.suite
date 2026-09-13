@@ -15,4 +15,10 @@ public interface ISheetContent : IElement
     /// Gets or sets a value indicating whether show close button.
     /// </summary>
     bool ShowCloseButton { get; set; }
+
+    /// <summary>
+    /// Keeps non-modal sheet content rendered and hidden while closed. Sheets with
+    /// focus trapping enabled retain their normal mount and unmount lifecycle.
+    /// </summary>
+    bool KeepMounted { get; set; }
 }

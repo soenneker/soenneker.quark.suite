@@ -12,7 +12,9 @@
     }
 
     <BradixDialogContent Id="@Context?.ContentId"
-                         CloseOnEscapeKeyDown="@(ParentSheet?.CloseOnEscape ?? true)"
+                         ForceMount="@ShouldKeepMounted"
+                         PreventMountAutoFocus="@IsMountedClosed"
+                         CloseOnEscapeKeyDown="@(!IsMountedClosed && (ParentSheet?.CloseOnEscape ?? true))"
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
                          OnPointerDownOutside="HandleBackdropPointerDownOutside"
@@ -58,6 +60,13 @@
     public bool ShowCloseButton { get; set; } = true;
 
     [Parameter]
+    public bool KeepMounted { get; set; }
+
+    private bool ShouldKeepMounted => KeepMounted && ParentSheet?.TrapFocus == false;
+
+    private bool IsMountedClosed => ShouldKeepMounted && ParentSheet?.Visible != true;
+
+    [Parameter]
     public string? ContainerClass { get; set; }
 
     [Parameter]
@@ -71,6 +80,7 @@
 
     private bool ShouldCloseOnOutsideInteraction =>
         ParentSheet is not null &&
+        !IsMountedClosed &&
         !ParentSheet.Static &&
         ParentSheet.CloseOnBackdropClick;
 
@@ -104,6 +114,13 @@
 
         if (!attributes.ContainsKey("data-side"))
             attributes["data-side"] = GetSideValue(Side);
+
+        if (IsMountedClosed)
+        {
+            attributes["hidden"] = true;
+            attributes["inert"] = true;
+            attributes["style"] = $"{(attributes.TryGetValue("style", out var style) ? style : null)}; display: none !important;";
+        }
 
     }
 
@@ -162,6 +179,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Side);
         hc.Add(ShowCloseButton);
+        hc.Add(KeepMounted);
         hc.Add(ContainerClass);
         hc.Add(ContainerStyle);
         hc.Add(OverlayClass);

@@ -6,20 +6,25 @@
              MobileShowBackdrop="false"
              MobileShowCloseButton="false"
              MobileTrapFocus="false"
+             MobileKeepMounted="true"
              MobileOffsetTop="calc(3rem + 2px)">
         <MobileContent>
-            <NavigationLinks Items="Items" Mode="NavigationLinksMode.Stack" Title="Menu" IsActive="IsActive" />
-            @if (IncludeDocsNavigation)
-            {
-                <NavigationLinks Items="DocsNavigation.SectionLinks" Mode="NavigationLinksMode.Stack" Title="Sections" IsActive="IsActive" />
-                <NavigationLinks Items="DocsNavigation.ComponentLinks" Mode="NavigationLinksMode.Stack" Title="Components" IsActive="IsActive" />
-                <NavigationLinks Items="DocsNavigation.PrimitiveLinks" Mode="NavigationLinksMode.Stack" Title="Primitives" IsActive="IsActive" />
-            }
+            @NavigationContent
         </MobileContent>
     </Sidebar>
 }
 
 @code {
+    private RenderFragment NavigationContent => @<text>
+        <NavigationLinks Items="Items" Mode="NavigationLinksMode.Stack" Title="Menu" IsActive="IsActive" />
+        @if (IncludeDocsNavigation)
+        {
+            <NavigationLinks Items="DocsNavigation.SectionLinks" Mode="NavigationLinksMode.Stack" Title="Sections" IsActive="IsActive" />
+            <NavigationLinks Items="DocsNavigation.ComponentLinks" Mode="NavigationLinksMode.Stack" Title="Components" IsActive="IsActive" />
+            <NavigationLinks Items="DocsNavigation.PrimitiveLinks" Mode="NavigationLinksMode.Stack" Title="Primitives" IsActive="IsActive" />
+        }
+    </text>;
+
     [CascadingParameter(Name = "SidebarContextState")]
     public Soenneker.Quark.Dtos.SidebarContextState? State { get; set; }
 

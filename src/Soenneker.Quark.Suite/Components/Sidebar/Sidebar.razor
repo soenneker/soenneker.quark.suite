@@ -6,7 +6,7 @@
 @if (ShouldRenderMobileSidebar)
 {
     <Sheet Visible="State?.OpenMobile == true" VisibleChanged="OnMobileVisibleChanged" ShowBackdrop="MobileShowBackdrop" CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick" CloseOnEscape="MobileCloseOnEscape" LockScroll="MobileLockScroll" TrapFocus="@ResolvedMobileTrapFocus">
-        <SheetContent Side="@ToSheetSide(Side)" ShowCloseButton="MobileShowCloseButton" ContainerClass="@GetMobileContainerClass()" ContainerStyle="@GetMobileContainerStyle()" OverlayClass="@MobileOverlayClass" OverlayStyle="@GetMobileOverlayStyle()" @attributes="BuildMobileAttributes()">
+        <SheetContent Side="@ToSheetSide(Side)" KeepMounted="MobileKeepMounted" ShowCloseButton="MobileShowCloseButton" ContainerClass="@GetMobileContainerClass()" ContainerStyle="@GetMobileContainerStyle()" OverlayClass="@MobileOverlayClass" OverlayStyle="@GetMobileOverlayStyle()" @attributes="BuildMobileAttributes()">
             <SheetHeader ScreenReader="Quark.ScreenReader.Only">
                 <SheetTitle>Sidebar</SheetTitle>
                 <SheetDescription>Displays the mobile sidebar.</SheetDescription>
@@ -111,6 +111,12 @@ else
 
     [Parameter]
     public bool? MobileTrapFocus { get; set; }
+
+    /// <summary>
+    /// Keeps the mobile content rendered while closed when mobile focus trapping is disabled.
+    /// </summary>
+    [Parameter]
+    public bool MobileKeepMounted { get; set; }
 
     [Parameter]
     public string? MobileClass { get; set; }
@@ -487,6 +493,7 @@ else
         hc.Add(MobileLockScroll);
         hc.Add(MobileShowCloseButton);
         hc.Add(MobileTrapFocus);
+        hc.Add(MobileKeepMounted);
         hc.Add(MobileClass);
         hc.Add(MobileStyle);
         hc.Add(MobileOffsetTop);
