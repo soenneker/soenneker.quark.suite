@@ -181,7 +181,8 @@ else
 
     private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
-    private string ControlId => Id ?? CurrentFieldContext?.ControlId ?? string.Empty;
+    private string? _generatedId;
+    private string ControlId => Id != _generatedId ? Id! : CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedCheckboxValue => Value.HasContent() ? Value! : "on";
     private BradixCheckboxCheckedState CurrentCheckedState => Indeterminate
         ? BradixCheckboxCheckedState.Indeterminate
@@ -191,7 +192,7 @@ else
 
     protected override void OnInitialized()
     {
-        Id ??= BlazorIdGenerator.New("quark-check");
+        Id ??= _generatedId = BlazorIdGenerator.New("quark-check");
 
         base.OnInitialized();
     }

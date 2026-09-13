@@ -1,33 +1,31 @@
 @using System.Text.Json
 @using System
 @using System.Collections.Generic
-@using System.Threading.Tasks
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
 
 <PageTitle>@Title</PageTitle>
 <HeadContent>
-    <meta data-quark-seo name="description" content="@Description" />
-    <meta data-quark-seo name="robots" content="@(NoIndex ? "noindex, follow" : "index, follow, max-image-preview:large")" />
+    <meta name="description" content="@Description" />
+    <meta name="robots" content="@(NoIndex ? "noindex, follow" : "index, follow, max-image-preview:large")" />
     @if (!NoIndex)
     {
-        <link data-quark-seo rel="canonical" href="@CanonicalUrl" />
-        <meta data-quark-seo property="og:type" content="website" />
-        <meta data-quark-seo property="og:site_name" content="Quark Suite" />
-        <meta data-quark-seo property="og:locale" content="en_US" />
-        <meta data-quark-seo property="og:title" content="@Title" />
-        <meta data-quark-seo property="og:description" content="@Description" />
-        <meta data-quark-seo property="og:url" content="@CanonicalUrl" />
-        <meta data-quark-seo property="og:image" content="https://quark.soenneker.com/social-card.png" />
-        <meta data-quark-seo property="og:image:width" content="1200" />
-        <meta data-quark-seo property="og:image:height" content="630" />
-        <meta data-quark-seo property="og:image:alt" content="Quark Suite — Blazor components inspired by shadcn/ui" />
-        <meta data-quark-seo name="twitter:card" content="summary_large_image" />
-        <meta data-quark-seo name="twitter:title" content="@Title" />
-        <meta data-quark-seo name="twitter:description" content="@Description" />
-        <meta data-quark-seo name="twitter:image" content="https://quark.soenneker.com/social-card.png" />
-        <meta data-quark-seo name="twitter:image:alt" content="Quark Suite — Blazor components inspired by shadcn/ui" />
-        <script data-quark-seo type="application/ld+json">@((MarkupString)StructuredData)</script>
+        <link rel="canonical" href="@CanonicalUrl" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Quark Suite" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content="@Title" />
+        <meta property="og:description" content="@Description" />
+        <meta property="og:url" content="@CanonicalUrl" />
+        <meta property="og:image" content="https://quark.soenneker.com/social-card.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Quark Suite — Blazor components inspired by shadcn/ui" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="@Title" />
+        <meta name="twitter:description" content="@Description" />
+        <meta name="twitter:image" content="https://quark.soenneker.com/social-card.png" />
+        <meta name="twitter:image:alt" content="Quark Suite — Blazor components inspired by shadcn/ui" />
+        <script type="application/ld+json">@((MarkupString)StructuredData)</script>
     }
 </HeadContent>
 
@@ -73,9 +71,4 @@
         }
     });
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // The static snapshot remains readable until Blazor has rendered fresh head content.
-        await JS.InvokeVoidAsync("quarkDemo.clearPrerenderedMetadata");
-    }
 }

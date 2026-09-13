@@ -151,6 +151,7 @@ public sealed class ChartRenderTests : BunitContext
         cut.Find("[data-slot='chart']").GetAttribute("class").Should().Contain("quark-chart");
         cut.Find("svg").GetAttribute("viewBox").Should().Be("0 0 800 320");
         cut.Find("svg").GetAttribute("aria-label").Should().Be("Monthly performance");
+        cut.Find("svg").GetAttribute("role").Should().Be("group");
         cut.FindAll("[data-slot='chart-line']").Should().HaveCount(2);
         cut.FindAll(".quark-chart-point").Should().HaveCount(6);
         cut.FindAll(".quark-chart-legend-item").Should().HaveCount(2);

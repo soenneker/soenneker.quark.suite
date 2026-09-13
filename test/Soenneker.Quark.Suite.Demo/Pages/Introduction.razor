@@ -1,117 +1,62 @@
 @page "/introduction"
 
-<SeoHead Title="Quark Suite: A Blazor Component Library | Introduction" Description="Explore Quark Suite, a Blazor UI component library inspired by shadcn/ui. Learn about composition, typed Tailwind styling, forms, navigation, and layout." />
+<SeoHead Title="Build application UI with Quark | Quark Suite" Description="Composable Blazor components inspired by shadcn/ui, with typed styling, generated assets, and examples you can adapt to your application." />
 
-<Div data-slot="docs"
-     Display="Display.Flex"
-     ItemsAlign="Items.Stretch"
-     ScrollMargin="ScrollMargin.Is24.FromTop"
-     Width="Width.IsFull"
-     Padding="Padding.Is8.FromBottom"
-     class="text-[1.05rem] sm:text-[15px]">
-    <Div Flex="Flex.Is1" FlexDirection="FlexDirection.Col" MinWidth="MinWidth.Is0">
-        <Div Height='Height.Token("h-(--top-spacing)")' Shrink="Shrink.Is0"></Div>
+<DocumentationPage Title="Build application UI with Quark" Description="Composable Blazor components inspired by shadcn/ui, with typed styling, generated assets, and examples you can adapt to your application.">
 
-        <Div Margin="Margin.Auto.OnX"
-             Width="Width.IsFull"
-             MinWidth="MinWidth.Is0"
-             Flex=@("flex flex-1 flex-col")
-             Gap='Gap.Token("6")'
-             class="w-full max-w-none px-0 py-6 text-neutral-800 dark:text-neutral-300 sm:max-w-[40rem] lg:py-8">
-            <Div Flex=@("flex flex-col") Gap="Gap.Is2">
-                <H1 ScrollMargin="ScrollMargin.Is24.FromTop"
-                    TextSize="TextSize.ThreeXl"
-                    FontWeight="FontWeight.Semibold"
-                    Tracking="Tracking.Tight"
-                    TextAlign="TextAlign.Start">
-                    Introduction
-                </H1>
+<Section Id="start-with-a-real-interface">
+    <H2>Start with a real interface</H2>
+    <Paragraph>Quark gives you the building blocks for application screens: forms and validation, navigation and layouts, dialogs, data tables, charts, feedback, and AI/chat interfaces. Use the default component styles to get a working screen, then adapt the design without changing how you write Blazor.</Paragraph>
+<Paragraph><Anchor Href="installation">Install Quark</Anchor> → <Anchor Href="first-component">build your first component</Anchor> → <Anchor Href="components">explore the catalog</Anchor>.</Paragraph>
+</Section>
 
-                <Paragraph TextColor="TextColor.MutedForeground"
-                           TextSize="TextSize.Xl.OnSm.Base"
-                           class="text-[1.05rem] sm:text-balance md:max-w-[85%]">
-                    Quark Suite is a set of accessible, composable Blazor components inspired by shadcn/ui.
-                </Paragraph>
-            </Div>
+<Section Id="composition">
+    <H2>Work with the parts of a component</H2>
+    <Paragraph>Compose a card from its header, content, and actions. Compose a dialog from its trigger and content. Keep input state and event handlers in C#, and pass ordinary HTML attributes where you need them.</Paragraph>
+    <CodeEditor Text="@navigation" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>This example uses <Code>AsChild</Code> to give a real navigation link the button's visual treatment. Use a button for an action and an anchor for navigation; composition lets you keep the right element.</Paragraph>
+</Section>
 
-            <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
-                <Section Space="Space.Y.Is4">
-                    <Paragraph Leading="Leading.Relaxed">
-                        It provides the building blocks for application interfaces: buttons, forms, dialogs, tables, navigation, feedback, layout, and typography. Components have useful defaults, share a consistent API, and render ordinary HTML wherever possible.
-                    </Paragraph>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Use the component API for routine work. When a design needs something more specific, use typed Tailwind properties, add utility classes, pass HTML and ARIA attributes, or compose the lower-level primitives directly.
-                    </Paragraph>
-                </Section>
+<Section Id="styling">
+    <H2>Choose how much styling you want to write</H2>
+    <Paragraph>Start with variants such as <Code>ButtonVariant.Outline</Code>. Reach for typed properties when you need spacing, sizing, responsive layout, and semantic colors. Use <Code>Class</Code> and <Code>Style</Code> for precise custom treatment.</Paragraph>
+    <CodeEditor Text="@chain" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>A modifier configures the next value in the chain. Here, <Code>OnX.Is4</Code> produces horizontal padding and <Code>OnMd.Row</Code> changes the layout at the medium breakpoint. <Anchor Href="properties">Learn the builder model</Anchor>.</Paragraph>
+</Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">A small example</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Quark components are used directly in Razor. Variants and sizes are typed, while standard attributes and event handlers remain available.
-                    </Paragraph>
-                    <CodeEditor Text="@ButtonExample" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
+<Section Id="build-assets">
+    <H2>Your .NET build prepares the assets</H2>
+    <Paragraph>Quark's generators turn source-visible classes, icon names, and theme definitions into assets the browser can use. The Tailwind build provisions Node.js/npm when needed. Icon generators create SVG maps and service registrations. An optional theme generator writes CSS from C#.</Paragraph>
+    <Paragraph>You install the relevant packages, enable the CSS build, and run <Code>dotnet build</Code>. The <Anchor Href="generators">generator guide</Anchor> explains the inputs, outputs, and which packages an application actually needs.</Paragraph>
+</Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">What Quark provides</H2>
-                    <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem><Strong>Components:</Strong> finished interface elements with consistent behavior and shadcn-style defaults.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Primitives:</Strong> semantic building blocks for layouts and custom component composition.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Typed styling:</Strong> C# builders for common Tailwind utilities, responsive values, and theme tokens.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Escape hatches:</Strong> raw classes, styles, data attributes, ARIA attributes, and standard Razor content.</UnorderedListItem>
-                        <UnorderedListItem><Strong>Build tooling:</Strong> generators for the Tailwind stylesheet, Lucide icon map, and optional theme CSS.</UnorderedListItem>
-                    </UnorderedList>
-                </Section>
+<Section Id="behavior">
+    <H2>Interaction behavior comes from Bradix</H2>
+    <Paragraph>Quark uses Bradix primitives for interactions such as focus management, overlays, and composite controls. Bradix is already a suite dependency and is registered by <Code>AddQuarkSuiteAsScoped()</Code>. Your application still supplies meaningful labels, keyboard-friendly flows, and appropriate validation messages.</Paragraph>
+</Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">How styling works</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Quark uses Tailwind utilities and shadcn-compatible CSS variables. Component variants provide the default visual treatment. Shared properties such as <Code>Padding</Code>, <Code>Gap</Code>, <Code>TextColor</Code>, and <Code>Rounded</Code> emit utility classes and support responsive builder values.
-                    </Paragraph>
-                    <CodeEditor Text="@StylingExample" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        The <Code>Class</Code> parameter is always available for one-off utilities, state selectors, or exact overrides. Typed properties are a convenience, not a boundary.
-                    </Paragraph>
-                </Section>
+<Section Id="shadcn">
+    <H2>Familiar design, native Blazor usage</H2>
+    <Paragraph>shadcn/ui informs Quark's visual language, naming, variants, and composition. Quark is distributed as an MIT-licensed NuGet library and uses Razor and .NET APIs. There is no React app or shadcn CLI setup to maintain.</Paragraph>
+    <Paragraph>Use <Anchor Href="themes">theme tokens</Anchor> to make the controls fit your product. The app-owned C# theme and stylesheet order documented here follow patterns used in Leadping; the public <Anchor Href="https://github.com/soenneker/soenneker.blazor.creditcards/tree/main/test/Soenneker.Blazor.CreditCards.Demo">CreditCards demo</Anchor> is a smaller reference for Quark and icon registration.</Paragraph>
+</Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">How it relates to shadcn/ui</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        <Anchor Href="https://ui.shadcn.com/" Target="Target.Blank" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">shadcn/ui</Anchor> is the design reference for many Quark components. Naming, variants, composition, theme tokens, and visual behavior should feel familiar.
-                    </Paragraph>
-                    <Paragraph Leading="Leading.Relaxed">
-                        The delivery model is different. shadcn/ui copies component source into an application; Quark is installed as a NuGet component library. Quark follows the same design language while favoring Razor composition, .NET types, and Blazor conventions over direct React equivalents.
-                    </Paragraph>
-                </Section>
+<Section Id="choose-a-path">
+    <H2>Choose your next step</H2>
+    <UnorderedList><UnorderedListItem><Strong>New to Quark:</Strong> <Anchor Href="installation">installation</Anchor> and <Anchor Href="first-component">your first component</Anchor>.</UnorderedListItem><UnorderedListItem><Strong>Building a design system:</Strong> <Anchor Href="properties">styling</Anchor> and <Anchor Href="themes">themes</Anchor>.</UnorderedListItem><UnorderedListItem><Strong>Integrating an existing app:</Strong> <Anchor Href="generators">build tooling</Anchor> and <Anchor Href="troubleshooting">troubleshooting</Anchor>.</UnorderedListItem><UnorderedListItem><Strong>Looking for a control:</Strong> <Anchor Href="components">component examples</Anchor>.</UnorderedListItem></UnorderedList>
+</Section>
 
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Where to go next</H2>
-                    <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem><Anchor Href="installation" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Installation</Anchor> — add the packages, generators, services, and stylesheet.</UnorderedListItem>
-                        <UnorderedListItem><Anchor Href="components" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Components</Anchor> — browse the available UI and see each API in context.</UnorderedListItem>
-                        <UnorderedListItem><Anchor Href="properties" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Properties</Anchor> — learn the typed Tailwind builder model and escape hatches.</UnorderedListItem>
-                        <UnorderedListItem><Anchor Href="themes" FontWeight="FontWeight.Medium" DecorationLine="DecorationLine.Underline" LinkOffset="LinkOffset.Is4">Themes</Anchor> — configure the CSS variables used across the suite.</UnorderedListItem>
-                    </UnorderedList>
-                </Section>
-            </Div>
-        </Div>
-    </Div>
-</Div>
+</DocumentationPage>
 
 @code {
-    private const string ButtonExample =
-@"<Button Variant=""ButtonVariant.Outline""
-        ButtonSize=""ButtonSize.Sm""
-        @onclick=""Save"">
-    Save changes
+    private const string navigation = @"<Button AsChild=""true"" Variant=""ButtonVariant.Outline"">
+    <Anchor Href=""/dashboard"">Open dashboard</Anchor>
 </Button>";
 
-    private const string StylingExample =
-@"<Div Display=""Display.Flex""
-     Gap=""Gap.Is3""
-     Padding=""Padding.Is4.OnMd.Is6""
-     Rounded=""Rounded.Lg""
-     Class=""border bg-card text-card-foreground"">
-    ...
+    private const string chain = @"<Div Padding=""Padding.OnX.Is4.OnY.Is2""
+     FlexDirection=""FlexDirection.Col.OnMd.Row""
+     Display=""Display.Flex""
+     Gap=""Gap.Is3"">
+    Content
 </Div>";
 }

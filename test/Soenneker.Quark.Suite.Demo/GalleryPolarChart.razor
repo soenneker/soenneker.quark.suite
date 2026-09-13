@@ -1,0 +1,69 @@
+@using System.Globalization
+
+<svg viewBox="0 0 360 260" role="img" aria-label="@(Radial ? "Radial chart showing visitor progress" : "Radar chart comparing monthly visitors")" style="width:100%;height:auto;color:var(--muted-foreground)">
+    <title>@(Radial ? "Visitor progress" : "Monthly visitors")</title>
+    @if (Radial)
+    {
+        @for (var i = 0; i < (Variant == 1 ? 3 : 1); i++)
+        {
+            var radius = 88 - i * 24;
+            var progress = Variant == 2 ? 75 : 82 - i * 17;
+            <circle cx="180" cy="125" r="@radius" fill="none" stroke="var(--muted)" stroke-width="18" />
+            <circle cx="180" cy="125" r="@radius" fill="none" stroke="@($"var(--chart-{i + 1})")" stroke-width="18"
+                    stroke-linecap="round" pathLength="100" stroke-dasharray="@($"{progress} 100")" transform="rotate(-90 180 125)">
+                <title>@($"Visitors: {progress}% of target")</title>
+            </circle>
+        }
+        <g fill="var(--foreground)" text-anchor="middle">
+            <text x="180" y="124" font-size="26" font-weight="600">@(Variant == 2 ? "75%" : "1,424")</text>
+            <text x="180" y="146" font-size="12">@(Variant == 2 ? "of target" : "Visitors")</text>
+        </g>
+    }
+    else
+    {
+        @foreach (var scale in new double[] { .25, .5, .75, 1 })
+        {
+            <polygon points="@Points(Enumerable.Repeat(100 * scale, 6).ToArray())" fill="none" stroke="var(--border)" />
+        }
+        @for (var i = 0; i < 6; i++)
+        {
+            var position = Point(i, 100);
+            var label = Point(i, 122);
+            <line x1="180" y1="130" x2="@F(position.X)" y2="@F(position.Y)" stroke="var(--border)" />
+            <g><text x="@F(label.X)" y="@F(label.Y)" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-size="11">@Months[i]</text></g>
+        }
+        <polygon points="@Points(Values)" fill="var(--chart-1)" fill-opacity=".25" stroke="var(--chart-1)" stroke-width="2"><title>Desktop: 186, 305, 237, 273, 209, 214 visitors</title></polygon>
+        @if (Variant == 1)
+        {
+            <polygon points="@Points(Mobile)" fill="var(--chart-2)" fill-opacity=".2" stroke="var(--chart-2)" stroke-width="2"><title>Mobile: 80, 200, 120, 190, 130, 140 visitors</title></polygon>
+        }
+        @if (Variant == 2)
+        {
+            @for (var i = 0; i < Values.Length; i++)
+            {
+                var point = Point(i, Values[i]);
+                <circle cx="@F(point.X)" cy="@F(point.Y)" r="4" fill="var(--chart-1)"><title>@Months[i]: @DesktopCounts[i] visitors</title></circle>
+            }
+        }
+    }
+</svg>
+
+@code {
+    [Parameter] public bool Radial { get; set; }
+    [Parameter] public int Variant { get; set; }
+    private static readonly string[] Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    private static readonly double[] DesktopCounts = [186, 305, 237, 273, 209, 214];
+    private static readonly double[] Values = DesktopCounts.Select(value => value / 3.2).ToArray();
+    private static readonly double[] Mobile = new double[] { 80, 200, 120, 190, 130, 140 }.Select(value => value / 3.2).ToArray();
+    private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+    private static (double X, double Y) Point(int index, double radius)
+    {
+        var angle = index * Math.PI / 3 - Math.PI / 2;
+        return (180 + Math.Cos(angle) * radius, 130 + Math.Sin(angle) * radius);
+    }
+    private static string Points(double[] values) => string.Join(" ", values.Select((value, index) =>
+    {
+        var point = Point(index, value);
+        return $"{F(point.X)},{F(point.Y)}";
+    }));
+}

@@ -1,0 +1,148 @@
+@page "/charts"
+@page "/charts/area"
+@page "/charts/bar"
+@page "/charts/line"
+@page "/charts/pie"
+@page "/charts/radar"
+@page "/charts/radial"
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@implements IDisposable
+
+<SeoHead Title="@($"{Category} Charts | Quark Suite")" Description="Explore area, bar, line, pie, radar, and radial chart examples for Blazor." />
+<div class="chart-gallery-scope">
+<Div Class="chart-gallery">
+    <Section Class="chart-gallery-hero">
+        <H1>Beautiful Charts &amp; Graphs</H1>
+        <Paragraph>A collection of ready-to-use chart components built with Quark Suite.<br /> From basic charts to rich data displays, compose them in your Blazor apps.</Paragraph>
+        <Div Class="chart-gallery-actions">
+            <Anchor Href="#chart-examples">Browse Charts</Anchor>
+            <Anchor Href="components/charts">Documentation</Anchor>
+        </Div>
+    </Section>
+    <Tabs SelectedTab="@Category" OnSelectedTabChanged="SelectCategory" TabsListVariant="TabsListVariant.Line">
+        <Div Class="chart-gallery-tabs">
+            <TabsList aria-label="Chart types">
+                @foreach (var category in Categories)
+                {
+                    <TabsTrigger Value="@category">@category Charts</TabsTrigger>
+                }
+            </TabsList>
+        </Div>
+        <TabsContent Value="@Category" @key="Category">
+            <Section Id="chart-examples" Class="chart-gallery-examples" aria-labelledby="chart-heading">
+                <Div Class="chart-gallery-toolbar">
+                    <H2 Id="chart-heading"><Icon Name="LucideIcon.ChartArea" Size="Size.Is4" aria-hidden="true" />@Category Chart</H2>
+                    <Div Class="chart-gallery-code-actions"><Button Type="ButtonType.Button" aria-label="Copy chart code" OnClick="CopyCode" Variant="ButtonVariant.Outline"><Icon Name="LucideIcon.Copy" Size="Size.Is4" aria-hidden="true" /></Button><Button Type="ButtonType.Button" OnClick="() => showCode = !showCode" Variant="ButtonVariant.Outline">@(showCode ? "Hide Code" : "View Code")</Button></Div>
+                </Div>
+                @if (showCode)
+                {
+                    <PreCode Class="chart-gallery-code">@ExampleCode</PreCode>
+                }
+                @if (Category is "Area" or "Bar" or "Line")
+                {
+                    <Card Class="chart-gallery-card chart-gallery-featured">
+                        <CardHeader>
+                            <Div><H3>@Category Chart - Interactive</H3><Paragraph>Showing total visitors for the last @RangeDescription</Paragraph></Div>
+                            <NativeSelect aria-label="Chart date range" Value="@rangeDays.ToString()" ValueChanged="ChangeRange">
+                                <NativeSelectOption Value="90">Last 3 months</NativeSelectOption><NativeSelectOption Value="30">Last 30 days</NativeSelectOption><NativeSelectOption Value="7">Last 7 days</NativeSelectOption>
+                            </NativeSelect>
+                        </CardHeader>
+                        <Div Class="chart-gallery-featured-plot">
+                            <Chart Type="@GetChartType(0)" Labels="@DailyLabels" Series="@DailySeries" Options="@InteractiveOptions" AriaLabel="@($"{Category} chart, daily visitors for the last {RangeDescription}")" />
+                        </Div>
+                    </Card>
+                }
+                <Div Class="chart-gallery-grid" @key="Category">
+                    @for (var index = 0; index < Variants.Length; index++)
+                    {
+                        var variant = index;
+                        <Card Class="chart-gallery-card">
+                            <CardHeader><H3>@Category Chart - @Variants[variant]</H3><Paragraph>January – June 2026</Paragraph></CardHeader>
+                            <Div Class="chart-gallery-plot">
+                                @if (Category is "Radar" or "Radial")
+                                {
+                                    <GalleryPolarChart Radial="@(Category == "Radial")" Variant="@variant" />
+                                }
+                                else
+                                {
+                                    <Chart Type="@GetChartType(variant)" Labels="@Labels" Series="@GetSeries(variant)" Options="@GetOptions(variant)" AriaLabel="@($"{Category} chart: {Variants[variant]}, monthly visitors")">
+                                        <DonutContent><Div Class="text-center"><Strong Class="text-2xl">1,424</Strong><Div Class="text-xs text-muted-foreground">Visitors</Div></Div></DonutContent>
+                                    </Chart>
+                                }
+                            </Div>
+                            <CardFooter Display="Display.Block"><Strong>Trending up by 5.2% this month <Span aria-hidden="true">↗</Span></Strong><Paragraph>Showing visitors for the last 6 months</Paragraph></CardFooter>
+                        </Card>
+                    }
+                </Div>
+            </Section>
+        </TabsContent>
+    </Tabs>
+</Div>
+</div>
+
+@code {
+    private void ChangeRange(string? value)
+    {
+        if (int.TryParse(value, out var days) && days is 7 or 30 or 90)
+            rangeDays = days;
+    }
+
+    private void SelectCategory(string category)
+    {
+        Navigation.NavigateTo($"charts/{category.ToLowerInvariant()}");
+    }
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        // The category routes reuse this component without changing any parameters.
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private async Task CopyCode()
+    {
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", ExampleCode); }
+        catch (JSException) { showCode = true; }
+    }
+    private int rangeDays = 90;
+    private bool showCode;
+    private string RangeDescription => rangeDays == 90 ? "3 months" : $"{rangeDays} days";
+    private string ExampleCode => $"<Chart Type=\"ChartType.{(Category is "Radar" or "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
+    private string[] DailyLabels => Enumerable.Range(90 - rangeDays, rangeDays).Select(day => new DateTime(2026, 4, 1).AddDays(day).ToString("MMM d", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+    private ChartSeries[] DailySeries => [
+        new("Desktop", Enumerable.Range(90 - rangeDays, rangeDays).Select(day => (double)(70 + (day * 137 + day * day * 31) % 390)).ToArray())
+        { Color = "#60a5fa", StrokeWidth = 1, Gradient = new ChartGradient("#60a5fa", "#60a5fa") { StartOpacity = .4, EndOpacity = .04 } },
+        new("Mobile", Enumerable.Range(90 - rangeDays, rangeDays).Select(day => (double)(40 + (day * 73 + day * day * 17) % 230)).ToArray())
+        { Color = "#2563eb", StrokeWidth = 1, Gradient = new ChartGradient("#2563eb", "#2563eb") { StartOpacity = .35, EndOpacity = .04 } }
+    ];
+    private static readonly ChartOptions InteractiveOptions = new() { Width = 1500, Height = 300, PaddingTop = 32, PaddingLeft = 4, PaddingRight = 4, ShowYAxis = false, ShowPoints = false, ShowEndPoints = false, MaximumXAxisLabels = 12, Curve = ChartCurve.Monotone, Legend = ChartLegendPosition.None, Stacked = true };
+    private static readonly string[] Categories = ["Area", "Bar", "Line", "Pie", "Radar", "Radial"];
+    private static readonly string[] Labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    private static readonly string[] Palette = ["#60a5fa", "#2563eb", "#93c5fd", "#1d4ed8", "#bfdbfe", "#2563eb"];
+    private string Category => Categories.FirstOrDefault(value => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].TrimEnd('/').EndsWith("/" + value.ToLowerInvariant(), StringComparison.Ordinal)) ?? "Area";
+    private string[] Variants => Category switch {
+        "Area" => ["Default", "Linear", "Step", "Stacked", "Gradient", "Legend"],
+        "Bar" => ["Default", "Multiple", "Stacked"],
+        "Line" => ["Default", "Linear", "Step", "Multiple", "Dots", "Legend"],
+        "Pie" => ["Default", "Donut", "Donut with legend"],
+        "Radar" => ["Default", "Multiple", "Dots"],
+        _ => ["Default", "Multiple", "Progress"] };
+    private ChartType GetChartType(int variant) => Category switch { "Area" => ChartType.Area, "Bar" => ChartType.Bar, "Pie" => variant == 0 ? ChartType.Pie : ChartType.Donut, _ => ChartType.Line };
+    private ChartSeries[] GetSeries(int variant)
+    {
+        ChartSeries desktop = new("Desktop", new double[] { 186, 305, 237, 273, 209, 214 }) { Color = Palette[0], Gradient = Category == "Area" && variant == 4 ? new ChartGradient(Palette[0], Palette[0]) { StartOpacity = .65, EndOpacity = .03 } : null };
+        ChartSeries mobile = new("Mobile", new double[] { 80, 200, 120, 190, 130, 140 }) { Color = Palette[1] };
+        return Category != "Pie" && (variant == 3 || variant == 5 || Category == "Bar" && variant > 0) ? [desktop, mobile] : [desktop];
+    }
+    private ChartOptions GetOptions(int variant) => new() { Height = 260, Width = 480, ShowYAxis = false, PaddingLeft = 16, ShowPoints = Category == "Line" && variant == 4, ShowEndPoints = false, Curve = variant == 1 ? ChartCurve.Linear : variant == 2 ? ChartCurve.Step : ChartCurve.Monotone, Stacked = Category == "Area" && variant == 3 || Category == "Bar" && variant == 2, Legend = variant == 5 || Category == "Pie" && variant == 2 || Category == "Bar" && variant > 0 ? ChartLegendPosition.Bottom : ChartLegendPosition.None, Palette = Palette };
+}

@@ -1,27 +1,27 @@
 @implements IAsyncDisposable
 @using System.Threading
 
-<div>
+<Div>
 <Chart @ref="_chart" Series="@_data.Series" Labels="@_data.Labels" XValues="@_data.XValues" DataVersion="@_data.Version"
        Options="@(_expandSelection ? ZoomOptions : SelectionOptions)" @bind-ScrollPaused="_paused" OnSelect="HandleSelection" OnRangeSelect="HandleRangeSelection" AriaLabel="Live request latency">
     <HeaderContent>
         <div class="mb-4 flex items-center justify-between gap-4" @onpointerdown:stopPropagation="true" @onfocusin:stopPropagation="true">
-            <div>
-                <div class="text-sm font-medium">Live request latency</div>
-                <div class="text-xs text-muted-foreground">Latest 60 samples · updates every 500 ms</div>
-            </div>
-            <button type="button" class="rounded-md border px-3 py-1 text-sm" @onclick="TogglePaused">@(_paused ? "Resume" : "Pause")</button>
+            <Div>
+                <Div class="text-sm font-medium">Live request latency</Div>
+                <Div class="text-xs text-muted-foreground">Latest 60 samples · updates every 500 ms</Div>
+            </Div>
+            <Button Type="ButtonType.Button" Class="rounded-md border px-3 py-1 text-sm" OnClick="TogglePaused" Variant="ButtonVariant.Outline">@(_paused ? "Resume" : "Pause")</Button>
         </div>
     </HeaderContent>
 </Chart>
-</div>
+</Div>
 
-<div class="mt-4 space-y-2 text-sm">
-    <label class="flex items-center gap-2"><input type="checkbox" @bind="_expandSelection" /> Expand selection to full width</label>
-    <button type="button" class="rounded-md border px-3 py-1" disabled="@(_chart?.IsZoomed != true)" @onclick="ResetZoom">Reset zoom</button>
-    <p class="text-muted-foreground">Press and drag on the chart to pause and select a range. Dots stay visible. Enable expansion before dragging to zoom into that range. Reset zoom shows the full window; Resume returns to live updates.</p>
-    <div role="status" aria-live="polite">@_selectionText</div>
-</div>
+<Div class="mt-4 space-y-2 text-sm">
+    <Check @bind-Checked="_expandSelection">Expand selection to full width</Check>
+    <Button Type="ButtonType.Button" Class="rounded-md border px-3 py-1" Disabled="@(_chart?.IsZoomed != true)" OnClick="ResetZoom" Variant="ButtonVariant.Outline">Reset zoom</Button>
+    <Paragraph Class="text-muted-foreground">Press and drag on the chart to pause and select a range. Dots stay visible. Enable expansion before dragging to zoom into that range. Reset zoom shows the full window; Resume returns to live updates.</Paragraph>
+    <Div role="status" aria-live="polite">@_selectionText</Div>
+</Div>
 
 @code {
     private readonly RealtimeChartData _data = new(61, "API", "Worker");

@@ -1,115 +1,89 @@
 @page "/installation"
 
-<SeoHead Title="Install Quark Suite for Blazor | Setup Guide" Description="Install Soenneker.Quark.Suite in your Blazor app. Follow the NuGet, service registration, imports, theme, and Tailwind setup instructions to get started." />
+<SeoHead Title="Install Quark in a Blazor app | Quark Suite" Description="Set up Quark Suite, generated CSS, and Lucide icons. Build your first interactive Blazor component with a normal .NET build."/>
 
-<Div data-slot="docs"
-     Display="Display.Flex"
-     ItemsAlign="Items.Stretch"
-     ScrollMargin="ScrollMargin.Is24.FromTop"
-     Width="Width.IsFull"
-     Padding="Padding.Is8.FromBottom"
-     class="text-[1.05rem] sm:text-[15px]">
-    <Div Flex="Flex.Is1" FlexDirection="FlexDirection.Col" MinWidth="MinWidth.Is0">
-        <Div Height='Height.Token("h-(--top-spacing)")' Shrink="Shrink.Is0"></Div>
+<DocumentationPage Title="Install Quark in a Blazor app" Description="Set up Quark Suite, generated CSS, and Lucide icons. Build your first interactive Blazor component with a normal .NET build.">
 
-        <Div Margin="Margin.Auto.OnX"
-             Width="Width.IsFull"
-             MinWidth="MinWidth.Is0"
-             Flex=@("flex flex-1 flex-col")
-             Gap='Gap.Token("6")'
-             class="w-full max-w-none px-0 py-6 text-neutral-800 dark:text-neutral-300 sm:max-w-[40rem] lg:py-8">
-            <Div Flex=@("flex flex-col") Gap="Gap.Is2">
-                <H1 ScrollMargin="ScrollMargin.Is24.FromTop" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Semibold" Tracking="Tracking.Tight" TextAlign="TextAlign.Start">Installation</H1>
-
-                <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance md:max-w-[80%]">
-                    Add Quark Suite to a Blazor app, register its services, and include the generated styles.
-                </Paragraph>
-            </Div>
-
-            <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Install packages</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Install Quark Suite and the build-time generators that produce the local Tailwind stylesheet and icon assets used by your app.
-                    </Paragraph>
-                    <CodeEditor Text="@InstallPackagesCode" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        Theme generation is optional. Add it when the app owns custom shadcn-compatible theme tokens.
-                    </Paragraph>
-                    <CodeEditor Text="@ThemePackageCode" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Enable build generation</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Enable the Tailwind generator in the app project so the Quark stylesheet is built with the classes used by your Razor files.
-                    </Paragraph>
-                    <CodeEditor Text="@BuildGenerationCode" Language="xml" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Register services</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Register Quark Suite during application startup so components and supporting services are available through dependency injection.
-                    </Paragraph>
-                    <CodeEditor Text="@RegisterServicesCode" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Add styles</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Reference the generated stylesheet from `index.html`. The generator writes the CSS file into the app's `wwwroot/css` folder.
-                    </Paragraph>
-                    <CodeEditor Text="@StylesCode" Language="html" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">What the packages do</H2>
-                    <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.suite" Target="Target.Blank">Soenneker.Quark.Suite</Anchor>:</Strong> the component library and shared Quark primitives.</UnorderedListItem>
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind" Target="Target.Blank">Soenneker.Quark.Gen.Tailwind</Anchor>:</Strong> runs at build time and emits `wwwroot/css/quark-tailwind.css` and `wwwroot/css/quark-tailwind.min.css` for the app.</UnorderedListItem>
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind.manifest" Target="Target.Blank">Soenneker.Quark.Gen.Tailwind.Manifest</Anchor>:</Strong> scans the app for builder-derived Tailwind classes so generated CSS includes the utilities used by Razor components.</UnorderedListItem>
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.lucide.icons" Target="Target.Blank">Soenneker.Lucide.Icons</Anchor>:</Strong> provides the Lucide icon SVG catalog used by Quark icon components.</UnorderedListItem>
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.lucide" Target="Target.Blank">Soenneker.Quark.Gen.Lucide</Anchor>:</Strong> generates the app-local Lucide icon map and service registration code used by `Icon`.</UnorderedListItem>
-                        <UnorderedListItem><Strong><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.themes" Target="Target.Blank">Soenneker.Quark.Gen.Themes</Anchor>:</Strong> optionally generates theme CSS from Quark theme definitions.</UnorderedListItem>
-                    </UnorderedList>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Use components</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Import the Quark namespace and compose components directly in Razor.
-                    </Paragraph>
-                    <CodeEditor Text="@UseComponentsCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-            </Div>
+    <Section Id="before-you-start">
+        <H2>Before you start</H2>
+        <Paragraph>Use an interactive Blazor app targeting <Strong>.NET 10</Strong>. This guide follows the standalone WebAssembly setup used by the Quark demo. Run commands from the application project directory.</Paragraph>
+        <Div Class="guide-note">
+            <Paragraph><Strong>No manual Node.js or npm installation is required.</Strong> The Tailwind build locates or provisions them through <Code>Soenneker.Node.Util</Code> and installs the npm packages it needs. Allow network access for missing dependencies on the first build. You do not need to create a separate frontend project or run a Tailwind CLI yourself.</Paragraph>
         </Div>
-    </Div>
-</Div>
+    </Section>
+
+    <Section Id="install-packages">
+        <H2>1. Install the core packages</H2>
+        <Paragraph>Start with the component suite, the CSS build, the builder manifest, and Lucide icons. You can add brand icons and a C# theme later.</Paragraph>
+        <CodeEditor Text="@packages" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true"/>
+        <Paragraph>Install the generators directly in the app. A generator used privately to build Quark itself does not automatically become your application's build step. <Anchor Href="generators">See what each generator does</Anchor>.</Paragraph>
+    </Section>
+
+    <Section Id="enable-css">
+        <H2>2. Enable the Tailwind build</H2>
+        <Paragraph>Add this property group to the application's <Code>.csproj</Code>:</Paragraph>
+        <CodeEditor Text="@build" Language="xml" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true"/>
+        <Paragraph>The manifest and icon generators are enabled by default when installed. CSS compilation is explicitly enabled by <Code>TailwindGeneratorBuildEnabled</Code>.</Paragraph>
+    </Section>
+
+    <Section Id="register-services">
+        <H2>3. Register the suite and icons</H2>
+        <Paragraph>In <Code>Program.cs</Code>, add these registrations after creating the builder and before building the host:</Paragraph>
+        <CodeEditor Text="@services" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true"/>
+        <Paragraph><Code>AddQuarkSuiteAsScoped()</Code> registers the suite's supporting services and Bradix behavior. <Code>AddLucideIconsAsScoped()</Code> registers the provider generated for your app. Keep both.</Paragraph>
+    </Section>
+
+    <Section Id="imports-and-css">
+        <H2>4. Add the imports and stylesheet</H2>
+        <Paragraph>Add these namespaces to <Code>_Imports.razor</Code>:</Paragraph>
+        <CodeEditor Text="@imports" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true"/>
+        <Paragraph>Load the generated CSS in the head of <Code>wwwroot/index.html</Code>:</Paragraph>
+        <CodeEditor Text="@styles" Language="html" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true"/>
+        <Paragraph>Load either the full or minified stylesheet. For a Blazor Web App, use its document shell, usually <Code>Components/App.razor</Code>, and register services in the host that executes the interactive components. Event-driven components need an interactive render mode.</Paragraph>
+    </Section>
+
+    <Section Id="first-build">
+        <H2>5. Build and try a component</H2>
+        <Paragraph>Run <Code>dotnet build</Code>. The first enabled build creates the Tailwind configuration and installs missing tools/dependencies. It writes <Code>wwwroot/css/quark-tailwind.css</Code> and <Code>quark-tailwind.min.css</Code>, along with the generated icon C# files under <Code>obj</Code>.</Paragraph>
+        <Paragraph>Next, <Anchor Href="first-component">build the workspace card</Anchor>. It gives you a working input, icon, button, and status message so you can confirm the setup before moving on to larger components.</Paragraph>
+    </Section>
+
+    <Section Id="optional-packages">
+        <H2>Add features as you need them</H2>
+        <UnorderedList>
+            <UnorderedListItem><Anchor Href="generators#brand-icons">Simple Icons</Anchor>: add brand logos and register the generated brand-icon provider.</UnorderedListItem><UnorderedListItem><Anchor Href="themes">C# themes</Anchor>: define your app's light/dark colors and component styles in one place.</UnorderedListItem><UnorderedListItem><Anchor Href="properties">Typed styling</Anchor>: learn how builder modifiers, variants, and CSS classes work together.</UnorderedListItem>
+        </UnorderedList>
+    </Section>
+
+    <Section Id="existing-apps">
+        <H2>Adding Quark to an existing app</H2>
+        <Paragraph>Keep your existing host, router, and service registrations. Add Quark's registrations and CSS once. If your app already has a Tailwind pipeline, use one deliberate source/build configuration instead of loading two competing Tailwind stylesheets.</Paragraph>
+        <Paragraph>For shared Razor libraries, dynamic classes, missing icons, and build settings, continue with the <Anchor Href="generators">generator guide</Anchor> or <Anchor Href="troubleshooting">troubleshooting</Anchor>.</Paragraph>
+    </Section>
+
+</DocumentationPage>
 
 @code {
-    private const string InstallPackagesCode =
-@"dotnet add package Soenneker.Quark.Suite
+
+    private const string packages = @"dotnet add package Soenneker.Quark.Suite
 dotnet add package Soenneker.Quark.Gen.Tailwind
 dotnet add package Soenneker.Quark.Gen.Tailwind.Manifest
-dotnet add package Soenneker.Lucide.Icons
-dotnet add package Soenneker.Quark.Gen.Lucide";
+dotnet add package Soenneker.Quark.Gen.Lucide
+dotnet add package Soenneker.Lucide.Icons";
 
-    private const string ThemePackageCode = "dotnet add package Soenneker.Quark.Gen.Themes";
-
-    private const string BuildGenerationCode =
-@"<PropertyGroup>
-    <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
+    private const string build = @"<PropertyGroup>
+  <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
 </PropertyGroup>";
 
-    private const string RegisterServicesCode = "builder.Services.AddQuarkSuiteAsScoped();";
+    private const string services = @"using Soenneker.Quark;
+using Soenneker.Quark.Gen.Lucide.Generated;
 
-    private const string StylesCode = @"<link href=""css/quark-tailwind.min.css"" rel=""stylesheet"" />";
+// After creating builder, before builder.Build():
+builder.Services.AddQuarkSuiteAsScoped();
+builder.Services.AddLucideIconsAsScoped();";
 
-    private const string UseComponentsCode =
-@"@using Soenneker.Quark
+    private const string imports = @"@using Soenneker.Quark
+@using Soenneker.Lucide.Enums.Icons";
 
-<Button Variant=""ButtonVariant.Default"">
-    Save changes
-</Button>";
+    private const string styles = @"<link rel=""stylesheet"" href=""css/quark-tailwind.min.css"" />";
 }

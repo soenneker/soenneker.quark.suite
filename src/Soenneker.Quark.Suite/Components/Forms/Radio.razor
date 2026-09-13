@@ -145,7 +145,8 @@ else
     /// </summary>
     private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
 
-    private string ControlId => ParentRadioGroup is null && CurrentFieldContext is not null ? CurrentFieldContext.ControlId : Id!;
+    private string? _generatedId;
+    private string ControlId => Id != _generatedId || ParentRadioGroup is not null ? Id! : CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedGroupedValue => Value ?? ControlId;
 
     /// <summary>
@@ -169,7 +170,7 @@ else
     protected override void OnInitialized()
     {
         if (Id.IsNullOrEmpty())
-            Id = BlazorIdGenerator.New("quark-radio");
+            Id = _generatedId = BlazorIdGenerator.New("quark-radio");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

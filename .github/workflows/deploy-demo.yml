@@ -44,22 +44,6 @@ jobs:
           --output artifacts/cloudflare-workers
           --verbosity minimal
 
-      - name: Setup Node for static documentation rendering
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: scripts/seo/package-lock.json
-
-      - name: Install prerender browser
-        working-directory: scripts/seo
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-
-      - name: Prerender and verify documentation SEO
-        run: node scripts/seo/prerender.mjs
-
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:

@@ -1,167 +1,87 @@
 @page "/properties"
 
-<SeoHead Title="Blazor Component Styling with Typed Properties | Quark Suite" Description="Style Quark Suite Blazor components with typed Tailwind properties. Explore spacing, colors, typography, responsive modifiers, and component customization." />
+<SeoHead Title="Style components with typed properties | Quark Suite" Description="Learn Quark variants, Tailwind builders, responsive modifiers, semantic colors, and escape hatches with examples you can read left to right." />
 
-<Div data-slot="docs"
-     Display="Display.Flex"
-     ItemsAlign="Items.Stretch"
-     ScrollMargin="ScrollMargin.Is24.FromTop"
-     Width="Width.IsFull"
-     Padding="Padding.Is8.FromBottom"
-     class="text-[1.05rem] sm:text-[15px]">
-    <Div Flex="Flex.Is1" FlexDirection="FlexDirection.Col" MinWidth="MinWidth.Is0">
-        <Div Height='Height.Token("h-(--top-spacing)")' Shrink="Shrink.Is0"></Div>
+<DocumentationPage Title="Style components with typed properties" Description="Learn Quark variants, Tailwind builders, responsive modifiers, semantic colors, and escape hatches with examples you can read left to right.">
 
-        <Div Margin="Margin.Auto.OnX"
-             Width="Width.IsFull"
-             MinWidth="MinWidth.Is0"
-             Flex=@("flex flex-1 flex-col")
-             Gap='Gap.Token("6")'
-             class="w-full max-w-none px-0 py-6 text-neutral-800 dark:text-neutral-300 sm:max-w-[40rem] lg:py-8">
-            <Div Flex=@("flex flex-col") Gap="Gap.Is2">
-                <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Xl.OnSm.Base" class="text-[1.05rem] sm:text-balance md:max-w-[80%]">
-                    Quark component properties are typed wrappers around Tailwind utilities, shadcn contracts, semantic attributes, and component-specific behavior.
-                </Paragraph>
-            </Div>
+<Section Id="choose-the-api">
+    <H2>Start at the right level</H2>
+    <UnorderedList><UnorderedListItem><Strong>Component variants:</Strong> use a component's normal choices, such as <Code>ButtonVariant.Outline</Code> and <Code>ButtonSize.Sm</Code>.</UnorderedListItem><UnorderedListItem><Strong>Typed properties:</Strong> use <Code>Padding</Code>, <Code>Gap</Code>, <Code>Width</Code>, <Code>TextColor</Code>, and related builders for individual style concerns.</UnorderedListItem><UnorderedListItem><Strong>Raw styling:</Strong> use <Code>Class</Code>, <Code>Style</Code>, and ordinary HTML attributes for exact CSS or semantics.</UnorderedListItem></UnorderedList>
+    <Paragraph>Each component also has behavior-specific parameters. Use its <Anchor Href="components">demo page</Anchor> for the actual API and working examples.</Paragraph>
+</Section>
 
-            <Div Space="Space.Y.Is8" Width="Width.IsFull" class="*:data-[slot=alert]:first:mt-0">
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Property layers</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Most visible components inherit shared Element and Component properties. Element owns semantic attributes such as Tag, TabIndex, Role, AriaLabel, AriaLabelledBy, AriaDescribedBy, and AriaCurrent. Component adds layout, spacing, typography, color, border, sizing, effects, presets, Class, Style, and common HTML attributes.
-                    </Paragraph>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Concrete components then add their own API. Button, for example, adds Variant, ButtonSize, Block, AsChild, Loading, Type, To, and form-related fields. Those component-specific properties usually mirror shadcn concepts or behavior that cannot be represented by a single Tailwind utility.
-                    </Paragraph>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Shared style properties</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Shared style properties are grouped by Tailwind utility family. The property name names the CSS concern, and the value builder emits the Tailwind utility.
-                    </Paragraph>
-                    <CodeEditor Text="@SharedStyleCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        Common shared groups include display and position, spacing, width and height, flexbox and grid alignment, text and typography, color, border and radius, shadow, ring, filters, animation, transitions, pointer behavior, visibility, overflow, and screen-reader utilities.
-                    </Paragraph>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Builder values</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Builder values can be simple named values, arbitrary tokens, or chained values. Named values produce standard Tailwind utilities.
-                    </Paragraph>
-                    <CodeEditor Text="@BuilderValuesCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        Token values fill in the utility suffix when Quark knows the utility family. Width.Token("72") emits w-72, Height.Token("72") emits h-72, and TextSize.Token("7xl") emits text-7xl. Arbitrary Tailwind values work the same way.
-                    </Paragraph>
-                    <CodeEditor Text="@TokenValuesCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Chaining</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Chained builders let a single property emit related Tailwind utilities. Spacing builders support axes and physical sides, and many builders support responsive modifiers.
-                    </Paragraph>
-                    <CodeEditor Text="@ChainingCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        That style produces px-2 py-1.5, -mx-1 mt-3, flex-col md:flex md:flex-row, and grow-0 sm:grow. The fluent calls read left to right: choose a value, choose where it applies, then optionally move to another breakpoint, side, or axis.
-                    </Paragraph>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Tailwind and shadcn</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Quark properties emit Tailwind class tokens rather than inline styles whenever the value maps cleanly to a Tailwind utility. Semantic color properties map to the shadcn token names used by the theme contract.
-                    </Paragraph>
-                    <CodeEditor Text="@TailwindShadcnCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        Component-specific properties carry shadcn variants. Button Variant controls the shadcn variant class set, and ButtonSize controls the shadcn size class set.
-                    </Paragraph>
-                    <CodeEditor Text="@ButtonVariantCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Raw classes and attributes</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Class is the escape hatch for Tailwind selectors, state variants, important modifiers, and one-off utilities. Style is appended to the style attribute. Attributes and unmatched Razor attributes are merged into the final element.
-                    </Paragraph>
-                    <CodeEditor Text="@RawClassesCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        During render, Quark builds owned attributes, applies component properties and presets, merges unmatched attributes, then normalizes duplicate class tokens. Class is appended after presets and shared property output, so it is the right place for precise overrides such as Tailwind important modifiers.
-                    </Paragraph>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Presets</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        Presets are reusable groups of builder-backed property values. Multiple presets compose in order, later presets override earlier preset values, and explicit component properties override preset values.
-                    </Paragraph>
-                    <CodeEditor Text="@PresetsCode" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
-                    <Paragraph Leading="Leading.Relaxed">
-                        In that example, the preset can provide container spacing and max width, Width.IsFit replaces the preset width, and custom-class is appended to the final class list.
-                    </Paragraph>
-                </Section>
-
-                <Section Space="Space.Y.Is4">
-                    <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold" TextAlign="TextAlign.Start">Finding available properties</H2>
-                    <Paragraph Leading="Leading.Relaxed">
-                        The shared property set comes from the Component and Element base classes, so most Quark components expose the same layout, spacing, color, typography, and attribute API. Component pages show the most important component-specific properties, and the component source defines the complete set for specialized behavior.
-                    </Paragraph>
-                    <UnorderedList Class="list-inside list-disc space-y-2">
-                        <UnorderedListItem>Use builder properties when a value maps to a common Tailwind utility.</UnorderedListItem>
-                        <UnorderedListItem>Use component-specific properties for shadcn variants, sizes, state, events, and behavior.</UnorderedListItem>
-                        <UnorderedListItem>Use Class for advanced Tailwind selectors, responsive combinations not covered by a builder, or exact overrides.</UnorderedListItem>
-                        <UnorderedListItem>Use Attributes or unmatched attributes for data attributes, ARIA attributes, and integration-specific metadata.</UnorderedListItem>
-                    </UnorderedList>
-                </Section>
-            </Div>
-        </Div>
+<Section Id="read-a-chain">
+    <H2>Read builder chains left to right</H2>
+    <Paragraph><Strong>A modifier configures the next concrete value.</Strong> It does not modify the value before it. A chain can produce several complete Tailwind utilities:</Paragraph>
+    <CodeEditor Text="@chain" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Div Class="overflow-x-auto"><Table><Thead>
+        <Tr><Th>Expression</Th><Th>Generated classes</Th><Th>Meaning</Th></Tr>
+        </Thead>
+        <Tbody>
+        <Tr><Td><Code>Padding.OnX.Is4.OnY.Is2</Code></Td><Td><Code>px-4 py-2</Code></Td><Td>Horizontal padding 4, vertical padding 2.</Td></Tr>
+        <Tr><Td><Code>FlexDirection.Col.OnMd.Row</Code></Td><Td><Code>flex-col md:flex-row</Code></Td><Td>Column layout, switching to a row at medium width.</Td></Tr>
+        <Tr><Td><Code>BackgroundColor.Primary.OnHover.Secondary</Code></Td><Td><Code>bg-primary hover:bg-secondary</Code></Td><Td>Primary background with a secondary hover background.</Td></Tr>
+        </Tbody>
+        </Table>
     </Div>
-</Div>
+    <Paragraph>A trailing modifier such as <Code>Padding.Is4.OnX</Code> does not retroactively make the earlier padding horizontal. Write <Code>Padding.OnX.Is4</Code> for that intent.</Paragraph>
+</Section>
+
+<Section Id="responsive-and-state">
+    <H2>Responsive and state modifiers use the same rule</H2>
+    <CodeEditor Text="@state" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Use <Code>OnMd</Code>, <Code>OnLg</Code>, <Code>OnHover</Code>, <Code>OnFocusVisible</Code>, and other supported modifiers before the value they affect. The modifier APIs are already included through Quark's builders; applications do not need the Modifiers generator just to use them.</Paragraph>
+</Section>
+
+<Section Id="tokens">
+    <H2>Named values, arbitrary tokens, and raw classes</H2>
+    <Paragraph>Named values keep common cases readable: <Code>Width.IsFull</Code>, <Code>Gap.Is4</Code>, and <Code>Rounded.Lg</Code>. Use <Code>Width.Token("72")</Code> for <Code>w-72</Code> or <Code>MaxWidth.Token("[1400px]")</Code> for an arbitrary width.</Paragraph>
+    <Paragraph>Use <Code>Class="grid gap-4 md:grid-cols-2"</Code> when a literal Tailwind expression is clearer. Keep the complete class names in source. Runtime interpolation cannot be reliably discovered by a build-time scanner.</Paragraph>
+</Section>
+
+<Section Id="theme-colors">
+    <H2>Use semantic colors for reusable UI</H2>
+    <Paragraph>Choose <Code>BackgroundColor.Card</Code>, <Code>TextColor.CardForeground</Code>, <Code>BorderColor.Border</Code>, and other semantic tokens. Their values come from the theme, so the same Razor component can work in light and dark mode. <Anchor Href="themes">Set up your application theme</Anchor>.</Paragraph>
+</Section>
+
+<Section Id="composition-and-attributes">
+    <H2>Keep the right HTML element</H2>
+    <CodeEditor Text="@navigation" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph><Code>AsChild</Code> lets a component apply its treatment to the child element. Give navigation a real URL; give icon-only actions an accessible label. Pass attributes such as <Code>aria-label</Code>, <Code>data-testid</Code>, and <Code>id</Code> alongside Quark parameters.</Paragraph>
+</Section>
+
+<Section Id="presets">
+    <H2>Reuse a styling decision</H2>
+    <Paragraph>Quark ships preset tokens such as <Code>QuarkPresets.ContainerWrapper</Code>. A preset applies a set of component properties. Use those built-in tokens directly; the Presets generator is for authoring additional typed registry members from attributed preset classes.</Paragraph>
+    <Paragraph>For app-specific repetition, a small Razor component is often the clearest place to keep both the markup and its styling. Use a preset when several different elements should share the same property configuration. <Anchor Href="generators#generator-reference">See the generator roles</Anchor>.</Paragraph>
+</Section>
+
+<Section Id="build-output">
+    <H2>How a builder becomes CSS</H2>
+    <Paragraph><Code>Soenneker.Quark.Gen.Tailwind.Manifest</Code> records complete utilities from builder expressions. <Code>Soenneker.Quark.Gen.Tailwind</Code> then compiles those utilities along with literal classes and the suite manifest. If a utility exists only at runtime, list the permitted classes in your Tailwind input:</Paragraph>
+    <CodeEditor Text="@safelist" Language="css" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Rebuild after changing source classes or builders. If the component has the class but no matching CSS, <Anchor Href="troubleshooting#missing-utility">check the manifest and generated stylesheet</Anchor>.</Paragraph>
+</Section>
+
+</DocumentationPage>
 
 @code {
-    private const string SharedStyleCode = @"<Div Display=""Display.Flex""
-     FlexDirection=""FlexDirection.Col""
-     Gap=""Gap.Is4""
-     Padding=""Padding.Is6""
-     Rounded=""Rounded.Lg""
-     Border=""Border.Is1""
-     BackgroundColor=""BackgroundColor.Card""
-     TextColor=""TextColor.CardForeground"">
+    private const string chain = @"<Div Padding=""Padding.OnX.Is4.OnY.Is2""
+     FlexDirection=""FlexDirection.Col.OnMd.Row""
+     Display=""Display.Flex""
+     Gap=""Gap.Is3"">
     Content
 </Div>";
 
-    private const string BuilderValuesCode = @"<Div Width=""Width.IsFull""
-     MaxWidth=""MaxWidth.Is4xl""
-     TextSize=""TextSize.Sm""
-     FontWeight=""FontWeight.Medium"" />";
-
-    private const string TokenValuesCode = @"<Div Width='Width.Token(""72"")'
-     MaxWidth='MaxWidth.Token(""[1400px]"")'
-     TextSize='TextSize.Token(""[0.70rem]"")' />";
-
-    private const string ChainingCode = @"<Div Padding='Padding.Is2.OnX.Token(""1.5"").OnY'
-     Margin='Margin.Token(""-1"").OnX.Is3.FromTop'
-     FlexDirection=""FlexDirection.Col.OnMd.Row""
-     Grow=""Grow.Is0.OnSm.Is1"" />";
-
-    private const string TailwindShadcnCode = @"<Alert BackgroundColor=""BackgroundColor.Card""
-       TextColor=""TextColor.CardForeground""
-       BorderColor=""BorderColor.Border"" />";
-
-    private const string ButtonVariantCode = @"<Button Variant=""ButtonVariant.Outline"" ButtonSize=""ButtonSize.Sm"">
-    Save
+    private const string state = @"<Button BackgroundColor=""BackgroundColor.Primary.OnHover.Secondary""
+        Variant=""ButtonVariant.Default"">
+    Continue
 </Button>";
 
-    private const string RawClassesCode = @"<Button Variant=""ButtonVariant.Ghost""
-        Class=""rounded-lg hover:bg-muted data-[state=open]:bg-muted""
-        aria-label=""Open menu""
-        data-tracking-id=""main-menu"">
-    Menu
+    private const string navigation = @"<Button AsChild=""true"" Variant=""ButtonVariant.Outline"">
+    <Anchor Href=""/dashboard"">Open dashboard</Anchor>
 </Button>";
 
-    private const string PresetsCode = @"<Div Preset=""QuarkPresets.ContainerWrapper""
-     Width=""Width.IsFit""
-     Class=""custom-class"" />";
+    private const string safelist = @"/* tailwind/input.css: enumerate the complete classes you choose at runtime. */
+@source inline(""bg-red-500 bg-green-500 md:grid-cols-3"");";
 }

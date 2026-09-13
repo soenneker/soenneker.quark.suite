@@ -38,89 +38,89 @@
                  Description="Responsive, smooth line series with shared hover tooltips, keyboard-accessible points, and legend toggling."
                  Code="@LineCode"
                  CodeLanguage="razor">
-        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
-            <div class="mb-4">
-                <div class="text-sm font-medium">API requests</div>
-                <div class="text-xs text-muted-foreground">Last seven days</div>
-            </div>
+        <Div Class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+            <Div Class="mb-4">
+                <Div Class="text-sm font-medium">API requests</Div>
+                <Div Class="text-xs text-muted-foreground">Last seven days</Div>
+            </Div>
             <Chart Labels="@WeekLabels" Series="@LineSeries" Options="@LineOptions" AriaLabel="API requests over the last seven days" />
-        </div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Area chart with gradients"
                  Description="Areas accept native CSS colors and SVG gradients, including theme variables, hex, RGB, HSL, and OKLCH."
                  Code="@AreaCode"
                  CodeLanguage="razor">
-        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
-            <div class="mb-2 text-sm font-medium">Response volume</div>
+        <Div Class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+            <Div Class="mb-2 text-sm font-medium">Response volume</Div>
             <Chart Type="ChartType.Area" Labels="@WeekLabels" XValues="@IrregularDayOffsets" Series="@AreaSeries" Options="@AreaOptions" AriaLabel="Response volume" />
-        </div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Grouped and stacked bars"
                  Description="Bar charts can be grouped or stacked with positive and negative values, rounded corners, custom spacing, and mixed-series support."
                  Code="@BarCode"
                  CodeLanguage="razor">
-        <div class="grid w-full gap-4 lg:grid-cols-2">
-            <div class="rounded-xl border bg-card p-4">
-                <div class="mb-2 text-sm font-medium">Grouped revenue</div>
+        <Div Class="grid w-full gap-4 lg:grid-cols-2">
+            <Div Class="rounded-xl border bg-card p-4">
+                <Div Class="mb-2 text-sm font-medium">Grouped revenue</Div>
                 <Chart Type="ChartType.Bar" Labels="@QuarterLabels" Series="@BarSeries" Options="@BarOptions" AriaLabel="Grouped quarterly revenue" />
-            </div>
-            <div class="rounded-xl border bg-card p-4">
-                <div class="mb-2 text-sm font-medium">Stacked revenue</div>
+            </Div>
+            <Div Class="rounded-xl border bg-card p-4">
+                <Div Class="mb-2 text-sm font-medium">Stacked revenue</Div>
                 <Chart Type="ChartType.Bar" Labels="@QuarterLabels" Series="@BarSeries" Options="@StackedBarOptions" AriaLabel="Stacked quarterly revenue" />
-            </div>
-        </div>
+            </Div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Pie chart"
                  Description="Radial charts reuse the same labels and series model, with per-slice palettes and precise value formatting."
                  Code="@PieCode"
                  CodeLanguage="razor">
-        <div class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
+        <Div Class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
             <Chart Type="ChartType.Pie" Labels="@ChannelLabels" Series="@ChannelSeries" Options="@RadialOptions" AriaLabel="Traffic by channel" />
-        </div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Donut chart"
                  Description="Donuts expose their center as normal Blazor content and support selection callbacks for interactive dashboards."
                  Code="@DonutCode"
                  CodeLanguage="razor">
-        <div class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
+        <Div Class="w-full max-w-xl rounded-xl border bg-card p-4 sm:p-6">
             <Chart Type="ChartType.Donut" Labels="@ChannelLabels" Series="@ChannelSeries" Options="@DonutOptions" OnSelect="HandleSelection" AriaLabel="Traffic by channel">
                 <DonutContent>
-                    <div>
-                        <div class="text-2xl font-semibold">24.8k</div>
-                        <div class="text-xs text-muted-foreground">visitors</div>
-                    </div>
+                    <Div>
+                        <Div Class="text-2xl font-semibold">24.8k</Div>
+                        <Div Class="text-xs text-muted-foreground">visitors</Div>
+                    </Div>
                 </DonutContent>
             </Chart>
             @if (_selection is not null)
             {
-                <div class="mt-2 text-center text-xs text-muted-foreground">Selected @_selection.Label: @_selection.Value.ToString("N0")</div>
+                <Div Class="mt-2 text-center text-xs text-muted-foreground">Selected @_selection.Label: @_selection.Value.ToString("N0")</Div>
             }
-        </div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Mixed series and custom tooltip"
                  Description="Override the type per series and supply any RenderFragment as the tooltip while keeping chart geometry and interactions built in."
                  Code="@MixedCode"
                  CodeLanguage="razor">
-        <div class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
+        <Div Class="w-full max-w-4xl rounded-xl border bg-card p-4 sm:p-6">
             <Chart Type="ChartType.Bar" Labels="@WeekLabels" Series="@MixedSeries" Options="@MixedOptions" AriaLabel="Requests and latency">
                 <TooltipTemplate Context="point">
-                    <div class="font-medium">@point.Label</div>
+                    <Div Class="font-medium">@point.Label</Div>
                     @foreach (var row in point.Rows)
                     {
-                        <div class="mt-1 flex items-center gap-2">
-                            <span class="size-2 rounded-sm" style="background:@row.Color"></span>
-                            <span>@row.Series</span>
-                            <strong class="ml-auto">@row.Value.ToString("N0")</strong>
-                        </div>
+                        <Div Class="mt-1 flex items-center gap-2">
+                            <Span Class="size-2 rounded-sm" Style="@($"background:{row.Color}")"></Span>
+                            <Span>@row.Series</Span>
+                            <Strong Class="ml-auto">@row.Value.ToString("N0")</Strong>
+                        </Div>
                     }
                 </TooltipTemplate>
             </Chart>
-        </div>
+        </Div>
     </DemoSection>
 
     <DemoSection Title="Usage dashboard chart"
@@ -131,13 +131,13 @@
             <Chart Labels="@UsageLabels" Series="@UsageSeries" Options="@UsageOptions" AriaLabel="Total token usage over seven days"
                    Class="dark w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-[#202020] px-2 pb-2 text-white shadow-sm">
                 <HeaderContent>
-                    <div class="flex items-start justify-between gap-4 px-3 pt-5">
-                        <div>
+                    <Div Class="flex items-start justify-between gap-4 px-3 pt-5">
+                        <Div>
                             <Anchor Href="#usage-details" Class="text-sm text-white/60 no-underline transition-colors hover:text-white focus-visible:text-white">
-                                Total tokens <span aria-hidden="true">›</span>
+                                Total tokens <Span aria-hidden="true">›</Span>
                             </Anchor>
-                            <div class="mt-1 text-2xl font-semibold tracking-tight">607,262</div>
-                        </div>
+                            <Div Class="mt-1 text-2xl font-semibold tracking-tight">607,262</Div>
+                        </Div>
                         <Tooltip>
                             <TooltipTrigger AsChild="true">
                                 <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
@@ -148,7 +148,7 @@
                             </TooltipTrigger>
                             <TooltipContent Side="Side.Left">Includes input and cached tokens.</TooltipContent>
                         </Tooltip>
-                    </div>
+                    </Div>
                 </HeaderContent>
             </Chart>
         </TooltipProvider>
@@ -316,11 +316,11 @@
 <Chart Labels="@labels" Series="@series" Options="@options"
        Class="dark rounded-xl bg-[#202020] text-white">
     <HeaderContent>
-        <div class="flex items-start justify-between px-5 pt-5">
-            <div>
+        <Div Class="flex items-start justify-between px-5 pt-5">
+            <Div>
                 <Anchor Href="/usage">Total tokens ›</Anchor>
-                <div class="text-2xl font-semibold">607,262</div>
-            </div>
+                <Div Class="text-2xl font-semibold">607,262</Div>
+            </Div>
             <Tooltip>
                 <TooltipTrigger AsChild="true">
                     <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
@@ -328,10 +328,10 @@
                 </TooltipTrigger>
                 <TooltipContent>Includes input and cached tokens.</TooltipContent>
             </Tooltip>
-        </div>
+        </Div>
     </HeaderContent>
     <OverlayContent Context="overlay">
-        <a class="pointer-events-auto" style="@overlay.Style(3, 410)" href="/details">Details</a>
+        <Anchor Class="pointer-events-auto" Style="@overlay.Style(3, 410)" Href="/details">Details</Anchor>
     </OverlayContent>
 </Chart>
 
@@ -418,7 +418,7 @@
     private const string DonutCode = """
 <Chart Type="ChartType.Donut" Labels="@channels" Series="@traffic" OnSelect="HandleSelection">
     <DonutContent>
-        <div><strong>24.8k</strong><small>visitors</small></div>
+        <Div><Strong>24.8k</Strong><Small>visitors</Small></Div>
     </DonutContent>
 </Chart>
 
@@ -440,10 +440,10 @@
     private const string MixedCode = """
 <Chart Type="ChartType.Bar" Labels="@labels" Series="@mixed">
     <TooltipTemplate Context="point">
-        <strong>@point.Label</strong>
+        <Strong>@point.Label</Strong>
         @foreach (var row in point.Rows)
         {
-            <span>@row.Series: @row.Value</span>
+            <Span>@row.Series: @row.Value</Span>
         }
     </TooltipTemplate>
 </Chart>

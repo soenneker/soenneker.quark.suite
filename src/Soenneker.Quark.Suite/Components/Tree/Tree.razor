@@ -22,7 +22,7 @@
         if (!_items.Contains(item))
             _items.Add(item);
 
-        if (_currentItem is null && !item.Disabled)
+        if (_currentItem is null && !item.Disabled && item.Visible)
             _currentItem = item;
     }
 
@@ -37,11 +37,20 @@
         }
     }
 
-    internal bool IsCurrent(TreeItem item) => !item.Disabled && ReferenceEquals(_currentItem, item);
+    internal bool IsCurrent(TreeItem item) => !item.Disabled && item.Visible && ReferenceEquals(_currentItem, item);
+
+    internal void UpdateAvailability(TreeItem item)
+    {
+        if (ReferenceEquals(_currentItem, item) && (item.Disabled || !item.Visible))
+        {
+            _currentItem = FindFirstEnabledItem();
+            _currentItem?.RefreshTreeItem();
+        }
+    }
 
     internal void SetCurrent(TreeItem item)
     {
-        if (item.Disabled || ReferenceEquals(_currentItem, item))
+        if (item.Disabled || !item.Visible || ReferenceEquals(_currentItem, item))
             return;
 
         var previous = _currentItem;
@@ -62,7 +71,7 @@
         {
             var candidate = _items[i];
 
-            if (candidate.Disabled)
+            if (candidate.Disabled || !candidate.Visible)
                 continue;
 
             first ??= candidate;
@@ -104,7 +113,7 @@
     {
         for (var i = 0; i < _items.Count; i++)
         {
-            if (!_items[i].Disabled)
+            if (!_items[i].Disabled && _items[i].Visible)
                 return _items[i];
         }
 

@@ -3,13 +3,27 @@
 @implements IDisposable
 
 <CascadingValue Name="ParentTreeItem" Value="@this">
+    <div class="tree-item-motion" data-visible="@(Visible ? "true" : "false")" aria-hidden="@(Visible ? null : "true")" inert="@(!Visible)">
+    <div class="tree-item-clip">
     <button @ref="_element" @attributes="BuildAttributes()" @onclick="HandleClick" @onfocus="HandleFocus" @onkeydown="HandleKeyDown">
         @ChildContent
     </button>
+    </div>
+    </div>
 </CascadingValue>
 
 @code {
     private ElementReference _element;
+
+    /// <summary>Whether the row is visible. Keep collapsed descendants mounted and set this to false to animate them closed.</summary>
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        ParentTree?.UpdateAvailability(this);
+    }
 
     [CascadingParameter(Name = "ParentTree")]
     public Tree? ParentTree { get; set; }
@@ -100,7 +114,7 @@
 
     private Task HandleClick(MouseEventArgs args)
     {
-        if (Disabled)
+        if (Disabled || !Visible)
             return Task.CompletedTask;
 
         ParentTree?.SetCurrent(this);
@@ -119,7 +133,7 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        if (Disabled)
+        if (Disabled || !Visible)
             return;
 
         if (ParentTree is not null)
@@ -147,6 +161,7 @@
         hc.Add(ParentTree?.IsCurrent(this));
         hc.Add(ParentTree?.Indent);
         hc.Add(Level);
+        hc.Add(Visible);
         hc.Add(Folder);
         hc.Add(Expanded);
         hc.Add(Selected);

@@ -8,18 +8,24 @@ public static class DocsNavigation
 
     public static IReadOnlyList<NavigationItem> TopLinks { get; } =
     [
-        new("Docs", ".", ExactMatch: true),
-        new("Components", "components")
+        new("Home", "/", ExactMatch: true),
+        new("Docs", "installation", ExactMatch: true),
+        new("Components", "components"),
+        new("Charts", "charts/area")
     ];
 
     public static IReadOnlyList<NavigationItem> SectionLinks { get; } =
     [
         new("Introduction", "introduction"),
         new("Components", "components"),
+        new("Charts", "charts/area"),
         new("Installation", "installation"),
+        new("First Component", "first-component"),
+        new("Generators", "generators"),
         new("Properties", "properties"),
         new("Grid System", "grid-system"),
         new("Themes", "themes"),
+        new("Troubleshooting", "troubleshooting"),
         new("Validation", ComponentRoute("validation"))
     ];
 
@@ -63,6 +69,7 @@ public static class DocsNavigation
         new("DataTable", ComponentRoute("datatables")),
         new("Date Time", ComponentRoute("date-time")),
         new("Date Picker", ComponentRoute("date-picker")),
+        new("Details and Summary", ComponentRoute("details")),
         new("Dialog", ComponentRoute("dialog")),
         new("Direction", ComponentRoute("direction")),
         new("Drawer", ComponentRoute("drawer")),
@@ -74,6 +81,8 @@ public static class DocsNavigation
         new("Grid", ComponentRoute("grids")),
         new("Header", ComponentRoute("headers")),
         new("Hover Card", ComponentRoute("hover-card")),
+        new("Icons", ComponentRoute("icons")),
+        new("Iframe", ComponentRoute("iframes")),
         new("Image", ComponentRoute("images")),
         new("Input", ComponentRoute("input")),
         new("Input Group", ComponentRoute("input-group")),
@@ -110,6 +119,7 @@ public static class DocsNavigation
         new("Sheet", ComponentRoute("sheet")),
         new("Sidebar", ComponentRoute("sidebar")),
         new("Signature Pad", ComponentRoute("signature-pad")),
+        new("Simple Icons", ComponentRoute("simple-icons")),
         new("Skeleton", ComponentRoute("skeleton")),
         new("Slider", ComponentRoute("slider")),
         new("Sonner", ComponentRoute("sonner")),
@@ -133,15 +143,12 @@ public static class DocsNavigation
         new("Toggle Group", ComponentRoute("toggle-groups")),
         new("Tooltip", ComponentRoute("tooltip")),
         new("Typography", ComponentRoute("typography")),
-        new("DataTable Bar Layout", ComponentRoute("barlayouts")),
+        new("Video and Audio", ComponentRoute("videos")),
         new("Collapse", ComponentRoute("collapses")),
         new("Date Input", ComponentRoute("dateinputs")),
         new("Loading", ComponentRoute("loading")),
         new("Memo Input", ComponentRoute("memoinputs")),
-        new("Advanced DataTable", ComponentRoute("modern")),
         new("Numeric Input", ComponentRoute("numericinputs")),
-        new("Paged Results", ComponentRoute("pagedresults")),
-        new("DataTable Request Options", ComponentRoute("requestdataoptions")),
         new("Tree", ComponentRoute("tree"))
     ];
 
@@ -155,26 +162,21 @@ public static class DocsNavigation
         new("Div", ComponentRoute("divs")),
         new("Fieldset", ComponentRoute("fieldsets")),
         new("Figure", ComponentRoute("figures")),
-        new("Icons", ComponentRoute("icons")),
         new("Margin", ComponentRoute("margins")),
         new("Nav", ComponentRoute("navs")),
         new("Padding", ComponentRoute("padding")),
         new("Paragraph", ComponentRoute("paragraphs")),
         new("Section", ComponentRoute("sections")),
         new("Semantic HTML", ComponentRoute("semantic-html")),
-        new("Simple Icons", ComponentRoute("simple-icons")),
         new("Small", ComponentRoute("small")),
         new("Span", ComponentRoute("spans")),
         new("Strong", ComponentRoute("strong")),
         new("Svg", ComponentRoute("svgs")),
         new("Text", ComponentRoute("texts")),
-        new("Details and Summary", ComponentRoute("details")),
         new("Headings", ComponentRoute("headings")),
         new("Horizontal Rule", ComponentRoute("hr")),
-        new("Iframe", ComponentRoute("iframes")),
         new("Ordered List", ComponentRoute("orderedlists")),
         new("Text Styles", ComponentRoute("textstyles")),
-        new("Unordered List", ComponentRoute("unorderedlists")),
-        new("Video and Audio", ComponentRoute("videos"))
+        new("Unordered List", ComponentRoute("unorderedlists"))
     ];
 }

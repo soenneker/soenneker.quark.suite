@@ -28,10 +28,10 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Title, "Default")
             .Add(p => p.ChildContent, "Preview"));
 
-        var heading = cut.Find("h3");
+        var heading = cut.Find("h2");
 
         heading.GetAttribute("id").Should().Be("default");
-        cut.FindAll("h3 a[href='#default']").Should().BeEmpty();
+        cut.FindAll("h2 a[href='#default']").Should().BeEmpty();
     }
 
     [Test]
@@ -42,9 +42,9 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ShowTitleAnchor, true)
             .Add(p => p.ChildContent, "Preview"));
 
-        var heading = cut.Find("h3");
-        var anchor = cut.Find("h3 a[href='#multiple']");
-        var hash = cut.Find("h3 a span[aria-hidden='true']");
+        var heading = cut.Find("h2");
+        var anchor = cut.Find("h2 a[href='#multiple']");
+        var hash = cut.Find("h2 a span[aria-hidden='true']");
 
         heading.GetAttribute("id").Should().Be("multiple");
         heading.GetAttribute("class").Should().Contain("scroll-m-24");

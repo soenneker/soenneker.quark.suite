@@ -1,0 +1,75 @@
+@page "/troubleshooting"
+
+<SeoHead Title="Troubleshoot your Quark setup | Quark Suite" Description="Find missing styles, icons, generated registrations, and theme changes by following the source-to-build-to-browser path." />
+
+<DocumentationPage Title="Troubleshoot your Quark setup" Description="Find missing styles, icons, generated registrations, and theme changes by following the source-to-build-to-browser path.">
+
+<Section Id="baseline">
+    <H2>Start with the small working example</H2>
+    <Paragraph>Use the <Anchor Href="first-component">first component walkthrough</Anchor> as a baseline. A styled card with a check icon and a working Save button confirms the main setup. Check <Code>dotnet build</Code> output and the browser console before adding more packages.</Paragraph>
+</Section>
+
+<Section Id="unstyled">
+    <H2>Everything looks unstyled</H2>
+    <OrderedList><UnorderedListItem>Confirm the app directly references Tailwind and Tailwind.Manifest and sets <Code>TailwindGeneratorBuildEnabled</Code> to true.</UnorderedListItem><UnorderedListItem>Run a normal <Code>dotnet build</Code> in the app project. Look for the Tailwind build task in the output.</UnorderedListItem><UnorderedListItem>Check that <Code>wwwroot/css/quark-tailwind.min.css</Code> exists and contains CSS.</UnorderedListItem><UnorderedListItem>In the browser's Network panel, check that the stylesheet URL returns CSS, rather than an HTML fallback or 404.</UnorderedListItem><UnorderedListItem>Check the document shell's link path and whether another stylesheet overrides the result.</UnorderedListItem></OrderedList>
+</Section>
+
+<Section Id="missing-utility">
+    <H2>One builder or utility has no effect</H2>
+    <Paragraph>First inspect the element's class attribute. If the intended class is missing, check the builder chain: the modifier must precede its value. If the class is present, search for it in <Code>tailwind/quark-tailwind-manifest.txt</Code> and the generated CSS.</Paragraph>
+    <Paragraph>Keep runtime-selected class names explicit in <Code>tailwind/input.css</Code>:</Paragraph>
+    <CodeEditor Text="@safelist" Language="css" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>If the styles live in a separate Razor library, verify how that library's source or manifest reaches the app's Tailwind build. Do not assume a package reference makes every external source file visible to the scanner.</Paragraph>
+</Section>
+
+<Section Id="missing-icons">
+    <H2>Icons are missing or the provider cannot be resolved</H2>
+    <OrderedList><UnorderedListItem>Keep the SVG catalog and generator packages in the app's setup.</UnorderedListItem><UnorderedListItem>Register <Code>AddLucideIconsAsScoped()</Code> and, when using brand icons, <Code>AddSimpleIconsAsScoped()</Code>.</UnorderedListItem><UnorderedListItem>Build once and inspect <Code>obj/.../Generated</Code> for the map, provider, and registration extension.</UnorderedListItem><UnorderedListItem>Use an explicit source reference for each icon you select at runtime.</UnorderedListItem></OrderedList>
+    <CodeEditor Text="@pinIcons" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Lucide uses <Code>Icon</Code> with a <Code>LucideIcon</Code> name. Brand icons use the separate <Code>SimpleIcon</Code> component and provider. <Anchor Href="generators#brand-icons">See the complete brand-icon setup</Anchor>.</Paragraph>
+</Section>
+
+<Section Id="generated-methods">
+    <H2>A generated registration method is unresolved</H2>
+    <Paragraph>Confirm the generator is installed directly in the project containing the registration, then run a normal build. These files are generated during a real build; an IDE-only design-time pass is not the initial generation step.</Paragraph>
+    <Paragraph>Add the generated namespace, such as <Code>Soenneker.Quark.Gen.Lucide.Generated</Code>. If you copied properties from the Quark library project, check that <Code>LucideIncludeSvgProvider</Code> and <Code>LucideIncludeServiceCollectionExtensions</Code> have not been disabled in the application. Their SimpleIcons counterparts follow the same pattern.</Paragraph>
+</Section>
+
+<Section Id="first-build">
+    <H2>The first Tailwind build takes longer or a download fails</H2>
+    <Paragraph>The first build may need to provision Node.js/npm and download Tailwind dependencies. This is automatic; a manual Node installation is not a setup requirement. Check download/proxy access, the reported task error, and write access to the project and tool caches.</Paragraph>
+    <Paragraph>Later builds reuse dependencies and skip unchanged work. In CI, restore caches appropriate to your runner and preserve the Tailwind package lockfile. The deployed application serves static CSS and does not need Node.js running on the server.</Paragraph>
+</Section>
+
+<Section Id="theme-changes">
+    <H2>Theme changes do not show up</H2>
+    <OrderedList><UnorderedListItem>Choose whether JSON or a C# factory owns the tokens.</UnorderedListItem><UnorderedListItem>If using JSON, explicitly set <Code>ShadcnThemeConfig</Code>; an existing generated token file can otherwise be reused.</UnorderedListItem><UnorderedListItem>If using C#, confirm the factory is attributed, builds successfully, and writes the expected files.</UnorderedListItem><UnorderedListItem>Load the runtime application-theme stylesheet after the Tailwind stylesheet.</UnorderedListItem><UnorderedListItem>Rebuild and verify the actual CSS response in the browser.</UnorderedListItem></OrderedList>
+    <Paragraph><Code>tailwind/quark-theme.generated.css</Code> is build input, not the runtime component-theme stylesheet. <Anchor Href="themes#outputs">Review the theme outputs</Anchor>.</Paragraph>
+</Section>
+
+<Section Id="interaction">
+    <H2>The page renders but controls do not respond</H2>
+    <Paragraph>Check that Blazor started successfully, the page is interactive, and Quark's services are registered. For a Blazor Web App, static rendering alone does not run event handlers. Inspect the browser console for missing services, failed module loads, and application exceptions.</Paragraph>
+    <Paragraph>When updating complex component parameters, replace mutable objects rather than editing them in place. <Code>AlwaysRender</Code> is available for applications that intentionally depend on mutation, but it is not a substitute for fixing startup or registration errors.</Paragraph>
+</Section>
+
+<Section Id="reference-apps">
+    <H2>Compare a complete setup</H2>
+    <Paragraph>The <Anchor Href="https://github.com/soenneker/soenneker.quark.suite/tree/main/test/Soenneker.Quark.Suite.Demo">Quark demo project</Anchor> shows packages, build properties, service registration, CSS links, and theme interop together. The <Anchor Href="https://github.com/soenneker/soenneker.blazor.creditcards/tree/main/test/Soenneker.Blazor.CreditCards.Demo">CreditCards demo</Anchor> is a smaller reference with Quark, generated Lucide icons, and a focused feature library.</Paragraph>
+    <Paragraph>If you report a problem, include the relevant package versions, host/render mode, build error or browser error, and a small component that reproduces it.</Paragraph>
+</Section>
+
+</DocumentationPage>
+
+@code {
+    private const string safelist = @"/* tailwind/input.css: enumerate the complete classes you choose at runtime. */
+@source inline(""bg-red-500 bg-green-500 md:grid-cols-3"");";
+
+    private const string pinIcons = @"using Soenneker.Lucide.Enums.Icons;
+
+public static class StatusIcons
+{
+    public static LucideIcon ForStatus(bool complete) =>
+        complete ? LucideIcon.Check : LucideIcon.Clock;
+}";
+}

@@ -1,0 +1,174 @@
+@page "/generators"
+
+<SeoHead Title="Understand the Quark generators | Quark Suite" Description="Learn which Quark generators your Blazor app needs, what they produce, and how CSS, icons, themes, and reusable libraries fit together." />
+
+<DocumentationPage Title="Understand the Quark generators" Description="Learn which Quark generators your Blazor app needs, what they produce, and how CSS, icons, themes, and reusable libraries fit together.">
+
+<Section Id="start-here">
+    <H2>The application set</H2>
+    <Paragraph>For the standard setup, install <Code>Soenneker.Quark.Gen.Tailwind</Code>, <Code>Soenneker.Quark.Gen.Tailwind.Manifest</Code>, and <Code>Soenneker.Quark.Gen.Lucide</Code> directly in the application project. Add <Code>Soenneker.Lucide.Icons</Code> for SVG source assets. The <Anchor Href="installation">installation guide</Anchor> includes the commands and registrations.</Paragraph>
+    <Paragraph>Add SimpleIcons for brand logos and Themes for a C# theme. Presets, Modifiers, and Manifest.Suite serve a different purpose: generating reusable library APIs and the suite's own assets.</Paragraph>
+</Section>
+
+<Section Id="build-flow">
+    <H2>What happens during a build</H2>
+    <CodeEditor Text="@flow" Language="text" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>The manifest contains class names. Tailwind compiles those names into CSS. Icon generators produce C# code, and their generated providers supply SVGs at runtime. A theme factory supplies CSS variables and component styling.</Paragraph>
+</Section>
+
+<Section Id="generator-reference">
+    <H2>Every generator, in context</H2>
+    <Div Class="overflow-x-auto"><Table><Thead>
+        <Tr><Th>Package</Th><Th>Use it for</Th><Th>What it does</Th></Tr>
+        </Thead>
+        <Tbody>
+        <Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind">Soenneker.Quark.Gen.Tailwind</Anchor></Td><Td>Application</Td><Td>Provisions the Node/npm toolchain as needed, installs Tailwind dependencies, combines sources and theme tokens, and writes the full and minified app stylesheets. Enable <Code>TailwindGeneratorBuildEnabled</Code>.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind.manifest">Soenneker.Quark.Gen.Tailwind.Manifest</Anchor></Td><Td>Application / source project</Td><Td>Finds utilities composed by C# builders and writes tailwind/quark-tailwind-manifest.txt. This supplies complete class names that Tailwind cannot read from a fluent expression. Enabled by default.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.lucide">Soenneker.Quark.Gen.Lucide</Anchor></Td><Td>Application</Td><Td>Scans source for Lucide icon references and generates an SVG map, provider, and AddLucideIconsAsScoped(). Soenneker.Lucide.Icons supplies the SVG catalog.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.simpleicons">Soenneker.Quark.Gen.SimpleIcons</Anchor></Td><Td>Optional: brand icons</Td><Td>Generates the brand-icon map, provider, and AddSimpleIconsAsScoped(). Pair with Soenneker.SimpleIcons.Icons and the SimpleIcon component.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.themes">Soenneker.Quark.Gen.Themes</Anchor></Td><Td>Optional: a C# theme</Td><Td>Executes an attributed Theme factory during the build; writes runtime theme CSS plus Tailwind token CSS. Useful for shared application colors and component styling.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind.manifest.suite">Soenneker.Quark.Gen.Tailwind.Manifest.Suite</Anchor></Td><Td>Library authors</Td><Td>Builds the suite-wide class manifest shipped with Quark, including component defaults and variants. The app consumes the packaged manifest; it does not normally install this generator.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.presets">Soenneker.Quark.Gen.Presets</Anchor></Td><Td>Preset authors</Td><Td>Creates typed QuarkPresets registry tokens from classes marked with QuarkPreset. Quark already ships its built-in tokens. Add it when generating your own preset registry.</Td></Tr>
+<Tr><Td><Anchor Href="https://github.com/soenneker/soenneker.quark.gen.tailwind.modifiers">Soenneker.Quark.Gen.Tailwind.Modifiers</Anchor></Td><Td>Builder-library authors</Td><Td>Generates modifier entry points such as OnHover, OnMd, and OnDark for partial builder entry classes. Applications already receive those APIs through Soenneker.Quark.Builders.</Td></Tr>
+        </Tbody>
+        </Table>
+    </Div>
+</Section>
+
+<Section Id="tailwind">
+    <H2>Tailwind: source to stylesheet</H2>
+    <Paragraph>Tailwind can see a literal class such as <Code>px-4</Code>. It cannot read a C# builder expression as if it were CSS. Tailwind.Manifest resolves those expressions into complete class names. The separate suite manifest supplies Quark's built-in classes, including defaults and variants.</Paragraph>
+    <CodeEditor Text="@chain" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>The app manifest includes classes such as <Code>px-4</Code>, <Code>py-2</Code>, and <Code>md:flex-row</Code>. Tailwind combines the app's classes, the packaged suite manifest, and the theme tokens into <Code>quark-tailwind.css</Code> and <Code>quark-tailwind.min.css</Code>.</Paragraph>
+    <Paragraph><Strong>Node.js/npm are provisioned automatically when needed.</Strong> The generator uses <Code>Soenneker.Node.Util</Code>, installs Tailwind's npm dependencies, and reuses them on later builds. First-build download access is required when those dependencies are not already available.</Paragraph>
+</Section>
+
+<Section Id="lucide">
+    <H2>Lucide: source names to SVGs</H2>
+    <Paragraph><Code>Soenneker.Lucide.Enums.Icons</Code> supplies <Code>LucideIcon</Code> names; the suite references those types. <Code>Soenneker.Lucide.Icons</Code> supplies SVG resources. <Code>Gen.Lucide</Code> scans app sources and emits the map, provider, and registration extension under <Code>obj/.../Generated</Code>.</Paragraph>
+    <CodeEditor Text="@services" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Reference icons directly, including icons selected by business logic:</Paragraph>
+    <CodeEditor Text="@pinIcons" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Configuration strings, reflection, and arbitrary runtime names cannot tell the build which SVGs to include. Keep an explicit source-visible mapping for the allowed choices.</Paragraph>
+</Section>
+
+<Section Id="brand-icons">
+    <H2>Brand icons: the same workflow, a separate provider</H2>
+    <CodeEditor Text="@simplePackages" Language="shell" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <CodeEditor Text="@simpleServices" Language="csharp" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <CodeEditor Text="@simpleUsage" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>The static import brings the enum members into scope. Keep it in the page that needs it, and use literal Razor icon names for reliable SVG discovery. The component accepts <Code>SimpleIconEnum</Code> values, but the build scanner does not resolve arbitrary enum expressions or aliases. Ensure every icon selected at runtime also appears as a literal <Code>Name</Code> in source. Register this provider separately from Lucide.</Paragraph>
+</Section>
+
+<Section Id="themes">
+    <H2>Themes: a build-time factory</H2>
+    <Paragraph><Code>Gen.Themes</Code> finds classes annotated with <Code>GenerateQuarkThemeCss</Code>, executes their <Code>Theme</Code> factories, and writes runtime theme styles plus Tailwind token CSS. The factory must work during a build, without browser-only state. <Anchor Href="themes">See a complete C# theme and stylesheet order</Anchor>.</Paragraph>
+</Section>
+
+<Section Id="shared-libraries">
+    <H2>Where generators belong in a larger solution</H2>
+    <Paragraph>The final application owns its stylesheet and DI registrations. Install its generators there even when Quark is referenced by a shared Razor library. Source-scanning generators operate on the project they are given; do not assume that arbitrary source in another project is automatically part of the app scan.</Paragraph>
+    <Paragraph>For a reusable component library, generate and distribute the needed manifests and icon maps, then deliberately include them in the consuming app. Quark's own build uses <Code>Manifest.Suite</Code> and packages its suite manifest. An app can set <Code>TailwindManifestPath</Code> when an upstream manifest cannot be resolved automatically.</Paragraph>
+    <Paragraph>Keep generator tooling private when packaging a library. The suite and the other Soenneker demos use <Code>PrivateAssets="all"</Code> on their build-only references. For an existing reference, for example:</Paragraph>
+    <CodeEditor Text="@privateAssets" Language="xml" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>For libraries that generate icon maps without providing the final app registration, the Lucide and SimpleIcons packages expose <Code>IncludeSvgProvider</Code> and <Code>IncludeServiceCollectionExtensions</Code> properties with their respective package prefixes. Their defaults are true in apps; Quark disables those outputs in the suite project.</Paragraph>
+</Section>
+
+<Section Id="runtime-values">
+    <H2>Runtime values need an explicit set of classes</H2>
+    <Paragraph>If the server or a configuration file chooses a style, give Tailwind the full set of permitted class names. Do not rely on the build discovering an interpolated class from runtime data.</Paragraph>
+    <CodeEditor Text="@safelist" Language="css" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Put this in <Code>tailwind/input.css</Code>, keep the classes complete, and rebuild. Do not edit the generated manifest to make a missing utility appear.</Paragraph>
+</Section>
+
+<Section Id="generated-files">
+    <H2>Know what to edit</H2>
+    <CodeEditor Text="@files" Language="text" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+    <Paragraph>Author Razor, C#, and the configuration files. Keep customized Tailwind input, package metadata, and lockfiles under source control. Regenerate manifests, CSS, and icon maps by building. The generated assets ship with the Blazor app; a production Node server is not required.</Paragraph>
+</Section>
+
+<Section Id="settings">
+    <H2>Useful switches</H2>
+    <Div Class="overflow-x-auto"><Table><Thead>
+        <Tr><Th>Setting</Th><Th>Purpose</Th></Tr>
+        </Thead>
+        <Tbody>
+        <Tr><Td><Code>TailwindGeneratorBuildEnabled</Code></Td><Td>Opt in to CSS compilation. Defaults to false.</Td></Tr>
+        <Tr><Td><Code>QuarkTailwindManifestGeneratorBuildEnabled</Code></Td><Td>App builder manifest generation. Defaults to true.</Td></Tr>
+        <Tr><Td><Code>LucideGeneratorBuildEnabled</Code> / <Code>SimpleIconsGeneratorBuildEnabled</Code></Td><Td>Enable the corresponding icon generator. Defaults to true.</Td></Tr>
+        <Tr><Td><Code>TailwindOutput</Code></Td><Td>Override the full CSS output path; the minified output is written beside it.</Td></Tr>
+        <Tr><Td><Code>ShadcnThemeConfig</Code></Td><Td>Explicitly select a JSON theme configuration.</Td></Tr>
+        <Tr><Td><Code>QuarkThemeBuildUnminified</Code>, <Code>QuarkThemeBuildMinified</Code>, <Code>QuarkThemeBuildTailwind</Code></Td><Td>Control the C# theme generator's output categories.</Td></Tr>
+        </Tbody>
+        </Table>
+    </Div>
+    <Paragraph>Use the linked package documentation for more options. If a result is missing, <Anchor Href="troubleshooting">trace the source, generated file, and runtime registration</Anchor> before changing unrelated settings.</Paragraph>
+</Section>
+
+</DocumentationPage>
+
+@code {
+    private const string flow = @"Your Razor + C# builders  -> Tailwind.Manifest -> app class manifest
+Quark's NuGet package     -> suite class manifest
+Theme JSON or C# factory  -> theme token CSS
+                         -> Tailwind build -> quark-tailwind.min.css
+
+Your LucideIcon references -> Gen.Lucide -> SVG map + provider + DI extension
+Your brand icon references -> Gen.SimpleIcons -> SVG map + provider + DI extension";
+
+    private const string chain = @"<Div Padding=""Padding.OnX.Is4.OnY.Is2""
+     FlexDirection=""FlexDirection.Col.OnMd.Row""
+     Display=""Display.Flex""
+     Gap=""Gap.Is3"">
+    Content
+</Div>";
+
+    private const string services = @"using Soenneker.Quark;
+using Soenneker.Quark.Gen.Lucide.Generated;
+
+// After creating builder, before builder.Build():
+builder.Services.AddQuarkSuiteAsScoped();
+builder.Services.AddLucideIconsAsScoped();";
+
+    private const string pinIcons = @"using Soenneker.Lucide.Enums.Icons;
+
+public static class StatusIcons
+{
+    public static LucideIcon ForStatus(bool complete) =>
+        complete ? LucideIcon.Check : LucideIcon.Clock;
+}";
+
+    private const string simplePackages = @"dotnet add package Soenneker.Quark.Gen.SimpleIcons
+dotnet add package Soenneker.SimpleIcons.Icons";
+
+    private const string simpleServices = @"using Soenneker.Quark.Gen.SimpleIcons.Generated;
+
+builder.Services.AddSimpleIconsAsScoped();";
+
+    private const string simpleUsage = @"@using static Soenneker.SimpleIcons.Enums.Icons.SimpleIconEnum
+
+<SimpleIcon Name=""Github""
+            aria-label=""GitHub"" />";
+
+    private const string privateAssets = @"<PackageReference Update=""Soenneker.Quark.Gen.Tailwind""
+                  PrivateAssets=""all"" />";
+
+    private const string safelist = @"/* tailwind/input.css: enumerate the complete classes you choose at runtime. */
+@source inline(""bg-red-500 bg-green-500 md:grid-cols-3"");";
+
+    private const string files = @"YourApp/
+  Program.cs                         # service registration
+  _Imports.razor                     # Quark and icon namespaces
+  Pages/QuarkStart.razor              # your components
+  tailwind/
+    input.css                        # Tailwind sources and explicit classes
+    quark-shadcn.theme.json           # theme choices, if using JSON
+    package.json / package-lock.json # Tailwind dependencies
+    quark-tailwind-manifest.txt       # generated app classes
+    quark-suite-tailwind-manifest.txt # generated/copied suite classes
+    quark-theme.generated.css        # generated theme tokens
+  wwwroot/css/
+    quark-tailwind.css                # generated full stylesheet
+    quark-tailwind.min.css            # generated minified stylesheet
+  obj/.../Generated/                  # generated icon C# files";
+}
