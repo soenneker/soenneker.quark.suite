@@ -4,6 +4,46 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Paging"
+                     Description="Browse 23 projects with first, previous, numbered, next, and last page controls. Change the rows per page to reset to page one. This example pages an in-memory collection."
+                     Code="@PagingCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview w-full p-4 md:p-8"
+                     PreviewInnerClass="w-full">
+            <DataTable Options="@_pagingOptions" TotalRecords="@_pagingRows.Count"
+                       OnGoToPage="HandlePagingPageChanged" OnPageSizeChanged="HandlePagingSizeChanged"
+                       Rounded="Rounded.Md" Border="Border.Default">
+                <TableContent>
+                    <Thead>
+                        <Tr>
+                            <Th>Project</Th>
+                            <Th>Status</Th>
+                            <Th>Owner</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        @foreach (var project in PagedProjects)
+                        {
+                            <Tr @key="project.Name">
+                                <Td>@project.Name</Td>
+                                <Td>@project.Status</Td>
+                                <Td>@project.Owner</Td>
+                            </Tr>
+                        }
+                    </Tbody>
+                </TableContent>
+                <BottomContent>
+                    <DataTableBottomBar Class="flex-wrap gap-4">
+                        <DataTableInfo />
+                        <DataTablePageSizeSelector PageSizeOptions="@_pagingOptions.PageSizeOptions" Label="Rows per page" />
+                        <DataTablePagination />
+                    </DataTableBottomBar>
+                </BottomContent>
+            </DataTable>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Description="Powerful tables and data grids for filtering, sorting, selection, and row actions."
                      PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0 items-start h-auto px-4 md:px-8"
                      PreviewInnerClass="w-full">
@@ -367,6 +407,93 @@
 </Div>
 
 @code {
+    private readonly DataTableOptions _pagingOptions = new()
+    {
+        DefaultPageSize = 5,
+        PageSizeOptions = [5, 10, 20]
+    };
+    private readonly List<PagingProjectRow> _pagingRows = Enumerable.Range(1, 23)
+        .Select(i => new PagingProjectRow($"Project {i:00}", i % 3 == 0 ? "Completed" : "Active", $"Team {(i - 1) % 4 + 1}"))
+        .ToList();
+    private int _pagingPage = 1;
+    private int _pagingPageSize = 5;
+
+    private IEnumerable<PagingProjectRow> PagedProjects =>
+        _pagingRows.Skip((_pagingPage - 1) * _pagingPageSize).Take(_pagingPageSize);
+
+    private void HandlePagingPageChanged(int page)
+    {
+        _pagingPage = page;
+    }
+
+    private void HandlePagingSizeChanged(int pageSize)
+    {
+        _pagingPageSize = pageSize;
+        _pagingPage = 1;
+    }
+
+    private sealed record PagingProjectRow(string Name, string Status, string Owner);
+
+    private const string PagingCode = @"<DataTable Options=""@_pagingOptions"" TotalRecords=""@_pagingRows.Count""
+           OnGoToPage=""HandlePagingPageChanged"" OnPageSizeChanged=""HandlePagingSizeChanged""
+           Rounded=""Rounded.Md"" Border=""Border.Default"">
+    <TableContent>
+        <Thead>
+            <Tr>
+                <Th>Project</Th>
+                <Th>Status</Th>
+                <Th>Owner</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (var project in PagedProjects)
+            {
+                <Tr @key=""project.Name"">
+                    <Td>@project.Name</Td>
+                    <Td>@project.Status</Td>
+                    <Td>@project.Owner</Td>
+                </Tr>
+            }
+        </Tbody>
+    </TableContent>
+    <BottomContent>
+        <DataTableBottomBar Class=""flex-wrap gap-4"">
+            <DataTableInfo />
+            <DataTablePageSizeSelector PageSizeOptions=""@_pagingOptions.PageSizeOptions"" Label=""Rows per page"" />
+            <DataTablePagination />
+        </DataTableBottomBar>
+    </BottomContent>
+</DataTable>
+
+@code {
+    private readonly DataTableOptions _pagingOptions = new()
+    {
+        DefaultPageSize = 5,
+        PageSizeOptions = [5, 10, 20]
+    };
+    private readonly List<PagingProjectRow> _pagingRows = Enumerable.Range(1, 23)
+        .Select(i => new PagingProjectRow($""Project {i:00}"", i % 3 == 0 ? ""Completed"" : ""Active"", $""Team {(i - 1) % 4 + 1}""))
+        .ToList();
+    private int _pagingPage = 1;
+    private int _pagingPageSize = 5;
+
+    private IEnumerable<PagingProjectRow> PagedProjects =>
+        _pagingRows.Skip((_pagingPage - 1) * _pagingPageSize).Take(_pagingPageSize);
+
+    private void HandlePagingPageChanged(int page)
+    {
+        _pagingPage = page;
+    }
+
+    private void HandlePagingSizeChanged(int pageSize)
+    {
+        _pagingPageSize = pageSize;
+        _pagingPage = 1;
+    }
+
+    private sealed record PagingProjectRow(string Name, string Status, string Owner);
+}";
+
     private readonly List<PaymentRow> _rows =
     [
         new("m5gr84i9", "success", "ناجح", "ken99@example.com", "$316.00", "‏٣١٦٫٠٠ US$"),
