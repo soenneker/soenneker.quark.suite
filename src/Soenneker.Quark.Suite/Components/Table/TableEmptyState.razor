@@ -1,0 +1,32 @@
+@namespace Soenneker.Quark
+@implements ITableEmptyState
+<Tr @attributes="AdditionalAttributes">
+    <Td ColSpan="@ColSpan" Padding="Padding.OnX.Is4.OnY.Is8" VerticalAlign="VerticalAlign.Middle">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <EmptyState Title="@Title" Description="@Description" Kind="@Kind" Actions="@Actions" Media="@Media" />
+        }
+    </Td>
+</Tr>
+@code {
+    [Parameter]
+    public int ColSpan { get; set; } = 1;
+    [Parameter]
+    public string Title { get; set; } = "No results";
+    [Parameter]
+    public string? Description { get; set; }
+    [Parameter]
+    public EmptyStateKind Kind { get; set; } = EmptyStateKind.Empty;
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+    [Parameter]
+    public RenderFragment? Media { get; set; }
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+}

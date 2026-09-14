@@ -1,0 +1,30 @@
+@page "/components/code-viewer"
+
+<SeoHead Title="Blazor Code Viewer Examples | Quark Suite" Description="Read-only code with copy support and optional JSON formatting." />
+
+<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Formatted JSON" Description="JSON is formatted for readability by default." Code="@Example0" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <CodeViewer Text="@Json" MinLines="4" MaxLines="10" AriaLabel="Project JSON" />
+    </DemoSection>
+    <DemoSection Title="Original formatting" Description="Keep the source text as supplied." Code="@Example1" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <CodeViewer Text="@Json" FormatJson="false" MinLines="2" MaxLines="6" AriaLabel="Original project JSON" />
+    </DemoSection>
+</Grid>
+
+@code {
+    private const string Json = "{\"project\":\"Website refresh\",\"active\":true}";
+    private const string Example0 = """
+        <CodeViewer Text="@Json" MinLines="4" MaxLines="10" AriaLabel="Project JSON" />
+
+        @code {
+            private const string Json = "{\"project\":\"Website refresh\",\"active\":true}";
+        }
+        """;
+    private const string Example1 = """
+        <CodeViewer Text="@Json" FormatJson="false" MinLines="2" MaxLines="6" AriaLabel="Original project JSON" />
+
+        @code {
+            private const string Json = "{\"project\":\"Website refresh\",\"active\":true}";
+        }
+        """;
+}

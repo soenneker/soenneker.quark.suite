@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+@implements IEmptyState
+<Empty Preset="@Preset" data-state-kind="@StateKind" @attributes="AdditionalAttributes">
+    <EmptyHeader>
+        @if (Media is not null)
+        {
+            <EmptyMedia>@Media</EmptyMedia>
+        }
+        <EmptyTitle Preset="@TitlePreset">@Title</EmptyTitle>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <EmptyDescription Preset="@DescriptionPreset">@Description</EmptyDescription>
+        }
+    </EmptyHeader>
+    @if (Actions is not null)
+    {
+        <EmptyContent>@Actions</EmptyContent>
+    }
+    @if (ChildContent is not null)
+    {
+        <Div Width="Width.IsFull">@ChildContent</Div>
+    }
+</Empty>
+
+@code {
+    private string StateKind => Kind == EmptyStateKind.Error ? "error" : Kind == EmptyStateKind.Disabled ? "disabled" : "empty";
+
+    [Parameter]
+    public string Title { get; set; } = "No results";
+    [Parameter]
+    public string? Description { get; set; }
+    [Parameter]
+    public EmptyStateKind Kind { get; set; } = EmptyStateKind.Empty;
+    [Parameter]
+    public RenderFragment? Media { get; set; }
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+    [Parameter]
+    public QuarkPresetToken? TitlePreset { get; set; }
+    [Parameter]
+    public QuarkPresetToken? DescriptionPreset { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+}

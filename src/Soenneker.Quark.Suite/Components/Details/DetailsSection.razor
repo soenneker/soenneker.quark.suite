@@ -1,0 +1,32 @@
+@namespace Soenneker.Quark
+@implements IDetailsSection
+
+<Section Preset="@ResolvedPreset" @attributes="AdditionalAttributes">
+    @if (!Title.IsNullOrEmpty())
+    {
+        <H3 Preset="Appearance.InfoSectionTitlePreset">@Title</H3>
+    }
+    <Grid Preset="Appearance.InfoSectionGridPreset" Columns="GridCols.Is1.OnSm.Is2">
+        @ChildContent
+    </Grid>
+</Section>
+
+
+@code {
+    [Parameter]
+    public DetailsSectionAppearance Appearance { get; set; } = new();
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Flat { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private QuarkPresetToken ResolvedPreset => Flat ? Appearance.FlatInfoSectionPreset : Appearance.InfoSectionPreset;
+}

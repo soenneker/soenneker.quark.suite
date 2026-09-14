@@ -1,0 +1,119 @@
+@namespace Soenneker.Quark
+@implements IPageHeader
+@using Soenneker.Extensions.String
+
+@if (HasContent)
+{
+    <Div Tag="header" Preset="@RootPreset" @attributes="AdditionalAttributes">
+        @if (HasCopy)
+        {
+            <Div Preset="Appearance.PageHeaderCopyPreset">
+                @if (ShowEyebrow && Eyebrow.HasContent())
+                {
+                    <Div Preset="Appearance.PageHeaderEyebrowPreset">@Eyebrow</Div>
+                }
+                @if (ShowTitle)
+                {
+                    <H1 Preset="Appearance.PageHeaderTitlePreset" Style="margin: 0 !important;">@Title</H1>
+                }
+                @if (HasDescription)
+                {
+                    <Paragraph Preset="Appearance.PageHeaderDescriptionPreset" Style="margin: 0 !important;">
+                        @if (DescriptionContent is not null)
+                        {
+                            @DescriptionContent
+                        }
+                        else
+                        {
+                            @Description
+                        }
+                    </Paragraph>
+                }
+            </Div>
+        }
+        @if (InlineActions is not null || ShouldShowActionsMenu)
+        {
+            <Div Preset="Appearance.PageHeaderActionsPreset">
+                @if (InlineActions is not null)
+                {
+                    <Div Preset="Appearance.PageHeaderInlineActionsPreset">
+                        @InlineActions
+                    </Div>
+                }
+                @if (ShouldShowActionsMenu)
+                {
+                    <Dropdown
+                              Visible="@_actionsOpen"
+                              VisibleChanged="HandleActionsOpenChanged"
+                              RenderWrapper="true">
+                        <DropdownToggle
+                                        Preset="Appearance.IconActionButtonPreset"
+                                        aria-haspopup="menu"
+                                        AriaExpanded="@_actionsOpen"
+                                        AriaLabel="@(_actionsOpen ? "Close page actions" : "Open page actions")">
+                            <Icon Name="LucideIcon.Ellipsis" Size="Size.Is4" />
+                        </DropdownToggle>
+                        <DropdownMenu Preset="Appearance.PageHeaderActionsMenuPreset" Role="menu">
+                            @Actions
+                        </DropdownMenu>
+                    </Dropdown>
+                }
+            </Div>
+        }
+    </Div>
+}
+
+@code {
+    [Parameter]
+    public PageHeaderAppearance Appearance { get; set; } = new();
+
+    [Parameter]
+    public string? Eyebrow { get; set; }
+
+    [Parameter]
+    public bool ShowEyebrow { get; set; } = true;
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool ShowTitle { get; set; } = true;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? DescriptionContent { get; set; }
+
+    [Parameter]
+    public bool ShowDescription { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    [Parameter]
+    public RenderFragment? InlineActions { get; set; }
+
+    [Parameter]
+    public bool ShowActionsMenu { get; set; } = true;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool _actionsOpen;
+
+    private bool HasDescription => ShowDescription && (DescriptionContent is not null || Description.HasContent());
+
+    private bool HasCopy => (ShowEyebrow && Eyebrow.HasContent()) || (ShowTitle && Title.HasContent()) || HasDescription;
+
+    private bool HasContent => HasCopy || InlineActions is not null || ShouldShowActionsMenu;
+
+    private QuarkPresetToken RootPreset => HasCopy ? Appearance.PageHeaderRootPreset : Appearance.PageHeaderActionsOnlyRootPreset;
+
+    private bool ShouldShowActionsMenu => ShowActionsMenu && Actions is not null;
+
+    private void HandleActionsOpenChanged(bool visible)
+    {
+        _actionsOpen = visible;
+    }
+}

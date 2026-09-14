@@ -84,13 +84,17 @@ else
         return base.OnAfterRenderAsync(firstRender);
     }
 
+    /// <summary>Optional label displayed when the combobox is closed; selection still uses its logical value.</summary>
+    [Parameter]
+    public string? DisplayValue { get; set; }
+
     private string GetDisplayValue()
     {
         if (ParentCombobox == null) return "";
         if (ParentCombobox.Multiple)
             return ParentCombobox.Search ?? "";
 
-        return ParentCombobox.Open ? (ParentCombobox.Search ?? "") : (ParentCombobox.Value ?? "");
+        return ParentCombobox.Open ? (ParentCombobox.Search ?? "") : (DisplayValue ?? ParentCombobox.Value ?? "");
     }
 
     private async Task HandleInput(ChangeEventArgs args)

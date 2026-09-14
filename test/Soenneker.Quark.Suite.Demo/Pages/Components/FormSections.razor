@@ -1,0 +1,61 @@
+@page "/components/form-section"
+
+<SeoHead Title="Blazor Form Section Examples | Quark Suite" Description="Group form controls with a heading and supporting description." />
+
+<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Form group" Description="Keep related controls together." Code="@Example0" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <FormSection Title="Assignment" Description="Choose the team responsible for this project.">
+            <SearchableSelect Choices="@Choices" @bind-Value="_choice" aria-label="Team" />
+        </FormSection>
+    </DemoSection>
+    <DemoSection Title="Header actions" Description="Provide contextual actions alongside a form group." Code="@Example1" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <FormSection Title="Optional settings" Description="Add these settings when needed.">
+            <Actions><Badge Tone="SemanticTone.Muted">Optional</Badge></Actions>
+            <ChildContent><Paragraph>No additional settings are required.</Paragraph></ChildContent>
+        </FormSection>
+    </DemoSection>
+</Grid>
+
+@code {
+    private string? _choice = "primary";
+    private static readonly IReadOnlyList<SelectOption> Choices =
+    [
+        new("primary", "Operations"),
+        new("secondary", "Operations"),
+        new("design", "Design"),
+        new("archived", "Archived", true)
+    ];
+    private const string Example0 = """
+        <FormSection Title="Assignment" Description="Choose the team responsible for this project.">
+            <SearchableSelect Choices="@Choices" @bind-Value="_choice" aria-label="Team" />
+        </FormSection>
+
+        @code {
+            private string? _choice = "primary";
+            private static readonly IReadOnlyList<SelectOption> Choices =
+            [
+                new("primary", "Operations"),
+                new("secondary", "Operations"),
+                new("design", "Design"),
+                new("archived", "Archived", true)
+            ];
+        }
+        """;
+    private const string Example1 = """
+        <FormSection Title="Optional settings" Description="Add these settings when needed.">
+            <Actions><Badge Tone="SemanticTone.Muted">Optional</Badge></Actions>
+            <ChildContent><Paragraph>No additional settings are required.</Paragraph></ChildContent>
+        </FormSection>
+
+        @code {
+            private string? _choice = "primary";
+            private static readonly IReadOnlyList<SelectOption> Choices =
+            [
+                new("primary", "Operations"),
+                new("secondary", "Operations"),
+                new("design", "Design"),
+                new("archived", "Archived", true)
+            ];
+        }
+        """;
+}

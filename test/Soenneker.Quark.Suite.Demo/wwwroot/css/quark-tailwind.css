@@ -25,6 +25,7 @@
     --color-amber-500: oklch(76.9% 0.188 70.08);
     --color-amber-600: oklch(66.6% 0.179 58.318);
     --color-amber-700: oklch(55.5% 0.163 48.998);
+    --color-amber-800: oklch(47.3% 0.137 46.201);
     --color-amber-900: oklch(41.4% 0.112 45.904);
     --color-amber-950: oklch(27.9% 0.077 45.635);
     --color-green-50: oklch(98.2% 0.018 155.826);
@@ -45,6 +46,7 @@
     --color-cyan-600: oklch(60.9% 0.126 221.723);
     --color-sky-50: oklch(97.7% 0.013 236.62);
     --color-sky-300: oklch(82.8% 0.111 230.318);
+    --color-sky-400: oklch(74.6% 0.16 232.661);
     --color-sky-500: oklch(68.5% 0.169 237.323);
     --color-sky-700: oklch(50% 0.134 242.749);
     --color-sky-950: oklch(29.3% 0.066 243.157);
@@ -390,6 +392,9 @@
   .top-12 {
     top: calc(var(--spacing) * 12);
   }
+  .top-\[1\.25rem\] {
+    top: 1.25rem;
+  }
   .top-\[1px\] {
     top: 1px;
   }
@@ -479,6 +484,9 @@
   }
   .left-\[50\%\] {
     left: 50%;
+  }
+  .left-\[calc\(50\%\+1\.25rem\)\] {
+    left: calc(50% + 1.25rem);
   }
   .left-\[calc\(50\%\+18px\)\] {
     left: calc(50% + 18px);
@@ -1055,6 +1063,9 @@
   .h-96 {
     height: calc(var(--spacing) * 96);
   }
+  .h-\[2px\] {
+    height: 2px;
+  }
   .h-\[15rem\] {
     height: 15rem;
   }
@@ -1403,6 +1414,9 @@
   .w-\[5\.25rem\] {
     width: 5.25rem;
   }
+  .w-\[12rem\] {
+    width: 12rem;
+  }
   .w-\[60\%\] {
     width: 60%;
   }
@@ -1456,6 +1470,12 @@
   }
   .w-\[400px\] {
     width: 400px;
+  }
+  .w-\[auto\] {
+    width: auto;
+  }
+  .w-\[calc\(100\%-2\.5rem\)\] {
+    width: calc(100% - 2.5rem);
   }
   .w-\[calc\(100vw-2rem\)\] {
     width: calc(100vw - 2rem);
@@ -1693,6 +1713,9 @@
   }
   .flex-none {
     flex: none;
+  }
+  .shrink {
+    flex-shrink: 1;
   }
   .shrink-0 {
     flex-shrink: 0;
@@ -2389,6 +2412,9 @@
   .\!border-amber-200 {
     border-color: var(--color-amber-200) !important;
   }
+  .border-\[var\(--border\)\] {
+    border-color: var(--border);
+  }
   .border-accent {
     border-color: var(--accent);
   }
@@ -2521,11 +2547,23 @@
   .bg-\[Canvas\] {
     background-color: Canvas;
   }
+  .bg-\[color-mix\(in_oklch\,var\(--foreground\)\,var\(--border\)_38\%\)\] {
+    background-color: var(--foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklch,var(--foreground),var(--border) 38%);
+    }
+  }
   .bg-\[color-mix\(in_oklch\,var\(--surface\)\,transparent_8\%\)\] {
     background-color: var(--surface);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklch,var(--surface),transparent 8%);
     }
+  }
+  .bg-\[var\(--background\)\] {
+    background-color: var(--background);
+  }
+  .bg-\[var\(--muted\)\] {
+    background-color: var(--muted);
   }
   .bg-accent {
     background-color: var(--accent);
@@ -2817,6 +2855,12 @@
   }
   .bg-sidebar-border {
     background-color: var(--sidebar-border);
+  }
+  .bg-sky-500\/10 {
+    background-color: color-mix(in srgb, oklch(68.5% 0.169 237.323) 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-sky-500) 10%, transparent);
+    }
   }
   .bg-transparent {
     background-color: transparent;
@@ -3456,6 +3500,15 @@
   .text-\[CanvasText\] {
     color: CanvasText;
   }
+  .text-\[var\(--destructive\)\] {
+    color: var(--destructive);
+  }
+  .text-\[var\(--foreground\)\] {
+    color: var(--foreground);
+  }
+  .text-\[var\(--muted-foreground\)\] {
+    color: var(--muted-foreground);
+  }
   .text-accent {
     color: var(--accent);
   }
@@ -3467,6 +3520,9 @@
   }
   .text-amber-700 {
     color: var(--color-amber-700);
+  }
+  .text-amber-800 {
+    color: var(--color-amber-800);
   }
   .text-background {
     color: var(--background);
@@ -3599,6 +3655,9 @@
   }
   .text-sky-500 {
     color: var(--color-sky-500);
+  }
+  .text-sky-700 {
+    color: var(--color-sky-700);
   }
   .text-violet-600 {
     color: var(--color-violet-600);
@@ -7760,6 +7819,9 @@
   }
   .dark\:text-rose-400:is(.dark *) {
     color: var(--color-rose-400);
+  }
+  .dark\:text-sky-400:is(.dark *) {
+    color: var(--color-sky-400);
   }
   .dark\:text-violet-400:is(.dark *) {
     color: var(--color-violet-400);

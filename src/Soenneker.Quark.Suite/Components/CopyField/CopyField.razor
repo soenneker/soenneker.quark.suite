@@ -1,5 +1,32 @@
-﻿@namespace Soenneker.Quark
+@implements ICopyField
+@namespace Soenneker.Quark
 
+@if (Preset is not null || TextPreset is not null || CopyButtonPreset is not null)
+{
+    <Div Preset="@Preset" Id="@Id" Class="@Class" Style="@Style" AriaLabel="@AriaLabel"
+        AriaLabelledBy="@AriaLabelledBy" AriaDescribedBy="@AriaDescribedBy"
+        data-slot="copy-field" aria-disabled="@(Disabled ? "true" : null)" @attributes="Attributes">
+        <Span Preset="@TextPreset" Class="@TextClass" @attributes="TextAttributes">@DisplayText</Span>
+    <CopyButton Text="@CurrentCopyText"
+                Variant="@CopyButtonVariant"
+                ButtonSize="@CopyButtonSize"
+                Disabled="@CopyDisabled"
+                IdleIcon="@IdleIcon"
+                DoneIcon="@DoneIcon"
+                ErrorIcon="@ErrorIcon"
+                CopyLabel="@CopyLabel"
+                DoneLabel="@DoneLabel"
+                ErrorLabel="@ErrorLabel"
+                ResetDelay="@ResetDelay"
+                Preset="@CopyButtonPreset"
+                Class="@CopyButtonClass"
+                Attributes="@CopyButtonAttributes"
+                OnCopySuccess="@OnCopySuccess"
+                OnCopyError="@OnCopyError" />
+    </Div>
+}
+else
+{
 <div @attributes="BuildRootAttributes()">
     <span @attributes="BuildTextAttributes()">@DisplayText</span>
     <CopyButton Text="@CurrentCopyText"
@@ -19,168 +46,96 @@
                 OnCopyError="@OnCopyError" />
 </div>
 
+}
+
 @code {
+    [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+    [Parameter]
+    public QuarkPresetToken? TextPreset { get; set; }
+    [Parameter]
+    public QuarkPresetToken? CopyButtonPreset { get; set; }
+
     private QuarkAttributeDictionary _rootAttributes;
     private QuarkAttributeDictionary _textAttributes;
-    /// <summary>
-    /// Gets or sets the root id.
-    /// </summary>
     [Parameter]
     public string? Id { get; set; }
 
-    /// <summary>
-    /// Gets or sets the displayed value.
-    /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
-    /// <summary>
-    /// Optional text copied instead of <see cref="Value"/>.
-    /// </summary>
     [Parameter]
     public string? CopyText { get; set; }
 
-    /// <summary>
-    /// Gets or sets the placeholder text.
-    /// </summary>
     [Parameter]
     public string? Placeholder { get; set; }
 
-    /// <summary>
-    /// Indicates whether the field and copy button are disabled.
-    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
-    /// <summary>
-    /// Additional root field classes.
-    /// </summary>
     [Parameter]
     public string? Class { get; set; }
 
-    /// <summary>
-    /// Additional root field styles.
-    /// </summary>
     [Parameter]
     public string? Style { get; set; }
 
-    /// <summary>
-    /// Additional text classes.
-    /// </summary>
     [Parameter]
     public string? TextClass { get; set; }
 
-    /// <summary>
-    /// Additional copy button classes.
-    /// </summary>
     [Parameter]
     public string? CopyButtonClass { get; set; }
 
-    /// <summary>
-    /// Accessible field label.
-    /// </summary>
     [Parameter]
     public string? AriaLabel { get; set; }
 
-    /// <summary>
-    /// Element id that labels the field.
-    /// </summary>
     [Parameter]
     public string? AriaLabelledBy { get; set; }
 
-    /// <summary>
-    /// Element id that describes the field.
-    /// </summary>
     [Parameter]
     public string? AriaDescribedBy { get; set; }
 
-    /// <summary>
-    /// Idle copy icon.
-    /// </summary>
     [Parameter]
     public LucideIcon IdleIcon { get; set; } = LucideIcon.Copy;
 
-    /// <summary>
-    /// Successful copy icon.
-    /// </summary>
     [Parameter]
     public LucideIcon DoneIcon { get; set; } = LucideIcon.Check;
 
-    /// <summary>
-    /// Failed copy icon.
-    /// </summary>
     [Parameter]
     public LucideIcon ErrorIcon { get; set; } = LucideIcon.X;
 
-    /// <summary>
-    /// Copy button variant.
-    /// </summary>
     [Parameter]
     public ButtonVariant CopyButtonVariant { get; set; } = ButtonVariant.Ghost;
 
-    /// <summary>
-    /// Copy button size.
-    /// </summary>
     [Parameter]
     public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = ButtonSize.IconXs;
 
-    /// <summary>
-    /// Button label used for accessible names and tooltips.
-    /// </summary>
     [Parameter]
     public string CopyLabel { get; set; } = "Copy";
 
-    /// <summary>
-    /// Label used after a successful copy.
-    /// </summary>
     [Parameter]
     public string DoneLabel { get; set; } = "Copied";
 
-    /// <summary>
-    /// Label used after a failed copy.
-    /// </summary>
     [Parameter]
     public string ErrorLabel { get; set; } = "Copy failed";
 
-    /// <summary>
-    /// How long the success or error state remains visible.
-    /// </summary>
     [Parameter]
     public int ResetDelay { get; set; } = 1600;
 
-    /// <summary>
-    /// Indicates whether the copy button should be disabled when no copy text is available.
-    /// </summary>
     [Parameter]
     public bool DisableCopyWhenEmpty { get; set; } = true;
 
-    /// <summary>
-    /// Additional attributes applied to the root field.
-    /// </summary>
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? Attributes { get; set; }
 
-    /// <summary>
-    /// Additional attributes applied to the display text.
-    /// </summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? TextAttributes { get; set; }
 
-    /// <summary>
-    /// Additional attributes applied to the copy button.
-    /// </summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? CopyButtonAttributes { get; set; }
 
-    /// <summary>
-    /// Raised after text is copied successfully.
-    /// </summary>
     [Parameter]
     public EventCallback<string> OnCopySuccess { get; set; }
 
-    /// <summary>
-    /// Raised when copying fails.
-    /// </summary>
     [Parameter]
     public EventCallback<Exception?> OnCopyError { get; set; }
 

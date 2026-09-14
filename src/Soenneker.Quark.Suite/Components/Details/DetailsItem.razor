@@ -1,0 +1,88 @@
+@namespace Soenneker.Quark
+@implements IDetailsItem
+
+@if (FullWidth)
+{
+    <GridItem Preset="Appearance.InfoItemPreset" ColumnSpan="ColumnSpan.Is1.OnSm.Is2">
+        @ItemContent
+    </GridItem>
+}
+else
+{
+    <GridItem Preset="Appearance.InfoItemPreset">
+        @ItemContent
+    </GridItem>
+}
+
+@code {
+    [Parameter]
+    public DetailsItemAppearance Appearance { get; set; } = new();
+
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Content { get; set; } = string.Empty;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool Copyable { get; set; }
+
+    [Parameter]
+    public bool FullWidth { get; set; }
+
+    [Parameter]
+    public bool IsCode { get; set; }
+
+    [Parameter]
+    public bool IsMuted { get; set; }
+
+    [Parameter]
+    public bool IsLink { get; set; }
+
+    [Parameter]
+    public string? LinkUrl { get; set; }
+
+    private RenderFragment ItemContent => @<text>
+        <Label Preset="Appearance.InfoItemLabelPreset">@Label</Label>
+        <Div Presets="@ValuePresets">
+            @if (IsLink && !LinkUrl.IsNullOrEmpty())
+            {
+                <Anchor Href="@LinkUrl" Target="Target.Blank" Preset="Appearance.DetailLinkPreset">@Content</Anchor>
+            }
+            else
+            {
+                @if (ChildContent is not null)
+                {
+                    @ChildContent
+                }
+                else if (Copyable)
+                {
+                    <CopyableText Text="@Content" ShowFullTextOnHover="false" />
+                }
+                else
+                {
+                    @Content
+                }
+            }
+        </Div>
+    </text>;
+
+    private IReadOnlyList<QuarkPresetToken> ValuePresets
+    {
+        get
+        {
+            List<QuarkPresetToken> presets = [Appearance.InfoItemValuePreset];
+
+            if (IsCode)
+                presets.Add(Appearance.InfoItemCodeValuePreset);
+
+            if (IsMuted)
+                presets.Add(Appearance.InfoItemMutedValuePreset);
+
+            return presets;
+        }
+    }
+}

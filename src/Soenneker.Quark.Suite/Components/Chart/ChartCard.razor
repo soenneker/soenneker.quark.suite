@@ -1,0 +1,126 @@
+@namespace Soenneker.Quark
+@implements IChartCard
+<Section Preset="@ResolvedPreset" aria-busy="@IsLoading">
+    @if (HasHeader)
+    {
+        <Div Preset="Appearance.ChartCardHeaderPreset">
+            @if (HasTitleContent)
+            {
+                <Div>
+                    @if (!string.IsNullOrWhiteSpace(Title))
+                    {
+                        <H3 Preset="Appearance.ChartCardTitlePreset">@Title</H3>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(MetricValue))
+                    {
+                        <Strong Preset="Appearance.ChartCardValuePreset">@MetricValue</Strong>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Subtitle))
+                    {
+                        <Paragraph Preset="Appearance.ChartCardSubtitlePreset">@Subtitle</Paragraph>
+                    }
+                </Div>
+            }
+            @if (HeaderContent != null)
+            {
+                <Div Preset="Appearance.ChartCardActionsPreset">
+                    @HeaderContent
+                </Div>
+            }
+        </Div>
+    }
+
+    @if (IsLoading)
+    {
+        <Div Preset="Appearance.EmptyStatePreset" ItemsAlign="Items.Center" Justify="Justify.Center">
+            @if (LoadingContent is not null)
+            {
+                @LoadingContent
+            }
+            else
+            {
+                <Span Role="status">Loading…</Span>
+            }
+        </Div>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        @if (ErrorContent is not null)
+        {
+            @ErrorContent
+        }
+        else
+        {
+            <EmptyState Kind="EmptyStateKind.Error" Title="@ErrorTitle" Description="@ErrorMessage" />
+        }
+    }
+    else if (IsEmpty)
+    {
+        @if (EmptyContent is not null)
+        {
+            @EmptyContent
+        }
+        else
+        {
+            <EmptyState Title="@EmptyTitle" Description="@EmptyMessage" />
+        }
+    }
+    else
+    {
+        <Div Preset="Appearance.ChartBodyPreset">
+            @ChildContent
+        </Div>
+    }
+</Section>
+
+@code {
+    [Parameter]
+    public ChartCardAppearance Appearance { get; set; } = new();
+    [Parameter]
+    public string ErrorTitle { get; set; } = "Unable to load data";
+    [Parameter]
+    public RenderFragment? LoadingContent { get; set; }
+    [Parameter]
+    public RenderFragment? ErrorContent { get; set; }
+    [Parameter]
+    public RenderFragment? EmptyContent { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    [Parameter]
+    public string? MetricValue { get; set; }
+
+    [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    [Parameter]
+    public string? ErrorMessage { get; set; }
+
+    [Parameter]
+    public bool IsEmpty { get; set; }
+
+    [Parameter]
+    public string EmptyTitle { get; set; } = "No data";
+
+    [Parameter]
+    public string? EmptyMessage { get; set; }
+
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool HasTitleContent => !string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(MetricValue) || !string.IsNullOrWhiteSpace(Subtitle);
+
+    private bool HasHeader => HasTitleContent || HeaderContent != null;
+
+    private QuarkPresetToken ResolvedPreset => Preset ?? Appearance.ChartCardPreset;
+}

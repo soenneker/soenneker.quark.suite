@@ -1,0 +1,67 @@
+@namespace Soenneker.Quark
+@implements ICodeViewer
+<CodeEditor Text="@_displayText"
+            Language="@Language"
+            Theme="auto"
+            ReadOnly="true"
+            WordWrap="true"
+            Minimap="false"
+            ShowCopyButton="true"
+            AutoHeight="true"
+            MinLines="@MinLines"
+            MaxLines="@MaxLines"
+            AriaLabel="@AriaLabel" />
+
+@code {
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public string Language { get; set; } = "json";
+
+    [Parameter]
+    public bool FormatJson { get; set; } = true;
+
+    [Parameter]
+    public string AriaLabel { get; set; } = "Raw code";
+
+    [Parameter]
+    public int MinLines { get; set; } = 12;
+
+    [Parameter]
+    public int MaxLines { get; set; } = 40;
+
+    private static readonly System.Text.Json.JsonSerializerOptions DisplayJsonOptions = new() { WriteIndented = true };
+    private string _displayText = string.Empty;
+    private string? _formattedText;
+    private string? _formattedLanguage;
+    private bool _formattedJson;
+
+    protected override void OnParametersSet()
+    {
+        if (string.Equals(_formattedText, Text, StringComparison.Ordinal) &&
+            string.Equals(_formattedLanguage, Language, StringComparison.Ordinal) && _formattedJson == FormatJson)
+            return;
+
+        _displayText = FormatJson ? FormatForDisplay(Text, Language) : Text ?? string.Empty;
+        _formattedText = Text;
+        _formattedLanguage = Language;
+        _formattedJson = FormatJson;
+    }
+
+    private static string FormatForDisplay(string? value, string language)
+    {
+        if (string.IsNullOrWhiteSpace(value) || !string.Equals(language, "json", StringComparison.OrdinalIgnoreCase))
+            return value ?? string.Empty;
+
+        try
+        {
+            using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(value);
+            return System.Text.Json.JsonSerializer.Serialize(document.RootElement, DisplayJsonOptions);
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return value;
+        }
+    }
+}

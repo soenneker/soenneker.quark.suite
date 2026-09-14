@@ -3,6 +3,9 @@
 <SeoHead Title="Blazor Copy Field Component &amp; Examples | Quark Suite" Description="Explore the Quark Suite Blazor Copy Field component. Display copyable text in a compact field." />
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Title="Typed presets" Description="Customize presentation with reusable presets while retaining clipboard feedback." Code="@PresetCode" CodeLanguage="razor">
+        <CopyField Value="project-42" AriaLabel="Project reference" Preset="@FieldPreset" TextPreset="@ValuePreset" CopyButtonPreset="@ActionPreset" />
+    </DemoSection>
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection
@@ -21,6 +24,34 @@
 </Div>
 
 @code {
+    private static readonly QuarkPresetToken FieldPreset = new("demo-copy-field", c =>
+    {
+        c.Display = Display.Flex;
+        c.ItemsAlign = Items.Center;
+        c.Gap = Gap.Is3;
+        c.Padding = Padding.Is3;
+        c.Rounded = Rounded.Md;
+        c.BackgroundColor = BackgroundColor.Muted;
+    });
+    private static readonly QuarkPresetToken ValuePreset = new("demo-copy-value", c => c.TextSize = TextSize.Sm);
+    private static readonly QuarkPresetToken ActionPreset = new("demo-copy-action", c => c.Padding = Padding.Is2);
+    private const string PresetCode = """
+        <CopyField Value="project-42" AriaLabel="Project reference" Preset="@FieldPreset" TextPreset="@ValuePreset" CopyButtonPreset="@ActionPreset" />
+
+        @code {
+            private static readonly QuarkPresetToken FieldPreset = new("demo-copy-field", c =>
+            {
+                c.Display = Display.Flex;
+                c.ItemsAlign = Items.Center;
+                c.Gap = Gap.Is3;
+                c.Padding = Padding.Is3;
+                c.Rounded = Rounded.Md;
+                c.BackgroundColor = BackgroundColor.Muted;
+            });
+            private static readonly QuarkPresetToken ValuePreset = new("demo-copy-value", c => c.TextSize = TextSize.Sm);
+            private static readonly QuarkPresetToken ActionPreset = new("demo-copy-action", c => c.Padding = Padding.Is2);
+        }
+        """;
     private const string SampleId = "a8987611-da5e-4db7-9c73-f7509b391b47";
 
     private const string BasicCode =

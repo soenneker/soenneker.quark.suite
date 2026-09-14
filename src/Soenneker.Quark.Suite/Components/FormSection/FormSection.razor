@@ -1,0 +1,64 @@
+@namespace Soenneker.Quark
+@implements IFormSection
+<Section Preset="@EffectiveSectionPreset" @attributes="AdditionalAttributes">
+    @if (Title.HasContent() || Description.HasContent() || Actions is not null)
+    {
+        <Div Tag="header" Preset="Appearance.SectionHeaderPreset">
+            <Div MinWidth="MinWidth.Is0">
+                @if (Title.HasContent())
+                {
+                    <H2 Preset="@EffectiveTitlePreset">@Title</H2>
+                }
+                @if (Description.HasContent())
+                {
+                    <Paragraph Preset="Appearance.SectionDescriptionPreset">@Description</Paragraph>
+                }
+            </Div>
+            @if (Actions is not null)
+            {
+                <Div Preset="Appearance.SectionHeaderActionsPreset">
+                    @Actions
+                </Div>
+            }
+        </Div>
+    }
+    <Div Preset="@EffectiveBodyPreset">
+        @ChildContent
+    </Div>
+</Section>
+
+@code {
+    [Parameter]
+    public FormSectionAppearance Appearance { get; set; } = new();
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public QuarkPresetToken? BodyPreset { get; set; }
+
+    [Parameter]
+    public QuarkPresetToken? TitlePreset { get; set; }
+
+    [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private QuarkPresetToken EffectiveBodyPreset => BodyPreset ?? Appearance.SectionBodyPreset;
+
+    private QuarkPresetToken EffectiveTitlePreset => TitlePreset ?? Appearance.SectionTitlePreset;
+
+    private QuarkPresetToken EffectiveSectionPreset => Preset ?? Appearance.SectionPanelPreset;
+
+}

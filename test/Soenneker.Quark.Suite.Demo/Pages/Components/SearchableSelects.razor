@@ -1,0 +1,57 @@
+@page "/components/searchable-select"
+
+<SeoHead Title="Blazor Searchable Select Examples | Quark Suite" Description="Search choices while keeping labels independent from stored values." />
+
+<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Search and selection" Description="The two Operations choices have different stored values. Archived is disabled." Code="@Example0" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
+            <SearchableSelect Choices="@Choices" @bind-Value="_choice" Placeholder="Choose a team" EmptyText="No teams found" aria-label="Team" />
+            <Paragraph>Selected value: @_choice</Paragraph>
+        </Grid>
+    </DemoSection>
+    <DemoSection Title="Disabled" Description="Keep the selected label visible when editing is unavailable." Code="@Example1" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <SearchableSelect Choices="@Choices" Value="design" Disabled="true" aria-label="Disabled team" />
+    </DemoSection>
+</Grid>
+
+@code {
+    private string? _choice = "primary";
+    private static readonly IReadOnlyList<SelectOption> Choices =
+    [
+        new("primary", "Operations"),
+        new("secondary", "Operations"),
+        new("design", "Design"),
+        new("archived", "Archived", true)
+    ];
+    private const string Example0 = """
+        <Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
+            <SearchableSelect Choices="@Choices" @bind-Value="_choice" Placeholder="Choose a team" EmptyText="No teams found" aria-label="Team" />
+            <Paragraph>Selected value: @_choice</Paragraph>
+        </Grid>
+
+        @code {
+            private string? _choice = "primary";
+            private static readonly IReadOnlyList<SelectOption> Choices =
+            [
+                new("primary", "Operations"),
+                new("secondary", "Operations"),
+                new("design", "Design"),
+                new("archived", "Archived", true)
+            ];
+        }
+        """;
+    private const string Example1 = """
+        <SearchableSelect Choices="@Choices" Value="design" Disabled="true" aria-label="Disabled team" />
+
+        @code {
+            private string? _choice = "primary";
+            private static readonly IReadOnlyList<SelectOption> Choices =
+            [
+                new("primary", "Operations"),
+                new("secondary", "Operations"),
+                new("design", "Design"),
+                new("archived", "Archived", true)
+            ];
+        }
+        """;
+}

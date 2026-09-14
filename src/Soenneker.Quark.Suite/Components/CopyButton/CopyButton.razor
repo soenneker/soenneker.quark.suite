@@ -1,3 +1,4 @@
+@implements ICopyButton
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using System.Threading
@@ -6,6 +7,7 @@
 @inject IClipboardUtil ClipboardUtil
 
 <Button Type="@ButtonType.Button"
+        Preset="@Preset"
         Variant="@Variant"
         ButtonSize="@ButtonSize"
         InputGroupButton="@InputGroupButton"
@@ -33,116 +35,65 @@
 </Button>
 
 @code {
+    [Parameter]
+    public QuarkPresetToken? Preset { get; set; }
+
     private CopyButtonState _state = CopyButtonState.Idle;
     private bool _copying;
     private ValueAtomicBool _disposed;
     private CancellationTokenSource? _resetCancellationTokenSource;
 
-    /// <summary>
-    /// Text to copy to the clipboard.
-    /// </summary>
     [Parameter]
     public string? Text { get; set; }
 
-    /// <summary>
-    /// Function used to resolve text immediately before copying.
-    /// </summary>
     [Parameter]
     public Func<string?>? TextProvider { get; set; }
 
-    /// <summary>
-    /// Optional label content rendered after the icon.
-    /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    /// <summary>
-    /// Visual style variant.
-    /// </summary>
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
 
-    /// <summary>
-    /// Button size.
-    /// </summary>
     [Parameter]
     public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.IconSm;
 
-    /// <summary>
-    /// Indicates whether the button is disabled.
-    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
-    /// <summary>
-    /// Indicates whether the button is rendered inside an input group.
-    /// </summary>
     [Parameter]
     public bool InputGroupButton { get; set; }
 
-    /// <summary>
-    /// Idle icon.
-    /// </summary>
     [Parameter]
     public LucideIcon IdleIcon { get; set; } = LucideIcon.Copy;
 
-    /// <summary>
-    /// Success icon.
-    /// </summary>
     [Parameter]
     public LucideIcon DoneIcon { get; set; } = LucideIcon.Check;
 
-    /// <summary>
-    /// Error icon.
-    /// </summary>
     [Parameter]
     public LucideIcon ErrorIcon { get; set; } = LucideIcon.X;
 
-    /// <summary>
-    /// Button label used for accessible names and tooltips.
-    /// </summary>
     [Parameter]
     public string CopyLabel { get; set; } = "Copy";
 
-    /// <summary>
-    /// Label used after a successful copy.
-    /// </summary>
     [Parameter]
     public string DoneLabel { get; set; } = "Copied";
 
-    /// <summary>
-    /// Label used after a failed copy.
-    /// </summary>
     [Parameter]
     public string ErrorLabel { get; set; } = "Copy failed";
 
-    /// <summary>
-    /// How long the success or error state remains visible.
-    /// </summary>
     [Parameter]
     public int ResetDelay { get; set; } = 1600;
 
-    /// <summary>
-    /// Additional button classes.
-    /// </summary>
     [Parameter]
     public string? Class { get; set; }
 
-    /// <summary>
-    /// Additional attributes applied to the underlying button.
-    /// </summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? Attributes { get; set; }
 
-    /// <summary>
-    /// Raised after text is copied successfully.
-    /// </summary>
     [Parameter]
     public EventCallback<string> OnCopySuccess { get; set; }
 
-    /// <summary>
-    /// Raised when copying fails.
-    /// </summary>
     [Parameter]
     public EventCallback<Exception?> OnCopyError { get; set; }
 

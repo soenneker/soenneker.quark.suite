@@ -1,0 +1,76 @@
+@page "/components/event-timeline"
+
+<SeoHead Title="Blazor Event Timeline Examples | Quark Suite" Description="Explore project milestones, activity histories, status tones, and timestamp formatting with EventTimeline." />
+
+<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Project milestones" Description="Three milestones fit side by side. Icons and tones distinguish each event; times are shown in UTC." Code="@Example0" CodeLanguage="razor"
+                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <EventTimeline Items="@MilestoneEvents" Layout="EventTimelineLayout.FitAll" ShowViewControls="false" FormatTimestamp="FormatTime" AriaLabel="Project milestones, times in UTC" />
+    </DemoSection>
+    <DemoSection Title="Project activity" Description="Scroll through a longer history, or choose Fit all to see the entire sequence. Times are shown in UTC." Code="@Example1" CodeLanguage="razor"
+                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <EventTimeline Items="@ActivityEvents" Layout="EventTimelineLayout.Scroll" DenseTimelineThreshold="3" FormatTimestamp="FormatTime" AriaLabel="Project activity, times in UTC" />
+    </DemoSection>
+    <DemoSection Title="No events yet" Description="Show an empty state before activity is recorded." Code="@Example2" CodeLanguage="razor"
+                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <EventTimeline EmptyText="Project activity will appear here as work progresses." AriaLabel="Empty project activity" />
+    </DemoSection>
+</Grid>
+
+@code {
+    private static readonly IReadOnlyList<EventTimelineItem> MilestoneEvents =
+    [
+        new() { Key = "created", Label = "Created", When = new DateTimeOffset(2026, 9, 14, 9, 0, 0, TimeSpan.Zero), Icon = LucideIcon.Circle, Tone = SemanticTone.Info },
+        new() { Key = "planned", Label = "Planned", When = new DateTimeOffset(2026, 9, 14, 9, 1, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Neutral },
+        new() { Key = "completed", Label = "Complete", When = new DateTimeOffset(2026, 9, 14, 9, 2, 0, TimeSpan.Zero), Icon = LucideIcon.Check, Tone = SemanticTone.Success }
+    ];
+
+    private static readonly IReadOnlyList<EventTimelineItem> ActivityEvents =
+    [
+        new() { Key = "created", Label = "Created", When = new DateTimeOffset(2026, 9, 14, 10, 0, 0, TimeSpan.Zero), Icon = LucideIcon.Circle, Tone = SemanticTone.Info },
+        new() { Key = "planned", Label = "Planned", When = new DateTimeOffset(2026, 9, 14, 10, 1, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Neutral },
+        new() { Key = "started", Label = "Started", When = new DateTimeOffset(2026, 9, 14, 10, 2, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Info },
+        new() { Key = "blocked", Label = "Blocked", When = new DateTimeOffset(2026, 9, 14, 10, 3, 0, TimeSpan.Zero), Icon = LucideIcon.TriangleAlert, Tone = SemanticTone.Danger },
+        new() { Key = "review", Label = "Review", When = new DateTimeOffset(2026, 9, 14, 10, 5, 0, TimeSpan.Zero), Icon = LucideIcon.RefreshCw, Tone = SemanticTone.Warning },
+        new() { Key = "completed", Label = "Complete", When = new DateTimeOffset(2026, 9, 14, 10, 6, 0, TimeSpan.Zero), Icon = LucideIcon.Check, Tone = SemanticTone.Success }
+    ];
+
+    private static string FormatTime(DateTimeOffset value) => value.UtcDateTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+
+    private const string Example0 = """
+        <EventTimeline Items="@MilestoneEvents" Layout="EventTimelineLayout.FitAll" ShowViewControls="false" FormatTimestamp="FormatTime" AriaLabel="Project milestones, times in UTC" />
+
+        @code {
+            private static readonly IReadOnlyList<EventTimelineItem> MilestoneEvents =
+            [
+                new() { Key = "created", Label = "Created", When = new DateTimeOffset(2026, 9, 14, 9, 0, 0, TimeSpan.Zero), Icon = LucideIcon.Circle, Tone = SemanticTone.Info },
+                new() { Key = "planned", Label = "Planned", When = new DateTimeOffset(2026, 9, 14, 9, 1, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Neutral },
+                new() { Key = "completed", Label = "Complete", When = new DateTimeOffset(2026, 9, 14, 9, 2, 0, TimeSpan.Zero), Icon = LucideIcon.Check, Tone = SemanticTone.Success }
+            ];
+
+            private static string FormatTime(DateTimeOffset value) => value.UtcDateTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        """;
+
+    private const string Example1 = """
+        <EventTimeline Items="@ActivityEvents" Layout="EventTimelineLayout.Scroll" DenseTimelineThreshold="3" FormatTimestamp="FormatTime" AriaLabel="Project activity, times in UTC" />
+
+        @code {
+            private static readonly IReadOnlyList<EventTimelineItem> ActivityEvents =
+            [
+                new() { Key = "created", Label = "Created", When = new DateTimeOffset(2026, 9, 14, 10, 0, 0, TimeSpan.Zero), Icon = LucideIcon.Circle, Tone = SemanticTone.Info },
+                new() { Key = "planned", Label = "Planned", When = new DateTimeOffset(2026, 9, 14, 10, 1, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Neutral },
+                new() { Key = "started", Label = "Started", When = new DateTimeOffset(2026, 9, 14, 10, 2, 0, TimeSpan.Zero), Icon = LucideIcon.Clock, Tone = SemanticTone.Info },
+                new() { Key = "blocked", Label = "Blocked", When = new DateTimeOffset(2026, 9, 14, 10, 3, 0, TimeSpan.Zero), Icon = LucideIcon.TriangleAlert, Tone = SemanticTone.Danger },
+                new() { Key = "review", Label = "Review", When = new DateTimeOffset(2026, 9, 14, 10, 5, 0, TimeSpan.Zero), Icon = LucideIcon.RefreshCw, Tone = SemanticTone.Warning },
+                new() { Key = "completed", Label = "Complete", When = new DateTimeOffset(2026, 9, 14, 10, 6, 0, TimeSpan.Zero), Icon = LucideIcon.Check, Tone = SemanticTone.Success }
+            ];
+
+            private static string FormatTime(DateTimeOffset value) => value.UtcDateTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        """;
+
+    private const string Example2 = """
+        <EventTimeline EmptyText="Project activity will appear here as work progresses." AriaLabel="Empty project activity" />
+        """;
+}

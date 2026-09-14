@@ -17,11 +17,11 @@ else
     private const string _shadcnBadgeBase =
         "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!";
 
-    /// <summary>
-    /// Gets or sets the visual style variant (shadcn/ui).
-    /// </summary>
     [Parameter]
     public BadgeVariant Variant { get; set; } = BadgeVariant.Default;
+
+    [Parameter]
+    public SemanticTone? Tone { get; set; }
 
     [Parameter]
     public bool AsChild { get; set; }
@@ -31,6 +31,16 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes["data-variant"] = GetDataVariant(Variant);
+        if (Tone is not null)
+            attributes["data-tone"] = Tone.Value switch
+            {
+                SemanticTone.SuccessValue => "success",
+                SemanticTone.InfoValue => "info",
+                SemanticTone.WarningValue => "warning",
+                SemanticTone.DangerValue => "danger",
+                SemanticTone.MutedValue => "muted",
+                _ => "neutral"
+            };
 
         var preset = AppliedPresetContext;
         var hasBackgroundColor = BackgroundColor is not null || preset?.BackgroundColor is not null;
@@ -40,7 +50,10 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, _shadcnBadgeBase);
-            AppendBadgeVariantClasses(ref cls, Variant, hasBackgroundColor, hasTextColor, hasBorderColor);
+            if (Tone is null)
+                AppendBadgeVariantClasses(ref cls, Variant, hasBackgroundColor, hasTextColor, hasBorderColor);
+            else
+                AppendToneClasses(ref cls, Tone, hasBackgroundColor, hasTextColor, hasBorderColor);
         });
     }
 
@@ -54,7 +67,42 @@ else
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
+        hc.Add(Tone);
         hc.Add(AsChild);
+    }
+
+    private static void AppendToneClasses(ref PooledStringBuilder classes, SemanticTone tone,
+        bool hasBackgroundColor, bool hasTextColor, bool hasBorderColor)
+    {
+        string background;
+        string foreground;
+        if (tone == SemanticTone.Success)
+        {
+            background = "bg-emerald-500/10";
+            foreground = "text-emerald-700 dark:text-emerald-400";
+        }
+        else if (tone == SemanticTone.Info)
+        {
+            background = "bg-sky-500/10";
+            foreground = "text-sky-700 dark:text-sky-400";
+        }
+        else if (tone == SemanticTone.Warning)
+        {
+            background = "bg-amber-500/10";
+            foreground = "text-amber-800 dark:text-amber-400";
+        }
+        else if (tone == SemanticTone.Danger)
+        {
+            background = "bg-destructive/10";
+            foreground = "text-destructive";
+        }
+        else
+        {
+            background = "bg-muted";
+            foreground = tone == SemanticTone.Muted ? "text-muted-foreground" : "text-foreground";
+        }
+        AppendVariantClasses(ref classes, "border-transparent", background, foreground, null,
+            hasBackgroundColor, hasTextColor, hasBorderColor);
     }
 
     private static string GetDataVariant(BadgeVariant? variant)

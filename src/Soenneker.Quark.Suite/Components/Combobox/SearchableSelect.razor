@@ -1,0 +1,71 @@
+@namespace Soenneker.Quark
+@implements ISearchableSelect
+@implements IValidationInput
+        <Combobox Value="@ItemValue"
+                  ValueChanged="HandleValueChanged"
+                  Search="@_search"
+                  SearchChanged="@((string? value) => _search = value)"
+                  Open="@_open"
+                  OpenChanged="@((bool value) => _open = value)"
+                  Disabled="@Disabled"
+                  AutoHighlight="true"
+                  Width="Width.IsFull"
+                  MinWidth="MinWidth.Is0">
+            <ComboboxInput DisplayValue="@DisplayValue" Placeholder="@Placeholder" @attributes="InputAttributes" />
+            <ComboboxContent>
+                <ComboboxEmpty>@EmptyText</ComboboxEmpty>
+                <ComboboxList>
+                    @foreach (SelectOption choice in FilteredChoices)
+                    {
+                        <ComboboxItem @key="choice.Value" Value="@EncodeValue(choice.Value)" Disabled="@choice.Disabled">@choice.Label</ComboboxItem>
+                    }
+                </ComboboxList>
+            </ComboboxContent>
+        </Combobox>
+
+@code {
+    private string? _search;
+    private bool _open;
+    [Parameter]
+    public IReadOnlyList<SelectOption> Choices { get; set; } = [];
+    [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter]
+    public string Placeholder { get; set; } = "Select an option";
+    [Parameter]
+    public string EmptyText { get; set; } = "No options found.";
+    [Parameter]
+    public bool Disabled { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? InputAttributes { get; set; }
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+    public object? ValidationValue => Value;
+    private string? ItemValue => Value is null ? null : EncodeValue(Value);
+    private string DisplayValue => Choices.FirstOrDefault(c => string.Equals(c.Value, Value, StringComparison.Ordinal))?.Label ?? string.Empty;
+    private IEnumerable<SelectOption> FilteredChoices => Choices.Where(c => string.IsNullOrWhiteSpace(_search)
+        || c.Label.Contains(_search, StringComparison.OrdinalIgnoreCase) || c.Value.Contains(_search, StringComparison.OrdinalIgnoreCase));
+    private static string EncodeValue(string value) => "option:" + value;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+            await ParentValidation.InitializeInput(this);
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task HandleValueChanged(string? itemValue)
+    {
+        if (Disabled)
+            return;
+        SelectOption? choice = Choices.FirstOrDefault(c => EncodeValue(c.Value) == itemValue);
+        if (choice is null || choice.Disabled)
+            return;
+        Value = choice.Value;
+        await ValueChanged.InvokeAsync(Value);
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(Value);
+    }
+}

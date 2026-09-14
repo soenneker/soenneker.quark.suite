@@ -1,0 +1,134 @@
+@namespace Soenneker.Quark
+@implements IEventTimeline
+@using System.Globalization
+@using Soenneker.Extensions.String
+
+<Section Preset="@Appearance.RootPreset" AriaLabel="@ResolvedAriaLabel" data-testid="@TestId" @attributes="AdditionalAttributes">
+    @if (ShowViewControls && TimelineItems.Count > DenseTimelineThreshold)
+    {
+        <Div Preset="@Appearance.ViewControlsPreset" Role="group" AriaLabel="Timeline view">
+            <Span Preset="@Appearance.ViewControlsLabelPreset">Timeline view</Span>
+            <Div Preset="@Appearance.ViewControlsButtonsPreset">
+                <Button Type="@ButtonType.Button"
+                        ButtonSize="ButtonSize.Sm"
+                        Variant="@(FitAll ? ButtonVariant.Default : ButtonVariant.Secondary)"
+                        aria-pressed="@(FitAll ? "true" : "false")"
+                        OnClick="@(() => SetFitAll(true))">Fit all</Button>
+                <Button Type="@ButtonType.Button"
+                        ButtonSize="ButtonSize.Sm"
+                        Variant="@(!FitAll ? ButtonVariant.Default : ButtonVariant.Secondary)"
+                        aria-pressed="@(FitAll ? "false" : "true")"
+                        OnClick="@(() => SetFitAll(false))">Scroll</Button>
+            </Div>
+        </Div>
+    }
+    <Div Preset="@Appearance.SurfacePreset">
+        @if (TimelineItems.Count == 0)
+        {
+            <Div Preset="@Appearance.EmptyPreset">@EmptyText</Div>
+        }
+        else
+        {
+            <Div Preset="@Appearance.TrackPreset">
+                @for (int index = 0; index < TimelineItems.Count; index++)
+                {
+                    EventTimelineItem item = TimelineItems[index];
+                    bool hasNext = index < TimelineItems.Count - 1;
+                    <Div Preset="@ItemPreset" data-testid="@ItemTestId(item)">
+                        @if (hasNext)
+                        {
+                            <Div Preset="@Appearance.ConnectorPreset" AriaHidden="true"></Div>
+                        }
+
+                        <Div Preset="@MarkerPreset(item)" AriaHidden="true">
+                            <Icon Name="@item.Icon" Size="Size.Is4" />
+                        </Div>
+                        <Span Preset="@LabelPreset(item)">@item.Label</Span>
+                        <Div Preset="@Appearance.TimePreset">
+                            <time datetime="@item.When.ToString("O", CultureInfo.InvariantCulture)">@FormatWhen(item.When)</time>
+                        </Div>
+                    </Div>
+                }
+            </Div>
+        }
+    </Div>
+</Section>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<EventTimelineItem> Items { get; set; } = [];
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public string EmptyText { get; set; } = "No timeline events yet.";
+
+    [Parameter]
+    public string? TestId { get; set; }
+
+    [Parameter]
+    public Func<DateTimeOffset, string>? FormatTimestamp { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public EventTimelineAppearance Appearance { get; set; } = new();
+    [Parameter]
+    public EventTimelineLayout Layout { get; set; } = EventTimelineLayout.Auto;
+    [Parameter]
+    public int DenseTimelineThreshold { get; set; } = 5;
+    [Parameter]
+    public bool ShowViewControls { get; set; } = true;
+    [Parameter]
+    public string? ItemTestIdPrefix { get; set; }
+
+    private bool? _fitAllOverride;
+
+    private IReadOnlyList<EventTimelineItem> TimelineItems = [];
+
+    private EventTimelineLayout? _previousLayout;
+    protected override void OnParametersSet()
+    {
+        if (!Equals(_previousLayout, Layout))
+            _fitAllOverride = null;
+        _previousLayout = Layout;
+        TimelineItems = Items.Where(item => item.Label.HasContent()).OrderBy(item => item.When).ToList();
+    }
+
+    private string ResolvedAriaLabel => AriaLabel.HasContent() ? AriaLabel! : Title.HasContent() ? Title! : "Timeline";
+
+    private bool FitAll => _fitAllOverride ?? (Layout == EventTimelineLayout.FitAll || (Layout == EventTimelineLayout.Auto && TimelineItems.Count > DenseTimelineThreshold));
+
+    private QuarkPresetToken ItemPreset => FitAll ? Appearance.FitItemPreset : Appearance.ScrollItemPreset;
+
+    private void SetFitAll(bool fitAll)
+    {
+        _fitAllOverride = fitAll;
+    }
+
+    private string FormatWhen(DateTimeOffset when) => FormatTimestamp?.Invoke(when) ?? when.ToString("g", CultureInfo.CurrentCulture);
+
+    private string? ItemTestId(EventTimelineItem item) => ItemTestIdPrefix is not null && item.Key.HasContent() ? $"{ItemTestIdPrefix}{item.Key}" : null;
+
+    private QuarkPresetToken MarkerPreset(EventTimelineItem item)
+    {
+        if (item.Tone == SemanticTone.Success) return Appearance.MarkerSuccessPreset;
+        if (item.Tone == SemanticTone.Info) return Appearance.MarkerInfoPreset;
+        if (item.Tone == SemanticTone.Warning) return Appearance.MarkerWarningPreset;
+        if (item.Tone == SemanticTone.Danger) return Appearance.MarkerDangerPreset;
+        return Appearance.MarkerNeutralPreset;
+    }
+    private QuarkPresetToken LabelPreset(EventTimelineItem item)
+    {
+        if (item.Tone == SemanticTone.Success) return Appearance.LabelSuccessPreset;
+        if (item.Tone == SemanticTone.Info) return Appearance.LabelInfoPreset;
+        if (item.Tone == SemanticTone.Warning) return Appearance.LabelWarningPreset;
+        if (item.Tone == SemanticTone.Danger) return Appearance.LabelDangerPreset;
+        return Appearance.LabelNeutralPreset;
+    }
+}
