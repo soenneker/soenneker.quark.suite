@@ -60,13 +60,17 @@ export function initialize(root) {
         if (!plot || !stableScale || delta <= 0 || delta >= span) return;
         const step = delta / span * next.width;
         const distance = step + remaining;
-        // Keep the same velocity when an update arrives before the previous step has finished.
-        const duration = next.duration * distance / step;
+        // Keep scrolling for one extra interval so delivery/render jitter does not leave
+        // the plot stationary between samples. Only translate recorded data; a delayed
+        // feed leaves empty space at the right edge instead of inventing new values.
+        // Bound the continuation so a disconnected feed eventually stops moving.
+        const end = Math.min(0, distance) - step;
+        const duration = next.duration * (distance - end) / step;
         const startTime = document.timeline.currentTime;
         for (const element of [plot, overlay].filter(Boolean)) {
             const animation = element.animate([
                 { transform: `translateX(${distance}px)` },
-                { transform: 'translateX(0px)' }
+                { transform: `translateX(${end}px)` }
             ], { duration, easing: 'linear', fill: 'forwards' });
             // Match the timeline used to sample the old transform; a pending play would hold
             // that sampled position for another frame on every data update.

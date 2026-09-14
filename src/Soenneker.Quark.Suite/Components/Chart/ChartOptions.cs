@@ -28,7 +28,10 @@ public sealed class ChartOptions
     public bool EnableRealtimeScrolling { get; init; }
 
     /// <summary>Gets the duration of each realtime scroll. Defaults to 200 milliseconds. Must be positive when scrolling is enabled.</summary>
-    /// <remarks>Match this to the expected update interval. This is independent of the entrance animation controlled by Animate.</remarks>
+    /// <remarks>
+    /// Match this to the expected update interval. Scrolling continues for up to one additional interval to tolerate late updates,
+    /// leaving empty space after the latest sample until new data arrives. This is independent of the entrance animation controlled by Animate.
+    /// </remarks>
     public TimeSpan RealtimeScrollDuration { get; init; } = TimeSpan.FromMilliseconds(200);
 
     /// <summary>Gets whether Cartesian marks and selection targets are clipped to the plot bounds.</summary>
