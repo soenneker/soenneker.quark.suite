@@ -243,7 +243,7 @@ Load the runtime theme stylesheet after the generated Tailwind stylesheet:
 <link rel="stylesheet" href="css/app-theme.min.css" />
 ```
 
-This separation follows the pattern used in Leadping: application-owned theme tokens and component rules, with the Tailwind and theme stylesheets loaded in order. The [theme guide](https://quark.soenneker.com/themes) covers JSON configuration, C# themes, output files, and switching light/dark mode.
+This separation keeps theme tokens and component rules application-owned, with the Tailwind and theme stylesheets loaded in order. The [theme guide](https://quark.soenneker.com/themes) covers JSON configuration, C# themes, output files, and switching light/dark mode.
 
 ## Understand the files in your project
 
@@ -535,7 +535,7 @@ Load the runtime theme stylesheet after the generated Tailwind stylesheet:
 <link rel="stylesheet" href="css/app-theme.min.css" />
 ```
 
-This separation follows the pattern used in Leadping: application-owned theme tokens and component rules, with the Tailwind and theme stylesheets loaded in order. The [theme guide](https://quark.soenneker.com/themes) covers JSON configuration, C# themes, output files, and switching light/dark mode.
+This separation keeps theme tokens and component rules application-owned, with the Tailwind and theme stylesheets loaded in order. The [theme guide](https://quark.soenneker.com/themes) covers JSON configuration, C# themes, output files, and switching light/dark mode.
 
 ## Understand the files in your project
 
