@@ -133,24 +133,28 @@
         Position ??= Quark.Position.Relative;
         Shrink ??= Quark.Shrink.Is0;
         PointerEvents ??= Quark.PointerEvents.None;
+        Overflow ??= Quark.Overflow.Hidden;
+        Leading ??= Quark.Leading.Is0;
+        VerticalAlign ??= Quark.VerticalAlign.Middle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["dir"] = "ltr";
         attributes["data-reverse"] = Reverse ? "true" : "false";
         attributes["data-decorative"] = Decorative ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "quark-spinner align-middle");
+            AppendClass(ref cls, "quark-spinner");
 
             if (HasColorAnimation)
                 AppendClass(ref cls, "quark-spinner-multicolor");
 
             if (Name.HasValue)
-                AppendClass(ref cls, $"{GetLucideClass()} animate-spin");
+                AppendClass(ref cls, $"{GetLucideClass()} animate-spin motion-reduce:animate-none");
         });
 
         BuildStyleAttribute(attributes, (ref sty) =>

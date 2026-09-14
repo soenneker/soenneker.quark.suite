@@ -11,7 +11,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="ISonnerInterop"/>
 public sealed class SonnerInterop : ISonnerInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
@@ -103,10 +102,6 @@ public sealed class SonnerInterop : ISonnerInterop
         }
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _initializer.DisposeAsync();

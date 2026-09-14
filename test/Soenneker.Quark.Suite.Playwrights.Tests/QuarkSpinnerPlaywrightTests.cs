@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
@@ -8,6 +9,34 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 [NotInParallel]
 public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
 {
+    [Test]
+    public async ValueTask Spinner_stylesheet_is_shared_across_instances_and_navigation()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var stylesheetRequests = 0;
+        page.Request += (_, request) =>
+        {
+            if (request.Url.EndsWith("/css/spinner.css"))
+                Interlocked.Increment(ref stylesheetRequests);
+        };
+        await page.GotoAsync($"{BaseUrl}components/spinner");
+        await page.Locator(".quark-spinner-circle").First.WaitForAsync();
+        var stylesheet = page.Locator("head link[href$='/css/spinner.css']");
+        await Assertions.Expect(stylesheet).ToHaveCountAsync(1);
+        (await page.Locator(".quark-spinner").CountAsync()).Should().BeGreaterThan(1);
+        await Assertions.Expect(page.Locator("[data-slot=spinner] style, [data-slot=spinner] link")).ToHaveCountAsync(0);
+
+        await page.EvaluateAsync("() => Blazor.navigateTo('/components/button')");
+        await page.WaitForURLAsync("**/components/button");
+        await page.EvaluateAsync("() => Blazor.navigateTo('/components/spinner')");
+        await page.WaitForURLAsync("**/components/spinner");
+        await page.Locator(".quark-spinner-circle").First.WaitForAsync();
+
+        await Assertions.Expect(stylesheet).ToHaveCountAsync(1);
+        stylesheetRequests.Should().Be(1);
+    }
+
     public QuarkSpinnerPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }

@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -12,12 +13,20 @@ public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : Quark
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var stylesheetRequests = 0;
+        page.Request += (_, request) =>
+        {
+            if (request.Url.EndsWith("/css/sonner.css"))
+                Interlocked.Increment(ref stylesheetRequests);
+        };
         await page.GotoAndWaitForReady($"{BaseUrl}components/sonner",
             static p => p.GetByRole(AriaRole.Button, new() { Name = "Default", Exact = true }),
-            expectedTitle: "Sonner - Quark Suite");
+            expectedTitle: "Blazor Sonner Component & Examples | Quark Suite");
         await page.GetByRole(AriaRole.Button, new() { Name = "Show Toast", Exact = true }).First.ClickAsync();
         await page.GetByRole(AriaRole.Button, new() { Name = "Default", Exact = true }).ClickAsync();
         await Assertions.Expect(page.Locator("[data-sonner-toast][data-mounted='true']")).ToHaveCountAsync(2);
+        await Assertions.Expect(page.Locator("head link[href$='/css/sonner.css']")).ToHaveCountAsync(1);
+        await Assert.That(stylesheetRequests).IsEqualTo(1);
 
         bool equivalent = await page.EvaluateAsync<bool>("""
             async () => {
@@ -48,7 +57,7 @@ public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : Quark
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/sonner",
             static p => p.GetByRole(AriaRole.Button, new() { Name = "Default", Exact = true }),
-            expectedTitle: "Sonner - Quark Suite");
+            expectedTitle: "Blazor Sonner Component & Examples | Quark Suite");
         await page.GetByRole(AriaRole.Button, new() { Name = "Default", Exact = true }).ClickAsync();
         var toast = page.Locator("[data-sonner-toast]");
         await Assertions.Expect(toast).ToHaveAttributeAsync("data-mounted", "true");

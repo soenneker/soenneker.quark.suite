@@ -13,7 +13,7 @@ namespace Soenneker.Quark;
 public interface ISonnerInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Initializes the Sonner so it is ready for use.
+    /// Loads the shared Sonner stylesheet and initializes its JavaScript module. Repeated calls reuse the initialized resources.
     /// </summary>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the Sonner is ready for use.</returns>

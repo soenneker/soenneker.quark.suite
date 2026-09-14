@@ -30,7 +30,7 @@ public sealed class QuarkValidationPlaywrightTests : QuarkPlaywrightTest
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/validation",
             static p => p.Locator("#requiredField"),
-            expectedTitle: "Validation - Quark Suite");
+            expectedTitle: "Blazor Form Validation & Error Messages | Quark Suite");
 
         (await page.GetByText("Basic validation with required field and email validation.").CountAsync()).Should().Be(0);
 

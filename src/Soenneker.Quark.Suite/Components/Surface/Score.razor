@@ -1,23 +1,30 @@
-﻿@using System.Globalization
+@using System.Globalization
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.CancellableElement
 @implements IScore
 
-<link rel="stylesheet" href="_content/Soenneker.Quark.Suite/css/score.css" />
 <div @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@_normalizedValue" aria-valuemin="0" aria-valuemax="100">
-    <div data-slot="score-circle">
-        <div data-slot="score-center">
-            <div data-slot="score-value">@_normalizedValue</div>
-        </div>
-    </div>
+    <Div DataSlot="score-circle" Shrink="Quark.Shrink.Is0" Position="Quark.Position.Relative" Rounded="Quark.Rounded.Full"
+         Style="width: var(--score-size, 88px); height: var(--score-size, 88px); background: var(--score-center-color, transparent);">
+        <svg data-slot="score-ring" class="block size-full fill-none" viewBox="@($"0 0 {_sizePx} {_sizePx}")" aria-hidden="true" focusable="false">
+            <circle data-slot="score-track" style="stroke: var(--score-track-color, var(--muted));" cx="@((_sizePx / 2d).ToString(_inv))" cy="@((_sizePx / 2d).ToString(_inv))" r="@(((_sizePx - _thicknessPx) / 2d).ToString(_inv))" stroke-width="@_thicknessPx" />
+            <circle data-slot="score-indicator" cx="@((_sizePx / 2d).ToString(_inv))" cy="@((_sizePx / 2d).ToString(_inv))" r="@(((_sizePx - _thicknessPx) / 2d).ToString(_inv))" stroke-width="@_thicknessPx"
+                    class="transition-[stroke-dashoffset,stroke] duration-350 ease-out motion-reduce:transition-none" stroke-linecap="butt"
+                    pathLength="100" stroke-dasharray="100 100" style="@($"stroke-dashoffset: {100 - _normalizedValue}; stroke: var(--score-color, var(--primary));")" transform="@(FormattableString.Invariant($"rotate(-90 {_sizePx / 2d} {_sizePx / 2d})"))" />
+        </svg>
+        <Div DataSlot="score-center" Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" Display="Quark.Display.Flex" ItemsAlign="Items.Center" Justify="Quark.Justify.Center">
+            <Div DataSlot="score-value" FontWeight="Quark.FontWeight.Semibold" Leading="Quark.Leading.None" FontVariantNumeric="Quark.FontVariantNumeric.TabularNums" Tracking="Quark.Tracking.Normal"
+                 Style="font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif); font-size: var(--score-font-size, max(10px, calc(var(--score-size, 88px) * 0.32))); color: var(--score-value-color, var(--foreground));">@_normalizedValue</Div>
+        </Div>
+    </Div>
     @if (ChildContent != null)
     {
-        <div data-slot="score-text">@ChildContent</div>
+        <Div DataSlot="score-text" TextAlign="Quark.TextAlign.Center" Style="font-size: 0.9rem; line-height: 1.2; color: var(--score-text-color, var(--muted-foreground));">@ChildContent</Div>
     }
     else if (Text.HasContent())
     {
-        <div data-slot="score-text">@Text</div>
+        <Div DataSlot="score-text" TextAlign="Quark.TextAlign.Center" Style="font-size: 0.9rem; line-height: 1.2; color: var(--score-text-color, var(--muted-foreground));">@Text</Div>
     }
 </div>
 
@@ -54,7 +61,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "score";
 
-        Display ??= Quark.Display.Flex;
+        Display ??= Quark.Display.InlineFlex;
         FlexDirection ??= Quark.FlexDirection.Col;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is2;
@@ -74,7 +81,7 @@
         if (_parametersChanged)
         {
             _sizePx = ScoreSize <= 0 ? 88 : ScoreSize;
-            _thicknessPx = Thickness <= 0 ? 8 : Thickness;
+            _thicknessPx = Math.Clamp(Thickness <= 0 ? 8 : Thickness, 1, Math.Max(1, _sizePx / 2));
 
             _sizeCss = string.Create(_inv, $"{_sizePx}px");
             _thicknessCss = string.Create(_inv, $"{_thicknessPx}px");
