@@ -21,6 +21,29 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Plot_clip_preserves_strokes_and_hover_markers_at_both_y_bounds()
+    {
+        var options = new ChartOptions { ClipPlot = true, Minimum = 0, Maximum = 12, ActivePointRadius = 7 };
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Scheduled", new double[] { 12, 12, 0 }) { StrokeWidth = 20 } })
+            .Add(c => c.Options, options));
+        var clip = cut.Find("clipPath rect");
+        double Attribute(string name) => double.Parse(clip.GetAttribute(name)!, CultureInfo.InvariantCulture);
+        Attribute("x").Should().Be(options.PaddingLeft);
+        Attribute("width").Should().Be(options.Width - options.PaddingLeft - options.PaddingRight);
+        Attribute("y").Should().BeLessThanOrEqualTo(options.PaddingTop - 10);
+        (Attribute("y") + Attribute("height")).Should().BeGreaterThanOrEqualTo(options.Height - options.PaddingBottom + 10);
+        cut.FindAll(".quark-chart-hit-area")[1].TriggerEvent("onpointerenter", new PointerEventArgs());
+        var marker = cut.Find(".quark-chart-point-active");
+        double center = double.Parse(marker.GetAttribute("cy")!, CultureInfo.InvariantCulture);
+        (center - options.ActivePointRadius - 1).Should().BeGreaterThanOrEqualTo(Attribute("y"));
+        cut.FindAll(".quark-chart-hit-area")[2].TriggerEvent("onpointerenter", new PointerEventArgs());
+        marker = cut.Find(".quark-chart-point-active");
+        center = double.Parse(marker.GetAttribute("cy")!, CultureInfo.InvariantCulture);
+        (center + options.ActivePointRadius + 1).Should().BeLessThanOrEqualTo(Attribute("y") + Attribute("height"));
+    }
+
+    [Test]
     public void Repeated_hover_and_clear_skip_noop_renders()
     {
         var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)

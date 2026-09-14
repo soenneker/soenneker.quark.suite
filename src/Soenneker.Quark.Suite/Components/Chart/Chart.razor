@@ -32,7 +32,7 @@
                 <ChartRenderBoundary Version="_geometryVersion">
                     <defs>
                         <clipPath id="@($"{_instanceId}-plot-clip")">
-                            <rect x="@F(PlotLeft)" y="@F(PlotTop)" width="@F(PlotWidth)" height="@F(PlotHeight)" />
+                            <rect x="@F(PlotLeft)" y="@F(PlotTop - PlotClipPaddingY)" width="@F(PlotWidth)" height="@F(PlotHeight + 2 * PlotClipPaddingY)" />
                         </clipPath>
                         @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
                         {
@@ -593,6 +593,10 @@
     private double PlotBottom => Options.Height - Options.PaddingBottom;
     private double PlotWidth => Math.Max(1, PlotRight - PlotLeft);
     private double PlotHeight => Math.Max(1, PlotBottom - PlotTop);
+    // Marks are centered on their data coordinates. Leave room for their painted
+    // edges at the Y bounds, while keeping the scrolling X window strictly clipped.
+    private double PlotClipPaddingY => Math.Max(Math.Max(Options.PointRadius, Options.ActivePointRadius) + 1,
+        Series.Count == 0 ? 0 : Series.Max(series => series.StrokeWidth) / 2);
     private int TickCount => _tickValues.Length;
     private string ViewBox => _viewBox;
     private string StageStyle => _stageStyle;

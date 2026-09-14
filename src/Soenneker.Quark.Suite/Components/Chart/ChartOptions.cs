@@ -35,6 +35,7 @@ public sealed class ChartOptions
     public TimeSpan RealtimeScrollDuration { get; init; } = TimeSpan.FromMilliseconds(200);
 
     /// <summary>Gets whether Cartesian marks and selection targets are clipped to the plot bounds.</summary>
+    /// <remarks>The vertical clip includes clearance for strokes and point markers centered on the Y bounds.</remarks>
     public bool ClipPlot { get; init; }
 
     /// <summary>
