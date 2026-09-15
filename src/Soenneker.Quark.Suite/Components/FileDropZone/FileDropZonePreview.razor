@@ -1,0 +1,51 @@
+@namespace Soenneker.Quark
+
+@if (FileDropZoneMedia.IsPreviewUrl(Url) && FileDropZoneMedia.CanPreview(File))
+{
+    <div data-slot="file-drop-zone-preview" class="overflow-hidden border-t border-border/50 bg-background/30">
+        @if (_failed)
+        {
+            <div class="px-3 py-4 text-center text-xs text-muted-foreground" role="status">Preview unavailable</div>
+        }
+        else if (FileDropZoneMedia.ContentType(File).StartsWith("image/", StringComparison.Ordinal))
+        {
+            <img @key="Url" src="@Url" alt="@File.Name" class="block max-h-72 w-full object-contain" loading="lazy" @onerror="OnError" />
+        }
+        else if (FileDropZoneMedia.ContentType(File).StartsWith("video/", StringComparison.Ordinal))
+        {
+            <video @key="Url" src="@Url" controls playsinline preload="metadata" aria-label="@($"Preview of {File.Name}")"
+                   class="block max-h-72 w-full" @onerror="OnError">
+                Your browser cannot play this video.
+            </video>
+        }
+        else
+        {
+            <object @key="Url" data="@Url" type="application/pdf" aria-label="@($"Preview of {File.Name}")" class="block h-72 w-full">
+                <div class="p-4 text-center text-xs text-muted-foreground">Use Open PDF to view this document.</div>
+            </object>
+        }
+        @if (_failed || FileDropZoneMedia.ContentType(File) == "application/pdf")
+        {
+            <a href="@Url" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 text-center text-xs underline underline-offset-4">@(FileDropZoneMedia.ContentType(File) == "application/pdf" ? "Open PDF" : "Open file")</a>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>The file whose media is being displayed.</summary>
+    [Parameter, EditorRequired] public FileDropZoneFile File { get; set; } = null!;
+    /// <summary>The local object URL or application-supplied preview URL.</summary>
+    [Parameter] public string? Url { get; set; }
+
+    private string? _previousUrl;
+    private bool _failed;
+
+    protected override void OnParametersSet()
+    {
+        if (_previousUrl == Url) return;
+        _previousUrl = Url;
+        _failed = false;
+    }
+
+    private void OnError() => _failed = true;
+}

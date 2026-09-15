@@ -296,6 +296,39 @@ builder.Services.AddQuarkSuiteAsScoped();
 
 See [troubleshooting](https://quark.soenneker.com/troubleshooting) for the specific files and settings to inspect.
 
+## File drop zone
+
+`FileDropZone` provides a native file picker/drop target, per-file upload and server-processing progress, cancellation, retry, and server-confirmed deletion. It uses the application's Quark theme and supports saved files without fetching their contents.
+
+`AddQuarkSuiteAsScoped()` registers `IFileDropZoneInterop` automatically. For standalone registration, use `AddQuarkFileDropZoneAsScoped()`. The scoped `FileDropZoneInterop` loads `filedropzoneinterop.js` through the module import utility and exposes `CreatePreview`, `RetainPreviews`, and `Destroy`; component cleanup releases only its own previews, while DI owns the shared module lifetime.
+
+The default presentation is a single drop prompt and compact file rows. Visible helper text is opt-in through `Description`; limits remain available to assistive technology. Set `MaxFiles="1"` for a single-file field that replaces the prompt with the selected file.
+
+Failed uploads collapse their preview into a compact error strip with a labeled Retry action. Retrying restores the retained preview. Failed deletions keep the file visible and provide Retry delete.
+
+Drag a file's handle to reorder it with a floating ghost and insertion marker. Handles also support ArrowUp/ArrowDown and Home/End; Escape cancels a drag. New files can be dropped between existing rows. The resulting order is published through `FilesChanged`, preserving file IDs, progress, and active uploads. Set `AllowReorder="false"` to disable reordering; `Disabled` and `ReadOnly` also prevent it. Reordering controls display order, not the scheduling of already-running transfers.
+
+Image, video, and PDF previews appear below the file header. Selected media uses browser-local object URLs, retained through upload completion and released when the file is removed or the component is disposed. Existing files can set `PreviewUrl` and `ContentType` (or use a recognized filename extension). Video uses native controls without autoplay; PDFs use the browser's viewer plus an Open PDF fallback. Supply an accessible, authorized media URL; the application controls remote URL lifetime and server access. Use `ShowPreviews="false"` for a compact list without previews. Upload and processing progress use circular indicators, with a spinner when the percentage is unknown.
+
+```razor
+<FileDropZone @bind-Files="files" Upload="UploadFile" Delete="DeleteFile"
+              Accept=".pdf,.png,.jpg" MaxFiles="5" MaxFileSize="10485760" />
+
+@code {
+    private IReadOnlyList<FileDropZoneFile> files = [
+        new() { Name = "registration.pdf", Size = 248320, ServerId = "saved-file-id" }
+    ];
+}
+```
+
+- Implement `Upload` as `Func<FileDropZoneUploadRequest, CancellationToken, ValueTask<FileDropZoneUploadResult>>`. Open the bounded stream with `request.OpenReadStream()` and dispose it when finished. Report transport progress with `ReportUploadProgress(percent)` and server stages with `ReportProcessingProgress("Checking for viruses", percent)`. A null percentage means indeterminate progress.
+- Return `new FileDropZoneUploadResult { ServerId = id }` when ready. For asynchronous scans, return `State = FileDropZoneState.Processing` and optional `StatusText`, then replace the corresponding record in the bound collection from polling or server events. Marshal background updates onto Blazor's renderer with `InvokeAsync`. `Id` is the stable UI key; `ServerId` identifies the persisted file.
+- Implement `Delete` as `Func<FileDropZoneFile, CancellationToken, ValueTask>`. Delete `file.ServerId` on the server; the component removes the row after success. An exception displays an error and retains the row for retry. Persisted files have no delete action without a delete handler.
+- Honor cancellation in transports and clean up partial uploads on the server. Disposing the component cancels active operations. File types and sizes are checked before upload; the server still owns validation, authorization, and antivirus results. Exception messages are displayed to the user, so handlers should translate service errors into suitable messages.
+- `ReadOnly` shows the file list without controls; `Disabled` disables interaction while allowing active work to finish. Failed uploads retain their browser input for retry, even after another selection. Successful uploads release it. `MaxFiles` includes saved files and failed rows.
+
+See the interactive demo at `/components/file-drop-zone` for upload, scan, failure, retry, and background-processing examples.
+
 ## Learn from working apps
 
 - [Quark demo source](https://github.com/soenneker/soenneker.quark.suite/tree/main/test/Soenneker.Quark.Suite.Demo): app-level generators, icon registrations, theme switching, and the full component catalog.

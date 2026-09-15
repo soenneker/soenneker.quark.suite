@@ -251,6 +251,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ICarouselInterop, FakeCarouselInterop>();
         Services.AddScoped<IInputInterop, FakeInputInterop>();
         Services.AddQuarkPaymentCardAsScoped();
+        Services.AddQuarkFileDropZoneAsScoped();
         Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
         Services.AddScoped<INodeEditorInterop, FakeNodeEditorInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();

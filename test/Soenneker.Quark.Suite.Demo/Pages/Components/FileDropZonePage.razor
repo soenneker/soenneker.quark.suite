@@ -1,0 +1,177 @@
+@page "/components/file-drop-zone"
+@using System.Threading
+@using System.IO
+
+<SeoHead Title="Blazor File Drop Zone Component | Quark Suite" Description="File uploads with transfer progress, server processing, cancellation, retries, and saved files." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Description="Drag the handles to reorder, or drop a file between rows. You can also use arrow keys on a focused handle. Uploads are simulated in your browser." Code="@ExampleCode" CodeLanguage="razor" PreviewChromeless="true" PreviewBordered="false">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Margin="Margin.OnX.Auto" Space="Space.Y.Is3" Padding="Padding.Is4">
+            <FileDropZone @bind-Files="_files" Upload="SimulateUpload" Delete="SimulateDelete"
+                          Accept="image/*,video/*,.pdf,.txt" MaxFiles="5" MaxFileSize="10485760" />
+            <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" OnClick="() => _failNextUpload = !_failNextUpload" aria-pressed="@(_failNextUpload ? "true" : "false")">@(_failNextUpload ? "Next upload will fail" : "Simulate upload failure")</Button>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Single file" Description="An existing file, ready to use. Delete it to choose another." Code="@SingleFileCode" CodeLanguage="razor" PreviewChromeless="true" PreviewBordered="false">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Margin="Margin.OnX.Auto" Padding="Padding.Is4">
+            <FileDropZone @bind-Files="_singleFile" Upload="SimulateUpload" Delete="SimulateDelete" MaxFiles="1" />
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Required file" Description="Submit empty to see validation. A file must finish uploading and processing before you can continue." Code="@RequiredFileCode" CodeLanguage="razor" PreviewChromeless="true" PreviewBordered="false">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Margin="Margin.OnX.Auto" Padding="Padding.Is4" Space="Space.Y.Is3">
+            <Field IsInvalid="RequiredFileInvalid">
+                <FieldLabel Id="required-file-label" RequiredIndicator="true">Supporting document</FieldLabel>
+                <FileDropZone @bind-Files="_requiredFiles" Upload="SimulateUpload" Delete="SimulateDelete" MaxFiles="1"
+                              Label="Drop your required document or" role="group" aria-labelledby="required-file-label"
+                              aria-describedby="required-file-help" aria-invalid="@(RequiredFileInvalid ? "true" : "false")"
+                              Class="aria-invalid:border-destructive" />
+                @if (RequiredFileInvalid)
+                {
+                    <FieldError Id="required-file-help">Upload a document and wait for it to finish before continuing.</FieldError>
+                }
+                else
+                {
+                    <FieldDescription Id="required-file-help">Required. Upload one document.</FieldDescription>
+                }
+            </Field>
+            <Button OnClick="() => _requiredSubmitted = true">Continue</Button>
+            @if (_requiredSubmitted && !RequiredFileInvalid)
+            {
+                <Div role="status" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Document ready. You can continue.</Div>
+            }
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Server-controlled states" Description="Replace file records from polling or real-time server events. A processing stage can have a percentage or remain indeterminate." Code="@StatesCode" CodeLanguage="razor" PreviewChromeless="true" PreviewBordered="false">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Margin="Margin.OnX.Auto" Padding="Padding.Is4">
+            <FileDropZone Files="_states" ReadOnly="true" />
+        </Div>
+    </DemoSection>
+
+    <Div Space="Space.Y.Is3">
+        <Div FontWeight="FontWeight.Medium">Connect your server</Div>
+        <Div TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Bind Files to retain updates. Upload receives a bounded browser stream and progress reporting methods; return a FileDropZoneUploadResult with the server ID when persisted. Delete receives the file metadata and removes the row only after your callback succeeds.</Div>
+        <Div TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">For background jobs, return Processing state, then replace file records from server events or polling. Keep status and scan results authoritative on your server. Upload handlers should honor cancellation and clean up partial uploads.</Div>
+    </Div>
+</Div>
+
+@code {
+    private IReadOnlyList<FileDropZoneFile> _files = [
+        new() { Name = "brief.txt", Size = 1024, ServerId = "brief" },
+        new() { Name = "notes.txt", Size = 2048, ServerId = "notes" }
+    ];
+    private IReadOnlyList<FileDropZoneFile> _singleFile = [new() { Name = "quark-preview.png", ServerId = "existing-image", PreviewUrl = "/social-card.png" }];
+    private IReadOnlyList<FileDropZoneFile> _requiredFiles = [];
+    private bool _requiredSubmitted;
+    private bool RequiredFileInvalid => _requiredSubmitted && !_requiredFiles.Any(file => file.State == FileDropZoneState.Complete);
+    private bool _failNextUpload;
+    private readonly IReadOnlyList<FileDropZoneFile> _states = [
+        new() { Name = "company-profile.pdf", Size = 1835008, State = FileDropZoneState.Uploading, Progress = 64 },
+        new() { Name = "registration-document.pdf", Size = 248320, ServerId = "scan-document", State = FileDropZoneState.Processing, StatusText = "Checking for viruses" },
+        new() { Name = "team-photo.jpg", Size = 3145728, ServerId = "photo", State = FileDropZoneState.Processing, StatusText = "Optimizing image", Progress = 38 },
+        new() { Name = "signed-agreement.pdf", Size = 524288, ServerId = "agreement" }
+    ];
+
+    private async ValueTask<FileDropZoneUploadResult> SimulateUpload(FileDropZoneUploadRequest request, CancellationToken cancellationToken)
+    {
+        var fail = _failNextUpload;
+        _failNextUpload = false;
+        await using Stream stream = request.OpenReadStream();
+        var buffer = new byte[65536];
+        while (await stream.ReadAsync(buffer, cancellationToken) > 0) { }
+        for (var percent = 0; percent <= 100; percent += 10)
+        {
+            await request.ReportUploadProgress(percent);
+            await Task.Delay(120, cancellationToken);
+        }
+        if (fail) throw new InvalidOperationException("Upload interrupted. Try again.");
+        await request.ReportProcessingProgress("Checking for viruses");
+        await Task.Delay(2000, cancellationToken);
+        for (var percent = 0; percent <= 100; percent += 25)
+        {
+            await request.ReportProcessingProgress("Preparing document", percent);
+            await Task.Delay(200, cancellationToken);
+        }
+        return new FileDropZoneUploadResult { ServerId = Guid.NewGuid().ToString("N") };
+    }
+
+    private static async ValueTask SimulateDelete(FileDropZoneFile file, CancellationToken cancellationToken) => await Task.Delay(700, cancellationToken);
+
+    private const string ExampleCode = """
+        <FileDropZone @bind-Files="files" Upload="UploadDocument" Delete="DeleteDocument"
+                      Accept="image/*,video/*,.pdf,.txt" MaxFiles="5" MaxFileSize="10485760" />
+
+        @code {
+            private IReadOnlyList<FileDropZoneFile> files = [
+                new() { Name = "brief.txt", Size = 1024, ServerId = "brief" },
+                new() { Name = "notes.txt", Size = 2048, ServerId = "notes" }
+            ];
+
+            // Implement these callbacks with your application's transport:
+            // ValueTask<FileDropZoneUploadResult> UploadDocument(FileDropZoneUploadRequest request, CancellationToken ct)
+            //   await using var stream = request.OpenReadStream();
+            //   await request.ReportUploadProgress(percentTransferred);
+            //   await request.ReportProcessingProgress("Checking for viruses");
+            //   return new FileDropZoneUploadResult { ServerId = id };
+            //   For background scans, also set State = FileDropZoneState.Processing.
+            // ValueTask DeleteDocument(FileDropZoneFile file, CancellationToken ct)
+            //   Delete file.ServerId on the server. Throw on failure to retain the row.
+        }
+        """;
+
+    private const string SingleFileCode = """
+        <FileDropZone @bind-Files="files" Upload="UploadFile" Delete="DeleteFile" MaxFiles="1" />
+
+        @code {
+            private IReadOnlyList<FileDropZoneFile> files = [
+                new() { Name = "quark-preview.png", ServerId = "existing-image", PreviewUrl = "/social-card.png" }
+            ];
+        }
+        """;
+
+    private const string RequiredFileCode = """
+        <Field IsInvalid="RequiredFileInvalid">
+            <FieldLabel Id="required-file-label" RequiredIndicator="true">Supporting document</FieldLabel>
+            <FileDropZone @bind-Files="_requiredFiles" Upload="SimulateUpload" Delete="SimulateDelete" MaxFiles="1"
+                          Label="Drop your required document or" role="group" aria-labelledby="required-file-label"
+                          aria-describedby="required-file-help" aria-invalid="@(RequiredFileInvalid ? "true" : "false")"
+                          Class="aria-invalid:border-destructive" />
+            @if (RequiredFileInvalid)
+            {
+                <FieldError Id="required-file-help">Upload a document and wait for it to finish before continuing.</FieldError>
+            }
+            else
+            {
+                <FieldDescription Id="required-file-help">Required. Upload one document.</FieldDescription>
+            }
+        </Field>
+        <Button OnClick="() => _requiredSubmitted = true">Continue</Button>
+        @if (_requiredSubmitted && !RequiredFileInvalid)
+        {
+            <Div role="status" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Document ready. You can continue.</Div>
+        }
+        
+        @code {
+            private IReadOnlyList<FileDropZoneFile> _requiredFiles = [];
+            private bool _requiredSubmitted;
+            private bool RequiredFileInvalid => _requiredSubmitted && !_requiredFiles.Any(file => file.State == FileDropZoneState.Complete);
+        
+            // Supply your Upload and Delete callbacks in place of SimulateUpload and SimulateDelete.
+        }
+        """;
+
+    private const string StatesCode = """
+        <FileDropZone Files="files" ReadOnly="true" />
+
+        @code {
+            private IReadOnlyList<FileDropZoneFile> files = [
+                new() { Name = "company-profile.pdf", Size = 1835008, State = FileDropZoneState.Uploading, Progress = 64 },
+                new() { Name = "registration-document.pdf", Size = 248320, ServerId = "scan-document", State = FileDropZoneState.Processing, StatusText = "Checking for viruses" },
+                new() { Name = "team-photo.jpg", Size = 3145728, ServerId = "photo", State = FileDropZoneState.Processing, StatusText = "Optimizing image", Progress = 38 },
+                new() { Name = "signed-agreement.pdf", Size = 524288, ServerId = "agreement" }
+            ];
+        }
+        """;
+}
