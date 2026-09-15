@@ -1,4 +1,4 @@
-using System;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 public sealed record FileDropZoneFile
 {
     /// <summary>A stable, unique UI key, independent of the server identifier.</summary>
-    public string Id { get; init; } = Guid.NewGuid().ToString("N");
+    public string Id { get; init; } = BlazorIdGenerator.New("file-drop-zone-file");
     /// <summary>The original display name.</summary>
     public required string Name { get; init; }
     /// <summary>The file size in bytes, or null when unknown.</summary>

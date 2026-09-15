@@ -1,3 +1,4 @@
+@using Soenneker.Blazor.Utils.Ids
 @namespace Soenneker.Quark
 @inherits Element
 @implements IFileDropZone
@@ -36,7 +37,7 @@
             <span id="@_descriptionId" class="sr-only">@(Description ?? DefaultDescription)</span>
             @foreach (var inputKey in _inputs)
             {
-                <InputFile id="@InputId(inputKey)" @key="inputKey" OnChange="args => SelectFiles(args, inputKey)" multiple="@(MaxFiles > 1)" accept="@Accept"
+                <InputFile id="@inputKey" @key="inputKey" OnChange="args => SelectFiles(args, inputKey)" multiple="@(MaxFiles > 1)" accept="@Accept"
                            disabled="@(SelectionDisabled || inputKey != _inputs[^1])" aria-label="@($"{Label} Browse")" aria-describedby="@_descriptionId"
                            tabindex="@(inputKey == _inputs[^1] ? 0 : -1)"
                            style="@(inputKey == _inputs[^1] ? "position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer" : "display:none")" />
@@ -168,15 +169,15 @@
     [Parameter] public string Label { get; set; } = "Drag & drop your files or";
     [Parameter] public string? Description { get; set; }
 
-    private readonly string _descriptionId = $"file-drop-zone-help-{Guid.NewGuid():N}";
-    private readonly string _reorderHelpId = $"file-drop-zone-reorder-{Guid.NewGuid():N}";
+    private readonly string _descriptionId = BlazorIdGenerator.New("file-drop-zone-help");
+    private readonly string _reorderHelpId = BlazorIdGenerator.New("file-drop-zone-reorder");
     private ElementReference _dropZoneElement;
     private DotNetObjectReference<FileDropZone>? _dragCallback;
     private bool _dragInitialized;
     private string? _dropBeforeId;
     private string? _reorderAnnouncement;
-    private readonly List<Guid> _inputs = [Guid.NewGuid()];
-    private readonly Dictionary<string, (IBrowserFile File, Guid Input)> _browserFiles = new();
+    private readonly List<string> _inputs = [BlazorIdGenerator.New("file-drop-zone-input")];
+    private readonly Dictionary<string, (IBrowserFile File, string Input)> _browserFiles = new();
     private readonly Dictionary<string, CancellationTokenSource> _operations = new();
     private readonly CancellationTokenSource _lifetime = new();
     private readonly Dictionary<string, string> _previewUrls = new();
@@ -251,7 +252,7 @@
         Refresh();
     }
 
-    private async Task SelectFiles(InputFileChangeEventArgs args, Guid inputKey)
+    private async Task SelectFiles(InputFileChangeEventArgs args, string inputKey)
     {
         if (_disposed || ReadOnly || SelectionDisabled || inputKey != _inputs[^1]) return;
         var beforeId = _dropBeforeId;
@@ -261,7 +262,7 @@
         if (args.FileCount > MaxFiles - Files.Count)
         {
             _selectionError = $"You can add {MaxFiles - Files.Count} more {(MaxFiles - Files.Count == 1 ? "file" : "files")}.";
-            _inputs[^1] = Guid.NewGuid();
+            _inputs[^1] = BlazorIdGenerator.New("file-drop-zone-input");
             Refresh();
             return;
         }
@@ -301,7 +302,7 @@
                 {
                     if (!_browserFiles.TryGetValue(file.Id, out var source)) continue;
                     var index = selected.ToList().IndexOf(source.File);
-                    var url = await FileDropZoneInterop.CreatePreview(_descriptionId, InputId(inputKey), index, file.Id, FileDropZoneMedia.ContentType(file), _lifetime.Token);
+                    var url = await FileDropZoneInterop.CreatePreview(_descriptionId, inputKey, index, file.Id, FileDropZoneMedia.ContentType(file), _lifetime.Token);
                     if (url is not null) _previewUrls[file.Id] = url;
                 }
             }
@@ -312,7 +313,7 @@
         if (_disposed) return;
         // Each batch keeps its own native input until no retryable browser files reference it.
         // Reusing InputFile would invalidate streams from previous selections.
-        _inputs.Add(Guid.NewGuid());
+        _inputs.Add(BlazorIdGenerator.New("file-drop-zone-input"));
         ReleaseUnusedInputs();
         Refresh();
         await Task.WhenAll(added.Select(file => UploadFile(file.Id)));
@@ -413,7 +414,6 @@
     }
 
     private void ReleaseUnusedInputs() => _inputs.RemoveAll(input => input != _inputs[^1] && !_browserFiles.Values.Any(source => source.Input == input));
-    private static string InputId(Guid key) => $"file-drop-zone-input-{key:N}";
     private string? PreviewUrl(FileDropZoneFile file) => FileDropZoneMedia.IsPreviewUrl(file.PreviewUrl) ? file.PreviewUrl : _previewUrls.GetValueOrDefault(file.Id);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

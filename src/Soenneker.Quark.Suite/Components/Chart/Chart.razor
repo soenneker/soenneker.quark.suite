@@ -1,3 +1,4 @@
+@using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -416,7 +417,7 @@
         }
     }
 
-    private readonly string _instanceId = $"quark-chart-{Guid.NewGuid():N}";
+    private readonly string _instanceId = BlazorIdGenerator.New("quark-chart");
     private readonly HashSet<int> _hiddenSeries = [];
     private int? _hoveredIndex;
     private int? _hoveredSeries;
@@ -1066,8 +1067,8 @@
 
     private string PaletteColor(int index) => Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[index % Options.Palette.Count];
     private string SeriesFill(int index) => Series[index].Gradient is null ? SeriesColor(index) : $"url(#{GradientId(index)})";
-    private string GradientId(int index) => $"{_instanceId}-gradient-{index}";
-    private string SliceGradientId(int index) => $"{_instanceId}-slice-gradient-{index}";
+    private string GradientId(int index) => BlazorIdGenerator.Child(_instanceId, $"gradient-{index}");
+    private string SliceGradientId(int index) => BlazorIdGenerator.Child(_instanceId, $"slice-gradient-{index}");
     private string LinePath(int seriesIndex) => _linePaths.GetValueOrDefault(seriesIndex, string.Empty);
     private string AreaPath(int seriesIndex) => _areaPaths.GetValueOrDefault(seriesIndex, string.Empty);
     private static string F(double value) => value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
