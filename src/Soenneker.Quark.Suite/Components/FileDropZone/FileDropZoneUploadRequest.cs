@@ -29,6 +29,9 @@ public sealed class FileDropZoneUploadRequest
     public FileDropZoneFile File { get; }
     /// <summary>Opens the browser stream with the configured size limit and upload cancellation token. The caller disposes it.</summary>
     public Stream OpenReadStream() => BrowserFile.OpenReadStream(_maxFileSize, _cancellationToken);
+    /// <summary>Opens an asynchronous-only browser stream that reports progress as bytes are read. The caller disposes it, which also disposes the underlying stream.</summary>
+    /// <remarks>Read progress does not confirm server receipt or upload completion. Use the upload result to determine completion.</remarks>
+    public Stream OpenReadStreamWithProgress() => new FileDropZoneProgressStream(OpenReadStream(), this);
     /// <summary>Reports bytes actually transferred by the application's transport, or null for unknown progress.</summary>
     public Task ReportUploadProgress(int? percent) => _report(FileDropZoneState.Uploading, percent, null);
     /// <summary>Reports server work separately from transfer progress. Null percent displays an indeterminate bar.</summary>
