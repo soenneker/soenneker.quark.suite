@@ -32,6 +32,10 @@ export function initialize(owner, root, callback) {
     };
     const showTarget = (beforeId, excludedId) => {
         const items = rows().filter(row => row.dataset.fileId !== excludedId);
+        if (!items.length) {
+            placeholder.hidden = true;
+            return;
+        }
         const next = items.find(row => row.dataset.fileId === beforeId);
         const rect = root.getBoundingClientRect();
         const target = next?.getBoundingClientRect();
