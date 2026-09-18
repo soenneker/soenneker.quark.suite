@@ -2,6 +2,31 @@ const storageKey = "quark-theme";
 const root = document.documentElement;
 const themeChangedRefs = new Map();
 let themeChangedListener = null;
+const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+let initialized = false;
+let preference;
+let useMemoryPreference = false;
+
+function readPreference() {
+    if (useMemoryPreference) return preference;
+    try {
+        return localStorage.getItem(storageKey);
+    } catch {
+        return preference;
+    }
+}
+
+function savePreference(value) {
+    preference = value;
+    try {
+        if (value == null) localStorage.removeItem(storageKey);
+        else localStorage.setItem(storageKey, value);
+        useMemoryPreference = false;
+    } catch {
+        // Theme selection still works when browser storage is unavailable.
+        useMemoryPreference = true;
+    }
+}
 
 function getThemeChangedRefId(dotNetRef) {
     if (!dotNetRef) {
@@ -40,24 +65,44 @@ function ensureThemeChangedListener() {
 
 function applyTheme(isDark) {
     root.classList.toggle("dark", isDark);
-    localStorage.setItem(storageKey, isDark ? "dark" : "light");
+    root.style.colorScheme = isDark ? "dark" : "light";
     window.dispatchEvent(new CustomEvent("quark-theme-changed", { detail: { isDark } }));
     return isDark;
 }
 
 export function resolveIsDark() {
-    const stored = localStorage.getItem(storageKey);
+    const stored = readPreference();
     if (stored === "dark") return true;
     if (stored === "light") return false;
-    return false;
+    return systemTheme.matches;
 }
 
 export function initialize() {
+    if (!initialized) {
+        initialized = true;
+        systemTheme.addEventListener("change", () => {
+            const stored = readPreference();
+            if (stored !== "dark" && stored !== "light") applyTheme(resolveIsDark());
+        });
+        window.addEventListener("storage", event => {
+            if (event.key === storageKey || event.key === null) {
+                useMemoryPreference = false;
+                applyTheme(resolveIsDark());
+            }
+        });
+    }
     return applyTheme(resolveIsDark());
 }
 
 export function toggle() {
-    return applyTheme(!root.classList.contains("dark"));
+    const isDark = !resolveIsDark();
+    savePreference(isDark ? "dark" : "light");
+    return initialize();
+}
+
+export function useSystem() {
+    savePreference(null);
+    return initialize();
 }
 
 export function registerThemeChangedCallback(dotNetRef) {

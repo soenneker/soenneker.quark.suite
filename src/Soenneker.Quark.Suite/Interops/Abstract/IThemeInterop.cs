@@ -9,8 +9,14 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IThemeInterop : IAsyncDisposable
 {
+    /// <summary>Gets the active theme after initialization. Subscribe to <see cref="ThemeChanged"/> to refresh theme-dependent content such as images.</summary>
+    bool IsDark { get; }
+
+    /// <summary>Raised when the active theme changes, including operating system changes while following the system. Components should dispatch rendering through InvokeAsync.</summary>
+    event Action<bool>? ThemeChanged;
+
     /// <summary>
-    /// Initializes and applies the current theme preference.
+    /// Initializes and applies the saved preference, or follows the operating system when no explicit preference exists. Call after the first interactive render.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
@@ -24,9 +30,14 @@ public interface IThemeInterop : IAsyncDisposable
     ValueTask<bool> Toggle(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets whether dark mode is currently active from storage, otherwise the light default.
+    /// Gets whether dark mode is selected by the saved preference, otherwise by the operating system.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
     ValueTask<bool> GetIsDark(CancellationToken cancellationToken = default);
+
+    /// <summary>Clears the explicit preference and resumes following the operating system, including subsequent changes.</summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>Whether dark mode is active.</returns>
+    ValueTask<bool> UseSystem(CancellationToken cancellationToken = default);
 }

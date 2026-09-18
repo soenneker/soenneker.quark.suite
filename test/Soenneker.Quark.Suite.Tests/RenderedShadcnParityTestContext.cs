@@ -1,4 +1,5 @@
 using Bunit;
+using System;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
@@ -333,11 +334,26 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeThemeInterop : IThemeInterop
     {
-        public ValueTask<bool> Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(false);
+        public bool IsDark { get; private set; }
+        public event Action<bool>? ThemeChanged;
 
-        public ValueTask<bool> Toggle(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+        public ValueTask<bool> Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
 
-        public ValueTask<bool> GetIsDark(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(false);
+        public ValueTask<bool> Toggle(System.Threading.CancellationToken cancellationToken = default)
+        {
+            IsDark = !IsDark;
+            ThemeChanged?.Invoke(IsDark);
+            return ValueTask.FromResult(IsDark);
+        }
+
+        public ValueTask<bool> GetIsDark(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
+
+        public ValueTask<bool> UseSystem(System.Threading.CancellationToken cancellationToken = default)
+        {
+            IsDark = false;
+            ThemeChanged?.Invoke(IsDark);
+            return ValueTask.FromResult(IsDark);
+        }
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

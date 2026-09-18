@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark.Suite.Demo.Services;
 
-public sealed class ThemeService(IThemeInterop themeInterop)
+public sealed class ThemeService(IThemeInterop themeInterop) : IDisposable
 {
     private bool _initialized;
 
@@ -15,10 +15,20 @@ public sealed class ThemeService(IThemeInterop themeInterop)
         if (_initialized)
             return;
 
+        themeInterop.ThemeChanged -= OnThemeChanged;
+        themeInterop.ThemeChanged += OnThemeChanged;
         IsDark = await themeInterop.Initialize();
         _initialized = true;
         ThemeChanged?.Invoke();
     }
+
+    private void OnThemeChanged(bool isDark)
+    {
+        IsDark = isDark;
+        ThemeChanged?.Invoke();
+    }
+
+    public void Dispose() => themeInterop.ThemeChanged -= OnThemeChanged;
 
     public async Task Toggle()
     {

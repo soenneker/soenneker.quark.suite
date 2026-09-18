@@ -40,8 +40,15 @@
 <Section Id="dark-mode">
     <H2>Switch between light and dark mode</H2>
     <Paragraph>Theme generation defines both sets of values. Runtime theme interop selects which one is active. <Code>AddQuarkSuiteAsScoped()</Code> registers <Code>IThemeInterop</Code>.</Paragraph>
+    <Paragraph>With no saved choice, Quark follows the operating system and reacts to changes immediately. Toggling saves an explicit choice. Call <Code>UseSystem()</Code> to clear it and follow the OS again. Existing saved light/dark choices are preserved.</Paragraph>
     <CodeEditor Text="@themeToggle" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
     <Paragraph>The demo wraps this in a shared theme service so the header and other controls use the same state. Initialize browser interop after the first interactive render.</Paragraph>
+</Section>
+
+<Section Id="theme-images">
+    <H2>Choose images from Blazor</H2>
+    <Paragraph>Inject <Code>IThemeInterop</Code>, initialize it after the first interactive render, and read <Code>IsDark</Code>. Subscribe to <Code>ThemeChanged</Code> so images also update when the OS, another tab, or a theme button changes the theme. Unsubscribe when the component is disposed.</Paragraph>
+    <CodeEditor Text="@themeImages" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
 </Section>
 
 <Section Id="startup-theme">
@@ -60,6 +67,32 @@
 </DocumentationPage>
 
 @code {
+    private const string themeImages = """
+@inject IThemeInterop Theme
+@implements IDisposable
+
+@if (_ready)
+{
+    <Image Source="@(Theme.IsDark ? "images/dashboard-dark.png" : "images/dashboard-light.png")" Alt="Dashboard" />
+}
+
+@code {
+    private bool _ready;
+    protected override void OnInitialized() => Theme.ThemeChanged += OnThemeChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Theme.Initialize();
+        _ready = true;
+        StateHasChanged();
+    }
+
+    private void OnThemeChanged(bool isDark) => _ = InvokeAsync(StateHasChanged);
+    public void Dispose() => Theme.ThemeChanged -= OnThemeChanged;
+}
+""";
+
     private const string themeJson = @"{
   ""baseColor"": ""Neutral"",
   ""theme"": ""Blue"",
