@@ -1,0 +1,49 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject ISidebarInterop SidebarInterop
+
+<div @ref="_element" data-sidebar="resize-handle" role="separator" tabindex="0"
+     aria-label="Resize sidebar" aria-orientation="vertical"
+     aria-valuemin="@MinWidth" aria-valuemax="@MaxWidth"
+     class="hidden md:block absolute inset-y-0 z-30 w-2 cursor-col-resize touch-none select-none hover:bg-sidebar-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+     style="@(RightSide ? "left: 0;" : "right: 0;")"></div>
+
+@code {
+    private ElementReference _element;
+    private (double Min, double Max, bool Right, string? StorageKey)? _configuration;
+    private DotNetObjectReference<SidebarResizeHandle>? _reference;
+
+    [Parameter] public double MinWidth { get; set; }
+    [Parameter] public double MaxWidth { get; set; }
+    [Parameter] public string? StorageKey { get; set; }
+    [Parameter] public bool RightSide { get; set; }
+    [Parameter] public EventCallback<double> WidthChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var configuration = (MinWidth, MaxWidth, RightSide, StorageKey);
+        if (_configuration == configuration)
+            return;
+        _reference ??= DotNetObjectReference.Create(this);
+        _configuration = configuration;
+        await SidebarInterop.RegisterResizeHandle(_element, _reference, MinWidth, MaxWidth, RightSide, StorageKey);
+    }
+
+    [JSInvokable]
+    public Task OnWidthChanged(double width) => double.IsFinite(width) ? WidthChanged.InvokeAsync(width) : Task.CompletedTask;
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_reference is not null)
+                await SidebarInterop.UnregisterResizeHandle(_element);
+        }
+        catch (JSDisconnectedException) { }
+        finally
+        {
+            _reference?.Dispose();
+        }
+    }
+}

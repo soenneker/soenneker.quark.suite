@@ -13,7 +13,8 @@
         <Figure Class="flex flex-col gap-4">
             <Div Width="Width.IsFull" Class="rounded-xl" Height='Height.Token("[25rem]")' Overflow="Overflow.Hidden" Border="Border.Default" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
                 <SidebarProvider DefaultOpen="true" Class="h-full">
-                    <Sidebar Collapsible="SidebarCollapsible.Icon" Contained="true">
+                    <Sidebar Collapsible="SidebarCollapsible.Icon" Contained="true" Resizable="true"
+                             MinResizeWidth="192" MaxResizeWidth="400" ResizeStorageKey="quark-demo-sidebar-width" @bind-ExpandedWidth="_resizableWidth">
                         <SidebarHeader>
                             <SidebarMenu>
                                 <SidebarMenuItem>
@@ -102,9 +103,22 @@
                 </SidebarProvider>
             </Div>
             <Figcaption Class="text-center text-sm text-gray-500">
-                A sidebar that collapses to icons.
+                Drag the sidebar’s inner edge to resize, or focus it and use the arrow keys. The chosen width is retained when collapsing to icons.
             </Figcaption>
         </Figure>
+    </Section>
+
+    <Section Space="Space.Y.Is3">
+        <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Resizable sidebar</H2>
+        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+            Set Resizable to enable desktop resizing. MinResizeWidth and MaxResizeWidth are pixel limits.
+            Bind ExpandedWidth to track the chosen width; null starts with the provider’s SidebarWidth.
+            Set ResizeStorageKey to a unique localStorage key to restore the width after refreshing.
+            A saved width takes precedence over the initial width and is clamped to the current limits.
+            Arrow keys move the edge by 8 pixels, Shift accelerates to 32 pixels, and Home/End select the limits.
+            Mobile drawers and collapsed sidebars do not show the resize handle.
+        </Paragraph>
+        <CodeEditor ReadOnly="true" Language="text" AutoHeight="true" MinLines="5" Text="@ResizableSidebarCode" />
     </Section>
 
     <Section Space="Space.Y.Is4">
@@ -498,6 +512,21 @@
 </Div>
 
 @code {
+    private double? _resizableWidth;
+    private const string ResizableSidebarCode = """
+        <SidebarProvider>
+            <Sidebar Resizable="true" Contained="true" Collapsible="SidebarCollapsible.Icon"
+                     MinResizeWidth="192" MaxResizeWidth="400" ResizeStorageKey="quark-demo-sidebar-width" @bind-ExpandedWidth="_resizableWidth">
+                <!-- Sidebar content -->
+            </Sidebar>
+            <SidebarInset />
+        </SidebarProvider>
+
+        @code {
+            private double? _resizableWidth;
+        }
+        """;
+
     private bool _usageSidebarOpen = true;
     private bool _composedSidebarOpen = true;
     private bool _workspaceMenuOpen = true;

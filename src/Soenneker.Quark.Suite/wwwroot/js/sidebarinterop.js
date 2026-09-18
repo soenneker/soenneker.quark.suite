@@ -116,3 +116,135 @@ export function cleanup() {
   keyboardHandler = null;
   dotNetRef = null;
 }
+// Each handle owns its listeners; provider cleanup must not affect other sidebars.
+const resizeHandles = new WeakMap();
+const restoredResizeKeys = new WeakMap();
+
+export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, rightSide, storageKey = null) {
+  unregisterResizeHandle(handle);
+  const root = handle.closest('[data-sidebar-resize-root]');
+  if (!root) return;
+  const container = handle.closest('[data-slot="sidebar-container"]') || root;
+  const gap = root.querySelector('[data-slot="sidebar-gap"]');
+  const sign = rightSide ? -1 : 1;
+  const clamp = value => Math.min(maxWidth, Math.max(minWidth, value));
+  let drag = null;
+
+  const readWidth = () => container.getBoundingClientRect().width;
+  const updateAria = () => {
+    const width = Math.round(readWidth());
+    handle.setAttribute('aria-valuenow', String(width));
+    handle.setAttribute('aria-valuetext', `${width} pixels`);
+  };
+  const apply = value => {
+    const width = clamp(value);
+    root.style.setProperty('--sidebar-width', `${width}px`);
+    handle.setAttribute('aria-valuenow', String(Math.round(width)));
+    handle.setAttribute('aria-valuetext', `${Math.round(width)} pixels`);
+    return width;
+  };
+  const key = typeof storageKey === 'string' && storageKey.trim() ? storageKey : null;
+  const notify = width => componentRef.invokeMethodAsync('OnWidthChanged', width);
+  const commitWidth = width => {
+    if (key) {
+      try { localStorage.setItem(key, String(width)); } catch { /* Storage may be blocked or full. */ }
+    }
+    return notify(width);
+  };
+  const stop = (commit) => {
+    if (!drag) return;
+    const previous = drag;
+    drag = null;
+    if (!commit) {
+      if (previous.inlineWidth) root.style.setProperty('--sidebar-width', previous.inlineWidth);
+      else root.style.removeProperty('--sidebar-width');
+    }
+    container.style.transition = previous.containerTransition;
+    if (gap) gap.style.transition = previous.gapTransition;
+    document.removeEventListener('selectstart', preventSelection);
+    if (handle.hasPointerCapture(previous.id)) handle.releasePointerCapture(previous.id);
+    updateAria();
+    if (commit && previous.width !== previous.startWidth) return commitWidth(previous.width);
+  };
+  const preventSelection = event => event.preventDefault();
+  const down = event => {
+    if (!event.isPrimary || event.button !== 0 || drag) return;
+    event.preventDefault();
+    handle.focus({ preventScroll: true });
+    const startWidth = readWidth();
+    drag = {
+      id: event.pointerId, x: event.clientX, startWidth, width: startWidth,
+      inlineWidth: root.style.getPropertyValue('--sidebar-width'),
+      containerTransition: container.style.transition,
+      gapTransition: gap?.style.transition || ''
+    };
+    container.style.transition = 'none';
+    if (gap) gap.style.transition = 'none';
+    document.addEventListener('selectstart', preventSelection);
+    handle.setPointerCapture(event.pointerId);
+  };
+  const move = event => {
+    if (!drag || drag.id !== event.pointerId) return;
+    drag.width = apply(drag.startWidth + sign * (event.clientX - drag.x));
+  };
+  const up = event => {
+    if (!drag || drag.id !== event.pointerId) return;
+    move(event);
+    return stop(true);
+  };
+  const cancel = event => {
+    if (drag?.id === event.pointerId) stop(false);
+  };
+  const keydown = event => {
+    if (event.key === 'Escape' && drag) {
+      event.preventDefault();
+      stop(false);
+      return;
+    }
+    if (drag || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const inlineWidth = root.style.getPropertyValue('--sidebar-width');
+    const current = inlineWidth.endsWith('px') ? parseFloat(inlineWidth) : readWidth();
+    const step = event.shiftKey ? 32 : 8;
+    const next = event.key === 'Home' ? minWidth : event.key === 'End' ? maxWidth :
+      current + (event.key === 'ArrowRight' ? 1 : -1) * sign * step;
+    const width = apply(next);
+    if (width !== current) return commitWidth(width);
+  };
+  handle.addEventListener('pointerdown', down);
+  handle.addEventListener('pointermove', move);
+  handle.addEventListener('pointerup', up);
+  handle.addEventListener('pointercancel', cancel);
+  handle.addEventListener('lostpointercapture', cancel);
+  handle.addEventListener('keydown', keydown);
+  const observer = new ResizeObserver(updateAria);
+  observer.observe(container);
+  updateAria();
+  resizeHandles.set(handle, () => {
+    stop(false);
+    observer.disconnect();
+    handle.removeEventListener('pointerdown', down);
+    handle.removeEventListener('pointermove', move);
+    handle.removeEventListener('pointerup', up);
+    handle.removeEventListener('pointercancel', cancel);
+    handle.removeEventListener('lostpointercapture', cancel);
+    handle.removeEventListener('keydown', keydown);
+  });
+
+  // Restore only once per root/key, so rerenders and collapse/expand do not
+  // overwrite newer application-controlled widths or reread storage unnecessarily.
+  if (restoredResizeKeys.get(root) !== key) {
+    restoredResizeKeys.set(root, key);
+    if (key) {
+      let saved = null;
+      try { saved = localStorage.getItem(key); } catch { /* Storage may be blocked. */ }
+      const width = saved === null || saved.trim() === '' ? NaN : Number(saved);
+      if (Number.isFinite(width) && width > 0) return notify(apply(width));
+    }
+  }
+}
+
+export function unregisterResizeHandle(handle) {
+  resizeHandles.get(handle)?.();
+  resizeHandles.delete(handle);
+}

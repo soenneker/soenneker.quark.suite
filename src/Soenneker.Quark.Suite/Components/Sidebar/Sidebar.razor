@@ -36,6 +36,7 @@ else if (IsNoneCollapsible(Collapsible))
         }
 
         @ChildContent
+        @ResizeHandle
     </aside>
 }
 else
@@ -46,6 +47,7 @@ else
             <Div @attributes="BuildInnerAttributes()">
                 @ChildContent
             </Div>
+            @ResizeHandle
         </aside>
     </Div>
 }
@@ -81,6 +83,71 @@ else
 
     [Parameter]
     public SidebarCollapsible Collapsible { get; set; } = SidebarCollapsible.Offcanvas;
+
+    /// <summary>Enables a desktop drag handle and keyboard resizing of the expanded sidebar.</summary>
+    [Parameter]
+    public bool Resizable { get; set; }
+
+    /// <summary>Minimum expanded width in pixels when resizing. Defaults to 192.</summary>
+    [Parameter]
+    public double MinResizeWidth { get; set; } = 192;
+
+    /// <summary>Maximum expanded width in pixels when resizing. Defaults to 480.</summary>
+    [Parameter]
+    public double MaxResizeWidth { get; set; } = 480;
+
+    /// <summary>Expanded width in pixels. Null uses the provider's SidebarWidth until resized. Supports two-way binding.</summary>
+    [Parameter]
+    public double? ExpandedWidth { get; set; }
+
+    /// <summary>Called when a saved width is restored, a drag completes, or the width is changed with the keyboard, in pixels.</summary>
+    [Parameter]
+    public EventCallback<double?> ExpandedWidthChanged { get; set; }
+
+    /// <summary>Optional localStorage key for the expanded width. A saved width is restored when desktop resizing first becomes available and takes precedence over the initial ExpandedWidth. Use a unique key per sidebar; null disables persistence.</summary>
+    [Parameter]
+    public string? ResizeStorageKey { get; set; }
+
+    private bool CanResize => Resizable && State?.IsMobile != true && !ShouldRenderMobileSidebar &&
+        (IsNoneCollapsible(Collapsible) || !IsCollapsed);
+
+    private RenderFragment ResizeHandle => @<text>
+        @if (CanResize)
+        {
+            <SidebarResizeHandle MinWidth="MinResizeWidth" MaxWidth="MaxResizeWidth" RightSide="IsRightSide(Side)"
+                                 StorageKey="@ResizeStorageKey" WidthChanged="OnResizeWidthChanged" />
+        }
+    </text>;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (!double.IsFinite(MinResizeWidth) || MinResizeWidth <= 0 ||
+            !double.IsFinite(MaxResizeWidth) || MaxResizeWidth < MinResizeWidth)
+            throw new ArgumentOutOfRangeException(nameof(MinResizeWidth), "Resize widths must be finite, positive, and ordered.");
+        if (ExpandedWidth.HasValue && (!double.IsFinite(ExpandedWidth.Value) || ExpandedWidth.Value <= 0))
+            throw new ArgumentOutOfRangeException(nameof(ExpandedWidth));
+    }
+
+    private async Task OnResizeWidthChanged(double width)
+    {
+        if (!CanResize)
+            return;
+        ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
+        await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
+    }
+
+    private void ApplyResizeAttributes(Dictionary<string, object> attributes)
+    {
+        attributes["data-sidebar-resize-root"] = "";
+        if (ExpandedWidth is { } width)
+        {
+            var value = (Resizable ? Math.Clamp(width, MinResizeWidth, MaxResizeWidth) : width)
+                .ToString(System.Globalization.CultureInfo.InvariantCulture);
+            attributes["style"] = CombineStyleDecls(attributes.TryGetValue("style", out var style) ? style?.ToString() : null,
+                $"--sidebar-width: {value}px;")!;
+        }
+    }
 
     [Parameter]
     public bool Contained { get; set; }
@@ -229,6 +296,7 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        ApplyResizeAttributes(attributes);
         attributes["data-side"] = ToDataSide(Side);
         attributes["data-variant"] = ToDataVariant(Variant);
         attributes["data-shell"] = ToDataShell(Shell);
@@ -257,6 +325,7 @@ else
         attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = State?.State ?? "expanded";
         attributes["data-collapsible"] = "none";
+        ApplyResizeAttributes(attributes);
 
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
@@ -264,6 +333,9 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, IsNavigationShell(Shell) ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex" : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
+
+            if (Resizable && !IsNavigationShell(Shell))
+                AppendClass(ref cls, "relative shrink-0");
 
             if (IsNavigationShell(Shell))
                 AppendClass(ref cls, "sticky self-start shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
@@ -479,6 +551,11 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ResizeStorageKey);
+        hc.Add(Resizable);
+        hc.Add(MinResizeWidth);
+        hc.Add(MaxResizeWidth);
+        hc.Add(ExpandedWidth);
         hc.Add(Side);
         hc.Add(Variant);
         hc.Add(Shell);
