@@ -13,11 +13,13 @@ internal sealed class FakeSidebarLocalStorageUtil : ILocalStorageUtil
     public int Reads { get; private set; }
     public int Writes { get; private set; }
     public bool Unavailable { get; set; }
+    public TaskCompletionSource<string?>? PendingRead { get; set; }
     public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     public ValueTask<string?> Get(string key, CancellationToken cancellationToken = default)
     {
         Reads++;
         if (Unavailable) throw new JSException("Storage is blocked");
+        if (PendingRead is { } pending) return new ValueTask<string?>(pending.Task);
         return ValueTask.FromResult(Values.GetValueOrDefault(key));
     }
     public ValueTask Set(string key, string value, CancellationToken cancellationToken = default)

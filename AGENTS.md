@@ -4,6 +4,12 @@
 - Continue authorized work through implementation and proportionate verification, fixing issues introduced by the change before handing off. Make routine, reversible local decisions without asking again. Ask when missing information materially affects correctness or an action exceeds the authorized scope; identify the specific boundary.
 - Choose validation based on risk. Small documentation or low-risk edits do not automatically need builds or tests. For substantial or risky changes, use the smallest relevant checks and rerun affected checks after fixes. Report what was checked and any remaining gaps.
 
+## JavaScript interop boundaries
+
+- Keep browser JavaScript calls and module ownership in interop implementations. Components should depend on typed interop interfaces, not `IJSRuntime`, `IJSInProcessRuntime`, or JavaScript module references.
+- Reuse existing interops and browser utilities before adding new ones. Put public XML documentation on the interfaces.
+- Runtime plumbing in application startup (such as configuring browser logging) and test or benchmark infrastructure is an exception.
+
 ## Demo components
 
 - Use Quark Suite components throughout the demo whenever a straightforward equivalent exists, including `Anchor`, `Button`, `Div`, typography, cards, tabs, and form controls. Keep displayed example code consistent with the rendered example.

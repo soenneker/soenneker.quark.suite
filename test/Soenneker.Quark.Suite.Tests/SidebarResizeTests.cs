@@ -21,6 +21,53 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
+    [Arguments("320", 320d)]
+    [Arguments("900", 480d)]
+    [Arguments("bad", null)]
+    [Arguments(null, null)]
+    public void Synchronous_storage_restores_width_in_the_first_render(string? saved, double? expectedWidth)
+    {
+        _interop.SupportsSynchronousStorage = true;
+        _interop.StoredWidth = saved;
+        double? changed = null;
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a")
+            .Add(c => c.ExpandedWidthChanged, value => changed = value));
+        cut.Instance.ExpandedWidth.Should().Be(expectedWidth);
+        changed.Should().Be(expectedWidth);
+        cut.RenderCount.Should().Be(1);
+        cut.FindAll("[data-sidebar-resize-root]").Count.Should().Be(1);
+        _storage.Reads.Should().Be(0);
+    }
+
+    [Test]
+    [Arguments("320", "320px")]
+    [Arguments(null, null)]
+    [Arguments("bad", null)]
+    public async Task Async_storage_does_not_render_a_temporary_sidebar(string? saved, string? expectedWidth)
+    {
+        _storage.PendingRead = new TaskCompletionSource<string?>();
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
+        cut.FindAll("[data-sidebar-resize-root]").Should().BeEmpty();
+        _interop.Registrations.Should().Be(0);
+
+        await cut.InvokeAsync(() => _storage.PendingRead.SetResult(saved));
+        cut.WaitForAssertion(() => cut.FindAll("[data-sidebar-resize-root]").Count.Should().Be(1));
+        if (expectedWidth is not null)
+            cut.Find("[data-sidebar-resize-root]").GetAttribute("style").Should().Contain(expectedWidth);
+        cut.FindAll("[data-sidebar='resize-handle']").Count.Should().Be(1);
+    }
+
+    [Test]
+    public async Task Failed_async_storage_reveals_the_default_sidebar()
+    {
+        _storage.PendingRead = new TaskCompletionSource<string?>();
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
+        cut.FindAll("[data-sidebar-resize-root]").Should().BeEmpty();
+        await cut.InvokeAsync(() => _storage.PendingRead.SetException(new Microsoft.JSInterop.JSException("Storage is blocked")));
+        cut.WaitForAssertion(() => cut.FindAll("[data-sidebar='resize-handle']").Count.Should().Be(1));
+    }
+
+    [Test]
     public void Resizing_is_opt_in()
     {
         var cut = Render<Sidebar>();

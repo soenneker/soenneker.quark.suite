@@ -7,10 +7,15 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class RealtimeChartTests : BunitContext
 {
-    public RealtimeChartTests() => Services.AddDefaultQuarkOptionsAsScoped();
+    public RealtimeChartTests()
+    {
+        Services.AddLogging();
+        Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddQuarkChartScrollAsScoped();
+    }
 
     [Test]
-    public void Scrolling_is_opt_in_and_owns_its_module_lifecycle()
+    public void Scrolling_is_opt_in_and_cleans_up_its_element()
     {
         var data = new RealtimeChartData(3, "API");
         var start = DateTimeOffset.UtcNow;

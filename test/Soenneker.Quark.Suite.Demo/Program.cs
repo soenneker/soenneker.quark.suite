@@ -51,6 +51,7 @@ public sealed class Program
             // Register demo services
             builder.Services.AddScoped<Services.EmployeeService>();
             builder.Services.AddScoped<Services.ThemeService>();
+            builder.Services.AddScoped<Interops.Abstract.IDemoPageInterop, Interops.DemoPageInterop>();
 
             var host = builder.Build();
 

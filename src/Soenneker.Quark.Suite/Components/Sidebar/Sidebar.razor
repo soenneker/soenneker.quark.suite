@@ -2,11 +2,16 @@
 @using System.Globalization
 @using Microsoft.JSInterop
 @inject Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil LocalStorageUtil
+@inject ISidebarInterop SidebarInterop
 @using Soenneker.Quark.Dtos
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
-@if (ShouldRenderMobileSidebar)
+@if (WaitingForStoredWidth)
+{
+    // Async interop is only available after render. Do not display a temporary expanded width.
+}
+else if (ShouldRenderMobileSidebar)
 {
     <Sheet Visible="State?.OpenMobile == true" VisibleChanged="OnMobileVisibleChanged" ShowBackdrop="MobileShowBackdrop" CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick" CloseOnEscape="MobileCloseOnEscape" LockScroll="MobileLockScroll" TrapFocus="@ResolvedMobileTrapFocus">
         <SheetContent Side="@ToSheetSide(Side)" KeepMounted="MobileKeepMounted" ShowCloseButton="MobileShowCloseButton" ContainerClass="@GetMobileContainerClass()" ContainerStyle="@GetMobileContainerStyle()" OverlayClass="@MobileOverlayClass" OverlayStyle="@GetMobileOverlayStyle()" @attributes="BuildMobileAttributes()">
@@ -107,7 +112,7 @@ else
     [Parameter]
     public EventCallback<double?> ExpandedWidthChanged { get; set; }
 
-    /// <summary>Optional localStorage key for the expanded width. A saved width is restored when desktop resizing first becomes available and takes precedence over the initial ExpandedWidth. Use a unique key per sidebar; null disables persistence.</summary>
+    /// <summary>Optional localStorage key for the expanded width. A saved width is restored before the expanded desktop sidebar is displayed and takes precedence over the initial ExpandedWidth. With asynchronous interop, rendering is deferred until storage has been read. Use a unique key per sidebar; null disables persistence.</summary>
     [Parameter]
     public string? ResizeStorageKey { get; set; }
 
@@ -130,39 +135,63 @@ else
             throw new ArgumentOutOfRangeException(nameof(MinResizeWidth), "Resize widths must be finite, positive, and ordered.");
         if (ExpandedWidth.HasValue && (!double.IsFinite(ExpandedWidth.Value) || ExpandedWidth.Value <= 0))
             throw new ArgumentOutOfRangeException(nameof(ExpandedWidth));
+
+        if (StorageKey is null)
+            _restoredStorageKey = null;
+        else if (WaitingForStoredWidth && SidebarInterop.TryGetStoredWidth(StorageKey, out var saved))
+        {
+            _notifyRestoredWidth = ApplyStoredWidth(saved);
+            _restoredStorageKey = StorageKey;
+        }
     }
 
+    private string? StorageKey => string.IsNullOrWhiteSpace(ResizeStorageKey) ? null : ResizeStorageKey;
+    private bool WaitingForStoredWidth => CanResize && StorageKey is { } key && _restoredStorageKey != key;
     private string? _restoredStorageKey;
+    private string? _restoringStorageKey;
+    private bool _notifyRestoredWidth;
     private long _widthRevision;
+
+    private bool ApplyStoredWidth(string? saved)
+    {
+        if (!double.TryParse(saved, NumberStyles.Float, CultureInfo.InvariantCulture, out var width) || !double.IsFinite(width) || width <= 0)
+            return false;
+        ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
+        return true;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        var key = string.IsNullOrWhiteSpace(ResizeStorageKey) ? null : ResizeStorageKey;
+        if (_notifyRestoredWidth)
+        {
+            _notifyRestoredWidth = false;
+            await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
+        }
+        var key = StorageKey;
         if (key is null)
         {
             _restoredStorageKey = null;
             return;
         }
-        if (!CanResize || _restoredStorageKey == key)
+        if (!CanResize || _restoredStorageKey == key || _restoringStorageKey == key)
             return;
-        _restoredStorageKey = key;
+        _restoringStorageKey = key;
         var revision = _widthRevision;
         var initialWidth = ExpandedWidth;
-        string? saved;
+        string? saved = null;
         try { saved = await LocalStorageUtil.Get(key); }
-        catch (JSException) { return; }
-        catch (OperationCanceledException) { return; }
-        if (key != ResizeStorageKey || revision != _widthRevision || initialWidth != ExpandedWidth || !CanResize)
+        catch (JSException) { }
+        catch (OperationCanceledException) { }
+        if (_restoringStorageKey == key)
+            _restoringStorageKey = null;
+        if (key != StorageKey || !CanResize)
         {
-            if (!CanResize && _restoredStorageKey == key)
-                _restoredStorageKey = null;
             return;
         }
-        if (!double.TryParse(saved, NumberStyles.Float, CultureInfo.InvariantCulture, out var width) || !double.IsFinite(width) || width <= 0)
-            return;
-        ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
-        await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
+        _restoredStorageKey = key;
+        if (revision == _widthRevision && initialWidth == ExpandedWidth && ApplyStoredWidth(saved))
+            await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
         Refresh();
     }
 

@@ -158,7 +158,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         jsVariableModule.SetupVoid("cancelWaitForVariable", _ => true).SetVoidResult();
 
         var sidebarModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/sidebarinterop.js");
-        sidebarModule.Setup<System.Text.Json.JsonElement>("getSidebarState", _ => true).SetResult(default);
+        sidebarModule.Setup<bool?>("getSidebarState", _ => true).SetResult(null);
         sidebarModule.SetupVoid("initializeSidebar", _ => true).SetVoidResult();
         sidebarModule.SetupVoid("saveSidebarState", _ => true).SetVoidResult();
         sidebarModule.SetupVoid("cleanup", _ => true).SetVoidResult();
@@ -240,6 +240,9 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddMockJsRuntimeAsScoped();
         Services.AddBradixSuiteAsScoped();
         Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddQuarkSidebarAsScoped();
+        Services.AddQuarkChartScrollAsScoped();
+        Services.AddScoped<Demo.Interops.Abstract.IDemoPageInterop, Demo.Interops.DemoPageInterop>();
         Services.AddSingleton<Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil>(new FakeSidebarLocalStorageUtil());
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();

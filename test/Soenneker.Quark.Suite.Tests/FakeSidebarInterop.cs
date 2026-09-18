@@ -7,6 +7,14 @@ namespace Soenneker.Quark.Suite.Tests;
 
 internal sealed class FakeSidebarInterop : ISidebarInterop
 {
+    public bool SupportsSynchronousStorage { get; set; }
+    public string? StoredWidth { get; set; }
+    public bool TryGetStoredWidth(string storageKey, out string? width)
+    {
+        width = StoredWidth;
+        return SupportsSynchronousStorage;
+    }
+
     public int Registrations { get; private set; }
     public int Unregistrations { get; private set; }
     public ValueTask InitializeSidebar<T>(DotNetObjectReference<T> componentRef, string shortcutKey, CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;

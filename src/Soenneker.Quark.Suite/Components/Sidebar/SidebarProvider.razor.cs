@@ -1,12 +1,10 @@
 using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
-using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.Ids;
 using Soenneker.Quark.Dtos;
 
@@ -19,10 +17,9 @@ public partial class SidebarProvider
 {
     private const string _defaultCookieKey = "sidebar_state";
     private const string _defaultShortcutKey = "b";
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
 
     private ValueAtomicBool _disposed;
-    private IJSObjectReference? _module;
+    private bool _interopInitialized;
     private DotNetObjectReference<SidebarProvider>? _dotNetRef;
     private bool _openInternal = true;
     private bool _openMobileInternal;
@@ -31,7 +28,7 @@ public partial class SidebarProvider
     internal string MobileContentId { get; } = BlazorIdGenerator.New("quark-sidebar-mobile");
 
     [Inject]
-    private IModuleImportUtil ModuleImportUtil { get; set; } = null!;
+    private ISidebarInterop SidebarInterop { get; set; } = null!;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
@@ -174,26 +171,13 @@ public partial class SidebarProvider
 
         try
         {
-            _module = await ModuleImportUtil.GetContentModuleReference(_modulePath);
-            if (_disposed.Read())
-            {
-                await ModuleImportUtil.DisposeContentModule(_modulePath);
-                return;
-            }
-
             _dotNetRef = DotNetObjectReference.Create(this);
 
             bool? savedOpen = null;
 
             if (PersistState && !string.IsNullOrWhiteSpace(CookieKey))
             {
-                var result = await _module.InvokeAsync<JsonElement>("getSidebarState", CookieKey);
-                savedOpen = result.ValueKind switch
-                {
-                    JsonValueKind.True => true,
-                    JsonValueKind.False => false,
-                    _ => null
-                };
+                savedOpen = await SidebarInterop.GetSidebarState(CookieKey);
             }
 
             if (_disposed.Read())
@@ -202,10 +186,11 @@ public partial class SidebarProvider
             if (Open is null)
                 _openInternal = savedOpen ?? DefaultOpen;
 
-            await _module.InvokeVoidAsync("initializeSidebar", _dotNetRef, KeyboardShortcutKey);
+            await SidebarInterop.InitializeSidebar(_dotNetRef, KeyboardShortcutKey);
+            _interopInitialized = true;
             if (_disposed.Read())
             {
-                await _module.InvokeVoidAsync("cleanup");
+                await SidebarInterop.Cleanup();
                 return;
             }
             await InvokeAsync(StateHasChanged);
@@ -322,12 +307,12 @@ public partial class SidebarProvider
 
     private async Task PersistOpen(bool value)
     {
-        if (!PersistState || _module is null || string.IsNullOrWhiteSpace(CookieKey))
+        if (!PersistState || !_interopInitialized || string.IsNullOrWhiteSpace(CookieKey))
             return;
 
         try
         {
-            await _module.InvokeVoidAsync("saveSidebarState", CookieKey, value);
+            await SidebarInterop.SaveSidebarState(CookieKey, value);
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
@@ -397,11 +382,11 @@ public partial class SidebarProvider
         NavigationManager.LocationChanged -= OnLocationChanged;
         try
         {
-            if (_module is not null)
+            if (_interopInitialized)
             {
                 try
                 {
-                    await _module.InvokeVoidAsync("cleanup");
+                    await SidebarInterop.Cleanup();
                 }
                 catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
                 {
@@ -412,16 +397,8 @@ public partial class SidebarProvider
         {
             _dotNetRef?.Dispose();
             _dotNetRef = null;
-            try
-            {
-                if (_module is not null)
-                    await ModuleImportUtil.DisposeContentModule(_modulePath);
-            }
-            finally
-            {
-                await base.DisposeAsync();
-                GC.SuppressFinalize(this);
-            }
+            await base.DisposeAsync();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -18,6 +18,8 @@ public sealed class ChartRenderTests : BunitContext
     public ChartRenderTests()
     {
         Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddLogging();
+        Services.AddQuarkChartScrollAsScoped();
     }
 
     [Test]

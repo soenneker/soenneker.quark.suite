@@ -3,7 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Microsoft.JSInterop
-@inject IJSRuntime ChartJS
+@inject IChartScrollInterop ChartScrollInterop
 
 <div @ref="_scrollElement" @attributes="BuildAttributes()" @onpointerleave="HoverEvents.Clear"
      data-scroll-enabled="@(RealtimeScrollingEnabled ? "true" : "false")" data-scroll-paused="@(ScrollPaused ? "true" : "false")"
@@ -328,7 +328,6 @@
 
 @code {
     private ElementReference _scrollElement;
-    private IJSObjectReference? _scrollModule;
     private Task _scrollWork = Task.CompletedTask;
     private bool _scrollAttached;
     private ValueAtomicBool _scrollDisposed;
@@ -380,16 +379,15 @@
             return;
         if (RealtimeScrollingEnabled)
         {
-            _scrollModule ??= await ChartJS.InvokeAsync<IJSObjectReference>("import", "./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
             if (!_scrollDisposed.Read() && !_scrollAttached)
             {
-                await _scrollModule.InvokeVoidAsync("initialize", _scrollElement);
+                await ChartScrollInterop.Initialize(_scrollElement);
                 _scrollAttached = true;
             }
         }
-        else if (_scrollAttached && _scrollModule is not null)
+        else if (_scrollAttached)
         {
-            await _scrollModule.InvokeVoidAsync("destroy", _scrollElement);
+            await ChartScrollInterop.Destroy(_scrollElement);
             _scrollAttached = false;
         }
     }
@@ -401,12 +399,8 @@
         try
         {
             await _scrollWork;
-            if (_scrollModule is not null)
-            {
-                if (_scrollAttached)
-                    await _scrollModule.InvokeVoidAsync("destroy", _scrollElement);
-                await _scrollModule.DisposeAsync();
-            }
+            if (_scrollAttached)
+                await ChartScrollInterop.Destroy(_scrollElement);
         }
         catch (JSDisconnectedException)
         {

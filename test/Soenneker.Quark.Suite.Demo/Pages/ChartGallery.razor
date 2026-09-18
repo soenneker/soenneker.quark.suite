@@ -6,7 +6,7 @@
 @page "/charts/radar"
 @page "/charts/radial"
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
+@inject Soenneker.Blazor.Utils.Clipboard.Abstract.IClipboardUtil ClipboardUtil
 @implements IDisposable
 
 <SeoHead Title="@($"{Category} Charts | Quark Suite")" Description="Explore area, bar, line, pie, radar, and radial chart examples for Blazor." />
@@ -111,8 +111,8 @@
 
     private async Task CopyCode()
     {
-        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", ExampleCode); }
-        catch (JSException) { showCode = true; }
+        if (!await ClipboardUtil.TryWriteText(ExampleCode))
+            showCode = true;
     }
     private int rangeDays = 90;
     private bool showCode;

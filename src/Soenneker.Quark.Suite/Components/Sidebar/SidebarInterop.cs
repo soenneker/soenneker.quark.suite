@@ -13,11 +13,24 @@ public sealed class SidebarInterop : ISidebarInterop
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
 
     private readonly IModuleImportUtil _moduleImportUtil;
+    private readonly IJSRuntime _jsRuntime;
     private readonly CancellationScope _cancellationScope = new();
 
-    public SidebarInterop(IModuleImportUtil moduleImportUtil)
+    public SidebarInterop(IModuleImportUtil moduleImportUtil, IJSRuntime jsRuntime)
     {
         _moduleImportUtil = moduleImportUtil;
+        _jsRuntime = jsRuntime;
+    }
+
+    public bool TryGetStoredWidth(string storageKey, out string? width)
+    {
+        width = null;
+        if (_jsRuntime is not IJSInProcessRuntime runtime)
+            return false;
+
+        try { width = runtime.Invoke<string?>("localStorage.getItem", storageKey); }
+        catch (JSException) { }
+        return true;
     }
 
     public async ValueTask InitializeSidebar<T>(DotNetObjectReference<T> componentRef, string shortcutKey, CancellationToken cancellationToken = default) where T : class
