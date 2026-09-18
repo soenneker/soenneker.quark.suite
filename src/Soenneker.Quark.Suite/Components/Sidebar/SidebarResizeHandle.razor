@@ -11,23 +11,22 @@
 
 @code {
     private ElementReference _element;
-    private (double Min, double Max, bool Right, string? StorageKey)? _configuration;
+    private (double Min, double Max, bool Right)? _configuration;
     private DotNetObjectReference<SidebarResizeHandle>? _reference;
 
     [Parameter] public double MinWidth { get; set; }
     [Parameter] public double MaxWidth { get; set; }
-    [Parameter] public string? StorageKey { get; set; }
     [Parameter] public bool RightSide { get; set; }
     [Parameter] public EventCallback<double> WidthChanged { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var configuration = (MinWidth, MaxWidth, RightSide, StorageKey);
+        var configuration = (MinWidth, MaxWidth, RightSide);
         if (_configuration == configuration)
             return;
         _reference ??= DotNetObjectReference.Create(this);
         _configuration = configuration;
-        await SidebarInterop.RegisterResizeHandle(_element, _reference, MinWidth, MaxWidth, RightSide, StorageKey);
+        await SidebarInterop.RegisterResizeHandle(_element, _reference, MinWidth, MaxWidth, RightSide);
     }
 
     [JSInvokable]

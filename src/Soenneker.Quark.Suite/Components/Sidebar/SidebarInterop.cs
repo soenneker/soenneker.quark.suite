@@ -53,13 +53,13 @@ public sealed class SidebarInterop : ISidebarInterop
         }
     }
 
-    public async ValueTask RegisterResizeHandle<T>(ElementReference handle, DotNetObjectReference<T> componentRef, double minWidth, double maxWidth, bool rightSide, string? storageKey = null, CancellationToken cancellationToken = default) where T : class
+    public async ValueTask RegisterResizeHandle<T>(ElementReference handle, DotNetObjectReference<T> componentRef, double minWidth, double maxWidth, bool rightSide, CancellationToken cancellationToken = default) where T : class
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerResizeHandle", linked, handle, componentRef, minWidth, maxWidth, rightSide, storageKey);
+            await module.InvokeVoidAsync("registerResizeHandle", linked, handle, componentRef, minWidth, maxWidth, rightSide);
         }
     }
 

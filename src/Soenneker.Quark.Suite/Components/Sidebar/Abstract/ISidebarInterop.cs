@@ -27,8 +27,8 @@ public interface ISidebarInterop : IAsyncDisposable
     /// </summary>
     ValueTask SaveSidebarState(string cookieKey, bool value, CancellationToken cancellationToken = default);
 
-    /// <summary>Registers pointer and keyboard resizing for a sidebar handle. Widths are in pixels. An optional localStorage key enables restoration and persistence of committed widths; unavailable storage is ignored.</summary>
-    ValueTask RegisterResizeHandle<T>(ElementReference handle, DotNetObjectReference<T> componentRef, double minWidth, double maxWidth, bool rightSide, string? storageKey = null, CancellationToken cancellationToken = default) where T : class;
+    /// <summary>Registers pointer and keyboard resizing for a sidebar handle. Widths are in pixels.</summary>
+    ValueTask RegisterResizeHandle<T>(ElementReference handle, DotNetObjectReference<T> componentRef, double minWidth, double maxWidth, bool rightSide, CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>Removes a handle's listeners and cancels any active resize.</summary>
     ValueTask UnregisterResizeHandle(ElementReference handle, CancellationToken cancellationToken = default);

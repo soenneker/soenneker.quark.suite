@@ -28,7 +28,7 @@ class Element {
   releasePointerCapture() { this.capture = null; }
 }
 
-function fixture(t, right = false, staticSidebar = false, storageKey = null) {
+function fixture(t, right = false, staticSidebar = false) {
   globalThis.document = new Element();
   let disconnected = false;
   globalThis.ResizeObserver = class { observe() {} disconnect() { disconnected = true; } };
@@ -41,7 +41,7 @@ function fixture(t, right = false, staticSidebar = false, storageKey = null) {
   handle.closest = selector => selector.includes('resize-root') ? root : staticSidebar ? null : container;
   const calls = [];
   const receiver = { invokeMethodAsync(...args) { calls.push(args); return Promise.resolve(); } };
-  registerResizeHandle(handle, receiver, 192, 480, right, storageKey);
+  registerResizeHandle(handle, receiver, 192, 480, right);
   t.after(() => unregisterResizeHandle(handle));
   return { root, gap, container, handle, calls, receiver, disconnected: () => disconnected };
 }
@@ -102,83 +102,4 @@ test('multiple handles keep independent widths and registrations', t => {
   b.handle.emit('keydown', { key: 'ArrowLeft' });
   assert.deepEqual(b.calls, [['OnWidthChanged', 264]]);
   assert.equal(a.root.style.getPropertyValue('--sidebar-width'), '');
-});
-
-function storage(t, entries = []) {
-  const values = new Map(entries), writes = [];
-  globalThis.localStorage = {
-    getItem(key) { return values.get(key) ?? null; },
-    setItem(key, value) { writes.push([key, value]); values.set(key, value); }
-  };
-  t.after(() => { delete globalThis.localStorage; });
-  return { values, writes };
-}
-
-test('committed width survives remount and updates the bound width on restoration', t => {
-  const saved = storage(t);
-  const first = fixture(t, false, false, 'sidebar-a');
-  first.handle.emit('pointerdown');
-  first.handle.emit('pointermove', { clientX: 200 });
-  assert.equal(saved.writes.length, 0);
-  first.handle.emit('pointerup', { clientX: 200 });
-  assert.deepEqual(saved.writes, [['sidebar-a', '356']]);
-  unregisterResizeHandle(first.handle);
-  const next = fixture(t, false, false, 'sidebar-a');
-  assert.equal(next.root.style.getPropertyValue('--sidebar-width'), '356px');
-  assert.deepEqual(next.calls, [['OnWidthChanged', 356]]);
-  next.handle.emit('keydown', { key: 'ArrowRight' });
-  assert.equal(saved.values.get('sidebar-a'), '364');
-});
-
-test('restoration clamps to current limits and rebind does not overwrite a newer width', t => {
-  storage(t, [['sidebar-a', '900']]);
-  const e = fixture(t, false, false, 'sidebar-a');
-  assert.deepEqual(e.calls, [['OnWidthChanged', 480]]);
-  e.root.style.setProperty('--sidebar-width', '320px');
-  registerResizeHandle(e.handle, e.receiver, 192, 480, false, 'sidebar-a');
-  assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '320px');
-  assert.equal(e.calls.length, 1);
-});
-
-for (const value of ['', ' ', 'broken', 'NaN', 'Infinity', '-1', '0']) {
-  test(`invalid saved width ${JSON.stringify(value)} is ignored`, t => {
-    storage(t, [['sidebar-a', value]]);
-    const e = fixture(t, false, false, 'sidebar-a');
-    assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '');
-    assert.equal(e.calls.length, 0);
-  });
-}
-
-test('storage keys isolate sidebars and changing keys restores the new preference', t => {
-  const saved = storage(t, [['sidebar-a', '300'], ['sidebar-b', '400']]);
-  const a = fixture(t, false, false, 'sidebar-a');
-  const b = fixture(t, true, false, 'sidebar-b');
-  a.handle.emit('keydown', { key: 'Home' });
-  assert.equal(saved.values.get('sidebar-b'), '400');
-  registerResizeHandle(a.handle, a.receiver, 192, 480, false, 'sidebar-b');
-  assert.equal(a.root.style.getPropertyValue('--sidebar-width'), '400px');
-  assert.equal(b.root.style.getPropertyValue('--sidebar-width'), '400px');
-});
-
-test('canceled drags and disabled persistence never write storage', t => {
-  const saved = storage(t);
-  const a = fixture(t, false, false, 'sidebar-a');
-  a.handle.emit('pointerdown');
-  a.handle.emit('pointermove', { clientX: 200 });
-  a.handle.emit('pointercancel');
-  const b = fixture(t);
-  b.handle.emit('keydown', { key: 'End' });
-  assert.equal(saved.writes.length, 0);
-});
-
-test('blocked reads and failed writes do not break resizing or callbacks', t => {
-  globalThis.localStorage = {
-    getItem() { throw new Error('blocked'); },
-    setItem() { throw new Error('quota'); }
-  };
-  t.after(() => { delete globalThis.localStorage; });
-  const e = fixture(t, false, false, 'sidebar-a');
-  e.handle.emit('keydown', { key: 'End' });
-  assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '480px');
-  assert.deepEqual(e.calls, [['OnWidthChanged', 480]]);
 });

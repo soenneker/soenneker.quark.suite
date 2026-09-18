@@ -10,12 +10,14 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class SidebarResizeTests : BunitContext
 {
     private readonly FakeSidebarInterop _interop = new();
+    private readonly FakeSidebarLocalStorageUtil _storage = new();
 
     public SidebarResizeTests()
     {
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddSingleton<ISidebarInterop>(_interop);
+        Services.AddSingleton<Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil>(_storage);
     }
 
     [Test]
@@ -80,15 +82,68 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public void Storage_key_is_forwarded_and_changing_it_reconfigures_the_handle()
+    public async Task Storage_restores_clamps_and_persists_through_the_utility()
     {
+        _storage.Values["sidebar-a"] = "900";
+        double? changed = null;
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true)
+            .Add(c => c.ResizeStorageKey, "sidebar-a").Add(c => c.ExpandedWidthChanged, value => changed = value));
+        cut.WaitForAssertion(() => changed.Should().Be(480));
+        cut.WaitForAssertion(() => cut.Find("[data-sidebar-resize-root]").GetAttribute("style").Should().Contain("480px"));
+        var handle = cut.FindComponent<SidebarResizeHandle>();
+        await cut.InvokeAsync(() => handle.Instance.OnWidthChanged(300));
+        _storage.Values["sidebar-a"].Should().Be("300");
+        _storage.Reads.Should().Be(1);
+        var next = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
+        next.WaitForAssertion(() => next.Instance.ExpandedWidth.Should().Be(300));
+    }
+
+    [Test]
+    public void Changing_storage_keys_restores_the_matching_preference()
+    {
+        _storage.Values["sidebar-a"] = "300";
+        _storage.Values["sidebar-b"] = "400";
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
-        _interop.StorageKey.Should().Be("sidebar-a");
+        cut.WaitForAssertion(() => cut.Instance.ExpandedWidth.Should().Be(300));
         cut.Render(p => p.Add(c => c.ResizeStorageKey, "sidebar-b"));
-        _interop.StorageKey.Should().Be("sidebar-b");
-        _interop.Registrations.Should().Be(2);
-        cut.Render(p => p.Add(c => c.ResizeStorageKey, (string?) null));
-        _interop.StorageKey.Should().BeNull();
+        cut.WaitForAssertion(() => cut.Instance.ExpandedWidth.Should().Be(400));
+        _storage.Reads.Should().Be(2);
+    }
+
+    [Test]
+    [Arguments("")]
+    [Arguments("bad")]
+    [Arguments("NaN")]
+    [Arguments("Infinity")]
+    [Arguments("-1")]
+    [Arguments("0")]
+    public void Invalid_stored_width_is_ignored(string value)
+    {
+        _storage.Values["sidebar-a"] = value;
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
+        cut.WaitForAssertion(() => _storage.Reads.Should().Be(1));
+        cut.Instance.ExpandedWidth.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Storage_failures_do_not_break_resizing_or_callbacks()
+    {
+        _storage.Unavailable = true;
+        double? changed = null;
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true)
+            .Add(c => c.ResizeStorageKey, "sidebar-a").Add(c => c.ExpandedWidthChanged, value => changed = value));
+        await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(320));
+        changed.Should().Be(320);
+        cut.Instance.ExpandedWidth.Should().Be(320);
+    }
+
+    [Test]
+    public async Task No_key_does_not_access_storage()
+    {
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true));
+        await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(320));
+        _storage.Reads.Should().Be(0);
+        _storage.Writes.Should().Be(0);
     }
 
     [Test]

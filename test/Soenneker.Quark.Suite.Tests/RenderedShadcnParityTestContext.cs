@@ -240,6 +240,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddMockJsRuntimeAsScoped();
         Services.AddBradixSuiteAsScoped();
         Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddSingleton<Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil>(new FakeSidebarLocalStorageUtil());
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();

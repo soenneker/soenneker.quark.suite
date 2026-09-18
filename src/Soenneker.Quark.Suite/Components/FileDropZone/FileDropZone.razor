@@ -23,11 +23,11 @@
                 @if (Files.Count == 0)
                 {
                     <Span>@Label </Span>
-                    <Span Class="underline underline-offset-4" FontWeight="Quark.FontWeight.Medium">Browse</Span>
+                    <Span DecorationLine="Quark.DecorationLine.Underline" Class="underline-offset-4" FontWeight="Quark.FontWeight.Medium">Browse</Span>
                 }
                 else
                 {
-                    <Span Class="underline underline-offset-4">Add files</Span>
+                    <Span DecorationLine="Quark.DecorationLine.Underline" Class="underline-offset-4">Add files</Span>
                 }
                 @if (!string.IsNullOrWhiteSpace(Description))
                 {
@@ -87,7 +87,7 @@
                         </Div>
                         @if (IsWorking(file))
                         {
-                            <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2" Class="max-w-[50%]">
+                            <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2" MaxWidth='Quark.MaxWidth.Token("[50%]")'>
                                 <Div Role="status" TextSize="Quark.TextSize.Xs" TextAlign="Quark.TextAlign.Right">@Status(file)</Div>
                                 <svg role="progressbar" aria-label="@($"{file.Name}: {Status(file)}")" aria-valuemin="0" aria-valuemax="100"
                                      aria-valuenow="@(file.Progress.HasValue ? Math.Clamp(file.Progress.Value, 0, 100) : (int?)null)" aria-valuetext="@Status(file)"
@@ -119,7 +119,7 @@
                         <Div data-slot="file-drop-zone-error" Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2"
                              Padding="Quark.Padding.OnX.Is3.OnY.Is2" BackgroundColor='Quark.BackgroundColor.Token("destructive/5")'>
                             <Icon Name="LucideIcon.CircleAlert" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" TextColor="Quark.TextColor.Destructive" aria-hidden="true" />
-                            <Div Role="alert" Flex="Quark.Flex.Is1" MinWidth="Quark.MinWidth.Is0" TextSize="Quark.TextSize.Xs" Class="break-words">
+                            <Div Role="alert" Flex="Quark.Flex.Is1" MinWidth="Quark.MinWidth.Is0" TextSize="Quark.TextSize.Xs" TextBreak="Quark.TextBreak.Words">
                                 @(file.Error ?? file.StatusText ?? (file.ServerId is null ? "Upload failed." : "Processing failed."))
                             </Div>
                             @if (!ReadOnly && !_operations.ContainsKey(file.Id))

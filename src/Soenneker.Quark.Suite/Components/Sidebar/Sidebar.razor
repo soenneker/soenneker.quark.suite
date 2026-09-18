@@ -1,4 +1,7 @@
 @namespace Soenneker.Quark
+@using System.Globalization
+@using Microsoft.JSInterop
+@inject Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil LocalStorageUtil
 @using Soenneker.Quark.Dtos
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
@@ -115,7 +118,7 @@ else
         @if (CanResize)
         {
             <SidebarResizeHandle MinWidth="MinResizeWidth" MaxWidth="MaxResizeWidth" RightSide="IsRightSide(Side)"
-                                 StorageKey="@ResizeStorageKey" WidthChanged="OnResizeWidthChanged" />
+                                 WidthChanged="OnResizeWidthChanged" />
         }
     </text>;
 
@@ -129,11 +132,52 @@ else
             throw new ArgumentOutOfRangeException(nameof(ExpandedWidth));
     }
 
+    private string? _restoredStorageKey;
+    private long _widthRevision;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        var key = string.IsNullOrWhiteSpace(ResizeStorageKey) ? null : ResizeStorageKey;
+        if (key is null)
+        {
+            _restoredStorageKey = null;
+            return;
+        }
+        if (!CanResize || _restoredStorageKey == key)
+            return;
+        _restoredStorageKey = key;
+        var revision = _widthRevision;
+        var initialWidth = ExpandedWidth;
+        string? saved;
+        try { saved = await LocalStorageUtil.Get(key); }
+        catch (JSException) { return; }
+        catch (OperationCanceledException) { return; }
+        if (key != ResizeStorageKey || revision != _widthRevision || initialWidth != ExpandedWidth || !CanResize)
+        {
+            if (!CanResize && _restoredStorageKey == key)
+                _restoredStorageKey = null;
+            return;
+        }
+        if (!double.TryParse(saved, NumberStyles.Float, CultureInfo.InvariantCulture, out var width) || !double.IsFinite(width) || width <= 0)
+            return;
+        ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
+        await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
+        Refresh();
+    }
+
     private async Task OnResizeWidthChanged(double width)
     {
         if (!CanResize)
             return;
+        _widthRevision++;
         ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
+        if (!string.IsNullOrWhiteSpace(ResizeStorageKey))
+        {
+            try { await LocalStorageUtil.Set(ResizeStorageKey, ExpandedWidth.Value.ToString(CultureInfo.InvariantCulture)); }
+            catch (JSException) { }
+            catch (OperationCanceledException) { }
+        }
         await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
     }
 

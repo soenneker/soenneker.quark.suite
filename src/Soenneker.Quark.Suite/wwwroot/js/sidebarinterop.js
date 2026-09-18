@@ -118,9 +118,8 @@ export function cleanup() {
 }
 // Each handle owns its listeners; provider cleanup must not affect other sidebars.
 const resizeHandles = new WeakMap();
-const restoredResizeKeys = new WeakMap();
 
-export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, rightSide, storageKey = null) {
+export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, rightSide) {
   unregisterResizeHandle(handle);
   const root = handle.closest('[data-sidebar-resize-root]');
   if (!root) return;
@@ -143,14 +142,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
     handle.setAttribute('aria-valuetext', `${Math.round(width)} pixels`);
     return width;
   };
-  const key = typeof storageKey === 'string' && storageKey.trim() ? storageKey : null;
   const notify = width => componentRef.invokeMethodAsync('OnWidthChanged', width);
-  const commitWidth = width => {
-    if (key) {
-      try { localStorage.setItem(key, String(width)); } catch { /* Storage may be blocked or full. */ }
-    }
-    return notify(width);
-  };
   const stop = (commit) => {
     if (!drag) return;
     const previous = drag;
@@ -164,7 +156,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
     document.removeEventListener('selectstart', preventSelection);
     if (handle.hasPointerCapture(previous.id)) handle.releasePointerCapture(previous.id);
     updateAria();
-    if (commit && previous.width !== previous.startWidth) return commitWidth(previous.width);
+    if (commit && previous.width !== previous.startWidth) return notify(previous.width);
   };
   const preventSelection = event => event.preventDefault();
   const down = event => {
@@ -209,7 +201,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
     const next = event.key === 'Home' ? minWidth : event.key === 'End' ? maxWidth :
       current + (event.key === 'ArrowRight' ? 1 : -1) * sign * step;
     const width = apply(next);
-    if (width !== current) return commitWidth(width);
+    if (width !== current) return notify(width);
   };
   handle.addEventListener('pointerdown', down);
   handle.addEventListener('pointermove', move);
@@ -231,17 +223,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
     handle.removeEventListener('keydown', keydown);
   });
 
-  // Restore only once per root/key, so rerenders and collapse/expand do not
-  // overwrite newer application-controlled widths or reread storage unnecessarily.
-  if (restoredResizeKeys.get(root) !== key) {
-    restoredResizeKeys.set(root, key);
-    if (key) {
-      let saved = null;
-      try { saved = localStorage.getItem(key); } catch { /* Storage may be blocked. */ }
-      const width = saved === null || saved.trim() === '' ? NaN : Number(saved);
-      if (Number.isFinite(width) && width > 0) return notify(apply(width));
-    }
-  }
+
 }
 
 export function unregisterResizeHandle(handle) {

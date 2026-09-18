@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.Blazor.Utils.LocalStorage.Registrars;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 
@@ -16,6 +17,7 @@ public static class SidebarRegistrar
     /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddQuarkSidebarAsScoped(this IServiceCollection services)
     {
+        services.AddLocalStorageUtilAsScoped();
         services.AddModuleImportUtilAsScoped().TryAddScoped<ISidebarInterop, SidebarInterop>();
         return services;
     }
