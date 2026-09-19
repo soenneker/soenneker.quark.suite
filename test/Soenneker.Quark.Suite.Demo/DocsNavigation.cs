@@ -148,6 +148,7 @@ public static class DocsNavigation
         new("Empty State", ComponentRoute("empty-state"), IsNew: true),
         new("Event Timeline", ComponentRoute("event-timeline"), IsNew: true),
         new("Feedback Bar", ComponentRoute("feedback-bar")),
+        new("File Drop", ComponentRoute("file-drop"), IsNew: true),
         new("Form Section", ComponentRoute("form-section"), IsNew: true),
         new("Header", ComponentRoute("headers")),
         new("Kanban", ComponentRoute("kanban")),

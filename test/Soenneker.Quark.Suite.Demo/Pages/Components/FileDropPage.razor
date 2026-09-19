@@ -1,0 +1,158 @@
+@page "/components/file-drop"
+@using Microsoft.AspNetCore.Components.Forms
+
+<SeoHead Title="Blazor File Drop Composition &amp; Examples | Quark Suite" Description="Add file dropping to a message composer or any content with Quark FileDrop." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Title="Message attachments" Description="Wrap a memo and its actions in FileDrop. Try the optional blur and shadow while dragging a file. Turning attachments off keeps the message editable."
+                 Code="@ComposerCode" CodeLanguage="razor" PreviewChromeless="true" PreviewBordered="false">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsLg" Space="Space.Y.Is3">
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Switch Id="file-drop-enabled" @bind-Checked="_enabled" />
+                <Label For="file-drop-enabled">Allow attachments</Label>
+            </Div>
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Switch Id="file-drop-overlay" @bind-Checked="_showOverlay" />
+                <Label For="file-drop-overlay">Blur and shadow on drag</Label>
+            </Div>
+            <FileDrop InputId="message-attachments" Accept="image/*,.pdf" Disabled="@(!_enabled)"
+                      OnFilesDropped="SelectFiles" Position="Position.Relative" Padding="Padding.Is4"
+                      Border="Border.Default" Rounded="Rounded.Lg" Space="Space.Y.Is3" ShowDragOverlay="@_showOverlay">
+                <Label For="file-drop-message">Message</Label>
+                <MemoInput Id="file-drop-message" @bind-Value="_message" Rows="4" Placeholder="Write a message, or drop images and PDFs here." />
+                <Label For="@(_enabled ? "message-attachments" : null)" TextColor="TextColor.MutedForeground"
+                       Class="cursor-pointer underline underline-offset-4" aria-disabled="@(!_enabled)">Browse files</Label>
+            </FileDrop>
+            <Small TextColor="TextColor.MutedForeground">Up to 5 images or PDFs, 10 MB each. This demo shows file names only; nothing is uploaded.</Small>
+            @if (_error is not null)
+            {
+                <Div Role="alert" TextColor="TextColor.Destructive" TextSize="TextSize.Sm">@_error</Div>
+            }
+            <Div Role="status" aria-live="polite" TextSize="TextSize.Sm">
+                @if (_names.Count > 0)
+                {
+                    <Span>Selected: @string.Join(", ", _names)</Span>
+                }
+                else
+                {
+                    <Span TextColor="TextColor.MutedForeground">No files selected.</Span>
+                }
+            </Div>
+        </Div>
+    </DemoSection>
+    <Div Space="Space.Y.Is3">
+        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">OnFilesDropped receives the same InputFileChangeEventArgs for drops and the built-in picker. Accept guides the picker; validate count, size, and type in your handler before opening streams. Use OpenReadStream(maxBytes) to enforce your stream limit.</Paragraph>
+        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">For an existing InputFile, set RenderInput to false and point InputId at it. Its owner handles OnChange and keeps old inputs alive when uploads or retries still need their streams.</Paragraph>
+        <Paragraph TextSize="TextSize.Sm"><Anchor Href="components/file-drop-zone">File Drop Zone</Anchor> composes FileDrop with upload progress, previews, retries, and reordering.</Paragraph>
+    </Div>
+</Div>
+
+@code {
+    private bool _enabled = true;
+    private bool _showOverlay = true;
+    private string? _message;
+    private string? _error;
+    private IReadOnlyList<string> _names = [];
+
+    private void SelectFiles(InputFileChangeEventArgs args)
+    {
+        _error = null;
+        if (args.FileCount > 5)
+        {
+            _error = "Select no more than 5 files at once.";
+            return;
+        }
+
+        var files = args.GetMultipleFiles(5);
+        foreach (var file in files)
+        {
+            if (file.Size > 10 * 1024 * 1024)
+            {
+                _error = $"{file.Name} must be 10 MB or smaller.";
+                return;
+            }
+            if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+                && !file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                _error = $"{file.Name} must be an image or PDF.";
+                return;
+            }
+        }
+
+        _names = files.Select(file => file.Name).ToArray();
+    }
+
+    private const string ComposerCode = """
+        @using Microsoft.AspNetCore.Components.Forms
+
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsLg" Space="Space.Y.Is3">
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Switch Id="file-drop-enabled" @bind-Checked="_enabled" />
+                <Label For="file-drop-enabled">Allow attachments</Label>
+            </Div>
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Switch Id="file-drop-overlay" @bind-Checked="_showOverlay" />
+                <Label For="file-drop-overlay">Blur and shadow on drag</Label>
+            </Div>
+            <FileDrop InputId="message-attachments" Accept="image/*,.pdf" Disabled="@(!_enabled)"
+                      OnFilesDropped="SelectFiles" Position="Position.Relative" Padding="Padding.Is4"
+                      Border="Border.Default" Rounded="Rounded.Lg" Space="Space.Y.Is3" ShowDragOverlay="@_showOverlay">
+                <Label For="file-drop-message">Message</Label>
+                <MemoInput Id="file-drop-message" @bind-Value="_message" Rows="4" Placeholder="Write a message, or drop images and PDFs here." />
+                <Label For="@(_enabled ? "message-attachments" : null)" TextColor="TextColor.MutedForeground"
+                       Class="cursor-pointer underline underline-offset-4" aria-disabled="@(!_enabled)">Browse files</Label>
+            </FileDrop>
+            <Small TextColor="TextColor.MutedForeground">Up to 5 images or PDFs, 10 MB each. This demo shows file names only; nothing is uploaded.</Small>
+            @if (_error is not null)
+            {
+                <Div Role="alert" TextColor="TextColor.Destructive" TextSize="TextSize.Sm">@_error</Div>
+            }
+            <Div Role="status" aria-live="polite" TextSize="TextSize.Sm">
+                @if (_names.Count > 0)
+                {
+                    <Span>Selected: @string.Join(", ", _names)</Span>
+                }
+                else
+                {
+                    <Span TextColor="TextColor.MutedForeground">No files selected.</Span>
+                }
+            </Div>
+        </Div>
+
+        @code {
+            private bool _enabled = true;
+            private bool _showOverlay = true;
+            private string? _message;
+            private string? _error;
+            private IReadOnlyList<string> _names = [];
+
+            private void SelectFiles(InputFileChangeEventArgs args)
+            {
+                _error = null;
+                if (args.FileCount > 5)
+                {
+                    _error = "Select no more than 5 files at once.";
+                    return;
+                }
+
+                var files = args.GetMultipleFiles(5);
+                foreach (var file in files)
+                {
+                    if (file.Size > 10 * 1024 * 1024)
+                    {
+                        _error = $"{file.Name} must be 10 MB or smaller.";
+                        return;
+                    }
+                    if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+                        && !file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _error = $"{file.Name} must be an image or PDF.";
+                        return;
+                    }
+                }
+
+                _names = files.Select(file => file.Name).ToArray();
+            }
+        }
+        """;
+}

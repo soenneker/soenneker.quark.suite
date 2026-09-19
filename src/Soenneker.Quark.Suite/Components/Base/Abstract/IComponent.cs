@@ -339,10 +339,105 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// Gets or sets backdrop filter.
     /// </summary>
     CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop blur utility classes.
+    /// </summary>
+    CssValue<BackdropBlurBuilder>? BackdropBlur { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop brightness utility classes.
+    /// </summary>
+    CssValue<BackdropBrightnessBuilder>? BackdropBrightness { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop contrast utility classes.
+    /// </summary>
+    CssValue<BackdropContrastBuilder>? BackdropContrast { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop grayscale utility classes.
+    /// </summary>
+    CssValue<BackdropGrayscaleBuilder>? BackdropGrayscale { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop hue rotate utility classes.
+    /// </summary>
+    CssValue<BackdropHueRotateBuilder>? BackdropHueRotate { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop invert utility classes.
+    /// </summary>
+    CssValue<BackdropInvertBuilder>? BackdropInvert { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop opacity utility classes.
+    /// </summary>
+    CssValue<BackdropOpacityBuilder>? BackdropOpacity { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop saturate utility classes.
+    /// </summary>
+    CssValue<BackdropSaturateBuilder>? BackdropSaturate { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop sepia utility classes.
+    /// </summary>
+    CssValue<BackdropSepiaBuilder>? BackdropSepia { get; set; }
     /// <summary>
     /// Gets or sets filter.
     /// </summary>
     CssValue<FilterBuilder>? Filter { get; set; }
+
+    /// <summary>
+    /// Gets or sets blur utility classes.
+    /// </summary>
+    CssValue<BlurBuilder>? Blur { get; set; }
+
+    /// <summary>
+    /// Gets or sets brightness utility classes.
+    /// </summary>
+    CssValue<BrightnessBuilder>? Brightness { get; set; }
+
+    /// <summary>
+    /// Gets or sets contrast utility classes.
+    /// </summary>
+    CssValue<ContrastBuilder>? Contrast { get; set; }
+
+    /// <summary>
+    /// Gets or sets drop shadow utility classes.
+    /// </summary>
+    CssValue<DropShadowBuilder>? DropShadow { get; set; }
+
+    /// <summary>
+    /// Gets or sets drop shadow color utility classes.
+    /// </summary>
+    CssValue<DropShadowColorBuilder>? DropShadowColor { get; set; }
+
+    /// <summary>
+    /// Gets or sets grayscale utility classes.
+    /// </summary>
+    CssValue<GrayscaleBuilder>? Grayscale { get; set; }
+
+    /// <summary>
+    /// Gets or sets hue rotate utility classes.
+    /// </summary>
+    CssValue<HueRotateBuilder>? HueRotate { get; set; }
+
+    /// <summary>
+    /// Gets or sets invert utility classes.
+    /// </summary>
+    CssValue<InvertBuilder>? Invert { get; set; }
+
+    /// <summary>
+    /// Gets or sets saturate utility classes.
+    /// </summary>
+    CssValue<SaturateBuilder>? Saturate { get; set; }
+
+    /// <summary>
+    /// Gets or sets sepia utility classes.
+    /// </summary>
+    CssValue<SepiaBuilder>? Sepia { get; set; }
     /// <summary>
     /// Gets or sets resize.
     /// </summary>

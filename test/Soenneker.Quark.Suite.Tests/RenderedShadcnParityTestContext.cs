@@ -257,6 +257,9 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IInputInterop, FakeInputInterop>();
         Services.AddQuarkPaymentCardAsScoped();
         Services.AddQuarkFileDropZoneAsScoped();
+        var fileDropModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropinterop.js");
+        fileDropModule.SetupVoid("register", _ => true).SetVoidResult();
+        fileDropModule.SetupVoid("unregister", _ => true).SetVoidResult();
         Services.AddScoped<IPromptInputInterop, FakePromptInputInterop>();
         Services.AddScoped<INodeEditorInterop, FakeNodeEditorInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();

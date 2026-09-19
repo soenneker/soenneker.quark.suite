@@ -8,7 +8,7 @@
 @using Microsoft.JSInterop
 @inject IFileDropZoneInterop FileDropZoneInterop
 
-<div @ref="_dropZoneElement" @attributes="BuildAttributes()">
+<FileDrop @attributes="BuildAttributes()" InputId="@_inputs[^1]" RenderInput="false" Disabled="@SelectionDisabled" OnElementRefReady="InitializeDrag">
     <div hidden data-slot="file-drop-zone-placeholder" aria-hidden="true" class="pointer-events-none absolute z-10 h-2 rounded-full bg-primary/25 ring-1 ring-primary/20"></div>
     <div hidden data-slot="file-drop-zone-ghost" aria-hidden="true" class="pointer-events-none fixed z-50 truncate rounded-md border border-border bg-muted px-3 py-3 text-sm font-medium shadow-lg opacity-90"></div>
     <span class="sr-only" role="status" aria-live="polite">@_reorderAnnouncement</span>
@@ -16,9 +16,7 @@
     {
         <div class="relative rounded-md px-3 text-center text-sm text-muted-foreground transition-colors hover:text-foreground has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring/50 data-[dragging=true]:bg-muted data-[disabled=true]:opacity-50"
              style="@(ReadOnly || Files.Count >= MaxFiles ? "display:none" : Files.Count > 0 ? "padding-block:8px" : "padding-block:24px")"
-             data-slot="file-drop-zone-target" data-dragging="@(_dragging ? "true" : "false")" data-disabled="@(SelectionDisabled ? "true" : "false")"
-             @ondragenter="() => SetDragging(true)" @ondragleave="() => SetDragging(false)" @ondrop="() => SetDragging(false)"
-             @ondragover:preventDefault="SelectionDisabled" @ondrop:preventDefault="SelectionDisabled">
+             data-slot="file-drop-zone-target" data-disabled="@(SelectionDisabled ? "true" : "false")">
             <Div PointerEvents="Quark.PointerEvents.None">
                 @if (Files.Count == 0)
                 {
@@ -153,7 +151,7 @@
         <Div TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground" Padding="Quark.Padding.Is2">No files</Div>
     }
     <span id="@_reorderHelpId" class="sr-only">Drag to reorder, or use the up and down arrow keys. Home moves first; End moves last. Escape cancels dragging.</span>
-</div>
+</FileDrop>
 @code {
     [Parameter] public IReadOnlyList<FileDropZoneFile> Files { get; set; } = [];
     [Parameter] public EventCallback<IReadOnlyList<FileDropZoneFile>> FilesChanged { get; set; }
@@ -171,7 +169,6 @@
 
     private readonly string _descriptionId = BlazorIdGenerator.New("file-drop-zone-help");
     private readonly string _reorderHelpId = BlazorIdGenerator.New("file-drop-zone-reorder");
-    private ElementReference _dropZoneElement;
     private DotNetObjectReference<FileDropZone>? _dragCallback;
     private bool _dragInitialized;
     private string? _dropBeforeId;
@@ -184,7 +181,6 @@
     private bool _previewInteropUsed;
     private bool _selecting;
     private string? _selectionError;
-    private bool _dragging;
     private bool _disposed;
     private bool SelectionDisabled => Disabled || ReadOnly || _selecting || Upload is null || Files.Count >= MaxFiles;
     private string DefaultDescription => $"{(string.IsNullOrWhiteSpace(Accept) ? "Any file type" : Accept)} · Up to {FormatSize(MaxFileSize)} each · {MaxFiles} {(MaxFiles == 1 ? "file" : "files")} maximum";
@@ -246,18 +242,11 @@
         ReleaseUnusedInputs();
     }
 
-    private void SetDragging(bool value)
-    {
-        _dragging = value && !SelectionDisabled;
-        Refresh();
-    }
-
     private async Task SelectFiles(InputFileChangeEventArgs args, string inputKey)
     {
         if (_disposed || ReadOnly || SelectionDisabled || inputKey != _inputs[^1]) return;
         var beforeId = _dropBeforeId;
         _dropBeforeId = null;
-        _dragging = false;
         _selectionError = null;
         if (args.FileCount > MaxFiles - Files.Count)
         {
@@ -416,17 +405,21 @@
     private void ReleaseUnusedInputs() => _inputs.RemoveAll(input => input != _inputs[^1] && !_browserFiles.Values.Any(source => source.Input == input));
     private string? PreviewUrl(FileDropZoneFile file) => FileDropZoneMedia.IsPreviewUrl(file.PreviewUrl) ? file.PreviewUrl : _previewUrls.GetValueOrDefault(file.Id);
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task InitializeDrag(ElementReference element)
     {
-        await base.OnAfterRenderAsync(firstRender);
         if (!_disposed && !_dragInitialized)
         {
             _dragInitialized = true;
             _previewInteropUsed = true;
             _dragCallback = DotNetObjectReference.Create(this);
-            try { await FileDropZoneInterop.Initialize(_descriptionId, _dropZoneElement, _dragCallback); }
+            try { await FileDropZoneInterop.Initialize(_descriptionId, element, _dragCallback); }
             catch (JSException) { /* Native file selection remains available if drag interop cannot initialize. */ }
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
         if (_disposed || _selecting || _previewUrls.Count == 0 || !_previewInteropUsed) return;
         var removed = _previewUrls.Keys.Where(id => !Files.Any(file => file.Id == id)).ToArray();
         if (removed.Length == 0) return;

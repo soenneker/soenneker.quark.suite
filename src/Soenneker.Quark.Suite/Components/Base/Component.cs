@@ -269,7 +269,64 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
 
     [Parameter]
+    public CssValue<BackdropBlurBuilder>? BackdropBlur { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropBrightnessBuilder>? BackdropBrightness { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropContrastBuilder>? BackdropContrast { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropGrayscaleBuilder>? BackdropGrayscale { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropHueRotateBuilder>? BackdropHueRotate { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropInvertBuilder>? BackdropInvert { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropOpacityBuilder>? BackdropOpacity { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropSaturateBuilder>? BackdropSaturate { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropSepiaBuilder>? BackdropSepia { get; set; }
+
+    [Parameter]
     public CssValue<FilterBuilder>? Filter { get; set; }
+
+    [Parameter]
+    public CssValue<BlurBuilder>? Blur { get; set; }
+
+    [Parameter]
+    public CssValue<BrightnessBuilder>? Brightness { get; set; }
+
+    [Parameter]
+    public CssValue<ContrastBuilder>? Contrast { get; set; }
+
+    [Parameter]
+    public CssValue<DropShadowBuilder>? DropShadow { get; set; }
+
+    [Parameter]
+    public CssValue<DropShadowColorBuilder>? DropShadowColor { get; set; }
+
+    [Parameter]
+    public CssValue<GrayscaleBuilder>? Grayscale { get; set; }
+
+    [Parameter]
+    public CssValue<HueRotateBuilder>? HueRotate { get; set; }
+
+    [Parameter]
+    public CssValue<InvertBuilder>? Invert { get; set; }
+
+    [Parameter]
+    public CssValue<SaturateBuilder>? Saturate { get; set; }
+
+    [Parameter]
+    public CssValue<SepiaBuilder>? Sepia { get; set; }
 
     [Parameter]
     public CssValue<ResizeBuilder>? Resize { get; set; }
@@ -486,7 +543,26 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, OutlineStyle);
         AddCss(ref sty, ref cls, ResolvePresetValue(Shadow, preset?.Shadow, nameof(Shadow)));
         AddCss(ref sty, ref cls, ResolvePresetValue(BackdropFilter, preset?.BackdropFilter, nameof(BackdropFilter)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropBlur, preset?.BackdropBlur, nameof(BackdropBlur)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropBrightness, preset?.BackdropBrightness, nameof(BackdropBrightness)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropContrast, preset?.BackdropContrast, nameof(BackdropContrast)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropGrayscale, preset?.BackdropGrayscale, nameof(BackdropGrayscale)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropHueRotate, preset?.BackdropHueRotate, nameof(BackdropHueRotate)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropInvert, preset?.BackdropInvert, nameof(BackdropInvert)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropOpacity, preset?.BackdropOpacity, nameof(BackdropOpacity)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropSaturate, preset?.BackdropSaturate, nameof(BackdropSaturate)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(BackdropSepia, preset?.BackdropSepia, nameof(BackdropSepia)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Filter, preset?.Filter, nameof(Filter)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Blur, preset?.Blur, nameof(Blur)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Brightness, preset?.Brightness, nameof(Brightness)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Contrast, preset?.Contrast, nameof(Contrast)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(DropShadow, preset?.DropShadow, nameof(DropShadow)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(DropShadowColor, preset?.DropShadowColor, nameof(DropShadowColor)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Grayscale, preset?.Grayscale, nameof(Grayscale)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(HueRotate, preset?.HueRotate, nameof(HueRotate)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Invert, preset?.Invert, nameof(Invert)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Saturate, preset?.Saturate, nameof(Saturate)));
+        AddCss(ref sty, ref cls, ResolvePresetValue(Sepia, preset?.Sepia, nameof(Sepia)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Resize, preset?.Resize, nameof(Resize)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Transform, preset?.Transform, nameof(Transform)));
         AddCss(ref sty, ref cls, ResolvePresetValue(Animation, preset?.Animation, nameof(Animation)));
@@ -697,7 +773,26 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, OutlineStyle);
         AddIf(ref hc, Shadow);
         AddIf(ref hc, BackdropFilter);
+        AddIf(ref hc, BackdropBlur);
+        AddIf(ref hc, BackdropBrightness);
+        AddIf(ref hc, BackdropContrast);
+        AddIf(ref hc, BackdropGrayscale);
+        AddIf(ref hc, BackdropHueRotate);
+        AddIf(ref hc, BackdropInvert);
+        AddIf(ref hc, BackdropOpacity);
+        AddIf(ref hc, BackdropSaturate);
+        AddIf(ref hc, BackdropSepia);
         AddIf(ref hc, Filter);
+        AddIf(ref hc, Blur);
+        AddIf(ref hc, Brightness);
+        AddIf(ref hc, Contrast);
+        AddIf(ref hc, DropShadow);
+        AddIf(ref hc, DropShadowColor);
+        AddIf(ref hc, Grayscale);
+        AddIf(ref hc, HueRotate);
+        AddIf(ref hc, Invert);
+        AddIf(ref hc, Saturate);
+        AddIf(ref hc, Sepia);
         AddIf(ref hc, Resize);
         AddIf(ref hc, Transform);
         AddIf(ref hc, Animation);

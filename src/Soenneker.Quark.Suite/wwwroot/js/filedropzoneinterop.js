@@ -1,3 +1,5 @@
+import { configure as configureFileDrop } from './filedropinterop.js';
+
 const owners = new Map();
 const registrations = new Map();
 
@@ -12,7 +14,6 @@ export function initialize(owner, root, callback) {
     const placeholder = root.querySelector('[data-slot="file-drop-zone-placeholder"]');
     const ghost = root.querySelector('[data-slot="file-drop-zone-ghost"]');
     const rows = () => [...root.querySelectorAll('[data-slot="file-drop-zone-file"]')];
-    const canSelect = () => root.dataset.canSelect === 'true';
     const canReorder = () => root.dataset.canReorder === 'true';
     let drag = null, frame = 0, pending = false, external = false;
 
@@ -120,41 +121,24 @@ export function initialize(owner, root, callback) {
         const remaining = items.filter(item => item !== row);
         void move(row.dataset.fileId, remaining[target]?.dataset.fileId ?? null);
     });
-    const isFiles = event => [...(event.dataTransfer?.types ?? [])].includes('Files');
-    const hover = event => {
-        if (!isFiles(event)) return;
-        event.preventDefault();
-        if (!canSelect()) { clear(); event.dataTransfer.dropEffect = 'none'; return; }
-        external = true;
-        event.dataTransfer.dropEffect = 'copy';
-        showTarget(insertionTarget(rows(), event.clientY));
-    };
-    listen(root, 'dragenter', hover);
-    listen(root, 'dragover', hover);
-    listen(root, 'dragleave', event => { if (!root.contains(event.relatedTarget)) clear(); });
-    listen(document, 'dragend', clear);
-    listen(root, 'drop', async event => {
-        if (!isFiles(event)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        const allowed = canSelect();
-        const before = insertionTarget(rows(), event.clientY);
-        const transfer = new DataTransfer();
-        if (allowed) for (const file of event.dataTransfer.files) transfer.items.add(file);
+    configureFileDrop(root, {
+        onActive: active => {
+            const target = root.querySelector('[data-slot="file-drop-zone-target"]');
+            if (target) target.dataset.dragging = active ? 'true' : 'false';
+            if (!active) clear();
+        },
+        onHover: event => {
+            external = true;
+            showTarget(insertionTarget(rows(), event.clientY));
+        },
+        beforeDrop: event => callback.invokeMethodAsync('SetDropTarget', insertionTarget(rows(), event.clientY))
+    });
+    registrations.set(owner, () => {
         clear();
-        if (!allowed || !transfer.files.length) return;
-        try {
-            await callback.invokeMethodAsync('SetDropTarget', before);
-            if (controller.signal.aborted || !canSelect()) return;
-            const input = root.querySelector('input[type="file"]:not([disabled])');
-            if (!input) return;
-            input.files = transfer.files;
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-        } catch (error) {
-            if (!controller.signal.aborted) console.error('File drop zone drop failed.', error);
-        }
-    }, { capture: true });
-    registrations.set(owner, () => { clear(); controller.abort(); registrations.delete(owner); });
+        configureFileDrop(root, null);
+        controller.abort();
+        registrations.delete(owner);
+    });
 }
 
 export function createPreview(owner, inputId, index, fileId, contentType) {

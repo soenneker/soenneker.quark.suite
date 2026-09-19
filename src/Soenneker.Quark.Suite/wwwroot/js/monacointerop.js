@@ -1,3 +1,4 @@
+import { register as registerFileDrop, unregister as unregisterFileDrop } from './filedropinterop.js';
 const editors = new WeakMap();
 const pendingEditors = new WeakMap();
 const activeEditors = new Set();
@@ -390,15 +391,6 @@ export function registerContentChangedCallback(container, dotNetRef) {
     });
 }
 
-function hasFiles(event) {
-    return Array.from(event.dataTransfer?.types ?? []).includes('Files');
-}
-
-function setFileDropActive(dropZone, overlay, active) {
-    dropZone.dataset.fileDropActive = active ? 'true' : 'false';
-    overlay.hidden = !active;
-}
-
 function removeFileDropState(state) {
     if (state?.fileDropCleanup) {
         state.fileDropCleanup();
@@ -413,63 +405,19 @@ export function configureFileDrop(container, dropZone, inputId) {
     const state = getEditorState(container);
     removeFileDropState(state);
 
-    const input = document.getElementById(inputId);
-    const overlay = dropZone?.querySelector('[data-code-editor-drop-overlay]');
-    if (!dropZone || !input || !overlay)
-        return;
-
-    let dragDepth = 0;
-    const dragEnter = event => {
-        if (!hasFiles(event)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        dragDepth++;
-        setFileDropActive(dropZone, overlay, true);
-    };
-    const dragOver = event => {
-        if (!hasFiles(event)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        event.dataTransfer.dropEffect = 'copy';
-    };
-    const dragLeave = event => {
-        if (!hasFiles(event)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        dragDepth = Math.max(0, dragDepth - 1);
-        if (dragDepth === 0)
-            setFileDropActive(dropZone, overlay, false);
-    };
-    const drop = event => {
-        if (!hasFiles(event)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        dragDepth = 0;
-        setFileDropActive(dropZone, overlay, false);
-
-        state.pendingDropPosition = state.editor.getTargetAtClientPoint(event.clientX, event.clientY)?.position
-            ?? state.editor.getPosition();
-
-        const transfer = new DataTransfer();
-        for (const file of event.dataTransfer.files)
-            transfer.items.add(file);
-
-        input.value = '';
-        input.files = transfer.files;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-
-    dropZone.addEventListener('dragenter', dragEnter, true);
-    dropZone.addEventListener('dragover', dragOver, true);
-    dropZone.addEventListener('dragleave', dragLeave, true);
-    dropZone.addEventListener('drop', drop, true);
-    state.fileDropCleanup = () => {
-        dropZone.removeEventListener('dragenter', dragEnter, true);
-        dropZone.removeEventListener('dragover', dragOver, true);
-        dropZone.removeEventListener('dragleave', dragLeave, true);
-        dropZone.removeEventListener('drop', drop, true);
-        setFileDropActive(dropZone, overlay, false);
-    };
+    if (!dropZone) return;
+    const overlay = dropZone.querySelector('[data-code-editor-drop-overlay]');
+    registerFileDrop(dropZone, inputId, {
+        onActive: active => {
+            dropZone.dataset.fileDropActive = active ? 'true' : 'false';
+            if (overlay) overlay.hidden = !active;
+        },
+        beforeDrop: event => {
+            state.pendingDropPosition = state.editor.getTargetAtClientPoint(event.clientX, event.clientY)?.position
+                ?? state.editor.getPosition();
+        }
+    });
+    state.fileDropCleanup = () => unregisterFileDrop(dropZone);
 }
 
 export function removeFileDrop(container) {

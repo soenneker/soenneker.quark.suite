@@ -626,3 +626,25 @@ See [troubleshooting](https://quark.soenneker.com/troubleshooting) for the speci
 - [Quark demo source](https://github.com/soenneker/soenneker.quark.suite/tree/main/test/Soenneker.Quark.Suite.Demo): app-level generators, icon registrations, theme switching, and the full component catalog.
 - [CreditCards demo](https://github.com/soenneker/soenneker.blazor.creditcards/tree/main/test/Soenneker.Blazor.CreditCards.Demo): a small Blazor app combining Quark services, Lucide icons, and a focused interop library.
 - [Cloudflare AI Search demo](https://github.com/soenneker/soenneker.blazor.cloudflare.aisearch/tree/main/test/Soenneker.Blazor.Cloudflare.AiSearch.Demo): Quark UI composed with a separate feature package and its service registration.
+
+## File drop wrappers
+
+`FileDrop` makes arbitrary child content a drop target without adding an upload UI. It owns a hidden Blazor `InputFile`; selected and dropped files both reach `OnFilesDropped`. `InputId` can connect an existing label to the same file picker.
+
+```razor
+<FileDrop InputId="attachments" Accept="image/*" Disabled="@uploading"
+          OnFilesDropped="UploadFiles">
+    <MemoInput @bind-Value="message" />
+    <label for="attachments">Attach files</label>
+</FileDrop>
+```
+
+Use `InputFileChangeEventArgs.GetMultipleFiles(limit)` and `IBrowserFile.OpenReadStream(maxBytes)` in your upload handler to enforce limits. `Accept` is a picker hint, not upload validation; the drop callback receives all dropped files so it can report count/type errors. `Multiple` controls picker selection. Register services with `AddQuarkSuiteAsScoped()` or `AddQuarkFileDropAsScoped()`.
+
+The wrapper exposes `data-drag-active="true"` while files are over it for custom overlay styling. It leaves text drags alone, prevents file navigation even when disabled, and removes listeners on disposal. Disabled affects file selection only; child controls remain interactive.
+
+For a `CodeEditor`, use `AllowFileDrop`, `FileDropAccept`, and `OnFilesDropped` (returning insertion text). It shares the wrapper's drag handling while preserving editor-specific insertion at the drop position.
+
+`FileDropZone` composes `FileDrop` with `RenderInput="false"` and points `InputId` at its active input. This mode lets a component retain earlier `InputFile` instances while uploads or retries still reference their streams. The input owner handles `OnChange` and disables its own picker; `FileDrop` handles native drops. `FileDropZone` supplies insertion-position and marker hooks while retaining upload, preview, and reorder behavior.
+
+Set `ShowDragOverlay="true"` on `FileDrop` for a subtle translucent blur and shadow while files hover over the target. It defaults to false, ignores text drags, and never intercepts pointer events.

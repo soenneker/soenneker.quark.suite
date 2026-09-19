@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createPreview, retain, dispose, insertionTarget } from '../../src/Soenneker.Quark.Suite/wwwroot/js/filedropzoneinterop.js';
+import { createPreview, retain, dispose, insertionTarget, initialize } from '../../src/Soenneker.Quark.Suite/wwwroot/js/filedropzoneinterop.js';
 
 test('drop placement uses row midpoints and excludes the dragged file', () => {
     const rows = ['a', 'b', 'c'].map((id, i) => ({ dataset: { fileId: id }, getBoundingClientRect: () => ({ top: i * 60, height: 50 }) }));
@@ -55,4 +55,42 @@ test('MIME fallback handles PDFs without copying through .NET and unsupported ty
         globalThis.document = originalDocument;
         URL.createObjectURL = originalCreate;
     }
+});
+
+
+test('FileDropZone decorates shared drops with insertion position and cleans up its hooks', async t => {
+    const { register, unregister } = await import('../../src/Soenneker.Quark.Suite/wwwroot/js/filedropinterop.js');
+    const originals = { document: globalThis.document, window: globalThis.window, DataTransfer: globalThis.DataTransfer, MutationObserver: globalThis.MutationObserver };
+    const order = [], handlers = new Map();
+    const input = { disabled: false, dispatchEvent() { order.push('change'); } };
+    const placeholder = { hidden: true, style: {} }, ghost = { hidden: true }, target = { dataset: {} };
+    const root = {
+        dataset: {}, clientTop: 0, scrollTop: 0,
+        querySelector(selector) { return selector.includes('placeholder') ? placeholder : selector.includes('ghost') ? ghost : target; },
+        querySelectorAll() { return [{ dataset: { fileId: 'existing' }, getBoundingClientRect: () => ({ top: 30, height: 50, bottom: 80 }) }]; },
+        getBoundingClientRect: () => ({ top: 0, bottom: 100 }),
+        addEventListener(name, handler) { assert.ok(!handlers.has(name)); handlers.set(name, handler); },
+        removeEventListener(name) { handlers.delete(name); },
+        removeAttribute() {}
+    };
+    globalThis.document = Object.assign(new EventTarget(), { getElementById: () => input });
+    globalThis.window = new EventTarget();
+    globalThis.MutationObserver = class { observe() {} disconnect() {} };
+    globalThis.DataTransfer = class { files = []; items = { add: file => this.files.push(file) }; };
+    t.after(() => { dispose('shared'); unregister(root); Object.assign(globalThis, originals); });
+    register(root, 'input');
+    initialize('shared', root, { async invokeMethodAsync(method, before) { order.push([method, before]); } });
+    const event = { clientY: 10, dataTransfer: { types: ['Files'], files: [{ name: 'image.png' }] }, preventDefault() {}, stopPropagation() {} };
+    handlers.get('dragenter')(event);
+    assert.equal(placeholder.hidden, false);
+    assert.equal(target.dataset.dragging, 'true');
+    await handlers.get('drop')(event);
+    assert.deepEqual(order, [['SetDropTarget', 'existing'], 'change']);
+    assert.equal(placeholder.hidden, true);
+    assert.equal(target.dataset.dragging, 'false');
+    assert.deepEqual(input.files, event.dataTransfer.files);
+    dispose('shared');
+    order.length = 0;
+    await handlers.get('drop')(event);
+    assert.deepEqual(order, ['change']);
 });

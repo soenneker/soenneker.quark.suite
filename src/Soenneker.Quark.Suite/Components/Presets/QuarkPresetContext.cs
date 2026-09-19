@@ -309,10 +309,105 @@ public sealed class QuarkPresetContext
     /// Gets or sets backdrop filter.
     /// </summary>
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop blur utility classes.
+    /// </summary>
+    public CssValue<BackdropBlurBuilder>? BackdropBlur { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop brightness utility classes.
+    /// </summary>
+    public CssValue<BackdropBrightnessBuilder>? BackdropBrightness { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop contrast utility classes.
+    /// </summary>
+    public CssValue<BackdropContrastBuilder>? BackdropContrast { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop grayscale utility classes.
+    /// </summary>
+    public CssValue<BackdropGrayscaleBuilder>? BackdropGrayscale { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop hue rotate utility classes.
+    /// </summary>
+    public CssValue<BackdropHueRotateBuilder>? BackdropHueRotate { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop invert utility classes.
+    /// </summary>
+    public CssValue<BackdropInvertBuilder>? BackdropInvert { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop opacity utility classes.
+    /// </summary>
+    public CssValue<BackdropOpacityBuilder>? BackdropOpacity { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop saturate utility classes.
+    /// </summary>
+    public CssValue<BackdropSaturateBuilder>? BackdropSaturate { get; set; }
+
+    /// <summary>
+    /// Gets or sets backdrop sepia utility classes.
+    /// </summary>
+    public CssValue<BackdropSepiaBuilder>? BackdropSepia { get; set; }
     /// <summary>
     /// Gets or sets filter.
     /// </summary>
     public CssValue<FilterBuilder>? Filter { get; set; }
+
+    /// <summary>
+    /// Gets or sets blur utility classes.
+    /// </summary>
+    public CssValue<BlurBuilder>? Blur { get; set; }
+
+    /// <summary>
+    /// Gets or sets brightness utility classes.
+    /// </summary>
+    public CssValue<BrightnessBuilder>? Brightness { get; set; }
+
+    /// <summary>
+    /// Gets or sets contrast utility classes.
+    /// </summary>
+    public CssValue<ContrastBuilder>? Contrast { get; set; }
+
+    /// <summary>
+    /// Gets or sets drop shadow utility classes.
+    /// </summary>
+    public CssValue<DropShadowBuilder>? DropShadow { get; set; }
+
+    /// <summary>
+    /// Gets or sets drop shadow color utility classes.
+    /// </summary>
+    public CssValue<DropShadowColorBuilder>? DropShadowColor { get; set; }
+
+    /// <summary>
+    /// Gets or sets grayscale utility classes.
+    /// </summary>
+    public CssValue<GrayscaleBuilder>? Grayscale { get; set; }
+
+    /// <summary>
+    /// Gets or sets hue rotate utility classes.
+    /// </summary>
+    public CssValue<HueRotateBuilder>? HueRotate { get; set; }
+
+    /// <summary>
+    /// Gets or sets invert utility classes.
+    /// </summary>
+    public CssValue<InvertBuilder>? Invert { get; set; }
+
+    /// <summary>
+    /// Gets or sets saturate utility classes.
+    /// </summary>
+    public CssValue<SaturateBuilder>? Saturate { get; set; }
+
+    /// <summary>
+    /// Gets or sets sepia utility classes.
+    /// </summary>
+    public CssValue<SepiaBuilder>? Sepia { get; set; }
     /// <summary>
     /// Gets or sets resize.
     /// </summary>

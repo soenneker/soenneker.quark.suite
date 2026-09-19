@@ -1,0 +1,96 @@
+@namespace Soenneker.Quark
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@using Soenneker.Blazor.Utils.Ids
+@inherits Soenneker.Quark.Element
+@implements IFileDrop
+@inject IFileDropInterop FileDropInterop
+
+<div @ref="ElementRef" @attributes="BuildAttributes()" data-file-drop-disabled="@(Disabled ? "true" : "false")">
+    @ChildContent
+    @if (ShowDragOverlay && !Disabled)
+    {
+        <div data-slot="file-drop-overlay" aria-hidden="true" style="background-color: rgb(0 0 0 / 10%); backdrop-filter: blur(1px)"
+             class="pointer-events-none absolute inset-0 z-20 m-0! rounded-[inherit] opacity-0 shadow-sm transition-opacity duration-150 motion-reduce:transition-none"></div>
+    }
+    @if (RenderInput)
+    {
+        <InputFile id="@InputId" hidden disabled="@Disabled" accept="@Accept" multiple="@Multiple" OnChange="HandleFilesDropped" />
+    }
+</div>
+
+@code {
+    [Parameter] public string InputId { get; set; } = BlazorIdGenerator.New("file-drop-input");
+    [Parameter] public string? Accept { get; set; }
+    [Parameter] public bool Multiple { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ShowDragOverlay { get; set; }
+    [Parameter] public EventCallback<InputFileChangeEventArgs> OnFilesDropped { get; set; }
+
+    [Parameter] public bool RenderInput { get; set; } = true;
+    private readonly AsyncLock _interopLock = new();
+    private bool _disposed;
+    private bool _registered;
+    private string? _registeredInputId;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "file-drop";
+        if (ShowDragOverlay)
+            Position ??= Quark.Position.Relative;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        if (ShowDragOverlay)
+            PrependClassAttribute(attributes, "[&[data-drag-active=true]>[data-slot=file-drop-overlay]]:opacity-100");
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(InputId);
+        hc.Add(RenderInput);
+        hc.Add(Accept);
+        hc.Add(Multiple);
+        hc.Add(Disabled);
+        hc.Add(ShowDragOverlay);
+        hc.Add(OnFilesDropped);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        using (await _interopLock.Lock())
+        {
+            if (!_disposed && (!_registered || _registeredInputId != InputId))
+            {
+                var inputId = InputId;
+                await FileDropInterop.Register(ElementRef, inputId);
+                _registeredInputId = inputId;
+                _registered = true;
+            }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private Task HandleFilesDropped(InputFileChangeEventArgs args) =>
+        _disposed || Disabled ? Task.CompletedTask : OnFilesDropped.InvokeAsync(args);
+
+    public override async ValueTask DisposeAsync()
+    {
+        using (await _interopLock.Lock())
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try
+            {
+                if (_registered) await FileDropInterop.Unregister(ElementRef);
+            }
+            catch (JSDisconnectedException) { }
+            finally { await base.DisposeAsync(); }
+        }
+    }
+}
