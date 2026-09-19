@@ -35,6 +35,18 @@ public interface IDataTable : ICancellableElement
     bool HasLoadedOnce { get; }
 
     /// <summary>
+    /// Gets whether the data table is currently loading data.
+    /// </summary>
+    bool IsLoading { get; }
+
+    /// <summary>
+    /// Gets or sets whether column widths use fixed table layout, preventing cell content changes from resizing columns.
+    /// Widths come from column definitions or the first row; unspecified columns share the remaining space.
+    /// Requires a table width other than auto (the default is full width).
+    /// </summary>
+    bool FixedLayout { get; set; }
+
+    /// <summary>
     /// Gets the current search term
     /// </summary>
     string? SearchTerm { get; }

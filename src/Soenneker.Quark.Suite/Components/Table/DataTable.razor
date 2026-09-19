@@ -103,6 +103,9 @@
     public bool Visible { get; set; } = true;
 
     [Parameter]
+    public bool FixedLayout { get; set; }
+
+    [Parameter]
     public int TotalRecords { get; set; }
 
     [Parameter]
@@ -120,6 +123,8 @@
     public int TotalRecordsCount { get; private set; }
 
     public bool HasLoadedOnce { get; private set; }
+
+    public bool IsLoading => _isLoading;
 
     public string? SearchTerm => _searchTerm;
 
@@ -179,6 +184,9 @@
         base.BuildAttributesCore(attributes);
 
         PrependClassAttribute(attributes, "q-datatable caption-bottom");
+
+        if (FixedLayout)
+            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "table-layout: fixed;"));
     }
 
     protected override async Task OnInitializedAsync()
@@ -765,6 +773,7 @@
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Visible);
+        hc.Add(FixedLayout);
         hc.Add(_isLoading);
 
         hc.Add(CurrentPage);

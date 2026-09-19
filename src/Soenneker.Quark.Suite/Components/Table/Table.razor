@@ -9,6 +9,20 @@
 
 @code {
 
+    [CascadingParameter(Name = "DataTable")]
+    private IDataTable? ParentDataTable { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether column widths use fixed table layout, preventing cell content changes from resizing columns.
+    /// When null, inherits the containing DataTable setting, or uses automatic layout for a standalone table.
+    /// Widths come from column definitions or the first row; unspecified columns share the remaining space.
+    /// Requires a table width other than auto (the default is full width).
+    /// </summary>
+    [Parameter]
+    public bool? FixedLayout { get; set; }
+
+    private bool UseFixedLayout => FixedLayout ?? ParentDataTable?.FixedLayout ?? false;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -23,6 +37,15 @@
 
 
         PrependClassAttribute(attributes, "caption-bottom");
+
+        if (UseFixedLayout)
+            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "table-layout: fixed;"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(UseFixedLayout);
     }
 
 }
