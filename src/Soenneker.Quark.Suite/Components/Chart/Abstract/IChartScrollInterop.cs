@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Components;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Provides JavaScript interop for chart scrolling.
+/// Provides JavaScript interop for chart scrolling and radial value animations.
 /// </summary>
 public interface IChartScrollInterop : IAsyncDisposable
 {
 
     /// <summary>
-    /// Starts observing and animating scrolling chart data.
+    /// Starts observing and animating scrolling chart data and radial slice geometry.
     /// </summary>
     ValueTask Initialize(ElementReference element, CancellationToken cancellationToken = default);
 

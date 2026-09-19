@@ -5,7 +5,8 @@
 @using Microsoft.JSInterop
 @inject IChartScrollInterop ChartScrollInterop
 
-<div @ref="_scrollElement" @attributes="BuildAttributes()" @onpointerleave="HoverEvents.Clear"
+<div @ref="_scrollElement" @attributes="BuildAttributes()" @onpointerleave="HoverEvents.Clear" aria-busy="@(IsLoading ? "true" : "false")"
+     data-radial-animated="@(IsRadial && Options.Animate ? "true" : "false")"
      data-scroll-enabled="@(RealtimeScrollingEnabled ? "true" : "false")" data-scroll-paused="@(ScrollPaused ? "true" : "false")"
      data-scroll-version="@_geometryVersion" data-scroll-duration="@F(Options.RealtimeScrollDuration.TotalMilliseconds)"
      data-scroll-x-min="@F(_xMinimum)" data-scroll-x-max="@F(_xMaximum)"
@@ -17,12 +18,18 @@
         </div>
     }
 
-    @if (Options.Legend == ChartLegendPosition.Top)
+    @if (!IsLoading && Options.Legend == ChartLegendPosition.Top)
     {
         <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
 
-    @if (!HasData)
+    @if (IsLoading)
+    {
+        <div class="quark-chart-loading grid min-h-40 w-full place-items-center" style="@StageStyle" data-slot="chart-loading">
+            <Spinner />
+        </div>
+    }
+    else if (!HasData)
     {
         <div class="quark-chart-empty grid min-h-48 place-items-center rounded-lg border border-dashed text-sm text-muted-foreground" role="status">@Options.EmptyText</div>
     }
@@ -80,7 +87,7 @@
                             if (sweep > 0)
                             {
                                 var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Slice(sliceIndex));
-                                <path d="@path" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)" @onclick="() => SelectSlice(sliceIndex)"/>
+                                <path @key="sliceIndex" d="@path" data-radial-geometry="@($"{F(cx)} {F(cy)} {F(radius)} {F(angle)} {F(sweep)} {F(Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0)}")" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)" @onclick="() => SelectSlice(sliceIndex)"/>
                             }
 
                             angle += sweep;
@@ -313,7 +320,7 @@
         </ChartRenderBoundary>
     }
 
-    @if (Options.Legend == ChartLegendPosition.Bottom)
+    @if (!IsLoading && Options.Legend == ChartLegendPosition.Bottom)
     {
         <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
@@ -377,7 +384,7 @@
         await previous;
         if (_scrollDisposed.Read())
             return;
-        if (RealtimeScrollingEnabled)
+        if (!IsLoading && (RealtimeScrollingEnabled || IsRadial && Options.Animate))
         {
             if (!_scrollDisposed.Read() && !_scrollAttached)
             {
@@ -413,6 +420,7 @@
 
     private readonly string _instanceId = BlazorIdGenerator.New("quark-chart");
     private readonly HashSet<int> _hiddenSeries = [];
+    private bool _legendFilterActive;
     private int? _hoveredIndex;
     private int? _hoveredSeries;
     private int? _rangeAnchorIndex;
@@ -465,6 +473,10 @@
     /// </remarks>
     [Parameter, EditorRequired]
     public IReadOnlyList<ChartSeries> Series { get; set; } = [];
+
+    /// <summary>Gets or sets whether a centered spinner replaces the plot, legends, and accessible data table. Loading takes precedence over the empty state.</summary>
+    [Parameter]
+    public bool IsLoading { get; set; }
 
     /// <summary>Gets or sets the revision of mutable chart data. Change this value to rebuild geometry after updating values, appending, or removing samples.</summary>
     /// <remarks>
@@ -617,16 +629,20 @@
             builder.OpenElement(10, interactive ? "button" : "span");
             if (interactive)
                 builder.AddAttribute(11, "type", "button");
-            builder.AddAttribute(12, "class", $"quark-chart-legend-item inline-flex items-center gap-1.5 rounded-md text-xs text-muted-foreground transition-opacity data-[hidden=true]:opacity-35 data-[hidden=true]:line-through{(interactive ? " cursor-pointer hover:text-foreground" : "")}");
+            builder.AddAttribute(12, "class", $"quark-chart-legend-item inline-flex items-center gap-1.5 rounded-md text-xs text-muted-foreground{(!IsRadial && IsSeriesHidden(index) ? " line-through" : "")}{(interactive ? " cursor-pointer px-2 py-1 hover:text-foreground focus-visible:outline focus-visible:outline-2" : "")}");
             builder.AddAttribute(13, "data-hidden", !IsRadial && IsSeriesHidden(index) ? "true" : null);
             if (interactive)
+            {
                 builder.AddAttribute(14, "onclick", EventCallback.Factory.Create(this, () => ToggleSeries(itemIndex)));
-            builder.OpenElement(15, "span");
-            builder.AddAttribute(16, "class", "quark-chart-legend-swatch inline-block size-2 rounded-sm");
-            builder.AddAttribute(17, "style", $"background:{(IsRadial ? SliceLegendBackground(index) : SeriesColor(index))}");
+                builder.AddAttribute(15, "aria-pressed", _legendFilterActive && !IsSeriesHidden(index) ? "true" : "false");
+                builder.AddAttribute(16, "data-selected", _legendFilterActive && !IsSeriesHidden(index) ? "true" : null);
+            }
+            builder.OpenElement(17, "span");
+            builder.AddAttribute(18, "class", "quark-chart-legend-swatch inline-block size-2 rounded-sm");
+            builder.AddAttribute(19, "style", $"background:{(IsRadial ? SliceLegendBackground(index) : SeriesColor(index))}");
             builder.CloseElement();
-            builder.OpenElement(18, "span");
-            builder.AddContent(19, _legendNames[index]);
+            builder.OpenElement(20, "span");
+            builder.AddContent(21, _legendNames[index]);
             builder.CloseElement();
             builder.CloseElement();
         }
@@ -656,9 +672,15 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        if (IsLoading)
+        {
+            ClearHover();
+            ClearRangeSelection();
+        }
         if (!ReferenceEquals(_initializedSeries, Series))
         {
             _hiddenSeries.Clear();
+            _legendFilterActive = false;
             for (var index = 0; index < Series.Count; index++)
             {
                 if (Series[index].Hidden)
@@ -848,7 +870,7 @@
         }
         else
         {
-            _accessibleSeries = IsRadial ? Array.Empty<ChartSeries>() : Series;
+            _accessibleSeries = IsRadial ? Array.Empty<ChartSeries>() : Series.Where((_, index) => !IsSeriesHidden(index)).ToArray();
         }
 
         var legendCount = IsRadial ? _pointCount : Series.Count;
@@ -1396,10 +1418,21 @@
     {
         if (IsRadial || !Options.ToggleSeriesFromLegend)
             return;
-        if (!_hiddenSeries.Add(index))
+        if (!_legendFilterActive)
+        {
+            _legendFilterActive = true;
+            _hiddenSeries.Clear();
+            for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
+            {
+                if (seriesIndex != index)
+                    _hiddenSeries.Add(seriesIndex);
+            }
+        }
+        else if (!_hiddenSeries.Add(index))
             _hiddenSeries.Remove(index);
         Recalculate();
         ClearHover();
+        ClearRangeSelection();
     }
 
     private Task SelectPoint(int index, int series)

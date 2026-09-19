@@ -137,15 +137,16 @@ public sealed class ChartOptions
     public bool Stacked { get; init; }
 
     /// <summary>
-    /// Gets whether chart marks use the built-in entrance transition. The default is <see langword="true"/>.
+    /// Gets whether chart marks use the built-in entrance transition and pie and donut slices animate between values. The default is <see langword="true"/>.
     /// </summary>
     /// <remarks>User preferences for reduced motion are respected regardless of this value.</remarks>
     public bool Animate { get; init; } = true;
 
     /// <summary>
-    /// Gets whether selecting a Cartesian legend item toggles that series. The default is <see langword="true"/>.
+    /// Gets whether Cartesian legend items filter the visible series. The first click isolates a series; subsequent clicks add or remove series.
+    /// The default is <see langword="true"/>.
     /// </summary>
-    /// <remarks>Radial legend items identify slices and do not toggle individual values.</remarks>
+    /// <remarks>Hidden series are crossed out in the legend. Radial legend items identify slices and do not toggle individual values.</remarks>
     public bool ToggleSeriesFromLegend { get; init; } = true;
 
     /// <summary>

@@ -23,6 +23,76 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Legend_filters_multiple_series_and_can_restore_all_results()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[]
+            {
+                new("API", new double[] { 1, 2, 3 }),
+                new("Worker", new double[] { 4, 5, 6 }),
+                new("Queue", new double[] { 7, 8, 9 })
+            }));
+
+        cut.FindAll(".quark-chart-legend-item")[0].Click();
+        cut.FindAll("[data-slot=chart-line]").Should().ContainSingle();
+        cut.Find(".quark-chart-legend-item[data-selected=true]").TextContent.Should().Be("API");
+        cut.FindAll(".quark-chart-legend-item[aria-pressed=false]").Should().HaveCount(2);
+        cut.Find("table").TextContent.Should().NotContain("Worker").And.NotContain("Queue");
+
+        cut.FindAll(".quark-chart-legend-item")[1].Click();
+        cut.FindAll("[data-slot=chart-line]").Should().HaveCount(2);
+        cut.FindAll(".quark-chart-legend-item[aria-pressed=true]").Should().HaveCount(2);
+        cut.Find("table").TextContent.Should().Contain("API").And.Contain("Worker").And.NotContain("Queue");
+
+        cut.FindAll(".quark-chart-legend-item")[0].Click();
+        cut.FindAll("[data-slot=chart-line]").Should().ContainSingle();
+        cut.Find(".quark-chart-legend-item[data-selected=true]").TextContent.Should().Be("Worker");
+        cut.FindAll(".quark-chart-legend-item")[1].Click();
+        cut.FindAll("[data-slot=chart-line]").Should().BeEmpty();
+
+        foreach (var item in cut.FindAll(".quark-chart-legend-item"))
+            item.Click();
+        cut.FindAll("[data-slot=chart-line]").Should().HaveCount(3);
+        cut.FindAll(".quark-chart-legend-reset, .quark-chart-legend-item[data-hidden=true]").Should().BeEmpty();
+        cut.FindAll(".quark-chart-legend-item")[2].Click();
+        cut.FindAll("[data-slot=chart-line]").Should().HaveCount(2);
+        cut.FindAll(".quark-chart-legend-item")[2].ClassList.Should().Contain("line-through");
+        cut.FindAll(".quark-chart-legend-item").Should().AllSatisfy(item =>
+            item.ClassList.Should().NotContain("bg-accent").And.NotContain("font-semibold"));
+    }
+
+    [Test]
+    public void Loading_replaces_results_and_restores_the_chart_without_stale_tooltips()
+    {
+        ComponentFactories.AddStub<Spinner>();
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Revenue", new double[] { 10, 20, 30 }) }));
+        var stageStyle = cut.Find(".quark-chart-stage").GetAttribute("style");
+        cut.FindAll(".quark-chart-hit-area")[1].PointerEnter();
+        cut.FindAll(".quark-chart-tooltip").Should().ContainSingle();
+
+        cut.Render(p => p.Add(c => c.IsLoading, true));
+
+        cut.Find("[data-slot=chart]").GetAttribute("aria-busy").Should().Be("true");
+        cut.Find("[data-slot=chart-loading]").GetAttribute("style").Should().Be(stageStyle);
+        cut.FindComponent<Bunit.TestDoubles.Stub<Spinner>>().Should().NotBeNull();
+        cut.FindAll(".quark-chart-stage, .quark-chart-empty, .quark-chart-tooltip, table, .quark-chart-legend").Should().BeEmpty();
+
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+
+        cut.Find("[data-slot=chart]").GetAttribute("aria-busy").Should().Be("false");
+        cut.FindAll("[data-slot=chart-loading], .quark-chart-tooltip").Should().BeEmpty();
+        cut.FindAll(".quark-chart-stage").Should().ContainSingle();
+        cut.FindAll("table").Should().ContainSingle();
+
+        cut.Render(p => p.Add(c => c.Series, Array.Empty<ChartSeries>()).Add(c => c.IsLoading, true));
+        cut.FindAll("[data-slot=chart-loading]").Should().ContainSingle();
+        cut.FindAll(".quark-chart-empty").Should().BeEmpty();
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+        cut.FindAll(".quark-chart-empty").Should().ContainSingle();
+    }
+
+    [Test]
     public void Plot_clip_preserves_strokes_and_hover_markers_at_both_y_bounds()
     {
         var options = new ChartOptions { ClipPlot = true, Minimum = 0, Maximum = 12, ActivePointRadius = 7 };

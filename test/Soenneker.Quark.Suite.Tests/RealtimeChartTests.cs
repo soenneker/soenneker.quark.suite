@@ -233,7 +233,7 @@ public sealed class RealtimeChartTests : BunitContext
         data.Append(start.AddSeconds(1), 3, 4);
         var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series)
             .Add(c => c.Labels, data.Labels).Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version));
-        cut.Find(".quark-chart-legend-item").Click();
+        cut.FindAll(".quark-chart-legend-item")[1].Click();
         var before = cut.Find("[data-slot=chart-line]").GetAttribute("d");
         data.Append(start.AddSeconds(2), 5, 20);
         cut.Render(p => p.Add(c => c.DataVersion, data.Version));

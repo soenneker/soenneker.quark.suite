@@ -4,6 +4,10 @@ import { initialize, destroy } from '../../src/Soenneker.Quark.Suite/wwwroot/js/
 
 function fixture(t) {
     const timeline = { currentTime: 0 };
+    const frames = new Map();
+    let frameId = 0;
+    globalThis.requestAnimationFrame = callback => { frames.set(++frameId, callback); return frameId; };
+    globalThis.cancelAnimationFrame = id => frames.delete(id);
     let update;
     const motion = { matches: false, addEventListener() {}, removeEventListener() {} };
     globalThis.matchMedia = () => motion;
@@ -13,23 +17,12 @@ function fixture(t) {
         observe() {}
         disconnect() {}
     };
-    globalThis.DOMMatrix = class { constructor(value) { this.m41 = Number(value); } };
-    const position = animation => {
-        if (!animation || animation.cancelled) return 0;
-        const time = animation.pausedAt ?? timeline.currentTime;
-        const fraction = Math.max(0, Math.min(1, (time - animation.startTime) / animation.options.duration));
-        return animation.from + (animation.to - animation.from) * fraction;
-    };
-    globalThis.getComputedStyle = element => ({ transform: position(element.animation) });
+    const position = element => Number(element.style.transform?.match(/translateX\((.*)px\)/)[1] ?? 0);
+    globalThis.getComputedStyle = () => { throw new Error('Scrolling must not force style/layout during a data update'); };
     function element() {
-        return { animate(frames, options) {
-            const offset = frame => Number(frame.transform.match(/translateX\((.*)px\)/)[1]);
-            return this.animation = {
-                from: offset(frames[0]), to: offset(frames[1]), options,
-                cancel() { this.cancelled = true; },
-                pause() { this.pausedAt = timeline.currentTime; },
-                play() { this.startTime += timeline.currentTime - this.pausedAt; this.pausedAt = null; }
-            };
+        return { style: {
+            setProperty(name, value) { this[name] = value; },
+            removeProperty(name) { delete this[name]; }
         } };
     }
     const plot = element(), overlay = element();
@@ -41,8 +34,13 @@ function fixture(t) {
     };
     initialize(root);
     t.after(() => destroy(root));
-    return { root, plot, overlay, motion, update, position: () => position(plot.animation),
-        time(value) { timeline.currentTime = value; },
+    return { root, plot, overlay, motion, update, frames, position: () => position(plot),
+        time(value) {
+            timeline.currentTime = value;
+            const pending = [...frames.values()];
+            frames.clear();
+            for (const callback of pending) callback(value);
+        },
         sample(min) { Object.assign(root.dataset, { scrollVersion: String(Number(root.dataset.scrollVersion) + 1),
             scrollXMin: String(min), scrollXMax: String(min + 60) }); update(); }
     };
@@ -61,8 +59,7 @@ test('late samples preserve position and velocity without a pause at the interva
     assert.equal(f.position() - 10, before);
     f.time(1500);
     assert.equal(f.position(), 5);
-    assert.equal(f.plot.animation.startTime, f.overlay.animation.startTime);
-    assert.equal(f.plot.animation.options.easing, 'linear');
+    assert.equal(f.plot.style.transform, f.overlay.style.transform);
 });
 
 test('early samples preserve velocity and a stopped feed has bounded movement', t => {
@@ -76,6 +73,19 @@ test('early samples preserve velocity and a stopped feed has bounded movement', 
     assert.equal(f.position(), 10);
     f.time(10000);
     assert.equal(f.position(), -10);
+});
+
+test('sample updates compensate geometry immediately and keep only one frame scheduled', t => {
+    const f = fixture(t);
+    f.sample(1);
+    for (let second = 1; second <= 60; second++) {
+        f.time(second * 1000);
+        const before = f.position();
+        f.sample(second + 1);
+        assert.equal(f.position() - 10, before);
+        assert.equal(f.plot.style.transform, f.overlay.style.transform);
+        assert.equal(f.frames.size, 1);
+    }
 });
 
 test('pause freezes continuation and scale changes cancel it', t => {
@@ -92,19 +102,33 @@ test('pause freezes continuation and scale changes cancel it', t => {
     assert.equal(f.position(), -5);
     f.root.dataset.scrollYMax = '200';
     f.sample(2);
-    assert.ok(f.plot.animation.cancelled);
+    assert.equal(f.plot.style.transform, undefined);
+    assert.equal(f.frames.size, 0);
 });
 
-test('reduced motion and destroy cancel both animations', t => {
+test('reduced motion and destroy clear both transforms and cancel scheduled frames', t => {
     const f = fixture(t);
     f.sample(1);
     f.motion.matches = true;
     f.update();
-    assert.ok(f.plot.animation.cancelled);
-    assert.ok(f.overlay.animation.cancelled);
+    assert.equal(f.plot.style.transform, undefined);
+    assert.equal(f.overlay.style.transform, undefined);
+    assert.equal(f.frames.size, 0);
     f.motion.matches = false;
     f.sample(2);
     destroy(f.root);
-    assert.ok(f.plot.animation.cancelled);
-    assert.ok(f.overlay.animation.cancelled);
+    assert.equal(f.plot.style.transform, undefined);
+    assert.equal(f.overlay.style.transform, undefined);
+    assert.equal(f.frames.size, 0);
+});
+
+test('each frame advances both SVG groups at constant speed and stops when the feed stalls', t => {
+    const f = fixture(t);
+    f.sample(1);
+    for (const time of [16, 33, 51, 100, 499, 1001, 1500, 2000, 3000]) {
+        f.time(time);
+        assert.ok(Math.abs(f.position() - Math.max(-10, 10 - time * 0.01)) < 1e-9);
+        assert.equal(f.plot.style.transform, f.overlay.style.transform);
+    }
+    assert.equal(f.frames.size, 0);
 });
