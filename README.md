@@ -18,6 +18,7 @@ Quark gives you ready-to-use components for application layouts, forms, dialogs,
 - **Compose real application UI.** A card has a header, content, and actions; a dialog has a trigger and content. Work with those parts directly in Razor.
 - **Keep styling close to the component.** Use typed values such as `Padding.OnX.Is4.OnY.Is2`, responsive modifiers, semantic colors, and component variants. Use `Class` and `Style` for custom designs.
 - **Build with Blazor conventions.** Bind values, handle events in C#, and use your existing services. Bradix supplies interaction primitives for focus management, overlays, and composite controls; it is included as a dependency.
+- **Use AOT compilation.** Quark supports ahead-of-time (AOT) compilation, with AOT compatibility declared across Suite, its fluent builders, and its enum libraries.
 - **Let the build prepare the assets.** Generators produce the Tailwind stylesheet, selected icon SVGs, and optional theme CSS. You do not need to set up a separate npm workflow to get started.
 - **Own the application's visual identity.** Start with shadcn-compatible tokens, then define light/dark colors and component styling in a shared C# theme when your app needs it.
 
