@@ -20,6 +20,9 @@ public sealed class ChartRenderTests : BunitContext
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddLogging();
         Services.AddQuarkChartScrollAsScoped();
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        module.SetupVoid("initialize", _ => true).SetVoidResult();
+        module.SetupVoid("destroy", _ => true).SetVoidResult();
     }
 
     [Test]
@@ -50,8 +53,8 @@ public sealed class ChartRenderTests : BunitContext
         cut.FindAll(".quark-chart-legend-item")[1].Click();
         cut.FindAll("[data-slot=chart-line]").Should().BeEmpty();
 
-        foreach (var item in cut.FindAll(".quark-chart-legend-item"))
-            item.Click();
+        for (var index = 0; index < 3; index++)
+            cut.FindAll(".quark-chart-legend-item")[index].Click();
         cut.FindAll("[data-slot=chart-line]").Should().HaveCount(3);
         cut.FindAll(".quark-chart-legend-reset, .quark-chart-legend-item[data-hidden=true]").Should().BeEmpty();
         cut.FindAll(".quark-chart-legend-item")[2].Click();
@@ -550,6 +553,31 @@ public sealed class ChartRenderTests : BunitContext
         selection!.Index.Should().Be(1);
         selection.SeriesIndex.Should().Be(0);
         selection.Value.Should().Be(18);
+    }
+
+    [Test]
+    public void Flat_monotone_runs_preserve_plateaus_curved_joins_and_null_gaps()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Series, new ChartSeries[]
+            { new("Activity", new double?[] { 0, 0, 0, 5, 5, 5, 0, null, 1 }) })
+            .Add(c => c.XValues, new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 })
+            .Add(c => c.Options, new ChartOptions { Width = 120, Height = 120,
+                PaddingLeft = 10, PaddingRight = 10, PaddingTop = 10, PaddingBottom = 10,
+                Minimum = 0, Maximum = 10, Curve = ChartCurve.Monotone }));
+        var path = cut.Find("[data-slot=chart-line]").GetAttribute("d")!;
+        path.Should().Be("M10,110L35,110C39.167,110 43.333,60 47.5,60L72.5,60C76.667,60 80.833,93.333 85,110M110,100");
+        cut.FindAll(".quark-chart-point").Count.Should().Be(8);
+    }
+
+    [Test]
+    public void Svg_numbers_keep_invariant_three_decimal_rounding_and_large_timestamps()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Series, new ChartSeries[] { new("Activity", new double[] { 1, 2 }) }));
+        foreach (var minimum in new[] { -0.0004, -1.2345, -9.87654, 0.001, 0.01, 0.1, 1.2345, 999999999.999, 1789841911000d })
+        {
+            cut.Render(p => p.Add(c => c.Options, new ChartOptions { IncludeZero = false, Minimum = minimum, Maximum = minimum + 100 }));
+            cut.Find("[data-slot=chart]").GetAttribute("data-scroll-y-min").Should().Be(minimum.ToString("0.###", CultureInfo.InvariantCulture));
+        }
     }
 
     [Test]

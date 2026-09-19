@@ -9,14 +9,22 @@
 @implements IDataTable
 
 <CascadingValue Name="DataTable" Value="this">
-    <CascadingValue Value="@_isLoading" Name="IsLoading" >
+    <CascadingValue Value="@IsLoading" Name="IsLoading" >
 		@if (Visible)
 		{
 			<Div Id="@ElementId" Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0">
                 @TopContent
 
-                <Div Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" OverflowX="Quark.Overflow.X.Auto">
+                <Div Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="Quark.Overflow.X.Auto">
                     @OverlayContent
+                    @if (IsLoading && OverlayContent is null)
+                    {
+                        <Div data-slot="datatable-loading" Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" ZIndex="Quark.ZIndex.Is10"
+                             Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center"
+                             Style="background: color-mix(in srgb, var(--background) 60%, transparent);">
+                            <Spinner Size="Quark.Size.Is6" aria-label="Loading data" />
+                        </Div>
+                    }
 
                     @if (TableContent != null)
                     {
@@ -24,7 +32,7 @@
                             @TableContent
                         </table>
                     }
-                    else if (!_isLoading && ChildContent == null)
+                    else if (!IsLoading && ChildContent == null)
                     {
                         <Div TextAlign="Quark.TextAlign.Center" Padding="Quark.Padding.Is4">
                             <p>No content available</p>
@@ -124,7 +132,13 @@
 
     public bool HasLoadedOnce { get; private set; }
 
-    public bool IsLoading => _isLoading;
+    [Parameter]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "BL0007", Justification = "Preserve the existing effective loading getter while accepting independent external loading state.")]
+    public bool IsLoading
+    {
+        get => _externalLoading || _isLoading;
+        set => _externalLoading = value;
+    }
 
     public string? SearchTerm => _searchTerm;
 
@@ -150,6 +164,7 @@
     private string? _continuationToken;
 
     private bool _isLoading;
+    private bool _externalLoading;
     private bool _initialized;
     private bool _dataLoaded;
     private bool _hasLoadedOnce; // Flag to track if data has been loaded at least once
@@ -182,6 +197,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["aria-busy"] = IsLoading ? "true" : "false";
 
         PrependClassAttribute(attributes, "q-datatable caption-bottom");
 
@@ -774,7 +790,7 @@
 
         hc.Add(Visible);
         hc.Add(FixedLayout);
-        hc.Add(_isLoading);
+        hc.Add(IsLoading);
 
         hc.Add(CurrentPage);
         hc.Add(PageSize);

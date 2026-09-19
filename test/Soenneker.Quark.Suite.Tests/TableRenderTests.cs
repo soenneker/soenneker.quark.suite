@@ -10,6 +10,43 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void DataTable_loading_retains_rows_and_clears_the_builtin_overlay()
+    {
+        var cut = Render<DataTable>(p => p.Add(c => c.TableContent, BasicTableContent).Add(c => c.IsLoading, true));
+        cut.Find("[data-slot='datatable-loading']");
+        cut.Find("table").GetAttribute("aria-busy").Should().Be("true");
+        cut.Find("table").TextContent.Should().Contain("Cell");
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+        cut.FindAll("[data-slot='datatable-loading']").Should().BeEmpty();
+        cut.Find("table").GetAttribute("aria-busy").Should().Be("false");
+    }
+
+    [Test]
+    public async Task DataTable_loading_combines_external_state_with_internal_requests()
+    {
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var cut = Render<DataTable>(p => p.Add(c => c.TableContent, BasicTableContent).Add(c => c.OnInteraction, async request =>
+        {
+            if (request.Search?.Value != "pending") return;
+            started.SetResult();
+            await release.Task;
+        }));
+        var pending = cut.InvokeAsync(() => cut.Instance.HandleSearch("pending").AsTask());
+        await started.Task;
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+        cut.Instance.IsLoading.Should().BeTrue();
+        cut.Find("[data-slot='datatable-loading']");
+        cut.Render(p => p.Add(c => c.IsLoading, true));
+        release.SetResult();
+        await pending;
+        cut.Instance.IsLoading.Should().BeTrue();
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+        cut.Instance.IsLoading.Should().BeFalse();
+        cut.FindAll("[data-slot='datatable-loading']").Should().BeEmpty();
+    }
+
+    [Test]
     public void DataTable_renders_native_table_from_table_content()
     {
         var cut = Render<DataTable>(parameters => parameters

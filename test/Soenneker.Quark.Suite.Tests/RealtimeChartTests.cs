@@ -12,6 +12,9 @@ public sealed class RealtimeChartTests : BunitContext
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddQuarkChartScrollAsScoped();
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        module.SetupVoid("initialize", _ => true).SetVoidResult();
+        module.SetupVoid("destroy", _ => true).SetVoidResult();
     }
 
     [Test]
@@ -50,6 +53,39 @@ public sealed class RealtimeChartTests : BunitContext
         cut.Render(p => p.Add(c => c.Options, new ChartOptions()));
         destroy.Invocations.Count.Should().Be(1);
         cut.Find("[data-slot=chart]").GetAttribute("data-scroll-enabled").Should().Be("false");
+    }
+
+    [Test]
+    public void Retained_hit_targets_select_current_samples_and_resize_with_the_window()
+    {
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js");
+        module.SetupVoid("initialize", _ => true).SetVoidResult();
+        module.SetupVoid("destroy", _ => true).SetVoidResult();
+        var data = new RealtimeChartData(3, "API");
+        var start = DateTimeOffset.UnixEpoch;
+        data.Append(start, 1);
+        data.Append(start.AddSeconds(1), 2);
+        data.Append(start.AddSeconds(2), 3);
+        var options = new ChartOptions { EnableRealtimeScrolling = true, EnableRangeSelection = true, Minimum = 0, Maximum = 10 };
+        ChartRangeSelection? selected = null;
+        var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series).Add(c => c.Labels, data.Labels)
+            .Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version).Add(c => c.Options, options)
+            .Add(c => c.OnRangeSelect, selection => selected = selection));
+        var firstWidth = cut.Find("[data-slot=chart-range-hit-area]").GetAttribute("width");
+        data.Append(start.AddSeconds(3), 4);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        var targets = cut.FindAll("[data-slot=chart-range-hit-area]");
+        targets[0].TriggerEvent("onpointerdown", new Microsoft.AspNetCore.Components.Web.PointerEventArgs());
+        targets[1].TriggerEvent("onpointerenter", new Microsoft.AspNetCore.Components.Web.PointerEventArgs());
+        targets[1].TriggerEvent("onpointerup", new Microsoft.AspNetCore.Components.Web.PointerEventArgs());
+        selected.Should().NotBeNull();
+        selected!.StartXValue.Should().Be(1000);
+        selected.EndXValue.Should().Be(2000);
+        cut.Render(p => p.Add(c => c.Options, new ChartOptions { Width = options.Width * 2,
+            EnableRealtimeScrolling = true, EnableRangeSelection = true, Minimum = 0, Maximum = 10 }));
+        cut.Find("[data-slot=chart-range-hit-area]").GetAttribute("width").Should().NotBe(firstWidth);
+        cut.FindAll("table tbody tr").Count.Should().Be(3);
+        cut.Find("table tbody th").TextContent.Should().Be("00:00:01.000");
     }
 
     [Test]

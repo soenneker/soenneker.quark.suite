@@ -35,9 +35,11 @@ public interface IDataTable : ICancellableElement
     bool HasLoadedOnce { get; }
 
     /// <summary>
-    /// Gets whether the data table is currently loading data.
+    /// Gets whether an internal request or externally supplied loading state is active.
+    /// Sets the external loading state without overriding an active internal request.
+    /// Loading retains table content and shows a centered overlay; OverlayContent can replace the default overlay.
     /// </summary>
-    bool IsLoading { get; }
+    bool IsLoading { get; set; }
 
     /// <summary>
     /// Gets or sets whether column widths use fixed table layout, preventing cell content changes from resizing columns.

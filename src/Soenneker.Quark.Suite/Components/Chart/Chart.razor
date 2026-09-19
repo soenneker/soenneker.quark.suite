@@ -139,6 +139,7 @@
 
                         <g clip-path="@(ClipPlot ? $"url(#{_instanceId}-plot-clip)" : null)">
                         <g data-slot="chart-plot" data-plot-width="@F(PlotWidth)" style="@(Options.EnableRangeSelection ? "touch-action:none" : null)">
+                        <ChartRenderBoundary Version="_hitAreaVersion">
                         @if (!Options.EnableRangeSelection && (Options.ShowTooltip || Options.ShowCursor))
                         {
                             @for (var index = VisibleStart; index <= VisibleEnd; index++)
@@ -160,6 +161,7 @@
                             }
                         }
 
+                        </ChartRenderBoundary>
                         @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
                         {
                             var series = Series[seriesIndex];
@@ -208,7 +210,7 @@
                                                 }
                                             }
                                         }
-                                        @for (var index = VisibleStart; index <= VisibleEnd; index++)
+                                        @for (var index = FirstMarkerIndex(series); index <= VisibleEnd; index++)
                                         {
                                             var value = ValueAt(series, index);
                                             if (value is not null && ShouldRenderMarker(series, index))
@@ -307,7 +309,7 @@
                 <tbody>
                     @for (var index = VisibleStart; index <= VisibleEnd; index++)
                     {
-                        <tr>
+                        <tr @key="(_useContinuousX ? XValues![index] : index)">
                             <th>@LabelAt(index)</th>
                             @foreach (var series in AccessibleSeries)
                             {
@@ -340,6 +342,11 @@
     private ValueAtomicBool _scrollDisposed;
     private ScrollSnapshot? _scrollSnapshot;
     private ScrollSnapshot? _scrollHistory;
+    private int _hitAreaVersion;
+    private int _hitAreaStart = -1;
+    private int _hitAreaMode = -1;
+    private double _hitAreaTop, _hitAreaHeight;
+    private double[] _hitAreaCoordinates = [];
     private bool RealtimeScrollingEnabled => Options.EnableRealtimeScrolling && !IsRadial && _useContinuousX &&
         _allLineOrAreaSeries;
     private bool ClipPlot => Options.ClipPlot || RealtimeScrollingEnabled || IsZoomed;
@@ -810,6 +817,7 @@
         CalculateDomain();
         CalculateTicks();
         PrepareScrollHistory();
+        PrepareHitAreas();
         RebuildGeometry();
         _viewBox = $"0 0 {F(Options.Width)} {F(Options.Height)}";
         _stageStyle = $"aspect-ratio:{F(Options.Width)}/{F(Options.Height)}";
@@ -997,6 +1005,31 @@
         }
     }
 
+    private void PrepareHitAreas()
+    {
+        // Hit targets read the current data at event time. A rolling window with
+        // unchanged spacing needs no new rects or event handlers.
+        var mode = IsRadial ? 0 : Options.EnableRangeSelection ? 2 : Options.ShowTooltip || Options.ShowCursor ? 1 : 0;
+        var count = mode == 0 ? 0 : VisibleCount * 2;
+        var changed = mode != _hitAreaMode || _hitAreaStart != VisibleStart ||
+            _hitAreaTop != PlotTop || _hitAreaHeight != PlotHeight || _hitAreaCoordinates.Length != count;
+        if (_hitAreaCoordinates.Length != count) _hitAreaCoordinates = new double[count];
+        for (var offset = 0; offset < count; offset += 2)
+        {
+            var index = VisibleStart + offset / 2;
+            var x = CategoryStart(index);
+            var width = CategoryWidthAt(index);
+            changed |= _hitAreaCoordinates[offset] != x || _hitAreaCoordinates[offset + 1] != width;
+            _hitAreaCoordinates[offset] = x;
+            _hitAreaCoordinates[offset + 1] = width;
+        }
+        _hitAreaMode = mode;
+        _hitAreaStart = VisibleStart;
+        _hitAreaTop = PlotTop;
+        _hitAreaHeight = PlotHeight;
+        if (changed) unchecked { _hitAreaVersion++; }
+    }
+
     private double CategoryStart(int index)
     {
         if (PointCount <= 1)
@@ -1050,6 +1083,14 @@
     private bool IsSeriesHidden(int index) => _hiddenSeries.Contains(index);
     private bool ShouldRenderAnyMarkers(ChartSeries series) => (series.ShowPoints ?? Options.ShowPoints) || Options.ShowEndPoints;
 
+    private int FirstMarkerIndex(ChartSeries series)
+    {
+        if (series.ShowPoints ?? Options.ShowPoints) return VisibleStart;
+        for (var index = VisibleEnd; index >= VisibleStart; index--)
+            if (ValueAt(series, index) is not null) return index;
+        return VisibleEnd + 1;
+    }
+
     private bool ShouldRenderMarker(ChartSeries series, int index) =>
         (series.ShowPoints ?? Options.ShowPoints) || (Options.ShowEndPoints && IsLastValue(series, index));
 
@@ -1087,7 +1128,32 @@
     private string SliceGradientId(int index) => BlazorIdGenerator.Child(_instanceId, $"slice-gradient-{index}");
     private string LinePath(int seriesIndex) => _linePaths.GetValueOrDefault(seriesIndex, string.Empty);
     private string AreaPath(int seriesIndex) => _areaPaths.GetValueOrDefault(seriesIndex, string.Empty);
-    private static string F(double value) => value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+    private static string F(double value)
+    {
+        // SVG coordinates have only three decimal places. Format their integer and
+        // fractional parts directly instead of running the floating-point custom
+        // formatter hundreds of times on the WebAssembly UI thread every sample.
+        if (!double.IsFinite(value) || Math.Abs(value) >= 1_000_000_000)
+            return value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        var scaled = (long)Math.Round(Math.Abs(Math.Round(value, 3, MidpointRounding.AwayFromZero)) * 1000);
+        Span<char> buffer = stackalloc char[32];
+        var start = value < 0 ? 1 : 0;
+        if (start != 0) buffer[0] = '-';
+        (scaled / 1000).TryFormat(buffer[start..], out var length, provider: System.Globalization.CultureInfo.InvariantCulture);
+        length += start;
+        var fraction = (int)(scaled % 1000);
+        if (fraction != 0)
+        {
+            buffer[length++] = '.';
+            buffer[length++] = (char)('0' + fraction / 100);
+            if (fraction % 100 != 0)
+            {
+                buffer[length++] = (char)('0' + fraction / 10 % 10);
+                if (fraction % 10 != 0) buffer[length++] = (char)('0' + fraction % 10);
+            }
+        }
+        return new string(buffer[..length]);
+    }
 
     private string BuildLinePath(IReadOnlyList<List<ChartPoint>> segments)
     {
@@ -1183,6 +1249,15 @@
         {
             var current = points[index];
             var next = points[index + 1];
+            if (current.Y == next.Y)
+            {
+                // Monotone tangents are zero along a flat run. One straight segment
+                // is identical to all those cubic curves, including at either join.
+                while (index + 2 < count && points[index + 2].Y == current.Y)
+                    next = points[++index + 1];
+                builder.Append('L').Append(F(next.X)).Append(',').Append(F(next.Y));
+                continue;
+            }
             var width = next.X - current.X;
             builder.Append('C').Append(F(current.X + width / 3)).Append(',').Append(F(current.Y + tangents[index] * width / 3)).Append(' ').Append(F(next.X - width / 3)).Append(',').Append(F(next.Y - tangents[index + 1] * width / 3)).Append(' ').Append(F(next.X)).Append(',').Append(F(next.Y));
         }

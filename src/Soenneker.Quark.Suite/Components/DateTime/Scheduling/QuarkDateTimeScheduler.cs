@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -114,6 +115,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 }
             }
 
+            var batchStarted = Stopwatch.GetTimestamp();
             for (var i = 0; i < due.Count; i++)
             {
                 (var registration, var version) = due[i];
@@ -137,6 +139,15 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
                 {
                     if (!registration.Disposed && registration.Version == version && _registrations.Contains(registration))
                         ScheduleCore(registration, DateTimeOffset.UtcNow);
+                }
+
+                // A table can have many timestamps due together. On WebAssembly,
+                // their rendering shares the browser thread with chart animation.
+                if (OperatingSystem.IsBrowser() && i + 1 < due.Count && Stopwatch.GetElapsedTime(batchStarted).TotalMilliseconds >= 4)
+                {
+                    try { await Task.Delay(1, _disposeCts.Token); }
+                    catch (OperationCanceledException) { return; }
+                    batchStarted = Stopwatch.GetTimestamp();
                 }
             }
 
