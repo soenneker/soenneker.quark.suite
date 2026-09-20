@@ -530,7 +530,8 @@ else
 
         if (TriggerContext?.OnKeyDown is not null)
         {
-            if (args.Key is "ArrowDown" or "Enter" or " " or "Space" or "Spacebar")
+            // Tooltips close on activation but still allow the button's native keyboard click.
+            if (TriggerContext.DataSlot != "tooltip-trigger" && args.Key is ("ArrowDown" or "Enter" or " " or "Space" or "Spacebar"))
                 _ignoreNextKeyboardClick = true;
 
             await TriggerContext.OnKeyDown(args);

@@ -7,6 +7,8 @@ public sealed class ThemeService(IThemeInterop themeInterop) : IDisposable
 {
     private bool _initialized;
 
+    public ThemeMode Mode => themeInterop.Mode;
+
     public bool IsDark { get; private set; }
     public event Action? ThemeChanged;
 
@@ -29,6 +31,12 @@ public sealed class ThemeService(IThemeInterop themeInterop) : IDisposable
     }
 
     public void Dispose() => themeInterop.ThemeChanged -= OnThemeChanged;
+
+    public async Task SetMode(ThemeMode mode)
+    {
+        IsDark = await themeInterop.SetMode(mode);
+        ThemeChanged?.Invoke();
+    }
 
     public async Task Toggle()
     {

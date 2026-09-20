@@ -2,20 +2,20 @@
 @inject Services.ThemeService ThemeService
 @implements IDisposable
 
-<SeoHead Title="Blazor Theme Toggle Button Component &amp; Examples | Quark Suite" Description="Explore the Quark Suite Blazor Theme Toggle Button component. Toggle light and dark mode with animated icon feedback." />
+<SeoHead Title="Blazor Theme Toggle Button Component &amp; Examples | Quark Suite" Description="Explore the Quark Suite Blazor Theme Toggle Button component. Cycle through system, light, and dark modes with animated icons and tooltips." />
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Section Space="Space.Y.Is4">
         <DemoSection
-            Description="Toggle light and dark mode with animated icon feedback."
+            Description="Cycle through system, light, and dark modes with animated icons and tooltips."
             Code="@BasicCode"
             CodeLanguage="razor"
             PreviewClass="preview flex min-h-[14rem] w-full items-center justify-center"
             PreviewInnerClass="demo-section-preview-inner flex w-full items-center justify-center">
             <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Center" Gap="Gap.Is3">
-                <ThemeToggleButton IsDark="ThemeService.IsDark"
+                <ThemeToggleButton Mode="ThemeService.Mode"
                                    AriaLabel="Toggle theme"
-                                   OnClick="ToggleTheme" />
+                                   ModeChanged="ThemeService.SetMode" />
             </Div>
         </DemoSection>
     </Section>
@@ -24,19 +24,14 @@
 @code {
     private const string BasicCode =
 @"<Div Display=""Display.Flex"" ItemsAlign=""Items.Center"" Justify=""Justify.Center"" Gap=""Gap.Is3"">
-    <ThemeToggleButton IsDark=""ThemeService.IsDark""
+    <ThemeToggleButton Mode=""ThemeService.Mode""
                        AriaLabel=""Toggle theme""
-                       OnClick=""ToggleTheme"" />
+                       ModeChanged=""ThemeService.SetMode"" />
 </Div>";
 
     protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
-    }
-
-    private async Task ToggleTheme()
-    {
-        await ThemeService.Toggle();
     }
 
     private void OnThemeChanged()

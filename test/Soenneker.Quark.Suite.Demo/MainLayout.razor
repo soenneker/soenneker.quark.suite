@@ -39,7 +39,7 @@
 
                     <Separator Orientation="SeparatorOrientation.Vertical" Display="Display.None.OnLg.Flex"/>
 
-                    <ThemeToggleButton IsDark="ThemeService.IsDark" AriaLabel="Toggle theme" OnClick="ToggleTheme"/>
+                    <ThemeToggleButton Mode="ThemeService.Mode" AriaLabel="Toggle theme" ModeChanged="ThemeService.SetMode"/>
                 </ActionsContent>
             </Header>
         }
@@ -75,7 +75,7 @@
 
                     <Separator Orientation="SeparatorOrientation.Vertical"/>
 
-                    <ThemeToggleButton IsDark="ThemeService.IsDark" AriaLabel="Toggle theme" OnClick="ToggleTheme"/>
+                    <ThemeToggleButton Mode="ThemeService.Mode" AriaLabel="Toggle theme" ModeChanged="ThemeService.SetMode"/>
 
                     <Div ItemsAlign="Items.Center" Gap="Gap.Is2" Class="group-has-data-[slot=designer]/layout:md:flex" Display="Display.None">
                         <Separator Orientation="SeparatorOrientation.Vertical"/>
@@ -337,11 +337,6 @@
     private void OnThemeChanged()
     {
         _ = InvokeAsync(StateHasChanged);
-    }
-
-    private async Task ToggleTheme()
-    {
-        await ThemeService.Toggle();
     }
 
 public void Dispose()

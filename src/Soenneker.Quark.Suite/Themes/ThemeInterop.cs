@@ -13,6 +13,7 @@ public sealed class ThemeInterop : IThemeInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
     private DotNetObjectReference<ThemeInterop>? _callback;
+    public ThemeMode Mode { get; private set; } = ThemeMode.System;
     public bool IsDark { get; private set; }
     public event Action<bool>? ThemeChanged;
 
@@ -33,7 +34,7 @@ public sealed class ThemeInterop : IThemeInterop
             _callback ??= DotNetObjectReference.Create(this);
             await module.InvokeVoidAsync("registerThemeChangedCallback", linked, _callback);
             var isDark = await module.InvokeAsync<bool>("initialize", linked);
-            OnThemeChanged(isDark);
+            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
             return isDark;
         }
     }
@@ -46,7 +47,7 @@ public sealed class ThemeInterop : IThemeInterop
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             var isDark = await module.InvokeAsync<bool>("toggle", linked);
-            OnThemeChanged(isDark);
+            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
             return isDark;
         }
     }
@@ -69,15 +70,30 @@ public sealed class ThemeInterop : IThemeInterop
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             var isDark = await module.InvokeAsync<bool>("useSystem", linked);
-            OnThemeChanged(isDark);
+            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
+            return isDark;
+        }
+    }
+
+    public async ValueTask<bool> SetMode(ThemeMode mode, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mode);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var isDark = await module.InvokeAsync<bool>("setMode", linked, mode.Value);
+            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
             return isDark;
         }
     }
 
     [JSInvokable]
-    public void OnThemeChanged(bool isDark)
+    public void OnThemeChanged(bool isDark, string mode)
     {
-        if (IsDark == isDark) return;
+        var selectedMode = ThemeMode.FromValue(mode.ToLowerInvariant());
+        if (IsDark == isDark && Mode == selectedMode) return;
+        Mode = selectedMode;
         IsDark = isDark;
         ThemeChanged?.Invoke(isDark);
     }

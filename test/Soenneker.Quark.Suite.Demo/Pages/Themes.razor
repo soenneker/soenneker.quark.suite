@@ -1,8 +1,8 @@
 @page "/themes"
 
-<SeoHead Title="Make Quark match your application | Quark Suite" Description="Choose shadcn-compatible theme tokens or generate a shared C# theme. Learn which CSS files to load and how to switch light and dark mode." />
+<SeoHead Title="Make Quark match your application | Quark Suite" Description="Choose shadcn-compatible theme tokens or generate a shared C# theme. Learn which CSS files to load and how to switch system, light, and dark modes." />
 
-<DocumentationPage Title="Make Quark match your application" Description="Choose shadcn-compatible theme tokens or generate a shared C# theme. Learn which CSS files to load and how to switch light and dark mode.">
+<DocumentationPage Title="Make Quark match your application" Description="Choose shadcn-compatible theme tokens or generate a shared C# theme. Learn which CSS files to load and how to switch system, light, and dark modes.">
 
 <Section Id="choose-a-source">
     <H2>Choose who owns the theme tokens</H2>
@@ -38,9 +38,9 @@
 </Section>
 
 <Section Id="dark-mode">
-    <H2>Switch between light and dark mode</H2>
+    <H2>Switch between system, light, and dark modes</H2>
     <Paragraph>Theme generation defines both sets of values. Runtime theme interop selects which one is active. <Code>AddQuarkSuiteAsScoped()</Code> registers <Code>IThemeInterop</Code>.</Paragraph>
-    <Paragraph>With no saved choice, Quark follows the operating system and reacts to changes immediately. Toggling saves an explicit choice. Call <Code>UseSystem()</Code> to clear it and follow the OS again. Existing saved light/dark choices are preserved.</Paragraph>
+    <Paragraph>With no saved choice, Quark follows the operating system and reacts to changes immediately. The button cycles through system, light, and dark. Light and dark save an explicit choice; system clears it and follows the OS again. Existing saved light/dark choices are preserved.</Paragraph>
     <CodeEditor Text="@themeToggle" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
     <Paragraph>The demo wraps this in a shared theme service so the header and other controls use the same state. Initialize browser interop after the first interactive render.</Paragraph>
 </Section>
@@ -142,23 +142,21 @@ public static class AppTheme
     private const string themeToggle = @"@using Soenneker.Quark
 @inject IThemeInterop ThemeInterop
 
-<ThemeToggleButton IsDark=""_isDark"" OnClick=""ToggleTheme"" />
+<ThemeToggleButton Mode=""ThemeInterop.Mode"" ModeChanged=""SetTheme"" />
 
 @code {
-    private bool _isDark;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
             return;
 
-        _isDark = await ThemeInterop.Initialize();
+        await ThemeInterop.Initialize();
         StateHasChanged();
     }
 
-    private async Task ToggleTheme()
+    private async Task SetTheme(ThemeMode mode)
     {
-        _isDark = await ThemeInterop.Toggle();
+        await ThemeInterop.SetMode(mode);
     }
 }";
 

@@ -52,7 +52,7 @@ function ensureThemeChangedListener() {
         const refs = Array.from(themeChangedRefs.entries());
 
         refs.forEach(([id, ref]) => {
-            Promise.resolve(ref.invokeMethodAsync("OnThemeChanged", e.detail.isDark))
+            Promise.resolve(ref.invokeMethodAsync("OnThemeChanged", e.detail.isDark, getMode()))
                 .catch(() => {
                     themeChangedRefs.delete(id);
                     removeThemeChangedListenerIfUnused();
@@ -68,6 +68,17 @@ function applyTheme(isDark) {
     root.style.colorScheme = isDark ? "dark" : "light";
     window.dispatchEvent(new CustomEvent("quark-theme-changed", { detail: { isDark } }));
     return isDark;
+}
+
+export function getMode() {
+    const stored = readPreference();
+    return stored === "light" || stored === "dark" ? stored : "system";
+}
+
+export function setMode(mode) {
+    if (!["system", "light", "dark"].includes(mode)) throw new Error("Invalid theme mode");
+    savePreference(mode === "system" ? null : mode);
+    return initialize();
 }
 
 export function resolveIsDark() {

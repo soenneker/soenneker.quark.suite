@@ -104,3 +104,34 @@ test('repeated initialization does not duplicate OS listeners and callbacks can 
     f.changeSystem(false);
     assert.equal(updates.length, 1);
 });
+
+for (const dark of [false, true]) {
+    test(`explicit modes and preference callbacks with system dark=${dark}`, () => {
+        const f = fixture(dark);
+        const updates = [];
+        f.context.registerThemeChangedCallback({ _id: 2, invokeMethodAsync(...args) { updates.push(args); return Promise.resolve(); } });
+        f.context.initialize();
+        assert.equal(f.context.getMode(), 'system');
+        for (const mode of ['light', 'dark', 'system']) {
+            assert.equal(f.context.setMode(mode), mode === 'system' ? dark : mode === 'dark');
+            assert.equal(f.context.getMode(), mode);
+            assert.equal(updates.at(-1)[2], mode);
+            assert.equal(f.storage.get('quark-theme'), mode === 'system' ? undefined : mode);
+        }
+        f.changeSystem(!dark);
+        assert.equal(f.root.dark, !dark);
+        assert.equal(f.context.getMode(), 'system');
+    });
+}
+
+test('explicit mode selection works with blocked storage and rejects invalid modes', () => {
+    const f = fixture(true, undefined, true);
+    f.context.setMode('light');
+    assert.equal(f.context.getMode(), 'light');
+    f.changeSystem(true);
+    assert.equal(f.root.dark, false);
+    f.context.setMode('system');
+    assert.equal(f.context.getMode(), 'system');
+    assert.equal(f.root.dark, true);
+    assert.throws(() => f.context.setMode('invalid'));
+});
