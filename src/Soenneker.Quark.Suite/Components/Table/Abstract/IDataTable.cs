@@ -49,6 +49,16 @@ public interface IDataTable : ICancellableElement
     bool FixedLayout { get; set; }
 
     /// <summary>
+    /// Measures column content and reserves extra space so small updates do not shift the table.
+    /// Widths grow only when the reserved space is exceeded, and reset on container resize or column changes.
+    /// Takes precedence over FixedLayout. Defaults to false. Authored colgroups and rowspans retain native layout.
+    /// </summary>
+    bool AdaptiveLayout { get; set; }
+
+    /// <summary>Gets or sets the measurement limits and extra space used by adaptive layout.</summary>
+    TableColumnSizingOptions ColumnSizing { get; set; }
+
+    /// <summary>
     /// Gets the current search term
     /// </summary>
     string? SearchTerm { get; }

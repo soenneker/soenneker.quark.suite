@@ -98,6 +98,7 @@ public sealed class ChartOptions
     /// <remarks>
     /// This is useful for sparklines. It remains effective when <see cref="ShowPoints"/> or a series-level point setting is disabled.
     /// When all points are visible, enabling this option does not create a duplicate marker.
+    /// During realtime scrolling, an endpoint at the right plot boundary is omitted; endpoints inside the plot remain visible.
     /// </remarks>
     public bool ShowEndPoints { get; init; } = true;
 

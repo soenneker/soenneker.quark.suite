@@ -28,7 +28,11 @@
 
                     @if (TableContent != null)
                     {
-                        <table @attributes="BuildAttributes()">
+                        <table @ref="_tableElement" @attributes="BuildAttributes()">
+                            @if (AdaptiveLayout)
+                            {
+                                <colgroup @ref="_columnsElement"></colgroup>
+                            }
                             @TableContent
                         </table>
                     }
@@ -112,6 +116,27 @@
 
     [Parameter]
     public bool FixedLayout { get; set; }
+
+    [Parameter]
+    public bool AdaptiveLayout { get; set; }
+
+    [Parameter]
+    public TableColumnSizingOptions ColumnSizing { get; set; } = new();
+
+    private ElementReference _tableElement;
+    private ElementReference _columnsElement;
+    private AdaptiveTableLayout? _adaptiveLayout;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        var enabled = AdaptiveLayout && Visible && TableContent is not null;
+        if (enabled || _adaptiveLayout is not null)
+        {
+            _adaptiveLayout ??= new AdaptiveTableLayout(TablesInterop);
+            await _adaptiveLayout.Synchronize(_tableElement, _columnsElement, enabled, ColumnSizing);
+        }
+    }
 
     [Parameter]
     public int TotalRecords { get; set; }
@@ -200,6 +225,9 @@
         attributes["aria-busy"] = IsLoading ? "true" : "false";
 
         PrependClassAttribute(attributes, "q-datatable caption-bottom");
+
+        if (AdaptiveLayout)
+            PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden");
 
         if (FixedLayout)
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "table-layout: fixed;"));
@@ -781,7 +809,15 @@
             return;
         _pendingInteraction = false;
         _registeredColumns.Clear();
-        await base.DisposeAsync();
+        try
+        {
+            if (_adaptiveLayout is not null)
+                await _adaptiveLayout.DisposeAsync();
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -790,6 +826,8 @@
 
         hc.Add(Visible);
         hc.Add(FixedLayout);
+        hc.Add(AdaptiveLayout);
+        hc.Add(ColumnSizing);
         hc.Add(IsLoading);
 
         hc.Add(CurrentPage);

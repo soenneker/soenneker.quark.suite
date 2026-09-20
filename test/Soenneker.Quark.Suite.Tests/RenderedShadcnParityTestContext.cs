@@ -486,6 +486,10 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     {
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask StopAdaptiveLayout(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 

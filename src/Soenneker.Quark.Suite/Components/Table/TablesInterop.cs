@@ -1,42 +1,34 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Asyncs.Initializers;
-using Soenneker.Extensions.CancellationTokens;
-using Soenneker.Utils.CancellationScopes;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="ITablesInterop"/>
 public sealed class TablesInterop : ITablesInterop
 {
-    private readonly AsyncInitializer _styleInitializer;
-    private readonly CancellationScope _cancellationScope = new();
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/tablesinterop.js";
+    private readonly IModuleImportUtil _moduleImportUtil;
 
-    public TablesInterop()
+    public TablesInterop(IModuleImportUtil moduleImportUtil)
     {
-        _styleInitializer = new AsyncInitializer(InitializeCss);
+        _moduleImportUtil = moduleImportUtil;
     }
 
-    private ValueTask InitializeCss(CancellationToken token)
+    public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+    public async ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, CancellationToken cancellationToken = default)
     {
-        return ValueTask.CompletedTask;
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("initialize", cancellationToken, element, columns, options);
     }
 
-    public async ValueTask Initialize(CancellationToken cancellationToken = default)
+    public async ValueTask StopAdaptiveLayout(ElementReference element, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
-
-        using (source)
-            await _styleInitializer.Init(linked);
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("destroy", cancellationToken, element);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async ValueTask DisposeAsync()
-    {
-        await _styleInitializer.DisposeAsync();
-        await _cancellationScope.DisposeAsync();
-    }
+    public async ValueTask DisposeAsync() => await _moduleImportUtil.DisposeContentModule(_modulePath);
 }

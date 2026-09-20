@@ -661,6 +661,27 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Realtime_endpoints_hide_at_the_live_boundary_but_remain_inside_the_plot()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.XValues, new double[] { 10, 20, 30 })
+            .Add(c => c.Series, new ChartSeries[]
+            {
+                new("Live", new double[] { 10, 20, 30 }),
+                new("Earlier", new double?[] { 10, 20, null })
+            })
+            .Add(c => c.Options, new ChartOptions
+            {
+                EnableRealtimeScrolling = true, ShowPoints = false, ShowEndPoints = true
+            }));
+        cut.FindAll(".quark-chart-point").Should().HaveCount(1);
+        cut.Find(".quark-chart-point").GetAttribute("aria-label").Should().Contain("Earlier");
+
+        cut.Render(p => p.Add(c => c.Options, new ChartOptions { ShowPoints = false, ShowEndPoints = true }));
+        cut.FindAll(".quark-chart-point").Should().HaveCount(2);
+    }
+
+    [Test]
     public void Category_zoom_spans_plot_width_and_keeps_the_visible_endpoint()
     {
         var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)

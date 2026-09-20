@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -15,7 +16,7 @@ public static class DataTableRegistrar
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddQuarkDataTableAsScoped(this IServiceCollection services)
     {
-        services.TryAddScoped<ITablesInterop, TablesInterop>();
+        services.AddModuleImportUtilAsScoped().TryAddScoped<ITablesInterop, TablesInterop>();
         return services;
     }
 }

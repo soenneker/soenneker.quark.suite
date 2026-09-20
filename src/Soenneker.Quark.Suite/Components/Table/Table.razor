@@ -2,12 +2,24 @@
 @inherits Element
 
 <Div DataSlot="table-container" Position="Quark.Position.Relative" Width="Quark.Width.IsFull" OverflowX="Quark.Overflow.Auto">
-    <table @attributes="BuildAttributes()">
+    <table @ref="_tableElement" @attributes="BuildAttributes()">
+        @if (UseAdaptiveLayout)
+        {
+            <colgroup @ref="_columnsElement"></colgroup>
+        }
         @ChildContent
     </table>
 </Div>
 
 @code {
+
+    [Inject]
+    private ITablesInterop TablesInterop { get; set; } = null!;
+
+    private ElementReference _tableElement;
+    private ElementReference _columnsElement;
+    private AdaptiveTableLayout? _adaptiveLayout;
+    private static readonly TableColumnSizingOptions DefaultColumnSizing = new();
 
     [CascadingParameter(Name = "DataTable")]
     private IDataTable? ParentDataTable { get; set; }
@@ -21,7 +33,45 @@
     [Parameter]
     public bool? FixedLayout { get; set; }
 
+    /// <summary>
+    /// Measures content and reserves extra space so small updates do not shift columns.
+    /// Widths grow only when that space is exceeded and reset on container resize or column changes.
+    /// Takes precedence over FixedLayout. Inherits the DataTable setting, or defaults to false.
+    /// Authored colgroups and rowspans retain native layout.
+    /// </summary>
+    [Parameter]
+    public bool? AdaptiveLayout { get; set; }
+
+    /// <summary>Measurement limits and extra space. Inherits the DataTable options when unspecified.</summary>
+    [Parameter]
+    public TableColumnSizingOptions? ColumnSizing { get; set; }
+
     private bool UseFixedLayout => FixedLayout ?? ParentDataTable?.FixedLayout ?? false;
+    private bool UseAdaptiveLayout => AdaptiveLayout ?? ParentDataTable?.AdaptiveLayout ?? false;
+    private TableColumnSizingOptions EffectiveColumnSizing => ColumnSizing ?? ParentDataTable?.ColumnSizing ?? DefaultColumnSizing;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (UseAdaptiveLayout || _adaptiveLayout is not null)
+        {
+            _adaptiveLayout ??= new AdaptiveTableLayout(TablesInterop);
+            await _adaptiveLayout.Synchronize(_tableElement, _columnsElement, UseAdaptiveLayout, EffectiveColumnSizing);
+        }
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_adaptiveLayout is not null)
+                await _adaptiveLayout.DisposeAsync();
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
+    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -38,6 +88,9 @@
 
         PrependClassAttribute(attributes, "caption-bottom");
 
+        if (UseAdaptiveLayout)
+            PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden");
+
         if (UseFixedLayout)
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "table-layout: fixed;"));
     }
@@ -46,6 +99,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(UseFixedLayout);
+        hc.Add(UseAdaptiveLayout);
+        hc.Add(EffectiveColumnSizing);
     }
 
 }

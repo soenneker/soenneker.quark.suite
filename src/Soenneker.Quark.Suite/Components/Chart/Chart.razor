@@ -1092,7 +1092,8 @@
     }
 
     private bool ShouldRenderMarker(ChartSeries series, int index) =>
-        (series.ShowPoints ?? Options.ShowPoints) || (Options.ShowEndPoints && IsLastValue(series, index));
+        (series.ShowPoints ?? Options.ShowPoints) || (Options.ShowEndPoints && IsLastValue(series, index) &&
+            (!RealtimeScrollingEnabled || CategoryCenter(index) < PlotRight));
 
     private bool IsLastValue(ChartSeries series, int index)
     {

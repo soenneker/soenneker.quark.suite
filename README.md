@@ -150,6 +150,25 @@ Open `/quark-start` at the address printed in your terminal. You now have a styl
 
 ## Make it yours
 
+### Stable, content-based table columns
+
+Set `AdaptiveLayout="true"` on `Table` or `DataTable` to size columns from rendered content without assigning individual widths:
+
+```razor
+<Table AdaptiveLayout="true">
+    <Thead><Tr><Th>Job</Th><Th>Attempt</Th><Th>Action</Th></Tr></Thead>
+    <Tbody>
+        <Tr><Td>PhoneLookupRefreshJob.Recover</Td><Td>1 / 1</Td><Td><Button>Retry</Button></Td></Tr>
+    </Tbody>
+</Table>
+```
+
+Adaptive sizing measures visible content, adds 24 pixels of spare room per column, and gives remaining container space to the widest column. Small button, status, or timestamp changes within those allocations do not move columns. Larger changes grow the affected column; shorter content keeps its allocation across refreshes and pages. Container resizing, changed headers, or a changed column count triggers fresh sizing.
+
+Optional `ColumnSizing="@(new TableColumnSizingOptions { Padding = 32, MinWidth = 64, MaxWidth = 640 })"` configures the reserve and measurement limits for the whole table. Long content wraps at the limit, while narrow containers scroll horizontally. The widest column may exceed `MaxWidth` when filling unused container space. A child `Table` inherits its `DataTable` settings unless overridden.
+
+Adaptive sizing is opt-in and takes precedence over `FixedLayout`. Remove old per-column width rules when adopting it. Authored `colgroup` elements and rowspans retain native table sizing; spanning detail, loading, and summary rows are excluded from measurements. It requires interactive rendering and the normal Quark service registration.
+
 ### Start with a variant
 
 Use built-in variants to give actions the right emphasis:

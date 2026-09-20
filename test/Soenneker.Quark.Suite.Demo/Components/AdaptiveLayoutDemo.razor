@@ -1,0 +1,152 @@
+@namespace Soenneker.Quark.Suite.Demo
+
+<Section Space="Space.Y.Is4">
+    <DemoSection Title="Adaptive layout"
+                 Description="Size columns from their content with no individual widths. Compare small updates, larger actions, and a narrower container."
+                 Code="@(UseDataTable ? DataTableCode : TableCode)"
+                 CodeLanguage="razor"
+                 PreviewClass="preview w-full p-4"
+                 PreviewInnerClass="w-full min-w-0">
+        <Div Space="Space.Y.Is4" Width="Width.IsFull" MinWidth="MinWidth.Is0" data-testid="adaptive-layout-demo">
+            <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Span TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Layout</Span>
+                <Button ButtonSize="ButtonSize.Sm" Variant="@(_adaptive ? ButtonVariant.Default : ButtonVariant.Outline)"
+                        aria-pressed="@_adaptive" OnClick="@(() => _adaptive = true)">Adaptive</Button>
+                <Button ButtonSize="ButtonSize.Sm" Variant="@(!_adaptive ? ButtonVariant.Default : ButtonVariant.Outline)"
+                        aria-pressed="@(!_adaptive)" OnClick="@(() => _adaptive = false)">Fixed equal widths</Button>
+            </Div>
+            <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
+                <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_smallUpdate" OnClick="ToggleSmallUpdate">Small update</Button>
+                <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_longAction" OnClick="@(() => _longAction = !_longAction)">Longer action</Button>
+                <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_narrow" OnClick="@(() => _narrow = !_narrow)">Narrow container</Button>
+                <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Ghost" OnClick="Reset">Reset</Button>
+            </Div>
+            <Div Width="@(_narrow ? Width.Is80 : Width.IsFull)" MaxWidth="MaxWidth.IsFull" MinWidth="MinWidth.Is0">
+                @if (UseDataTable)
+                {
+                    <DataTable @key="_generation" AdaptiveLayout="@_adaptive" FixedLayout="@(!_adaptive)" TableContent="@Rows" />
+                }
+                else
+                {
+                    <Table @key="_generation" AdaptiveLayout="@_adaptive" FixedLayout="@(!_adaptive)" ChildContent="@Rows" />
+                }
+            </Div>
+            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                Small updates use the reserved space. Longer actions grow the column; switching back keeps that space until you resize or reset.
+            </Paragraph>
+        </Div>
+    </DemoSection>
+</Section>
+
+@code {
+    [Parameter]
+    public bool UseDataTable { get; set; }
+
+    private bool _adaptive = true;
+    private bool _smallUpdate;
+    private bool _longAction;
+    private bool _narrow;
+    private int _generation;
+    private string ActionLabel => _longAction ? "Retry failed delivery" : _smallUpdate ? "Retrying" : "Retry";
+
+    private void ToggleSmallUpdate() => _smallUpdate = !_smallUpdate;
+
+    private void Reset()
+    {
+        _adaptive = true;
+        _smallUpdate = _longAction = _narrow = false;
+        _generation++; // Recreate the table to clear its learned widths.
+    }
+
+    private RenderFragment Rows => @<text>
+        <Thead>
+            <Tr><Th>Job</Th><Th>Status</Th><Th>Attempt</Th><Th>Action</Th></Tr>
+        </Thead>
+        <Tbody>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">AutomationEngine.ProcessDueRuns</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">Succeeded</Badge></Td>
+                <Td Overflow="Overflow.Hidden">1 / 1</Td><Td />
+            </Tr>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">PhoneLookupRefreshJob.Recover</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">@(_smallUpdate ? "Running" : "Pending")</Badge></Td>
+                <Td Overflow="Overflow.Hidden">@(_smallUpdate ? "2 / 3" : "1 / 3")</Td>
+                <Td Overflow="Overflow.Hidden"><Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ToggleSmallUpdate">@ActionLabel</Button></Td>
+            </Tr>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">ProductEvents.Recover</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">Succeeded</Badge></Td>
+                <Td Overflow="Overflow.Hidden">1 / 1</Td><Td />
+            </Tr>
+        </Tbody>
+    </text>;
+
+    private static readonly string TableCode = ExampleTemplate.Replace("TABLE", "Table").Replace("CONTENT", "ChildContent");
+    private static readonly string DataTableCode = ExampleTemplate.Replace("TABLE", "DataTable").Replace("CONTENT", "TableContent");
+    private const string ExampleTemplate = """
+<Div Space="Space.Y.Is4" Width="Width.IsFull" MinWidth="MinWidth.Is0">
+    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is2">
+        <Span TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Layout</Span>
+        <Button ButtonSize="ButtonSize.Sm" Variant="@(_adaptive ? ButtonVariant.Default : ButtonVariant.Outline)"
+                aria-pressed="@_adaptive" OnClick="@(() => _adaptive = true)">Adaptive</Button>
+        <Button ButtonSize="ButtonSize.Sm" Variant="@(!_adaptive ? ButtonVariant.Default : ButtonVariant.Outline)"
+                aria-pressed="@(!_adaptive)" OnClick="@(() => _adaptive = false)">Fixed equal widths</Button>
+    </Div>
+    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
+        <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_smallUpdate" OnClick="ToggleSmallUpdate">Small update</Button>
+        <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_longAction" OnClick="@(() => _longAction = !_longAction)">Longer action</Button>
+        <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" aria-pressed="@_narrow" OnClick="@(() => _narrow = !_narrow)">Narrow container</Button>
+        <Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Ghost" OnClick="Reset">Reset</Button>
+    </Div>
+    <Div Width="@(_narrow ? Width.Is80 : Width.IsFull)" MaxWidth="MaxWidth.IsFull" MinWidth="MinWidth.Is0">
+        <TABLE @key="_generation" AdaptiveLayout="@_adaptive" FixedLayout="@(!_adaptive)" CONTENT="@Rows" />
+    </Div>
+    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+        Small updates use the reserved space. Longer actions grow the column; switching back keeps that space until you resize or reset.
+    </Paragraph>
+</Div>
+
+@code {
+    private bool _adaptive = true;
+    private bool _smallUpdate;
+    private bool _longAction;
+    private bool _narrow;
+    private int _generation;
+    private string ActionLabel => _longAction ? "Retry failed delivery" : _smallUpdate ? "Retrying" : "Retry";
+
+    private void ToggleSmallUpdate() => _smallUpdate = !_smallUpdate;
+
+    private void Reset()
+    {
+        _adaptive = true;
+        _smallUpdate = _longAction = _narrow = false;
+        _generation++; // Recreate the table to clear its learned widths.
+    }
+
+    private RenderFragment Rows => @<text>
+        <Thead>
+            <Tr><Th>Job</Th><Th>Status</Th><Th>Attempt</Th><Th>Action</Th></Tr>
+        </Thead>
+        <Tbody>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">AutomationEngine.ProcessDueRuns</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">Succeeded</Badge></Td>
+                <Td Overflow="Overflow.Hidden">1 / 1</Td><Td />
+            </Tr>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">PhoneLookupRefreshJob.Recover</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">@(_smallUpdate ? "Running" : "Pending")</Badge></Td>
+                <Td Overflow="Overflow.Hidden">@(_smallUpdate ? "2 / 3" : "1 / 3")</Td>
+                <Td Overflow="Overflow.Hidden"><Button ButtonSize="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ToggleSmallUpdate">@ActionLabel</Button></Td>
+            </Tr>
+            <Tr>
+                <Td Whitespace="Whitespace.Normal" TextBreak="TextBreak.Words" Overflow="Overflow.Hidden">ProductEvents.Recover</Td>
+                <Td Overflow="Overflow.Hidden"><Badge Variant="BadgeVariant.Secondary">Succeeded</Badge></Td>
+                <Td Overflow="Overflow.Hidden">1 / 1</Td><Td />
+            </Tr>
+        </Tbody>
+    </text>;
+}
+""";
+}
