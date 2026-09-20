@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
 
 namespace Soenneker.Quark;
@@ -9,6 +10,42 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IDataTable : ICancellableElement
 {
+    /// <summary>Enables checkbox cells on rows with SelectionKey or SelectionHeader set. Defaults to false.</summary>
+    bool SelectionEnabled { get; set; }
+
+    /// <summary>The stable, unique keys of selectable rows on the current page. Select all only affects these keys.
+    /// Update this collection when paging or filtering. Keys outside it remain selected until explicitly cleared.</summary>
+    IReadOnlyCollection<string> SelectableRowKeys { get; set; }
+
+    /// <summary>Selected stable row keys, including selections on other pages. Supports two-way binding.
+    /// Replace this collection to update selection externally. Disabling selection preserves these keys.</summary>
+    IReadOnlyCollection<string> SelectedKeys { get; set; }
+
+    /// <summary>Invoked with a new collection when selection changes; supplied collections are never mutated.</summary>
+    EventCallback<IReadOnlyCollection<string>> SelectedKeysChanged { get; set; }
+
+    /// <summary>Optional bulk actions shown beside the selected count above the table. Column headings remain visible.</summary>
+    RenderFragment? SelectionContent { get; set; }
+
+    /// <summary>Whether all selectable keys on this page are selected. False for an empty page.</summary>
+    bool AllRowsSelected { get; }
+
+    /// <summary>Whether only some selectable keys on this page are selected.</summary>
+    bool SomeRowsSelected { get; }
+
+    /// <summary>Returns whether a stable row key is selected.</summary>
+    bool IsRowSelected(string key);
+
+    /// <summary>Changes one selectable row. Ignored while loading or selection is disabled.</summary>
+    Task SetRowSelected(string key, bool selected);
+
+    /// <summary>Selects or deselects the current page's selectable keys, preserving selections on other pages.
+    /// Ignored while loading or selection is disabled. Does not select unloaded server-side results.</summary>
+    Task SelectAllRows(bool selected);
+
+    /// <summary>Clears all selected keys, including selections on other pages.</summary>
+    Task ClearSelection();
+
     /// <summary>
     /// Gets the current page number
     /// </summary>

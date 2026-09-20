@@ -15,6 +15,19 @@
 			<Div Id="@ElementId" Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0">
                 @TopContent
 
+                @if (SelectionEnabled && SelectedKeys.Count > 0)
+                {
+                    <DataTableTopBar data-slot="datatable-selection-toolbar" role="region" aria-label="Selection actions"
+                                     TextSize="Quark.TextSize.Xs" Gap="Quark.Gap.Is2" Padding="Quark.Padding.OnY.Is1.OnX.Is3"
+                                     Margin="Quark.Margin.FromBottom.Is2" Shadow="Quark.Shadow.None">
+                        <Span role="status" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium">@SelectedKeys.Count selected</Span>
+                        @SelectionContent
+                        <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" TextSize="Quark.TextSize.Xs"
+                                Height="Quark.Height.Is7" Padding="Quark.Padding.OnX.Is2" TextColor="Quark.TextColor.MutedForeground"
+                                Margin="Quark.Margin.FromLeft.Auto" OnClick="@(_ => ClearSelection())">Clear selection</Button>
+                    </DataTableTopBar>
+                }
+
                 <Div Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="Quark.Overflow.X.Auto">
                     @OverlayContent
                     @if (IsLoading && OverlayContent is null)
@@ -98,6 +111,62 @@
 
     [Parameter]
     public RenderFragment? TopContent { get; set; }
+
+    [Parameter]
+    public bool SelectionEnabled { get; set; }
+
+    [Parameter]
+    public IReadOnlyCollection<string> SelectableRowKeys { get; set; } = Array.Empty<string>();
+
+    [Parameter]
+    public IReadOnlyCollection<string> SelectedKeys { get; set; } = Array.Empty<string>();
+
+    [Parameter]
+    public EventCallback<IReadOnlyCollection<string>> SelectedKeysChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment? SelectionContent { get; set; }
+
+    public bool AllRowsSelected => SelectableRowKeys.Count > 0 && SelectableRowKeys.All(IsRowSelected);
+
+    public bool SomeRowsSelected => !AllRowsSelected && SelectableRowKeys.Any(IsRowSelected);
+
+    public bool IsRowSelected(string key) => SelectedKeys.Contains(key);
+
+    public async Task SetRowSelected(string key, bool selected)
+    {
+        if (!SelectionEnabled || IsLoading || !SelectableRowKeys.Contains(key))
+            return;
+
+        var keys = new HashSet<string>(SelectedKeys, StringComparer.Ordinal);
+        if (selected ? keys.Add(key) : keys.Remove(key))
+            await UpdateSelection(keys);
+    }
+
+    public async Task SelectAllRows(bool selected)
+    {
+        if (!SelectionEnabled || IsLoading)
+            return;
+
+        var keys = new HashSet<string>(SelectedKeys, StringComparer.Ordinal);
+        if (selected)
+            keys.UnionWith(SelectableRowKeys);
+        else
+            keys.ExceptWith(SelectableRowKeys);
+
+        if (!keys.SetEquals(SelectedKeys))
+            await UpdateSelection(keys);
+    }
+
+    public Task ClearSelection() => UpdateSelection(new HashSet<string>());
+
+    private async Task UpdateSelection(HashSet<string> keys)
+    {
+        SelectedKeys = keys.ToArray();
+        InvalidateRender();
+        await SelectedKeysChanged.InvokeAsync(SelectedKeys);
+        await RefreshOffThread();
+    }
 
     [Parameter]
     public RenderFragment? TableContent { get; set; }
@@ -825,6 +894,12 @@
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Visible);
+        hc.Add(SelectionEnabled);
+        hc.Add(SelectionContent);
+        foreach (var key in SelectedKeys)
+            hc.Add(key);
+        foreach (var key in SelectableRowKeys)
+            hc.Add(key);
         hc.Add(FixedLayout);
         hc.Add(AdaptiveLayout);
         hc.Add(ColumnSizing);
