@@ -1,3 +1,4 @@
+@using System.Threading
 @using System.Globalization
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -18,6 +19,8 @@
             <Button Variant="ButtonVariant.Outline"
                     Type="@ButtonType.Button"
                     Disabled="Disabled"
+                    OnBlur="HandleAutoSaveBlur"
+                    OnKeyDown="HandleAutoSaveKeyDown"
                     Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (SelectedDate.HasValue)
@@ -31,6 +34,15 @@
                 <Icon Name="LucideIcon.ChevronDown" />
             </Button>
         </PopoverTrigger>
+        @if (AutoSave && OnAutoSave is not null && ShowAutoSaveStatus)
+        {
+            <AutoSaveStatus State="@_autoSave.State"
+                            HasSaved="@_autoSave.HasSaved"
+                            Class="@AutoSaveStatusClass"
+                            SavingClass="@AutoSaveSavingClass"
+                            SavedClass="@AutoSaveSavedClass"
+                            FailedClass="@AutoSaveFailedClass" />
+        }
 
         <PopoverContent Side="Side.Bottom"
                         Align="Alignment.Start"
@@ -52,6 +64,41 @@
 </Popover>
 
 @code {
+    private readonly AutoSaveController<DateOnly?> _autoSave = new();
+
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    [Parameter]
+    public Func<DateOnly?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     private QuarkAttributeDictionary _triggerAttributesBuffer;
     private QuarkAttributeDictionary _hiddenInputAttributesBuffer;
 
@@ -123,7 +170,7 @@
 
     private static readonly IReadOnlyDictionary<string, object> ContainerAttributes = new Dictionary<string, object>
     {
-        ["class"] = "relative w-fit"
+        ["class"] = "relative flex w-fit items-center gap-2"
     };
 
     private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _triggerId;
@@ -278,6 +325,9 @@
             ParentValidation.MarkTouched();
 
         await NotifyValueChanged(valueChanged);
+        if (valueChanged)
+            await _autoSave.NotifyValueChanged(SelectedDate, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
         await ClosePanel();
     }
 
@@ -299,10 +349,44 @@
         _displayMonth = new DateOnly(selectedDate.Value.Year, selectedDate.Value.Month, 1);
     }
 
+    public override async ValueTask DisposeAsync()
+    {
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
+    }
+
+    private async Task HandleAutoSaveBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            _autoSave.QueueFlush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeAsync(e);
+    }
+
+    private async Task HandleAutoSaveKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeAsync(e);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(SelectedDate);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);

@@ -1,5 +1,7 @@
 using System;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -9,6 +11,38 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IDatePicker : IElement
 {
+    /// <summary>Gets or sets whether date changes are saved automatically.</summary>
+    bool AutoSave { get; set; }
+
+    /// <summary>Gets or sets the debounce delay in milliseconds. Defaults to 750.</summary>
+    int AutoSaveDelay { get; set; }
+
+    /// <summary>Gets or sets whether losing trigger focus saves pending changes. Defaults to true.</summary>
+    bool AutoSaveOnBlur { get; set; }
+
+    /// <summary>Gets or sets whether Enter saves pending changes. Defaults to false.</summary>
+    bool AutoSaveOnEnter { get; set; }
+
+    /// <summary>Gets or sets whether the save status is displayed. Defaults to true.</summary>
+    bool ShowAutoSaveStatus { get; set; }
+
+    /// <summary>Gets or sets the callback that saves the selected date with cancellation support.</summary>
+    Func<DateOnly?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    /// <summary>Gets or sets the callback invoked when the save state changes.</summary>
+    EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the save status.</summary>
+    string? AutoSaveStatusClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the saving status.</summary>
+    string? AutoSaveSavingClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the saved status.</summary>
+    string? AutoSaveSavedClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the failed status.</summary>
+    string? AutoSaveFailedClass { get; set; }
     /// <summary>
     /// Gets or sets the selected date value.
     /// </summary>

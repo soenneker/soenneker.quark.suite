@@ -27,7 +27,16 @@
         </button>
     }
 
-    <div @ref="_container" @attributes="BuildContainerAttributes()"></div>
+    <div @ref="_container" @attributes="BuildContainerAttributes()" @onfocusout="HandleAutoSaveBlur"></div>
+    @if (AutoSave && OnAutoSave is not null && ShowAutoSaveStatus)
+    {
+        <AutoSaveStatus State="@_autoSave.State"
+                        HasSaved="@_autoSave.HasSaved"
+                        Class="@AutoSaveStatusClass"
+                        SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass"
+                        FailedClass="@AutoSaveFailedClass" />
+    }
     @if (AllowFileDrop && !ReadOnly)
     {
         <div hidden
@@ -46,6 +55,52 @@
 </div>
 
 @code {
+    private readonly AutoSaveController<string?> _autoSave = new();
+
+    /// <summary>Gets or sets whether changes are saved automatically.</summary>
+    [Parameter]
+    public bool AutoSave { get; set; }
+
+    /// <summary>Gets or sets the debounce delay in milliseconds. Defaults to 750.</summary>
+    [Parameter]
+    public int AutoSaveDelay { get; set; } = 750;
+
+    /// <summary>Gets or sets whether pending changes are saved when editor focus is lost. Defaults to true.</summary>
+    [Parameter]
+    public bool AutoSaveOnBlur { get; set; } = true;
+
+    /// <summary>Gets or sets whether Enter saves pending changes. Defaults to false.</summary>
+    [Parameter]
+    public bool AutoSaveOnEnter { get; set; }
+
+    /// <summary>Gets or sets whether the save status is displayed. Defaults to true.</summary>
+    [Parameter]
+    public bool ShowAutoSaveStatus { get; set; } = true;
+
+    /// <summary>Gets or sets the callback that saves the text with cancellation support.</summary>
+    [Parameter]
+    public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+
+    /// <summary>Gets or sets the callback invoked when the save state changes.</summary>
+    [Parameter]
+    public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the save status.</summary>
+    [Parameter]
+    public string? AutoSaveStatusClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the saving status.</summary>
+    [Parameter]
+    public string? AutoSaveSavingClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the saved status.</summary>
+    [Parameter]
+    public string? AutoSaveSavedClass { get; set; }
+
+    /// <summary>Gets or sets the CSS class for the failed status.</summary>
+    [Parameter]
+    public string? AutoSaveFailedClass { get; set; }
+
     private QuarkAttributeDictionary _containerAttributesBuffer;
     /// <summary>
     /// Gets or sets the code text value.
@@ -189,6 +244,7 @@
         _lastText = value;
         _valueChanged = true;
         await TextChanged.InvokeAsync(value);
+        await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -339,6 +395,8 @@
     {
         var attrs = _containerAttributesBuffer.Create(base.BuildAttributes(), 1);
         attrs["data-slot"] = "code-editor";
+        if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
+            attrs["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleAutoSaveKeyDown);
         // Monaco editor needs position: relative for proper rendering
         BuildStyleAttribute(attrs, (ref sty) =>
         {
@@ -376,6 +434,7 @@
             return;
         try
         {
+            await _autoSave.DisposeAsync();
             await _disposeCts.CancelAsync();
             try
             {
@@ -412,10 +471,38 @@
         }
     }
 
+    private async Task HandleAutoSaveBlur(FocusEventArgs e)
+    {
+        if (AutoSaveOnBlur)
+            _autoSave.QueueFlush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnBlur.InvokeAsync(e);
+    }
+
+    private async Task HandleAutoSaveKeyDown(KeyboardEventArgs e)
+    {
+        if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
+            await _autoSave.Flush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+
+        await OnKeyDown.InvokeAsync(e);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Text);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(AutoSaveOnBlur);
+        hc.Add(AutoSaveOnEnter);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+        hc.Add(OnAutoSave is not null);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
         hc.Add(Language);
         hc.Add(Theme);
         hc.Add(WordWrap);
