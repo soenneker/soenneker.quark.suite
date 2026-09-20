@@ -1,6 +1,5 @@
 @using Soenneker.Atomics.ValueBools
 @using System.Linq.Expressions
-@using System.Text.Json
 @using System.Threading
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
@@ -298,18 +297,7 @@
             await CodeEditorInterop.RegisterThemeChangedCallback(_themeCallbackRef);
         }
 
-        var options = new
-        {
-            value = Text ?? string.Empty,
-            language = Language,
-            theme = effectiveTheme,
-            readOnly = ReadOnly,
-            wordWrap = WordWrap ? "on" : "off",
-            minimap = new { enabled = Minimap },
-            automaticLayout = true
-        };
-
-        var json = JsonSerializer.Serialize(options);
+        var json = CodeEditorOptionsJson.Create(Text, Language, effectiveTheme, ReadOnly, WordWrap, Minimap);
         await CodeEditorInterop.CreateEditor(_container, json);
         _editorCallbackRef = DotNetObjectReference.Create(this);
         await CodeEditorInterop.RegisterContentChangedCallback(_container, _editorCallbackRef);
