@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
@@ -37,6 +39,41 @@ public sealed partial class RenderedShadcnParityTests
         date.GetAttribute("class").Should().Contain("text-xs");
         title.GetAttribute("class").Should().Contain("text-sm font-medium");
         content.GetAttribute("class").Should().Contain("text-muted-foreground text-sm");
+    }
+
+    [Test]
+    public void Event_timeline_vertical_renders_details_newest_first_and_connects_only_adjacent_events()
+    {
+        var when = new DateTimeOffset(2026, 9, 20, 19, 0, 0, TimeSpan.FromHours(-5));
+        var cut = Render<EventTimeline>(p => p
+            .Add(c => c.Layout, EventTimelineLayout.Vertical)
+            .Add(c => c.NewestFirst, true)
+            .Add(c => c.DenseTimelineThreshold, 1)
+            .Add(c => c.Items, [
+                new EventTimelineItem { Label = "Earlier", When = when },
+                new EventTimelineItem { Label = "Later", When = when.AddHours(1), Tone = SemanticTone.Success }])
+            .Add(c => c.ItemTemplate, item => builder => builder.AddContent(0, $"Action: {item.Label}")));
+
+        cut.FindAll("[role='listitem']").Select(e => e.TextContent).First().Should().Contain("Action: Later");
+        cut.FindAll("[role='listitem']").Should().HaveCount(2);
+        cut.FindAll("[data-slot='event-timeline-connector']").Should().HaveCount(1);
+        cut.FindAll("[data-slot='event-timeline-marker']").Should().HaveCount(2);
+        cut.Find("time").GetAttribute("datetime").Should().Be(when.AddHours(1).ToString("O"));
+        cut.FindAll("button").Should().BeEmpty();
+        cut.FindAll("[data-slot='event-timeline-marker']")[0].ClassName.Should().Contain("emerald");
+    }
+
+    [Test]
+    public void Event_timeline_vertical_defaults_to_label_and_handles_empty_items()
+    {
+        var cut = Render<EventTimeline>(p => p
+            .Add(c => c.Layout, EventTimelineLayout.Vertical)
+            .Add(c => c.Items, [new EventTimelineItem { Label = "Reindexed" }]));
+        cut.Find("[role='listitem']").TextContent.Should().Contain("Reindexed");
+        cut.FindAll("[data-slot='event-timeline-connector']").Should().BeEmpty();
+        cut.Render(p => p.Add(c => c.Items, []));
+        cut.Markup.Should().Contain("No timeline events yet.");
+        cut.FindAll("[role='listitem']").Should().BeEmpty();
     }
 
     private static RenderFragment BuildTimelineItems()

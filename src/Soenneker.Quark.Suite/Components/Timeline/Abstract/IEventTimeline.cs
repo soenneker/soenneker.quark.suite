@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using Soenneker.Lucide.Enums.Icons;
 
 namespace Soenneker.Quark;
 
@@ -11,7 +10,7 @@ namespace Soenneker.Quark;
 public interface IEventTimeline
 {
     /// <summary>
-    /// Events to display. Blank labels are omitted and events are ordered by timestamp.
+    /// Events to display. Blank labels are omitted and events are ordered by timestamp, ascending unless NewestFirst is true.
     /// </summary>
     IReadOnlyList<EventTimelineItem> Items { get; set; }
 
@@ -19,6 +18,12 @@ public interface IEventTimeline
     /// Fallback accessible name when AriaLabel is not specified.
     /// </summary>
     string? Title { get; set; }
+
+    /// <summary>Display events in descending timestamp order. Defaults to false.</summary>
+    bool NewestFirst { get; set; }
+
+    /// <summary>Optional content below each timestamp in the vertical layout. Defaults to the event label.</summary>
+    RenderFragment<EventTimelineItem>? ItemTemplate { get; set; }
 
     /// <summary>
     /// Gets or sets aria label.
@@ -51,7 +56,7 @@ public interface IEventTimeline
     EventTimelineAppearance Appearance { get; set; }
 
     /// <summary>
-    /// Initial layout. Auto fits dense timelines and scrolls shorter timelines. Changing this value resets the user-selected view.
+    /// Initial layout. Vertical displays an activity feed. Auto fits dense horizontal timelines and scrolls shorter timelines. Changing this value resets the user-selected view.
     /// </summary>
     EventTimelineLayout Layout { get; set; }
 
@@ -61,7 +66,7 @@ public interface IEventTimeline
     int DenseTimelineThreshold { get; set; }
 
     /// <summary>
-    /// Whether dense timelines offer Fit all and Scroll buttons.
+    /// Whether dense horizontal timelines offer Fit all and Scroll buttons.
     /// </summary>
     bool ShowViewControls { get; set; }
 

@@ -3,6 +3,27 @@ namespace Soenneker.Quark;
 /// <summary>Presets for the event timeline parts.</summary>
 public sealed class EventTimelineAppearance
 {
+    /// <summary>Styling for the VerticalContent part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalContentPreset { get; init; } = EventTimelinePresets.VerticalContentPreset;
+
+    /// <summary>Styling for the VerticalTime part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalTimePreset { get; init; } = EventTimelinePresets.VerticalTimePreset;
+
+    /// <summary>Styling for the VerticalMarker part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalMarkerPreset { get; init; } = EventTimelinePresets.VerticalMarkerPreset;
+
+    /// <summary>Styling for the VerticalConnector part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalConnectorPreset { get; init; } = EventTimelinePresets.VerticalConnectorPreset;
+
+    /// <summary>Styling for the VerticalItem part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalItemPreset { get; init; } = EventTimelinePresets.VerticalItemPreset;
+
+    /// <summary>Styling for the VerticalTrack part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalTrackPreset { get; init; } = EventTimelinePresets.VerticalTrackPreset;
+
+    /// <summary>Styling for the VerticalSurface part of the vertical layout.</summary>
+    public QuarkPresetToken VerticalSurfacePreset { get; init; } = EventTimelinePresets.VerticalSurfacePreset;
+
     /// <summary>Styling for RootPreset.</summary>
     public QuarkPresetToken RootPreset { get; init; } = EventTimelinePresets.RootPreset;
     /// <summary>Styling for SurfacePreset.</summary>

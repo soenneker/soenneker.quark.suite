@@ -3,6 +3,17 @@
 <SeoHead Title="Blazor Event Timeline Examples | Quark Suite" Description="Explore project milestones, activity histories, status tones, and timestamp formatting with EventTimeline." />
 
 <Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Processing Logs" Description="A vertical event feed with status dots, connecting lines, and custom details, newest first." Code="@VerticalExample" CodeLanguage="razor"
+                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <EventTimeline Items="@ProcessingEvents" Layout="EventTimelineLayout.Vertical" NewestFirst="true"
+                       FormatTimestamp="FormatLogTime" Title="Processing Logs">
+            <ItemTemplate Context="item">
+                <Div>Action: <Span TextColor="TextColor.Foreground">@item.Label</Span></Div>
+                <Div>Message: <Span TextColor="TextColor.Foreground">File reindexed successfully</Span></Div>
+                <Div>Status: <Span TextColor="@(TextColor.Token("emerald-700").OnDark.Token("emerald-400"))">OK</Span></Div>
+            </ItemTemplate>
+        </EventTimeline>
+    </DemoSection>
     <DemoSection Title="Project milestones" Description="Three milestones fit side by side. Icons and tones distinguish each event; times are shown in UTC." Code="@Example0" CodeLanguage="razor"
                  PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
         <EventTimeline Items="@MilestoneEvents" Layout="EventTimelineLayout.FitAll" ShowViewControls="false" FormatTimestamp="FormatTime" AriaLabel="Project milestones, times in UTC" />
@@ -18,6 +29,34 @@
 </Grid>
 
 @code {
+    private static readonly IReadOnlyList<EventTimelineItem> ProcessingEvents =
+    [
+        new() { Key = "first", Label = "reindexed", When = new DateTimeOffset(2026, 9, 20, 19, 4, 1, TimeSpan.FromHours(-5)), Tone = SemanticTone.Success },
+        new() { Key = "second", Label = "reindexed", When = new DateTimeOffset(2026, 9, 20, 19, 27, 38, TimeSpan.FromHours(-5)), Tone = SemanticTone.Success }
+    ];
+
+    private static string FormatLogTime(DateTimeOffset value) => value.ToString("yyyy-MM-dd HH:mm:ss 'CDT'", System.Globalization.CultureInfo.InvariantCulture);
+
+    private const string VerticalExample = """
+        <EventTimeline Items="@ProcessingEvents" Layout="EventTimelineLayout.Vertical" NewestFirst="true"
+                       FormatTimestamp="FormatLogTime" Title="Processing Logs">
+            <ItemTemplate Context="item">
+                <Div>Action: <Span TextColor="TextColor.Foreground">@item.Label</Span></Div>
+                <Div>Message: <Span TextColor="TextColor.Foreground">File reindexed successfully</Span></Div>
+                <Div>Status: <Span TextColor="@(TextColor.Token("emerald-700").OnDark.Token("emerald-400"))">OK</Span></Div>
+            </ItemTemplate>
+        </EventTimeline>
+
+        @code {
+            private static readonly IReadOnlyList<EventTimelineItem> ProcessingEvents =
+            [
+                new() { Key = "first", Label = "reindexed", When = new DateTimeOffset(2026, 9, 20, 19, 4, 1, TimeSpan.FromHours(-5)), Tone = SemanticTone.Success },
+                new() { Key = "second", Label = "reindexed", When = new DateTimeOffset(2026, 9, 20, 19, 27, 38, TimeSpan.FromHours(-5)), Tone = SemanticTone.Success }
+            ];
+
+            private static string FormatLogTime(DateTimeOffset value) => value.ToString("yyyy-MM-dd HH:mm:ss 'CDT'", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        """;
     private static readonly IReadOnlyList<EventTimelineItem> MilestoneEvents =
     [
         new() { Key = "created", Label = "Created", When = new DateTimeOffset(2026, 9, 14, 9, 0, 0, TimeSpan.Zero), Icon = LucideIcon.Circle, Tone = SemanticTone.Info },

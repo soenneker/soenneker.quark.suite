@@ -4,7 +4,7 @@
 @using Soenneker.Extensions.String
 
 <Section Preset="@Appearance.RootPreset" AriaLabel="@ResolvedAriaLabel" data-testid="@TestId" @attributes="AdditionalAttributes">
-    @if (ShowViewControls && TimelineItems.Count > DenseTimelineThreshold)
+    @if (!IsVertical && ShowViewControls && TimelineItems.Count > DenseTimelineThreshold)
     {
         <Div Preset="@Appearance.ViewControlsPreset" Role="group" AriaLabel="Timeline view">
             <Span Preset="@Appearance.ViewControlsLabelPreset">Timeline view</Span>
@@ -22,10 +22,39 @@
             </Div>
         </Div>
     }
-    <Div Preset="@Appearance.SurfacePreset">
+    <Div Preset="@(IsVertical ? Appearance.VerticalSurfacePreset : Appearance.SurfacePreset)">
         @if (TimelineItems.Count == 0)
         {
             <Div Preset="@Appearance.EmptyPreset">@EmptyText</Div>
+        }
+        else if (IsVertical)
+        {
+            <Div Preset="@Appearance.VerticalTrackPreset" Role="list">
+                @for (int index = 0; index < TimelineItems.Count; index++)
+                {
+                    EventTimelineItem item = TimelineItems[index];
+                    <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@ItemTestId(item)">
+                        @if (index < TimelineItems.Count - 1)
+                        {
+                            <Div Preset="@Appearance.VerticalConnectorPreset" AriaHidden="true" data-slot="event-timeline-connector" />
+                        }
+                        <Div Preset="@Appearance.VerticalMarkerPreset" TextColor="@MarkerColor(item)" AriaHidden="true" data-slot="event-timeline-marker" />
+                        <Div Preset="@Appearance.VerticalTimePreset">
+                            <time datetime="@item.When.ToString("O", CultureInfo.InvariantCulture)">@FormatWhen(item.When)</time>
+                        </Div>
+                        <Div Preset="@Appearance.VerticalContentPreset">
+                            @if (ItemTemplate is not null)
+                            {
+                                @ItemTemplate(item)
+                            }
+                            else
+                            {
+                                @item.Label
+                            }
+                        </Div>
+                    </Div>
+                }
+            </Div>
         }
         else
         {
@@ -87,6 +116,14 @@
     [Parameter]
     public string? ItemTestIdPrefix { get; set; }
 
+    [Parameter]
+    public bool NewestFirst { get; set; }
+
+    [Parameter]
+    public RenderFragment<EventTimelineItem>? ItemTemplate { get; set; }
+
+    private bool IsVertical => Layout == EventTimelineLayout.Vertical;
+
     private bool? _fitAllOverride;
 
     private IReadOnlyList<EventTimelineItem> TimelineItems = [];
@@ -97,7 +134,8 @@
         if (!Equals(_previousLayout, Layout))
             _fitAllOverride = null;
         _previousLayout = Layout;
-        TimelineItems = Items.Where(item => item.Label.HasContent()).OrderBy(item => item.When).ToList();
+        var items = Items.Where(item => item.Label.HasContent());
+        TimelineItems = (NewestFirst ? items.OrderByDescending(item => item.When) : items.OrderBy(item => item.When)).ToList();
     }
 
     private string ResolvedAriaLabel => AriaLabel.HasContent() ? AriaLabel! : Title.HasContent() ? Title! : "Timeline";
@@ -114,6 +152,15 @@
     private string FormatWhen(DateTimeOffset when) => FormatTimestamp?.Invoke(when) ?? when.ToString("g", CultureInfo.CurrentCulture);
 
     private string? ItemTestId(EventTimelineItem item) => ItemTestIdPrefix is not null && item.Key.HasContent() ? $"{ItemTestIdPrefix}{item.Key}" : null;
+
+    private static TextColorBuilder MarkerColor(EventTimelineItem item)
+    {
+        if (item.Tone == SemanticTone.Success) return TextColor.Token("emerald-700").OnDark.Token("emerald-400");
+        if (item.Tone == SemanticTone.Info) return TextColor.Token("sky-700").OnDark.Token("sky-400");
+        if (item.Tone == SemanticTone.Warning) return TextColor.Token("amber-700").OnDark.Token("amber-400");
+        if (item.Tone == SemanticTone.Danger) return TextColor.Token("[var(--destructive)]");
+        return TextColor.Token("[var(--foreground)]");
+    }
 
     private QuarkPresetToken MarkerPreset(EventTimelineItem item)
     {

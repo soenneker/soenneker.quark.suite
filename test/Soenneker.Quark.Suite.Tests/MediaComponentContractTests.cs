@@ -7,6 +7,36 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    [Arguments("/photo.jpg?v=1#preview", "webp", "/photo.webp?v=1#preview")]
+    [Arguments("https://cdn.example.com/a.b/photo.jpg?next=x.png", ".png", "https://cdn.example.com/a.b/photo.png?next=x.png")]
+    [Arguments("//cdn.example.com/photo", "webp", "//cdn.example.com/photo.webp")]
+    [Arguments("photo", "webp", "photo.webp")]
+    [Arguments("https://cdn.example.com?x=1", "webp", "https://cdn.example.com?x=1")]
+    [Arguments("/images/", "webp", "/images/")]
+    [Arguments("data:image/png;base64,abc", "webp", "data:image/png;base64,abc")]
+    [Arguments("blob:https://example.com/image.jpg", "webp", "blob:https://example.com/image.jpg")]
+    [Arguments("/photo.jpg", " ", "/photo.jpg")]
+    public void Image_extension_rewrites_only_the_filename(string source, string extension, string expected)
+    {
+        var cut = Render<Image>(p => p.Add(c => c.Source, source).Add(c => c.Extension, extension));
+        cut.Find("img").GetAttribute("src").Should().Be(expected);
+    }
+
+    [Test]
+    public void Image_extension_updates_and_clears_without_changing_source_or_srcset()
+    {
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/photo.jpg")
+            .Add(c => c.Extension, "webp").Add(c => c.SrcSet, "/photo-large.jpg 2x"));
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.webp");
+        cut.Instance.Source.Should().Be("/photo.jpg");
+        cut.Find("img").GetAttribute("srcset").Should().Be("/photo-large.jpg 2x");
+        cut.Render(p => p.Add(c => c.Extension, ".png"));
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.png");
+        cut.Render(p => p.Add(c => c.Extension, (string?)null));
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.jpg");
+    }
+
+    [Test]
     public void Image_preserves_native_image_attributes_and_decorative_alt()
     {
         var cut = Render<Image>(parameters => parameters

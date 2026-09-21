@@ -14,6 +14,14 @@ public interface IImage : IComponent
     string? Source { get; set; }
 
     /// <summary>
+    /// Optional replacement for the final file extension in Source, with or without a leading dot.
+    /// Appends an extension when the filename has none and preserves query strings and fragments.
+    /// Null or blank values, data URLs, blob URLs, and URLs without a filename leave Source unchanged.
+    /// Applies to previews and lightboxes; SrcSet is unchanged. This changes the URL, not the image format.
+    /// </summary>
+    string? Extension { get; set; }
+
+    /// <summary>
     /// Gets or sets the alternative text for the image.
     /// </summary>
     string? Alt { get; set; }

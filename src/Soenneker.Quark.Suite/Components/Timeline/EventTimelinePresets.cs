@@ -2,6 +2,20 @@ namespace Soenneker.Quark;
 
 internal static class EventTimelinePresets
 {
+    internal static readonly QuarkPresetToken VerticalContentPreset = new("event-timeline-verticalcontent", static context => context.Class = "min-w-0 text-sm text-muted-foreground break-words");
+
+    internal static readonly QuarkPresetToken VerticalTimePreset = new("event-timeline-verticaltime", static context => context.Class = "text-sm font-medium break-words");
+
+    internal static readonly QuarkPresetToken VerticalMarkerPreset = new("event-timeline-verticalmarker", static context => context.Class = "pointer-events-none absolute left-0 top-2 size-2 rounded-full bg-current");
+
+    internal static readonly QuarkPresetToken VerticalConnectorPreset = new("event-timeline-verticalconnector", static context => context.Class = "pointer-events-none absolute left-1 top-3 bottom-0 w-px bg-border");
+
+    internal static readonly QuarkPresetToken VerticalItemPreset = new("event-timeline-verticalitem", static context => context.Class = "relative min-w-0 pl-6 pb-5 last:pb-0");
+
+    internal static readonly QuarkPresetToken VerticalTrackPreset = new("event-timeline-verticaltrack", static context => context.Class = "flex min-w-0 flex-col");
+
+    internal static readonly QuarkPresetToken VerticalSurfacePreset = new("event-timeline-verticalsurface", static context => context.Class = "min-w-0");
+
     internal static readonly QuarkPresetToken RootPreset = new("event-timeline-root", static context =>
     {
         context.Padding = Padding.Is0;

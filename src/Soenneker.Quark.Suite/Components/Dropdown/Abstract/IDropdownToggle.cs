@@ -14,11 +14,6 @@ public interface IDropdownToggle : IElement
     bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets whether this is a split dropdown toggle button.
-    /// </summary>
-    bool IsSplit { get; set; }
-
-    /// <summary>
     /// Gets or sets the callback invoked When the toggle is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> Clicked { get; set; }

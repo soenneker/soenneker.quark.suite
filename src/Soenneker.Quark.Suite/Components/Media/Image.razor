@@ -22,6 +22,7 @@ else
     private ImageContext? _context;
     private string? _resolvedSource;
     private string? _resolvedSourceInput;
+    private string? _resolvedExtensionInput;
     private string? _resolvedBase64Input;
     private string? _resolvedMediaTypeInput;
     protected override void ApplyDefaultParameters()
@@ -29,6 +30,9 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "image";
     }
+
+    [Parameter]
+    public string? Extension { get; set; }
 
     [Parameter]
     public string? Base64 { get; set; }
@@ -131,18 +135,57 @@ else
         get
         {
             if (string.Equals(_resolvedSourceInput, Source, StringComparison.Ordinal) &&
+                string.Equals(_resolvedExtensionInput, Extension, StringComparison.Ordinal) &&
                 string.Equals(_resolvedBase64Input, Base64, StringComparison.Ordinal) &&
                 string.Equals(_resolvedMediaTypeInput, MediaType, StringComparison.Ordinal))
                 return _resolvedSource;
 
             _resolvedSourceInput = Source;
+            _resolvedExtensionInput = Extension;
             _resolvedBase64Input = Base64;
             _resolvedMediaTypeInput = MediaType;
-            _resolvedSource = Source.HasContent() ? Source :
+            _resolvedSource = Source.HasContent() ? ApplyExtension(Source, Extension) :
                 Base64.HasContent() ? $"data:{(MediaType.HasContent() ? MediaType : "image/png")};base64,{Base64}" :
                 null;
             return _resolvedSource;
         }
+    }
+
+    private static string ApplyExtension(string source, string? extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension) ||
+            source.StartsWith("data:", StringComparison.OrdinalIgnoreCase) ||
+            source.StartsWith("blob:", StringComparison.OrdinalIgnoreCase))
+            return source;
+
+        extension = extension.Trim().TrimStart('.');
+        if (extension.Length == 0)
+            return source;
+
+        if (extension.IndexOfAny(['/', '\\', '?', '#', ':']) >= 0)
+            throw new ArgumentException("Extension must be a file extension, such as webp or .png.", nameof(Extension));
+
+        int suffixStart = source.IndexOfAny(['?', '#']);
+        if (suffixStart < 0)
+            suffixStart = source.Length;
+
+        string path = source[..suffixStart];
+        int authorityStart = path.StartsWith("//", StringComparison.Ordinal) ? 2 : path.IndexOf("://", StringComparison.Ordinal);
+        if (authorityStart >= 0)
+        {
+            if (!path.StartsWith("//", StringComparison.Ordinal))
+                authorityStart += 3;
+            if (path.IndexOf('/', authorityStart) < 0)
+                return source;
+        }
+
+        int fileStart = path.LastIndexOf('/') + 1;
+        if (fileStart == path.Length)
+            return source;
+
+        int dot = path.LastIndexOf('.');
+        int extensionStart = dot > fileStart ? dot : path.Length;
+        return string.Concat(path.AsSpan(0, extensionStart), ".", extension, source.AsSpan(suffixStart));
     }
 
     private ImageContext Context
@@ -269,6 +312,7 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Extension);
         hc.Add(Base64);
         hc.Add(MediaType);
         hc.Add(Fluid);

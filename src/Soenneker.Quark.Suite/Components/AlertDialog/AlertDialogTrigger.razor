@@ -34,8 +34,6 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
-    private ElementReference _elementRef;
-
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -97,8 +95,6 @@ else
             SuppressClickAfterPointerDown = true,
             RegisterElement = elementReference =>
             {
-                _elementRef = elementReference;
-
                 if (BradixDialog is not null)
                     BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
             },
