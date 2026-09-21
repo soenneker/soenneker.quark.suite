@@ -233,6 +233,10 @@ The quick start includes Lucide icons. Reference an icon by name in your markup:
 
 For brand logos, add `Soenneker.Quark.Gen.SimpleIcons` and `Soenneker.SimpleIcons.Icons`, then register `AddSimpleIconsAsScoped()` from `Soenneker.Quark.Gen.SimpleIcons.Generated`. See the [generator guide](https://quark.soenneker.com/generators) for setup and dynamically selected icons.
 
+## Page metadata
+
+Use [`SeoHead`](src/Soenneker.Quark.Suite/Components/SeoHead/README.md) for page titles, descriptions, canonical URLs, Open Graph, Twitter cards, and optional JSON-LD. It works with Blazor's `HeadOutlet`; your application supplies its own branding and structured data.
+
 ## Keep building
 
 | Next step | Guide |

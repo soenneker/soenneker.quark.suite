@@ -97,6 +97,7 @@ public static class DocsNavigation
         new("Scroll Area", ComponentRoute("scroll-area")),
         new("Scroll Reveal", ComponentRoute("scroll-reveal")),
         new("Select", ComponentRoute("select")),
+        new("SEO Head", ComponentRoute("seo-head")),
         new("Separator", ComponentRoute("separator")),
         new("Sheet", ComponentRoute("sheet")),
         new("Sidebar", ComponentRoute("sidebar")),

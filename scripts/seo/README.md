@@ -8,7 +8,7 @@ dotnet publish test/Soenneker.Quark.Suite.Demo/Soenneker.Quark.Suite.Demo.csproj
 
 ## Editing documentation
 
-- Each routed page supplies a descriptive `Title` and `Description` to `SeoHead`. The shared component owns canonical URLs, Open Graph, Twitter cards, robots metadata, and JSON-LD. `HeadOutlet` is registered at `head::after` in `Program.cs`.
+- Each routed page supplies a descriptive `Title` and `Description` to the app-specific `QuarkSeoHead` wrapper. It supplies Quark branding, canonical URLs, and structured data to the public `Soenneker.Quark.SeoHead` component, which renders the head metadata. `HeadOutlet` is registered at `head::after` in `Program.cs`.
 - Canonical URLs use HTTPS and omit query strings, fragments, and trailing slashes, except for `/`. Set `CanonicalPath` when multiple routes share one documentation page. Permanent alias redirects are maintained in `wwwroot/_redirects`.
 - Test/demo harnesses use both `[Sitemap(Exclude = true)]` and `NoIndex="true"`. Blazor's not-found view also supplies `noindex` metadata. With SPA hosting, the HTTP response for an unknown application route remains the application shell.
 - Add public component pages to `DocsNavigation` so the sidebar and component index expose links. Do not add testing harnesses.

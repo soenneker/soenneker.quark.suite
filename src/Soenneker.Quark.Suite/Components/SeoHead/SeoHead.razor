@@ -1,0 +1,127 @@
+@namespace Soenneker.Quark
+@using System
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+@implements ISeoHead
+
+<PageTitle>@Title</PageTitle>
+<HeadContent>
+    <meta name="description" content="@Description" />
+    <meta name="robots" content="@RobotsContent" />
+    @if (HasValue(Author))
+    {
+        <meta name="author" content="@Author" />
+    }
+    @if (!NoIndex)
+    {
+        @if (!string.IsNullOrWhiteSpace(CanonicalUrl))
+        {
+            <link rel="canonical" href="@CanonicalUrl" />
+            <meta property="og:url" content="@CanonicalUrl" />
+        }
+        <meta property="og:type" content="@OpenGraphType" />
+        @if (!string.IsNullOrWhiteSpace(SiteName))
+        {
+            <meta property="og:site_name" content="@SiteName" />
+        }
+        @if (!string.IsNullOrWhiteSpace(Locale))
+        {
+            <meta property="og:locale" content="@Locale" />
+        }
+        @if (AlternateLocales is not null)
+        {
+            @foreach (string locale in AlternateLocales)
+            {
+                @if (HasValue(locale))
+                {
+                    <meta property="og:locale:alternate" content="@locale" />
+                }
+            }
+        }
+        @if (AlternateLanguageUrls is not null)
+        {
+            @foreach (KeyValuePair<string, string> alternate in AlternateLanguageUrls)
+            {
+                <link rel="alternate" hreflang="@alternate.Key" href="@alternate.Value" />
+            }
+        }
+        <meta property="og:title" content="@EffectiveSocialTitle" />
+        <meta property="og:description" content="@EffectiveSocialDescription" />
+        <meta name="twitter:card" content="@EffectiveTwitterCard" />
+        <meta name="twitter:title" content="@ValueOr(TwitterTitle, EffectiveSocialTitle)" />
+        <meta name="twitter:description" content="@ValueOr(TwitterDescription, EffectiveSocialDescription)" />
+        @if (HasValue(TwitterSite))
+        {
+            <meta name="twitter:site" content="@TwitterSite" />
+        }
+        @if (HasValue(TwitterCreator))
+        {
+            <meta name="twitter:creator" content="@TwitterCreator" />
+        }
+        @if (!string.IsNullOrWhiteSpace(SocialImageUrl))
+        {
+            <meta property="og:image" content="@SocialImageUrl" />
+            @if (!string.IsNullOrWhiteSpace(SocialImageAlt))
+            {
+                <meta property="og:image:alt" content="@SocialImageAlt" />
+            }
+            @if (HasValue(SocialImageType))
+            {
+                <meta property="og:image:type" content="@SocialImageType" />
+            }
+            @if (SocialImageWidth.HasValue)
+            {
+                <meta property="og:image:width" content="@SocialImageWidth" />
+            }
+            @if (SocialImageHeight.HasValue)
+            {
+                <meta property="og:image:height" content="@SocialImageHeight" />
+            }
+        }
+        @if (HasValue(EffectiveTwitterImageUrl))
+        {
+            <meta name="twitter:image" content="@EffectiveTwitterImageUrl" />
+            @if (HasValue(EffectiveTwitterImageAlt))
+            {
+                <meta name="twitter:image:alt" content="@EffectiveTwitterImageAlt" />
+            }
+        }
+        @if (OpenGraphType == "article")
+        {
+            @if (ArticlePublishedTime.HasValue)
+            {
+                <meta property="article:published_time" content="@FormatDate(ArticlePublishedTime.Value)" />
+            }
+            @if (ArticleModifiedTime.HasValue)
+            {
+                <meta property="article:modified_time" content="@FormatDate(ArticleModifiedTime.Value)" />
+            }
+            @if (ArticleAuthorUrls is not null)
+            {
+                @foreach (string authorUrl in ArticleAuthorUrls)
+                {
+                    <meta property="article:author" content="@authorUrl" />
+                }
+            }
+            @if (HasValue(ArticleSection))
+            {
+                <meta property="article:section" content="@ArticleSection" />
+            }
+            @if (ArticleTags is not null)
+            {
+                @foreach (string tag in ArticleTags)
+                {
+                    @if (HasValue(tag))
+                    {
+                        <meta property="article:tag" content="@tag" />
+                    }
+                }
+            }
+        }
+        @if (_structuredDataMarkup is not null)
+        {
+            <script type="application/ld+json">@((MarkupString)_structuredDataMarkup)</script>
+        }
+    }
+    @ChildContent
+</HeadContent>

@@ -1,0 +1,87 @@
+@page "/components/seo-head"
+
+<QuarkSeoHead Title="Blazor SEO Head Metadata &amp; Social Sharing | Quark Suite"
+             Description="Configure Blazor page titles, canonical URLs, robots rules, Open Graph, Twitter cards, language alternatives, article metadata, and JSON-LD with SeoHead." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Paragraph>Use <Code>SeoHead</Code> to manage a page's search and sharing metadata through Blazor's <Code>HeadOutlet</Code>. The component renders no visible element and has no built-in branding.</Paragraph>
+
+    <Section Id="basic-page" Space="Space.Y.Is4">
+        <H2>Page metadata</H2>
+        <Paragraph>Render one metadata owner per page. Supply the production canonical URL explicitly; the application controls aliases, query strings, and trailing slashes.</Paragraph>
+        <CodeEditor Text="@BasicExample" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+        <Paragraph>These examples display code only so they do not replace this documentation page's metadata.</Paragraph>
+    </Section>
+
+    <Section Id="search-controls" Space="Space.Y.Is4">
+        <H2>Indexing and previews</H2>
+        <Paragraph>Use <Code>NoIndex</Code> for pages that should not appear in search. It removes managed canonical, social, language-alternative, and structured-data tags. <Code>NoFollow</Code> controls link following separately.</Paragraph>
+        <CodeEditor Text="@RobotsExample" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+        <Paragraph><Code>NoSnippet</Code> takes precedence over text and video preview limits. <Code>NoImageIndex</Code> controls image indexing. Noindex is not authorization and does not change the HTTP response status.</Paragraph>
+    </Section>
+
+    <Section Id="sharing" Space="Space.Y.Is4">
+        <H2>Sharing and articles</H2>
+        <Paragraph><Code>SocialTitle</Code> and <Code>SocialDescription</Code> override search text for sharing. Twitter-specific text and image parameters override the shared social values. Set <Code>TwitterSite</Code> and <Code>TwitterCreator</Code> for attribution.</Paragraph>
+        <Paragraph>Set <Code>OpenGraphType="article"</Code> to emit article dates, author profile URLs, a section, and tags. Dates use ISO 8601. Article fields are omitted when the page type is not article.</Paragraph>
+    </Section>
+
+    <Section Id="localization" Space="Space.Y.Is4">
+        <H2>Language alternatives</H2>
+        <CodeEditor Text="@LanguagesExample" Language="razor" ReadOnly="true" AutoHeight="true" Minimap="false" ShowCopyButton="true" />
+        <Paragraph>Use language tags such as <Code>fr-CA</Code> for hreflang, and locales such as <Code>fr_CA</Code> for Open Graph. Include the current language and reciprocal links on each alternate page.</Paragraph>
+    </Section>
+
+    <Section Id="structured-data" Space="Space.Y.Is4">
+        <H2>Structured data and custom tags</H2>
+        <Paragraph>Pass a serialized JSON object or array through <Code>StructuredDataJson</Code>. The component validates JSON and escapes script delimiters. Your application supplies schema types, breadcrumbs, and repository or organization information.</Paragraph>
+        <Paragraph>Use source-generated JSON serialization or <Code>Utf8JsonWriter</Code> in trimmed or AOT applications. Child content supports additional head tags; it remains present on noindex pages and should not duplicate managed metadata.</Paragraph>
+    </Section>
+
+    <Section Id="hosting" Space="Space.Y.Is4">
+        <H2>Host setup</H2>
+        <Paragraph>For Blazor Web Apps, render <Code>&lt;HeadOutlet /&gt;</Code> in the host's HTML head. For standalone WebAssembly, register <Code>HeadOutlet</Code> at <Code>head::after</Code>. Remove competing titles and static copies of the managed tags.</Paragraph>
+        <Paragraph>WebAssembly metadata appears after rendering. SeoHead does not add prerendering, sitemaps, redirects, robots.txt, or HTTP status handling.</Paragraph>
+        <Anchor Href="https://github.com/soenneker/soenneker.quark.suite/blob/main/src/Soenneker.Quark.Suite/Components/SeoHead/README.md">Full parameter guide and examples</Anchor>
+    </Section>
+</Div>
+
+@code {
+    private const string BasicExample = """
+        <SeoHead Title="Background jobs | Example"
+                 Description="Schedule and monitor background work."
+                 CanonicalUrl="https://example.com/jobs/"
+                 SiteName="Example"
+                 Locale="en_US"
+                 SocialImageUrl="https://example.com/images/jobs.png"
+                 SocialImageAlt="The background jobs dashboard"
+                 SocialImageWidth="1200"
+                 SocialImageHeight="630" />
+        """;
+
+    private const string RobotsExample = """
+        <SeoHead Title="Internal page" Description="An internal page."
+                 NoIndex="true" NoFollow="true" />
+
+        <SeoHead Title="Public guide" Description="A public guide."
+                 MaxSnippet="160" MaxImagePreview="large"
+                 MaxVideoPreview="0" />
+        """;
+
+    private const string LanguagesExample = """
+        <SeoHead Title="Example" Description="Localized product page."
+                 CanonicalUrl="https://example.com/en/"
+                 Locale="en_US"
+                 AlternateLanguageUrls="@Languages" />
+
+        @code {
+            private static readonly IReadOnlyDictionary<string, string> Languages =
+                new Dictionary<string, string>
+                {
+                    ["en"] = "https://example.com/en/",
+                    ["fr-CA"] = "https://example.com/fr-ca/",
+                    ["x-default"] = "https://example.com/"
+                };
+        }
+        """;
+}
