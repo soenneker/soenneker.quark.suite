@@ -73,6 +73,31 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Autosave"
+                     Description="Edit the code to preview the built-in saving, saved, and failed indicators. Saving starts after 750 ms without typing or when the editor loses focus."
+                     Code="@AutoSaveDemoCode"
+                     CodeLanguage="razor"
+                     PreviewClass="@ReadOnlyPreviewClass">
+            <Div Display="Display.Grid" Width="Width.IsFull" Gap="Gap.Is3">
+                <Check @bind-Checked="_simulateSaveFailure">Simulate save failure</Check>
+                <CodeEditor @bind-Text="_autoSaveText"
+                            Language="csharp"
+                            Theme="@_theme"
+                            AutoHeight="true"
+                            MinLines="8"
+                            MaxLines="18"
+                            Minimap="false"
+                            AutoSave="true"
+                            AutoSaveDelay="750"
+                            OnAutoSave="SaveCode" />
+                <Small TextColor="TextColor.MutedForeground">
+                    Saves are simulated and take 1.2 seconds; no data is persisted. Turn off simulated failure and edit again to retry.
+                </Small>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="Read-only"
                      Description="Use read-only editors for code examples that should keep Monaco syntax highlighting and theme behavior."
                      Code="@ReadOnlyDemoCode"
@@ -209,6 +234,17 @@ console.log(message);";
   ]
 }";
 
+    private string? _autoSaveText = "// Edit this code to see the autosave indicator.\npublic string Message { get; set; } = \"Hello, autosave!\";";
+    private bool _simulateSaveFailure;
+
+    private async ValueTask SaveCode(string? text, CancellationToken cancellationToken)
+    {
+        await Task.Delay(1200, cancellationToken);
+
+        if (_simulateSaveFailure)
+            throw new InvalidOperationException("Simulated save failure.");
+    }
+
     private string _fileDropText = "# File drop\n\nDrop images or PDFs anywhere in this editor.";
 
     private static ValueTask<string?> InsertDroppedFiles(IReadOnlyList<IBrowserFile> files, CancellationToken cancellationToken)
@@ -278,6 +314,38 @@ console.log(message);";
                 MaxLines=""18""
                 Style=""@(!_autoHeight ? ""height: 320px"" : null)"" />
 </Div>";
+
+    private const string AutoSaveDemoCode =
+@"<Div Display=""Display.Grid"" Width=""Width.IsFull"" Gap=""Gap.Is3"">
+    <Check @bind-Checked=""_simulateSaveFailure"">Simulate save failure</Check>
+    <CodeEditor @bind-Text=""_autoSaveText""
+                Language=""csharp""
+                Theme=""@_theme""
+                AutoHeight=""true""
+                MinLines=""8""
+                MaxLines=""18""
+                Minimap=""false""
+                AutoSave=""true""
+                AutoSaveDelay=""750""
+                OnAutoSave=""SaveCode"" />
+    <Small TextColor=""TextColor.MutedForeground"">
+        Saves are simulated and take 1.2 seconds; no data is persisted. Turn off simulated failure and edit again to retry.
+    </Small>
+</Div>
+
+@code {
+    private string? _autoSaveText = ""// Edit this code to see the autosave indicator.\npublic string Message { get; set; } = \""Hello, autosave!\"";"";
+    private string _theme = ""auto"";
+    private bool _simulateSaveFailure;
+
+    private async ValueTask SaveCode(string? text, CancellationToken cancellationToken)
+    {
+        await Task.Delay(1200, cancellationToken);
+
+        if (_simulateSaveFailure)
+            throw new InvalidOperationException(""Simulated save failure."");
+    }
+}";
 
     private const string ReadOnlyDemoCode =
 @"<CodeEditor Text=""@ReadOnlyText""

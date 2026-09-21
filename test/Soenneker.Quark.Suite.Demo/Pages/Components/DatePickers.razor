@@ -1,5 +1,6 @@
 @page "/components/date-picker"
 @using System.Globalization
+@using System.Threading
 
 <QuarkSeoHead Title="Blazor Date Picker: Ranges &amp; Natural Language | Quark Suite" Description="Choose dates in Blazor with Quark DatePicker. Explore date ranges, birth dates, text input, time selection, natural-language parsing, and RTL examples." />
 
@@ -21,6 +22,29 @@
                          PreviewClass="@DatePickerPreviewClass"
                          CodeLanguage="razor">
                 @DatePickerBasicExample
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Autosave"
+                         Description="Select a date to preview the built-in saving, saved, and failed indicators. Autosave starts after a 750 ms delay."
+                         Code="@AutoSaveDatePickerCode"
+                         PreviewClass="@DatePickerPreviewClass"
+                         CodeLanguage="razor">
+                <Div Display="Display.Grid" Gap="Gap.Is3" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                    <Check @bind-Checked="_simulateSaveFailure">Simulate save failure</Check>
+                    <Field>
+                        <FieldLabel For="date-picker-autosave">Schedule date</FieldLabel>
+                        <DatePicker Id="date-picker-autosave"
+                                    @bind-SelectedDate="_autoSaveDate"
+                                    AutoSave="true"
+                                    AutoSaveDelay="750"
+                                    OnAutoSave="SaveDate" />
+                    </Field>
+                    <Small TextColor="TextColor.MutedForeground">
+                        Saves are simulated and take 1.2 seconds; no data is persisted. Turn off simulated failure and select a different date to retry.
+                    </Small>
+                </Div>
             </DemoSection>
         </Section>
 
@@ -208,6 +232,48 @@
 </Div>
 
 @code {
+    private DateOnly? _autoSaveDate = DateOnly.FromDateTime(DateTime.Today);
+    private bool _simulateSaveFailure;
+
+    private async ValueTask SaveDate(DateOnly? date, CancellationToken cancellationToken)
+    {
+        await Task.Delay(1200, cancellationToken);
+
+        if (_simulateSaveFailure)
+            throw new InvalidOperationException("Simulated save failure.");
+    }
+
+    private const string AutoSaveDatePickerCode =
+@"@using System.Threading
+
+<Div Display=""Display.Grid"" Gap=""Gap.Is3"" Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"">
+    <Check @bind-Checked=""_simulateSaveFailure"">Simulate save failure</Check>
+    <Field>
+        <FieldLabel For=""date-picker-autosave"">Schedule date</FieldLabel>
+        <DatePicker Id=""date-picker-autosave""
+                    @bind-SelectedDate=""_autoSaveDate""
+                    AutoSave=""true""
+                    AutoSaveDelay=""750""
+                    OnAutoSave=""SaveDate"" />
+    </Field>
+    <Small TextColor=""TextColor.MutedForeground"">
+        Saves are simulated and take 1.2 seconds; no data is persisted. Turn off simulated failure and select a different date to retry.
+    </Small>
+</Div>
+
+@code {
+    private DateOnly? _autoSaveDate = DateOnly.FromDateTime(DateTime.Today);
+    private bool _simulateSaveFailure;
+
+    private async ValueTask SaveDate(DateOnly? date, CancellationToken cancellationToken)
+    {
+        await Task.Delay(1200, cancellationToken);
+
+        if (_simulateSaveFailure)
+            throw new InvalidOperationException(""Simulated save failure."");
+    }
+}";
+
     private const string DatePickerPreviewClass =
         "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
 

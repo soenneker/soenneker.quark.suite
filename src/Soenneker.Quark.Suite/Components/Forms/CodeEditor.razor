@@ -31,7 +31,7 @@
     {
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
-                        Class="@AutoSaveStatusClass"
+                        Class="@ResolvedAutoSaveStatusClass"
                         SavingClass="@AutoSaveSavingClass"
                         SavedClass="@AutoSaveSavedClass"
                         FailedClass="@AutoSaveFailedClass" />
@@ -55,6 +55,20 @@
 
 @code {
     private readonly AutoSaveController<string?> _autoSave = new();
+
+    private string ResolvedAutoSaveStatusClass
+    {
+        get
+        {
+            var statusClass = ShowCopyButton
+                ? "absolute top-3.5 right-12 z-10"
+                : "absolute top-3.5 right-3.5 z-10";
+
+            return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
+                ? statusClass
+                : $"{statusClass} {AutoSaveStatusClass}";
+        }
+    }
 
     /// <summary>Gets or sets whether changes are saved automatically.</summary>
     [Parameter]
