@@ -338,25 +338,25 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeThemeInterop : IThemeInterop
     {
         public bool IsDark { get; private set; }
+        public ThemeMode Mode { get; private set; } = ThemeMode.System;
         public event Action<bool>? ThemeChanged;
 
-        public ValueTask<bool> Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
+        public ValueTask<bool> Initialize(CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
 
-        public ValueTask<bool> Toggle(System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask<bool> SetMode(ThemeMode mode, CancellationToken cancellationToken = default)
         {
-            IsDark = !IsDark;
+            Mode = mode;
+            IsDark = mode == ThemeMode.Dark;
             ThemeChanged?.Invoke(IsDark);
             return ValueTask.FromResult(IsDark);
         }
 
-        public ValueTask<bool> GetIsDark(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
+        public ValueTask<bool> Toggle(CancellationToken cancellationToken = default) =>
+            SetMode(IsDark ? ThemeMode.Light : ThemeMode.Dark, cancellationToken);
 
-        public ValueTask<bool> UseSystem(System.Threading.CancellationToken cancellationToken = default)
-        {
-            IsDark = false;
-            ThemeChanged?.Invoke(IsDark);
-            return ValueTask.FromResult(IsDark);
-        }
+        public ValueTask<bool> GetIsDark(CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
+
+        public ValueTask<bool> UseSystem(CancellationToken cancellationToken = default) => SetMode(ThemeMode.System, cancellationToken);
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

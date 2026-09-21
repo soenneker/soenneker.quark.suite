@@ -12,10 +12,10 @@
 <Popover Open="@_open" OpenChanged="HandleOpenChanged">
     <Div @attributes="GetContainerAttributes()">
         <PopoverAnchor>
-            <input type="text" value="@(SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : "")" @attributes="BuildAttributes()"/>
+            <input type="text" value="@_inputText" @attributes="BuildAttributes()"/>
         </PopoverAnchor>
 
-        <PopoverContent Id="@_panelId" Side="Side.Bottom" Align="Alignment.Start" MinWidth='Quark.MinWidth.Token("[18rem]")' Rounded="Quark.Rounded.Lg" Border="Quark.Border.Default" BackgroundColor="Quark.BackgroundColor.Popover" Padding="Quark.Padding.Is3" TextColor="Quark.TextColor.PopoverForeground" Shadow="Quark.Shadow.Md" @attributes="PanelAttributes">
+        <PopoverContent Id="@_panelId" Side="Side.Bottom" Align="Alignment.Start" OnOpenAutoFocusDetailed="PreventPanelAutoFocus" Width="Quark.Width.Auto" MinWidth='Quark.MinWidth.Token("[18rem]")' Rounded="Quark.Rounded.Lg" Border="Quark.Border.Default" BackgroundColor="Quark.BackgroundColor.Popover" Padding="Quark.Padding.Is3" TextColor="Quark.TextColor.PopoverForeground" Shadow="Quark.Shadow.Md" @attributes="PanelAttributes">
             <Div Margin="Quark.Margin.FromBottom.Is2" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between">
                 <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.IconSm" AriaLabel="Previous month" @onclick="PrevMonth">‹</Button>
                 <Div TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</Div>
@@ -32,19 +32,19 @@
                 }
             </Grid>
 
-            <Div Margin="Quark.Margin.FromTop.Is3" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2" Border="Quark.Border.FromTop.Is1" Padding="Quark.Padding.FromTop.Is3">
+            <Div Class="flex-wrap justify-center" Margin="Quark.Margin.FromTop.Is3" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2" Border="Quark.Border.FromTop.Is1" Padding="Quark.Padding.FromTop.Is3">
                 <Div Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Icon" @onclick="DecrementHour">-</Button>
-                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="Quark.Width.Is14" TextAlign="Quark.TextAlign.Center" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="OnHourInput" @onwheel="OnHourWheel" @onkeydown="OnHourKeyDown"/>
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Icon" @onclick="IncrementHour">+</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.IconSm" @onclick="DecrementHour">-</Button>
+                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="Quark.Width.Is10" TextAlign="Quark.TextAlign.Center" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="OnHourInput" @onwheel="OnHourWheel" @onkeydown="OnHourKeyDown"/>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.IconSm" @onclick="IncrementHour">+</Button>
                 </Div>
                 <Span TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground">:</Span>
                 <Div Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Icon" @onclick="DecrementMinute">-</Button>
-                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="Quark.Width.Is14" TextAlign="Quark.TextAlign.Center" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Minute" step="@_minuteStep" min="0" max="59" OnInput="OnMinuteInput" @onwheel="OnMinuteWheel" @onkeydown="OnMinuteKeyDown"/>
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Icon" @onclick="IncrementMinute">+</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.IconSm" @onclick="DecrementMinute">-</Button>
+                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="Quark.Width.Is10" TextAlign="Quark.TextAlign.Center" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Minute" step="@_minuteStep" min="0" max="59" OnInput="OnMinuteInput" @onwheel="OnMinuteWheel" @onkeydown="OnMinuteKeyDown"/>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.IconSm" @onclick="IncrementMinute">+</Button>
                 </Div>
-                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" Margin="Quark.Margin.FromLeft.Is1" Title="Click to toggle" @onclick="ToggleAmPm">@(_isAm ? "AM" : "PM")</Button>
+                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="ButtonSize.Sm" Title="Click to toggle" @onclick="ToggleAmPm">@(_isAm ? "AM" : "PM")</Button>
             </Div>
         </PopoverContent>
     </Div>
@@ -132,6 +132,9 @@
     public object? ValidationValue => SelectedDateTime;
 
     private bool _open;
+    private string _inputText = string.Empty;
+    private DateTime? _lastSyncedValue;
+    private bool _initialized;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private CultureInfo _currentCulture = CultureInfo.CurrentCulture;
@@ -158,25 +161,12 @@
         ["class"] = "q-date-time-picker relative w-full"
     };
 
-    private static DateTime? Parse(ChangeEventArgs e)
-    {
-        if (e?.Value == null)
-            return null;
-
-        var text = e.Value.ToString();
-        // Accept common formats (with T or space)
-        if (text.IsNullOrWhiteSpace())
-            return null;
-
-        var normalized = text.Trim();
-        if (normalized.Contains(' ') && !normalized.Contains('T'))
-            normalized = normalized.Replace(' ', 'T');
-
-        if (DateTime.TryParse(normalized, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
-            return result;
-
-        return null;
-    }
+    private static readonly string[] InputFormats =
+    [
+        "yyyy-MM-dd hh:mm tt", "yyyy-MM-dd h:mm tt",
+        "yyyy-MM-dd HH:mm", "yyyy-MM-dd'T'HH:mm",
+        "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss"
+    ];
 
     protected override void OnParametersSet()
     {
@@ -184,43 +174,73 @@
         _currentCulture = CultureInfo.CurrentCulture;
         _today = DateOnly.FromDateTime(DateTime.Today);
         InitializeDayNames();
+
+        if (!_initialized || SelectedDateTime != _lastSyncedValue)
+        {
+            SyncSelection();
+            _initialized = true;
+        }
+    }
+
+    private void SyncSelection()
+    {
+        _lastSyncedValue = SelectedDateTime;
+        _inputText = SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : string.Empty;
+        SyncPanel();
+    }
+
+    private void SyncPanel()
+    {
+        var value = SelectedDateTime ?? DateTime.Now;
+        _pendingDate = SelectedDateTime.HasValue ? DateOnly.FromDateTime(value) : null;
+        _displayMonth = DateOnly.FromDateTime(value);
+        _hour = value.Hour;
+        _minute = value.Minute;
+        _isAm = _hour < 12;
+    }
+
+    private async Task ApplyInput(ChangeEventArgs e)
+    {
+        _inputText = e.Value?.ToString() ?? string.Empty;
+        DateTime? next = null;
+        if (!string.IsNullOrWhiteSpace(_inputText))
+        {
+            if (!DateTime.TryParseExact(_inputText.Trim(), InputFormats, CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeLocal, out var parsed))
+            {
+                Refresh();
+                return;
+            }
+
+            next = parsed;
+        }
+
+        var valueChanged = SelectedDateTime != next;
+        SelectedDateTime = next;
+        _lastSyncedValue = next;
+        SyncPanel();
+        if (valueChanged)
+            await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(SelectedDateTime);
+
+        Refresh();
     }
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = SelectedDateTime != next;
-        SelectedDateTime = next;
-        if (valueChanged)
-            await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
+        await ApplyInput(e);
         await OnInput.InvokeIfHasDelegate(e);
-
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(SelectedDateTime);
-
-        if (valueChanged)
-        {
-            Refresh();
-        }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = SelectedDateTime != next;
-        SelectedDateTime = next;
-        if (valueChanged)
-            await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
+        await ApplyInput(e);
         await OnChange.InvokeIfHasDelegate(e);
-
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(SelectedDateTime);
-
-        if (valueChanged)
-        {
-            Refresh();
-        }
     }
+
+    private static void PreventPanelAutoFocus(BradixAutoFocusEventArgs args) => args.PreventDefault();
 
     private string? GetSizeClass()
     {
@@ -238,25 +258,6 @@
             {
                 await ParentValidation.InitializeInputExpression(SelectedDateTimeExpression);
             }
-        }
-
-        if (firstRender)
-        {
-            if (SelectedDateTime.HasValue)
-            {
-                _displayMonth = DateOnly.FromDateTime(SelectedDateTime.Value);
-                _hour = SelectedDateTime.Value.Hour;
-                _minute = SelectedDateTime.Value.Minute;
-            }
-            else
-            {
-                _displayMonth = _today;
-                var now = DateTime.Now;
-                _hour = now.Hour;
-                _minute = now.Minute;
-            }
-
-            _isAm = _hour < 12;
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -396,6 +397,9 @@
 
     private Task OpenPanel()
     {
+        if (Disabled || ReadOnly)
+            return Task.CompletedTask;
+
         if (!_open)
             _open = true;
         Refresh();
@@ -425,8 +429,11 @@
         if (SelectedDateTime != dt)
         {
             SelectedDateTime = dt;
+            SyncSelection();
             await SelectedDateTimeChanged.InvokeAsync(SelectedDateTime);
         }
+
+        SyncSelection();
 
         if (ParentValidation is not null)
         {
@@ -569,6 +576,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(SelectedDateTime);
+        hc.Add(_inputText);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);
