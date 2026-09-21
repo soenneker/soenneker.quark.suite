@@ -35,8 +35,9 @@
     [Parameter] public bool NoIndex { get; set; }
     [Parameter] public string? CanonicalPath { get; set; }
 
-    private string Path => (CanonicalPath ?? new Uri(Navigation.Uri).AbsolutePath).TrimEnd('/');
-    private string CanonicalUrl => "https://quark.soenneker.com" + (Path.Length == 0 ? "/" : Path);
+    private string Path => "/" + (CanonicalPath ?? new Uri(Navigation.Uri).AbsolutePath)
+        .Split('?', '#')[0].Trim('/');
+    private string CanonicalUrl => "https://quark.soenneker.com" + (Path == "/" ? "/" : Path);
 
     private string StructuredData => JsonSerializer.Serialize(new Dictionary<string, object>
     {
@@ -51,9 +52,17 @@
                 ["url"] = "https://quark.soenneker.com/",
                 ["inLanguage"] = "en"
             },
-            new Dictionary<string, object>
+            PageData
+        }
+    });
+
+    private Dictionary<string, object> PageData
+    {
+        get
+        {
+            var page = new Dictionary<string, object>
             {
-                ["@type"] = Path.Length == 0 ? "WebPage" : "TechArticle",
+                ["@type"] = "WebPage",
                 ["@id"] = CanonicalUrl + "#webpage",
                 ["url"] = CanonicalUrl,
                 ["name"] = Title,
@@ -67,8 +76,29 @@
                     ["programmingLanguage"] = "C#",
                     ["codeRepository"] = "https://github.com/soenneker/soenneker.quark.suite"
                 }
-            }
+            };
+            if (Path != "/")
+                page["breadcrumb"] = Breadcrumbs;
+            return page;
         }
-    });
+    }
+
+    private object Breadcrumbs => new Dictionary<string, object>
+    {
+        ["@type"] = "BreadcrumbList",
+        ["itemListElement"] = new object[]
+            {
+                Breadcrumb(1, "Quark Suite", "https://quark.soenneker.com/"),
+                Breadcrumb(2, Title.Split('|')[0].Trim(), CanonicalUrl)
+            }
+    };
+
+    private static object Breadcrumb(int position, string name, string url) => new Dictionary<string, object>
+    {
+        ["@type"] = "ListItem",
+        ["position"] = position,
+        ["name"] = name,
+        ["item"] = url
+    };
 
 }
