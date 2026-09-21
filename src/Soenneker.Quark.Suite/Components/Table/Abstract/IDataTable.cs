@@ -74,9 +74,15 @@ public interface IDataTable : ICancellableElement
     /// <summary>
     /// Gets whether an internal request or externally supplied loading state is active.
     /// Sets the external loading state without overriding an active internal request.
-    /// Loading retains table content and shows a centered overlay; OverlayContent can replace the default overlay.
+    /// Loading retains table content and shows an overlay; OverlayContent can replace the default overlay.
     /// </summary>
     bool IsLoading { get; set; }
+
+    /// <summary>
+    /// Positions the default loading spinner at the top center of the table area with a small inset near the header.
+    /// Defaults to false, which vertically centers the spinner. Does not affect custom OverlayContent.
+    /// </summary>
+    bool LoadingAtTop { get; set; }
 
     /// <summary>
     /// Gets or sets whether column widths use fixed table layout, preventing cell content changes from resizing columns.
