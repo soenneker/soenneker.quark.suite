@@ -9,11 +9,11 @@
 @inject Soenneker.Blazor.Utils.Clipboard.Abstract.IClipboardUtil ClipboardUtil
 @implements IDisposable
 
-<QuarkSeoHead Title="@($"{Category} Charts | Quark Suite")" Description="Explore area, bar, line, pie, radar, and radial chart examples for Blazor." />
+<QuarkSeoHead Title="@SeoTitle" Description="@SeoDescription" />
 <div class="chart-gallery-scope">
 <Div Class="chart-gallery">
     <Section Class="chart-gallery-hero">
-        <H1>Beautiful Charts &amp; Graphs</H1>
+        <H1>@(IsGalleryRoot ? "Blazor Charts & Graphs" : $"Blazor {Category} Chart Examples")</H1>
         <Paragraph>A collection of ready-to-use chart components built with Quark Suite.<br /> From basic charts to rich data displays, compose them in your Blazor apps.</Paragraph>
         <Div Class="chart-gallery-actions">
             <Anchor Href="#chart-examples">Browse Charts</Anchor>
@@ -82,6 +82,24 @@
 </div>
 
 @code {
+    private bool IsGalleryRoot => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].Trim('/') == "charts";
+
+    private string SeoTitle => IsGalleryRoot
+        ? "Blazor Chart Gallery: Interactive Graph Examples | Quark Suite"
+        : $"Blazor {Category} Chart Examples | Quark Suite";
+
+    private string SeoDescription => IsGalleryRoot
+        ? "Browse Quark's Blazor chart gallery for area, bar, line, pie, radar, and radial graphs. Compare visual styles and review chart configuration in Razor."
+        : Category switch
+        {
+            "Area" => "Build Blazor area charts with Quark. Compare linear, stepped, stacked, and gradient fills, legends, and an interactive date-range example with Razor code.",
+            "Bar" => "Explore Blazor bar charts with Quark. Compare single, multiple-series, and stacked bars, plus an interactive visitor chart with selectable date ranges.",
+            "Line" => "Create Blazor line charts with Quark. Compare linear and stepped lines, multiple series, point markers, legends, and interactive date-range examples.",
+            "Pie" => "Compare Blazor pie and donut charts in Quark's gallery. Explore segment displays, donut center content, and a legend variant for dashboard data visualization.",
+            "Radar" => "Explore Blazor radar charts in Quark's gallery. Compare a single series, multiple datasets, and point markers across axes in the rendered chart examples.",
+            _ => "Explore Blazor radial charts in Quark's gallery. Compare a single radial display, multiple values, and circular progress in the rendered dashboard examples."
+        };
+
     private void ChangeRange(string? value)
     {
         if (int.TryParse(value, out var days) && days is 7 or 30 or 90)
