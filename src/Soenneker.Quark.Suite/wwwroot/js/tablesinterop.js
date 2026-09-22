@@ -147,15 +147,21 @@ function update(state) {
         const measured = measure(state);
         // Do not relearn widths from an empty/loading/detail row between pages.
         if (!measured.length) return;
-        const reset = state.reset || Math.abs(available - state.available) > 1 || measured.length !== state.widths?.length;
+        const tableStyle = getComputedStyle(table);
+        const spacing = tableStyle.borderCollapse === 'separate'
+            ? parseFloat(tableStyle.borderSpacing) * (measured.length + 1)
+                + parseFloat(tableStyle.borderLeftWidth) + parseFloat(tableStyle.borderRightWidth)
+            : 0;
+        const reset = state.reset || spacing !== state.spacing || available !== state.available || measured.length !== state.widths?.length;
         // Reset the existing buffer instead of allocating a new array on resize.
         if (reset && state.widths) {
             state.widths.length = measured.length;
             state.widths.fill(0);
         }
-        const widths = allocateWidths(measured, state.widths, available, state.options);
+        const widths = allocateWidths(measured, state.widths, Math.max(0, available - spacing), state.options);
         state.widths = widths;
         state.available = available;
+        state.spacing = spacing;
         state.reset = false;
         // Keep the same col nodes on refresh; only write widths that actually changed.
         while (columns.children.length > widths.length) columns.lastElementChild.remove();
@@ -173,7 +179,7 @@ function update(state) {
         if (!ownsStyle(table, 'width', state.appliedWidth))
             state.width = saveStyle(table, 'width');
         state.appliedLayout = 'fixed';
-        state.appliedWidth = `${total}px`;
+        state.appliedWidth = `${total + spacing}px`;
         if (table.style.tableLayout !== state.appliedLayout || table.style.getPropertyPriority('table-layout') !== 'important')
             table.style.setProperty('table-layout', state.appliedLayout, 'important');
         if (table.style.width !== state.appliedWidth || table.style.getPropertyPriority('width') !== 'important')

@@ -25,6 +25,24 @@ async function checks() {
             assert(sizes[0] > sizes[2] * 3, `job / attempt widths: ${sizes}`);
             assert(table.getBoundingClientRect().width <= container.clientWidth + 1, 'desktop fits container');
         });
+        await check('one pixel container shrink does not create overflow', async () => {
+            container.style.width = '1101px';
+            await settle();
+            container.style.width = '1100px';
+            await settle();
+            equal(container.scrollWidth, container.clientWidth, 'one pixel resize fits');
+        });
+        await check('separate table borders and spacing fit the container', async () => {
+            table.style.borderCollapse = 'separate';
+            table.style.borderSpacing = '2px';
+            table.style.border = '1px solid';
+            await settle();
+            equal(container.scrollWidth, container.clientWidth, 'spacing fits');
+            table.style.borderCollapse = '';
+            table.style.borderSpacing = '';
+            table.style.border = '';
+            await settle();
+        });
         await check('small button changes preserve every width and focus', async () => {
             const before = widths();
             action.focus();
