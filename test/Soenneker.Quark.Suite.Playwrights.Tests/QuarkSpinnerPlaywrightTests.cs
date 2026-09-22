@@ -100,7 +100,7 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Spinner_stops_motion_when_reduced_motion_is_requested()
+    public async ValueTask Spinner_keeps_full_animation_when_reduced_motion_is_requested()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -112,17 +112,17 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
         var spinner = page.Locator(".quark-spinner").First;
         await spinner.WaitForAsync();
 
-        var animationState = await spinner.EvaluateAsync<string>(
-            """
-            spinner => {
-                const animated = [...spinner.querySelectorAll('.quark-spinner-indeterminate, .quark-spinner-layer, .quark-spinner-circle-graphic, .quark-spinner-circle')]
-                    .map(element => `${element.className.baseVal ?? element.className}: ${getComputedStyle(element).animationName}`)
-                    .filter(value => !value.endsWith(': none'));
-                return animated.length === 0 ? 'ok' : animated.join(', ');
-            }
-            """);
+        await Assertions.Expect(spinner.Locator(".quark-spinner-indeterminate"))
+            .ToHaveCSSAsync("animation-name", "quark-spinner-container-rotate");
 
-        animationState.Should().Be("ok");
+        await Assertions.Expect(spinner.Locator(".quark-spinner-layer"))
+            .ToHaveCSSAsync("animation-name", "quark-spinner-layer-rotate");
+        await Assertions.Expect(spinner.Locator(".quark-spinner-left .quark-spinner-circle-graphic"))
+            .ToHaveCSSAsync("animation-name", "quark-spinner-left-spin");
+        await Assertions.Expect(spinner.Locator(".quark-spinner-right .quark-spinner-circle-graphic"))
+            .ToHaveCSSAsync("animation-name", "quark-spinner-right-spin");
+        await Assertions.Expect(page.Locator(".quark-spinner-multicolor .quark-spinner-circle").First)
+            .ToHaveCSSAsync("animation-name", "quark-spinner-four-color");
     }
 
     [Test]
