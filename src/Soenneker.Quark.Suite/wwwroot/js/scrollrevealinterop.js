@@ -9,9 +9,8 @@ export function initialize(element, options) {
 
   const show = () => element.setAttribute("data-scroll-reveal-state", "visible");
   const hide = () => element.setAttribute("data-scroll-reveal-state", "hidden");
-  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 
-  if (options?.disabled === true || reducedMotion || !("IntersectionObserver" in window)) {
+  if (options?.disabled === true || !("IntersectionObserver" in window)) {
     show();
     return;
   }

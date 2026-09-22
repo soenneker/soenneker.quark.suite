@@ -2,7 +2,6 @@ const controllers = new WeakMap();
 
 export function initialize(root) {
     if (controllers.has(root)) return;
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let previous = snapshot();
     let lastAdvance = previous.enabled ? document.timeline.currentTime : null;
     let scrollFrame = null;
@@ -50,7 +49,7 @@ export function initialize(root) {
     }
 
     function updateRadial() {
-        if (root.dataset.radialAnimated !== 'true' || reducedMotion.matches) {
+        if (root.dataset.radialAnimated !== 'true') {
             stopRadial();
             return;
         }
@@ -127,7 +126,7 @@ export function initialize(root) {
         const next = snapshot();
         const old = previous;
         previous = next;
-        if (!next.enabled || reducedMotion.matches) {
+        if (!next.enabled) {
             cancel();
             return;
         }
@@ -185,14 +184,8 @@ export function initialize(root) {
         drawScroll(now);
     }
 
-    function motionChanged() {
-        if (reducedMotion.matches) cancel();
-        updateRadial();
-    }
-
     root.addEventListener('pointerdown', freeze, true);
     root.addEventListener('focusin', freeze, true);
-    reducedMotion.addEventListener('change', motionChanged);
     const observer = new MutationObserver(update);
     observer.observe(root, { attributes: true, attributeFilter: [
         'data-scroll-version', 'data-scroll-enabled', 'data-scroll-paused', 'data-scroll-duration', 'data-radial-animated'
@@ -201,7 +194,6 @@ export function initialize(root) {
         observer.disconnect();
         root.removeEventListener('pointerdown', freeze, true);
         root.removeEventListener('focusin', freeze, true);
-        reducedMotion.removeEventListener('change', motionChanged);
         cancel();
         stopRadial();
     });

@@ -106,15 +106,14 @@ test('pause freezes continuation and scale changes cancel it', t => {
     assert.equal(f.frames.size, 0);
 });
 
-test('reduced motion and destroy clear both transforms and cancel scheduled frames', t => {
+test('system reduced motion keeps scrolling while destroy cancels scheduled frames', t => {
     const f = fixture(t);
     f.sample(1);
     f.motion.matches = true;
     f.update();
-    assert.equal(f.plot.style.transform, undefined);
-    assert.equal(f.overlay.style.transform, undefined);
-    assert.equal(f.frames.size, 0);
-    f.motion.matches = false;
+    assert.notEqual(f.plot.style.transform, undefined);
+    assert.notEqual(f.overlay.style.transform, undefined);
+    assert.ok(f.frames.size > 0);
     f.sample(2);
     destroy(f.root);
     assert.equal(f.plot.style.transform, undefined);
