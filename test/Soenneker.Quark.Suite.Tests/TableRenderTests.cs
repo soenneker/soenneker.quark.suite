@@ -13,9 +13,13 @@ public sealed partial class RenderedShadcnParityTests
     public void DataTable_loading_retains_rows_and_clears_the_builtin_overlay()
     {
         var cut = Render<DataTable>(p => p.Add(c => c.TableContent, BasicTableContent).Add(c => c.IsLoading, true));
-        cut.Find("[data-slot='datatable-loading']");
+        cut.Find("[data-slot='datatable-loading']").ClassList.Should().Contain("items-center");
         cut.Find("table").GetAttribute("aria-busy").Should().Be("true");
         cut.Find("table").TextContent.Should().Contain("Cell");
+        cut.Render(p => p.Add(c => c.LoadingAtTop, true));
+        cut.Find("[data-slot='datatable-loading']").ClassList.Should().Contain("items-start").And.Contain("pt-4");
+        cut.Render(p => p.Add(c => c.LoadingAtTop, false));
+        cut.Find("[data-slot='datatable-loading']").ClassList.Should().Contain("items-center").And.NotContain("pt-4");
         cut.Render(p => p.Add(c => c.IsLoading, false));
         cut.FindAll("[data-slot='datatable-loading']").Should().BeEmpty();
         cut.Find("table").GetAttribute("aria-busy").Should().Be("false");
