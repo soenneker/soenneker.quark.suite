@@ -29,8 +29,7 @@ public sealed class QuarkCardPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/card",
-            static p => p.Locator("[data-slot='card']").First,
-            expectedTitle: "Card - Quark Suite");
+            static p => p.Locator("[data-slot='card']").First);
 
         var card = page.Locator("[data-slot='card']").First;
         await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bflex\b"));

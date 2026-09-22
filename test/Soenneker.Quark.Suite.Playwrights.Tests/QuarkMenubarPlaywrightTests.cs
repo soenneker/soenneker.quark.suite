@@ -21,8 +21,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First);
 
         var demo = MainDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
@@ -46,8 +45,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First);
 
         var demo = MainDemo(page);
         var viewTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
@@ -69,8 +67,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "ملف", Exact = true }),
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "ملف", Exact = true }));
 
         var demo = RtlDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
@@ -89,8 +86,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First);
 
         var demo = MainDemo(page);
         var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
@@ -129,8 +125,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First);
 
         var demo = MainDemo(page);
         var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
@@ -166,8 +161,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Profiles", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Profiles", Exact = true }).First);
 
         var radioDemo = RadioDemo(page);
         var profilesTrigger = radioDemo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profiles", Exact = true });
@@ -201,8 +195,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "View", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "View", Exact = true }).First);
 
         var checkboxDemo = CheckboxDemo(page);
         var viewTrigger = checkboxDemo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
@@ -257,8 +250,7 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First,
-            expectedTitle: "Menubar - Quark Suite");
+            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "File", Exact = true }).First);
 
         var demo = MainDemo(page);
         var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });

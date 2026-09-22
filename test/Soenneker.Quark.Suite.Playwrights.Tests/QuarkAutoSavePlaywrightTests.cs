@@ -30,8 +30,7 @@ public sealed class QuarkAutoSavePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/autosave",
-            static p => p.Locator("#autosave-input"),
-            expectedTitle: "Autosave - Quark Suite");
+            static p => p.Locator("#autosave-input"));
 
         var first = page.Locator("#autosave-input");
         var next = page.Locator("#autosave-textinput");

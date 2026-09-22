@@ -15,9 +15,13 @@
             <ComboboxContent>
                 <ComboboxEmpty>@EmptyText</ComboboxEmpty>
                 <ComboboxList>
-                    @foreach (SelectOption choice in FilteredChoices)
+                    @for (int index = 0; index < Choices.Count; index++)
                     {
-                        <ComboboxItem @key="choice.Value" Value="@EncodeValue(choice.Value)" Disabled="@choice.Disabled">@choice.Label</ComboboxItem>
+                        SelectOption choice = Choices[index];
+                        if (MatchesSearch(choice))
+                        {
+                            <ComboboxItem @key="choice.Value" Value="@EncodeValue(choice.Value)" Disabled="@choice.Disabled">@choice.Label</ComboboxItem>
+                        }
                     }
                 </ComboboxList>
             </ComboboxContent>
@@ -44,9 +48,21 @@
     public Validation? ParentValidation { get; set; }
     public object? ValidationValue => Value;
     private string? ItemValue => Value is null ? null : EncodeValue(Value);
-    private string DisplayValue => Choices.FirstOrDefault(c => string.Equals(c.Value, Value, StringComparison.Ordinal))?.Label ?? string.Empty;
-    private IEnumerable<SelectOption> FilteredChoices => Choices.Where(c => string.IsNullOrWhiteSpace(_search)
-        || c.Label.Contains(_search, StringComparison.OrdinalIgnoreCase) || c.Value.Contains(_search, StringComparison.OrdinalIgnoreCase));
+    private string DisplayValue
+    {
+        get
+        {
+            for (int index = 0; index < Choices.Count; index++)
+            {
+                SelectOption choice = Choices[index];
+                if (string.Equals(choice.Value, Value, StringComparison.Ordinal))
+                    return choice.Label;
+            }
+            return string.Empty;
+        }
+    }
+    private bool MatchesSearch(SelectOption choice) => string.IsNullOrWhiteSpace(_search)
+        || choice.Label.Contains(_search, StringComparison.OrdinalIgnoreCase) || choice.Value.Contains(_search, StringComparison.OrdinalIgnoreCase);
     private static string EncodeValue(string value) => "option:" + value;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -60,7 +76,19 @@
     {
         if (Disabled)
             return;
-        SelectOption? choice = Choices.FirstOrDefault(c => EncodeValue(c.Value) == itemValue);
+        if (itemValue is null || !itemValue.StartsWith("option:", StringComparison.Ordinal))
+            return;
+
+        SelectOption? choice = null;
+        for (int index = 0; index < Choices.Count; index++)
+        {
+            SelectOption candidate = Choices[index];
+            if (candidate.Value.AsSpan().SequenceEqual(itemValue.AsSpan("option:".Length)))
+            {
+                choice = candidate;
+                break;
+            }
+        }
         if (choice is null || choice.Disabled)
             return;
         Value = choice.Value;

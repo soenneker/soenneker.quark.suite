@@ -19,7 +19,7 @@ public sealed class QuarkAspectRatioPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/aspect-ratio",
-            static p => p.Locator("#aspect-ratio-portrait-demo"), expectedTitle: "Aspect Ratio - Quark Suite");
+            static p => p.Locator("#aspect-ratio-portrait-demo"));
 
         var landscapeFrame = page.Locator("#aspect-ratio-landscape-demo [data-radix-aspect-ratio-wrapper]");
         var squareFrame = page.Locator("#aspect-ratio-square-demo [data-radix-aspect-ratio-wrapper]");

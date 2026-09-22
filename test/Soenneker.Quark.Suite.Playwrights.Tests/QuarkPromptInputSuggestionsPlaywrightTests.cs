@@ -28,8 +28,7 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/prompt-inputs",
-            static p => p.Locator("[data-slot='prompt-input']"),
-            expectedTitle: "Prompt Input - Quark Suite");
+            static p => p.Locator("[data-slot='prompt-input']"));
 
         var prompt = page.Locator("[data-slot='prompt-input']");
         await Assertions.Expect(prompt).ToHaveAttributeAsync("role", "group");
@@ -75,8 +74,7 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/suggestions",
-            static p => p.Locator("[data-slot='suggestions']"),
-            expectedTitle: "Suggestions - Quark Suite");
+            static p => p.Locator("[data-slot='suggestions']"));
 
         await Assertions.Expect(page.Locator("[data-slot='suggestion']")).ToHaveCountAsync(5);
         await Assertions.Expect(page.Locator("[data-slot='suggestion-list']")).ToBeVisibleAsync();

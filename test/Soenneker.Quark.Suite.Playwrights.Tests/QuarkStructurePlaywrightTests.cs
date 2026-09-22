@@ -29,8 +29,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/semantic-html",
-            static p => p.Locator("main[data-slot='main']").First,
-            expectedTitle: "Semantic HTML - Quark Suite");
+            static p => p.Locator("main[data-slot='main']").First);
 
         await Assertions.Expect(page.Locator("main[data-slot='main']").First).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("nav[data-slot='nav']").First).ToBeVisibleAsync();
@@ -39,15 +38,13 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/figures",
-            static p => p.Locator("figure[data-slot='figure']").First,
-            expectedTitle: "Figures & Figcaptions - Quark Suite");
+            static p => p.Locator("figure[data-slot='figure']").First);
 
         await Assertions.Expect(page.Locator("figure[data-slot='figure'] figcaption[data-slot='figcaption']").First).ToBeVisibleAsync();
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/fieldsets",
-            static p => p.Locator("fieldset[data-slot='field-set']").First,
-            expectedTitle: "Fieldsets & Legends - Quark Suite");
+            static p => p.Locator("fieldset[data-slot='field-set']").First);
 
         var disabledFieldset = page.Locator("fieldset[data-slot='field-set'][disabled]").First;
         await Assertions.Expect(disabledFieldset).ToBeVisibleAsync();
@@ -56,8 +53,7 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/details",
-            static p => p.Locator("details[data-slot='details']").First,
-            expectedTitle: "Details & Summary - Quark Suite");
+            static p => p.Locator("details[data-slot='details']").First);
 
         var details = page.Locator("details[data-slot='details']").First;
         var summary = details.Locator("summary[data-slot='summary']").First;

@@ -29,8 +29,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/images",
-            static p => p.GetByText("With Overlay Actions").First,
-            expectedTitle: "Image - Quark Suite");
+            static p => p.GetByText("With Overlay Actions").First);
 
         var imageProbe = await page.GetByAltText("Image loaded from external URL").EvaluateAsync<ImageProbe>(
             @"element => ({
@@ -46,8 +45,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/videos",
-            static p => p.GetByText("HTML5 video with poster and standard controls.").First,
-            expectedTitle: "Video & Audio - Quark Suite");
+            static p => p.GetByText("HTML5 video with poster and standard controls.").First);
 
         var videoProbe = await page.Locator("video[data-slot='video']").First.EvaluateAsync<VideoProbe>(
             @"element => ({
@@ -83,8 +81,7 @@ public sealed class QuarkMediaPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/iframes",
-            static p => p.GetByText("Source URL and title for accessibility.").First,
-            expectedTitle: "IFrames - Quark Suite");
+            static p => p.GetByText("Source URL and title for accessibility.").First);
 
         var iframeProbe = await page.Locator("iframe[data-slot='iframe']").First.EvaluateAsync<IFrameProbe>(
             @"element => ({

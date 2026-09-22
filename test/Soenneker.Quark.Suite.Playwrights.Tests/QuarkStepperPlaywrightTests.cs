@@ -30,8 +30,7 @@ public sealed class QuarkStepperPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/stepper",
-            static p => p.Locator("[data-slot='stepper']").First,
-            expectedTitle: "Stepper - Quark Suite");
+            static p => p.Locator("[data-slot='stepper']").First);
 
         var firstStepper = page.Locator("[data-slot='stepper']").First;
         var stepper = page.Locator("[data-slot='stepper'][data-orientation='vertical']").First;

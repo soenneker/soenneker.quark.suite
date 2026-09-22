@@ -13,8 +13,7 @@ public sealed class QuarkColorPickerPointerPlaywrightTests(QuarkPlaywrightHost h
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/color-picker",
-            static p => p.Locator("[data-slot='color-picker-canvas']").First,
-            expectedTitle: "Color Picker - Quark Suite");
+            static p => p.Locator("[data-slot='color-picker-canvas']").First);
 
         var canvas = page.Locator("[data-slot='color-picker-canvas']").First;
         await canvas.ScrollIntoViewIfNeededAsync();

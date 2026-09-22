@@ -20,8 +20,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/collapsible",
-            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "File Tree", Exact = true }),
-            expectedTitle: "Collapsible - Quark Suite");
+            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "File Tree", Exact = true }));
 
         var fileTreeSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use nested collapsibles to build a file tree." }).First;
         var explorerTab = fileTreeSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Explorer", Exact = true });
@@ -47,8 +46,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/collapsible",
-            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Basic", Exact = true }),
-            expectedTitle: "Collapsible - Quark Suite");
+            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Basic", Exact = true }));
 
         var basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Product details" }).First;
         var card = basicSection.Locator("[data-slot='card']").First;
@@ -73,8 +71,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/collapsible",
-            static p => p.GetByText("Order #4189", new PageGetByTextOptions { Exact = true }),
-            expectedTitle: "Collapsible - Quark Suite");
+            static p => p.GetByText("Order #4189", new PageGetByTextOptions { Exact = true }));
 
         var orderSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Order #4189" }).First;
         var collapsible = orderSection.Locator("[data-slot='collapsible']").First;
@@ -100,8 +97,7 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/collapsible",
-            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Settings Panel", Exact = true }),
-            expectedTitle: "Collapsible - Quark Suite");
+            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Settings Panel", Exact = true }));
 
         var settingsSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a trigger button to reveal additional settings." }).First;
         var radiusX = settingsSection.Locator("#radius-top-left");

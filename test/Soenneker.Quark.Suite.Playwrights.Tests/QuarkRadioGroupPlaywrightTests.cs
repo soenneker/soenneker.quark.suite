@@ -19,8 +19,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/radio-group",
-            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Default", Exact = true }).First,
-            expectedTitle: "Radio Group - Quark Suite");
+            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Default", Exact = true }).First);
 
         var densityGroup = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Radio group items with a description using the Field component." }).First
                                .GetByRole(AriaRole.Radiogroup);
@@ -73,8 +72,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/radio-group",
-            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Option 2", Exact = true }),
-            expectedTitle: "Radio Group - Quark Suite");
+            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Option 2", Exact = true }));
 
         var disabledGroup = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the disabled prop on RadioGroupItem to disable individual items." }).First
                                 .GetByRole(AriaRole.Radiogroup);

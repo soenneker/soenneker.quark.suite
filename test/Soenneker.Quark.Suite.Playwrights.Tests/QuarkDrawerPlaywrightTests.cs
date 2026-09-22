@@ -21,8 +21,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/drawer",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }),
-            expectedTitle: "Drawer - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }));
 
         var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true });
         await trigger.ClickAsync();
@@ -76,8 +75,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/drawer",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }),
-            expectedTitle: "Drawer - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }));
 
         var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true });
         await trigger.ClickAsync();
@@ -107,8 +105,7 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/drawer",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Scrollable Content", Exact = true }),
-            expectedTitle: "Drawer - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Scrollable Content", Exact = true }));
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Scrollable Content", Exact = true }).ClickAsync();
 

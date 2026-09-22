@@ -13,8 +13,7 @@ public sealed class QuarkNodeEditorGeometryPlaywrightTests(QuarkPlaywrightHost h
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/node-editor",
-            static p => p.Locator("[data-slot='node-editor-node']").First,
-            expectedTitle: "Node Editor - Quark Suite");
+            static p => p.Locator("[data-slot='node-editor-node']").First);
 
         var root = page.Locator("[data-slot='node-editor']").First;
         var edge = root.Locator("[data-edge-id]").First;

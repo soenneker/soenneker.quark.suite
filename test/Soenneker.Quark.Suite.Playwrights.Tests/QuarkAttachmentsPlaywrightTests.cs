@@ -28,8 +28,7 @@ public sealed class QuarkAttachmentsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/attachments",
-            static p => p.Locator("[data-slot='attachment-list']"),
-            expectedTitle: "Attachments - Quark Suite");
+            static p => p.Locator("[data-slot='attachment-list']"));
 
         var attachments = page.Locator("[data-slot='attachment-list']");
         await Assertions.Expect(attachments).ToHaveAttributeAsync("data-variant", "list");

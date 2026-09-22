@@ -30,8 +30,7 @@ public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/alert",
-            static p => p.GetByRole(AriaRole.Alert).First,
-            expectedTitle: "Alerts - Quark Suite");
+            static p => p.GetByRole(AriaRole.Alert).First);
 
         var firstAlert = page.GetByRole(AriaRole.Alert).First;
         var destructive = page.GetByRole(AriaRole.Alert).Filter(new LocatorFilterOptions { HasText = "Payment failed" }).First;

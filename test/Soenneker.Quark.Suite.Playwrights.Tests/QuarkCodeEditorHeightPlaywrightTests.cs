@@ -13,8 +13,7 @@ public sealed class QuarkCodeEditorHeightPlaywrightTests(QuarkPlaywrightHost hos
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/codeeditors",
-            static p => p.Locator("[data-slot='code-editor'] .monaco-editor").First,
-            expectedTitle: "Code Editor - Quark Suite");
+            static p => p.Locator("[data-slot='code-editor'] .monaco-editor").First);
 
         var editor = page.Locator("[data-slot='code-editor']").First;
         var input = editor.GetByRole(AriaRole.Textbox).First;

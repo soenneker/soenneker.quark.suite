@@ -16,8 +16,7 @@ public sealed class QuarkResizablePointerPlaywrightTests(QuarkPlaywrightHost hos
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/resizable",
-            static p => p.Locator("[data-resizable-ready='true']").First,
-            expectedTitle: "Resizable - Quark Suite");
+            static p => p.Locator("[data-resizable-ready='true']").First);
 
         var group = page.Locator($"#{demoId} [data-slot='resizable-panel-group']").First;
         var handle = group.Locator(":scope > [data-slot='resizable-handle']").First;

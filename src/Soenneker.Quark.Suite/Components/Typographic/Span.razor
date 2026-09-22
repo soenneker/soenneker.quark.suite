@@ -3,14 +3,7 @@
 @implements ISpan
 
 <span @ref="ElementRef"
-      @onclick="HandleClick"
-      @onmouseenter="HandleMouseEnter"
-      @onmouseleave="HandleMouseLeave"
-      @onpointerdown="HandlePointerDown"
       @onpointerdown:preventDefault="PreventPointerDownDefault"
-      @onfocusin="HandleFocusIn"
-      @onfocusout="HandleFocusOut"
-      @onkeydown="HandleKeyDown"
       @attributes="BuildAttributes()">
     <CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
         @ChildContent
@@ -18,6 +11,33 @@
 </span>
 
 @code {
+    private TriggerEventReceiver? _triggerEvents;
+    private TriggerEventReceiver TriggerEvents => _triggerEvents ??= new(this);
+
+    private sealed class TriggerEventReceiver(Span owner) : IHandleEvent
+    {
+        public Task HandleMouseEnter(MouseEventArgs args) => owner.HandleMouseEnter(args);
+        public Task HandleMouseMove(MouseEventArgs args) => owner.HandleMouseMove(args);
+        public Task HandleMouseLeave(MouseEventArgs args) => owner.HandleMouseLeave(args);
+        public Task HandlePointerDown(PointerEventArgs args) => owner.HandlePointerDown(args);
+        public Task HandleFocusIn(FocusEventArgs args) => owner.HandleFocusIn(args);
+        public Task HandleFocusOut(FocusEventArgs args) => owner.HandleFocusOut(args);
+        public Task HandleKeyDown(KeyboardEventArgs args) => owner.HandleKeyDown(args);
+        public async Task HandleEventAsync(EventCallbackWorkItem callback, object? argument)
+        {
+            Task? callbackTask = null;
+            try
+            {
+                callbackTask = callback.InvokeAsync(argument);
+                await callbackTask;
+            }
+            catch (Exception exception) when (callbackTask?.IsCanceled != true)
+            {
+                await owner.DispatchExceptionAsync(exception);
+            }
+        }
+    }
+
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
 
@@ -63,8 +83,30 @@
         if (TriggerContext?.AriaDescribedBy is not null && !attributes.ContainsKey("aria-describedby"))
             attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;
 
+        if (OnClick.HasDelegate || TriggerContext?.OnClick is not null || TriggerContext?.Toggle is not null)
+            attributes.TryAdd("onclick", EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick));
+
+        if (TriggerContext?.OnMouseEnter is not null)
+            attributes.TryAdd("onmouseenter", EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleMouseEnter));
+
         if (TriggerContext?.OnMouseMove is not null)
-            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleMouseMove);
+            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleMouseMove);
+
+        if (TriggerContext?.OnMouseLeave is not null)
+            attributes.TryAdd("onmouseleave", EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleMouseLeave));
+
+        if (TriggerContext?.OnPointerDown is not null || TriggerContext?.OnPointerDownEvent is not null)
+            attributes.TryAdd("onpointerdown", EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandlePointerDown));
+
+        if (TriggerContext?.OnFocusIn is not null)
+            attributes.TryAdd("onfocusin", EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleFocusIn));
+
+        if (TriggerContext?.OnFocusOut is not null)
+            attributes.TryAdd("onfocusout", EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleFocusOut));
+
+        if (TriggerContext?.OnKeyDown is not null)
+            attributes.TryAdd("onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(TriggerEvents, TriggerEvents.HandleKeyDown));
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

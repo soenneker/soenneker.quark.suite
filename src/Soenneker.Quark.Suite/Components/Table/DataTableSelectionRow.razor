@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+
+@* Only selection rows subscribe to the mutable table context. Ordinary rows can
+   retain their content when live data updates another row in the same table. *@
+<tr @attributes="RowAttributes">
+    @if (DataTable?.SelectionEnabled == true)
+    {
+        @if (SelectionHeader)
+        {
+            <th scope="col" class="h-10 w-10 px-2 text-start align-middle" data-slot="datatable-selection-head">
+                <span @onclick:stopPropagation="true">
+                    <Check Checked="@DataTable.AllRowsSelected" Indeterminate="@DataTable.SomeRowsSelected"
+                           CheckedChanged="DataTable.SelectAllRows" Disabled="@(DataTable.IsLoading || DataTable.SelectableRowKeys.Count == 0)"
+                           AriaLabel="Select all rows on this page" />
+                </span>
+            </th>
+        }
+        else if (SelectionKey is not null)
+        {
+            <Td Width="Quark.Width.Is10">
+                <span @onclick:stopPropagation="true">
+                    <Check Checked="@DataTable.IsRowSelected(SelectionKey)" CheckedChanged="@((bool selected) => DataTable.SetRowSelected(SelectionKey, selected))"
+                           Disabled="@(DataTable.IsLoading || !DataTable.SelectableRowKeys.Contains(SelectionKey))"
+                           AriaLabel="@SelectionLabel" />
+                </span>
+            </Td>
+        }
+    }
+    @ChildContent
+</tr>
+
+@code {
+    [CascadingParameter(Name = "DataTable")] private IDataTable? DataTable { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool SelectionHeader { get; set; }
+    [Parameter] public string? SelectionKey { get; set; }
+    [Parameter] public string SelectionLabel { get; set; } = "Select row";
+
+    private IReadOnlyDictionary<string, object>? RowAttributes
+    {
+        get
+        {
+            if (DataTable?.SelectionEnabled != true || SelectionKey is null) return Attributes;
+            var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+            bool selected = DataTable.IsRowSelected(SelectionKey);
+            attributes["data-state"] = selected ? "selected" : "unselected";
+            attributes["aria-selected"] = selected ? "true" : "false";
+            return attributes;
+        }
+    }
+}

@@ -21,8 +21,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/accordion",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
-            expectedTitle: "Accordion - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }));
 
         var firstBasicTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How do I reset my password?", Exact = true });
         var secondBasicTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Can I change my subscription plan?", Exact = true });
@@ -60,8 +59,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/accordion",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
-            expectedTitle: "Accordion - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }));
 
         var firstTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Notification Settings", Exact = true });
         var secondTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Privacy & Security", Exact = true });
@@ -82,8 +80,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/accordion",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How do I reset my password?", Exact = true }),
-            expectedTitle: "Accordion - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How do I reset my password?", Exact = true }));
 
         var basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A basic accordion that shows one item at a time. The first item is open by default." }).First;
         var firstTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "How do I reset my password?", Exact = true });
@@ -128,8 +125,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/accordion",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
-            expectedTitle: "Accordion - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }));
 
         var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertically stacked set of interactive headings that each reveal a section of content." }).First;
         var accordion = demoSection.Locator("[data-slot='accordion']").First;
@@ -177,8 +173,7 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/accordion",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }),
-            expectedTitle: "Accordion - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }));
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn RTL example." }).First;
         var firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true });

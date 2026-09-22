@@ -3,11 +3,47 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public void DataTable_live_refresh_does_not_bypass_retained_row_boundary()
+    {
+        var cut = Render<DataTable>(p => p.Add(c => c.TableContent, builder =>
+        {
+            builder.OpenComponent<RetainedTableRow>(0);
+            builder.CloseComponent();
+        }));
+        var row = cut.FindComponent<Tr>();
+        int renders = row.RenderCount;
+
+        cut.Render(p => p.Add(c => c.TotalRecords, 100));
+        cut.Render(p => p.Add(c => c.IsLoading, true));
+        cut.Render(p => p.Add(c => c.IsLoading, false));
+
+        row.RenderCount.Should().Be(renders);
+        cut.Find("tr").TextContent.Should().Be("Retained job");
+    }
+
+    private sealed class RetainedTableRow : ComponentBase
+    {
+        protected override bool ShouldRender() => false;
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenComponent<Tr>(0);
+            builder.AddAttribute(1, nameof(Tr.ChildContent), (RenderFragment)(cell =>
+            {
+                cell.OpenComponent<Td>(0);
+                cell.AddAttribute(1, nameof(Td.ChildContent), (RenderFragment)(text => text.AddContent(0, "Retained job")));
+                cell.CloseComponent();
+            }));
+            builder.CloseComponent();
+        }
+    }
+
     [Test]
     public async Task DataTable_selection_updates_checkboxes_toolbar_and_preserves_other_pages()
     {

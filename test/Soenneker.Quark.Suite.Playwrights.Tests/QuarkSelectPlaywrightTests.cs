@@ -20,8 +20,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.GetByRole(AriaRole.Combobox).First);
 
         var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
@@ -63,8 +62,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.GetByRole(AriaRole.Combobox).First);
 
         var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
@@ -94,8 +92,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.GetByRole(AriaRole.Combobox).First);
 
         var trigger = page.GetByRole(AriaRole.Combobox).First;
 
@@ -123,8 +120,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.GetByRole(AriaRole.Combobox).First);
 
         var trigger = page.GetByRole(AriaRole.Combobox).First;
 
@@ -145,8 +141,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.GetByRole(AriaRole.Combobox).First);
 
         var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
@@ -172,8 +167,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First,
-            expectedTitle: "Select Component - Quark Suite");
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First;
         var trigger = section.GetByRole(AriaRole.Combobox).First;

@@ -13,7 +13,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -30,7 +30,7 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="HandleTriggerPointerDown" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
@@ -47,6 +47,48 @@ else
 }
 
 @code {
+    private EventCallback<PointerEventArgs> TriggerPointerDownCallback =>
+        TriggerContext?.OnPointerDownEvent is not null || TriggerContext?.OnPointerDown is not null
+            ? EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerDown)
+            : default;
+
+    private EventCallback<KeyboardEventArgs> KeyDownCallback =>
+        TriggerContext?.OnKeyDown is not null || OnKeyDown.HasDelegate
+            ? EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown)
+            : default;
+
+    private TriggerEventReceiver? _triggerEvents;
+    private TriggerEventReceiver TriggerEvents => _triggerEvents ??= new(this);
+
+    // These handlers forward to the overlay owner. Pointer bookkeeping has no visual
+    // state of its own; the owner's cascade delivers actual open/focus state changes.
+    private sealed class TriggerEventReceiver(Button owner) : IHandleEvent
+    {
+        public Task HandleTriggerMouseEnter(MouseEventArgs args) => owner.HandleTriggerMouseEnter(args);
+        public Task HandleTriggerMouseMove(MouseEventArgs args) => owner.HandleTriggerMouseMove(args);
+        public Task HandleTriggerMouseLeave(MouseEventArgs args) => owner.HandleTriggerMouseLeave(args);
+        public Task HandleTriggerPointerMove(PointerEventArgs args) => owner.HandleTriggerPointerMove(args);
+        public Task HandleTriggerPointerLeave(PointerEventArgs args) => owner.HandleTriggerPointerLeave(args);
+        public Task HandleTriggerPointerDown(PointerEventArgs args) => owner.HandleTriggerPointerDown(args);
+        public Task HandleTriggerPointerUp(PointerEventArgs args) => owner.HandleTriggerPointerUp(args);
+        public Task HandleTriggerFocusIn(FocusEventArgs args) => owner.HandleTriggerFocusIn(args);
+        public Task HandleTriggerFocusOut(FocusEventArgs args) => owner.HandleTriggerFocusOut(args);
+
+        public async Task HandleEventAsync(EventCallbackWorkItem callback, object? argument)
+        {
+            Task? callbackTask = null;
+            try
+            {
+                callbackTask = callback.InvokeAsync(argument);
+                await callbackTask;
+            }
+            catch (Exception exception) when (callbackTask?.IsCanceled != true)
+            {
+                await owner.DispatchExceptionAsync(exception);
+            }
+        }
+    }
+
     private RenderFragment? _triggerChildContent;
     private RenderAttributeDictionary? _wrapperAttributes;
 
@@ -300,28 +342,28 @@ else
         base.BuildOwnedAttributes(attributes);
 
         if (TriggerContext?.OnMouseEnter is not null)
-            attributes["onmouseenter"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseEnter);
+            attributes["onmouseenter"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseEnter);
 
         if (TriggerContext?.OnMouseMove is not null)
-            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseMove);
+            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseMove);
 
         if (TriggerContext?.OnMouseLeave is not null)
-            attributes["onmouseleave"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseLeave);
+            attributes["onmouseleave"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseLeave);
 
         if (TriggerContext?.OnPointerMove is not null)
-            attributes["onpointermove"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerMove);
+            attributes["onpointermove"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerMove);
 
         if (TriggerContext?.OnPointerLeave is not null)
-            attributes["onpointerleave"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerLeave);
+            attributes["onpointerleave"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerLeave);
 
         if (TriggerContext?.OnPointerUp is not null)
-            attributes["onpointerup"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerUp);
+            attributes["onpointerup"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerUp);
 
         if (TriggerContext?.OnFocusIn is not null)
-            attributes["onfocusin"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusIn);
+            attributes["onfocusin"] = EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerFocusIn);
 
         if (TriggerContext?.OnFocusOut is not null)
-            attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
+            attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerFocusOut);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()

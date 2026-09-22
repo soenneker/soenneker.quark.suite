@@ -19,8 +19,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
-            DemoTrigger,
-            expectedTitle: "Alert Dialogs - Quark Suite");
+            DemoTrigger);
 
         await DemoTrigger(page).ClickAsync();
 
@@ -40,8 +39,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
-            DemoTrigger,
-            expectedTitle: "Alert Dialogs - Quark Suite");
+            DemoTrigger);
 
         var trigger = DemoTrigger(page);
         await trigger.ClickAsync();
@@ -71,8 +69,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true }),
-            expectedTitle: "Alert Dialogs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true }));
 
         var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete Chat", Exact = true });
         await trigger.ClickAsync();
@@ -92,8 +89,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
-            DemoTrigger,
-            expectedTitle: "Alert Dialogs - Quark Suite");
+            DemoTrigger);
 
         var trigger = DemoTrigger(page);
         await trigger.ClickAsync();

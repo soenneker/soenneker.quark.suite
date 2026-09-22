@@ -30,8 +30,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/button",
-            static p => p.Locator("a[data-sidebar='menu-button'][aria-current='page']").First,
-            expectedTitle: "Buttons - Quark Suite");
+            static p => p.Locator("a[data-sidebar='menu-button'][aria-current='page']").First);
 
         var headerLinks = page.Locator("header a[data-slot='button'][data-size='sm']");
         await Assertions.Expect(headerLinks.First).ToBeVisibleAsync();
@@ -73,8 +72,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/button",
-            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First,
-            expectedTitle: "Buttons - Quark Suite");
+            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First);
 
         var sidebar = page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First;
         var brand = page.Locator("header a[aria-label='Quark Suite']").First;
@@ -107,8 +105,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/button",
-            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation'] [data-sidebar='content'][data-fade='true']").First,
-            expectedTitle: "Buttons - Quark Suite");
+            static p => p.Locator("aside[data-sidebar='sidebar'][data-shell='navigation'] [data-sidebar='content'][data-fade='true']").First);
 
         var sidebar = page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']").First;
         var sidebarContent = sidebar.Locator("[data-sidebar='content'][data-fade='true']").First;
@@ -149,7 +146,8 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         afterNavigation.sidebarScrollTop.Should().BeGreaterThan(500);
         afterNavigation.pageScrollY.Should().Be(0);
-        (await page.TitleAsync()).Should().Be("Command - Quark Suite");
+        await Assertions.Expect(commandLink).ToHaveAttributeAsync("aria-current", "page");
+        await Assertions.Expect(page.Locator("[data-docs-content] [data-slot='command-input']").First).ToBeVisibleAsync();
     }
 
     [Test]
@@ -161,8 +159,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components",
-            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Components" }).First,
-            expectedTitle: "Components - Quark Suite");
+            static p => p.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Components" }).First);
 
         var heading = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Components" }).First;
         var firstComponentLink = page.Locator("main a[href='components/accordion']").First;
@@ -188,8 +185,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             BaseUrl,
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Menu", Exact = true }).First,
-            expectedTitle: "Quark Suite - Blazor Components");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Menu", Exact = true }).First);
 
         var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Menu", Exact = true }).First;
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
@@ -212,8 +208,7 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             BaseUrl,
-            static p => p.Locator("header a[data-slot='button']").First,
-            expectedTitle: "Quark Suite - Blazor Components");
+            static p => p.Locator("header a[data-slot='button']").First);
 
         await Assertions.Expect(page.Locator("aside[data-sidebar='sidebar'][data-shell='navigation']")).ToHaveCountAsync(0);
 

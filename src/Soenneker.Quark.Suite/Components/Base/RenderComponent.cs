@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -16,7 +15,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IHandleEvent
 {
-    private static readonly ConcurrentDictionary<Type, bool> _mutationSensitiveCascadingParameterTypes = new();
     private bool _shouldRender = true;
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
@@ -31,7 +29,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private bool _hasIncomingParametersKey;
     private bool _incomingParametersChanged;
     private bool _defaultsApplied;
-    private bool? _hasMutationSensitiveCascadingParameters;
+    private bool _requiresDetailedRenderKey;
     private string? _lastClass;
     private string? _lastStyle;
 
@@ -51,7 +49,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     public override Task SetParametersAsync(ParameterView parameters)
     {
         _defaultsApplied = false;
-        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment);
+        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment, out _requiresDetailedRenderKey);
 
         // A render fragment can keep the same delegate identity while reading mutated state from its owner.
         // Re-render fragment-bearing components so they do not freeze otherwise valid descendant updates.
@@ -130,22 +128,22 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             return;
         }
 
-        var hasMutationSensitiveCascadingParameters = HasMutationSensitiveCascadingParameters();
+        bool requiresDetailedRenderKey = _requiresDetailedRenderKey;
 
         // An unchanged parameter set is the hot path in large component trees. The inexpensive
         // ParameterView fingerprint lets us avoid recomputing every inherited and component-local
         // render-key value. Conversely, any changed parameter forces a render, so a parameter that
         // a component forgot to include in ComputeRenderKeyCore cannot leave stale UI.
-        if (!_incomingParametersChanged && !_renderKeyDirty && !hasMutationSensitiveCascadingParameters)
+        if (!_incomingParametersChanged && !_renderKeyDirty && !requiresDetailedRenderKey)
         {
             _shouldRender = false;
             return;
         }
 
         // Direct parameter changes already guarantee a render and invalidate the attribute cache.
-        // Avoid the detailed component-wide key walk unless a mutable cascading context can affect
+        // Avoid the detailed component-wide key walk unless a mutable model or cascading context can affect
         // output without changing its reference.
-        if (_incomingParametersChanged && !hasMutationSensitiveCascadingParameters)
+        if (_incomingParametersChanged && !requiresDetailedRenderKey)
         {
             _lastRenderKey = HashCode.Combine(_incomingParametersKey, _renderVersion);
             _shouldRender = true;
@@ -308,15 +306,29 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         return hc.ToHashCode();
     }
 
-    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment)
+    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment, out bool requiresDetailedRenderKey)
     {
         var hashCode = new HashCode();
         hasRenderFragment = false;
+        requiresDetailedRenderKey = false;
 
         foreach (var parameter in parameters)
         {
             hashCode.Add(parameter.Name, StringComparer.Ordinal);
             AddIncomingParameterValue(ref hashCode, parameter.Value);
+
+            // ParameterView already identifies cascades. Inspect delivered values instead
+            // of reflecting every component type, including absent optional contexts.
+            // Direct models and collections also need the component's value-based key:
+            // their contents can change while their parameter identity stays the same.
+            if (parameter.Value is { } value)
+            {
+                Type type = value.GetType();
+                if (parameter.Cascading
+                    ? !IsKnownImmutableCascadingType(type)
+                    : !type.IsValueType && value is not string and not Delegate and not Type and not IReadOnlyDictionary<string, object>)
+                    requiresDetailedRenderKey = true;
+            }
 
             if (IsRenderFragment(parameter.Value))
                 hasRenderFragment = true;
@@ -355,32 +367,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         _lastIncomingParametersKey = _incomingParametersKey;
         _hasIncomingParametersKey = true;
         _incomingParametersChanged = false;
-    }
-
-    private bool HasMutationSensitiveCascadingParameters()
-    {
-        if (_hasMutationSensitiveCascadingParameters.HasValue)
-            return _hasMutationSensitiveCascadingParameters.Value;
-
-        _hasMutationSensitiveCascadingParameters = _mutationSensitiveCascadingParameterTypes.GetOrAdd(GetType(), static componentType =>
-        {
-            for (Type? type = componentType; type is not null && type != typeof(RenderComponent); type = type.BaseType)
-            {
-                var properties = type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
-                                                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly);
-
-                for (var index = 0; index < properties.Length; index++)
-                {
-                    if (properties[index].IsDefined(typeof(CascadingParameterAttribute), inherit: true) &&
-                        !IsKnownImmutableCascadingType(properties[index].PropertyType))
-                        return true;
-                }
-            }
-
-            return false;
-        });
-
-        return _hasMutationSensitiveCascadingParameters.Value;
     }
 
     private static bool IsKnownImmutableCascadingType(Type type)

@@ -33,8 +33,9 @@
                 @for (int index = 0; index < TimelineItems.Count; index++)
                 {
                     EventTimelineItem item = TimelineItems[index];
+                    bool hasNext = index < TimelineItems.Count - 1;
                     <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@ItemTestId(item)">
-                        @if (index < TimelineItems.Count - 1)
+                        @if (hasNext)
                         {
                             <Div Preset="@Appearance.VerticalConnectorPreset" AriaHidden="true" data-slot="event-timeline-connector" />
                         }
@@ -127,6 +128,8 @@
     private bool? _fitAllOverride;
 
     private IReadOnlyList<EventTimelineItem> TimelineItems = [];
+    private EventTimelineItem[] _sourceItems = [];
+    private bool _sortedNewestFirst;
 
     private EventTimelineLayout? _previousLayout;
     protected override void OnParametersSet()
@@ -134,6 +137,29 @@
         if (!Equals(_previousLayout, Layout))
             _fitAllOverride = null;
         _previousLayout = Layout;
+
+        // Items are immutable records, but their containing list can be edited in place.
+        // Compare the entries rather than caching only the collection reference.
+        bool changed = _sortedNewestFirst != NewestFirst || _sourceItems.Length != Items.Count;
+        if (!changed)
+        {
+            for (int index = 0; index < Items.Count; index++)
+            {
+                if (!ReferenceEquals(_sourceItems[index], Items[index]))
+                {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (!changed)
+            return;
+
+        if (_sourceItems.Length != Items.Count)
+            _sourceItems = new EventTimelineItem[Items.Count];
+        for (int index = 0; index < Items.Count; index++)
+            _sourceItems[index] = Items[index];
+        _sortedNewestFirst = NewestFirst;
         var items = Items.Where(item => item.Label.HasContent());
         TimelineItems = (NewestFirst ? items.OrderByDescending(item => item.When) : items.OrderBy(item => item.When)).ToList();
     }

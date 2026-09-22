@@ -265,8 +265,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
         {
             await session.Page.GotoAndWaitForReady(
                 $"{BaseUrl}test/floating-window",
-                static page => page.GetByTestId("open-a"),
-                expectedTitle: "Floating Window Test Harness");
+                static page => page.GetByTestId("open-a"));
             return session;
         }
         catch

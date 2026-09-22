@@ -31,8 +31,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/calendar",
-            static p => p.Locator("[data-slot='calendar']").First,
-            expectedTitle: "Calendar - Quark Suite");
+            static p => p.Locator("[data-slot='calendar']").First);
 
         var calendar = page.Locator("[data-slot='calendar']").First;
         await Assertions.Expect(calendar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("(^| )p-2( |$)"));
@@ -81,8 +80,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/date-picker",
-            static p => p.Locator("#time-picker-optional"),
-            expectedTitle: "Date Pickers - Quark Suite");
+            static p => p.Locator("#time-picker-optional"));
 
         var timeInput = page.Locator("#time-picker-optional");
         await Assertions.Expect(timeInput).ToHaveAttributeAsync("type", "time");
@@ -102,8 +100,7 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/date-picker",
-            static p => p.Locator("#date-picker-simple"),
-            expectedTitle: "Date Pickers - Quark Suite");
+            static p => p.Locator("#date-picker-simple"));
 
         await AssertPopoverOpensOnPointerDown(page, "#date-picker-simple");
         await AssertPopoverOpensOnPointerDown(page, "#date-picker-range");

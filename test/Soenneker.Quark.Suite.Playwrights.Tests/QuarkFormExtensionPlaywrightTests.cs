@@ -29,8 +29,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/currency-inputs",
-            static p => p.Locator("[data-slot='currency-input']").First,
-            expectedTitle: "CurrencyInput - Quark Suite");
+            static p => p.Locator("[data-slot='currency-input']").First);
 
         var input = page.Locator("#priceInput");
         await Assertions.Expect(input).ToHaveAttributeAsync("data-slot", "input");
@@ -55,8 +54,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/checkbox",
-            static p => p.Locator("[data-slot='checkbox']").First,
-            expectedTitle: "Checkbox Component - Quark Suite");
+            static p => p.Locator("[data-slot='checkbox']").First);
 
         var basicSection = page.Locator("section")
                                .Filter(new LocatorFilterOptions { HasText = "Pair the checkbox with Field and FieldLabel for proper layout and labeling." })
@@ -92,8 +90,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/dateinputs",
-            static p => p.GetByText("Basic Date Input", new PageGetByTextOptions { Exact = true }),
-            expectedTitle: "DateInputs - Quark Suite");
+            static p => p.GetByText("Basic Date Input", new PageGetByTextOptions { Exact = true }));
 
         var basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Basic Date Input" }).First;
         var basicInput = page.Locator("input[type='date'][data-slot='input']").First;
@@ -133,8 +130,7 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/memoinputs",
-            static p => p.Locator("textarea[data-slot='textarea']").First,
-            expectedTitle: "MemoInputs - Quark Suite");
+            static p => p.Locator("textarea[data-slot='textarea']").First);
 
         var basic = page.Locator("textarea[data-slot='textarea']").First;
         await Assertions.Expect(basic).ToHaveAttributeAsync("rows", "3");

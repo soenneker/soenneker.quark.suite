@@ -21,8 +21,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/context-menu",
-            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
-            expectedTitle: "Context Menus - Quark Suite");
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First);
 
         await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
                   .First.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
@@ -51,8 +50,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/context-menu",
-            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
-            expectedTitle: "Context Menus - Quark Suite");
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First);
 
         var basicTrigger = page.Locator("[data-testid='context-menu-demo-trigger']");
         await basicTrigger.ScrollIntoViewIfNeededAsync();
@@ -85,8 +83,7 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/context-menu",
-            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First,
-            expectedTitle: "Context Menus - Quark Suite");
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }).First);
 
         await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
                   .First.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });

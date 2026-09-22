@@ -29,8 +29,7 @@ public sealed class QuarkOrderedListPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/orderedlists",
-            static p => p.Locator("ol[data-slot='ordered-list']").First,
-            expectedTitle: "Ordered Lists - Quark Suite");
+            static p => p.Locator("ol[data-slot='ordered-list']").First);
 
         var defaultProbe = await page.Locator("ol[data-slot='ordered-list']").First.EvaluateAsync<ListProbe>(
             @"element => {

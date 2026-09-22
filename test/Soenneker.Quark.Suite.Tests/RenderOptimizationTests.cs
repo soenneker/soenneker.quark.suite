@@ -19,6 +19,32 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Absent_optional_cascades_do_not_require_component_wide_render_keys()
+    {
+        const int payload = 42;
+        var cut = Render<MutableCascadeRenderProbe>(p => p.Add(c => c.Payload, payload));
+        cut.Render(p => p.Add(c => c.Payload, payload));
+        cut.Instance.KeyCount.Should().Be(0);
+    }
+
+    [Test]
+    public void Delivered_mutable_cascades_still_observe_changes_to_the_same_instance()
+    {
+        var model = new RenderProbeModel { Value = 1 };
+        RenderFragment content = builder =>
+        {
+            builder.OpenComponent<MutableCascadeRenderProbe>(0);
+            builder.CloseComponent();
+        };
+        var cut = Render<CascadingValue<RenderProbeModel>>(p => p.Add(c => c.Value, model).Add(c => c.ChildContent, content));
+        cut.Markup.Should().Contain(">1<");
+        model.Value = 2;
+        cut.Render(p => p.Add(c => c.Value, model).Add(c => c.ChildContent, content));
+        cut.Markup.Should().Contain(">2<");
+        cut.FindComponent<MutableCascadeRenderProbe>().Instance.KeyCount.Should().BeGreaterThan(0);
+    }
+
+    [Test]
     public async Task Content_refresh_preserves_attributes_but_parameter_changes_still_invalidate_them()
     {
         var attrs = new Dictionary<string, object> { ["data-test"] = "before" };
@@ -127,6 +153,27 @@ public sealed class RenderOptimizationTests : BunitContext
             .Add(component => component.Tick, 1));
 
         CascadeKeyProbe.KeyCount.Should().Be(initialKeyCount);
+    }
+}
+
+public sealed class MutableCascadeRenderProbe : Element
+{
+    [Parameter] public int Payload { get; set; }
+    [CascadingParameter] public RenderProbeModel? Cascade { get; set; }
+    public int KeyCount { get; private set; }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hashCode)
+    {
+        base.ComputeRenderKeyCore(ref hashCode);
+        KeyCount++;
+        hashCode.Add(Cascade?.Value);
+    }
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        builder.OpenElement(0, "span");
+        builder.AddContent(1, Cascade?.Value);
+        builder.CloseElement();
     }
 }
 
@@ -242,7 +289,7 @@ public sealed class CascadeProbeHost : ComponentBase
         builder.AddAttribute(2, nameof(CascadingValue<int>.ChildContent), (RenderFragment)(contentBuilder =>
         {
             contentBuilder.OpenComponent<CascadeKeyProbe>(0);
-            contentBuilder.AddAttribute(1, nameof(CascadeKeyProbe.Payload), Payload);
+            contentBuilder.AddAttribute(1, nameof(CascadeKeyProbe.Payload), Payload.Value);
             contentBuilder.CloseComponent();
         }));
         builder.CloseComponent();
@@ -258,12 +305,12 @@ public sealed class CascadeKeyProbe : Element
     public int CascadeValue { get; set; }
 
     [Parameter]
-    public RenderProbeModel Payload { get; set; } = null!;
+    public int Payload { get; set; }
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "span");
-        builder.AddContent(1, CascadeValue + Payload.Value);
+        builder.AddContent(1, CascadeValue + Payload);
         builder.CloseElement();
     }
 

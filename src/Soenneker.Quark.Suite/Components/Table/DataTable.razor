@@ -164,7 +164,6 @@
     private async Task UpdateSelection(HashSet<string> keys)
     {
         SelectedKeys = keys.ToArray();
-        InvalidateRender();
         await SelectedKeysChanged.InvokeAsync(SelectedKeys);
         await RefreshOffThread();
     }
@@ -641,8 +640,8 @@
         _registeredColumns.Add(columnHeader);
         var columnIndex = _registeredColumns.Count - 1;
 
-        _ = RefreshOffThread(); // fire-and-forget is ok here
-
+        // Registration changes request metadata, not the rendered table. The header
+        // receives its index immediately and later interactions read this collection.
         return columnIndex;
     }
 
@@ -744,11 +743,13 @@
         }
 
         _isHandlingManualRequest = true;
+        bool loadingChanged = !_isLoading;
         _isLoading = true;
 
         try
         {
-            await RefreshOffThread();
+            if (loadingChanged)
+                await RefreshOffThread();
             do
             {
                 _pendingInteraction = false;

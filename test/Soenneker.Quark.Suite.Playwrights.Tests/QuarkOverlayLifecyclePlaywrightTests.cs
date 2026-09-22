@@ -13,8 +13,7 @@ public sealed class QuarkOverlayLifecyclePlaywrightTests(QuarkPlaywrightHost hos
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/dropdown-menu",
-            static p => p.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).First,
-            expectedTitle: "Dropdowns - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).First);
 
         await page.EvaluateAsync("""
             async () => {

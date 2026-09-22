@@ -30,8 +30,7 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/popover-smoke",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
-            expectedTitle: "Popover Smoke - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }));
 
         var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true });
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");

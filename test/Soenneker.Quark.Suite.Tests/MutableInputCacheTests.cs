@@ -29,5 +29,12 @@ public sealed partial class RenderedShadcnParityTests
         cut.Render(p => p.Add(x => x.DisplayMonth, month).Add(x => x.DisabledDates, disabled));
         cut.Find("td[data-day='2026-05-10'] button").HasAttribute("disabled").Should().BeFalse();
         cut.Find("td[data-day='2026-05-11'] button").HasAttribute("disabled").Should().BeTrue();
+        // Let the render key settle before another in-place mutation. Cache updates
+        // happen after the base lifecycle and must explicitly invalidate that render.
+        cut.Render(p => p.Add(x => x.DisabledDates, disabled));
+        disabled[0] = month.AddDays(11);
+        cut.Render(p => p.Add(x => x.DisabledDates, disabled));
+        cut.Find("td[data-day='2026-05-11'] button").HasAttribute("disabled").Should().BeFalse();
+        cut.Find("td[data-day='2026-05-12'] button").HasAttribute("disabled").Should().BeTrue();
     }
 }

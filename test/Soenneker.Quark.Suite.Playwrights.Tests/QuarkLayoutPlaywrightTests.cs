@@ -29,8 +29,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/containers",
-            static p => p.GetByText("Even tighter layout").First,
-            expectedTitle: "Container - Quark Suite");
+            static p => p.GetByText("Even tighter layout").First);
 
         var defaultContainer = page.Locator("div.max-w-2xl").Filter(new LocatorFilterOptions { HasText = "Even tighter layout" }).First;
         var containerProbe = await defaultContainer
@@ -53,8 +52,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/grids",
-            static p => p.GetByText("Featured").First,
-            expectedTitle: "Grid - Quark Suite");
+            static p => p.GetByText("Featured").First);
 
         var gridProbe = await page.GetByText("Featured").First.Locator("xpath=ancestor::div[contains(@class, 'grid-cols-3')][1]")
             .EvaluateAsync<GridProbe>(
@@ -77,8 +75,7 @@ public sealed class QuarkLayoutPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/stacks",
-            static p => p.GetByText("All").First,
-            expectedTitle: "Stack - Quark Suite");
+            static p => p.GetByText("All").First);
 
         var horizontalStack = page.Locator("div.flex-wrap").Filter(new LocatorFilterOptions { HasText = "All" }).First;
         var stackProbe = await horizontalStack

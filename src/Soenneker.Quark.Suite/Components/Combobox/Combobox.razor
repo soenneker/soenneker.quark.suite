@@ -166,28 +166,33 @@
 
     internal void RegisterItem(ComboboxItem item)
     {
-        if (!_items.Contains(item))
-        {
-            _items.Add(item);
-            EnsureActiveItem();
+        if (_items.Contains(item))
+            return;
+
+        bool hadVisibleItems = HasVisibleItems;
+        string? activeItemId = ActiveItemId;
+        _items.Add(item);
+        EnsureActiveItem();
+        if (hadVisibleItems != HasVisibleItems || activeItemId != ActiveItemId)
             Refresh();
-        }
     }
 
     internal void UnregisterItem(ComboboxItem item)
     {
+        bool hadVisibleItems = HasVisibleItems;
         if (!_items.Remove(item))
             return;
 
         if (item.IsActiveItem)
             EnsureActiveItem();
 
-        Refresh();
+        if (item.IsActiveItem || hadVisibleItems != HasVisibleItems)
+            Refresh();
     }
 
     internal void SetActiveItem(ComboboxItem item)
     {
-        if (!item.Disabled && !item.Hidden)
+        if (!item.Disabled && !item.Hidden && !item.IsActiveItem)
         {
             SetActiveValue(item.Value);
             Refresh();
@@ -299,19 +304,19 @@
 
     private void EnsureActiveItem()
     {
-        var count = CountVisibleSelectableItems(out _);
-        if (count == 0)
+        if (FindActiveSelectableItem() is not null)
+            return;
+
+        ComboboxItem? first = GetVisibleSelectableItemAt(0);
+        if (first is null)
         {
             SetActiveValue(null);
             return;
         }
 
-        if (FindActiveSelectableItem() is not null)
-            return;
-
         if (AutoHighlight)
         {
-            SetActiveValue(GetVisibleSelectableItemAt(0)?.Value);
+            SetActiveValue(first.Value);
             return;
         }
 

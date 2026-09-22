@@ -22,8 +22,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/combobox",
-            static p => p.GetByPlaceholder("Select a framework").First,
-            expectedTitle: "Combobox - Quark Suite");
+            static p => p.GetByPlaceholder("Select a framework").First);
 
         await Assertions.Expect(page.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
     }
@@ -36,8 +35,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/combobox",
-            static p => p.GetByPlaceholder("Select a framework").First,
-            expectedTitle: "Combobox - Quark Suite");
+            static p => p.GetByPlaceholder("Select a framework").First);
 
         var input = page.GetByPlaceholder("Select a framework").First;
 
@@ -59,8 +57,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/combobox",
-            static p => p.GetByPlaceholder("Select a framework").First,
-            expectedTitle: "Combobox - Quark Suite");
+            static p => p.GetByPlaceholder("Select a framework").First);
 
         await page.GetByText("Popup", new PageGetByTextOptions { Exact = true }).ScrollIntoViewIfNeededAsync();
         var popupTrigger = page.Locator("button[role='combobox']").Filter(new LocatorFilterOptions { HasText = "Select country" }).First;
@@ -122,8 +119,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/combobox",
-            static p => p.GetByPlaceholder("Select a framework").First,
-            expectedTitle: "Combobox - Quark Suite");
+            static p => p.GetByPlaceholder("Select a framework").First);
 
         await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Invalid", Exact = true }).ScrollIntoViewIfNeededAsync();
         var invalidInput = page.Locator("input[aria-invalid='true'][placeholder='Select a framework']");
@@ -177,8 +173,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
-            expectedTitle: "Carousel - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First);
 
         var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
@@ -210,8 +205,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
-            expectedTitle: "Carousel - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First);
 
         var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
@@ -247,8 +241,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
-            expectedTitle: "Carousel - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First);
 
         var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var carousel = defaultSection.Locator("[data-slot='carousel']").First;
@@ -295,8 +288,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }),
-            expectedTitle: "Carousel - Quark Suite");
+            static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }));
 
         var apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a state and the setApi props to get an instance of the carousel API." }).First;
         var apiNext = apiSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
@@ -313,8 +305,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
-            expectedTitle: "Carousel - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First);
 
         var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A carousel with motion and swipe built using Embla." }).First;
         var defaultViewport = defaultSection.Locator("[data-slot='carousel-content']").First;

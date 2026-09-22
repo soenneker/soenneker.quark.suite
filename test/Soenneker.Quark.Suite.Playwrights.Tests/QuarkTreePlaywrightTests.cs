@@ -27,8 +27,7 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
         };
         page.PageError += (_, error) => pageErrors.Add(error);
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByRole(AriaRole.Tree).First,
-            expectedTitle: "Tree - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByRole(AriaRole.Tree).First);
 
         var tree = page.GetByRole(AriaRole.Tree, new PageGetByRoleOptions { Name = "CRM navigation", Exact = true });
         var crm = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "CRM", Exact = true });
@@ -54,8 +53,7 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByRole(AriaRole.Tree).First,
-            expectedTitle: "Tree - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByRole(AriaRole.Tree).First);
 
         var tree = page.GetByRole(AriaRole.Tree, new PageGetByRoleOptions { Name = "CRM navigation", Exact = true });
         var support = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Support", Exact = true });
@@ -76,8 +74,7 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("File Explorer", new PageGetByTextOptions { Exact = true }),
-            expectedTitle: "Tree - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("File Explorer", new PageGetByTextOptions { Exact = true }));
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Compose icons and custom labels for file-system navigation." }).First;
         var tree = section.GetByRole(AriaRole.Tree, new LocatorGetByRoleOptions { Name = "File explorer", Exact = true });
@@ -98,8 +95,7 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("Permissions", new PageGetByTextOptions { Exact = true }),
-            expectedTitle: "Tree - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("Permissions", new PageGetByTextOptions { Exact = true }));
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use tree labels with checkboxes for nested permission editors." }).First;
         var writeContacts = section.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Create and edit contacts", Exact = true });

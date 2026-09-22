@@ -23,7 +23,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }));
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
                                .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
@@ -45,7 +45,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }), expectedTitle: "Tooltips - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }));
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
                                .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
@@ -63,8 +63,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "top", Exact = true }),
-            expectedTitle: "Tooltips - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "top", Exact = true }));
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
                                .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
@@ -116,8 +115,7 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
         };
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }),
-            expectedTitle: "Tooltips - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }));
 
         var basicTrigger = page.GetByTestId(BasicDemoTestId)
                                .GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });

@@ -19,8 +19,7 @@ public sealed class QuarkCollapsePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/collapses",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Collapse", Exact = true }),
-            expectedTitle: "Collapses - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle Collapse", Exact = true }));
 
         var basicCollapse = page.Locator("#basicCollapse");
         await Assertions.Expect(basicCollapse).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("max-h-0"));

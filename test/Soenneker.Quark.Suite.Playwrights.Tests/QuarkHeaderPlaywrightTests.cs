@@ -19,17 +19,23 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/headers?audit=1#overview",
-            static p => p.Locator("[data-docs-content]"), expectedTitle: "Header - Quark Suite");
-        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Header - Quark Suite");
+            static p => p.Locator("[data-docs-content]"));
+        await AssertMetadata("Blazor Header: Branding & Sidebar Layouts | Quark Suite", "headers");
 
         await page.GetByRole(AriaRole.Link, new() { Name = "Alert", Exact = true }).First.ClickAsync();
-        await Assertions.Expect(page).ToHaveTitleAsync("Alerts - Quark Suite");
-        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Alert - Quark Suite");
+        await AssertMetadata("Blazor Alert Messages & Status Callouts | Quark Suite", "alert");
         await Assertions.Expect(page.Locator("[data-docs-content] h1").First).ToHaveTextAsync("Alert");
 
         await page.GoBackAsync();
-        await Assertions.Expect(page).ToHaveTitleAsync("Header - Quark Suite");
-        await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", "Header - Quark Suite");
+        await AssertMetadata("Blazor Header: Branding & Sidebar Layouts | Quark Suite", "headers");
+
+        async ValueTask AssertMetadata(string title, string route)
+        {
+            await Assertions.Expect(page).ToHaveTitleAsync(title);
+            await Assertions.Expect(page.Locator("meta[property='og:title']")).ToHaveAttributeAsync("content", title);
+            await Assertions.Expect(page.Locator("link[rel='canonical']"))
+                .ToHaveAttributeAsync("href", $"https://quark.soenneker.com/components/{route}");
+        }
     }
 
     [Test]
@@ -48,8 +54,7 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/headers",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First,
-            expectedTitle: "Header - Quark Suite");
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First;
         var header = section.Locator("[data-slot='header']").First;
@@ -122,8 +127,7 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/headers",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First,
-            expectedTitle: "Blazor Header Component & Examples | Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First);
 
         var toggle = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First;
         var html = page.Locator("html");
@@ -189,8 +193,7 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/headers",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First,
-            expectedTitle: "Blazor Header Component & Examples | Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First);
 
         var isDark = await page.Locator("html").EvaluateAsync<bool>("element => element.classList.contains('dark')");
         var storedTheme = await page.EvaluateAsync<string?>("() => localStorage.getItem('quark-theme')");

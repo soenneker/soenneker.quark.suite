@@ -1,37 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<tr @key="@Key" @attributes="BuildAttributes()">
-    @if (DataTable?.SelectionEnabled == true)
-    {
-        @if (SelectionHeader)
-        {
-            <th scope="col" class="h-10 w-10 px-2 text-start align-middle" data-slot="datatable-selection-head">
-                <span @onclick:stopPropagation="true">
-                    <Check Checked="@DataTable.AllRowsSelected" Indeterminate="@DataTable.SomeRowsSelected"
-                           CheckedChanged="DataTable.SelectAllRows" Disabled="@(DataTable.IsLoading || DataTable.SelectableRowKeys.Count == 0)"
-                           AriaLabel="Select all rows on this page" />
-                </span>
-            </th>
-        }
-        else if (SelectionKey is not null)
-        {
-            <Td Width="Quark.Width.Is10">
-                <span @onclick:stopPropagation="true">
-                    <Check Checked="@DataTable.IsRowSelected(SelectionKey)" CheckedChanged="@((bool selected) => DataTable.SetRowSelected(SelectionKey, selected))"
-                           Disabled="@(DataTable.IsLoading || !DataTable.SelectableRowKeys.Contains(SelectionKey))"
-                           AriaLabel="@SelectionLabel" />
-                </span>
-            </Td>
-        }
-    }
-    @ChildContent
-</tr>
+@if (SelectionHeader || SelectionKey is not null)
+{
+    <DataTableSelectionRow @key="Key" Attributes="BuildAttributes()" SelectionHeader="SelectionHeader"
+                           SelectionKey="@SelectionKey" SelectionLabel="@SelectionLabel">@ChildContent</DataTableSelectionRow>
+}
+else
+{
+    <tr @key="Key" @attributes="BuildAttributes()">@ChildContent</tr>
+}
 
 @code {
-    [CascadingParameter(Name = nameof(DataTable))]
-    private IDataTable? DataTable { get; set; }
-
     /// <summary>Adds a select-all header cell when the parent DataTable enables selection.
     /// Set on one header row only. This cell does not participate in server-side column indexing.</summary>
     [Parameter]
@@ -65,14 +45,6 @@
 	{
 		base.BuildAttributesCore(attributes);
 
-        if (DataTable?.SelectionEnabled == true && SelectionKey is not null)
-        {
-            var selected = DataTable.IsRowSelected(SelectionKey);
-            attributes["data-state"] = selected ? "selected" : "unselected";
-            attributes["aria-selected"] = selected ? "true" : "false";
-        }
-
-
 		PrependClassAttribute(attributes, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted");
 	}
 
@@ -83,12 +55,5 @@
         hc.Add(SelectionHeader);
         hc.Add(SelectionKey);
         hc.Add(SelectionLabel);
-        hc.Add(DataTable?.SelectionEnabled);
-        hc.Add(DataTable?.IsLoading);
-        hc.Add(DataTable?.AllRowsSelected);
-        hc.Add(DataTable?.SomeRowsSelected);
-        hc.Add(DataTable?.SelectableRowKeys.Count);
-        hc.Add(SelectionKey is not null && DataTable?.IsRowSelected(SelectionKey) == true);
-        hc.Add(SelectionKey is not null && DataTable?.SelectableRowKeys.Contains(SelectionKey) == true);
     }
 }

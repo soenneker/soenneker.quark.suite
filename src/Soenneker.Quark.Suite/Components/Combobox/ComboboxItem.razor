@@ -12,13 +12,31 @@
     }
 </Div>
 
+@implements IHandleEvent
+
 @code {
+    // Selection renders through the parent; active-state changes explicitly refresh this item.
+    Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument) => callback.InvokeAsync(argument);
+    private string? _itemId;
+    private string? _itemIdSource;
+
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
     private bool IsSelected => ParentCombobox?.IsSelected(Value) == true;
     internal bool IsActiveItem { get; private set; }
-    internal string ItemId => BlazorIdGenerator.Child(Id!, "option");
+    internal string ItemId
+    {
+        get
+        {
+            if (_itemId is null || !string.Equals(_itemIdSource, Id, StringComparison.Ordinal))
+            {
+                _itemIdSource = Id;
+                _itemId = BlazorIdGenerator.Child(Id!, "option");
+            }
+            return _itemId;
+        }
+    }
 
     protected override void ApplyDefaultParameters()
     {

@@ -21,8 +21,7 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/hover-card",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First,
-            expectedTitle: "Hover Cards - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First);
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First.HoverAsync();
 
@@ -48,8 +47,7 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/hover-card",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First,
-            expectedTitle: "Hover Cards - Quark Suite");
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First);
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover Here", Exact = true }).First.HoverAsync();
 

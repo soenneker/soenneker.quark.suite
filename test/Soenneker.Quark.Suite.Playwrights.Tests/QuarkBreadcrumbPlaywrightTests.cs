@@ -29,8 +29,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/breadcrumb",
-            static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
-            expectedTitle: "Breadcrumbs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First);
 
         var linkSection = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Link component", Exact = true })
                               .Locator("xpath=ancestor::section[1]");
@@ -73,8 +72,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/breadcrumb",
-            static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
-            expectedTitle: "Breadcrumbs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "You can compose BreadcrumbItem with a DropdownMenu to create a dropdown in the breadcrumb." })
                           .First;

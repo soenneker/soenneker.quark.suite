@@ -9,6 +9,26 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Event_timeline_observes_in_place_list_edits_and_sort_direction_changes()
+    {
+        var when = new DateTimeOffset(2026, 9, 22, 12, 0, 0, TimeSpan.Zero);
+        EventTimelineItem[] items = [
+            new() { Label = "First", When = when },
+            new() { Label = "Second", When = when.AddHours(1) }];
+        var cut = Render<EventTimeline>(p => p.Add(c => c.Layout, EventTimelineLayout.Vertical).Add(c => c.Items, items));
+        cut.FindAll("[role='listitem']")[0].TextContent.Should().Contain("First");
+        items[0] = items[0] with { Label = "Updated", When = when.AddHours(2) };
+        cut.Render(p => p.Add(c => c.Items, items));
+        cut.FindAll("[role='listitem']")[0].TextContent.Should().Contain("Second");
+        cut.FindAll("[role='listitem']")[1].TextContent.Should().Contain("Updated");
+        cut.Render(p => p.Add(c => c.NewestFirst, true));
+        cut.FindAll("[role='listitem']")[0].TextContent.Should().Contain("Updated");
+        items[0] = items[0] with { Label = "" };
+        cut.Render(p => p.Add(c => c.Items, items));
+        cut.FindAll("[role='listitem']").Should().HaveCount(1);
+    }
+
+    [Test]
     public void Timeline_emits_reui_step_slots_and_orientation_classes()
     {
         var cut = Render<Timeline>(parameters => parameters

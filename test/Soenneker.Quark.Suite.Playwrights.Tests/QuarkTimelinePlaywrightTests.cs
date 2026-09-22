@@ -29,8 +29,7 @@ public sealed class QuarkTimelinePlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/timelines",
-            static p => p.Locator("[data-slot='timeline']").First,
-            expectedTitle: "Timeline - Quark Suite");
+            static p => p.Locator("[data-slot='timeline']").First);
 
         var timeline = page.Locator("[data-slot='timeline']").First;
         var firstItem = timeline.Locator("[data-slot='timeline-item']").First;

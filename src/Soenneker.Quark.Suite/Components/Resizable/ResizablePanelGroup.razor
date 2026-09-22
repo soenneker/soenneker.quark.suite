@@ -243,7 +243,6 @@
     public Task HandlePointerDragMove(int handleIndex, double percentage, double containerSize)
     {
         AdjustHandleToPercentage(handleIndex, percentage, containerSize);
-        Refresh();
         return Task.CompletedTask;
     }
 
@@ -252,7 +251,6 @@
     {
         AdjustHandleToPercentage(handleIndex, percentage, containerSize);
         _isDragging = false;
-        Refresh();
         return Task.CompletedTask;
     }
 
@@ -327,6 +325,9 @@
         (var minPrimary, var maxPrimary) = GetAllowedRange(handleIndex, pairTotal, containerSize);
         var primarySize = Math.Clamp(requestedPrimarySize, minPrimary, maxPrimary);
         var secondarySize = pairTotal - primarySize;
+
+        if (_sizes[handleIndex] == primarySize && _sizes[handleIndex + 1] == secondarySize)
+            return;
 
         _sizes[handleIndex] = primarySize;
         _sizes[handleIndex + 1] = secondarySize;

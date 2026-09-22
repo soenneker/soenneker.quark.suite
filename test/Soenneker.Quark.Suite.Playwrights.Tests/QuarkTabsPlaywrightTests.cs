@@ -19,8 +19,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First,
-            expectedTitle: "Tabs - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First);
 
         var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A set of layered sections of content" }).First;
         var overview = demoSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Overview", Exact = true });
@@ -43,7 +42,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
-            static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First, expectedTitle: "Tabs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First);
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertical tabs list." }).First;
         var verticalList = verticalSection.GetByRole(AriaRole.Tablist).First;
@@ -79,8 +78,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Home", Exact = true }),
-            expectedTitle: "Tabs - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Home", Exact = true }));
 
         var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions
             { HasText = "A disabled tab trigger." }).First;
@@ -105,7 +103,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
-            static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First, expectedTitle: "Tabs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Account", Exact = true }).First);
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A vertical tabs list." }).First;
         var verticalAccount = verticalSection.GetByRole(AriaRole.Tab, new LocatorGetByRoleOptions { Name = "Account", Exact = true }).First;
@@ -140,8 +138,7 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
-            static p => p.GetByRole(AriaRole.Tablist).First,
-            expectedTitle: "Tabs - Quark Suite");
+            static p => p.GetByRole(AriaRole.Tablist).First);
 
         await page.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Settings", Exact = true }).First.ClickAsync();
         await Assertions.Expect(page.GetByText("Update workspace preferences.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();

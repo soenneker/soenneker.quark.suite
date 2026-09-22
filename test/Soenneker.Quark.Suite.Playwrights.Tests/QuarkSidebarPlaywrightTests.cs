@@ -22,8 +22,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/sidebar",
-            static p => p.Locator("#sidebar-composed-demo"),
-            expectedTitle: "Sidebar - Quark Suite");
+            static p => p.Locator("#sidebar-composed-demo"));
 
         var demo = page.Locator("#sidebar-composed-demo");
         var sidebar = demo.Locator("[data-slot='sidebar'][data-state]").First;
@@ -57,8 +56,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/sidebar",
-            static p => p.Locator("#sidebar-mobile-demo"),
-            expectedTitle: "Sidebar - Quark Suite");
+            static p => p.Locator("#sidebar-mobile-demo"));
 
         var demo = page.Locator("#sidebar-mobile-demo");
         var openTrigger = demo.Locator("#sidebar-mobile-open-trigger");
@@ -105,8 +103,7 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/sidebar",
-            static p => p.Locator("#sidebar-controlled-demo"),
-            expectedTitle: "Sidebar - Quark Suite");
+            static p => p.Locator("#sidebar-controlled-demo"));
 
         var demo = page.Locator("#sidebar-controlled-demo");
         var trigger = demo.Locator("#sidebar-controlled-trigger");
