@@ -132,3 +132,22 @@ test('each frame advances both SVG groups at constant speed and stops when the f
     }
     assert.equal(f.frames.size, 0);
 });
+
+test('resuming after a suspended mobile tab does not retain half a window of scroll offset', t => {
+    const f = fixture(t);
+    f.sample(1);
+    f.time(30000);
+    // Flywheel advances all elapsed buckets and uses their duration on the first resumed render.
+    f.root.dataset.scrollDuration = '30000';
+    f.sample(31);
+    assert.equal(f.position(), 0);
+    assert.equal(f.frames.size, 0);
+
+    f.time(31000);
+    f.root.dataset.scrollDuration = '1000';
+    f.sample(32);
+    assert.equal(f.position(), 10);
+    f.time(32000);
+    assert.equal(f.position(), 0);
+    assert.equal(f.plot.style.transform, f.overlay.style.transform);
+});

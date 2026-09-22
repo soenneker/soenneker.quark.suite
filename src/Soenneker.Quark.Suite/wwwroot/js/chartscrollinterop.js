@@ -4,6 +4,7 @@ export function initialize(root) {
     if (controllers.has(root)) return;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let previous = snapshot();
+    let lastAdvance = previous.enabled ? document.timeline.currentTime : null;
     let scrollFrame = null;
     let scrollElements = [];
     let scroll = null;
@@ -154,8 +155,13 @@ export function initialize(root) {
         // work at every sample boundary. The animation clock already gives the offset.
         const now = document.timeline.currentTime;
         const remaining = position(now);
+        // After a suspended tab or stalled feed, the old animation has exhausted
+        // its continuation. Replaying the missed buckets builds a lasting offset
+        // that exceeds the retained predecessors and leaves the left side blank.
+        const interrupted = lastAdvance !== null && now - lastAdvance > old.duration * 2;
+        lastAdvance = now;
         // Changed scales, resets, and wholly replaced windows cannot be translated faithfully.
-        if (!plot || !stableScale || delta <= 0 || delta >= span) {
+        if (!plot || !stableScale || delta <= 0 || delta >= span || interrupted) {
             cancel();
             return;
         }
