@@ -25,6 +25,113 @@ else
     private string? _resolvedExtensionInput;
     private string? _resolvedBase64Input;
     private string? _resolvedMediaTypeInput;
+    private IThemeInterop? _variantTheme;
+    private bool _variantThemeInitialized;
+
+    [Inject]
+    private IServiceProvider ImageServices { get; set; } = null!;
+
+    [Parameter]
+    public bool AutoSrcSet { get; set; }
+
+    [Parameter]
+    public bool AutoDark { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<int> SrcSetWidths { get; set; } = new[] { 480, 960, 1440 };
+
+    private string? EffectiveSource => AutoDark && _variantTheme?.IsDark == true
+        ? AddImageSuffix(ResolvedSource, "-dark", true) : ResolvedSource;
+
+    private string? EffectiveSrcSet
+    {
+        get
+        {
+            if (SrcSet.HasContent() || !AutoSrcSet)
+                return SrcSet;
+            string? source = EffectiveSource;
+            if (ImageExtensionIndex(source) < 0)
+                return null;
+            var candidates = new List<string>(SrcSetWidths.Count);
+            var widths = new HashSet<int>();
+            foreach (int width in SrcSetWidths)
+            {
+                if (width <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(SrcSetWidths), "Image widths must be positive.");
+                if (widths.Add(width))
+                    candidates.Add($"{AddImageSuffix(source, "-" + width.ToString(System.Globalization.CultureInfo.InvariantCulture))} {width.ToString(System.Globalization.CultureInfo.InvariantCulture)}w");
+            }
+            return string.Join(", ", candidates);
+        }
+    }
+
+    private string? EffectiveSizes => Sizes ?? (AutoSrcSet && EffectiveSrcSet.HasContent() ? "100vw" : null);
+
+    private static int ImageExtensionIndex(string? source)
+    {
+        if (string.IsNullOrWhiteSpace(source) || source.StartsWith("data:", StringComparison.OrdinalIgnoreCase) ||
+            source.StartsWith("blob:", StringComparison.OrdinalIgnoreCase))
+            return -1;
+        int suffix = source.IndexOfAny(['?', '#']);
+        string path = suffix < 0 ? source : source[..suffix];
+        int extension = path.LastIndexOf('.');
+        int authority = path.IndexOf("://", StringComparison.Ordinal);
+        int fileStart = path.LastIndexOf('/') + 1;
+        if (authority >= 0 && path.IndexOf('/', authority + 3) < 0 ||
+            path.StartsWith("//", StringComparison.Ordinal) && path.IndexOf('/', 2) < 0)
+            return -1;
+        return extension > fileStart ? extension : -1;
+    }
+
+    private static string? AddImageSuffix(string? source, string suffix, bool skipExisting = false)
+    {
+        int extension = ImageExtensionIndex(source);
+        if (extension < 0 || skipExisting && source![..extension].EndsWith(suffix, StringComparison.Ordinal))
+            return source;
+        return source!.Insert(extension, suffix);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (AutoDark && _variantTheme is null)
+        {
+            _variantTheme = ImageServices.GetService(typeof(IThemeInterop)) as IThemeInterop
+                ?? throw new InvalidOperationException("Image.AutoDark requires AddQuarkThemeAsScoped or AddQuarkSuiteAsScoped.");
+            _variantTheme.ThemeChanged += OnVariantThemeChanged;
+        }
+        else if (!AutoDark && _variantTheme is not null)
+        {
+            _variantTheme.ThemeChanged -= OnVariantThemeChanged;
+            _variantTheme = null;
+            _variantThemeInitialized = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_variantTheme is not null && !_variantThemeInitialized)
+        {
+            _variantThemeInitialized = true;
+            await _variantTheme.Initialize();
+            if (!IsDisposed)
+                Refresh();
+        }
+    }
+
+    private void OnVariantThemeChanged(bool isDark) => _ = InvokeAsync(() =>
+    {
+        if (!IsDisposed)
+            Refresh();
+    });
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_variantTheme is not null)
+            _variantTheme.ThemeChanged -= OnVariantThemeChanged;
+        await base.DisposeAsync();
+    }
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -192,15 +299,15 @@ else
     {
         get
         {
-            var source = ResolvedSource;
+            var source = EffectiveSource;
             var loading = GetLoadingAttribute();
 
             if (_context is null || !string.Equals(_context.Source, source, StringComparison.Ordinal) ||
                 !string.Equals(_context.Alt, Alt, StringComparison.Ordinal) || !string.Equals(_context.Loading, loading, StringComparison.Ordinal) ||
-                !string.Equals(_context.Decoding, Decoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, SrcSet, StringComparison.Ordinal) ||
-                !string.Equals(_context.Sizes, Sizes, StringComparison.Ordinal))
+                !string.Equals(_context.Decoding, Decoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, EffectiveSrcSet, StringComparison.Ordinal) ||
+                !string.Equals(_context.Sizes, EffectiveSizes, StringComparison.Ordinal))
             {
-                _context = new ImageContext(source, Alt, loading, Decoding, SrcSet, Sizes);
+                _context = new ImageContext(source, Alt, loading, Decoding, EffectiveSrcSet, EffectiveSizes);
             }
 
             return _context;
@@ -259,7 +366,7 @@ else
             BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, fluidClass));
         }
 
-        var resolvedSource = ResolvedSource;
+        var resolvedSource = EffectiveSource;
         if (resolvedSource.HasContent())
             attributes["src"] = resolvedSource;
 
@@ -275,11 +382,12 @@ else
         if (FetchPriority.HasContent())
             attributes["fetchpriority"] = FetchPriority;
 
-        if (Sizes.HasContent())
-            attributes["sizes"] = Sizes;
+        if (EffectiveSizes.HasContent())
+            attributes["sizes"] = EffectiveSizes;
 
-        if (SrcSet.HasContent())
-            attributes["srcset"] = SrcSet;
+        if (EffectiveSrcSet.HasContent())
+            attributes["srcset"] = EffectiveSrcSet;
+
 
         if (CrossOrigin.HasContent())
             attributes["crossorigin"] = CrossOrigin;

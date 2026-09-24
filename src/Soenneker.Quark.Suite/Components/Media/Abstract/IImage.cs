@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace Soenneker.Quark;
@@ -20,6 +21,23 @@ public interface IImage : IComponent
     /// Applies to previews and lightboxes; SrcSet is unchanged. This changes the URL, not the image format.
     /// </summary>
     string? Extension { get; set; }
+
+    /// <summary>
+    /// Generates width candidates by inserting -480, -960, and -1440 (or SrcSetWidths) before the
+    /// resolved source extension. Assumes those files exist. Explicit SrcSet takes precedence.
+    /// Set Sizes to describe the rendered width; automatic source sets default to 100vw.
+    /// </summary>
+    bool AutoSrcSet { get; set; }
+
+    /// <summary>Widths used by AutoSrcSet. Defaults to 480, 960, and 1440. Each width must be positive.</summary>
+    IReadOnlyList<int> SrcSetWidths { get; set; }
+
+    /// <summary>
+    /// Follows the Quark theme by inserting -dark before the resolved source extension in dark mode.
+    /// With AutoSrcSet, generates names such as photo-dark-480.avif. Assumes the files exist.
+    /// Requires AddQuarkThemeAsScoped or AddQuarkSuiteAsScoped. Explicit SrcSet is unchanged.
+    /// </summary>
+    bool AutoDark { get; set; }
 
     /// <summary>
     /// Gets or sets the alternative text for the image.
