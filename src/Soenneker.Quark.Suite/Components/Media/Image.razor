@@ -18,6 +18,10 @@ else
 }
 
 @code {
+    private static readonly IReadOnlyList<int> DefaultSrcSetWidths = Array.AsReadOnly(new[] { 480, 960, 1440 });
+    private string? _automaticSrcSet;
+    private string? _automaticSrcSetSource;
+    private IReadOnlyList<int>? _automaticSrcSetWidths;
     private QuarkAttributeDictionary _rootAttributes;
     private ImageContext? _context;
     private string? _resolvedSource;
@@ -38,7 +42,10 @@ else
     public bool AutoDark { get; set; }
 
     [Parameter]
-    public IReadOnlyList<int> SrcSetWidths { get; set; } = new[] { 480, 960, 1440 };
+    public IReadOnlyList<int> SrcSetWidths { get; set; } = DefaultSrcSetWidths;
+
+    private string? EffectiveExtension => Extension ?? (AutoSrcSet ? "avif" : null);
+    private string? EffectiveDecoding => Decoding ?? (AutoSrcSet ? "async" : null);
 
     private string? EffectiveSource => AutoDark && _variantTheme?.IsDark == true
         ? AddImageSuffix(ResolvedSource, "-dark", true) : ResolvedSource;
@@ -50,22 +57,52 @@ else
             if (SrcSet.HasContent() || !AutoSrcSet)
                 return SrcSet;
             string? source = EffectiveSource;
+            bool widthsMatch = _automaticSrcSetWidths?.Count == SrcSetWidths.Count;
+            for (int i = 0; widthsMatch && i < SrcSetWidths.Count; i++)
+                widthsMatch = _automaticSrcSetWidths![i] == SrcSetWidths[i];
+            if (widthsMatch && string.Equals(source, _automaticSrcSetSource, StringComparison.Ordinal))
+                return _automaticSrcSet;
             if (ImageExtensionIndex(source) < 0)
                 return null;
-            var candidates = new List<string>(SrcSetWidths.Count);
-            var widths = new HashSet<int>();
-            foreach (int width in SrcSetWidths)
+
+            var builder = new System.Text.StringBuilder();
+            for (int i = 0; i < SrcSetWidths.Count; i++)
             {
+                int width = SrcSetWidths[i];
                 if (width <= 0)
                     throw new ArgumentOutOfRangeException(nameof(SrcSetWidths), "Image widths must be positive.");
-                if (widths.Add(width))
-                    candidates.Add($"{AddImageSuffix(source, "-" + width.ToString(System.Globalization.CultureInfo.InvariantCulture))} {width.ToString(System.Globalization.CultureInfo.InvariantCulture)}w");
+                bool duplicate = false;
+                for (int j = 0; j < i; j++)
+                    if (SrcSetWidths[j] == width)
+                    {
+                        duplicate = true;
+                        break;
+                    }
+                if (duplicate)
+                    continue;
+                if (builder.Length > 0)
+                    builder.Append(", ");
+                string value = width.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                builder.Append(AddImageSuffix(source, "-" + value)).Append(' ').Append(value).Append('w');
             }
-            return string.Join(", ", candidates);
+
+            if (ReferenceEquals(SrcSetWidths, DefaultSrcSetWidths))
+                _automaticSrcSetWidths = DefaultSrcSetWidths;
+            else
+            {
+                var snapshot = _automaticSrcSetWidths as int[];
+                if (snapshot?.Length != SrcSetWidths.Count)
+                    snapshot = new int[SrcSetWidths.Count];
+                for (int i = 0; i < SrcSetWidths.Count; i++)
+                    snapshot[i] = SrcSetWidths[i];
+                _automaticSrcSetWidths = snapshot;
+            }
+            _automaticSrcSetSource = source;
+            return _automaticSrcSet = builder.ToString();
         }
     }
 
-    private string? EffectiveSizes => Sizes ?? (AutoSrcSet && EffectiveSrcSet.HasContent() ? "100vw" : null);
+    private string? GetEffectiveSizes(string? srcSet) => Sizes ?? (AutoSrcSet && srcSet.HasContent() ? "100vw" : null);
 
     private static int ImageExtensionIndex(string? source)
     {
@@ -242,16 +279,16 @@ else
         get
         {
             if (string.Equals(_resolvedSourceInput, Source, StringComparison.Ordinal) &&
-                string.Equals(_resolvedExtensionInput, Extension, StringComparison.Ordinal) &&
+                string.Equals(_resolvedExtensionInput, EffectiveExtension, StringComparison.Ordinal) &&
                 string.Equals(_resolvedBase64Input, Base64, StringComparison.Ordinal) &&
                 string.Equals(_resolvedMediaTypeInput, MediaType, StringComparison.Ordinal))
                 return _resolvedSource;
 
             _resolvedSourceInput = Source;
-            _resolvedExtensionInput = Extension;
+            _resolvedExtensionInput = EffectiveExtension;
             _resolvedBase64Input = Base64;
             _resolvedMediaTypeInput = MediaType;
-            _resolvedSource = Source.HasContent() ? ApplyExtension(Source, Extension) :
+            _resolvedSource = Source.HasContent() ? ApplyExtension(Source, EffectiveExtension) :
                 Base64.HasContent() ? $"data:{(MediaType.HasContent() ? MediaType : "image/png")};base64,{Base64}" :
                 null;
             return _resolvedSource;
@@ -301,13 +338,15 @@ else
         {
             var source = EffectiveSource;
             var loading = GetLoadingAttribute();
+            var srcSet = EffectiveSrcSet;
+            var sizes = GetEffectiveSizes(srcSet);
 
             if (_context is null || !string.Equals(_context.Source, source, StringComparison.Ordinal) ||
                 !string.Equals(_context.Alt, Alt, StringComparison.Ordinal) || !string.Equals(_context.Loading, loading, StringComparison.Ordinal) ||
-                !string.Equals(_context.Decoding, Decoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, EffectiveSrcSet, StringComparison.Ordinal) ||
-                !string.Equals(_context.Sizes, EffectiveSizes, StringComparison.Ordinal))
+                !string.Equals(_context.Decoding, EffectiveDecoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, srcSet, StringComparison.Ordinal) ||
+                !string.Equals(_context.Sizes, sizes, StringComparison.Ordinal))
             {
-                _context = new ImageContext(source, Alt, loading, Decoding, EffectiveSrcSet, EffectiveSizes);
+                _context = new ImageContext(source, Alt, loading, EffectiveDecoding, srcSet, sizes);
             }
 
             return _context;
@@ -319,7 +358,7 @@ else
         if (Lazy)
             return "lazy";
 
-        return Loading;
+        return Loading ?? (AutoSrcSet ? "lazy" : null);
     }
 
     private string? GetFluidClass()
@@ -376,17 +415,19 @@ else
         if (loadingAttr.HasContent())
             attributes["loading"] = loadingAttr;
 
-        if (Decoding.HasContent())
-            attributes["decoding"] = Decoding;
+        if (EffectiveDecoding.HasContent())
+            attributes["decoding"] = EffectiveDecoding;
 
         if (FetchPriority.HasContent())
             attributes["fetchpriority"] = FetchPriority;
 
-        if (EffectiveSizes.HasContent())
-            attributes["sizes"] = EffectiveSizes;
+        var srcSet = EffectiveSrcSet;
+        var sizes = GetEffectiveSizes(srcSet);
+        if (sizes.HasContent())
+            attributes["sizes"] = sizes;
 
-        if (EffectiveSrcSet.HasContent())
-            attributes["srcset"] = EffectiveSrcSet;
+        if (srcSet.HasContent())
+            attributes["srcset"] = srcSet;
 
 
         if (CrossOrigin.HasContent())
@@ -420,6 +461,11 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSrcSet);
+        hc.Add(AutoDark);
+        hc.Add(EffectiveSource);
+        for (int i = 0; i < SrcSetWidths.Count; i++)
+            hc.Add(SrcSetWidths[i]);
         hc.Add(Extension);
         hc.Add(Base64);
         hc.Add(MediaType);

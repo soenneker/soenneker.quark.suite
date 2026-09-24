@@ -30,14 +30,20 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Image_automatic_sources_use_defaults_and_preserve_explicit_srcset()
     {
-        var cut = Render<Image>(p => p.Add(c => c.Source, "/photo.avif").Add(c => c.AutoSrcSet, true));
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/photo.png").Add(c => c.AutoSrcSet, true));
         cut.Find("img").GetAttribute("srcset").Should().Be("/photo-480.avif 480w, /photo-960.avif 960w, /photo-1440.avif 1440w");
         cut.Find("img").GetAttribute("sizes").Should().Be("100vw");
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.avif");
+        cut.Find("img").GetAttribute("loading").Should().Be("lazy");
+        cut.Find("img").GetAttribute("decoding").Should().Be("async");
         cut.Render(p => p.Add(c => c.SrcSet, "/custom.avif 2x"));
         cut.Find("img").GetAttribute("srcset").Should().Be("/custom.avif 2x");
         cut.Render(p => p.Add(c => c.AutoSrcSet, false).Add(c => c.SrcSet, (string?)null));
         cut.Find("img").HasAttribute("srcset").Should().BeFalse();
         cut.Find("img").HasAttribute("sizes").Should().BeFalse();
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.png");
+        cut.Find("img").HasAttribute("loading").Should().BeFalse();
+        cut.Find("img").HasAttribute("decoding").Should().BeFalse();
     }
 
     [Test]
@@ -50,5 +56,42 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Image>(p => p.Add(c => c.Source, source).Add(c => c.AutoSrcSet, true));
         cut.Find("img").GetAttribute("src").Should().Be(source);
         cut.Find("img").HasAttribute("srcset").Should().BeFalse();
+    }
+    [Test]
+    public void Image_automatic_sources_update_when_widths_mutate_and_remove_duplicates()
+    {
+        int[] widths = [480, 480, 960];
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/photo.png")
+            .Add(c => c.Extension, "png").Add(c => c.AutoSrcSet, true).Add(c => c.SrcSetWidths, widths));
+        cut.Find("img").GetAttribute("srcset").Should().Be("/photo-480.png 480w, /photo-960.png 960w");
+        widths[1] = 1440;
+        cut.Render(p => p.Add(c => c.SrcSetWidths, widths));
+        cut.Find("img").GetAttribute("srcset").Should().Be("/photo-480.png 480w, /photo-1440.png 1440w, /photo-960.png 960w");
+        cut.Render(p => p.Add(c => c.Extension, "avif"));
+        cut.Find("img").GetAttribute("srcset").Should().Be("/photo-480.avif 480w, /photo-1440.avif 1440w, /photo-960.avif 960w");
+        cut.Render(p => p.Add(c => c.SrcSetWidths, System.Array.Empty<int>()));
+        cut.Find("img").HasAttribute("srcset").Should().BeFalse();
+        cut.Find("img").HasAttribute("sizes").Should().BeFalse();
+    }
+
+    [Test]
+    public void Image_default_widths_are_shared_and_read_only()
+    {
+        var first = new Image();
+        var second = new Image();
+        first.SrcSetWidths.Should().BeSameAs(second.SrcSetWidths);
+        ((System.Collections.Generic.IList<int>)first.SrcSetWidths).IsReadOnly.Should().BeTrue();
+    }
+    [Test]
+    public void Image_automatic_defaults_respect_explicit_overrides()
+    {
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/photo.jpg").Add(c => c.AutoSrcSet, true)
+            .Add(c => c.Extension, "").Add(c => c.Loading, "eager").Add(c => c.Decoding, "sync")
+            .Add(c => c.Sizes, "600px"));
+        cut.Find("img").GetAttribute("src").Should().Be("/photo.jpg");
+        cut.Find("img").GetAttribute("srcset").Should().Contain("/photo-480.jpg 480w");
+        cut.Find("img").GetAttribute("loading").Should().Be("eager");
+        cut.Find("img").GetAttribute("decoding").Should().Be("sync");
+        cut.Find("img").GetAttribute("sizes").Should().Be("600px");
     }
 }

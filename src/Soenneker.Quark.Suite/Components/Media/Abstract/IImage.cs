@@ -17,7 +17,8 @@ public interface IImage : IComponent
     /// <summary>
     /// Optional replacement for the final file extension in Source, with or without a leading dot.
     /// Appends an extension when the filename has none and preserves query strings and fragments.
-    /// Null or blank values, data URLs, blob URLs, and URLs without a filename leave Source unchanged.
+    /// Null defaults to avif when AutoSrcSet is enabled; otherwise Source is unchanged.
+    /// Blank values, data URLs, blob URLs, and URLs without a filename leave Source unchanged.
     /// Applies to previews and lightboxes; SrcSet is unchanged. This changes the URL, not the image format.
     /// </summary>
     string? Extension { get; set; }
@@ -25,11 +26,12 @@ public interface IImage : IComponent
     /// <summary>
     /// Generates width candidates by inserting -480, -960, and -1440 (or SrcSetWidths) before the
     /// resolved source extension. Assumes those files exist. Explicit SrcSet takes precedence.
-    /// Set Sizes to describe the rendered width; automatic source sets default to 100vw.
+    /// Defaults to avif, shared widths of 480/960/1440, Sizes of 100vw, lazy loading, and async decoding.
+    /// Explicit parameters override these defaults. Set Sizes to describe the actual rendered width.
     /// </summary>
     bool AutoSrcSet { get; set; }
 
-    /// <summary>Widths used by AutoSrcSet. Defaults to 480, 960, and 1440. Each width must be positive.</summary>
+    /// <summary>Widths used by AutoSrcSet. Defaults to a shared read-only list of 480, 960, and 1440. Each width must be positive.</summary>
     IReadOnlyList<int> SrcSetWidths { get; set; }
 
     /// <summary>
@@ -55,12 +57,12 @@ public interface IImage : IComponent
     bool Lazy { get; set; }
 
     /// <summary>
-    /// Gets or sets the loading strategy (lazy, eager).
+    /// Gets or sets the loading strategy (lazy, eager). Defaults to lazy with AutoSrcSet.
     /// </summary>
     string? Loading { get; set; }
 
     /// <summary>
-    /// Gets or sets the decoding strategy (async, sync, auto).
+    /// Gets or sets the decoding strategy (async, sync, auto). Defaults to async with AutoSrcSet.
     /// </summary>
     string? Decoding { get; set; }
 
