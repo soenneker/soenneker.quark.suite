@@ -1,3 +1,4 @@
+using Soenneker.Utils.File.Abstract;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -46,7 +47,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (var route in DiscoverDemoRoutes())
+        foreach (var route in await DiscoverDemoRoutes())
         {
             runtimeErrors.Clear();
 
@@ -108,7 +109,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (var route in DiscoverDemoRoutes())
+        foreach (var route in await DiscoverDemoRoutes())
         {
             runtimeErrors.Clear();
 
@@ -157,27 +158,33 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
         failures.Should().BeEmpty();
     }
 
-    private static IReadOnlyList<string> DiscoverDemoRoutes()
+    private async Task<IReadOnlyList<string>> DiscoverDemoRoutes()
     {
-        var root = FindRepositoryRoot();
+        var root = await FindRepositoryRoot();
         var pagesRoot = Path.Combine(root, "test", "Soenneker.Quark.Suite.Demo", "Pages");
 
-        return Directory.EnumerateFiles(pagesRoot, "*.razor", SearchOption.AllDirectories)
-            .SelectMany(file => DemoPageRouteRegex().Matches(File.ReadAllText(file)).Select(match => match.Groups[1].Value))
-            .Where(route => !route.Contains('{', StringComparison.Ordinal))
+        var routes = new List<string>();
+        IFileUtil fileUtil = Resolve<IFileUtil>(true);
+        foreach (string file in Directory.EnumerateFiles(pagesRoot, "*.razor", SearchOption.AllDirectories))
+        {
+            string content = await fileUtil.Read(file);
+            routes.AddRange(DemoPageRouteRegex().Matches(content).Select(match => match.Groups[1].Value));
+        }
+
+        return routes.Where(route => !route.Contains('{', StringComparison.Ordinal))
             .Where(route => route != "/")
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
             .ToArray();
     }
 
-    private static string FindRepositoryRoot()
+    private async Task<string> FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
 
         while (directory is not null)
         {
-            if (File.Exists(Path.Combine(directory.FullName, "Soenneker.Quark.Suite.slnx")))
+            if (await Resolve<IFileUtil>(true).Exists(Path.Combine(directory.FullName, "Soenneker.Quark.Suite.slnx")))
                 return directory.FullName;
 
             directory = directory.Parent;
