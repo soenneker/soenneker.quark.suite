@@ -2,7 +2,6 @@
 @using System.Globalization
 @using Microsoft.JSInterop
 @inject Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil LocalStorageUtil
-@inject ISidebarInterop SidebarInterop
 @using Soenneker.Quark.Dtos
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
@@ -138,18 +137,12 @@ else
 
         if (StorageKey is null)
             _restoredStorageKey = null;
-        else if (WaitingForStoredWidth && SidebarInterop.TryGetStoredWidth(StorageKey, out var saved))
-        {
-            _notifyRestoredWidth = ApplyStoredWidth(saved);
-            _restoredStorageKey = StorageKey;
-        }
     }
 
     private string? StorageKey => string.IsNullOrWhiteSpace(ResizeStorageKey) ? null : ResizeStorageKey;
     private bool WaitingForStoredWidth => CanResize && StorageKey is { } key && _restoredStorageKey != key;
     private string? _restoredStorageKey;
     private string? _restoringStorageKey;
-    private bool _notifyRestoredWidth;
     private long _widthRevision;
 
     private bool ApplyStoredWidth(string? saved)
@@ -163,11 +156,6 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (_notifyRestoredWidth)
-        {
-            _notifyRestoredWidth = false;
-            await ExpandedWidthChanged.InvokeAsync(ExpandedWidth);
-        }
         var key = StorageKey;
         if (key is null)
         {

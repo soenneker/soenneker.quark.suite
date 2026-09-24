@@ -12,13 +12,6 @@ namespace Soenneker.Quark;
 public interface ISidebarInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Reads the stored expanded width synchronously when supported by the runtime.
-    /// Returns false when asynchronous interop is required. Returns true with a null value
-    /// when no width is stored or browser storage is unavailable.
-    /// </summary>
-    bool TryGetStoredWidth(string storageKey, out string? width);
-
-    /// <summary>
     /// Registers mobile detection and the keyboard shortcut for the callback target.
     /// </summary>
     ValueTask InitializeSidebar<T>(DotNetObjectReference<T> componentRef, string shortcutKey, CancellationToken cancellationToken = default) where T : class;

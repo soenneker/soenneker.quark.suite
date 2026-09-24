@@ -31,7 +31,6 @@
     [Parameter]
     public int MaxLines { get; set; } = 40;
 
-    private static readonly System.Text.Json.JsonSerializerOptions DisplayJsonOptions = new() { WriteIndented = true };
     private string _displayText = string.Empty;
     private string? _formattedText;
     private string? _formattedLanguage;
@@ -56,8 +55,13 @@
 
         try
         {
-            using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(value);
-            return System.Text.Json.JsonSerializer.Serialize(document.RootElement, DisplayJsonOptions);
+            using var document = System.Text.Json.JsonDocument.Parse(value);
+            var buffer = new System.Buffers.ArrayBufferWriter<byte>();
+            using (var writer = new System.Text.Json.Utf8JsonWriter(buffer, new System.Text.Json.JsonWriterOptions { Indented = true }))
+            {
+                document.RootElement.WriteTo(writer);
+            }
+            return System.Text.Encoding.UTF8.GetString(buffer.WrittenSpan);
         }
         catch (System.Text.Json.JsonException)
         {

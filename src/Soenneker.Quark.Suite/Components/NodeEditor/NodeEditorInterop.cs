@@ -10,7 +10,6 @@ using Soenneker.Utils.Json;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="INodeEditorInterop"/>
 public sealed class NodeEditorInterop : INodeEditorInterop
 {
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/nodeeditorinterop.js";
@@ -37,13 +36,13 @@ public sealed class NodeEditorInterop : INodeEditorInterop
     public async ValueTask Initialize(string id, NodeEditorOptions options, DotNetObjectReference<NodeEditor> callbackReference,
         CancellationToken cancellationToken = default)
     {
-        await Invoke("initialize", cancellationToken, id, JsonUtil.Serialize(options)!, callbackReference);
+        await Invoke("initialize", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), callbackReference);
     }
 
     public async ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
         CancellationToken cancellationToken = default)
     {
-        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options)!, selectedNodeId, selectedNodeIds, selectedEdgeId);
+        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), selectedNodeId, selectedNodeIds, selectedEdgeId);
     }
 
     public async ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default)

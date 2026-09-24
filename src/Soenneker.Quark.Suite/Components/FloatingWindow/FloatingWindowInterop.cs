@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
@@ -9,7 +9,6 @@ using Soenneker.Utils.Json;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IFloatingWindowInterop"/>
 public sealed class FloatingWindowInterop : IFloatingWindowInterop
 {
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/floatingwindowinterop.js";
@@ -44,7 +43,7 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         using (source)
         {
             await _initializer.Init(options.UseCdn, linked);
-            var json = JsonUtil.Serialize(options)!;
+            var json = JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.FloatingWindowOptions);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("create", linked, id, json);
         }
@@ -56,7 +55,7 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
 
         using (source)
         {
-            var json = JsonUtil.Serialize(options)!;
+            var json = JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.FloatingWindowOptions);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("updateOptions", linked, id, json);
         }

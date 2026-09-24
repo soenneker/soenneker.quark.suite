@@ -25,18 +25,18 @@ public sealed class SidebarResizeTests : BunitContext
     [Arguments("900", 480d)]
     [Arguments("bad", null)]
     [Arguments(null, null)]
-    public void Synchronous_storage_restores_width_in_the_first_render(string? saved, double? expectedWidth)
+    public void Storage_restores_width_and_notifies_before_displaying_sidebar(string? saved, double? expectedWidth)
     {
-        _interop.SupportsSynchronousStorage = true;
-        _interop.StoredWidth = saved;
+        if (saved is not null)
+            _storage.Values["sidebar-a"] = saved;
         double? changed = null;
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a")
             .Add(c => c.ExpandedWidthChanged, value => changed = value));
+        cut.WaitForAssertion(() => cut.FindAll("[data-sidebar-resize-root]").Count.Should().Be(1));
         cut.Instance.ExpandedWidth.Should().Be(expectedWidth);
         changed.Should().Be(expectedWidth);
-        cut.RenderCount.Should().Be(1);
         cut.FindAll("[data-sidebar-resize-root]").Count.Should().Be(1);
-        _storage.Reads.Should().Be(0);
+        _storage.Reads.Should().Be(1);
     }
 
     [Test]
