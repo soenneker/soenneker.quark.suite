@@ -1,5 +1,4 @@
-﻿using Bogus;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Soenneker.DataTables.Dtos.ServerResponse;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
 using Soenneker.Dtos.Results.Paged;

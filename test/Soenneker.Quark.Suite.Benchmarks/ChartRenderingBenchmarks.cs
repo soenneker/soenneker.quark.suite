@@ -1,5 +1,3 @@
-using System.Linq;
-using AngleSharp.Dom;
 using BenchmarkDotNet.Attributes;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;

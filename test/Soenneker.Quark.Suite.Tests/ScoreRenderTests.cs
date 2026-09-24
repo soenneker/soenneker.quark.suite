@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Bunit;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Soenneker.Quark.Suite.Tests;
 

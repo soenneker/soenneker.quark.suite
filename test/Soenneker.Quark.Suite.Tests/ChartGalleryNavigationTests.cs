@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Quark.Suite.Demo.Pages;
 using System.Linq;
-using Soenneker.Bradix;
-using Soenneker.Blazor.MockJsRuntime.Registrars;
 
 namespace Soenneker.Quark.Suite.Tests;
 

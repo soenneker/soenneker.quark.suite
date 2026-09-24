@@ -1,7 +1,6 @@
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Bradix;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
