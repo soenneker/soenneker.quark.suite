@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/themeinterop.js', import.meta.url), 'utf8')
+    .replace('import "./picture.js";', '')
     .replaceAll('export function', 'function');
 
 function fixture(dark, stored, blocked = false) {

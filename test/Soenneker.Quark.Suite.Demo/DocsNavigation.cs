@@ -88,6 +88,7 @@ public static class DocsNavigation
         new("Navigation Menu", ComponentRoute("navigation-menu")),
         new("Pagination", ComponentRoute("pagination")),
         new("Password Input", ComponentRoute("password-input")),
+        new("Picture", ComponentRoute("picture"), IsNew: true),
         new("Pill", ComponentRoute("pill")),
         new("Popover", ComponentRoute("popover")),
         new("Progress", ComponentRoute("progress")),

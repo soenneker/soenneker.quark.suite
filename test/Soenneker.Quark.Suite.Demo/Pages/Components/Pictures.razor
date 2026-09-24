@@ -1,0 +1,84 @@
+@page "/components/picture"
+
+<QuarkSeoHead Title="Blazor Picture: Responsive Images &amp; Themes | Quark Suite" Description="Choose mobile crops, theme-specific images, and responsive source widths with Quark Picture and PictureSource." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Title="Art direction" Description="Resize the browser below 640px to switch from the wide view to a square mobile crop. Sources are checked in order; the final Image supplies alt text and a fallback." Code="@CropCode" CodeLanguage="razor">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/portrait.svg" Type="image/svg+xml"
+                               Media="(max-width: 639px)" IntrinsicWidth="600" IntrinsicHeight="600" />
+                <Image Source="/img/picture/landscape.svg" Alt="Illustrated mountains under a blue sky"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Theme selection" Description="Use the site theme switcher to change the image. This follows your saved Quark theme as well as the system preference." Code="@ThemeCode" CodeLanguage="razor">
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/landscape-dark.svg" Theme="ThemeMode.Dark" />
+                <PictureSource Source="/img/picture/landscape.svg" Theme="ThemeMode.Light" />
+                <Image Source="/img/picture/landscape.svg" Alt="Illustrated mountains in the selected theme"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Automatic width candidates" Description="The label shows the chosen image file. Resize the browser to change its displayed width; screen pixel density also affects selection. Browsers may retain a larger image already loaded. These SVG files demonstrate naming; the same API supports pre-generated AVIF and WebP variants." Code="@ResponsiveCode" CodeLanguage="razor">
+        <Div Width='Width.Token("[240px]").OnMd.Token("[480px]")'>
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/responsive.svg" Extension="svg" AutoSrcSet="true"
+                               SrcSetWidths="@CandidateWidths" IntrinsicWidth="1200" IntrinsicHeight="600"
+                               Sizes="(min-width: 768px) 480px, 240px" />
+                <Image Source="/img/picture/responsive.svg" Alt="Mountains labeled with the selected source width"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+    </DemoSection>
+
+    <Paragraph>AutoSrcSet builds URLs, not image files. Bundle each requested variant. Extension defaults to AVIF; these examples explicitly use SVG. For static or prerendered pages, load Quark's picture.js after initializing the root theme and before the pictures are parsed.</Paragraph>
+</Div>
+
+@code {
+    private static readonly int[] CandidateWidths = [480, 960];
+
+    private const string CropCode = """
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/portrait.svg" Type="image/svg+xml"
+                               Media="(max-width: 639px)" IntrinsicWidth="600" IntrinsicHeight="600" />
+                <Image Source="/img/picture/landscape.svg" Alt="Illustrated mountains under a blue sky"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+        """;
+
+    private const string ThemeCode = """
+        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXl">
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/landscape-dark.svg" Theme="ThemeMode.Dark" />
+                <PictureSource Source="/img/picture/landscape.svg" Theme="ThemeMode.Light" />
+                <Image Source="/img/picture/landscape.svg" Alt="Illustrated mountains in the selected theme"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+        """;
+
+    private const string ResponsiveCode = """
+        <Div Width='Width.Token("[240px]").OnMd.Token("[480px]")'>
+            <Picture Display="Display.Block">
+                <PictureSource Source="/img/picture/responsive.svg" Extension="svg" AutoSrcSet="true"
+                               SrcSetWidths="@CandidateWidths" IntrinsicWidth="1200" IntrinsicHeight="600"
+                               Sizes="(min-width: 768px) 480px, 240px" />
+                <Image Source="/img/picture/responsive.svg" Alt="Mountains labeled with the selected source width"
+                       IntrinsicWidth="1200" IntrinsicHeight="600" Width="Width.IsFull" Height="Height.Auto" />
+            </Picture>
+        </Div>
+        
+        @code {
+            private static readonly int[] CandidateWidths = [480, 960];
+        }
+        """;
+
+}

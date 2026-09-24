@@ -8,6 +8,33 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Image_intrinsic_dimensions_update_and_clear_without_attribute_dictionaries()
+    {
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/logo.svg")
+            .Add(c => c.IntrinsicWidth, 28).Add(c => c.IntrinsicHeight, 28));
+        cut.Find("img").GetAttribute("width").Should().Be("28");
+        cut.Find("img").GetAttribute("height").Should().Be("28");
+        cut.Render(p => p.Add(c => c.IntrinsicWidth, 112).Add(c => c.IntrinsicHeight, 112));
+        cut.Find("img").GetAttribute("width").Should().Be("112");
+        cut.Render(p => p.Add(c => c.IntrinsicWidth, (int?)null).Add(c => c.IntrinsicHeight, (int?)null));
+        cut.Find("img").HasAttribute("width").Should().BeFalse();
+        cut.Find("img").HasAttribute("height").Should().BeFalse();
+    }
+
+    [Test]
+    public void Image_intrinsic_dimensions_apply_to_composed_preview()
+    {
+        var cut = Render<Image>(p => p.Add(c => c.Source, "/logo.svg")
+            .Add(c => c.IntrinsicWidth, 28).Add(c => c.IntrinsicHeight, 28)
+            .AddChildContent<ImagePreview>());
+        cut.Find("img").GetAttribute("width").Should().Be("28");
+        cut.Find("img").GetAttribute("height").Should().Be("28");
+        cut.Find("[data-slot=image]").HasAttribute("width").Should().BeFalse();
+        cut.Render(p => p.Add(c => c.IntrinsicWidth, 112));
+        cut.Find("img").GetAttribute("width").Should().Be("112");
+    }
+
+    [Test]
     public async Task Image_automatic_sources_follow_theme_and_preserve_url_suffixes()
     {
         var cut = Render<Image>(p => p.Add(c => c.Source, "/img/photo.png?v=2#preview")

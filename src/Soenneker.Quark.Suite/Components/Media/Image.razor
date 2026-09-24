@@ -18,7 +18,7 @@ else
 }
 
 @code {
-    private static readonly IReadOnlyList<int> DefaultSrcSetWidths = Array.AsReadOnly(new[] { 480, 960, 1440 });
+    private static readonly IReadOnlyList<int> DefaultSrcSetWidths = ImageSources.DefaultWidths;
     private string? _automaticSrcSet;
     private string? _automaticSrcSetSource;
     private IReadOnlyList<int>? _automaticSrcSetWidths;
@@ -36,6 +36,12 @@ else
     private IServiceProvider ImageServices { get; set; } = null!;
 
     [Parameter]
+    public int? IntrinsicWidth { get; set; }
+
+    [Parameter]
+    public int? IntrinsicHeight { get; set; }
+
+    [Parameter]
     public bool AutoSrcSet { get; set; }
 
     [Parameter]
@@ -48,7 +54,7 @@ else
     private string? EffectiveDecoding => Decoding ?? (AutoSrcSet ? "async" : null);
 
     private string? EffectiveSource => AutoDark && _variantTheme?.IsDark == true
-        ? AddImageSuffix(ResolvedSource, "-dark", true) : ResolvedSource;
+        ? ImageSources.AddImageSuffix(ResolvedSource, "-dark", true) : ResolvedSource;
 
     private string? EffectiveSrcSet
     {
@@ -62,29 +68,10 @@ else
                 widthsMatch = _automaticSrcSetWidths![i] == SrcSetWidths[i];
             if (widthsMatch && string.Equals(source, _automaticSrcSetSource, StringComparison.Ordinal))
                 return _automaticSrcSet;
-            if (ImageExtensionIndex(source) < 0)
+            if (ImageSources.ImageExtensionIndex(source) < 0)
                 return null;
 
-            var builder = new System.Text.StringBuilder();
-            for (int i = 0; i < SrcSetWidths.Count; i++)
-            {
-                int width = SrcSetWidths[i];
-                if (width <= 0)
-                    throw new ArgumentOutOfRangeException(nameof(SrcSetWidths), "Image widths must be positive.");
-                bool duplicate = false;
-                for (int j = 0; j < i; j++)
-                    if (SrcSetWidths[j] == width)
-                    {
-                        duplicate = true;
-                        break;
-                    }
-                if (duplicate)
-                    continue;
-                if (builder.Length > 0)
-                    builder.Append(", ");
-                string value = width.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                builder.Append(AddImageSuffix(source, "-" + value)).Append(' ').Append(value).Append('w');
-            }
+            string? generated = ImageSources.BuildSrcSet(source, SrcSetWidths);
 
             if (ReferenceEquals(SrcSetWidths, DefaultSrcSetWidths))
                 _automaticSrcSetWidths = DefaultSrcSetWidths;
@@ -98,35 +85,11 @@ else
                 _automaticSrcSetWidths = snapshot;
             }
             _automaticSrcSetSource = source;
-            return _automaticSrcSet = builder.ToString();
+            return _automaticSrcSet = generated;
         }
     }
 
     private string? GetEffectiveSizes(string? srcSet) => Sizes ?? (AutoSrcSet && srcSet.HasContent() ? "100vw" : null);
-
-    private static int ImageExtensionIndex(string? source)
-    {
-        if (string.IsNullOrWhiteSpace(source) || source.StartsWith("data:", StringComparison.OrdinalIgnoreCase) ||
-            source.StartsWith("blob:", StringComparison.OrdinalIgnoreCase))
-            return -1;
-        int suffix = source.IndexOfAny(['?', '#']);
-        string path = suffix < 0 ? source : source[..suffix];
-        int extension = path.LastIndexOf('.');
-        int authority = path.IndexOf("://", StringComparison.Ordinal);
-        int fileStart = path.LastIndexOf('/') + 1;
-        if (authority >= 0 && path.IndexOf('/', authority + 3) < 0 ||
-            path.StartsWith("//", StringComparison.Ordinal) && path.IndexOf('/', 2) < 0)
-            return -1;
-        return extension > fileStart ? extension : -1;
-    }
-
-    private static string? AddImageSuffix(string? source, string suffix, bool skipExisting = false)
-    {
-        int extension = ImageExtensionIndex(source);
-        if (extension < 0 || skipExisting && source![..extension].EndsWith(suffix, StringComparison.Ordinal))
-            return source;
-        return source!.Insert(extension, suffix);
-    }
 
     protected override void OnParametersSet()
     {
@@ -288,48 +251,11 @@ else
             _resolvedExtensionInput = EffectiveExtension;
             _resolvedBase64Input = Base64;
             _resolvedMediaTypeInput = MediaType;
-            _resolvedSource = Source.HasContent() ? ApplyExtension(Source, EffectiveExtension) :
+            _resolvedSource = Source.HasContent() ? ImageSources.ApplyExtension(Source, EffectiveExtension) :
                 Base64.HasContent() ? $"data:{(MediaType.HasContent() ? MediaType : "image/png")};base64,{Base64}" :
                 null;
             return _resolvedSource;
         }
-    }
-
-    private static string ApplyExtension(string source, string? extension)
-    {
-        if (string.IsNullOrWhiteSpace(extension) ||
-            source.StartsWith("data:", StringComparison.OrdinalIgnoreCase) ||
-            source.StartsWith("blob:", StringComparison.OrdinalIgnoreCase))
-            return source;
-
-        extension = extension.Trim().TrimStart('.');
-        if (extension.Length == 0)
-            return source;
-
-        if (extension.IndexOfAny(['/', '\\', '?', '#', ':']) >= 0)
-            throw new ArgumentException("Extension must be a file extension, such as webp or .png.", nameof(Extension));
-
-        int suffixStart = source.IndexOfAny(['?', '#']);
-        if (suffixStart < 0)
-            suffixStart = source.Length;
-
-        string path = source[..suffixStart];
-        int authorityStart = path.StartsWith("//", StringComparison.Ordinal) ? 2 : path.IndexOf("://", StringComparison.Ordinal);
-        if (authorityStart >= 0)
-        {
-            if (!path.StartsWith("//", StringComparison.Ordinal))
-                authorityStart += 3;
-            if (path.IndexOf('/', authorityStart) < 0)
-                return source;
-        }
-
-        int fileStart = path.LastIndexOf('/') + 1;
-        if (fileStart == path.Length)
-            return source;
-
-        int dot = path.LastIndexOf('.');
-        int extensionStart = dot > fileStart ? dot : path.Length;
-        return string.Concat(path.AsSpan(0, extensionStart), ".", extension, source.AsSpan(suffixStart));
     }
 
     private ImageContext Context
@@ -344,9 +270,14 @@ else
             if (_context is null || !string.Equals(_context.Source, source, StringComparison.Ordinal) ||
                 !string.Equals(_context.Alt, Alt, StringComparison.Ordinal) || !string.Equals(_context.Loading, loading, StringComparison.Ordinal) ||
                 !string.Equals(_context.Decoding, EffectiveDecoding, StringComparison.Ordinal) || !string.Equals(_context.SrcSet, srcSet, StringComparison.Ordinal) ||
-                !string.Equals(_context.Sizes, sizes, StringComparison.Ordinal))
+                !string.Equals(_context.Sizes, sizes, StringComparison.Ordinal) ||
+                _context.IntrinsicWidth != IntrinsicWidth || _context.IntrinsicHeight != IntrinsicHeight)
             {
-                _context = new ImageContext(source, Alt, loading, EffectiveDecoding, srcSet, sizes);
+                _context = new ImageContext(source, Alt, loading, EffectiveDecoding, srcSet, sizes)
+                {
+                    IntrinsicWidth = IntrinsicWidth,
+                    IntrinsicHeight = IntrinsicHeight
+                };
             }
 
             return _context;
@@ -372,6 +303,8 @@ else
     {
         var attributes = _rootAttributes.Create(BuildAttributes());
 
+        attributes.Remove("width");
+        attributes.Remove("height");
         attributes.Remove("src");
         attributes.Remove("alt");
         attributes.Remove("loading");
@@ -408,6 +341,11 @@ else
         var resolvedSource = EffectiveSource;
         if (resolvedSource.HasContent())
             attributes["src"] = resolvedSource;
+
+        if (IntrinsicWidth.HasValue)
+            attributes["width"] = IntrinsicWidth.Value;
+        if (IntrinsicHeight.HasValue)
+            attributes["height"] = IntrinsicHeight.Value;
 
         attributes["alt"] = Alt ?? string.Empty;
 
@@ -461,6 +399,8 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(IntrinsicWidth);
+        hc.Add(IntrinsicHeight);
         hc.Add(AutoSrcSet);
         hc.Add(AutoDark);
         hc.Add(EffectiveSource);

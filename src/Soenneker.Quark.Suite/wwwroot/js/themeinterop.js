@@ -1,3 +1,5 @@
+import "./picture.js";
+
 const storageKey = "quark-theme";
 const root = document.documentElement;
 const themeChangedRefs = new Map();

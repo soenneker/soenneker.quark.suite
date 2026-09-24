@@ -1,0 +1,81 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
+@implements IPictureSource
+
+<source @attributes="BuildAttributes()" />
+
+@code {
+    [Parameter]
+    public string? Source { get; set; }
+
+    [Parameter]
+    public string? Extension { get; set; }
+
+    [Parameter]
+    public string? SrcSet { get; set; }
+
+    [Parameter]
+    public bool AutoSrcSet { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<int> SrcSetWidths { get; set; } = ImageSources.DefaultWidths;
+
+    [Parameter]
+    public string? Sizes { get; set; }
+
+    [Parameter]
+    public string? Media { get; set; }
+
+    [Parameter]
+    public string? Type { get; set; }
+
+    [Parameter]
+    public int? IntrinsicWidth { get; set; }
+
+    [Parameter]
+    public int? IntrinsicHeight { get; set; }
+
+    [Parameter]
+    public ThemeMode? Theme { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "picture-source";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        string? source = Source is null ? null : ImageSources.ApplyExtension(Source, Extension ?? (AutoSrcSet ? "avif" : null));
+        string? candidates = !string.IsNullOrWhiteSpace(SrcSet) ? SrcSet : AutoSrcSet
+            ? ImageSources.BuildSrcSet(source, SrcSetWidths, IntrinsicWidth) : source;
+        if (!string.IsNullOrWhiteSpace(candidates)) attributes["srcset"] = candidates;
+        string? sizes = Sizes ?? (AutoSrcSet && !string.IsNullOrWhiteSpace(candidates) ? "100vw" : null);
+        if (sizes is not null) attributes["sizes"] = sizes;
+        if (Type is not null) attributes["type"] = Type;
+        if (IntrinsicWidth.HasValue) attributes["width"] = IntrinsicWidth.Value;
+        if (IntrinsicHeight.HasValue) attributes["height"] = IntrinsicHeight.Value;
+        string? media = Media;
+        if (Theme == ThemeMode.Dark || Theme == ThemeMode.Light)
+        {
+            string theme = Theme == ThemeMode.Dark ? "dark" : "light";
+            string condition = string.IsNullOrWhiteSpace(Media) ? "all" : Media;
+            attributes["data-quark-theme"] = theme;
+            attributes["data-quark-media"] = condition;
+            // Keep media query lists grouped; each alternative needs the theme condition.
+            media = string.Join(", ", condition.Split(',').Select(part =>
+                part.Trim() == "all" ? $"(prefers-color-scheme: {theme})" : $"{part.Trim()} and (prefers-color-scheme: {theme})"));
+        }
+        if (media is not null) attributes["media"] = media;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Source); hc.Add(Extension); hc.Add(SrcSet); hc.Add(AutoSrcSet);
+        foreach (int width in SrcSetWidths) hc.Add(width);
+        hc.Add(Sizes); hc.Add(Media); hc.Add(Type);
+        hc.Add(IntrinsicWidth); hc.Add(IntrinsicHeight); hc.Add(Theme);
+    }
+}

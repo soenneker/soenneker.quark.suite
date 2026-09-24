@@ -16,6 +16,10 @@
     private Dictionary<string, object> BuildPreviewAttributes()
     {
         var attributes = BuildAttributes();
+        if (ImageContext?.IntrinsicWidth is int width)
+            attributes["width"] = width;
+        if (ImageContext?.IntrinsicHeight is int height)
+            attributes["height"] = height;
         attributes["src"] = ImageContext?.Source ?? string.Empty;
         attributes["alt"] = ImageContext?.Alt ?? string.Empty;
         AppendToClassAttr(attributes, "max-h-[85vh] max-w-[90vw] rounded-lg object-contain");

@@ -14,6 +14,12 @@ public interface IImage : IComponent
     /// </summary>
     string? Source { get; set; }
 
+    /// <summary>HTML width in pixels, used with IntrinsicHeight to reserve the image aspect ratio. Independent of CSS Width.</summary>
+    int? IntrinsicWidth { get; set; }
+
+    /// <summary>HTML height in pixels, used with IntrinsicWidth to reserve the image aspect ratio. Independent of CSS Height.</summary>
+    int? IntrinsicHeight { get; set; }
+
     /// <summary>
     /// Optional replacement for the final file extension in Source, with or without a leading dot.
     /// Appends an extension when the filename has none and preserves query strings and fragments.
