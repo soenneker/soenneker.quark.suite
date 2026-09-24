@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IValidationHandler" />
 internal sealed class DataAnnotationValidationHandler : IValidationHandler
 {
     public void Validate(Validation ctx, object value)
@@ -15,16 +14,7 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
             var field = ctx.FieldIdentifier;
 
             var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-            var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(field.Model)
-            {
-                MemberName = field.FieldName
-            };
-
-            var propertyValue = field.Model?.GetType().GetProperty(field.FieldName)?.GetValue(field.Model);
-            System.ComponentModel.DataAnnotations.Validator.TryValidateProperty(
-                propertyValue,
-                validationContext,
-                results);
+            GeneratedValidationRegistry.Validate(field.Model, field.FieldName, results);
 
             List<string>? messages = null;
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Soenneker.Quark.Suite.Tests;
 
-public sealed class ValidationLifetimeTests : BunitContext
+public sealed partial class ValidationLifetimeTests : BunitContext
 {
     public ValidationLifetimeTests() => Services.AddSingleton<IValidationInterop, FakeInterop>();
 
@@ -36,6 +36,31 @@ public sealed class ValidationLifetimeTests : BunitContext
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(model.Name));
         await cut.InvokeAsync(cut.Instance.Dispose);
         context.GetValidationMessages().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Generated_validation_reads_the_model_and_rebinds_to_a_new_edit_context()
+    {
+        var model = new Model();
+        var first = new EditContext(model);
+        Microsoft.AspNetCore.Components.RenderFragment content = b => { b.OpenComponent<Validation>(0); b.CloseComponent(); };
+        var host = Render<Microsoft.AspNetCore.Components.CascadingValue<EditContext>>(p => p
+            .Add(c => c.Name, nameof(EditContext)).Add(c => c.Value, first)
+            .Add(c => c.ChildContent, content));
+        var cut = host.FindComponent<Validation>();
+        await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.Validate("a different input value"));
+        first.GetValidationMessages().Should().ContainSingle();
+
+        model = new Model { Name = "valid" };
+        var second = new EditContext(model);
+        host.Render(p => p.Add(c => c.Name, nameof(EditContext)).Add(c => c.Value, second).Add(c => c.ChildContent, content));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
+        first.GetValidationMessages().Should().BeEmpty();
+        second.GetValidationMessages().Should().BeEmpty();
+        cut.Instance.Status.Should().Be(ValidationStatus.Success);
     }
 
     [Test]
@@ -84,7 +109,7 @@ public sealed class ValidationLifetimeTests : BunitContext
         cut.Instance.Status.Should().Be(ValidationStatus.None);
     }
 
-    private sealed class Model
+    private sealed partial class Model
     {
         [Required]
         public string Name { get; set; } = "";
