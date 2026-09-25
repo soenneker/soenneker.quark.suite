@@ -138,17 +138,12 @@
 
     <!-- Always-on dependencies -->
     <ItemGroup>
-        <PackageReference Include="Soenneker.Quark.Gen.Validation" Version="4.0.5" PrivateAssets="none"
-                          IncludeAssets="build; buildtransitive" />
-        <PackageReference Include="Soenneker.Blazor.C15t" Version="4.0.88" />
-        <PackageReference Include="Soenneker.Blazor.Cloudflare.AiSearch" Version="4.0.67"
-                          Condition="'$(UseLocalProjects)' != 'true' And '$(UseLocalCloudflareAiSearchProject)' != 'true'" />
-        <PackageReference Include="Soenneker.Blazor.CreditCards" Version="4.0.620"
-                          Condition="'$(UseLocalProjects)' != 'true'" />
-        <PackageReference Include="Soenneker.Blazor.SignaturePads" Version="4.0.162"
-                          Condition="'$(UseLocalProjects)' != 'true'" />
-        <PackageReference Include="Soenneker.Blazor.Utils.Clipboard" Version="4.0.103"
-                          Condition="'$(UseLocalProjects)' != 'true'" />
+        <PackageReference Include="Soenneker.Quark.Gen.Validation" Version="4.0.6" PrivateAssets="none" IncludeAssets="build; buildtransitive" />
+        <PackageReference Include="Soenneker.Blazor.C15t" Version="4.0.89" />
+        <PackageReference Include="Soenneker.Blazor.Cloudflare.AiSearch" Version="4.0.68" Condition="'$(UseLocalProjects)' != 'true' And '$(UseLocalCloudflareAiSearchProject)' != 'true'" />
+        <PackageReference Include="Soenneker.Blazor.CreditCards" Version="4.0.620" Condition="'$(UseLocalProjects)' != 'true'" />
+        <PackageReference Include="Soenneker.Blazor.SignaturePads" Version="4.0.162" Condition="'$(UseLocalProjects)' != 'true'" />
+        <PackageReference Include="Soenneker.Blazor.Utils.Clipboard" Version="4.0.103" Condition="'$(UseLocalProjects)' != 'true'" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.30" />
         <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="5.0.63" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="5.0.83" />
@@ -156,15 +151,13 @@
         <PackageReference Include="Soenneker.SimpleIcons.Enums.Icons" Version="4.0.50" />
         <PackageReference Include="Soenneker.SimpleIcons.Icons" Version="4.0.63" />
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.77" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2722" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2723" />
     </ItemGroup>
 
     <!-- Switch: NuGet -->
     <ItemGroup Condition="'$(UseLocalProjects)' != 'true'">
-        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.312"
-                          Condition="'$(UseLocalBradixProject)' != 'true'" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.303"
-                          Condition="'$(UseLocalQuarkBuildersProject)' != 'true'" />
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.312" Condition="'$(UseLocalBradixProject)' != 'true'" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.303" Condition="'$(UseLocalQuarkBuildersProject)' != 'true'" />
 
         <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.17">
             <PrivateAssets>all</PrivateAssets>
@@ -172,7 +165,7 @@
         </PackageReference>
 
         <PackageReference Include="Soenneker.Quark.Gen.SimpleIcons.Abstractions" Version="4.0.16" />
-        <PackageReference Include="Soenneker.Quark.Gen.SimpleIcons" Version="4.0.66">
+        <PackageReference Include="Soenneker.Quark.Gen.SimpleIcons" Version="4.0.67">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -184,7 +177,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
 
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.238">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.239">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -199,11 +192,9 @@
         <ProjectReference Include="$(LocalClipboardProject)" />
         <ProjectReference Include="$(LocalCreditCardsProject)" />
         <ProjectReference Include="$(LocalSignaturePadsProject)" />
-        <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false" PrivateAssets="all" />
+        <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
         <ProjectReference Include="$(LocalQuarkGenSimpleIconsAbstractionsProject)" />
-        <ProjectReference Include="$(LocalQuarkGenSimpleIconsProject)" OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false" PrivateAssets="all" />
+        <ProjectReference Include="$(LocalQuarkGenSimpleIconsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(UseLocalProjects)' == 'true' Or '$(UseLocalCloudflareAiSearchProject)' == 'true'">
@@ -212,8 +203,7 @@
 
     <!-- Tailwind manifest pack -->
     <Target Name="PackGeneratedTailwindManifest">
-        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')"
-               Text="Generated Tailwind manifest not found. Build before packing." />
+        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')" Text="Generated Tailwind manifest not found. Build before packing." />
 
         <ItemGroup>
             <TfmSpecificPackageFile Include="$(_GeneratedTailwindManifestPath)">
