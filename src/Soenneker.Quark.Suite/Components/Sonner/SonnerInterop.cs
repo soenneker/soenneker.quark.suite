@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerHotkey", linked, section, hotkey);
+            await module.InvokeVoidAsync("registerHotkey", linked, section, JsonSerializer.SerializeToElement(hotkey, QuarkInteropJsonContext.Default.IReadOnlyListString));
         }
     }
 
@@ -98,7 +99,8 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<Dictionary<string, double>>("measureToastHeights", linked, section);
+            var payload = await module.InvokeAsync<JsonElement?>("measureToastHeights", linked, section);
+            return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.DictionaryStringDouble)!;
         }
     }
 

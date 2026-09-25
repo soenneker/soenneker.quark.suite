@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -36,7 +37,8 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<InputSelectionSnapshot?>("getSelection", linked, input);
+            return QuarkInteropJson.Deserialize(await module.InvokeAsync<JsonElement?>("getSelection", linked, input),
+                QuarkInteropJsonContext.Default.InputSelectionSnapshot);
         }
     }
 

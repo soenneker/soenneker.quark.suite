@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IOnThisPageInterop"/>
 public sealed class OnThisPageInterop : IOnThisPageInterop, IAsyncDisposable
 {
     private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/docsonthispageinterop.js";
@@ -21,14 +21,16 @@ public sealed class OnThisPageInterop : IOnThisPageInterop, IAsyncDisposable
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask<OnThisPageTocItem[]> GetItems(object options, CancellationToken cancellationToken = default)
+    public async ValueTask<OnThisPageTocItem[]> GetItems(OnThisPageInteropOptions options, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             var module = await GetModule(linked);
-            return await module.InvokeAsync<OnThisPageTocItem[]>("getItems", linked, options);
+            var payload = await module.InvokeAsync<JsonElement?>("getItems", linked,
+                JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.OnThisPageInteropOptions));
+            return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.OnThisPageTocItemArray)!;
         }
     }
 

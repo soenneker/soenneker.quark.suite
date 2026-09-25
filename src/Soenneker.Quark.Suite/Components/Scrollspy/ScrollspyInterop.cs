@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IScrollspyInterop"/>
 public sealed class ScrollspyInterop : IScrollspyInterop, IAsyncDisposable
 {
     private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/scrollspyinterop.js";
@@ -22,7 +22,7 @@ public sealed class ScrollspyInterop : IScrollspyInterop, IAsyncDisposable
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
+    public async ValueTask Initialize(ElementReference element, ScrollspyInteropOptions options, DotNetObjectReference<Scrollspy> callbackReference,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -30,7 +30,7 @@ public sealed class ScrollspyInterop : IScrollspyInterop, IAsyncDisposable
         using (source)
         {
             var module = await GetModule(linked);
-            await module.InvokeVoidAsync("initialize", linked, element, options, callbackReference);
+            await module.InvokeVoidAsync("initialize", linked, element, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.ScrollspyInteropOptions), callbackReference);
         }
     }
 

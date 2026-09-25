@@ -1,3 +1,4 @@
+@using System.Text.Json
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Microsoft.AspNetCore.Components.Forms
@@ -123,7 +124,10 @@
         };
     }
 
-    [JSInvokable]
+    [JSInvokable(nameof(AddAttachments))]
+    public Task AddAttachmentsFromJson(JsonElement payload) =>
+        AddAttachments(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.PromptInputAttachmentInfoArray)!);
+
     public async Task AddAttachments(PromptInputAttachmentInfo[] attachments)
     {
         if (PromptInput is null)

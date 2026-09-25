@@ -16,7 +16,7 @@ public interface IScrollRevealInterop
     /// <param name="options">Options to configure for the Scroll Reveal.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes after the Scroll Reveal has started.</returns>
-    ValueTask Initialize(ElementReference element, object options, CancellationToken cancellationToken = default);
+    ValueTask Initialize(ElementReference element, ScrollRevealInteropOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stops observing an element.

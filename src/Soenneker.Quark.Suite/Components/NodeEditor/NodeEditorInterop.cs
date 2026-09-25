@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ public sealed class NodeEditorInterop : INodeEditorInterop
     public async ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
         CancellationToken cancellationToken = default)
     {
-        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), selectedNodeId, selectedNodeIds, selectedEdgeId);
+        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), selectedNodeId, JsonSerializer.SerializeToElement(selectedNodeIds, QuarkInteropJsonContext.Default.IReadOnlyListString), selectedEdgeId);
     }
 
     public async ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default)
@@ -68,7 +69,8 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<NodeEditorGraphPoint>("clientToGraphPoint", linked, id, clientX, clientY);
+            var payload = await module.InvokeAsync<JsonElement?>("clientToGraphPoint", linked, id, clientX, clientY);
+            return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorGraphPoint)!;
         }
     }
 

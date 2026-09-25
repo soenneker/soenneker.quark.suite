@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -47,7 +48,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeVoidAsync("retain", linked, owner, fileIds);
+            await module.InvokeVoidAsync("retain", linked, owner, JsonSerializer.SerializeToElement(fileIds, QuarkInteropJsonContext.Default.StringArray));
         }
     }
 

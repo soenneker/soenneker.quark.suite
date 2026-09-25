@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
@@ -64,7 +65,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("ensureConfigured", token, _localModulePath, _localWorkerUrls);
+        await module.InvokeVoidAsync("ensureConfigured", token, _localModulePath, JsonSerializer.SerializeToElement(_localWorkerUrls, QuarkInteropJsonContext.Default.IReadOnlyDictionaryStringString));
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)

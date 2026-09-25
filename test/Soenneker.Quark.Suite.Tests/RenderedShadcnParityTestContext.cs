@@ -302,7 +302,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeScrollspyInterop : IScrollspyInterop
     {
-        public ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
+        public ValueTask Initialize(ElementReference element, ScrollspyInteropOptions options, DotNetObjectReference<Scrollspy> callbackReference,
             System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;

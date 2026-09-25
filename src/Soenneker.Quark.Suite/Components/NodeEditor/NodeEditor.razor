@@ -1,3 +1,4 @@
+@using System.Text.Json
 @using Soenneker.Atomics.ValueBools
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Utils.Ids
@@ -417,12 +418,15 @@
     public Task InvokeNodeSelected(string? nodeId) =>
         InvokeNodeSelectionChanged(nodeId is null ? [] : [nodeId]);
 
+    [JSInvokable(nameof(InvokeNodeSelectionChanged))]
+    public Task InvokeNodeSelectionChangedFromJson(JsonElement payload) =>
+        InvokeNodeSelectionChanged(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.StringArray)!);
+
     /// <summary>
     /// Applies a node selection received from marquee, pointer, or keyboard interaction.
     /// </summary>
     /// <param name="nodeIds">The selected node identifiers in selection order.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeNodeSelectionChanged(string[] nodeIds)
     {
         _selectedNodeIdsSet.Clear();
@@ -500,12 +504,15 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    [JSInvokable(nameof(InvokeNodeMoved))]
+    public Task InvokeNodeMovedFromJson(JsonElement payload) =>
+        InvokeNodeMoved(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorNodePositionChangedEventArgs)!);
+
     /// <summary>
     /// Applies a completed node move received from the browser interaction layer.
     /// </summary>
     /// <param name="args">The node position change details.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeNodeMoved(NodeEditorNodePositionChangedEventArgs args)
     {
         _nodesById.TryGetValue(args.NodeId, out var node);
@@ -521,12 +528,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeNodesMoved))]
+    public Task InvokeNodesMovedFromJson(JsonElement payload) =>
+        InvokeNodesMoved(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorNodePositionChangedEventArgsArray)!);
+
     /// <summary>
     /// Applies a completed move for a selected group as one editor mutation.
     /// </summary>
     /// <param name="changes">The final position of each moved node.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeNodesMoved(NodeEditorNodePositionChangedEventArgs[] changes)
     {
         foreach (var args in changes)
@@ -544,12 +554,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeConnectionRequested))]
+    public Task InvokeConnectionRequestedFromJson(JsonElement payload) =>
+        InvokeConnectionRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorConnectionRequest)!);
+
     /// <summary>
     /// Raises a request to create a new connection.
     /// </summary>
     /// <param name="request">The requested connection endpoints.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeConnectionRequested(NodeEditorConnectionRequest request)
     {
         _announcement = $"Connection requested from {request.SourceNodeId} to {request.TargetNodeId}";
@@ -557,12 +570,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeConnectionChangeRequested))]
+    public Task InvokeConnectionChangeRequestedFromJson(JsonElement payload) =>
+        InvokeConnectionChangeRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorConnectionChangeRequest)!);
+
     /// <summary>
     /// Raises a request to change the endpoints of an existing connection.
     /// </summary>
     /// <param name="request">The requested edge endpoint change.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeConnectionChangeRequested(NodeEditorConnectionChangeRequest request)
     {
         _announcement = $"Connection {request.EdgeId} endpoint change requested";
@@ -570,12 +586,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeConnectionValidationRequested))]
+    public async Task<JsonElement> InvokeConnectionValidationRequestedFromJson(JsonElement payload) =>
+        JsonSerializer.SerializeToElement(await InvokeConnectionValidationRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorConnectionValidationRequest)!), QuarkInteropJsonContext.Default.NodeEditorConnectionValidationResult);
+
     /// <summary>
     /// Validates a proposed connection or edge endpoint change.
     /// </summary>
     /// <param name="request">The proposed connection endpoints.</param>
     /// <returns>The validation result.</returns>
-    [JSInvokable]
     public async Task<NodeEditorConnectionValidationResult> InvokeConnectionValidationRequested(NodeEditorConnectionValidationRequest request)
     {
         var result = ConnectionValidator is null
@@ -596,12 +615,15 @@
         return result;
     }
 
+    [JSInvokable(nameof(InvokeAddRequested))]
+    public Task InvokeAddRequestedFromJson(JsonElement payload) =>
+        InvokeAddRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorAddRequest)!);
+
     /// <summary>
     /// Raises a request to populate an empty branch.
     /// </summary>
     /// <param name="request">The activated add-handle details.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeAddRequested(NodeEditorAddRequest request)
     {
         _announcement = $"Add step requested for branch {request.HandleId}";
@@ -609,12 +631,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeNodeDropRequested))]
+    public Task InvokeNodeDropRequestedFromJson(JsonElement payload) =>
+        InvokeNodeDropRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorDropRequest)!);
+
     /// <summary>
     /// Raises a request for palette data dropped onto the graph.
     /// </summary>
     /// <param name="request">The palette drop details.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeNodeDropRequested(NodeEditorDropRequest request)
     {
         _announcement = $"{request.Type} dropped onto the editor";
@@ -634,12 +659,15 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    [JSInvokable(nameof(InvokeDeleteRequested))]
+    public Task InvokeDeleteRequestedFromJson(JsonElement payload) =>
+        InvokeDeleteRequested(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorDeleteRequest)!);
+
     /// <summary>
     /// Raises a deletion request for a node or edge.
     /// </summary>
     /// <param name="request">The graph item requested for deletion.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public async Task InvokeDeleteRequested(NodeEditorDeleteRequest request)
     {
         _announcement = request.NodeIds.Count > 1
@@ -703,12 +731,15 @@
         await NotifyChanged();
     }
 
+    [JSInvokable(nameof(InvokeViewportChanged))]
+    public Task InvokeViewportChangedFromJson(JsonElement payload) =>
+        InvokeViewportChanged(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorViewportChangedEventArgs)!);
+
     /// <summary>
     /// Raises the viewport changed callback.
     /// </summary>
     /// <param name="args">The current viewport state.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
     public Task InvokeViewportChanged(NodeEditorViewportChangedEventArgs args) =>
         OnViewportChanged.InvokeAsync(args);
 

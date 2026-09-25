@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
@@ -93,7 +94,9 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<(int x, int y)>("getPosition", linked, id);
+            var position = QuarkInteropJson.Deserialize(await module.InvokeAsync<JsonElement?>("getPosition", linked, id),
+                QuarkInteropJsonContext.Default.FloatingWindowPosition);
+            return (position?.X ?? 0, position?.Y ?? 0);
         }
     }
 
@@ -115,7 +118,8 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<FloatingWindowSize>("getSize", linked, id);
+            var payload = await module.InvokeAsync<JsonElement?>("getSize", linked, id);
+            return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.FloatingWindowSize)!;
         }
     }
 
@@ -139,7 +143,8 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<FloatingWindowSize>("getViewportSize", linked);
+            var payload = await module.InvokeAsync<JsonElement?>("getViewportSize", linked);
+            return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.FloatingWindowSize)!;
         }
     }
 

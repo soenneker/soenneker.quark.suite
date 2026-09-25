@@ -14,6 +14,6 @@ public interface IOnThisPageInterop
     /// <param name="options">Options to configure for the On This Page.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task whose result is the requested on This Page Toc Item[].</returns>
-    ValueTask<OnThisPageTocItem[]> GetItems(object options, CancellationToken cancellationToken = default);
+    ValueTask<OnThisPageTocItem[]> GetItems(OnThisPageInteropOptions options, CancellationToken cancellationToken = default);
 
 }

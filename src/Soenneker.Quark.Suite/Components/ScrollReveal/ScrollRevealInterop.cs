@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IScrollRevealInterop"/>
 public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
 {
     private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/scrollrevealinterop.js";
@@ -22,14 +22,14 @@ public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask Initialize(ElementReference element, object options, CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(ElementReference element, ScrollRevealInteropOptions options, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             var module = await GetModule(linked);
-            await module.InvokeVoidAsync("initialize", linked, element, options);
+            await module.InvokeVoidAsync("initialize", linked, element, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.ScrollRevealInteropOptions));
         }
     }
 

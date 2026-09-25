@@ -18,7 +18,7 @@ public interface IScrollspyInterop
     /// <param name="callbackReference">callback Reference to invoke when the operation runs.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the Scrollspy is ready for use.</returns>
-    ValueTask Initialize(ElementReference element, object options, DotNetObjectReference<Scrollspy> callbackReference,
+    ValueTask Initialize(ElementReference element, ScrollspyInteropOptions options, DotNetObjectReference<Scrollspy> callbackReference,
         CancellationToken cancellationToken = default);
 
     /// <summary>

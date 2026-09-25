@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -21,7 +22,7 @@ public sealed class TablesInterop : ITablesInterop
     public async ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeVoidAsync("initialize", cancellationToken, element, columns, options);
+        await module.InvokeVoidAsync("initialize", cancellationToken, element, columns, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.TableColumnSizingOptions));
     }
 
     public async ValueTask StopAdaptiveLayout(ElementReference element, CancellationToken cancellationToken = default)

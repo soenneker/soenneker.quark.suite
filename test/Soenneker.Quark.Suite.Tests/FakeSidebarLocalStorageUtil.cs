@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -31,6 +32,8 @@ internal sealed class FakeSidebarLocalStorageUtil : ILocalStorageUtil
     }
     public ValueTask<T?> Get<T>(string key, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public ValueTask Set<T>(string key, T value, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    public ValueTask<T?> Get<T>(string key, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    public ValueTask Set<T>(string key, T value, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public ValueTask Remove(string key, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public ValueTask Clear(CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public ValueTask<bool> ContainsKey(string key, CancellationToken cancellationToken = default) => throw new NotSupportedException();
