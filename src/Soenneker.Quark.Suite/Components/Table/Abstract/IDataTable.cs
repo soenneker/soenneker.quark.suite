@@ -66,6 +66,9 @@ public interface IDataTable : ICancellableElement
     /// </summary>
     int TotalRecordsCount { get; }
 
+    /// <summary>Whether the record count is exact rather than an estimate used to navigate continuation pages.</summary>
+    bool HasExactTotalRecords { get; }
+
     /// <summary>
     /// Gets whether the data table has loaded data at least once
     /// </summary>

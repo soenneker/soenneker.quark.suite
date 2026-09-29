@@ -1283,23 +1283,57 @@
             ReferenceEquals(previous.XSource, XValues) && previous.Minimum == _xMinimum && previous.Maximum == _xMaximum)
             return;
 
+        bool sameNames = previous is not null && previous.Names.Length == Series.Count;
+        if (sameNames)
+        {
+            for (var index = 0; index < Series.Count; index++)
+            {
+                if (previous!.Names[index] != Series[index].Name)
+                {
+                    sameNames = false;
+                    break;
+                }
+            }
+        }
+
         var delta = previous is null ? 0 : _xMinimum - previous.Minimum;
         _scrollHistory = sameScale && delta > 0 && delta < span &&
-            previous!.Names.SequenceEqual(Series.Select(series => series.Name)) ? previous : null;
+            sameNames ? previous : null;
 
         var samples = new ScrollSample[Series.Count][];
         for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
         {
             // Two predecessors preserve the tangent at the outgoing segment as well as its endpoint.
-            var predecessors = _scrollHistory?.Samples[seriesIndex].Where(sample => sample.X < _xMinimum).TakeLast(2).ToArray() ?? [];
-            var snapshot = new ScrollSample[predecessors.Length + PointCount];
-            predecessors.CopyTo(snapshot, 0);
+            var history = _scrollHistory?.Samples[seriesIndex];
+            int predecessorCount = 0;
+            ScrollSample firstPredecessor = default;
+            ScrollSample lastPredecessor = default;
+            if (history is not null)
+            {
+                for (var index = history.Length - 1; index >= 0; index--)
+                {
+                    if (!(history[index].X < _xMinimum)) continue;
+                    if (predecessorCount++ == 0)
+                        lastPredecessor = history[index];
+                    else
+                    {
+                        firstPredecessor = history[index];
+                        break;
+                    }
+                }
+            }
+            var snapshot = new ScrollSample[predecessorCount + PointCount];
+            if (predecessorCount == 2) snapshot[0] = firstPredecessor;
+            if (predecessorCount > 0) snapshot[predecessorCount - 1] = lastPredecessor;
             for (var index = 0; index < PointCount; index++)
-                snapshot[predecessors.Length + index] = new ScrollSample(XValues![index], ValueAt(Series[seriesIndex], index));
+                snapshot[predecessorCount + index] = new ScrollSample(XValues![index], ValueAt(Series[seriesIndex], index));
             samples[seriesIndex] = snapshot;
         }
+        var names = sameNames ? previous!.Names : new string[Series.Count];
+        if (!sameNames)
+            for (var index = 0; index < Series.Count; index++) names[index] = Series[index].Name;
         _scrollSnapshot = new ScrollSnapshot(DataVersion, Series, XValues!, _xMinimum, _xMaximum, _minimum, _maximum,
-            PlotWidth, PlotHeight, Series.Select(series => series.Name).ToArray(), samples);
+            PlotWidth, PlotHeight, names, samples);
     }
 
     private List<List<ChartPoint>> BuildSegments(ChartSeries series, int seriesIndex)

@@ -212,6 +212,7 @@
     [Parameter]
     public int TotalRecords { get; set; }
 
+
     [Parameter]
     public EventCallback<DataTableServerSideRequest> OnInteraction { get; set; }
 
@@ -225,6 +226,10 @@
     public int TotalPages { get; private set; }
 
     public int TotalRecordsCount { get; private set; }
+
+    public bool HasExactTotalRecords => !_usesContinuationPaging || TotalRecords > 0 || _continuationTokenPaging.HasKnownLastPage;
+
+    private bool _usesContinuationPaging;
 
     public bool HasLoadedOnce { get; private set; }
 
@@ -280,7 +285,9 @@
     private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
     private string VisibleRecordRangeText => StartRecord == EndRecord ? StartRecord.ToString() : $"{StartRecord}-{EndRecord}";
     private string PageInfoRecordSuffix => Options.PageInfoRecordText.HasContent() ? $" {Options.PageInfoRecordText}" : string.Empty;
-    private string PageSizeSelectorInfoText => $"Page {CurrentPage} – {VisibleRecordRangeText} of {TotalRecordsCount}{PageInfoRecordSuffix}";
+    private string PageSizeSelectorInfoText => HasExactTotalRecords
+        ? $"Page {CurrentPage} – {VisibleRecordRangeText} of {TotalRecordsCount}{PageInfoRecordSuffix}"
+        : $"Page {CurrentPage} – {VisibleRecordRangeText}{PageInfoRecordSuffix}";
 
     protected override void ApplyDefaultParameters()
     {
@@ -369,12 +376,15 @@
             else
             {
                 // Check if TotalRecords has changed
-                if (TotalRecordsCount != TotalRecords)
+                int totalRecords = TotalRecords > 0
+                    ? TotalRecords
+                    : _continuationTokenPaging.CalculateTotalRecords(PageSize);
+                if (TotalRecordsCount != totalRecords)
                 {
                     if (Options.Debug)
                         Logger.LogDebug("TotalRecords changed from {OldTotal} to {NewTotal}", TotalRecordsCount, TotalRecords);
 
-                    TotalRecordsCount = TotalRecords;
+                    TotalRecordsCount = totalRecords;
                     TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
 
                     if (Options.Debug)
@@ -848,6 +858,10 @@
 
     public void UpdateContinuationTokenPaging(int recordCount, string? continuationToken, string? tokenUsedForCurrentPage = null)
     {
+        int previousTotal = TotalRecordsCount;
+        bool previouslyExact = HasExactTotalRecords;
+        string? previousToken = _continuationToken;
+        _usesContinuationPaging = true;
         if (Options.Debug)
             Logger.LogDebug("UpdateContinuationTokenPaging called: RecordCount={RecordCount}, Token='{Token}', TokenUsed='{TokenUsed}', TotalRecords={TotalRecords}", recordCount, continuationToken ?? "null", tokenUsedForCurrentPage ?? "null", TotalRecords);
 
@@ -874,6 +888,9 @@
 
         if (Options.Debug)
             Logger.LogDebug("Updated continuation token paging: RecordCount={RecordCount}, Token='{Token}', TotalRecords={TotalRecords}, TotalPages={TotalPages} (was {OldTotalPages})", recordCount, continuationToken ?? "null", TotalRecordsCount, TotalPages, oldTotalPages);
+
+        if (previousTotal != TotalRecordsCount || oldTotalPages != TotalPages || previousToken != _continuationToken || previouslyExact != HasExactTotalRecords)
+            _ = RefreshOffThread();
     }
 
     public override async ValueTask DisposeAsync()
@@ -918,6 +935,7 @@
 
         hc.Add(_hasLoadedOnce);
         hc.Add(TotalRecordsCount);
+        hc.Add(HasExactTotalRecords);
         hc.Add(TotalPages);
 
         hc.Add(TotalRecords);

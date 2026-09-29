@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 
@@ -6,6 +7,20 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public async Task Calendar_invariant_globalization_renders_and_selects_a_date()
+    {
+        DateOnly? selected = null;
+        var cut = Render<Calendar>(parameters => parameters
+            .Add(component => component.DisplayMonth, new DateOnly(2026, 9, 1))
+            .Add(component => component.CultureName, "en-US")
+            .Add(component => component.SelectedDateChanged, value => selected = value));
+
+        cut.Find("table.rdp-month_grid").GetAttribute("aria-label").Should().Be("September 2026");
+        await cut.Find("td[data-day='2026-09-15'] button").ClickAsync();
+        selected.Should().Be(new DateOnly(2026, 9, 15));
+    }
+
     [Test]
     public void Calendar_dropdown_month_uses_destination_culture_name()
     {

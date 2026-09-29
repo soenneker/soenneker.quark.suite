@@ -174,7 +174,7 @@
     private string? _dropBeforeId;
     private string? _reorderAnnouncement;
     private readonly List<string> _inputs = [BlazorIdGenerator.New("file-drop-zone-input")];
-    private readonly Dictionary<string, (IBrowserFile File, string Input)> _browserFiles = new();
+    private readonly Dictionary<string, (IBrowserFile File, string Input, int Index)> _browserFiles = new();
     private readonly Dictionary<string, CancellationTokenSource> _operations = new();
     private readonly CancellationTokenSource _lifetime = new();
     private readonly Dictionary<string, string> _previewUrls = new();
@@ -258,8 +258,10 @@
 
         var added = new List<FileDropZoneFile>();
         var errors = new List<string>();
-        foreach (var browserFile in args.GetMultipleFiles(MaxFiles))
+        var selected = args.GetMultipleFiles(MaxFiles);
+        for (var index = 0; index < selected.Count; index++)
         {
+            var browserFile = selected[index];
             if (browserFile.Size > MaxFileSize)
             {
                 errors.Add($"{browserFile.Name} exceeds {FormatSize(MaxFileSize)}.");
@@ -272,7 +274,7 @@
             }
             var file = new FileDropZoneFile { Name = browserFile.Name, Size = browserFile.Size, ContentType = browserFile.ContentType, State = FileDropZoneState.Queued };
             added.Add(file);
-            _browserFiles[file.Id] = (browserFile, inputKey);
+            _browserFiles[file.Id] = (browserFile, inputKey, index);
         }
         _selectionError = errors.Count > 0 ? string.Join(" ", errors) : null;
         _selecting = true;
@@ -286,12 +288,11 @@
             {
                 if (_disposed) return;
                 _previewInteropUsed = true;
-                var selected = args.GetMultipleFiles(MaxFiles);
-                foreach (var file in added.Where(FileDropZoneMedia.CanPreview))
+                foreach (var file in added)
                 {
+                    if (!FileDropZoneMedia.CanPreview(file)) continue;
                     if (!_browserFiles.TryGetValue(file.Id, out var source)) continue;
-                    var index = selected.ToList().IndexOf(source.File);
-                    var url = await FileDropZoneInterop.CreatePreview(_descriptionId, inputKey, index, file.Id, FileDropZoneMedia.ContentType(file), _lifetime.Token);
+                    var url = await FileDropZoneInterop.CreatePreview(_descriptionId, inputKey, source.Index, file.Id, FileDropZoneMedia.ContentType(file), _lifetime.Token);
                     if (url is not null) _previewUrls[file.Id] = url;
                 }
             }
@@ -311,10 +312,17 @@
     private bool Accepts(IBrowserFile file)
     {
         if (string.IsNullOrWhiteSpace(Accept)) return true;
-        return Accept.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Any(type =>
-            type.StartsWith('.') ? file.Name.EndsWith(type, StringComparison.OrdinalIgnoreCase) :
-            type.EndsWith("/*", StringComparison.Ordinal) ? file.ContentType.StartsWith(type[..^1], StringComparison.OrdinalIgnoreCase) :
-            string.Equals(file.ContentType, type, StringComparison.OrdinalIgnoreCase));
+        ReadOnlySpan<char> accept = Accept.AsSpan();
+        foreach (var range in accept.Split(','))
+        {
+            ReadOnlySpan<char> type = accept[range].Trim();
+            if (type.IsEmpty) continue;
+            if (type[0] == '.' ? file.Name.AsSpan().EndsWith(type, StringComparison.OrdinalIgnoreCase) :
+                type.EndsWith("/*", StringComparison.Ordinal) ? file.ContentType.AsSpan().StartsWith(type[..^1], StringComparison.OrdinalIgnoreCase) :
+                file.ContentType.AsSpan().Equals(type, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
     }
 
     private async Task UploadFile(string id)

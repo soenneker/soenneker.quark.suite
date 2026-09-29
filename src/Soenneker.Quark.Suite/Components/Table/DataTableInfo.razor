@@ -10,7 +10,7 @@
         }
         else
         {
-            <Span>@StartRecord-@EndRecord of @ComputedTotalRecords</Span>
+            <Span>@StartRecord-@EndRecord@if (HasExactTotalRecords) {<text> of @ComputedTotalRecords</text>}</Span>
         }
     </div>
 }
@@ -46,6 +46,7 @@
     private int ComputedCurrentPage => DataTable?.CurrentPage ?? CurrentPage;
     private int ComputedTotalRecords => DataTable?.TotalRecordsCount ?? TotalRecords;
     private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
+    private bool HasExactTotalRecords => DataTable?.HasExactTotalRecords ?? true;
 
     private int StartRecord => ComputedTotalRecords == 0 ? 0 : (ComputedCurrentPage - 1) * ComputedPageSize + 1;
     private int EndRecord => Math.Min(ComputedCurrentPage * ComputedPageSize, ComputedTotalRecords);
@@ -60,5 +61,6 @@
         hc.Add(ComputedCurrentPage);
         hc.Add(ComputedTotalRecords);
         hc.Add(ComputedPageSize);
+        hc.Add(HasExactTotalRecords);
     }
 }

@@ -19,6 +19,19 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Css_values_with_equal_text_but_different_style_rebuild_markup()
+    {
+        // Integer dimensions are inline styles; the same string is a class value.
+        var cut = Render<Div>(p => p.Add(c => c.Width, (CssValue<WidthBuilder>)12));
+        cut.Find("div").GetAttribute("style").Should().Contain("width: 12px");
+        cut.Render(p => p.Add(c => c.Width, (CssValue<WidthBuilder>)"12px"));
+        cut.Find("div").GetAttribute("class").Should().Contain("12px");
+        (cut.Find("div").GetAttribute("style") ?? "").Should().NotContain("width: 12px");
+        cut.Render(p => p.Add(c => c.Width, default(CssValue<WidthBuilder>)));
+        (cut.Find("div").GetAttribute("class") ?? "").Should().NotContain("12px");
+    }
+
+    [Test]
     public void Absent_optional_cascades_do_not_require_component_wide_render_keys()
     {
         const int payload = 42;

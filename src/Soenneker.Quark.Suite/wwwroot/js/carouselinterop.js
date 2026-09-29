@@ -6,11 +6,15 @@ export function initialize(root, dotNetRef, currentIndex = 0, isVertical = false
     return;
   }
 
-  states.set(root, { dotNetRef, currentIndex, isVertical, align });
+  const state = { dotNetRef, currentIndex, isVertical, align, lastOffset: undefined };
+  states.set(root, state);
 
   const observer = new ResizeObserver(() => {
-    const state = states.get(root);
-    dotNetRef.invokeMethodAsync("OnCarouselMeasured", measureOffset(root, state?.currentIndex ?? 0, state?.isVertical ?? false, state?.align ?? "start"));
+    if (states.get(root) !== state) return;
+    const previousOffset = state.lastOffset;
+    const offset = measureOffset(root, state.currentIndex, state.isVertical, state.align);
+    if (previousOffset === offset) return;
+    dotNetRef.invokeMethodAsync("OnCarouselMeasured", offset).catch(() => {});
   });
 
   observer.observe(root);
@@ -38,6 +42,7 @@ export function measureOffset(root, currentIndex = 0, isVertical = false, align 
   }
 
   if (!Number.isFinite(index) || index <= 0) {
+    if (state) state.lastOffset = 0;
     return 0;
   }
 
@@ -46,6 +51,7 @@ export function measureOffset(root, currentIndex = 0, isVertical = false, align 
   const target = items[index];
 
   if (!first || !target) {
+    if (state) state.lastOffset = 0;
     return 0;
   }
 
@@ -62,7 +68,9 @@ export function measureOffset(root, currentIndex = 0, isVertical = false, align 
     targetOffset -= itemSize / 2;
   }
 
-  return Math.abs(targetOffset);
+  const offset = Math.abs(targetOffset);
+  if (state) state.lastOffset = offset;
+  return offset;
 }
 
 export function dispose(root) {

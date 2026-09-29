@@ -37,12 +37,14 @@
     [Parameter] public string? SelectionKey { get; set; }
     [Parameter] public string SelectionLabel { get; set; } = "Select row";
 
+    private QuarkAttributeDictionary _rowAttributes;
+
     private IReadOnlyDictionary<string, object>? RowAttributes
     {
         get
         {
             if (DataTable?.SelectionEnabled != true || SelectionKey is null) return Attributes;
-            var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+            var attributes = Attributes is null ? _rowAttributes.Create(2) : _rowAttributes.Create(Attributes, 2);
             bool selected = DataTable.IsRowSelected(SelectionKey);
             attributes["data-state"] = selected ? "selected" : "unselected";
             attributes["aria-selected"] = selected ? "true" : "false";

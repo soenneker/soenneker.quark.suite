@@ -15,11 +15,14 @@ public sealed class DataTableContinuationTokenPaging
     private int _currentVirtualPage;
     private int _estimatedTotalRecords;
     private bool _hasMorePages = true;
+    private int? _lastPage;
 
     /// <summary>
     /// Gets or sets the current virtual page number (0-based).
     /// </summary>
     public int CurrentVirtualPage => _currentVirtualPage;
+
+    public bool HasKnownLastPage => _lastPage.HasValue;
 
     /// <summary>
     /// Gets or sets the estimated total number of records.
@@ -206,6 +209,7 @@ public sealed class DataTableContinuationTokenPaging
         _currentVirtualPage = 0;
         _estimatedTotalRecords = 0;
         _hasMorePages = true;
+        _lastPage = null;
     }
 
     /// <summary>
@@ -228,13 +232,20 @@ public sealed class DataTableContinuationTokenPaging
         {
             SetContinuationToken(_currentVirtualPage + 1, continuationToken);
             _hasMorePages = true;
+            if (_lastPage <= _currentVirtualPage)
+                _lastPage = null;
         }
         else
         {
             _hasMorePages = false;
+            _lastPage = _currentVirtualPage;
         }
 
-        if (_hasMorePages)
+        if (_lastPage.HasValue)
+        {
+            _estimatedTotalRecords = _lastPage.Value * pageSize + GetPageRecordCount(_lastPage.Value);
+        }
+        else if (_hasMorePages)
         {
             var knownRecords = 0;
 

@@ -11,6 +11,24 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void FileDropZone_preview_indices_preserve_rejected_and_nonpreview_input_positions()
+    {
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
+        module.Setup<string>("createPreview", _ => true).SetResult("blob:accepted");
+        var cut = Render<FileDropZone>(p => p.Add(c => c.Accept, " , IMAGE/*, .TXT, application/pdf, ")
+            .Add(c => c.Upload, (_, _) => ValueTask.FromResult(new FileDropZoneUploadResult { ServerId = "saved" })));
+        cut.FindComponent<InputFile>().UploadFiles(
+            InputFileContent.CreateFromText("bad", "rejected.exe", contentType: "application/octet-stream"),
+            InputFileContent.CreateFromText("text", "note.txt", contentType: "text/plain"),
+            InputFileContent.CreateFromText("image", "first.png", contentType: "image/png"),
+            InputFileContent.CreateFromText("pdf", "paper.pdf", contentType: "application/pdf"),
+            InputFileContent.CreateFromText("image", "last.png", contentType: "image/png"));
+        cut.WaitForAssertion(() => cut.Instance.Files.Should().HaveCount(4));
+        module.Invocations.Where(invocation => invocation.Identifier == "createPreview")
+            .Select(invocation => (int)invocation.Arguments[2]!).Should().Equal(2, 3, 4);
+    }
+
+    [Test]
     public async Task FileDropZone_reordering_preserves_file_state_and_publishes_order()
     {
         var first = new FileDropZoneFile { Id = "a", Name = "a.pdf", State = FileDropZoneState.Uploading, Progress = 42 };

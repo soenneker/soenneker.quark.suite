@@ -141,7 +141,6 @@
         "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
     ];
     private static readonly string[] PersianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-    private static readonly CultureInfo EnUsCulture = CultureInfo.GetCultureInfo("en-US");
 
     [Parameter]
     public DateOnly? SelectedDate { get; set; }
@@ -733,12 +732,12 @@
         var culture = _resolvedCulture;
 
         if (UseCultureCalendar && culture.Calendar.GetType().Name == "PersianCalendar")
-            return date.ToString("M/d/yyyy", EnUsCulture);
+            return date.ToString("M/d/yyyy", CultureInfo.InvariantCulture);
 
         if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
             return $"{ToArabicDigits(date.Day)}\u200f/{ToArabicDigits(date.Month)}\u200f/{ToArabicDigits(date.Year)}";
 
-        return date.ToString("M/d/yyyy", EnUsCulture);
+        return date.ToString("M/d/yyyy", CultureInfo.InvariantCulture);
     }
 
     private static string ToArabicDigits(int value)
