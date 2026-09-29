@@ -19,6 +19,23 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Style_only_css_values_render_and_update()
+    {
+        var cut = Render<Div>(p => p.Add(c => c.Width, CssValue<WidthBuilder>.For(new StyleOnlyBuilder("width:12px"))));
+        cut.Find("div").GetAttribute("style").Should().Contain("width:12px");
+        cut.Render(p => p.Add(c => c.Width, CssValue<WidthBuilder>.For(new StyleOnlyBuilder("width:24px"))));
+        cut.Find("div").GetAttribute("style").Should().Contain("width:24px").And.NotContain("width:12px");
+        cut.Render(p => p.Add(c => c.Width, default(CssValue<WidthBuilder>)));
+        (cut.Find("div").GetAttribute("style") ?? "").Should().NotContain("width:");
+    }
+
+    private sealed class StyleOnlyBuilder(string style) : CssBuilderBase
+    {
+        public override string ToClass() => string.Empty;
+        public override string ToStyle() => style;
+    }
+
+    [Test]
     public void Css_values_with_equal_text_but_different_style_rebuild_markup()
     {
         // Integer dimensions are inline styles; the same string is a class value.

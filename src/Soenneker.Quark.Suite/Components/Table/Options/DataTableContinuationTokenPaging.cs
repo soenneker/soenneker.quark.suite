@@ -22,6 +22,9 @@ public sealed class DataTableContinuationTokenPaging
     /// </summary>
     public int CurrentVirtualPage => _currentVirtualPage;
 
+    /// <summary>
+    /// Gets whether a response has established the final page of the result set.
+    /// </summary>
     public bool HasKnownLastPage => _lastPage.HasValue;
 
     /// <summary>

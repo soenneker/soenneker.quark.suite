@@ -16,6 +16,7 @@ public sealed partial class RenderedShadcnParityTests
 
         await cut.InvokeAsync(() => cut.Instance.UpdateContinuationTokenPaging(10, "page-two"));
         cut.Instance.TotalPages.Should().Be(2);
+        cut.Instance.HasExactTotalRecords.Should().BeFalse();
         cut.Render();
         cut.Instance.TotalPages.Should().Be(2);
         await cut.InvokeAsync(() => cut.Instance.HandleGoToPage(2).AsTask());
@@ -23,6 +24,7 @@ public sealed partial class RenderedShadcnParityTests
 
         await cut.InvokeAsync(() => cut.Instance.UpdateContinuationTokenPaging(3, null, "page-two"));
         cut.Instance.TotalRecordsCount.Should().Be(13);
+        cut.Instance.HasExactTotalRecords.Should().BeTrue();
         cut.Instance.TotalPages.Should().Be(2);
     }
 
