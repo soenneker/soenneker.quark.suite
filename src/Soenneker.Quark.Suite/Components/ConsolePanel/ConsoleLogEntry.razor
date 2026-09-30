@@ -1,0 +1,89 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IConsoleLogEntry
+
+<div @attributes="BuildAttributes()">
+    @if ((FormatExceptions ?? PanelFormatExceptions) && _traceStart >= 0)
+    {
+        <div class="console-exception">
+            <div class="console-message">@_summary</div>
+            <details>
+                <summary><span class="console-show">Show stack trace</span><span class="console-hide">Hide stack trace</span></summary>
+                <div class="console-tools"><Check @bind-Checked="_wrap">Wrap lines</Check></div>
+                <div class="console-trace @(_wrap ? "console-wrap" : null)">
+                    @foreach (string line in _trace)
+                    {
+                        <div class="console-frame">
+                            @if (line.TrimStart().StartsWith("at ", StringComparison.Ordinal))
+                            {
+                                var location = line.LastIndexOf(" in ", StringComparison.Ordinal);
+                                var method = location >= 0 ? line[..location] : line;
+                                var args = method.IndexOf('(');
+                                var signature = args >= 0 ? method[..args] : method;
+                                var lastDot = signature.LastIndexOf('.');
+                                var namespaceEnd = lastDot > 0 ? signature.LastIndexOf('.', lastDot - 1) + 1 : 0;
+                                <span class="console-secondary">@signature[..namespaceEnd]</span><span>@signature[namespaceEnd..]</span><span class="console-secondary">@(args >= 0 ? method[args..] : "")</span>
+                                @if (location >= 0)
+                                {
+                                    var path = line[(location + 4)..];
+                                    var separator = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
+                                    <div class="console-location"><span class="console-secondary">@(separator >= 0 ? path[..(separator + 1)] : "")</span><span>@path[(separator + 1)..]</span></div>
+                                }
+                            }
+                            else
+                            {
+                                @line
+                            }
+                        </div>
+                    }
+                </div>
+            </details>
+        </div>
+    }
+    else
+    {
+        <div class="console-message">@Text</div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public bool? FormatExceptions { get; set; }
+    [CascadingParameter(Name = "ConsoleFormatExceptions")] public bool PanelFormatExceptions { get; set; }
+
+    private string? _previousText;
+    private string _summary = "";
+    private string[] _trace = [];
+    private int _traceStart = -1;
+    private bool _wrap;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (_previousText == Text) return;
+        _previousText = Text;
+        _traceStart = -1;
+        _trace = [];
+        string[] lines = Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        // Require both an exception heading and a stack frame; ordinary multiline logs remain plain text.
+        var hasException = false;
+        for (var i = 1; i < lines.Length; i++)
+        {
+            hasException |= lines[i - 1].Contains("Exception", StringComparison.Ordinal);
+            if (!hasException || !lines[i].TrimStart().StartsWith("at ", StringComparison.Ordinal)) continue;
+            _traceStart = i;
+            _summary = string.Join("\n", lines[..i]);
+            _trace = lines[i..];
+            break;
+        }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Text);
+        hc.Add(FormatExceptions);
+        hc.Add(PanelFormatExceptions);
+        hc.Add(_wrap);
+    }
+}

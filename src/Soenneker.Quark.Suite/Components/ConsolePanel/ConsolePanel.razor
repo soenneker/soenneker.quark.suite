@@ -49,10 +49,14 @@
             @Actions
         </Div>
     }
-    @ChildContent
+    <CascadingValue Name="ConsoleFormatExceptions" Value="FormatExceptions">
+        @ChildContent
+    </CascadingValue>
 </div>
 
 @code {
+    [Parameter]
+    public bool FormatExceptions { get; set; }
     private ElementReference _element;
     private readonly AsyncLock _interopLock = new();
     private bool _autoScrollInitialized;
@@ -255,5 +259,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AutoScroll);
+        hc.Add(FormatExceptions);
     }
 }

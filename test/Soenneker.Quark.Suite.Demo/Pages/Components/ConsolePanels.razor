@@ -24,9 +24,31 @@
             </ConsolePanel>
         </DemoSection>
     </Section>
+    <Section Space="Space.Y.Is4">
+        <H2>Expandable exceptions</H2>
+        <DemoSection Description="Optionally collapse .NET stack traces while keeping the message visible. Copy and download always include the complete text." Code="@ExceptionCode" CodeLanguage="razor">
+            <Check @bind-Checked="_formatExceptions">Format exceptions</Check>
+            <ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" AutoScroll="false" DownloadFileName="exception.log">
+                <ConsoleLogEntry Text="@ExceptionText" />
+            </ConsolePanel>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
+    private bool _formatExceptions = true;
+    private const string ExceptionText = """
+01:00:11.367 [Warning] System.Exception: No distribution group/subid linkages found! This probably means there were no leads within the past 30 days
+   at Example.CampaignCeilingsCompiler.GetDistributionGroupSubIds(CancellationToken cancellationToken) in /src/Compilers/CampaignCeilingsCompiler.cs:line 149
+   at Example.CampaignCeilingsCompiler.BuildCampaignCeilings(CancellationToken cancellationToken) in /src/Compilers/CampaignCeilingsCompiler.cs:line 163
+   at Example.CeilingsCoordinator.Run(CancellationToken cancellationToken) in /src/Coordinators/CeilingsCoordinator.cs:line 27
+""";
+    private const string ExceptionCode = """
+<Check @bind-Checked="_formatExceptions">Format exceptions</Check>
+<ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" AutoScroll="false" DownloadFileName="exception.log">
+    <ConsoleLogEntry Text="@ExceptionText" />
+</ConsolePanel>
+""";
     private static readonly string[] Messages =
     [
         "Initializing build environment...",
