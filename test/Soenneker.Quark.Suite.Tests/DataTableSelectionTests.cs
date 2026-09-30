@@ -45,7 +45,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTable_selection_updates_checkboxes_toolbar_and_preserves_other_pages()
+    public async ValueTask DataTable_selection_updates_checkboxes_toolbar_and_preserves_other_pages()
     {
         IReadOnlyCollection<string> original = new[] { "other-page" };
         IReadOnlyCollection<string>? changed = null;
@@ -79,7 +79,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTable_selection_is_opt_in_and_reacts_to_page_and_loading_changes()
+    public async ValueTask DataTable_selection_is_opt_in_and_reacts_to_page_and_loading_changes()
     {
         var cut = Render<DataTable>(p => p.Add(c => c.TableContent, SelectionTableContent));
         cut.FindAll("[role='checkbox']").Should().BeEmpty();

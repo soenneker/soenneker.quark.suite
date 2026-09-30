@@ -7,7 +7,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task ConsentManager_defaults_banner_to_bottom_center()
+    public async ValueTask ConsentManager_defaults_banner_to_bottom_center()
     {
         var cut = Render<ConsentManager>(parameters => parameters
             .Add(p => p.AutoInitialize, false));
@@ -24,7 +24,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ConsentManager_can_place_banner_on_left_side()
+    public async ValueTask ConsentManager_can_place_banner_on_left_side()
     {
         var cut = Render<ConsentManager>(parameters => parameters
             .Add(p => p.AutoInitialize, false)
@@ -39,7 +39,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ConsentManager_can_place_banner_on_right_side()
+    public async ValueTask ConsentManager_can_place_banner_on_right_side()
     {
         var cut = Render<ConsentManager>(parameters => parameters
             .Add(p => p.AutoInitialize, false)
@@ -54,7 +54,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ConsentManager_keeps_explicit_horizontal_position_class()
+    public async ValueTask ConsentManager_keeps_explicit_horizontal_position_class()
     {
         var cut = Render<ConsentManager>(parameters => parameters
             .Add(p => p.AutoInitialize, false)

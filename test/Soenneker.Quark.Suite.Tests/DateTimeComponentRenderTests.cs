@@ -77,7 +77,7 @@ public sealed class DateTimeComponentRenderTests : BunitContext
     }
 
     [Test]
-    public async Task Pending_time_zone_detection_does_not_register_after_disposal()
+    public async ValueTask Pending_time_zone_detection_does_not_register_after_disposal()
     {
         var detection = new PendingBrowserTimeZoneService();
         var scheduler = new CountingScheduler();

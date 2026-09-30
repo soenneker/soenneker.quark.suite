@@ -27,7 +27,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Preset_date_range_picker_emits_normalized_preset_range()
+    public async ValueTask Preset_date_range_picker_emits_normalized_preset_range()
     {
         CalendarDateRange? changed = null;
 

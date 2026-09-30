@@ -53,7 +53,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Cascader_selects_leaf_option()
+    public async ValueTask Cascader_selects_leaf_option()
     {
         string[]? selected = null;
 
@@ -74,7 +74,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Cascader_clear_button_clears_selection()
+    public async ValueTask Cascader_clear_button_clears_selection()
     {
         string[]? selected = ["usa", "new_york", "statue_of_liberty"];
 

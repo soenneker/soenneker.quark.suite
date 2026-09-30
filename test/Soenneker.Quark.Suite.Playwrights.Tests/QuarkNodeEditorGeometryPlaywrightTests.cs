@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkNodeEditorGeometryPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async Task Dragged_node_keeps_connected_edge_endpoints_aligned()
+    public async ValueTask Dragged_node_keeps_connected_edge_endpoints_aligned()
     {
         await using var session = await CreateSession();
         var page = session.Page;

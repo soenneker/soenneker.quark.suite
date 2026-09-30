@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Tree_removing_the_current_item_makes_the_remaining_item_tabbable()
+    public async ValueTask Tree_removing_the_current_item_makes_the_remaining_item_tabbable()
     {
         var showFirst = true;
         RenderFragment items = builder =>

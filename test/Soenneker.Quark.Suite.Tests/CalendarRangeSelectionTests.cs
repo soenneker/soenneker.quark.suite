@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
     private static readonly DateOnly InitialRangeTo = new(2026, 2, 9);
 
     [Test]
-    public async Task Calendar_range_selection_adjusts_completed_range_without_resetting()
+    public async ValueTask Calendar_range_selection_adjusts_completed_range_without_resetting()
     {
         (await SelectCompletedRangeDate(new DateOnly(2026, 1, 15))).Should().Be(new CalendarDateRange(new DateOnly(2026, 1, 15), InitialRangeTo));
         (await SelectCompletedRangeDate(new DateOnly(2026, 2, 12))).Should().Be(new CalendarDateRange(InitialRangeFrom, new DateOnly(2026, 2, 12)));

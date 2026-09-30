@@ -10,7 +10,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Manual_validation_revalidates_input_after_explicit_validation()
+    public async ValueTask Manual_validation_revalidates_input_after_explicit_validation()
     {
         Services.AddScoped<IValidationInterop, FakeValidationInterop>();
 

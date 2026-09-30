@@ -52,7 +52,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_applies_a_marquee_selection_as_one_controlled_change()
+    public async ValueTask Node_editor_applies_a_marquee_selection_as_one_controlled_change()
     {
         NodeEditorNodeModel[] nodes =
         [
@@ -310,7 +310,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_exposes_controlled_history_commands()
+    public async ValueTask Node_editor_exposes_controlled_history_commands()
     {
         var undoCount = 0;
         var redoCount = 0;
@@ -329,7 +329,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_duplicate_request_includes_a_snapped_suggested_position()
+    public async ValueTask Node_editor_duplicate_request_includes_a_snapped_suggested_position()
     {
         var node = new NodeEditorNodeModel { Id = "message", X = 40, Y = 80 };
         NodeEditorDuplicateRequest? request = null;
@@ -362,7 +362,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_commits_inline_edge_label_edits()
+    public async ValueTask Node_editor_commits_inline_edge_label_edits()
     {
         NodeEditorNodeModel[] nodes =
         [
@@ -399,7 +399,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_autosave_debounces_graph_changes()
+    public async ValueTask Node_editor_autosave_debounces_graph_changes()
     {
         var saveCount = 0;
         var states = new List<AutoSaveState>();
@@ -444,7 +444,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Node_editor_can_flush_a_pending_autosave()
+    public async ValueTask Node_editor_can_flush_a_pending_autosave()
     {
         var saveCount = 0;
 

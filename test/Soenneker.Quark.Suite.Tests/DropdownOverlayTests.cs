@@ -33,7 +33,7 @@ public sealed class DropdownOverlayTests : BunitContext
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async Task Pending_overlay_activation_is_cleaned_up_after_hide_or_disposal(bool dispose)
+    public async ValueTask Pending_overlay_activation_is_cleaned_up_after_hide_or_disposal(bool dispose)
     {
         var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _overlayInterop.PendingActivation = pending.Task;

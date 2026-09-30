@@ -34,7 +34,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task PasswordInput_toggles_between_password_and_text()
+    public async ValueTask PasswordInput_toggles_between_password_and_text()
     {
         var cut = Render<PasswordInput>(parameters => parameters
             .Add(p => p.Value, "secret"));

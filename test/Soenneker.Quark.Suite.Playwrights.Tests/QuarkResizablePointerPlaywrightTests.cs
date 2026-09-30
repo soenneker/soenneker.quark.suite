@@ -11,7 +11,7 @@ public sealed class QuarkResizablePointerPlaywrightTests(QuarkPlaywrightHost hos
     [Arguments("resizable-basic-demo", false, false)]
     [Arguments("resizable-vertical-demo", true, false)]
     [Arguments("resizable-rtl-demo", false, true)]
-    public async Task Drag_updates_panel_geometry_and_keyboard_resizing_still_works(string demoId, bool vertical, bool rtl)
+    public async ValueTask Drag_updates_panel_geometry_and_keyboard_resizing_still_works(string demoId, bool vertical, bool rtl)
     {
         await using var session = await CreateSession();
         var page = session.Page;

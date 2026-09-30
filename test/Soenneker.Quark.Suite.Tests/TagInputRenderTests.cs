@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task TagInput_adds_tag_from_enter_key()
+    public async ValueTask TagInput_adds_tag_from_enter_key()
     {
         string[] values = ["Sports"];
 
@@ -42,7 +42,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task TagInput_removes_tag_from_button()
+    public async ValueTask TagInput_removes_tag_from_button()
     {
         string[] values = ["Sports", "Programming"];
 
@@ -60,7 +60,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task TagInput_removes_the_selected_duplicate_tag()
+    public async ValueTask TagInput_removes_the_selected_duplicate_tag()
     {
         string[] values = ["Same", "Other", "Same"];
 

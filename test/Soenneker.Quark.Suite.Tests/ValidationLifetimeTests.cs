@@ -13,7 +13,7 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     public ValidationLifetimeTests() => Services.AddSingleton<IValidationInterop, FakeInterop>();
 
     [Test]
-    public async Task Data_annotations_replace_messages_and_clear_them_on_disposal()
+    public async ValueTask Data_annotations_replace_messages_and_clear_them_on_disposal()
     {
         var model = new Model();
         var context = new EditContext(model);
@@ -39,7 +39,7 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     }
 
     [Test]
-    public async Task Generated_validation_reads_the_model_and_rebinds_to_a_new_edit_context()
+    public async ValueTask Generated_validation_reads_the_model_and_rebinds_to_a_new_edit_context()
     {
         var model = new Model();
         var first = new EditContext(model);
@@ -64,7 +64,7 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     }
 
     [Test]
-    public async Task Superseded_validation_cannot_publish_an_old_error()
+    public async ValueTask Superseded_validation_cannot_publish_an_old_error()
     {
         var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<Validation>(p => p.Add(c => c.AsyncFunc, async (args, _) =>
@@ -89,7 +89,7 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     }
 
     [Test]
-    public async Task Disposal_cancels_pending_validation_and_prevents_status_updates()
+    public async ValueTask Disposal_cancels_pending_validation_and_prevents_status_updates()
     {
         var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         CancellationToken observed = default;

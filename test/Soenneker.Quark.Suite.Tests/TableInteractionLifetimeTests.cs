@@ -10,7 +10,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task DataTable_continues_after_one_hundred_interactions()
+    public async ValueTask DataTable_continues_after_one_hundred_interactions()
     {
         var count = 0;
         var cut = Render<DataTable>(p => p.Add(x => x.OnInteraction, _ => count++));
@@ -23,7 +23,7 @@ public sealed partial class RenderedShadcnParityTests
     [Arguments(false)]
     [Arguments(true)]
     [Test]
-    public async Task DataTable_coalesces_pending_search_to_latest_request(bool failFirst)
+    public async ValueTask DataTable_coalesces_pending_search_to_latest_request(bool failFirst)
     {
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -49,7 +49,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTable_reset_preserves_registered_columns_and_reindexes_removals()
+    public async ValueTask DataTable_reset_preserves_registered_columns_and_reindexes_removals()
     {
         DataTableServerSideRequest? last = null;
         var showFirst = true;

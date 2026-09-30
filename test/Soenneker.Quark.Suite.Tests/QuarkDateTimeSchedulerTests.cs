@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class QuarkDateTimeSchedulerTests
 {
     [Test]
-    public async Task Rescheduling_an_inactive_registration_starts_the_runner()
+    public async ValueTask Rescheduling_an_inactive_registration_starts_the_runner()
     {
         await using var scheduler = Create();
         var tick = Signal();
@@ -25,7 +25,7 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async Task Registration_bursts_wake_once_without_allocating_a_source_per_reschedule()
+    public async ValueTask Registration_bursts_wake_once_without_allocating_a_source_per_reschedule()
     {
         await using var scheduler = Create();
         var entered = Signal();
@@ -54,7 +54,7 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async Task Callbacks_can_reschedule_and_unregister_without_overlapping()
+    public async ValueTask Callbacks_can_reschedule_and_unregister_without_overlapping()
     {
         await using var scheduler = Create();
         var completed = Signal();
@@ -85,7 +85,7 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async Task Disposed_registration_is_skipped_while_another_callback_is_awaiting()
+    public async ValueTask Disposed_registration_is_skipped_while_another_callback_is_awaiting()
     {
         await using var scheduler = Create();
         var entered = Signal();
@@ -124,7 +124,7 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async Task Disposal_interrupts_a_long_delay()
+    public async ValueTask Disposal_interrupts_a_long_delay()
     {
         var scheduler = Create();
         using var registration = scheduler.Register(static _ => TimeSpan.FromHours(1), static _ => ValueTask.CompletedTask);

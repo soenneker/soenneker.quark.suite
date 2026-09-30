@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async Task AsChild_tooltip_triggers_forward_events_without_repeated_hover_renders(bool useSpan)
+    public async ValueTask AsChild_tooltip_triggers_forward_events_without_repeated_hover_renders(bool useSpan)
     {
         var cut = Render<Tooltip>(p => p.Add(c => c.DelayDuration, 0).Add(c => c.ChildContent, builder =>
         {
@@ -38,7 +38,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Resizing_updates_panel_styles_without_rebuilding_the_group_and_ignores_identical_moves()
+    public async ValueTask Resizing_updates_panel_styles_without_rebuilding_the_group_and_ignores_identical_moves()
     {
         int groupRenders = 0;
         int panelRenders = 0;
@@ -71,7 +71,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Combobox_registration_and_repeated_hover_do_not_render_all_options()
+    public async ValueTask Combobox_registration_and_repeated_hover_do_not_render_all_options()
     {
         int contentRenders = 0;
         var cut = Render<Combobox>(p => p.Add(c => c.AutoHighlight, true).Add(c => c.ChildContent, builder =>
@@ -111,7 +111,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTable_column_registration_does_not_render_existing_rows()
+    public async ValueTask DataTable_column_registration_does_not_render_existing_rows()
     {
         int rowRenders = 0;
         var cut = Render<DataTable>(p => p.Add(c => c.TableContent, builder =>

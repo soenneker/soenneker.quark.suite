@@ -25,7 +25,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task PaymentCard_set_last_four_uses_supplied_card_metadata()
+    public async ValueTask PaymentCard_set_last_four_uses_supplied_card_metadata()
     {
         var cut = Render<PaymentCard>();
 

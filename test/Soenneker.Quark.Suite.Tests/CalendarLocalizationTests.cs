@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Calendar_invariant_globalization_renders_and_selects_a_date()
+    public async ValueTask Calendar_invariant_globalization_renders_and_selects_a_date()
     {
         DateOnly? selected = null;
         var cut = Render<Calendar>(parameters => parameters

@@ -605,7 +605,7 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
-    public async System.Threading.Tasks.Task Range_selection_pauses_on_press_keeps_points_and_expands_selected_domain()
+    public async System.Threading.Tasks.ValueTask Range_selection_pauses_on_press_keeps_points_and_expands_selected_domain()
     {
         bool paused = false;
         ChartRangeSelection? selected = null;

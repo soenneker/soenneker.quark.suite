@@ -26,7 +26,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTable_loading_combines_external_state_with_internal_requests()
+    public async ValueTask DataTable_loading_combines_external_state_with_internal_requests()
     {
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -194,7 +194,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ExpandableTr_uncontrolled_trigger_opens_and_closes_detail_row()
+    public async ValueTask ExpandableTr_uncontrolled_trigger_opens_and_closes_detail_row()
     {
         var cut = Render<ExpandableTr>(parameters => parameters
             .Add(p => p.Colspan, 2)
@@ -237,7 +237,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ExpandableTr_controlled_trigger_notifies_expanded_changed()
+    public async ValueTask ExpandableTr_controlled_trigger_notifies_expanded_changed()
     {
         bool? requestedState = null;
         var cut = Render<ExpandableTr>(parameters => parameters
@@ -264,7 +264,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task DataTables_demo_expandable_rows_change_the_controlled_row()
+    public async ValueTask DataTables_demo_expandable_rows_change_the_controlled_row()
     {
         var cut = Render<DataTablesDemoPage>();
 

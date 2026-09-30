@@ -54,7 +54,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task AutoSave_debounces_initial_value_change_before_saving()
+    public async ValueTask AutoSave_debounces_initial_value_change_before_saving()
     {
         const int debounceDelay = 250;
         var stopwatch = new Stopwatch();
@@ -119,7 +119,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task AutoSave_input_does_not_wait_for_pending_state_notification()
+    public async ValueTask AutoSave_input_does_not_wait_for_pending_state_notification()
     {
         var pendingStateGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -142,7 +142,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task AutoSave_keeps_saving_state_visible_for_minimum_duration()
+    public async ValueTask AutoSave_keeps_saving_state_visible_for_minimum_duration()
     {
         var stopwatch = new Stopwatch();
         var states = new List<(AutoSaveState State, long Milliseconds)>();

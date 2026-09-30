@@ -42,7 +42,7 @@ public sealed class InteropJsonTests
     }
 
     [Test]
-    public async Task Connection_validation_callback_uses_generated_metadata_in_both_directions()
+    public async ValueTask Connection_validation_callback_uses_generated_metadata_in_both_directions()
     {
         NodeEditorConnectionValidationRequest? received = null;
         var editor = new NodeEditor

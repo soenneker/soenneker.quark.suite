@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task FileDrop_forwards_files_and_updates_disabled_and_picker_parameters()
+    public async ValueTask FileDrop_forwards_files_and_updates_disabled_and_picker_parameters()
     {
         Services.AddQuarkFileDropAsScoped();
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropinterop.js");

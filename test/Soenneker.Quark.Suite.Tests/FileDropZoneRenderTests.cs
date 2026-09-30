@@ -29,7 +29,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_reordering_preserves_file_state_and_publishes_order()
+    public async ValueTask FileDropZone_reordering_preserves_file_state_and_publishes_order()
     {
         var first = new FileDropZoneFile { Id = "a", Name = "a.pdf", State = FileDropZoneState.Uploading, Progress = 42 };
         var second = new FileDropZoneFile { Id = "b", Name = "b.pdf", ServerId = "saved" };
@@ -52,7 +52,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_external_drop_inserts_new_files_at_the_requested_position()
+    public async ValueTask FileDropZone_external_drop_inserts_new_files_at_the_requested_position()
     {
         var cut = Render<FileDropZone>(p => p.Add(c => c.Files, [new() { Id = "existing", Name = "existing.txt" }])
             .Add(c => c.Upload, (_, _) => ValueTask.FromResult(new FileDropZoneUploadResult { ServerId = "new" })));
@@ -64,7 +64,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_failure_collapses_preview_and_labeled_retry_restores_it()
+    public async ValueTask FileDropZone_failure_collapses_preview_and_labeled_retry_restores_it()
     {
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
         module.Setup<string>("createPreview", _ => true).SetResult("blob:retry-image");
@@ -85,7 +85,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_local_preview_survives_upload_and_is_released_after_deletion()
+    public async ValueTask FileDropZone_local_preview_survives_upload_and_is_released_after_deletion()
     {
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
         module.Setup<string>("createPreview", _ => true).SetResult("blob:local-image");
@@ -143,7 +143,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_delete_waits_for_server_and_keeps_failed_deletions_retryable()
+    public async ValueTask FileDropZone_delete_waits_for_server_and_keeps_failed_deletions_retryable()
     {
         var completion = new TaskCompletionSource();
         var file = new FileDropZoneFile { Name = "saved.pdf", ServerId = "server-1" };
@@ -201,7 +201,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_failed_upload_can_retry_after_another_selection()
+    public async ValueTask FileDropZone_failed_upload_can_retry_after_another_selection()
     {
         var fail = true;
         var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, (request, ct) =>
@@ -227,7 +227,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task FileDropZone_cancellation_reaches_transport_and_preserves_retry()
+    public async ValueTask FileDropZone_cancellation_reaches_transport_and_preserves_retry()
     {
         var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, async (_, ct) =>
         {

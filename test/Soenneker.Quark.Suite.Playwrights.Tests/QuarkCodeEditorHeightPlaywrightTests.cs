@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkCodeEditorHeightPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async Task Typing_updates_content_and_auto_height_only_when_the_line_count_requires_it()
+    public async ValueTask Typing_updates_content_and_auto_height_only_when_the_line_count_requires_it()
     {
         await using var session = await CreateSession();
         var page = session.Page;

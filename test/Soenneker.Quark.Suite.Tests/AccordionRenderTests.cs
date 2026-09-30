@@ -9,7 +9,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Accordion_does_not_animate_default_content_on_initial_render()
+    public async ValueTask Accordion_does_not_animate_default_content_on_initial_render()
     {
         var cut = Render(CreateAccordion());
 

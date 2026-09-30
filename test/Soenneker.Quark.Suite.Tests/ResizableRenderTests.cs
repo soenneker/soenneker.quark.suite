@@ -10,7 +10,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Resizable_handle_only_registers_when_its_interop_configuration_changes()
+    public async ValueTask Resizable_handle_only_registers_when_its_interop_configuration_changes()
     {
         RenderFragment content = builder =>
         {

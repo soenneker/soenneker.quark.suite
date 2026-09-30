@@ -43,7 +43,7 @@ public sealed class SidebarResizeTests : BunitContext
     [Arguments("320", "320px")]
     [Arguments(null, null)]
     [Arguments("bad", null)]
-    public async Task Async_storage_does_not_render_a_temporary_sidebar(string? saved, string? expectedWidth)
+    public async ValueTask Async_storage_does_not_render_a_temporary_sidebar(string? saved, string? expectedWidth)
     {
         _storage.PendingRead = new TaskCompletionSource<string?>();
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
@@ -58,7 +58,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async Task Failed_async_storage_reveals_the_default_sidebar()
+    public async ValueTask Failed_async_storage_reveals_the_default_sidebar()
     {
         _storage.PendingRead = new TaskCompletionSource<string?>();
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
@@ -76,7 +76,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async Task Width_callback_updates_local_width_and_clamps_to_limits()
+    public async ValueTask Width_callback_updates_local_width_and_clamps_to_limits()
     {
         double? changed = null;
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true)
@@ -129,7 +129,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async Task Storage_restores_clamps_and_persists_through_the_utility()
+    public async ValueTask Storage_restores_clamps_and_persists_through_the_utility()
     {
         _storage.Values["sidebar-a"] = "900";
         double? changed = null;
@@ -173,7 +173,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async Task Storage_failures_do_not_break_resizing_or_callbacks()
+    public async ValueTask Storage_failures_do_not_break_resizing_or_callbacks()
     {
         _storage.Unavailable = true;
         double? changed = null;
@@ -185,7 +185,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async Task No_key_does_not_access_storage()
+    public async ValueTask No_key_does_not_access_storage()
     {
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true));
         await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(320));

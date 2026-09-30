@@ -9,7 +9,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async Task Batched_measurement_preserves_natural_toast_heights_and_inline_styles()
+    public async ValueTask Batched_measurement_preserves_natural_toast_heights_and_inline_styles()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -50,7 +50,7 @@ public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : Quark
     }
 
     [Test]
-    public async Task Toast_swipe_tracks_pointer_and_dismisses_after_release()
+    public async ValueTask Toast_swipe_tracks_pointer_and_dismisses_after_release()
     {
         await using var session = await CreateSession();
         var page = session.Page;

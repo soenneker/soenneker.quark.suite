@@ -38,7 +38,7 @@ public sealed class LeafLifecycleTests : BunitContext
     }
 
     [Test]
-    public async Task Textarea_registration_finishing_after_disposal_is_removed()
+    public async ValueTask Textarea_registration_finishing_after_disposal_is_removed()
     {
         var interop = new PendingPromptInterop();
         Services.AddSingleton<IPromptInputInterop>(interop);
@@ -52,7 +52,7 @@ public sealed class LeafLifecycleTests : BunitContext
     }
 
     [Test]
-    public async Task Thread_initialization_finishing_after_disposal_is_destroyed_again()
+    public async ValueTask Thread_initialization_finishing_after_disposal_is_destroyed_again()
     {
         var interop = new PendingThreadInterop();
         Services.AddSingleton<IThreadsInterop>(interop);

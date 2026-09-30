@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkOverlayLifecyclePlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async Task Overlay_focus_wraps_current_boundaries_and_releases_owned_scroll_lock()
+    public async ValueTask Overlay_focus_wraps_current_boundaries_and_releases_owned_scroll_lock()
     {
         await using var session = await CreateSession();
         var page = session.Page;

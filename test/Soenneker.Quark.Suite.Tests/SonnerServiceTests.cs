@@ -9,7 +9,7 @@ public sealed class SonnerServiceTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async Task Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation)
+    public async ValueTask Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation)
     {
         await using var service = new SonnerService { DefaultDuration = 100 };
         var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -32,7 +32,7 @@ public sealed class SonnerServiceTests
     }
 
     [Test]
-    public async Task Dismissing_old_toast_cannot_remove_replacement_with_the_same_id()
+    public async ValueTask Dismissing_old_toast_cannot_remove_replacement_with_the_same_id()
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
         var dismissed = 0;
@@ -54,7 +54,7 @@ public sealed class SonnerServiceTests
     }
 
     [Test]
-    public async Task Snapshots_remain_independent_and_respect_mutable_creation_dates()
+    public async ValueTask Snapshots_remain_independent_and_respect_mutable_creation_dates()
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
         await service.Toast("First");
@@ -70,7 +70,7 @@ public sealed class SonnerServiceTests
     }
 
     [Test]
-    public async Task Loading_defaults_can_be_overridden_without_changing_other_toast_defaults()
+    public async ValueTask Loading_defaults_can_be_overridden_without_changing_other_toast_defaults()
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
         await service.Loading("Default");
@@ -102,7 +102,7 @@ public sealed class SonnerServiceTests
     #if !DEBUG
     // Debug async state machines allocate independently of the production hot path.
     [Test]
-    public async Task Empty_snapshots_and_idle_pause_resume_do_not_allocate_per_call()
+    public async ValueTask Empty_snapshots_and_idle_pause_resume_do_not_allocate_per_call()
     {
         await using var service = new SonnerService();
         for (var i = 0; i < 100; i++)

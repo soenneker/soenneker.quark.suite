@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkColorPickerPointerPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async Task Drag_commits_the_final_color_and_keeps_the_thumb_aligned()
+    public async ValueTask Drag_commits_the_final_color_and_keeps_the_thumb_aligned()
     {
         await using var session = await CreateSession();
         var page = session.Page;

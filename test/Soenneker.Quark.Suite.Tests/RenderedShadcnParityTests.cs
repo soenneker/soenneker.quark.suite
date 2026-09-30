@@ -10,7 +10,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Composition_searchable_select_keeps_duplicate_labels_and_empty_values_distinct()
+    public async ValueTask Composition_searchable_select_keeps_duplicate_labels_and_empty_values_distinct()
     {
         string? selected = null;
         var cut = Render<SearchableSelect>(p => p
@@ -31,7 +31,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Composition_searchable_select_filters_labels_and_rejects_disabled_choices()
+    public async ValueTask Composition_searchable_select_filters_labels_and_rejects_disabled_choices()
     {
         string? selected = null;
         var cut = Render<SearchableSelect>(p => p
@@ -46,7 +46,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Composition_event_timeline_orders_events_formats_timestamps_and_switches_layout()
+    public async ValueTask Composition_event_timeline_orders_events_formats_timestamps_and_switches_layout()
     {
         var later = new DateTimeOffset(2026, 9, 14, 12, 0, 0, TimeSpan.Zero);
         var cut = Render<EventTimeline>(p => p

@@ -10,7 +10,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task ColorPicker_canvas_cells_preserve_selection_and_disabled_state_across_color_changes()
+    public async ValueTask ColorPicker_canvas_cells_preserve_selection_and_disabled_state_across_color_changes()
     {
         var cut = Render<ColorPicker>(parameters => parameters.Add(p => p.Inline, true).Add(p => p.Value, "#ff0000"));
         cut.FindAll("[data-slot='color-picker-canvas-cell']").Count.Should().Be(121);
@@ -65,7 +65,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ColorPicker_changes_format_to_css()
+    public async ValueTask ColorPicker_changes_format_to_css()
     {
         string? value = null;
 
@@ -84,7 +84,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ColorPicker_selects_preset()
+    public async ValueTask ColorPicker_selects_preset()
     {
         string? value = null;
 
@@ -127,7 +127,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task ColorPicker_changes_alpha_from_percentage_input()
+    public async ValueTask ColorPicker_changes_alpha_from_percentage_input()
     {
         string? value = null;
         var cut = Render<ColorPicker>(parameters => parameters

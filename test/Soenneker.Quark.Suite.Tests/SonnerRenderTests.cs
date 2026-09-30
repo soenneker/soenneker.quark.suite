@@ -11,7 +11,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Sonner_styles_use_CSS_decimal_points_under_comma_decimal_cultures()
+    public async ValueTask Sonner_styles_use_CSS_decimal_points_under_comma_decimal_cultures()
     {
         var originalCulture = CultureInfo.CurrentCulture;
         try
@@ -37,7 +37,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Sonner_cancelled_pointer_and_lost_capture_clear_interaction_state()
+    public async ValueTask Sonner_cancelled_pointer_and_lost_capture_clear_interaction_state()
     {
         var cut = Render<Sonner>(parameters => parameters.Add(p => p.ToastDuration, 0));
         var service = Services.GetRequiredService<ISonnerService>();
@@ -55,7 +55,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Sonner_reused_toast_updates_its_icon_and_loading_animation()
+    public async ValueTask Sonner_reused_toast_updates_its_icon_and_loading_animation()
     {
         var cut = Render<Sonner>(parameters => parameters.Add(p => p.ToastDuration, 0));
         var service = Services.GetRequiredService<ISonnerService>();

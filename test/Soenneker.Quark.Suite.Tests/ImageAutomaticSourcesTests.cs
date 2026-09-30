@@ -35,7 +35,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Image_automatic_sources_follow_theme_and_preserve_url_suffixes()
+    public async ValueTask Image_automatic_sources_follow_theme_and_preserve_url_suffixes()
     {
         var cut = Render<Image>(p => p.Add(c => c.Source, "/img/photo.png?v=2#preview")
             .Add(c => c.Extension, "avif").Add(c => c.AutoSrcSet, true).Add(c => c.AutoDark, true)
