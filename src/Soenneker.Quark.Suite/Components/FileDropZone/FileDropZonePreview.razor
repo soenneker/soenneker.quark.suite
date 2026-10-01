@@ -20,7 +20,7 @@
         }
         else
         {
-            <object @key="Url" data="@Url" type="application/pdf" aria-label="@($"Preview of {File.Name}")" class="block h-72 w-full">
+            <object @key="Url" data="@PdfPreviewUrl" type="application/pdf" aria-label="@($"Preview of {File.Name}")" class="block h-72 w-full">
                 <div class="p-4 text-center text-xs text-muted-foreground">Use Open PDF to view this document.</div>
             </object>
         }
@@ -39,6 +39,9 @@
 
     private string? _previousUrl;
     private bool _failed;
+
+    // Keep viewer settings confined to the inline preview; Open PDF retains the original URL.
+    private string? PdfPreviewUrl => Url is null ? null : $"{Url.Split('#')[0]}#toolbar=0&navpanes=0&pagemode=none&view=FitH";
 
     protected override void OnParametersSet()
     {
