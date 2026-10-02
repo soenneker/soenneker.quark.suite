@@ -6,7 +6,7 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
     <Section Space="Space.Y.Is4">
-        <DemoSection Description="A live log surface with fake deployment events streaming in, plus built-in download and copy actions."
+        <DemoSection PreviewInnerClass="demo-section-preview-inner mx-auto flex w-full min-w-0 max-w-full flex-col items-stretch" Description="A live log surface with fake deployment events streaming in, plus built-in download and copy actions."
                      Code="@BasicCode"
                      CodeLanguage="razor">
             <ConsolePanel Text="@LogText"
@@ -26,16 +26,54 @@
     </Section>
     <Section Space="Space.Y.Is4">
         <H2>Expandable exceptions</H2>
-        <DemoSection Description="Optionally collapse .NET stack traces while keeping the message visible. Copy and download always include the complete text." Code="@ExceptionCode" CodeLanguage="razor">
-            <Check @bind-Checked="_formatExceptions">Format exceptions</Check>
-            <ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" AutoScroll="false" DownloadFileName="exception.log">
-                <ConsoleLogEntry Text="@ExceptionText" />
-            </ConsolePanel>
+        <DemoSection PreviewInnerClass="demo-section-preview-inner mx-auto flex w-full min-w-0 max-w-full flex-col items-stretch" Description="Optionally collapse .NET stack traces while keeping the message visible. Copy and download always include the complete text." Code="@ExceptionCode" CodeLanguage="razor">
+            <Div Width="Width.IsFull" Space="Space.Y.Is4" Class="min-w-0">
+                <Check @bind-Checked="_formatExceptions">Format exceptions</Check>
+                <Check @bind-Checked="_wrapLines">Wrap by default</Check>
+                <Check @bind-Checked="_showWrapToggle">Show wrap control</Check>
+                <ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" WrapLines="@_wrapLines" ShowWrapToggle="@_showWrapToggle" Width="Width.IsFull" AutoScroll="false" DownloadFileName="exception.log">
+                    <ConsoleLogEntry Text="@ExceptionText" />
+                </ConsolePanel>
+            </Div>
+        </DemoSection>
+    </Section>
+    <Section Space="Space.Y.Is4">
+        <H2>Expandable JSON</H2>
+        <DemoSection PreviewInnerClass="demo-section-preview-inner mx-auto flex w-full min-w-0 max-w-full flex-col items-stretch" Description="Keep log messages compact and expand JSON payloads when needed, including escaped request bodies. Copy and download retain the original text." Code="@JsonCode" CodeLanguage="razor">
+            <Div Width="Width.IsFull" Space="Space.Y.Is4" Class="min-w-0">
+                <Check @bind-Checked="_formatJson">Format JSON</Check>
+                <Check @bind-Checked="_wrapLines">Wrap by default</Check>
+                <Check @bind-Checked="_showWrapToggle">Show wrap control</Check>
+                <ConsolePanel Text="@JsonText" FormatJson="@_formatJson" WrapLines="@_wrapLines" ShowWrapToggle="@_showWrapToggle" Width="Width.IsFull" AutoScroll="false" DownloadFileName="request.log">
+                    @foreach (string line in JsonText.Split('\n'))
+                    {
+                        <ConsoleLogEntry Text="@line" />
+                    }
+                </ConsolePanel>
+            </Div>
         </DemoSection>
     </Section>
 </Div>
 
 @code {
+    private bool _formatJson = true;
+    private bool _wrapLines = true;
+    private bool _showWrapToggle = true;
+    private const string JsonText = """
+08:13:45.365 [Debug] Request: "{\"leadId\":\"example-lead\",\"campaign\":{\"name\":\"Example Campaign\"},\"tags\":[\"new\",\"email\"],\"phone\":null}" Type: "Example"
+08:13:45.512 [Debug] Response: {"success":true,"count":1}
+""";
+    private const string JsonCode = """
+<Check @bind-Checked="_formatJson">Format JSON</Check>
+<Check @bind-Checked="_wrapLines">Wrap by default</Check>
+<Check @bind-Checked="_showWrapToggle">Show wrap control</Check>
+<ConsolePanel Text="@JsonText" FormatJson="@_formatJson" WrapLines="@_wrapLines" ShowWrapToggle="@_showWrapToggle" Width="Width.IsFull" AutoScroll="false" DownloadFileName="request.log">
+    @foreach (string line in JsonText.Split('\n'))
+    {
+        <ConsoleLogEntry Text="@line" />
+    }
+</ConsolePanel>
+""";
     private bool _formatExceptions = true;
     private const string ExceptionText = """
 01:00:11.367 [Warning] System.Exception: No distribution group/subid linkages found! This probably means there were no leads within the past 30 days
@@ -45,7 +83,9 @@
 """;
     private const string ExceptionCode = """
 <Check @bind-Checked="_formatExceptions">Format exceptions</Check>
-<ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" AutoScroll="false" DownloadFileName="exception.log">
+<Check @bind-Checked="_wrapLines">Wrap by default</Check>
+<Check @bind-Checked="_showWrapToggle">Show wrap control</Check>
+<ConsolePanel Text="@ExceptionText" FormatExceptions="@_formatExceptions" WrapLines="@_wrapLines" ShowWrapToggle="@_showWrapToggle" Width="Width.IsFull" AutoScroll="false" DownloadFileName="exception.log">
     <ConsoleLogEntry Text="@ExceptionText" />
 </ConsolePanel>
 """;

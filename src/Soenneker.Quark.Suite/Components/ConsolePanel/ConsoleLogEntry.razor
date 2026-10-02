@@ -6,10 +6,10 @@
     @if ((FormatExceptions ?? PanelFormatExceptions) && _traceStart >= 0)
     {
         <div class="console-exception">
-            <div class="console-message">@_summary</div>
-            <details>
+            @RenderMessage(_displaySummary)
+            <details class="@(ResolvedShowWrapToggle ? "console-has-wrap" : null)">
                 <summary><span class="console-show">Show stack trace</span><span class="console-hide">Hide stack trace</span></summary>
-                <div class="console-tools"><Check @bind-Checked="_wrap">Wrap lines</Check></div>
+                @RenderWrapToggle()
                 <div class="console-trace @(_wrap ? "console-wrap" : null)">
                     @foreach (string line in _trace)
                     {
@@ -42,7 +42,7 @@
     }
     else
     {
-        <div class="console-message">@Text</div>
+        @RenderMessage(_displayText)
     }
 </div>
 
@@ -51,16 +51,38 @@
     [Parameter] public bool? FormatExceptions { get; set; }
     [CascadingParameter(Name = "ConsoleFormatExceptions")] public bool PanelFormatExceptions { get; set; }
 
+    [Parameter] public bool? FormatJson { get; set; }
+    [CascadingParameter(Name = "ConsoleFormatJson")] public bool PanelFormatJson { get; set; }
+
+    [Parameter] public bool? WrapLines { get; set; }
+    [Parameter] public bool? ShowWrapToggle { get; set; }
+    [CascadingParameter(Name = "ConsoleWrapLines")] public bool PanelWrapLines { get; set; } = true;
+    [CascadingParameter(Name = "ConsoleShowWrapToggle")] public bool PanelShowWrapToggle { get; set; } = true;
+
+    private bool ResolvedShowWrapToggle => ShowWrapToggle ?? PanelShowWrapToggle;
+    private bool? _previousWrapLines;
+    private bool? _previousShowWrapToggle;
+    private ConsoleJsonContent _displayText = new("", []);
+    private ConsoleJsonContent _displaySummary = new("", []);
+    private bool _previousFormatJson;
     private string? _previousText;
     private string _summary = "";
     private string[] _trace = [];
     private int _traceStart = -1;
-    private bool _wrap;
+    private bool _wrap = true;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        if (_previousText == Text) return;
+        bool wrapLines = WrapLines ?? PanelWrapLines;
+        if (_previousWrapLines != wrapLines || _previousShowWrapToggle != ResolvedShowWrapToggle)
+            _wrap = wrapLines;
+        _previousWrapLines = wrapLines;
+        _previousShowWrapToggle = ResolvedShowWrapToggle;
+        bool formatJson = FormatJson ?? PanelFormatJson;
+        if (_previousText == Text && _previousFormatJson == formatJson) return;
+        _previousFormatJson = formatJson;
+        _displayText = formatJson ? ConsoleJsonFormatter.Format(Text) : new ConsoleJsonContent(Text, []);
         _previousText = Text;
         _traceStart = -1;
         _trace = [];
@@ -73,17 +95,38 @@
             if (!hasException || !lines[i].TrimStart().StartsWith("at ", StringComparison.Ordinal)) continue;
             _traceStart = i;
             _summary = string.Join("\n", lines[..i]);
+            _displaySummary = formatJson ? ConsoleJsonFormatter.Format(_summary) : new ConsoleJsonContent(_summary, []);
             _trace = lines[i..];
             break;
         }
     }
 
+    private RenderFragment RenderWrapToggle() => @<text>
+        @if (ResolvedShowWrapToggle)
+        {
+            <div class="console-tools"><Check @bind-Checked="_wrap">Wrap lines</Check></div>
+        }
+    </text>;
+
+    private RenderFragment RenderMessage(ConsoleJsonContent content) => @<div class="@(content.Payloads.Count > 0 ? "console-json" : null)">
+        <div class="console-message">@content.Summary</div>
+        @for (var i = 0; i < content.Payloads.Count; i++)
+        {
+            <div class="console-json-payload @(_wrap ? "console-wrap" : null)">
+                <ConsoleJsonTree Json="@content.Payloads[i]" WrapLines="@_wrap" Tools="@(ResolvedShowWrapToggle ? RenderWrapToggle() : null)" />
+            </div>
+        }
+    </div>;
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Text);
+        hc.Add(FormatJson);
+        hc.Add(PanelFormatJson);
         hc.Add(FormatExceptions);
         hc.Add(PanelFormatExceptions);
         hc.Add(_wrap);
+        hc.Add(ResolvedShowWrapToggle);
     }
 }

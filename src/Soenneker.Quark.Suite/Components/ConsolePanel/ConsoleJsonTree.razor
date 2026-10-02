@@ -1,0 +1,69 @@
+@namespace Soenneker.Quark
+@using System.Text.Json
+@implements IDisposable
+
+<div class="json-tree @(WrapLines ? "json-wrap" : null)">
+    @if (_document is not null)
+    {
+        @RenderNode(_document.RootElement, null, false, true)
+    }
+</div>
+
+@code {
+    [Parameter] public string Json { get; set; } = "{}";
+    [Parameter] public bool WrapLines { get; set; } = true;
+    [Parameter] public RenderFragment? Tools { get; set; }
+    private string? _previousJson;
+    private JsonDocument? _document;
+
+    protected override void OnParametersSet()
+    {
+        if (_previousJson == Json) return;
+        _document?.Dispose();
+        _document = JsonDocument.Parse(Json);
+        _previousJson = Json;
+    }
+
+    private RenderFragment RenderNode(JsonElement value, string? name, bool comma, bool root = false) => @<text>
+        @if (value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+        {
+            bool isObject = value.ValueKind == JsonValueKind.Object;
+            int count = isObject ? value.EnumerateObject().Count() : value.GetArrayLength();
+            string opening = isObject ? "{" : "[";
+            string closing = isObject ? "}" : "]";
+            <details class="json-node @(root && Tools is not null ? "json-with-tools" : null)" open="@(!root)">
+                <summary aria-label="@(name is null ? "Toggle JSON" : $"Toggle {name}")"><span class="json-caret" aria-hidden="true"></span>@if (name is not null) {<span class="json-key">@Quote(name): </span>}<span>@opening</span><span class="json-collapsed"> &hellip; <span class="json-count">@count @(count == 1 ? "item" : "items")</span> @closing@(comma ? "," : "")</span></summary>
+                @if (root && Tools is not null)
+                {
+                    <div class="json-tools">@Tools</div>
+                }
+                <div class="json-children">
+                    @if (isObject)
+                    {
+                        var properties = value.EnumerateObject().ToArray();
+                        @for (var i = 0; i < properties.Length; i++)
+                        {
+                            @RenderNode(properties[i].Value, properties[i].Name, i < properties.Length - 1)
+                        }
+                    }
+                    else
+                    {
+                        var index = 0;
+                        @foreach (JsonElement item in value.EnumerateArray())
+                        {
+                            @RenderNode(item, null, ++index < value.GetArrayLength())
+                        }
+                    }
+                </div>
+                <div class="json-closing">@closing@(comma ? "," : "")</div>
+            </details>
+        }
+        else
+        {
+            <div class="json-leaf">@if (name is not null) {<span class="json-key">@Quote(name): </span>}<span class="json-@value.ValueKind.ToString().ToLowerInvariant()">@value.GetRawText()</span>@(comma ? "," : "")</div>
+        }
+    </text>;
+
+    private static string Quote(string value) => "\"" + System.Text.Json.JsonEncodedText.Encode(value).ToString() + "\"";
+    public void Dispose() => _document?.Dispose();
+}

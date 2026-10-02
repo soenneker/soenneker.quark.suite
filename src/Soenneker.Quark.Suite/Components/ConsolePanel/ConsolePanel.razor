@@ -50,13 +50,23 @@
         </Div>
     }
     <CascadingValue Name="ConsoleFormatExceptions" Value="FormatExceptions">
-        @ChildContent
+        <CascadingValue Name="ConsoleFormatJson" Value="FormatJson">
+            <CascadingValue Name="ConsoleWrapLines" Value="WrapLines">
+                <CascadingValue Name="ConsoleShowWrapToggle" Value="ShowWrapToggle">
+                    @ChildContent
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
     </CascadingValue>
 </div>
 
 @code {
     [Parameter]
     public bool FormatExceptions { get; set; }
+    [Parameter]
+    public bool FormatJson { get; set; }
+    [Parameter] public bool WrapLines { get; set; } = true;
+    [Parameter] public bool ShowWrapToggle { get; set; } = true;
     private ElementReference _element;
     private readonly AsyncLock _interopLock = new();
     private bool _autoScrollInitialized;
@@ -218,7 +228,7 @@
         base.BuildAttributesCore(attributes);
         attributes["aria-live"] = "polite";
 
-        PrependClassAttribute(attributes, "h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
+        PrependClassAttribute(attributes, "min-w-0 max-w-full h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
@@ -260,5 +270,8 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AutoScroll);
         hc.Add(FormatExceptions);
+        hc.Add(FormatJson);
+        hc.Add(WrapLines);
+        hc.Add(ShowWrapToggle);
     }
 }
