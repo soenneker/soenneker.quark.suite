@@ -8,17 +8,22 @@ namespace Soenneker.Quark;
 /// Simple validators that can be used directly in markup.
 /// Much simpler than the complex ValidationRules system.
 /// </summary>
-public static class Validators
+public static partial class Validators
 {
-    private static readonly Regex _alphaNumericRegex = new(@"^[a-zA-Z0-9]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-    private static readonly Regex _digitsOnlyRegex = new(@"^\d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-    private static readonly Regex _emailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    [GeneratedRegex(@"^[a-zA-Z0-9]+$", RegexOptions.CultureInvariant)]
+    private static partial Regex AlphaNumericRegex();
+
+    [GeneratedRegex(@"^\d+$", RegexOptions.CultureInvariant)]
+    private static partial Regex DigitsOnlyRegex();
+
+    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.CultureInvariant)]
+    private static partial Regex EmailRegex();
 
     /// <summary>
     /// Validates that the value is not empty.
     /// </summary>
     public static readonly SimpleValidator IsNotEmpty = new(
-        "This field is required", 
+        "This field is required",
         value => value is string s && !s.IsNullOrWhiteSpace());
 
     /// <summary>
@@ -70,14 +75,14 @@ public static class Validators
     /// </summary>
     public static readonly SimpleValidator IsAlphanumeric = new(
         "Only letters and numbers are allowed",
-        value => value is string s && _alphaNumericRegex.IsMatch(s));
+        value => value is string s && AlphaNumericRegex().IsMatch(s));
 
     /// <summary>
     /// Validates that the value contains only digits.
     /// </summary>
     public static readonly SimpleValidator IsDigitsOnly = new(
         "Only digits are allowed",
-        value => value is string s && _digitsOnlyRegex.IsMatch(s));
+        value => value is string s && DigitsOnlyRegex().IsMatch(s));
 
     /// <summary>
     /// Creates a minimum length validator.
@@ -129,7 +134,7 @@ public static class Validators
 
         try
         {
-            return _emailRegex.IsMatch(email);
+            return EmailRegex().IsMatch(email);
         }
         catch
         {

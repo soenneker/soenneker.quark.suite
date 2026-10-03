@@ -21,12 +21,7 @@ public sealed class ResizableInterop : IResizableInterop
         _moduleImportUtil = moduleImportUtil;
     }
 
-    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
-    {
-        return await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-    }
-
-    public async ValueTask Initialize(CancellationToken cancellationToken = default)
+public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -44,7 +39,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
         }
     }
@@ -55,7 +50,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("unregisterHandle", linked, handle);
         }
     }
@@ -67,7 +62,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
         }
     }
@@ -78,7 +73,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("stopDrag", linked);
         }
     }

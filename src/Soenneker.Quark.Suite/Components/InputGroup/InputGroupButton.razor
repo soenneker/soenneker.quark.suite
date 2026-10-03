@@ -6,8 +6,16 @@
 <Button Type="@Type" Variant="@Variant" ButtonSize="@ButtonSize" InputGroupButton="true" Attributes="BuildAttributes()">@ChildContent</Button>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSizeType.Default;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private string? _lastBuiltClass;
+
     [Parameter]
-    public CssValue<ButtonSizeBuilder> ButtonSize { get; set; } = ButtonSizeType.Default;
+    public CssValue<ButtonSizeBuilder> ButtonSize { get; set; } = _staticCss1;
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
@@ -19,20 +27,17 @@
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Shadow ??= Quark.Shadow.None;
-        TextSize ??= Quark.TextSize.Sm;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Shadow ??= _defaultShadow;
+        TextSize ??= _defaultTextSize;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, Button.GetInputGroupButtonSizeClass(ButtonSize));
-        });
+        PrependClassAttribute(attributes, Button.GetInputGroupButtonSizeClass(ButtonSize), ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

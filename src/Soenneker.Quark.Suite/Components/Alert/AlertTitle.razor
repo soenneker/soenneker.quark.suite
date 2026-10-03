@@ -5,16 +5,19 @@
 @RenderSemanticTitle()
 
 @code {
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "alert-title";
-        FontWeight ??= Quark.FontWeight.Medium;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground");
+        PrependClassAttribute(attributes, "group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground", ref _lastPrependedClass);
     }
 }

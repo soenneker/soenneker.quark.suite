@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Linq;
 using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -19,9 +20,10 @@ public sealed class AotSafetyContractTests
     [Arguments(typeof(ComponentsCssGenerator), "Generate")]
     public void Css_processing_boundaries_must_not_be_inlined(Type declaringType, string methodName)
     {
-        var method = declaringType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ??
-                     throw new InvalidOperationException($"Could not find {declaringType.FullName}.{methodName}.");
-
-        (method.MethodImplementationFlags & MethodImplAttributes.NoInlining).Should().Be(MethodImplAttributes.NoInlining);
+        var methods = declaringType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(method => method.Name == methodName).ToArray();
+        methods.Should().NotBeEmpty($"{declaringType.FullName}.{methodName} must exist");
+        foreach (var method in methods)
+            (method.MethodImplementationFlags & MethodImplAttributes.NoInlining).Should().Be(MethodImplAttributes.NoInlining);
     }
 }

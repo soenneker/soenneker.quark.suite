@@ -7,20 +7,26 @@
 </Div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Start;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is4.Modifier("group-data-[size=sm]/card").OnX.Is3;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "card-header";
-        Display ??= Quark.Display.Grid;
-        ItemsAlign ??= Items.Start;
-        Gap ??= Quark.Gap.Is1;
-        Padding ??= Quark.Padding.OnX.Is4.Modifier("group-data-[size=sm]/card").OnX.Is3;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "group/card-header @container/card-header auto-rows-min rounded-t-xl has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3");
+        PrependClassAttribute(attributes, "group/card-header @container/card-header auto-rows-min rounded-t-xl has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3", ref _lastPrependedClass);
     }
 }

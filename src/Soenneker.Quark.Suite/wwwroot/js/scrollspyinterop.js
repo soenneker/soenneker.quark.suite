@@ -12,7 +12,9 @@ export function initialize(element, options, dotNetRef) {
   const smooth = options?.smooth !== false;
   const history = options?.history !== false;
   const throttleTime = Number.isFinite(options?.throttleTime) ? options.throttleTime : 0;
-  const anchorSelector = `[data-${dataAttribute}-anchor]`;
+  const anchorAttribute = `data-${dataAttribute}-anchor`;
+  const offsetAttribute = `data-${dataAttribute}-offset`;
+  const anchorSelector = `[${anchorAttribute}]`;
   let anchors = element.querySelectorAll(anchorSelector);
   const initialHash = window.location.hash.replace("#", "");
   let previousId = null;
@@ -48,7 +50,7 @@ export function initialize(element, options, dotNetRef) {
     }
 
     anchors.forEach((anchor) => {
-      const id = anchor.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "");
+      const id = anchor.getAttribute(anchorAttribute)?.replace("#", "");
 
       if (id === sectionId) {
         anchor.setAttribute("data-active", "true");
@@ -73,7 +75,7 @@ export function initialize(element, options, dotNetRef) {
   };
 
   const getAnchorOffset = (anchor) => {
-    const custom = anchor.getAttribute(`data-${dataAttribute}-offset`);
+    const custom = anchor.getAttribute(offsetAttribute);
     const parsed = custom == null ? NaN : Number.parseInt(custom, 10);
     return Number.isFinite(parsed) ? parsed : offset;
   };
@@ -91,7 +93,7 @@ export function initialize(element, options, dotNetRef) {
     let minDelta = Number.POSITIVE_INFINITY;
 
     anchors.forEach((anchor, index) => {
-      const sectionId = anchor.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "");
+      const sectionId = anchor.getAttribute(anchorAttribute)?.replace("#", "");
       const section = sectionId ? document.getElementById(sectionId) : null;
 
       if (!section) {
@@ -115,20 +117,22 @@ export function initialize(element, options, dotNetRef) {
       activeIndex = anchors.length - 1;
     }
 
-    const sectionId = anchors[activeIndex]?.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "");
+    const sectionId = anchors[activeIndex]?.getAttribute(anchorAttribute)?.replace("#", "");
     setActiveSection(sectionId);
   };
 
+  const runScroll = () => {
+    timeout = 0;
+    frame = 0;
+    handleScroll();
+  };
   const scheduleScroll = () => {
     if (throttleTime > 0) {
       if (timeout) {
         return;
       }
 
-      timeout = window.setTimeout(() => {
-        timeout = 0;
-        handleScroll();
-      }, throttleTime);
+      timeout = window.setTimeout(runScroll, throttleTime);
 
       return;
     }
@@ -137,10 +141,7 @@ export function initialize(element, options, dotNetRef) {
       return;
     }
 
-    frame = window.requestAnimationFrame(() => {
-      frame = 0;
-      handleScroll();
-    });
+    frame = window.requestAnimationFrame(runScroll);
   };
 
   const scrollToAnchor = (anchor, event) => {
@@ -153,7 +154,7 @@ export function initialize(element, options, dotNetRef) {
       }
     }
 
-    const sectionId = anchor.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "");
+    const sectionId = anchor.getAttribute(anchorAttribute)?.replace("#", "");
     const section = sectionId ? document.getElementById(sectionId) : null;
 
     if (!section) {

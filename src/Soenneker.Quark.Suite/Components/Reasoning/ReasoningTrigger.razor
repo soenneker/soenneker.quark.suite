@@ -2,19 +2,34 @@
 @inherits Soenneker.Quark.Element
 
 <CollapsibleTrigger Attributes="@BuildTriggerAttributes()">
-    <Icon Name="LucideIcon.Brain" Size="Quark.Size.Is4" aria-hidden="true" />
-    <Span TextSize="Quark.TextSize.Sm" Leading="Quark.Leading.Is6" Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
+    <Icon Name="LucideIcon.Brain" Size="_renderCss0" aria-hidden="true" />
+    <Span TextSize="_renderCss1" Leading="_renderCss2" Class="@LabelClass">@(ChildContent ?? DefaultLabel)</Span>
     <Icon Name="LucideIcon.ChevronDown"
-          Margin="Quark.Margin.FromLeft.Is0_5"
-          Size="Quark.Size.Is4"
-          Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]").Modifier("group-data-[streaming=false]"))'
+          Margin="_renderCss3"
+          Size="_renderCss0"
+          Opacity='_staticCss0'
           Class="group-data-[state=open]:rotate-180"
-          Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
-          Transition="Quark.Transition.All"
+          Rotate="_chevronRotate"
+          Transition="_renderCss4"
           aria-hidden="true" />
 </CollapsibleTrigger>
 
 @code {
+    private static readonly CssValue<RotateBuilder> _chevronRotate = Quark.Rotate.Is180.Modifier("group-data-[state=open]");
+    private static readonly CssValue<OpacityBuilder> _staticCss0 = CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]").Modifier("group-data-[streaming=false]"));
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_25;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<TextSizeBuilder> _renderCss1 = Quark.TextSize.Sm;
+    private static readonly CssValue<LeadingBuilder> _renderCss2 = Quark.Leading.Is6;
+    private static readonly CssValue<MarginBuilder> _renderCss3 = Quark.Margin.FromLeft.Is0_5;
+    private static readonly CssValue<TransitionBuilder> _renderCss4 = Quark.Transition.All;
+    private string? _lastBuiltClass;
+
     [CascadingParameter]
     private ReasoningContext? ReasoningContext { get; set; }
 
@@ -23,12 +38,12 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "reasoning-trigger";
 
-        Display ??= Quark.Display.Flex;
-        Cursor ??= Quark.Cursor.Pointer;
-        ItemsAlign ??= Quark.Items.Center;
-        Gap ??= Quark.Gap.Is1_25;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Transition ??= Quark.Transition.Colors;
+        Display ??= _defaultDisplay;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        TextColor ??= _defaultTextColor;
+        Transition ??= _defaultTransition;
     }
 
     private string LabelClass => "group-data-[streaming=true]:shimmer group-data-[streaming=true]:shimmer-repeat-delay-0 group-data-[streaming=true]:shimmer-spread-50 group-data-[streaming=true]:not-dark:shimmer-invert";
@@ -47,6 +62,9 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
+        {
+            const string @class = "group hover:text-foreground";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

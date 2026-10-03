@@ -9,7 +9,7 @@
                 <TooltipTrigger AsChild="true">
                     @ChildContent
                 </TooltipTrigger>
-                <TooltipContent Side="@TooltipSide" Rounded="Quark.Rounded.Full">
+                <TooltipContent Side="@TooltipSide" Rounded="_renderCss0">
                     @Tooltip
                 </TooltipContent>
             </Tooltip>
@@ -22,6 +22,13 @@ else
 }
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromLeft.Default;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<RoundedBuilder> _renderCss0 = Quark.Rounded.Full;
     [Parameter]
     public string? Tooltip { get; set; }
 
@@ -33,12 +40,12 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "feedback-bar-close";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.IsFull;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Border ??= Quark.Border.FromLeft.Default;
-        Padding ??= Quark.Padding.OnX.Is2;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Border ??= _defaultBorder;
+        Padding ??= _defaultPadding;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

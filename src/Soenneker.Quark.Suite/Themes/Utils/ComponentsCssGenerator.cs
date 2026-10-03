@@ -18,23 +18,16 @@ public static class ComponentsCssGenerator
         if (theme is null)
             return string.Empty;
 
-        using var css = new PooledStringBuilder();
-
-        foreach (var componentOptions in theme.GetAllComponentOptions())
+        var css = new PooledStringBuilder(stackalloc char[128]);
+        try
         {
-            // Generate CSS for this component and append if not empty
-            var componentCss = ComponentCssGenerator.Generate(componentOptions);
-
-            if (componentCss.IsNullOrEmpty())
-                continue;
-
-            // Append the CSS with a newline separator
-            if (css.Length > 0)
-                css.Append('\n');
-
-            css.Append(componentCss);
+            foreach (var componentOptions in theme.GetAllComponentOptions())
+                ComponentCssGenerator.Append(ref css, componentOptions);
+            return css.ToString();
         }
-
-        return css.ToString();
+        finally
+        {
+            css.Dispose();
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Soenneker.Atomics.ValueBools;
+using Soenneker.Utils.PooledStringBuilders;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +15,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class DateTimeComponentBase : Element
 {
+    private string? _lastBuiltClass;
+
     private bool _browserTimeZoneResolved;
     private ValueAtomicBool _dateTimeDisposed;
     private RenderFragment? _contentFragment;
@@ -213,10 +216,10 @@ public abstract class DateTimeComponentBase : Element
         if (!attributes.ContainsKey("title") && !string.IsNullOrWhiteSpace(_displayTitle))
             attributes["title"] = _displayTitle!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "inline-flex items-center gap-1 tabular-nums");
-        });
+            const string @class = "inline-flex items-center gap-1 tabular-nums";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     /// <summary>

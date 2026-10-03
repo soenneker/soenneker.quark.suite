@@ -5,6 +5,16 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection2 = Quark.FlexDirection.Col;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign2 = Quark.Items.Start;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Row;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public Orientation Orientation { get; set; } = Orientation.Horizontal;
 
@@ -12,20 +22,20 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "suggestion-list";
-        Display ??= Quark.Display.Flex;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        Gap ??= _defaultGap;
 
         if (Orientation == Orientation.Vertical)
         {
-            FlexDirection ??= Quark.FlexDirection.Col;
-            ItemsAlign ??= Quark.Items.Start;
+            FlexDirection ??= _defaultFlexDirection2;
+            ItemsAlign ??= _defaultItemsAlign2;
         }
         else
         {
-            FlexDirection ??= Quark.FlexDirection.Row;
-            FlexWrap ??= Quark.FlexWrap.Wrap;
-            ItemsAlign ??= Quark.Items.Center;
-            Justify ??= Quark.Justify.Center;
+            FlexDirection ??= _defaultFlexDirection;
+            FlexWrap ??= _defaultFlexWrap;
+            ItemsAlign ??= _defaultItemsAlign;
+            Justify ??= _defaultJustify;
         }
     }
 
@@ -35,6 +45,6 @@
         attributes["role"] = "group";
         attributes["aria-label"] = "Suggestions";
 
-        PrependClassAttribute(attributes, "animate-in duration-150 fade-in-0");
+        PrependClassAttribute(attributes, "animate-in duration-150 fade-in-0", ref _lastPrependedClass);
     }
 }

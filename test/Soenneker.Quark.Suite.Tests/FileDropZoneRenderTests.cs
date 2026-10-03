@@ -11,6 +11,19 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void FileDropZone_only_explains_reordering_when_reorder_controls_exist()
+    {
+        var files = new FileDropZoneFile[] { new() { Id = "a", Name = "a.pdf" }, new() { Id = "b", Name = "b.pdf" } };
+        var single = Render<FileDropZone>(p => p.Add(c => c.Files, [files[0]]));
+        single.Markup.Should().NotContain("Drag to reorder");
+        var disabled = Render<FileDropZone>(p => p.Add(c => c.Files, files).Add(c => c.AllowReorder, false));
+        disabled.Markup.Should().NotContain("Drag to reorder");
+        var enabled = Render<FileDropZone>(p => p.Add(c => c.Files, files));
+        enabled.Markup.Should().Contain("Drag to reorder");
+        enabled.FindAll("[data-file-drag-handle]").Count.Should().Be(2);
+    }
+
+    [Test]
     public void FileDropZone_preview_indices_preserve_rejected_and_nonpreview_input_positions()
     {
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
@@ -229,14 +242,17 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public async ValueTask FileDropZone_cancellation_reaches_transport_and_preserves_retry()
     {
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, async (_, ct) =>
         {
+            started.TrySetResult();
             await Task.Delay(Timeout.Infinite, ct);
             return new FileDropZoneUploadResult { ServerId = "never" };
         }));
         var input = cut.FindComponent<InputFile>();
         var upload = Task.Run(() => input.UploadFiles(InputFileContent.CreateFromText("abc", "cancel.pdf")));
-        cut.WaitForAssertion(() => cut.Find("button[aria-label='Cancel upload of cancel.pdf']").Should().NotBeNull());
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        cut.WaitForAssertion(() => cut.Find("button[aria-label='Cancel upload of cancel.pdf']").Should().NotBeNull(), TimeSpan.FromSeconds(10));
         await cut.Find("button[aria-label='Cancel upload of cancel.pdf']").ClickAsync();
         await upload.WaitAsync(TimeSpan.FromSeconds(10));
         cut.WaitForAssertion(() => cut.Instance.Files.Single().State.Should().Be(FileDropZoneState.Canceled));

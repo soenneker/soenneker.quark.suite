@@ -10,13 +10,13 @@
 
 @if (UsesAutoSaveStatusSlot)
 {
-    <Span Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Start" Gap="Quark.Gap.Is2">
+    <Span Display="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" ItemsAlign="_renderCss2" Gap="_renderCss3">
         <textarea @ref="_elementRef"
                   @attributes="BuildAttributes()"
                   @bind:get="Value"
                   @bind:set="HandleInputValueChanged"
                   @bind:event="oninput"
-                  @onchange="HandleChange"></textarea>
+                  @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"></textarea>
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Class="@ResolvedAutoSaveStatusClass"
@@ -32,12 +32,41 @@ else
               @bind:get="Value"
               @bind:set="HandleInputValueChanged"
               @bind:event="oninput"
-              @onchange="HandleChange"></textarea>
+              @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"></textarea>
 }
 
 @code {
+    private QuarkInt32Attribute _maxlengthAttribute;
+    private QuarkInt32Attribute _minlengthAttribute;
+    private QuarkInt32Attribute _rowsAttribute;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<MinHeightBuilder> _defaultMinHeight = Quark.MinHeight.Token("16");
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _renderCss2 = Quark.Items.Start;
+    private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private object? _cachedHandleTextAreaBlurFocusEventArgsCallback;
+    private object? _cachedHandleTextAreaKeyDownKeyboardEventArgsCallback;
+
     private ElementReference _elementRef;
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private AutoSaveController<string?> _autoSave;
     private InputSelectionSnapshot? _pendingSelectionRestore;
 
     [CascadingParameter]
@@ -134,6 +163,7 @@ else
     private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
+    private string? _resolvedAutoSaveStatusClass;
     private string ResolvedAutoSaveStatusClass
     {
         get
@@ -142,7 +172,7 @@ else
 
             return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
                 ? statusClass
-                : $"{statusClass} {AutoSaveStatusClass}";
+                : QuarkStringCache.Concat(statusClass, " ", AutoSaveStatusClass!, ref _resolvedAutoSaveStatusClass);
         }
     }
 
@@ -201,7 +231,7 @@ else
             await ParentValidation.NotifyInputChanged(Value);
 
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     private async Task CapturePendingSelection(string? value)
@@ -241,13 +271,13 @@ else
         }
 
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     private async Task HandleTextAreaBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -255,7 +285,7 @@ else
     private async Task HandleTextAreaKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }
@@ -265,20 +295,20 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "textarea";
 
-        Display ??= Quark.Display.Flex;
-        MinHeight ??= Quark.MinHeight.Token("16");
-        Width ??= Quark.Width.IsFull;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is2;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Display ??= _defaultDisplay;
+        MinHeight ??= _defaultMinHeight;
+        Width ??= _renderCss1;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        RingColor ??= _defaultRingColor;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -294,29 +324,21 @@ else
             attributes["dir"] = ResolvedDir!;
 
         if (MinLength.HasValue)
-            attributes["minlength"] = MinLength.Value;
+            attributes["minlength"] = _minlengthAttribute.Get(MinLength.Value);
         if (MaxLength.HasValue)
-            attributes["maxlength"] = MaxLength.Value;
+            attributes["maxlength"] = _maxlengthAttribute.Get(MaxLength.Value);
         if (Rows.HasValue)
-            attributes["rows"] = Rows.Value;
+            attributes["rows"] = _rowsAttribute.Get(Rows.Value);
 
         if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTextAreaBlur);
+            attributes["onblur"] = (_cachedHandleTextAreaBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleTextAreaBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleTextAreaKeyDown);
+            attributes["onkeydown"] = (_cachedHandleTextAreaKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleTextAreaKeyDown));
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "field-sizing-content");
-            AppendClass(ref cls, "focus-visible:ring-3");
-            AppendClass(ref cls, "placeholder:text-muted-foreground");
-            AppendClass(ref cls, "disabled:bg-input/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20");
-            AppendClass(ref cls, "dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-
-            if (UsesAutoSaveStatusSlot)
-                AppendClass(ref cls, "min-w-0 flex-1");
-        });
+        const string inputClass = "field-sizing-content focus-visible:ring-3 placeholder:text-muted-foreground disabled:bg-input/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
+        const string autoSaveClass = inputClass + " min-w-0 flex-1";
+        PrependClassAttribute(attributes, UsesAutoSaveStatusSlot ? autoSaveClass : inputClass, ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

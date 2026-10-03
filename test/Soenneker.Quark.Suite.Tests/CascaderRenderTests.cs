@@ -74,6 +74,25 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public async ValueTask Cascader_callbacks_follow_replaced_options_after_rerender()
+    {
+        CascaderOption[] options = [new() { Value = "old", Label = "Old" }];
+        string[]? selected = null;
+        var cut = Render<Cascader>(parameters => parameters
+            .Add(p => p.Options, options)
+            .Add(p => p.ValueChanged, value => selected = value));
+
+        await cut.Find("button").ClickAsync(new MouseEventArgs());
+        cut.Render();
+        options[0] = new() { Value = "new", Label = "New" };
+        cut.Render(parameters => parameters.Add(p => p.Options, options));
+
+        await cut.Find("[data-value='new']").KeyDownAsync(new KeyboardEventArgs { Key = "Enter" });
+        selected.Should().Equal("new");
+        cut.Find("button").TextContent.Should().Contain("New");
+    }
+
+    [Test]
     public async ValueTask Cascader_clear_button_clears_selection()
     {
         string[]? selected = ["usa", "new_york", "statue_of_liberty"];

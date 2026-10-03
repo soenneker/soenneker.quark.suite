@@ -2,12 +2,12 @@
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 
-<Div @onclick="HandleItemClick" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option">
+<Div @onclick="(_cachedHandleItemClickDelegate ??= HandleItemClick)" @onmouseenter="(_cachedHandleMouseEnterDelegate ??= HandleMouseEnter)" @attributes="BuildAttributes()" role="option">
     @ChildContent
     @if (IsSelected)
     {
-        <Span DataSlot="combobox-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Right="Quark.Right.Is2" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center">
-            <Icon Name="LucideIcon.Check" PointerEvents="Quark.PointerEvents.None" />
+        <Span DataSlot="combobox-item-indicator" PointerEvents="_renderCss0" Position="_renderCss1" Right="_renderCss2" Display="_renderCss3" Size="_renderCss4" ItemsAlign="_renderCss5" Justify="_renderCss6">
+            <Icon Name="LucideIcon.Check" PointerEvents="_renderCss0" />
         </Span>
     }
 </Div>
@@ -15,6 +15,27 @@
 @implements IHandleEvent
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromRight.Is8.FromLeft.Token("1.5").OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss1 = Quark.Position.Absolute;
+    private static readonly CssValue<RightBuilder> _renderCss2 = Quark.Right.Is2;
+    private static readonly CssValue<DisplayBuilder> _renderCss3 = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _renderCss4 = Quark.Size.Is4;
+    private static readonly CssValue<ItemsBuilder> _renderCss5 = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _renderCss6 = Quark.Justify.Center;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleItemClickDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleMouseEnterDelegate;
+
     // Selection renders through the parent; active-state changes explicitly refresh this item.
     Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument) => callback.InvokeAsync(argument);
     private string? _itemId;
@@ -42,17 +63,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox-item";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Cursor ??= Quark.Cursor.Default;
-        UserSelect ??= Quark.UserSelect.None;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.FromRight.Is8.FromLeft.Token("1.5").OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
+        Position ??= _defaultPosition;
+        Display ??= _renderCss3;
+        Width ??= _defaultWidth;
+        Cursor ??= _defaultCursor;
+        UserSelect ??= _defaultUserSelect;
+        ItemsAlign ??= _renderCss5;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        OutlineStyle ??= _defaultOutlineStyle;
 
     }
 
@@ -91,7 +112,7 @@
         attributes["data-value"] = Value ?? "";
         attributes["aria-selected"] = IsSelected ? "true" : "false";
         attributes["id"] = ItemId;
-        attributes["tabindex"] = -1;
+        attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
         if (IsSelected)
             attributes["data-selected"] = string.Empty;
@@ -105,7 +126,7 @@
             attributes["data-disabled"] = "true";
         }
 
-        PrependClassAttribute(attributes, "data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

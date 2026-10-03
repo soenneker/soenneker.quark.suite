@@ -20,13 +20,13 @@
                 class="absolute top-2 right-2 z-10 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-background/95 text-muted-foreground shadow-xs transition-all hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
                 title="@_copyButtonLabel"
                 aria-label="@_copyButtonLabel"
-                @onclick="CopyText">
-            <Span ScreenReader="Quark.ScreenReader.Only">@_copyButtonLabel</Span>
+                @onclick="(_cachedCopyTextDelegate ??= CopyText)">
+            <Span ScreenReader="_renderCss0">@_copyButtonLabel</Span>
             <Icon Name="LucideIcon.Copy" />
         </button>
     }
 
-    <div @ref="_container" @attributes="BuildContainerAttributes()" @onfocusout="HandleAutoSaveBlur"></div>
+    <div @ref="_container" @attributes="BuildContainerAttributes()" @onfocusout="(_cachedHandleAutoSaveBlurDelegate ??= HandleAutoSaveBlur)"></div>
     @if (AutoSave && OnAutoSave is not null && ShowAutoSaveStatus)
     {
         <AutoSaveStatus State="@_autoSave.State"
@@ -49,13 +49,26 @@
                    aria-hidden="true"
                    accept="@FileDropAccept"
                    multiple="@FileDropMultiple"
-                   OnChange="HandleFilesDropped" />
+                   OnChange="(_cachedHandleFilesDroppedDelegate ??= HandleFilesDropped)" />
     }
 </div>
 
 @code {
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Soenneker.Quark.Width.Is100;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
+    private System.Func<InputFileChangeEventArgs, Task>? _cachedHandleFilesDroppedDelegate;
 
+    private string? _lastBuiltStyle;
+
+    private System.Func<Task>? _cachedCopyTextDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleAutoSaveBlurDelegate;
+
+    private object? _cachedHandleAutoSaveKeyDownKeyboardEventArgsCallback;
+
+    private AutoSaveController<string?> _autoSave;
+
+    private string? _resolvedAutoSaveStatusClass;
     private string ResolvedAutoSaveStatusClass
     {
         get
@@ -66,7 +79,7 @@
 
             return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
                 ? statusClass
-                : $"{statusClass} {AutoSaveStatusClass}";
+                : QuarkStringCache.Concat(statusClass, " ", AutoSaveStatusClass!, ref _resolvedAutoSaveStatusClass);
         }
     }
 
@@ -217,16 +230,14 @@
     [Parameter]
     public Func<IReadOnlyList<IBrowserFile>, CancellationToken, ValueTask<string?>>? OnFilesDropped { get; set; }
 
-    private readonly string _fileInputId = BlazorIdGenerator.New("code-editor-file-input");
+    private string? _generatedFileInputId;
+    private string _fileInputId => _generatedFileInputId ??= BlazorIdGenerator.New("code-editor-file-input");
     private readonly CancellationTokenSource _disposeCts = new();
     private ElementReference _dropZone;
     private ElementReference _container;
     private string? _lastText;
     private string? _lastLanguage;
     private string? _lastTheme;
-    private bool _lastAutoHeight;
-    private int? _lastMinLines;
-    private int? _lastMaxLines;
     private bool _initialized;
     private ValueAtomicBool _disposed;
     private Task? _initializationTask;
@@ -257,7 +268,7 @@
         _lastText = value;
         _valueChanged = true;
         await TextChanged.InvokeAsync(value);
-        await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -326,9 +337,7 @@
         _lastLanguage = Language;
         _lastTheme = Theme;
         _lastText = Text;
-        _lastAutoHeight = AutoHeight;
-        _lastMinLines = MinLines;
-        _lastMaxLines = MaxLines;
+
     }
 
     protected override async Task OnParametersSetAsync()
@@ -336,8 +345,8 @@
         if (_disposed.Read())
             return;
         // Set default width and height if not specified
-        Width ??= Soenneker.Quark.Width.Is100;
-        
+        Width ??= _defaultWidth;
+
         // Don't set a fixed height if AutoHeight is enabled
         if (!AutoHeight && Height == null && Style == null)
         {
@@ -346,7 +355,6 @@
 
         if (_initialized)
         {
-            var heightSettingsChanged = AutoHeight != _lastAutoHeight || MinLines != _lastMinLines || MaxLines != _lastMaxLines;
 
             if (!string.Equals(Text, _lastText, StringComparison.Ordinal))
             {
@@ -369,14 +377,6 @@
                 _lastTheme = Theme;
             }
 
-            if (AutoHeight && heightSettingsChanged)
-            {
-                await CodeEditorInterop.UpdateContentHeight(_container, MinLines, MaxLines);
-            }
-
-            _lastAutoHeight = AutoHeight;
-            _lastMinLines = MinLines;
-            _lastMaxLines = MaxLines;
         }
 
         await base.OnParametersSetAsync();
@@ -398,14 +398,22 @@
         var attrs = _containerAttributesBuffer.Create(base.BuildAttributes(), 1);
         attrs["data-slot"] = "code-editor";
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attrs["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleAutoSaveKeyDown);
+            attrs["onkeydown"] = (_cachedHandleAutoSaveKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleAutoSaveKeyDown));
         // Monaco editor needs position: relative for proper rendering
-        BuildStyleAttribute(attrs, (ref sty) =>
         {
-            AppendStyleDecl(ref sty, "position: relative");
-            AppendStyleDecl(ref sty, "width: 100%");
-            AppendStyleDecl(ref sty, "min-width: 0");
-        });
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendStyleDecl(ref sty, "position: relative");
+                AppendStyleDecl(ref sty, "width: 100%");
+                AppendStyleDecl(ref sty, "min-width: 0");
+                BuildStyleAttribute(attrs, ref sty, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                sty.Dispose();
+            }
+        }
 
         return attrs;
     }
@@ -476,7 +484,7 @@
     private async Task HandleAutoSaveBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeAsync(e);
     }
@@ -484,7 +492,7 @@
     private async Task HandleAutoSaveKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Text, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeAsync(e);
     }

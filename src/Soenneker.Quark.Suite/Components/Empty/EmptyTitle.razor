@@ -5,14 +5,19 @@
 @RenderSemanticTitle()
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<TrackingBuilder> _defaultTracking = Quark.Tracking.Tight;
+    private string? _lastPrependedClass;
+
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "empty-title";
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Tracking ??= Quark.Tracking.Tight;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        Tracking ??= _defaultTracking;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -20,7 +25,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "cn-font-heading");
+        PrependClassAttribute(attributes, "cn-font-heading", ref _lastPrependedClass);
     }
 
 }

@@ -2,32 +2,65 @@
 @inherits Soenneker.Quark.Element
 
 <Div @attributes="BuildAttributes()">
-    <Div Height="Quark.Height.IsFull"
-         BackgroundColor="Quark.BackgroundColor.Foreground.OnDark.Primary"
-         Transition='Quark.Transition.Token("transition-[width]")'
-         Duration="Quark.Duration.Is200"
+    <Div Height="_renderCss0"
+         BackgroundColor="_renderCss1"
+         Transition='_renderCss2'
+         Duration="_renderCss3"
          Style="@ProgressStyle"></Div>
 </Div>
 
 @code {
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<LeftBuilder> _defaultLeft = Quark.Left.Is0;
+    private static readonly CssValue<RightBuilder> _defaultRight = Quark.Right.Is0;
+    private static readonly CssValue<BottomBuilder> _defaultBottom = Quark.Bottom.Is0;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is0_5;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("border/90");
+    private static readonly CssValue<HeightBuilder> _renderCss0 = Quark.Height.IsFull;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss1 = Quark.BackgroundColor.Foreground.OnDark.Primary;
+    private static readonly CssValue<TransitionBuilder> _renderCss2 = Quark.Transition.Token("transition-[width]");
+    private static readonly CssValue<DurationBuilder> _renderCss3 = Quark.Duration.Is200;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "attachment-progress";
-        PointerEvents ??= Quark.PointerEvents.None;
-        Position ??= Quark.Position.Absolute;
-        Left ??= Quark.Left.Is0;
-        Right ??= Quark.Right.Is0;
-        Bottom ??= Quark.Bottom.Is0;
-        Height ??= Quark.Height.Is0_5;
-        BackgroundColor ??= Quark.BackgroundColor.Token("border/90");
+        PointerEvents ??= _defaultPointerEvents;
+        Position ??= _defaultPosition;
+        Left ??= _defaultLeft;
+        Right ??= _defaultRight;
+        Bottom ??= _defaultBottom;
+        Height ??= _defaultHeight;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     [Parameter]
     public int Value { get; set; }
 
     private int ClampedValue => Math.Clamp(Value, 0, 100);
-    private string ProgressStyle => $"width:{ClampedValue}%";
+    private int _lastProgress = -1;
+    private string? _progressStyle;
+    private object _boxedProgress = QuarkAttributeValues.Zero;
+
+    private string ProgressStyle
+    {
+        get
+        {
+            UpdateProgress();
+            return _progressStyle!;
+        }
+    }
+
+    private void UpdateProgress()
+    {
+        int progress = ClampedValue;
+        if (_lastProgress == progress)
+            return;
+
+        _lastProgress = progress;
+        _progressStyle = $"width:{progress}%";
+        _boxedProgress = QuarkAttributeValues.FromInt32(progress);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -35,7 +68,8 @@
         attributes.TryAdd("role", "progressbar");
         attributes["aria-valuemin"] = "0";
         attributes["aria-valuemax"] = "100";
-        attributes["aria-valuenow"] = ClampedValue;
+        UpdateProgress();
+        attributes["aria-valuenow"] = _boxedProgress;
 
     }
 

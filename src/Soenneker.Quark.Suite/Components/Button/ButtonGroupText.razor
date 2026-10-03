@@ -13,6 +13,17 @@ else
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool AsChild { get; set; }
 
@@ -20,15 +31,15 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "button-group-text";
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
-        Padding ??= Quark.Padding.OnX.Is2_5;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
 
     }
 
@@ -37,7 +48,7 @@ else
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

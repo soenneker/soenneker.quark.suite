@@ -21,6 +21,16 @@
 </BradixMenubarPortal>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is36;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool ForceMount { get; set; }
 
@@ -63,14 +73,14 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "menubar-content";
 
-        ZIndex ??= Quark.ZIndex.Is50;
-        MinWidth ??= Quark.MinWidth.Is36;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is1;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Shadow ??= Quark.Shadow.Md;
+        ZIndex ??= _defaultZIndex;
+        MinWidth ??= _staticCss0;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -78,12 +88,10 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-menubar-content-transform-origin) ring-1 ring-foreground/10 duration-25");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-        });
+            const string @class = "origin-(--radix-menubar-content-transform-origin) ring-1 ring-foreground/10 duration-25 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()

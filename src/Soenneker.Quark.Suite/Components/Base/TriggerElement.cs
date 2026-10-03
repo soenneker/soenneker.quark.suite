@@ -26,7 +26,7 @@ public abstract class TriggerElement : InteractiveElement
         base.BuildOwnedAttributes(attrs);
 
         if (AutoFocus)
-            attrs["autofocus"] = true;
+            attrs["autofocus"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

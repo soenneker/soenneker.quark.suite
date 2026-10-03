@@ -4,20 +4,22 @@
 @if (PromptInput is not null && PromptInput.Attachments.Count > 0)
 {
     <Attachments Variant="@Variant" @attributes="BuildAttributes()">
-        @foreach (var attachment in PromptInput.Attachments)
+        @for (var attachmentIndex = 0; attachmentIndex < PromptInput.Attachments.Count; attachmentIndex++)
         {
+            var attachment = PromptInput.Attachments[attachmentIndex];
             if (AttachmentTemplate is not null)
             {
                 @AttachmentTemplate(attachment)
             }
             else
             {
-                <Attachment Name="@attachment.Name" Description="@attachment.Description" Variant="@AttachmentVariant">
+                var view = GetAttachmentView(attachmentIndex, attachment);
+                <Attachment Name="@attachment.Name" Description="@view.Description" Variant="@AttachmentVariant">
                     <Button Type="@ButtonType.Button"
-                            ButtonSize="ButtonSize.IconXs"
+                            ButtonSize="_staticCss0"
                             Variant="ButtonVariant.Ghost"
-                            aria-label="@($"Remove {attachment.Name}")"
-                            OnClick="@(() => PromptInput.RemoveAttachment(attachment.Id))">
+                            aria-label="@view.RemoveLabel"
+                            OnClick="@view.Remove">
                         <Icon Name="LucideIcon.X" />
                     </Button>
                 </Attachment>
@@ -27,6 +29,27 @@
 }
 
 @code {
+    private AttachmentView?[]? _attachmentViews;
+
+    private AttachmentView GetAttachmentView(int index, PromptInputAttachmentInfo attachment)
+    {
+        var count = PromptInput!.Attachments.Count;
+        if (_attachmentViews is null || _attachmentViews.Length != count)
+            Array.Resize(ref _attachmentViews, count);
+        var view = _attachmentViews[index];
+        if (view is null || !ReferenceEquals(view.Attachment, attachment))
+            _attachmentViews[index] = view = new AttachmentView(this, attachment);
+        return view;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (AttachmentTemplate is not null || PromptInput is null || PromptInput.Attachments.Count == 0)
+            _attachmentViews = null;
+        base.OnParametersSet();
+    }
+
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.IconXs;
     [CascadingParameter]
     public PromptInput? PromptInput { get; set; }
 

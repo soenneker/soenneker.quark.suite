@@ -16,6 +16,9 @@
 }
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Block;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is1.FromBottom.Is0;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
@@ -40,9 +43,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "validation-success";
 
-        Display ??= Quark.Display.Block;
-        Margin ??= Quark.Margin.FromTop.Is1.FromBottom.Is0;
-        TextSize ??= Quark.TextSize.Sm;
+        Display ??= _defaultDisplay;
+        Margin ??= _defaultMargin;
+        TextSize ??= _defaultTextSize;
     }
 
     protected override void OnInitialized()

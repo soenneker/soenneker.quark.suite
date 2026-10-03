@@ -12,18 +12,19 @@
 
 @code {
     private readonly string _menuValue = BlazorIdGenerator.New("quark-menubar-menu");
-    private readonly List<IMenubarFocusableItem> _items = [];
+    private List<IMenubarFocusableItem>? _items;
     private MenubarTrigger? _trigger;
 
     internal void RegisterItem(IMenubarFocusableItem item)
     {
+        _items ??= [];
         if (!_items.Contains(item))
             _items.Add(item);
     }
 
     internal void UnregisterItem(IMenubarFocusableItem item)
     {
-        _items.Remove(item);
+        _items?.Remove(item);
     }
 
     internal void RegisterTrigger(MenubarTrigger trigger)
@@ -33,19 +34,9 @@
 
     internal MenubarTrigger? Trigger => _trigger;
 
-    internal async Task FocusFirstItem()
-    {
-        var firstItem = GetFirstEnabledItem();
-        if (firstItem is not null)
-            await firstItem.Focus();
-    }
+    internal Task FocusFirstItem() => GetFirstEnabledItem()?.Focus() ?? Task.CompletedTask;
 
-    internal async Task FocusLastItem()
-    {
-        var lastItem = GetLastEnabledItem();
-        if (lastItem is not null)
-            await lastItem.Focus();
-    }
+    internal Task FocusLastItem() => GetLastEnabledItem()?.Focus() ?? Task.CompletedTask;
 
     internal async Task HandleItemNavigation(IMenubarFocusableItem currentItem, string key)
     {
@@ -67,14 +58,11 @@
             await nextItem.Focus();
     }
 
-    internal async Task FocusTrigger()
-    {
-        if (_trigger is not null)
-            await _trigger.Focus();
-    }
+    internal Task FocusTrigger() => _trigger?.Focus() ?? Task.CompletedTask;
 
     private IMenubarFocusableItem? GetFirstEnabledItem()
     {
+        if (_items is null) return null;
         foreach (var item in _items)
         {
             if (!item.IsDisabledForNavigation)
@@ -86,20 +74,16 @@
 
     private IMenubarFocusableItem? GetLastEnabledItem()
     {
-        IMenubarFocusableItem? last = null;
-
-        foreach (var item in _items)
-        {
-            if (!item.IsDisabledForNavigation)
-                last = item;
-        }
-
-        return last;
+        if (_items is null) return null;
+        for (int i = _items.Count - 1; i >= 0; i--)
+            if (!_items[i].IsDisabledForNavigation) return _items[i];
+        return null;
     }
 
     private int CountEnabledItems(IMenubarFocusableItem currentItem, out int currentIndex)
     {
         currentIndex = -1;
+        if (_items is null) return 0;
         var count = 0;
 
         foreach (var item in _items)
@@ -118,6 +102,7 @@
 
     private IMenubarFocusableItem? GetEnabledItemAt(int targetIndex)
     {
+        if (_items is null) return null;
         var index = 0;
 
         foreach (var item in _items)

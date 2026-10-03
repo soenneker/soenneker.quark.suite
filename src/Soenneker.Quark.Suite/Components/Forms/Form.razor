@@ -3,11 +3,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" @attributes="BuildAttributes()">
+<EditForm Model="@Model" OnValidSubmit="(_cachedHandleValidSubmitDelegate ??= HandleValidSubmit)" OnInvalidSubmit="(_cachedHandleInvalidSubmitDelegate ??= HandleInvalidSubmit)" @attributes="BuildAttributes()">
     @ChildContent
 </EditForm>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is6;
+    private System.Func<Task>? _cachedHandleValidSubmitDelegate;
+    private System.Func<Task>? _cachedHandleInvalidSubmitDelegate;
+
     /// <summary>
     /// Gets or sets the form model.
     /// </summary>
@@ -33,19 +39,15 @@
             await OnValidSubmit.InvokeAsync();
     }
 
-    private async Task HandleInvalidSubmit()
-    {
-        if (OnInvalidSubmit.HasDelegate)
-            await OnInvalidSubmit.InvokeAsync();
-    }
+    private Task HandleInvalidSubmit() => OnInvalidSubmit.HasDelegate ? OnInvalidSubmit.InvokeAsync() : Task.CompletedTask;
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "form";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is6;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
 
     }
 

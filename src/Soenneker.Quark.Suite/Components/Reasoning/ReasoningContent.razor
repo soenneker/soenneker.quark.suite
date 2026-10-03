@@ -6,6 +6,12 @@
 </CollapsibleContent>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is2.FromLeft.Is2;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromLeft.Default;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromLeft.Is3;
+    private string? _lastBuiltClass;
+
     private string MarkdownClass => "prose max-w-none text-sm leading-6 font-normal text-muted-foreground [&_p]:mb-2.5 prose-strong:font-medium prose-strong:text-foreground prose-ol:my-0 prose-ol:pl-3 prose-ul:my-0 prose-li:my-[-0.5px] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0";
 
     protected override void ApplyDefaultParameters()
@@ -13,15 +19,18 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "reasoning-content";
 
-        Margin ??= Quark.Margin.FromTop.Is2.FromLeft.Is2;
-        Overflow ??= Quark.Overflow.Hidden;
-        Border ??= Quark.Border.FromLeft.Default;
-        Padding ??= Quark.Padding.FromLeft.Is3;
+        Margin ??= _defaultMargin;
+        Overflow ??= _defaultOverflow;
+        Border ??= _defaultBorder;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down"));
+        {
+            const string @class = "data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

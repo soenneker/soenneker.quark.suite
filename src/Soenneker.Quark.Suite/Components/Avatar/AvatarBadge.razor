@@ -6,36 +6,54 @@
 </span>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PrimaryForeground;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is2;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Background;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastBuiltClass;
+
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "avatar-badge";
-        Position ??= Quark.Position.Absolute;
-        Display ??= Quark.Display.InlineFlex;
-        Rounded ??= Quark.Rounded.Full;
-        TextColor ??= Quark.TextColor.PrimaryForeground;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Ring ??= Quark.Ring.Is2;
-        RingColor ??= Quark.RingColor.Background;
-        UserSelect ??= Quark.UserSelect.None;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Rounded ??= _defaultRounded;
+        TextColor ??= _defaultTextColor;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            if (BackgroundColor is null && !HasBackgroundClass())
-                AppendClass(ref cls, "bg-primary");
-
-            AppendClass(ref cls, "end-0 bottom-0 z-10");
-            AppendClass(ref cls, "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden");
-            AppendClass(ref cls, "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2");
-            AppendClass(ref cls, "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                if (BackgroundColor is null && !HasBackgroundClass())
+                    AppendClass(ref cls, "bg-primary");
+                AppendClass(ref cls, "end-0 bottom-0 z-10");
+                AppendClass(ref cls, "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden");
+                AppendClass(ref cls, "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2");
+                AppendClass(ref cls, "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 
     private bool HasBackgroundClass()

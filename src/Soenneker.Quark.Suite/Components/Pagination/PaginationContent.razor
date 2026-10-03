@@ -6,6 +6,13 @@
 </ul>
 
 @code {
+    private string? _sizePrefix;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Row;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private string? _lastBuiltClass;
+
     [CascadingParameter(Name = "ParentPagination")]
     private Pagination? ParentPagination { get; set; }
 
@@ -14,10 +21,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "pagination-content";
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Row;
-        Gap ??= Quark.Gap.Is0_5;
-        ItemsAlign ??= Items.Center;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
+        ItemsAlign ??= _staticCss0;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,15 +32,11 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-
-            var sizeClass = ParentPagination?.GetSizeClass();
-            if (sizeClass is not null)
-                AppendClass(ref cls, sizeClass);
-
-            if (ParentPagination?.Vertical == true)
-                AppendClass(ref cls, "flex-col");
-        });
+        var sizeClass = ParentPagination?.GetSizeClass();
+        var prefix = ParentPagination?.Vertical == true
+            ? string.IsNullOrEmpty(sizeClass) ? "flex-col" : QuarkStringCache.Concat(sizeClass, " ", "flex-col", ref _sizePrefix)
+            : sizeClass;
+        if (!string.IsNullOrEmpty(prefix))
+            PrependClassAttribute(attributes, prefix, ref _lastBuiltClass);
     }
 }

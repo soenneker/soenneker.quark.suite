@@ -9,6 +9,13 @@
 }
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Normal;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Left;
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private FieldContext? FieldContext { get; set; }
 
@@ -34,11 +41,11 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "field-description";
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Normal;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Leading ??= Quark.Leading.Normal;
-        TextAlign ??= Quark.TextAlign.Left;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
+        Leading ??= _defaultLeading;
+        TextAlign ??= _defaultTextAlign;
 
     }
 
@@ -47,7 +54,7 @@
         base.BuildAttributesCore(attributes);
         if (FieldContext is not null && !attributes.ContainsKey("id"))
             attributes["id"] = FieldContext.DescriptionId;
-        PrependClassAttribute(attributes, "group-data-[orientation=horizontal]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");
+        PrependClassAttribute(attributes, "group-data-[orientation=horizontal]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,4 +1,5 @@
 using Soenneker.Atomics.ValueBools;
+using Soenneker.Utils.PooledStringBuilders;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,6 +16,17 @@ namespace Soenneker.Quark;
 /// </summary>
 public partial class SidebarProvider
 {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private SidebarContextState? _state;
+    private string? _mobileContentId;
+    private Func<Task>? _closeMobileAfterNavigation;
+    private (string Width, string Icon, string Mobile)? _widthStyleKey;
+    private string? _widthStyle;
+
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
     private const string _defaultCookieKey = "sidebar_state";
     private const string _defaultShortcutKey = "b";
 
@@ -25,7 +37,7 @@ public partial class SidebarProvider
     private bool _openMobileInternal;
     private bool _isMobileDetected;
 
-    internal string MobileContentId { get; } = BlazorIdGenerator.New("quark-sidebar-mobile");
+    internal string MobileContentId => _mobileContentId ??= BlazorIdGenerator.New("quark-sidebar-mobile");
 
     [Inject]
     private ISidebarInterop SidebarInterop { get; set; } = null!;
@@ -119,8 +131,8 @@ public partial class SidebarProvider
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-wrapper";
 
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
     }
 
     protected override void OnInitialized()
@@ -154,12 +166,12 @@ public partial class SidebarProvider
     /// <returns>The requested sidebar Context State.</returns>
     public SidebarContextState GetState()
     {
-        return new SidebarContextState
-        {
-            Open = GetOpen(),
-            OpenMobile = GetOpenMobile(),
-            IsMobile = GetIsMobile()
-        };
+        var open = GetOpen();
+        var mobileOpen = GetOpenMobile();
+        var mobile = GetIsMobile();
+        if (_state is null || _state.Open != open || _state.OpenMobile != mobileOpen || _state.IsMobile != mobile)
+            _state = new SidebarContextState { Open = open, OpenMobile = mobileOpen, IsMobile = mobile };
+        return _state;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -289,7 +301,7 @@ public partial class SidebarProvider
         if (_disposed.Read() || !CloseMobileOnNavigation || !GetOpenMobile())
             return;
 
-        _ = InvokeAsync(CloseMobileAfterNavigation);
+        _ = InvokeAsync(_closeMobileAfterNavigation ??= CloseMobileAfterNavigation);
     }
 
     private async Task CloseMobileAfterNavigation()
@@ -324,17 +336,15 @@ public partial class SidebarProvider
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        const string prefix = "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar";
+        PrependClassAttribute(attributes, HasExplicitHeight() ? prefix : prefix + " min-h-svh", ref _lastBuiltClass);
+        var key = (SidebarWidth, SidebarWidthIcon, SidebarWidthMobile);
+        if (_widthStyle is null || _widthStyleKey != key)
         {
-            AppendClass(ref cls, "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar");
-
-            if (!HasExplicitHeight())
-                AppendClass(ref cls, "min-h-svh");
-
-            AppendStyleDecl(ref sty, $"--sidebar-width: {SidebarWidth}");
-            AppendStyleDecl(ref sty, $"--sidebar-width-icon: {SidebarWidthIcon}");
-            AppendStyleDecl(ref sty, $"--sidebar-width-mobile: {SidebarWidthMobile}");
-        });
+            _widthStyle = $"--sidebar-width: {SidebarWidth}; --sidebar-width-icon: {SidebarWidthIcon}; --sidebar-width-mobile: {SidebarWidthMobile}";
+            _widthStyleKey = key;
+        }
+        PrependStyleAttribute(attributes, _widthStyle, ref _lastBuiltStyle);
     }
 
     private bool HasExplicitHeight()

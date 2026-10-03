@@ -34,7 +34,7 @@ internal static class ConsoleJsonFormatter
                     result ??= new StringBuilder(text.Length);
                     result.Append(text, copied, start - copied);
                     result.Append(value.ValueKind == JsonValueKind.Object ? "{ … }" : "[ … ]");
-                    payloads.Add(Encoding.UTF8.GetString(stream.ToArray()));
+                    payloads.Add(Encoding.UTF8.GetString(stream.GetBuffer(), 0, checked((int)stream.Length)));
                     copied = end + 1;
                 }
             }

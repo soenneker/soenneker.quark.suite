@@ -5,8 +5,8 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelect
 
-<Div DataSlot="native-select-wrapper" data-size="@GetSizeValue()" dir="@(IsRtl ? "rtl" : null)" Position="Quark.Position.Relative" Width="Quark.Width.IsFit" Class="group/native-select has-[select:disabled]:opacity-50">
-    <select value="@Value" @onchange="HandleChange" @attributes="BuildAttributes()">
+<Div DataSlot="native-select-wrapper" data-size="@GetSizeValue()" dir="@(IsRtl ? "rtl" : null)" Position="_renderCss0" Width="_renderCss1" Class="group/native-select has-[select:disabled]:opacity-50">
+    <select value="@Value" @onchange="(_cachedHandleChangeDelegate ??= HandleChange)" @attributes="BuildAttributes()">
         @ChildContent
     </select>
     <AutoSaveStatus State="@_autoSave.State"
@@ -16,23 +16,57 @@
                     SavingClass="@AutoSaveSavingClass"
                     SavedClass="@AutoSaveSavedClass"
                     FailedClass="@AutoSaveFailedClass" />
-    <Svg PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Size="Quark.Size.Is4" TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="@GetIconClass()"
+    <Svg PointerEvents="_renderCss2" Position="_renderCss3" Size="_renderCss4" TextColor="_renderCss5" UserSelect="_renderCss6" Class="@GetIconClass()"
          aria-hidden="true"
          data-slot="native-select-icon"
          NativeWidth="24"
          NativeHeight="24"
          ViewBox="0 0 24 24"
-         Fill="Quark.Fill.None"
-         Stroke="Quark.Stroke.Current"
-         StrokeWidth="Quark.StrokeWidth.Is2"
-         StrokeLineCap="Quark.StrokeLineCap.Round"
-         StrokeLineJoin="Quark.StrokeLineJoin.Round">
+         Fill="_renderCss7"
+         Stroke="_renderCss8"
+         StrokeWidth="_renderCss9"
+         StrokeLineCap="_renderCss10"
+         StrokeLineJoin="_renderCss11">
         <path d="m6 9 6 6 6-6"></path>
     </Svg>
 </Div>
 
 @code {
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private string? _autoSaveStatusClass;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFit;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss2 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss3 = Quark.Position.Absolute;
+    private static readonly CssValue<SizeBuilder> _renderCss4 = Quark.Size.Is4;
+    private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<UserSelectBuilder> _renderCss6 = Quark.UserSelect.None;
+    private static readonly CssValue<FillBuilder> _renderCss7 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss8 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss9 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<StrokeLineCapBuilder> _renderCss10 = Quark.StrokeLineCap.Round;
+    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss11 = Quark.StrokeLineJoin.Round;
+    private string? _lastPrependedClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private object? _cachedHandleSelectBlurFocusEventArgsCallback;
+    private object? _cachedHandleSelectKeyDownKeyboardEventArgsCallback;
+
+    private AutoSaveController<string?> _autoSave;
 
     /// <summary>
     /// Gets or sets callback invoked when selected value changes.
@@ -99,7 +133,7 @@
 
         return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
             ? overlayClass
-            : $"{overlayClass} {AutoSaveStatusClass}";
+            : QuarkStringCache.Concat(overlayClass, " ", AutoSaveStatusClass, ref _autoSaveStatusClass);
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -109,7 +143,7 @@
         {
             Value = next;
             await ValueChanged.InvokeIfHasDelegate(Value);
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
             Refresh();
         }
     }
@@ -119,23 +153,23 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "native-select";
 
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Height ??= Quark.Height.Is8;
-        Rounded ??= Quark.Rounded.Lg;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Height ??= _defaultHeight;
+        Rounded ??= _defaultRounded;
         Padding ??= UsesAutoSaveStatusSlot
             ? IsRtl ? "py-1 ps-2.5 pe-12" : "py-1 pr-12 pl-2.5"
             : IsRtl ? "py-1 ps-2.5 pe-8" : "py-1 pr-8 pl-2.5";
-        TextSize ??= Quark.TextSize.Sm;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        UserSelect ??= Quark.UserSelect.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _renderCss6;
+        RingColor ??= _defaultRingColor;
+        PointerEvents ??= _defaultPointerEvents;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -149,14 +183,14 @@
             attributes["dir"] = "rtl";
 
         if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleSelectBlur);
+            attributes["onblur"] = (_cachedHandleSelectBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleSelectBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleSelectKeyDown);
+            attributes["onkeydown"] = (_cachedHandleSelectKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleSelectKeyDown));
 
         ApplyFieldControlAttributes(attributes);
 
-        PrependClassAttribute(attributes, "appearance-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:ring-3 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "appearance-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:ring-3 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -187,18 +221,18 @@
         await base.DisposeAsync();
     }
 
-    private async Task HandleSelectBlur(FocusEventArgs e)
+    private Task HandleSelectBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
-        await OnBlur.InvokeIfHasDelegate(e);
+        return OnBlur.InvokeIfHasDelegate(e);
     }
 
     private async Task HandleSelectKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }

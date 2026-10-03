@@ -1,3 +1,4 @@
+@using System.Globalization
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
@@ -11,6 +12,14 @@
 </BradixProgress>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is1;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowX = Quark.Overflow.X.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
     private QuarkAttributeDictionary _indicatorAttributesBuffer;
     /// <summary>
     /// Gets or sets the current progress value (0–100).
@@ -51,27 +60,43 @@
         return val;
     }
 
+    private string? _indicatorStyle;
+    private int _indicatorValue;
+    private int _indicatorMax;
+    private CultureInfo? _indicatorCulture;
+
     private string GetIndicatorStyle()
     {
         if (Indeterminate)
             return "transform: translateX(-50%);";
 
-        var pct = GetClampedValue() * 100.0 / EffectiveMax;
-        return $"transform: translateX(-{100 - pct:F0}%);";
+        var value = GetClampedValue();
+        var max = EffectiveMax;
+        var culture = CultureInfo.CurrentCulture;
+        if (_indicatorStyle is not null && value == _indicatorValue && max == _indicatorMax &&
+            culture.IsReadOnly && ReferenceEquals(culture, _indicatorCulture))
+            return _indicatorStyle;
+
+        var pct = value * 100.0 / max;
+        _indicatorStyle = $"transform: translateX(-{100 - pct:F0}%);";
+        _indicatorValue = value;
+        _indicatorMax = max;
+        _indicatorCulture = culture;
+        return _indicatorStyle;
     }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "progress";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Height ??= Quark.Height.Is1;
-        Width ??= Quark.Width.IsFull;
-        OverflowX ??= Quark.Overflow.X.Hidden;
-        Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        OverflowX ??= _defaultOverflowX;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
 
     }
 

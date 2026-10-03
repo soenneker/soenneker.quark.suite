@@ -9,6 +9,13 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Snug;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public CssValue<GridColsBuilder>? Columns { get; set; }
 
@@ -23,11 +30,11 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field-content";
 
-        Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.Is1;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is0_5;
-        Leading ??= Quark.Leading.Snug;
+        Display ??= _defaultDisplay;
+        Flex ??= _defaultFlex;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
+        Leading ??= _defaultLeading;
         Class = EnsureClass(Class, "group/field-content");
     }
 
@@ -36,16 +43,25 @@
         base.BuildAttributesCore(attributes);
 
         // shadcn FieldContent - new-york-v4 ui/field.tsx
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            if (IsHorizontal)
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
             {
-                AppendClass(ref cls, "min-w-0");
-                var columnClassAdded = AddColumnCss(ref cls, Columns);
-                if (!columnClassAdded)
-                    AppendClass(ref cls, "col-span-12");
+                if (IsHorizontal)
+                {
+                    AppendClass(ref cls, "min-w-0");
+                    var columnClassAdded = AddColumnCss(ref cls, Columns);
+                    if (!columnClassAdded)
+                        AppendClass(ref cls, "col-span-12");
+                }
+
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
             }
-        });
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 
     /// <returns>True if a class was added.</returns>

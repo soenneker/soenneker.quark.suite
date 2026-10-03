@@ -7,6 +7,10 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> InlineFlexDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<DisplayBuilder> FlexDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> RowDirection = Quark.FlexDirection.Row;
+    private static readonly CssValue<FlexDirectionBuilder> ColumnDirection = Quark.FlexDirection.Col;
     [Parameter]
     public StackOrientation Orientation { get; set; } = StackOrientation.Vertical;
 
@@ -18,8 +22,8 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "stack";
 
-        Display ??= Inline ? Quark.Display.InlineFlex : Quark.Display.Flex;
-        FlexDirection ??= Orientation == StackOrientation.Horizontal ? Quark.FlexDirection.Row : Quark.FlexDirection.Col;
+        Display ??= Inline ? InlineFlexDisplay : FlexDisplay;
+        FlexDirection ??= Orientation == StackOrientation.Horizontal ? RowDirection : ColumnDirection;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

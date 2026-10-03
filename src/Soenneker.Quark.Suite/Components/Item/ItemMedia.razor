@@ -5,6 +5,17 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is10;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public ItemMediaVariant Variant { get; set; } = ItemMediaVariant.Default;
 
@@ -12,11 +23,11 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "item-media";
-        Display ??= Quark.Display.Flex;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
 
         ApplyVariantDefaults();
 
@@ -31,13 +42,13 @@
 
         if (ReferenceEquals(Variant, ItemMediaVariant.Image))
         {
-            Size ??= Quark.Size.Is10;
-            Rounded ??= Quark.Rounded.Sm;
-            Overflow ??= Quark.Overflow.Hidden;
+            Size ??= _defaultSize;
+            Rounded ??= _defaultRounded;
+            Overflow ??= _defaultOverflow;
             return;
         }
 
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -46,15 +57,10 @@
         attributes["data-variant"] = GetDataVariant(Variant);
 
         // shadcn/ui item-media base - exact copy from new-york-v4 ui/item.tsx
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none");
-
-            if (ReferenceEquals(Variant, ItemMediaVariant.Icon))
-                AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
-            else if (ReferenceEquals(Variant, ItemMediaVariant.Image))
-                AppendClass(ref cls, "group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover");
-        });
+        const string mediaClass = "group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none";
+        var prefix = ReferenceEquals(Variant, ItemMediaVariant.Icon) ? mediaClass + " [&_svg:not([class*='size-'])]:size-4"
+            : ReferenceEquals(Variant, ItemMediaVariant.Image) ? mediaClass + " group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover" : mediaClass;
+        PrependClassAttribute(attributes, prefix, ref _lastBuiltClass);
     }
 
     private static string GetDataVariant(ItemMediaVariant? variant)

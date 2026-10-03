@@ -6,6 +6,9 @@
 <BradixSelectLabel AdditionalAttributes="@LabelAttributes">@ChildContent</BradixSelectLabel>
 
 @code {
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
     private IReadOnlyDictionary<string, object> LabelAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -13,8 +16,8 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "select-label";
 
-        Padding ??= Quark.Padding.OnX.Is1_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Xs;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 }

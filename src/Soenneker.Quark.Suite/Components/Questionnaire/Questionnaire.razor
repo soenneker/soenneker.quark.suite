@@ -2,13 +2,23 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="false">
-    <form @onsubmit="HandleSubmit" @onsubmit:preventDefault @onreset="HandleReset" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    <form @onsubmit="(_cachedHandleSubmitDelegate ??= HandleSubmit)" @onsubmit:preventDefault @onreset="(_cachedHandleResetDelegate ??= HandleReset)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @attributes="BuildAttributes()">
         @ChildContent
     </form>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private System.Func<Task>? _cachedHandleSubmitDelegate;
+    private System.Func<Task>? _cachedHandleResetDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private readonly List<QuestionnaireItem> _items = [];
+    private QuestionnaireItem[] _enabledItems = [];
     private string? _currentItem;
     private QuestionnaireItem? _focusPending;
     private int _version;
@@ -35,14 +45,26 @@
     {
         get
         {
-            var result = new List<QuestionnaireItem>(_items.Count);
-            foreach (var item in _items)
+            var count = 0;
+            var unchanged = true;
+            for (var index = 0; index < _items.Count; index++)
             {
-                if (!item.Disabled)
-                    result.Add(item);
+                var item = _items[index];
+                if (item.Disabled) continue;
+                if (count >= _enabledItems.Length || !ReferenceEquals(_enabledItems[count], item))
+                    unchanged = false;
+                count++;
             }
+            if (unchanged && count == _enabledItems.Length) return _enabledItems;
 
-            return result;
+            var snapshot = new QuestionnaireItem[count];
+            var target = 0;
+            for (var index = 0; index < _items.Count; index++)
+            {
+                var item = _items[index];
+                if (!item.Disabled) snapshot[target++] = item;
+            }
+            return _enabledItems = snapshot;
         }
     }
 
@@ -239,8 +261,7 @@
         if (active is null)
             return;
 
-        var key = Shortcuts == QuestionnaireShortcutMode.Letters ? args.Key.ToUpperInvariant() : args.Key;
-        await active.SelectShortcut(key);
+        await active.SelectShortcut(args.Key);
     }
 
     private QuestionnaireItem? GetEnabledItemAt(int index)
@@ -271,17 +292,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Gap ??= Quark.Gap.Is4;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["novalidate"] = true;
+        attributes["novalidate"] = QuarkAttributeValues.True;
         if (Shortcuts != QuestionnaireShortcutMode.None)
             attributes["data-shortcuts"] = Shortcuts == QuestionnaireShortcutMode.Letters ? "letters" : "numbers";
     }

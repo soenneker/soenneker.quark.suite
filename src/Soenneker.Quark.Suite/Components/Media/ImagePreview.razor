@@ -3,7 +3,7 @@
 
 @if (TriggerLightbox)
 {
-    <DialogTrigger Display="Quark.Display.Contents" Cursor="Quark.Cursor.ZoomIn" Attributes="@PreviewAttributes">
+    <DialogTrigger Display="_renderCss0" Cursor="_renderCss1" Attributes="@PreviewAttributes">
         @RenderPreview()
     </DialogTrigger>
 }
@@ -15,6 +15,10 @@ else
 }
 
 @code {
+    private QuarkInt32Attribute _widthAttribute, _heightAttribute;
+    private string? _appendedClass0;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Contents;
+    private static readonly CssValue<CursorBuilder> _renderCss1 = Quark.Cursor.ZoomIn;
     [CascadingParameter]
     private ImageContext? ImageContext { get; set; }
 
@@ -35,7 +39,7 @@ else
     private Dictionary<string, object> BuildPreviewAttributes()
     {
         var attributes = BuildAttributes();
-        AppendToClassAttr(attributes, "relative z-1 size-full max-w-full overflow-hidden rounded-md");
+        AppendToClassAttr(attributes, "relative z-1 size-full max-w-full overflow-hidden rounded-md", ref _appendedClass0);
         return attributes;
     }
 
@@ -57,8 +61,8 @@ else
             if (ImageContext.Sizes.HasContent())
                 builder.AddAttribute(6, "sizes", ImageContext.Sizes);
             builder.AddAttribute(7, "class", "size-full max-w-full object-cover");
-            builder.AddAttribute(8, "width", ImageContext.IntrinsicWidth);
-            builder.AddAttribute(9, "height", ImageContext.IntrinsicHeight);
+            if (ImageContext.IntrinsicWidth is int width) builder.AddAttribute(8, "width", _widthAttribute.Get(width));
+            if (ImageContext.IntrinsicHeight is int height) builder.AddAttribute(9, "height", _heightAttribute.Get(height));
             builder.CloseElement();
             return;
         }

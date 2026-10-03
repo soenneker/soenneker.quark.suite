@@ -4,15 +4,21 @@
 <span @attributes="BuildAttributes()">@ChildContent</span>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromLeft.Auto;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TrackingBuilder> _defaultTracking = Quark.Tracking.Widest;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "command-shortcut";
 
-        Margin ??= Quark.Margin.FromLeft.Auto;
-        TextSize ??= Quark.TextSize.Xs;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Tracking ??= Quark.Tracking.Widest;
+        Margin ??= _defaultMargin;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        Tracking ??= _defaultTracking;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -20,6 +26,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "group-data-selected/command-item:text-foreground");
+        PrependClassAttribute(attributes, "group-data-selected/command-item:text-foreground", ref _lastPrependedClass);
     }
 }

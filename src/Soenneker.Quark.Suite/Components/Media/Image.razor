@@ -18,10 +18,12 @@ else
 }
 
 @code {
+    private QuarkInt32Attribute _IntrinsicHeightAttribute;
+    private QuarkInt32Attribute _IntrinsicWidthAttribute;
+    private string? _appendedClass0;
+    private string? _lastBuiltClass;
+
     private static readonly IReadOnlyList<int> DefaultSrcSetWidths = ImageSources.DefaultWidths;
-    private string? _automaticSrcSet;
-    private string? _automaticSrcSetSource;
-    private IReadOnlyList<int>? _automaticSrcSetWidths;
     private QuarkAttributeDictionary _rootAttributes;
     private ImageContext? _context;
     private string? _resolvedSource;
@@ -53,41 +55,24 @@ else
     private string? EffectiveExtension => Extension ?? (AutoSrcSet ? "avif" : null);
     private string? EffectiveDecoding => Decoding ?? (AutoSrcSet ? "async" : null);
 
-    private string? EffectiveSource => AutoDark && _variantTheme?.IsDark == true
-        ? ImageSources.AddImageSuffix(ResolvedSource, "-dark", true) : ResolvedSource;
-
-    private string? EffectiveSrcSet
+    private string? _darkSourceInput, _darkSource;
+    private string? EffectiveSource
     {
         get
         {
-            if (SrcSet.HasContent() || !AutoSrcSet)
-                return SrcSet;
-            string? source = EffectiveSource;
-            bool widthsMatch = _automaticSrcSetWidths?.Count == SrcSetWidths.Count;
-            for (int i = 0; widthsMatch && i < SrcSetWidths.Count; i++)
-                widthsMatch = _automaticSrcSetWidths![i] == SrcSetWidths[i];
-            if (widthsMatch && string.Equals(source, _automaticSrcSetSource, StringComparison.Ordinal))
-                return _automaticSrcSet;
-            if (ImageSources.ImageExtensionIndex(source) < 0)
-                return null;
-
-            string? generated = ImageSources.BuildSrcSet(source, SrcSetWidths);
-
-            if (ReferenceEquals(SrcSetWidths, DefaultSrcSetWidths))
-                _automaticSrcSetWidths = DefaultSrcSetWidths;
-            else
+            var source = ResolvedSource;
+            if (!AutoDark || _variantTheme?.IsDark != true) return source;
+            if (_darkSourceInput != source)
             {
-                var snapshot = _automaticSrcSetWidths as int[];
-                if (snapshot?.Length != SrcSetWidths.Count)
-                    snapshot = new int[SrcSetWidths.Count];
-                for (int i = 0; i < SrcSetWidths.Count; i++)
-                    snapshot[i] = SrcSetWidths[i];
-                _automaticSrcSetWidths = snapshot;
+                _darkSourceInput = source;
+                _darkSource = ImageSources.AddImageSuffix(source, "-dark", true);
             }
-            _automaticSrcSetSource = source;
-            return _automaticSrcSet = generated;
+            return _darkSource;
         }
     }
+
+    private ImageSrcSetCache _srcSetCache;
+    private string? EffectiveSrcSet => SrcSet.HasContent() || !AutoSrcSet ? SrcSet : _srcSetCache.Get(EffectiveSource, SrcSetWidths);
 
     private string? GetEffectiveSizes(string? srcSet) => Sizes ?? (AutoSrcSet && srcSet.HasContent() ? "100vw" : null);
 
@@ -322,7 +307,7 @@ else
         attributes.Remove("onloadstart");
         attributes.Remove("onabort");
 
-        AppendToClassAttr(attributes, "group/image relative inline-flex aspect-auto max-w-full min-w-64 flex-col overflow-hidden rounded-[20px] border dark:border-muted");
+        AppendToClassAttr(attributes, "group/image relative inline-flex aspect-auto max-w-full min-w-64 flex-col overflow-hidden rounded-[20px] border dark:border-muted", ref _appendedClass0);
 
         return attributes;
     }
@@ -335,7 +320,7 @@ else
 
         if (fluidClass != null)
         {
-            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, fluidClass));
+            PrependClassAttribute(attributes, fluidClass, ref _lastBuiltClass);
         }
 
         var resolvedSource = EffectiveSource;
@@ -343,9 +328,9 @@ else
             attributes["src"] = resolvedSource;
 
         if (IntrinsicWidth.HasValue)
-            attributes["width"] = IntrinsicWidth.Value;
+            attributes["width"] = _IntrinsicWidthAttribute.Get(IntrinsicWidth.Value);
         if (IntrinsicHeight.HasValue)
-            attributes["height"] = IntrinsicHeight.Value;
+            attributes["height"] = _IntrinsicHeightAttribute.Get(IntrinsicHeight.Value);
 
         attributes["alt"] = Alt ?? string.Empty;
 
@@ -378,22 +363,22 @@ else
             attributes["usemap"] = UseMap;
 
         if (IsMap)
-            attributes["ismap"] = true;
+            attributes["ismap"] = QuarkAttributeValues.True;
 
         if (LongDesc.HasContent())
             attributes["longdesc"] = LongDesc;
 
         if (OnLoad.HasDelegate)
-            attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
+            SetEventAttribute(attributes, "onload", EventCallback.Factory.Create(this, OnLoad));
 
         if (OnError.HasDelegate)
-            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+            SetEventAttribute(attributes, "onerror", EventCallback.Factory.Create(this, OnError));
 
         if (OnLoadStart.HasDelegate)
-            attributes["onloadstart"] = EventCallback.Factory.Create(this, OnLoadStart);
+            SetEventAttribute(attributes, "onloadstart", EventCallback.Factory.Create(this, OnLoadStart));
 
         if (OnAbort.HasDelegate)
-            attributes["onabort"] = EventCallback.Factory.Create(this, OnAbort);
+            SetEventAttribute(attributes, "onabort", EventCallback.Factory.Create(this, OnAbort));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

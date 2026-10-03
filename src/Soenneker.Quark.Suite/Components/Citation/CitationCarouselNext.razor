@@ -1,11 +1,28 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button type="button" disabled="@(!CanScroll)" @onclick="Scroll" @attributes="BuildAttributes()">
-    <Icon Name="LucideIcon.ArrowRight" Size="Quark.Size.Is4" aria-hidden="true" />
+<button type="button" disabled="@(!CanScroll)" @onclick="(_cachedScrollDelegate ??= Scroll)" @attributes="BuildAttributes()">
+    <Icon Name="LucideIcon.ArrowRight" Size="_renderCss0" aria-hidden="true" />
 </button>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is6_5;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Primary.OnHover.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnHover.Accent.OnDark.OnHover.Token("accent/50");
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is2.OnFocusVisible;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private System.Func<Task>? _cachedScrollDelegate;
+
     [CascadingParameter]
     private Citation? ParentCitation { get; set; }
 
@@ -22,19 +39,19 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "citation-carousel-next";
 
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is6_5;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Full;
-        TextColor ??= Quark.TextColor.Primary.OnHover.AccentForeground;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Transition ??= Quark.Transition.All;
-        BackgroundColor ??= Quark.BackgroundColor.OnHover.Accent.OnDark.OnHover.Token("accent/50");
-        Ring ??= Quark.Ring.Is2.OnFocusVisible;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Transition ??= _defaultTransition;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
+        PointerEvents ??= _defaultPointerEvents;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
     }
 }

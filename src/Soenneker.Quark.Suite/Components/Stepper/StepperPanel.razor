@@ -4,6 +4,7 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
 
@@ -11,7 +12,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-panel";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

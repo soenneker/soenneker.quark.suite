@@ -13,13 +13,15 @@
               ItemSelector="[data-kanban-column]"
               DataSlot="@DataSlot"
               Role="@Role"
-              FlexDirection="Quark.FlexDirection.Row"
+              FlexDirection="_renderCss0"
               Class="@GetClass()"
               OnReorder="@OnReorder">
     @ChildContent
 </SortableList>
 
 @code {
+    private string? _sourceClass, _composedClass;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss0 = Quark.FlexDirection.Row;
     private const string _baseClass = "flex h-full w-full items-start gap-3 overflow-x-auto overflow-y-hidden p-1";
 
     [Parameter]
@@ -72,6 +74,12 @@
 
     private string GetClass()
     {
-        return string.IsNullOrWhiteSpace(Class) ? _baseClass : $"{_baseClass} {Class}".TrimEnd();
+        if (string.IsNullOrWhiteSpace(Class)) return _baseClass;
+        if (_composedClass is null || _sourceClass != Class)
+        {
+            _sourceClass = Class;
+            _composedClass = string.Concat(_baseClass.AsSpan(), " ".AsSpan(), Class.AsSpan().TrimEnd());
+        }
+        return _composedClass;
     }
 }

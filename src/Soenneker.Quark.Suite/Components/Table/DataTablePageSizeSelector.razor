@@ -1,22 +1,23 @@
-﻿@namespace Soenneker.Quark
+@using System.Globalization
+@namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Element
 
 <Div @attributes="BuildAttributes()">
     @if (Label.HasContent())
     {
-        <Label For="@_selectId" TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">@Label</Label>
+        <Label For="@_selectId" TextColor="_renderCss0" TextSize="_renderCss1">@Label</Label>
     }
 
     <Select TValue="int"
             SelectedValue="@ComputedPageSize"
-            SelectedValueChanged="OnSelectedPageSizeChanged"
+            SelectedValueChanged="(_cachedOnSelectedPageSizeChangedDelegate ??= OnSelectedPageSizeChanged)"
             SelectSize="SelectSizes.Sm">
         <SelectTrigger Id="@_selectId"
                        DataSlot="datatable-page-size-select"
                        Width="@ResolvedTriggerWidth"
                        TextColor="@ResolvedTriggerTextColor"
-                       Cursor="Quark.Cursor.Pointer.OnDisabled.NotAllowed"
+                       Cursor="_renderCss2"
                        Class="@ResolvedTriggerClass"
                        aria-label="@SelectAriaLabel">
             <SelectValue />
@@ -27,7 +28,7 @@
                 @for (var i = 0; i < pageSizes.Length; i++)
                 {
                     var size = pageSizes[i];
-                    <SelectItem @key="size" TValue="int" ItemValue="@size" Text="@GetPageSizeText(size)" />
+                    <SelectItem @key="size" TValue="int" ItemValue="@size" Text="@GetPageSizeText(size, i)" />
                 }
             </SelectGroup>
         </SelectContent>
@@ -35,11 +36,26 @@
 
     @if (Suffix.HasContent())
     {
-        <Span TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm">@Suffix</Span>
+        <Span TextColor="_renderCss0" TextSize="_renderCss1">@Suffix</Span>
     }
 </Div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _conditionalCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<DisplayBuilder> _conditionalCss1 = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _conditionalCss2 = Quark.Gap.Is1;
+    private static readonly CssValue<GapBuilder> _conditionalCss3 = Quark.Gap.Is2;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is32;
+    private static readonly CssValue<WidthBuilder> _staticCss2 = Quark.Width.Is32;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<TextColorBuilder> _renderCss0 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TextSizeBuilder> _renderCss1 = Quark.TextSize.Sm;
+    private static readonly CssValue<CursorBuilder> _renderCss2 = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private System.Func<int, Task>? _cachedOnSelectedPageSizeChangedDelegate;
+
+    private string? _lastBuiltClass;
+
     private readonly string _selectId = BlazorIdGenerator.New("datatable-page-size");
 
     // Quark Select-based table footer page size selector.
@@ -47,10 +63,10 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "datatable-page-size-selector";
-        Display ??= Inline ? Quark.Display.InlineFlex : Quark.Display.Flex;
-        Gap ??= Inline ? Quark.Gap.Is1 : Quark.Gap.Is2;
-        ItemsAlign ??= Items.Center;
-        FlexWrap ??= Quark.FlexWrap.Wrap;
+        Display ??= Inline ? _conditionalCss0 : _conditionalCss1;
+        Gap ??= Inline ? _conditionalCss2 : _conditionalCss3;
+        ItemsAlign ??= _staticCss0;
+        FlexWrap ??= _defaultFlexWrap;
     }
 
     [CascadingParameter(Name = "DataTable")]
@@ -78,10 +94,10 @@
     public string ItemPluralText { get; set; } = "items";
 
     [Parameter]
-    public CssValue<WidthBuilder>? TriggerWidth { get; set; } = Quark.Width.Is32;
+    public CssValue<WidthBuilder>? TriggerWidth { get; set; } = _staticCss2;
 
     [Parameter]
-    public CssValue<MinWidthBuilder>? ContentMinWidth { get; set; } = Quark.MinWidth.Is32;
+    public CssValue<MinWidthBuilder>? ContentMinWidth { get; set; } = _staticCss1;
 
     [Parameter]
     public string SelectAriaLabel { get; set; } = "Rows per page";
@@ -98,7 +114,7 @@
 
     private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
 
-    private CssValue<WidthBuilder>? ResolvedTriggerWidth => Inline ? Quark.Width.Auto : TriggerWidth;
+    private CssValue<WidthBuilder>? ResolvedTriggerWidth => Inline ? _inlineWidth : TriggerWidth;
     private CssValue<TextColorBuilder>? ResolvedTriggerTextColor
     {
         get
@@ -106,7 +122,7 @@
             if (!Inline)
                 return null;
 
-            return Quark.TextColor.MutedForeground;
+            return _inlineColor;
         }
     }
     private string? ResolvedTriggerClass => Inline ? "!h-auto !min-h-0 !border-0 !rounded-none !bg-transparent !p-0 !shadow-none focus-visible:!ring-0 focus-visible:!ring-offset-0" : null;
@@ -125,10 +141,22 @@
             await PageSizeChanged.InvokeAsync(size);
     }
 
-    private string GetPageSizeText(int size)
+    private static readonly CssValue<WidthBuilder> _inlineWidth = Quark.Width.Auto;
+    private static readonly CssValue<TextColorBuilder> _inlineColor = Quark.TextColor.MutedForeground;
+    private (int Size, string? Unit, CultureInfo? Culture, string? Text)[] _pageTexts = [];
+
+    private string GetPageSizeText(int size, int index)
     {
         var unit = size == 1 ? ItemSingularText : ItemPluralText;
-        return unit.HasContent() ? $"{size} {unit}" : size.ToString();
+        if (_pageTexts.Length != _resolvedPageSizeOptions.Length)
+            _pageTexts = new (int, string?, CultureInfo?, string?)[_resolvedPageSizeOptions.Length];
+        ref var entry = ref _pageTexts[index];
+        var culture = CultureInfo.CurrentCulture;
+        if (entry.Text is not null && entry.Size == size && entry.Unit == unit && culture.IsReadOnly && ReferenceEquals(culture, entry.Culture))
+            return entry.Text;
+        var text = unit.HasContent() ? $"{size} {unit}" : size.ToString();
+        entry = (size, unit, culture, text);
+        return text;
     }
 
     private static int[] NormalizePageSizeOptions(int[]? options, int currentPageSize)
@@ -190,7 +218,10 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-datatable-page-size-selector"));
+        {
+            const string @class = "q-datatable-page-size-selector";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

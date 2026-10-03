@@ -4,31 +4,41 @@
     <TooltipTrigger AsChild="true">
         <Button Type="@ButtonType.Button"
                 Variant="ButtonVariant.Ghost"
-                ButtonSize="ButtonSize.Icon"
+                ButtonSize="_staticCss0"
                 DataSlot="button"
                 data-theme="@ThemeState"
-                Size="Quark.Size.Is8"
-                Position="Quark.Position.Relative" Overflow="Quark.Overflow.Hidden" Class="group/toggle extend-touch-target"
-                OnClick="@(_ => HandleClick())"
+                Size="_renderCss0"
+                Position="_renderCss1" Overflow="_renderCss2" Class="group/toggle extend-touch-target"
+                OnClick="@(_clickCallback ??= HandleClick)"
                 aria-label="@AriaLabel">
-            <Span Position="Quark.Position.Relative" Display="Quark.Display.Grid" Size="Quark.Size.Is4_5" Overflow="Quark.Overflow.Hidden" Class="place-items-center" aria-hidden="true">
+            <Span Position="_renderCss1" Display="_renderCss3" Size="_renderCss4" Overflow="_renderCss2" Class="place-items-center" aria-hidden="true">
                 <Span Class="@SunClass">
-                    <Icon Name="LucideIcon.Sun" Size="Quark.Size.Is4_5" />
+                    <Icon Name="LucideIcon.Sun" Size="_renderCss4" />
                 </Span>
                 <Span Class="@SystemClass">
-                    <Icon Name="LucideIcon.Monitor" Size="Quark.Size.Is4_5" />
+                    <Icon Name="LucideIcon.Monitor" Size="_renderCss4" />
                 </Span>
                 <Span Class="@MoonClass">
-                    <Icon Name="LucideIcon.Moon" Size="Quark.Size.Is4_5" />
+                    <Icon Name="LucideIcon.Moon" Size="_renderCss4" />
                 </Span>
             </Span>
-            <Span ScreenReader="Quark.ScreenReader.Only">@AriaLabel</Span>
+            <Span ScreenReader="_renderCss5">@AriaLabel</Span>
         </Button>
     </TooltipTrigger>
     <TooltipContent>@TooltipText</TooltipContent>
 </Tooltip>
 
 @code {
+    private Func<MouseEventArgs, Task>? _clickCallback;
+    private (string Current, string Next) _tooltipKey;
+    private string? _tooltipText;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.Icon;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is8;
+    private static readonly CssValue<PositionBuilder> _renderCss1 = Quark.Position.Relative;
+    private static readonly CssValue<OverflowBuilder> _renderCss2 = Quark.Overflow.Hidden;
+    private static readonly CssValue<DisplayBuilder> _renderCss3 = Quark.Display.Grid;
+    private static readonly CssValue<SizeBuilder> _renderCss4 = Quark.Size.Is4_5;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss5 = Quark.ScreenReader.Only;
     /// <summary>The selected mode. When omitted, the button retains its light/dark behavior through IsDark and OnClick.</summary>
     [Parameter]
     public ThemeMode? Mode { get; set; }
@@ -57,7 +67,19 @@
 
     private string ThemeState => CurrentMode.Value;
 
-    private string TooltipText => $"Theme: {ThemeState}. Switch to {NextMode.Value} mode";
+    private string TooltipText
+    {
+        get
+        {
+            var key = (ThemeState, NextMode.Value);
+            if (_tooltipText is null || key != _tooltipKey)
+            {
+                _tooltipText = $"Theme: {key.Item1}. Switch to {key.Item2} mode";
+                _tooltipKey = key;
+            }
+            return _tooltipText;
+        }
+    }
 
     private string SystemClass => GetIconClass(CurrentMode == ThemeMode.System, "-rotate-90");
 
@@ -65,7 +87,7 @@
 
     private string MoonClass => GetIconClass(CurrentMode == ThemeMode.Dark, "rotate-90");
 
-    private async Task HandleClick()
+    private async Task HandleClick(MouseEventArgs _)
     {
         if (Mode is not null)
             await ModeChanged.InvokeAsync(NextMode);
@@ -78,6 +100,8 @@
 
         return active
             ? $"{baseClass} rotate-0 scale-100 opacity-100"
-            : $"{baseClass} {inactiveRotation} scale-0 opacity-0";
+            : inactiveRotation == "rotate-90"
+                ? baseClass + " rotate-90 scale-0 opacity-0"
+                : baseClass + " -rotate-90 scale-0 opacity-0";
     }
 }

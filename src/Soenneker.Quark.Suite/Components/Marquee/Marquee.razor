@@ -32,6 +32,10 @@
 </div>
 
 @code {
+    private (double Duration, string Gap, bool Fade, string Width, string? BaseStyle) _marqueeStyleKey;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
     private const string _baseClass = "group/marquee relative flex w-full overflow-hidden";
     private const string _trackClass = "flex w-max min-w-full shrink-0 items-center justify-around";
 
@@ -85,19 +89,31 @@
         attributes["data-pause-on-hover"] = PauseOnHover ? "true" : "false";
         attributes["data-fade"] = ShowFade ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _baseClass);
-        });
+        PrependClassAttribute(attributes, _baseClass, ref _lastBuiltClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
+        attributes.TryGetValue("style", out var existingStyle);
+        var baseStyle = existingStyle as string ?? existingStyle?.ToString();
+        if (existingStyle is not null) attributes["style"] = baseStyle!;
+        var styleKey = (ScrollDuration, ItemGap, ShowFade, FadeWidth, baseStyle);
+        if (_lastBuiltStyle is null || !_marqueeStyleKey.Equals(styleKey))
         {
-            AppendStyleDecl(ref sty, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--marquee-duration:{Math.Max(ScrollDuration, 0.001):0.###}s"));
-            AppendStyleDecl(ref sty, $"--marquee-gap:{ItemGap}");
-
-            if (ShowFade)
-                AppendStyleDecl(ref sty, $"mask-image:linear-gradient(to right, transparent, black {FadeWidth}, black calc(100% - {FadeWidth}), transparent)");
-        });
+            _marqueeStyleKey = styleKey;
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendStyleDecl(ref sty, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--marquee-duration:{Math.Max(ScrollDuration, 0.001):0.###}s"));
+                AppendStyleDecl(ref sty, $"--marquee-gap:{ItemGap}");
+                if (ShowFade)
+                    AppendStyleDecl(ref sty, $"mask-image:linear-gradient(to right, transparent, black {FadeWidth}, black calc(100% - {FadeWidth}), transparent)");
+                BuildStyleAttribute(attributes, ref sty, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                sty.Dispose();
+            }
+        }
+        else
+            attributes["style"] = _lastBuiltStyle;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

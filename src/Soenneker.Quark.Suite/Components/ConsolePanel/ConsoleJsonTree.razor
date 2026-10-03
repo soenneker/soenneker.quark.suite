@@ -3,10 +3,7 @@
 @implements IDisposable
 
 <div class="json-tree @(WrapLines ? "json-wrap" : null)">
-    @if (_document is not null)
-    {
-        @RenderNode(_document.RootElement, null, false, true)
-    }
+    @_root
 </div>
 
 @code {
@@ -14,45 +11,64 @@
     [Parameter] public bool WrapLines { get; set; } = true;
     [Parameter] public RenderFragment? Tools { get; set; }
     private string? _previousJson;
-    private JsonDocument? _document;
+    private RenderFragment? _root;
 
     protected override void OnParametersSet()
     {
         if (_previousJson == Json) return;
-        _document?.Dispose();
-        _document = JsonDocument.Parse(Json);
+        using var document = JsonDocument.Parse(Json);
+        _root = CreateNode(document.RootElement, null, false, true);
         _previousJson = Json;
     }
 
-    private RenderFragment RenderNode(JsonElement value, string? name, bool comma, bool root = false) => @<text>
-        @if (value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+    private RenderFragment CreateNode(JsonElement value, string? name, bool comma, bool root = false)
+    {
+        var kind = value.ValueKind;
+        string? key = name is null ? null : Quote(name);
+        string? toggleLabel = null;
+        RenderFragment[] children = [];
+        string? rawText = null;
+        if (kind is JsonValueKind.Object or JsonValueKind.Array)
         {
-            bool isObject = value.ValueKind == JsonValueKind.Object;
-            int count = isObject ? value.EnumerateObject().Count() : value.GetArrayLength();
-            string opening = isObject ? "{" : "[";
-            string closing = isObject ? "}" : "]";
+            toggleLabel = name is null ? "Toggle JSON" : $"Toggle {name}";
+            int count = kind == JsonValueKind.Object ? CountProperties(value) : value.GetArrayLength();
+            children = new RenderFragment[count];
+            int index = 0;
+            if (kind == JsonValueKind.Object)
+            {
+                foreach (JsonProperty property in value.EnumerateObject())
+                    children[index] = CreateNode(property.Value, property.Name, ++index < count);
+            }
+            else
+            {
+                foreach (JsonElement item in value.EnumerateArray())
+                    children[index] = CreateNode(item, null, ++index < count);
+            }
+        }
+        else
+            rawText = value.GetRawText();
+
+        string? countLabel = kind is JsonValueKind.Object or JsonValueKind.Array ?
+            (children.Length == 1 ? "1 item" : $"{children.Length} items") : null;
+        return RenderNode(kind, key, toggleLabel, rawText, children, countLabel, comma, root);
+    }
+
+    private RenderFragment RenderNode(JsonValueKind kind, string? key, string? toggleLabel, string? rawText,
+        RenderFragment[] children, string? countLabel, bool comma, bool root) => @<text>
+        @if (kind is JsonValueKind.Object or JsonValueKind.Array)
+        {
+            string opening = kind == JsonValueKind.Object ? "{" : "[";
+            string closing = kind == JsonValueKind.Object ? "}" : "]";
             <details class="json-node @(root && Tools is not null ? "json-with-tools" : null)" open="@(!root)">
-                <summary aria-label="@(name is null ? "Toggle JSON" : $"Toggle {name}")"><span class="json-caret" aria-hidden="true"></span>@if (name is not null) {<span class="json-key">@Quote(name): </span>}<span>@opening</span><span class="json-collapsed"> &hellip; <span class="json-count">@count @(count == 1 ? "item" : "items")</span> @closing@(comma ? "," : "")</span></summary>
+                <summary aria-label="@toggleLabel"><span class="json-caret" aria-hidden="true"></span>@if (key is not null) {<span class="json-key">@key: </span>}<span>@opening</span><span class="json-collapsed"> &hellip; <span class="json-count">@countLabel</span> @closing@(comma ? "," : "")</span></summary>
                 @if (root && Tools is not null)
                 {
                     <div class="json-tools">@Tools</div>
                 }
                 <div class="json-children">
-                    @if (isObject)
+                    @foreach (var child in children)
                     {
-                        var properties = value.EnumerateObject().ToArray();
-                        @for (var i = 0; i < properties.Length; i++)
-                        {
-                            @RenderNode(properties[i].Value, properties[i].Name, i < properties.Length - 1)
-                        }
-                    }
-                    else
-                    {
-                        var index = 0;
-                        @foreach (JsonElement item in value.EnumerateArray())
-                        {
-                            @RenderNode(item, null, ++index < value.GetArrayLength())
-                        }
+                        @child
                     }
                 </div>
                 <div class="json-closing">@closing@(comma ? "," : "")</div>
@@ -60,10 +76,26 @@
         }
         else
         {
-            <div class="json-leaf">@if (name is not null) {<span class="json-key">@Quote(name): </span>}<span class="json-@value.ValueKind.ToString().ToLowerInvariant()">@value.GetRawText()</span>@(comma ? "," : "")</div>
+            <div class="json-leaf">@if (key is not null) {<span class="json-key">@key: </span>}<span class="@ValueClass(kind)">@rawText</span>@(comma ? "," : "")</div>
         }
     </text>;
 
     private static string Quote(string value) => "\"" + System.Text.Json.JsonEncodedText.Encode(value).ToString() + "\"";
-    public void Dispose() => _document?.Dispose();
+    private static int CountProperties(JsonElement value)
+    {
+        var count = 0;
+        foreach (JsonProperty _ in value.EnumerateObject()) count++;
+        return count;
+    }
+
+    private static string ValueClass(JsonValueKind kind) => kind switch
+    {
+        JsonValueKind.String => "json-string",
+        JsonValueKind.Number => "json-number",
+        JsonValueKind.True => "json-true",
+        JsonValueKind.False => "json-false",
+        JsonValueKind.Null => "json-null",
+        _ => "json-undefined"
+    };
+    public void Dispose() => _root = null;
 }

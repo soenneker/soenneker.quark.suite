@@ -33,6 +33,16 @@
 </div>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Token("[6px]");
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Muted;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
     private RenderFragment? _previewContent;
     [Parameter]
     public string Name { get; set; } = "Attachment";
@@ -56,14 +66,14 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "attachment";
-        Position ??= Quark.Position.Relative;
-        Cursor ??= Quark.Cursor.Default;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Token("[6px]");
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Muted;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Position ??= _defaultPosition;
+        Cursor ??= _defaultCursor;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
 
     }
 
@@ -72,7 +82,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-variant"] = Variant;
 
-        PrependClassAttribute(attributes, "group data-[variant=compact]:flex data-[variant=compact]:size-15 data-[variant=compact]:shrink-0 data-[variant=compact]:items-center data-[variant=compact]:justify-center data-[variant=default]:flex data-[variant=default]:size-15 data-[variant=default]:shrink-0 data-[variant=default]:items-center data-[variant=default]:justify-center data-[variant=inline]:flex data-[variant=inline]:h-8 data-[variant=inline]:w-auto data-[variant=inline]:min-w-0 data-[variant=inline]:max-w-[200px] data-[variant=inline]:shrink-0 data-[variant=inline]:items-center data-[variant=inline]:justify-start data-[variant=inline]:p-1 data-[variant=inline]:pr-2 data-[variant=detailed]:flex data-[variant=detailed]:h-15 data-[variant=detailed]:w-auto data-[variant=detailed]:min-w-[200px] data-[variant=detailed]:max-w-[250px] data-[variant=detailed]:shrink-0 data-[variant=detailed]:items-center data-[variant=detailed]:justify-start data-[variant=detailed]:p-2 data-[variant=detailed]:pr-3 data-[variant=pasted]:flex data-[variant=pasted]:h-[144px] data-[variant=pasted]:w-[156px] data-[variant=pasted]:shrink-0 data-[variant=pasted]:flex-col data-[variant=pasted]:items-center data-[variant=pasted]:justify-center data-[variant=pasted]:gap-2 data-[variant=pasted]:p-2");
+        PrependClassAttribute(attributes, "group data-[variant=compact]:flex data-[variant=compact]:size-15 data-[variant=compact]:shrink-0 data-[variant=compact]:items-center data-[variant=compact]:justify-center data-[variant=default]:flex data-[variant=default]:size-15 data-[variant=default]:shrink-0 data-[variant=default]:items-center data-[variant=default]:justify-center data-[variant=inline]:flex data-[variant=inline]:h-8 data-[variant=inline]:w-auto data-[variant=inline]:min-w-0 data-[variant=inline]:max-w-[200px] data-[variant=inline]:shrink-0 data-[variant=inline]:items-center data-[variant=inline]:justify-start data-[variant=inline]:p-1 data-[variant=inline]:pr-2 data-[variant=detailed]:flex data-[variant=detailed]:h-15 data-[variant=detailed]:w-auto data-[variant=detailed]:min-w-[200px] data-[variant=detailed]:max-w-[250px] data-[variant=detailed]:shrink-0 data-[variant=detailed]:items-center data-[variant=detailed]:justify-start data-[variant=detailed]:p-2 data-[variant=detailed]:pr-3 data-[variant=pasted]:flex data-[variant=pasted]:h-[144px] data-[variant=pasted]:w-[156px] data-[variant=pasted]:shrink-0 data-[variant=pasted]:flex-col data-[variant=pasted]:items-center data-[variant=pasted]:justify-center data-[variant=pasted]:gap-2 data-[variant=pasted]:p-2", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

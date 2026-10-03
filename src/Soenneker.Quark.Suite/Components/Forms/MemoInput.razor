@@ -10,8 +10,8 @@
 
 @if (UsesAutoSaveStatusSlot)
 {
-    <Span Display="Quark.Display.InlineFlex" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Start" Gap="Quark.Gap.Is2">
-        <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
+    <Span Display="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" ItemsAlign="_renderCss2" Gap="_renderCss3">
+        <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"></textarea>
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Class="@ResolvedAutoSaveStatusClass"
@@ -22,12 +22,44 @@
 }
 else
 {
-    <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="HandleChange"></textarea>
+    <textarea @ref="_elementRef" @attributes="BuildAttributes()" @bind:get="Value" @bind:set="HandleInputValueChanged" @bind:event="oninput" @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"></textarea>
 }
 
 @code {
+    private static readonly CssValue<InputSizeBuilder> _staticCss1 = Quark.InputSizes.Default;
+    private QuarkInt32Attribute _minlengthAttribute;
+    private QuarkInt32Attribute _maxlengthAttribute;
+    private QuarkInt32Attribute _rowsAttribute;
+    private (bool PlainText, bool AutoSaveSlot, string? Size, string? Validation, string? BaseClass) _builtInputClassKey;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<MinHeightBuilder> _defaultMinHeight = Quark.MinHeight.Token("16");
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _renderCss2 = Quark.Items.Start;
+    private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private object? _cachedHandleMemoBlurFocusEventArgsCallback;
+    private object? _cachedHandleMemoKeyDownKeyboardEventArgsCallback;
+
     private ElementReference _elementRef;
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private AutoSaveController<string?> _autoSave;
     private InputSelectionSnapshot? _pendingSelectionRestore;
 
 	/// <summary>
@@ -64,7 +96,7 @@ else
 	/// Gets or sets the size of the input.
 	/// </summary>
 	[Parameter]
-	public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
+	public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
 	/// <summary>
 	/// Gets or sets the callback invoked When the value changes.
@@ -133,6 +165,7 @@ else
 
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
+    private string? _resolvedAutoSaveStatusClass;
     private string ResolvedAutoSaveStatusClass
     {
         get
@@ -141,7 +174,7 @@ else
 
             return string.IsNullOrWhiteSpace(AutoSaveStatusClass)
                 ? statusClass
-                : $"{statusClass} {AutoSaveStatusClass}";
+                : QuarkStringCache.Concat(statusClass, " ", AutoSaveStatusClass!, ref _resolvedAutoSaveStatusClass);
         }
     }
 
@@ -156,10 +189,10 @@ else
 		if (firstRender && ParentValidation is not null)
 		{
 			await ParentValidation.InitializeInput(this);
-			
+
 			if (ValueExpression is not null)
 				await ParentValidation.InitializeInputExpression(ValueExpression);
-			
+
 		}
 
         await RestorePendingSelection();
@@ -194,20 +227,20 @@ else
 		base.ApplyDefaultParameters();
 		DataSlot ??= "textarea";
 
-		Display ??= Quark.Display.Flex;
-		MinHeight ??= Quark.MinHeight.Token("16");
-		Width ??= Quark.Width.IsFull;
-		Rounded ??= Quark.Rounded.Lg;
-		Border ??= Quark.Border.Default;
-		BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-		BackgroundColor ??= Quark.BackgroundColor.Transparent;
-		Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is2;
-		TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-		Transition ??= Quark.Transition.Colors;
-		OutlineStyle ??= Quark.OutlineStyle.None;
-		RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-		Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-		Opacity ??= Quark.Opacity.Is50.OnDisabled;
+		Display ??= _defaultDisplay;
+		MinHeight ??= _defaultMinHeight;
+		Width ??= _renderCss1;
+		Rounded ??= _defaultRounded;
+		Border ??= _defaultBorder;
+		BorderColor ??= _defaultBorderColor;
+		BackgroundColor ??= _defaultBackgroundColor;
+		Padding ??= _defaultPadding;
+		TextSize ??= _defaultTextSize;
+		Transition ??= _defaultTransition;
+		OutlineStyle ??= _defaultOutlineStyle;
+		RingColor ??= _defaultRingColor;
+		Cursor ??= _defaultCursor;
+		Opacity ??= _defaultOpacity;
 	}
 
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -216,54 +249,78 @@ else
         attributes.Remove("value");
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "field-sizing-content placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:bg-input/30 focus-visible:ring-[3px]");
-
-			var sizeClass = GetSizeClass();
-			if (sizeClass != null)
-				AppendClass(ref cls, sizeClass);
-
-			var validationClass = GetValidationClass();
-			if (validationClass != null)
-				AppendClass(ref cls, validationClass);
-
-            if (UsesAutoSaveStatusSlot)
-                AppendClass(ref cls, "min-w-0 flex-1");
-		});
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
+        attributes.TryGetValue("class", out var existingClass);
+        var baseClass = existingClass as string ?? existingClass?.ToString();
+        if (existingClass is not null) attributes["class"] = baseClass!;
+        var classKey = (false, UsesAutoSaveStatusSlot, sizeClass, validationClass, baseClass);
+        if (_lastBuiltClass is null || _builtInputClassKey != classKey)
+        {
+            _builtInputClassKey = classKey;
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "field-sizing-content placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:bg-input/30 focus-visible:ring-[3px]");
+                if (sizeClass != null)
+                    AppendClass(ref cls, sizeClass);
+                if (validationClass != null)
+                    AppendClass(ref cls, validationClass);
+                if (UsesAutoSaveStatusSlot)
+                    AppendClass(ref cls, "min-w-0 flex-1");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
+        else
+            attributes["class"] = _lastBuiltClass;
 
 		if (Placeholder.HasContent())
 			attributes["placeholder"] = Placeholder;
 
 		if (Disabled)
-			attributes["disabled"] = true;
+			attributes["disabled"] = QuarkAttributeValues.True;
 
 		if (ReadOnly)
-			attributes["readonly"] = true;
+			attributes["readonly"] = QuarkAttributeValues.True;
 
 		if (Required)
-			attributes["required"] = true;
+			attributes["required"] = QuarkAttributeValues.True;
 
 		if (Rows > 0)
-			attributes["rows"] = Rows;
+			attributes["rows"] = _rowsAttribute.Get(Rows);
 
 		if (MaxLength > 0)
-			attributes["maxlength"] = MaxLength;
+			attributes["maxlength"] = _maxlengthAttribute.Get(MaxLength);
 
 		if (MinLength > 0)
-			attributes["minlength"] = MinLength;
+			attributes["minlength"] = _minlengthAttribute.Get(MinLength);
 
 		if (Pattern.HasContent())
 			attributes["pattern"] = Pattern;
 
 		if (AutoResize)
-			BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;"));
+            {
+                var sty = new PooledStringBuilder(stackalloc char[64]);
+                try
+                {
+                    AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;");
+                    BuildStyleAttribute(attributes, ref sty, ref _lastBuiltStyle);
+                }
+                finally
+                {
+                    sty.Dispose();
+                }
+            }
 
         if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleMemoBlur);
+            attributes["onblur"] = (_cachedHandleMemoBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleMemoBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleMemoKeyDown);
+            attributes["onkeydown"] = (_cachedHandleMemoKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleMemoKeyDown));
 	}
 
     private async Task HandleInputValueChanged(string? newValue)
@@ -288,7 +345,7 @@ else
 		}
 
 		if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 	}
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -311,7 +368,7 @@ else
 		}
 
 		if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 	}
 
     private async Task CapturePendingSelection(string? value)
@@ -336,7 +393,7 @@ else
     private async Task HandleMemoBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -344,7 +401,7 @@ else
     private async Task HandleMemoKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }

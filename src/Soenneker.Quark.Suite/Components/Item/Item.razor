@@ -14,6 +14,22 @@ else
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor2 = Quark.BorderColor.Border.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor2 = Quark.BackgroundColor.Token("muted/50");
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Transparent.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public ItemVariant Variant { get; set; } = ItemVariant.Default;
 
@@ -27,16 +43,16 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "item";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        FlexWrap ??= Quark.FlexWrap.Wrap;
-        ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        TextSize ??= Quark.TextSize.Sm;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        FlexWrap ??= _defaultFlexWrap;
+        ItemsAlign ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        RingColor ??= _defaultRingColor;
 
         ApplyVariantDefaults();
         ApplySizeDefaults();
@@ -47,19 +63,19 @@ else
     {
         if (ReferenceEquals(Variant, ItemVariant.Outline))
         {
-            BorderColor ??= Quark.BorderColor.Border.OnFocusVisible.Ring;
+            BorderColor ??= _defaultBorderColor2;
             return;
         }
 
         if (ReferenceEquals(Variant, ItemVariant.Muted))
         {
-            BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
-            BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
+            BorderColor ??= _defaultBorderColor;
+            BackgroundColor ??= _defaultBackgroundColor2;
             return;
         }
 
-        BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     private void ApplySizeDefaults()
@@ -75,15 +91,9 @@ else
         attributes["data-size"] = GetDataSize(ItemSize);
 
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/item duration-100 focus-visible:ring-[3px] [a]:transition-colors [a]:hover:bg-muted");
-
-            if (ReferenceEquals(ItemSize, ItemSize.ExtraSmall))
-                AppendClass(ref cls, "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0");
-            else
-                AppendClass(ref cls, "gap-2.5 px-3 py-2.5");
-        });
+        const string itemClass = "group/item duration-100 focus-visible:ring-[3px] [a]:transition-colors [a]:hover:bg-muted";
+        PrependClassAttribute(attributes, ReferenceEquals(ItemSize, ItemSize.ExtraSmall)
+            ? itemClass + " gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0" : itemClass + " gap-2.5 px-3 py-2.5", ref _lastBuiltClass);
     }
 
     private static string GetDataVariant(ItemVariant? variant)

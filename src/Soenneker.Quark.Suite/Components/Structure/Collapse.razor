@@ -12,6 +12,10 @@
 </div>
 
 @code {
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private string? _lastBuiltClass;
+
     private ValueAtomicBool _disposed;
     /// <summary>
     /// Gets or sets whether the collapse is expanded.
@@ -50,55 +54,51 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "collapse";
-        Overflow ??= Quark.Overflow.Hidden;
-        Transition ??= Quark.Transition.All;
+        Overflow ??= _defaultOverflow;
+        Transition ??= _defaultTransition;
 
     }
 
-    public async Task Toggle()
+    public Task Toggle()
     {
         Expanded = !Expanded;
 
         Refresh();
 
-        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
+        return OnExpandedChanged.InvokeIfHasDelegate(Expanded);
     }
 
-    public async Task Show()
+    public Task Show()
     {
         if (Expanded)
-            return;
+            return Task.CompletedTask;
 
         Expanded = true;
 
         Refresh();
 
-        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
+        return OnExpandedChanged.InvokeIfHasDelegate(Expanded);
 
     }
 
-    public async Task Hide()
+    public Task Hide()
     {
         if (!Expanded)
-            return;
+            return Task.CompletedTask;
 
         Expanded = false;
 
         Refresh();
 
-        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
+        return OnExpandedChanged.InvokeIfHasDelegate(Expanded);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "duration-200 ease-in-out");
-            if (!Expanded)
-                AppendClass(ref cls, Horizontal ? "max-w-0" : "max-h-0");
-        });
+        PrependClassAttribute(attributes, Expanded ? "duration-200 ease-in-out"
+            : Horizontal ? "duration-200 ease-in-out max-w-0" : "duration-200 ease-in-out max-h-0", ref _lastBuiltClass);
 
         attributes["id"] = Id!;
     }
@@ -111,9 +111,9 @@
         hc.Add(Id);
     }
 
-    internal bool HasCssClass(string className)
+    internal bool HasCssClass(ReadOnlySpan<char> className)
     {
-        if (className.IsNullOrEmpty())
+        if (className.IsEmpty)
             return false;
 
         if (ClassContainsToken(Class, className))
@@ -125,13 +125,13 @@
         return false;
     }
 
-    private static bool ClassContainsToken(string? classes, string token)
+    private static bool ClassContainsToken(string? classes, ReadOnlySpan<char> token)
     {
         if (classes.IsNullOrWhiteSpace())
             return false;
 
         var remaining = classes.AsSpan();
-        var target = token.AsSpan();
+        var target = token;
 
         while (!remaining.IsEmpty)
         {

@@ -6,6 +6,11 @@
 </fieldset>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool Disabled { get; set; }
 
@@ -14,9 +19,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field-set";
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is4;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,9 +30,9 @@
 
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
-        PrependClassAttribute(attributes, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3");
+        PrependClassAttribute(attributes, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

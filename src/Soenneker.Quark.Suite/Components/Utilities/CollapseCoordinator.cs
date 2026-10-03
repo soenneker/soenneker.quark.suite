@@ -2,36 +2,35 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Soenneker.Extensions.String;
-using Soenneker.Asyncs.Locks;
+using System.Threading;
 
 namespace Soenneker.Quark;
 
 /// <inheritdoc cref="ICollapseCoordinator"/>
 public sealed class CollapseCoordinator : ICollapseCoordinator
 {
-    private readonly AsyncLock _lock = new();
+    private readonly Lock _lock = new();
+    private Collapse[]? _snapshot;
     private readonly HashSet<Collapse> _collapses = [];
 
-    public async ValueTask Register(Collapse collapse)
+    public ValueTask Register(Collapse collapse)
     {
-        if (collapse == null)
-            return;
-
-        using (await _lock.Lock())
+        if (collapse is null) return ValueTask.CompletedTask;
+        lock (_lock)
         {
-            _collapses.Add(collapse);
+            if (_collapses.Add(collapse)) _snapshot = null;
         }
+        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask Unregister(Collapse collapse)
+    public ValueTask Unregister(Collapse collapse)
     {
-        if (collapse == null)
-            return;
-
-        using (await _lock.Lock())
+        if (collapse is null) return ValueTask.CompletedTask;
+        lock (_lock)
         {
-            _collapses.Remove(collapse);
+            if (_collapses.Remove(collapse)) _snapshot = null;
         }
+        return ValueTask.CompletedTask;
     }
 
     public async ValueTask ToggleTargets(string? targetExpression)
@@ -40,9 +39,9 @@ public sealed class CollapseCoordinator : ICollapseCoordinator
             return;
 
         Collapse[] snapshot;
-        using (await _lock.Lock())
+        lock (_lock)
         {
-            snapshot = [.. _collapses];
+            snapshot = _snapshot ??= [.. _collapses];
         }
 
         if (snapshot.Length == 0)
@@ -63,17 +62,17 @@ public sealed class CollapseCoordinator : ICollapseCoordinator
             if (tokenStart < 0)
                 continue;
 
-            await ToggleToken(targetExpression[tokenStart..i], snapshot);
+            await ToggleToken(targetExpression.AsMemory(tokenStart, i - tokenStart), snapshot);
             tokenStart = -1;
         }
     }
 
-    private static async ValueTask ToggleToken(string token, Collapse[] snapshot)
+    private static async ValueTask ToggleToken(ReadOnlyMemory<char> token, Collapse[] snapshot)
     {
         if (token.Length == 0)
             return;
 
-        if (token[0] == '.')
+        if (token.Span[0] == '.')
         {
             var className = token[1..];
             if (className.Length == 0)
@@ -81,20 +80,20 @@ public sealed class CollapseCoordinator : ICollapseCoordinator
 
             foreach (var collapse in snapshot)
             {
-                if (collapse.HasCssClass(className))
+                if (collapse.HasCssClass(className.Span))
                     await collapse.Toggle();
             }
 
             return;
         }
 
-        var id = token[0] == '#' ? token[1..] : token;
+        var id = token.Span[0] == '#' ? token[1..] : token;
         if (id.Length == 0)
             return;
 
         foreach (var collapse in snapshot)
         {
-            if (!string.Equals(collapse.Id, id, StringComparison.Ordinal))
+            if (!collapse.Id.AsSpan().SequenceEqual(id.Span))
                 continue;
 
             await collapse.Toggle();

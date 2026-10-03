@@ -4,23 +4,31 @@
 @RenderSemanticTitle()
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "field-label";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "group-data-[disabled=true]/field:opacity-50");
+        PrependClassAttribute(attributes, "group-data-[disabled=true]/field:opacity-50", ref _lastPrependedClass);
     }
 
 }

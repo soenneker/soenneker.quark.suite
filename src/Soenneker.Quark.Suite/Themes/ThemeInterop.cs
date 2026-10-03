@@ -1,5 +1,6 @@
 using Microsoft.JSInterop;
 using System;
+using System.Text.Json;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -32,10 +33,10 @@ public sealed class ThemeInterop : IThemeInterop
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             _callback ??= DotNetObjectReference.Create(this);
-            await module.InvokeVoidAsync("registerThemeChangedCallback", linked, _callback);
-            var isDark = await module.InvokeAsync<bool>("initialize", linked);
-            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
-            return isDark;
+            var payload = await module.InvokeAsync<JsonElement>("initializeState", linked, _callback);
+            var state = JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.ThemeInteropState);
+            OnThemeChanged(state.IsDark, state.Mode);
+            return state.IsDark;
         }
     }
 
@@ -46,9 +47,10 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var isDark = await module.InvokeAsync<bool>("toggle", linked);
-            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
-            return isDark;
+            var payload = await module.InvokeAsync<JsonElement>("toggleState", linked);
+            var state = JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.ThemeInteropState);
+            OnThemeChanged(state.IsDark, state.Mode);
+            return state.IsDark;
         }
     }
 
@@ -69,9 +71,10 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var isDark = await module.InvokeAsync<bool>("useSystem", linked);
-            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
-            return isDark;
+            var payload = await module.InvokeAsync<JsonElement>("useSystemState", linked);
+            var state = JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.ThemeInteropState);
+            OnThemeChanged(state.IsDark, state.Mode);
+            return state.IsDark;
         }
     }
 
@@ -82,16 +85,20 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var isDark = await module.InvokeAsync<bool>("setMode", linked, mode.Value);
-            OnThemeChanged(isDark, await module.InvokeAsync<string>("getMode", linked));
-            return isDark;
+            var payload = await module.InvokeAsync<JsonElement>("setModeState", linked, mode.Value);
+            var state = JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.ThemeInteropState);
+            OnThemeChanged(state.IsDark, state.Mode);
+            return state.IsDark;
         }
     }
 
     [JSInvokable]
     public void OnThemeChanged(bool isDark, string mode)
     {
-        var selectedMode = ThemeMode.FromValue(mode.ToLowerInvariant());
+        var selectedMode = mode.Equals("system", StringComparison.OrdinalIgnoreCase) ? ThemeMode.System
+            : mode.Equals("light", StringComparison.OrdinalIgnoreCase) ? ThemeMode.Light
+            : mode.Equals("dark", StringComparison.OrdinalIgnoreCase) ? ThemeMode.Dark
+            : ThemeMode.FromValue(mode.ToLowerInvariant());
         if (IsDark == isDark && Mode == selectedMode) return;
         Mode = selectedMode;
         IsDark = isDark;

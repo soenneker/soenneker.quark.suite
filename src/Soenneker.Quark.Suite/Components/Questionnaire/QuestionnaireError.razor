@@ -17,6 +17,9 @@
 </p>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Destructive;
     [CascadingParameter]
     internal QuestionnaireItem? ParentItem { get; set; }
 
@@ -26,9 +29,9 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-error";
-        Margin ??= Quark.Margin.FromTop.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.Destructive;
+        Margin ??= _defaultMargin;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -37,7 +40,7 @@
         if (Visible)
             attributes["role"] = "alert";
         else
-            attributes["hidden"] = true;
+            attributes["hidden"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

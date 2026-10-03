@@ -7,6 +7,12 @@
 }
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Is4_5;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Token("[350]");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastBuiltClass;
+
     [CascadingParameter]
     private Citation? ParentCitation { get; set; }
 
@@ -15,15 +21,18 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "citation-carousel-index";
 
-        TextSize ??= Quark.TextSize.Xs;
-        Leading ??= Quark.Leading.Is4_5;
-        FontWeight ??= Quark.FontWeight.Token("[350]");
-        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "tabular-nums"));
+        {
+            const string @class = "tabular-nums";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

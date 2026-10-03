@@ -43,14 +43,14 @@
                 {
                     <Dropdown
                               Visible="@_actionsOpen"
-                              VisibleChanged="HandleActionsOpenChanged"
+                              VisibleChanged="(_cachedHandleActionsOpenChangedDelegate ??= HandleActionsOpenChanged)"
                               RenderWrapper="true">
                         <DropdownToggle
                                         Preset="Appearance.IconActionButtonPreset"
                                         aria-haspopup="menu"
                                         AriaExpanded="@_actionsOpen"
                                         AriaLabel="@(_actionsOpen ? "Close page actions" : "Open page actions")">
-                            <Icon Name="LucideIcon.Ellipsis" Size="Size.Is4" />
+                            <Icon Name="LucideIcon.Ellipsis" Size="_staticCss0" />
                         </DropdownToggle>
                         <DropdownMenu Preset="Appearance.PageHeaderActionsMenuPreset" Role="menu">
                             @Actions
@@ -63,6 +63,9 @@
 }
 
 @code {
+    private static readonly CssValue<SizeBuilder> _staticCss0 = Quark.Size.Is4;
+    private System.Action<bool>? _cachedHandleActionsOpenChangedDelegate;
+
     [Parameter]
     public PageHeaderAppearance Appearance { get; set; } = new();
 

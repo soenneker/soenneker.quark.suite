@@ -10,6 +10,17 @@
 </BradixLabel>
 
 @code {
+    private string? _slotClass;
+    private string? _slotStyle;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.None;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastPrependedClass;
+
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
@@ -27,13 +38,13 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "label";
 
-        FontWeight ??= Quark.FontWeight.Medium;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        Leading ??= Quark.Leading.None;
-        UserSelect ??= Quark.UserSelect.None;
+        FontWeight ??= _defaultFontWeight;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -41,9 +52,9 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+        PrependClassAttribute(attributes, "group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50", ref _lastPrependedClass);
 
-        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

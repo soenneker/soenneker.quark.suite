@@ -21,6 +21,8 @@ else
 }
 
 @code {
+    private string? _lastPrependedClass;
+
     private QuarkAttributeDictionary _linkAttributesBuffer;
     [Parameter]
     public string? Href { get; set; }
@@ -33,7 +35,7 @@ else
         var attributes = _linkAttributesBuffer.Create(2);
         attributes["data-slot"] = "breadcrumb-link";
 
-        PrependClassAttribute(attributes, "transition-colors hover:text-foreground");
+        PrependClassAttribute(attributes, "transition-colors hover:text-foreground", ref _lastPrependedClass);
 
         return attributes;
     }

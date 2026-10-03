@@ -10,16 +10,35 @@
         <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
     }
 
-    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnPointerDownOutside="HandleBackdropPointerDownOutside" OnElementReferenceCaptured="HandleElementReferenceCaptured" AdditionalAttributes="@ContentAttributes">
+    <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnPointerDownOutside="(_cachedHandleBackdropPointerDownOutsideDelegate ??= HandleBackdropPointerDownOutside)" OnElementReferenceCaptured="(_cachedHandleElementReferenceCapturedDelegate ??= HandleElementReferenceCaptured)" AdditionalAttributes="@ContentAttributes">
         @if (ResolvedSide == Soenneker.Bradix.Side.Bottom)
         {
-            <Div DataSlot="drawer-handle" Margin="Quark.Margin.OnX.Auto.FromTop.Is4" Height="Quark.Height.Is2" Width='Quark.Width.Token("[100px]")' Shrink="Quark.Shrink.Is0" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted"></Div>
+            <Div DataSlot="drawer-handle" Margin="_renderCss0" Height="_renderCss1" Width='_renderCss2' Shrink="_renderCss3" Rounded="_renderCss4" BackgroundColor="_renderCss5"></Div>
         }
         @ChildContent
     </BradixDialogContent>
 </BradixDialogPortal>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Auto;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.OnX.Auto.FromTop.Is4;
+    private static readonly CssValue<HeightBuilder> _renderCss1 = Quark.Height.Is2;
+    private static readonly CssValue<WidthBuilder> _renderCss2 = Quark.Width.Token("[100px]");
+    private static readonly CssValue<ShrinkBuilder> _renderCss3 = Quark.Shrink.Is0;
+    private static readonly CssValue<RoundedBuilder> _renderCss4 = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss5 = Quark.BackgroundColor.Muted;
+    private System.Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
+    private System.Func<ElementReference, Task>? _cachedHandleElementReferenceCapturedDelegate;
+
+    private string? _lastPrependedClass;
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _overlayAttributesBuffer;
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
@@ -47,13 +66,13 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "drawer-content";
 
-        Position ??= Quark.Position.Fixed;
-        ZIndex ??= Quark.ZIndex.Is50;
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Auto;
-        OverflowY ??= Quark.Overflow.Y.Auto;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        Position ??= _defaultPosition;
+        ZIndex ??= _defaultZIndex;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        OverflowY ??= _defaultOverflowY;
+        FlexDirection ??= _defaultFlexDirection;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -62,19 +81,17 @@
 
         attributes["data-vaul-drawer-direction"] = ResolvedSide.Value;
 
-        PrependClassAttribute(attributes, "group/drawer-content duration-300 ease-out fill-mode-both motion-reduce:animate-none text-sm text-popover-foreground data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[50vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm data-[state=open]:animate-in data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom-full data-[vaul-drawer-direction=left]:data-[state=open]:slide-in-from-left-full data-[vaul-drawer-direction=right]:data-[state=open]:slide-in-from-right-full data-[vaul-drawer-direction=top]:data-[state=open]:slide-in-from-top-full data-[state=closed]:animate-out data-[vaul-drawer-direction=bottom]:data-[state=closed]:slide-out-to-bottom-full data-[vaul-drawer-direction=left]:data-[state=closed]:slide-out-to-left-full data-[vaul-drawer-direction=right]:data-[state=closed]:slide-out-to-right-full data-[vaul-drawer-direction=top]:data-[state=closed]:slide-out-to-top-full");
+        PrependClassAttribute(attributes, "group/drawer-content duration-300 ease-out fill-mode-both motion-reduce:animate-none text-sm text-popover-foreground data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-r-xl data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[50vh] data-[vaul-drawer-direction=top]:rounded-b-xl data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm data-[state=open]:animate-in data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom-full data-[vaul-drawer-direction=left]:data-[state=open]:slide-in-from-left-full data-[vaul-drawer-direction=right]:data-[state=open]:slide-in-from-right-full data-[vaul-drawer-direction=top]:data-[state=open]:slide-in-from-top-full data-[state=closed]:animate-out data-[vaul-drawer-direction=bottom]:data-[state=closed]:slide-out-to-bottom-full data-[vaul-drawer-direction=left]:data-[state=closed]:slide-out-to-left-full data-[vaul-drawer-direction=right]:data-[state=closed]:slide-out-to-right-full data-[vaul-drawer-direction=top]:data-[state=closed]:slide-out-to-top-full", ref _lastPrependedClass);
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
     {
         var attrs = _overlayAttributesBuffer.Create(3);
-        BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 duration-300 fill-mode-both motion-reduce:animate-none bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
-
-            if (ParentDrawer?.BlurBackdrop == true)
-                AppendClass(ref cls, "backdrop-blur");
-        });
+            const string @class = "fixed inset-0 z-50 duration-300 fill-mode-both motion-reduce:animate-none bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0";
+            const string variant = @class + " " + "backdrop-blur";
+            PrependClassAttribute(attrs, ParentDrawer?.BlurBackdrop == true ? variant : @class, ref _lastBuiltClass);
+        }
         attrs["data-slot"] = "drawer-overlay";
         attrs["aria-hidden"] = "true";
         return attrs;

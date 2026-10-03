@@ -9,8 +9,21 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private string? _lastPrependedClass;
+
     private readonly List<CommandEntry> _entries = [];
     private readonly Dictionary<CommandItem, CommandEntry> _entryLookup = new(ReferenceEqualityComparer.Instance);
+    private List<CommandEntry>? _orderedEntries;
+    private bool _orderDirty = true;
     private CommandItem? _activeItem;
     private string? _search;
     private readonly string _listId = BlazorIdGenerator.New("quark-command-list");
@@ -30,13 +43,14 @@
         var existingEntry = FindEntry(item);
         if (existingEntry is not null)
         {
-            existingEntry.Group = group;
+            UpdateItemGroup(item, group);
             return;
         }
 
-        var entry = new CommandEntry { Item = item, Group = group };
+        var entry = new CommandEntry { Item = item, Group = group, SearchTextSnapshot = item.SearchText };
         _entries.Add(entry);
         _entryLookup.Add(item, entry);
+        _orderDirty = true;
 
         if (_activeItem is null && item.IsVisibleResolved && !item.Disabled)
             _activeItem = item;
@@ -47,8 +61,12 @@
     internal void UpdateItemGroup(CommandItem item, CommandGroup? group)
     {
         var entry = FindEntry(item);
-        if (entry is not null)
+        if (entry is not null && (!ReferenceEquals(entry.Group, group) || !string.Equals(entry.SearchTextSnapshot, item.SearchText, StringComparison.Ordinal)))
+        {
             entry.Group = group;
+            entry.SearchTextSnapshot = item.SearchText;
+            _orderDirty = true;
+        }
     }
 
     internal void UnregisterItem(CommandItem item)
@@ -59,6 +77,8 @@
 
         _entries.Remove(entry);
         _entryLookup.Remove(item);
+        _orderedEntries?.Clear();
+        _orderDirty = true;
 
         if (ReferenceEquals(_activeItem, item))
             _activeItem = GetFirstVisibleEntry()?.Item;
@@ -86,36 +106,37 @@
         if (entry is null || !entry.Matches(_search))
             return null;
 
-        var order = 0;
-        var comparer = StringComparer.OrdinalIgnoreCase;
-        var reachedItem = false;
+        EnsureItemOrder();
+        return entry.SearchOrder;
+    }
 
-        foreach (var candidate in _entries)
+    internal void InvalidateItemOrder() => _orderDirty = true;
+
+    private void EnsureItemOrder()
+    {
+        if (!_orderDirty)
+            return;
+
+        var ordered = _orderedEntries ??= [];
+        ordered.Clear();
+        for (var i = 0; i < _entries.Count; i++)
         {
-            if (!IsSameEntryGroup(candidate.Group, entry.Group) || !candidate.Matches(_search))
-                continue;
-
-            var comparison = comparer.Compare(candidate.Item.SearchText, item.SearchText);
-            if (comparison < 0)
-            {
-                order++;
-                continue;
-            }
-
-            if (comparison == 0)
-            {
-                if (ReferenceEquals(candidate.Item, item))
-                {
-                    reachedItem = true;
-                    continue;
-                }
-
-                if (!reachedItem)
-                    order++;
-            }
+            var entry = _entries[i];
+            entry.RegistrationOrder = i;
+            if (entry.Matches(_search))
+                ordered.Add(entry);
         }
 
-        return order;
+        ordered.Sort(CommandEntryOrderComparer.Instance);
+        var order = 0;
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            if (i == 0 || !IsSameEntryGroup(ordered[i - 1].Group, ordered[i].Group))
+                order = 0;
+            ordered[i].SearchOrder = order++;
+        }
+
+        _orderDirty = false;
     }
 
     internal bool GroupHasVisibleItems(CommandGroup group)
@@ -160,6 +181,7 @@
     internal async Task SetSearch(string? value)
     {
         _search = value;
+        _orderDirty = true;
         _activeItem = GetFirstVisibleEntry()?.Item;
         await RefreshOffThread();
     }
@@ -276,15 +298,15 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "command";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.IsFull;
-        Width ??= Quark.Width.IsFull;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Xl;
-        Padding ??= Quark.Padding.Is1;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        TextColor ??= Quark.TextColor.PopoverForeground;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        FlexDirection ??= _defaultFlexDirection;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -292,7 +314,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "size-full rounded-xl!");
+        PrependClassAttribute(attributes, "size-full rounded-xl!", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

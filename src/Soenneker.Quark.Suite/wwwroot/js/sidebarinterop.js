@@ -127,7 +127,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
   const gap = root.querySelector('[data-slot="sidebar-gap"]');
   const sign = rightSide ? -1 : 1;
   const clamp = value => Math.min(maxWidth, Math.max(minWidth, value));
-  let drag = null;
+  let drag = null, frame = 0;
 
   const readWidth = () => container.getBoundingClientRect().width;
   const updateAria = () => {
@@ -137,15 +137,18 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
   };
   const apply = value => {
     const width = clamp(value);
+    const roundedWidth = Math.round(width);
     root.style.setProperty('--sidebar-width', `${width}px`);
-    handle.setAttribute('aria-valuenow', String(Math.round(width)));
-    handle.setAttribute('aria-valuetext', `${Math.round(width)} pixels`);
+    handle.setAttribute('aria-valuenow', String(roundedWidth));
+    handle.setAttribute('aria-valuetext', `${roundedWidth} pixels`);
     return width;
   };
   const notify = width => componentRef.invokeMethodAsync('OnWidthChanged', width);
   const stop = (commit) => {
     if (!drag) return;
     const previous = drag;
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
     drag = null;
     if (!commit) {
       if (previous.inlineWidth) root.style.setProperty('--sidebar-width', previous.inlineWidth);
@@ -175,13 +178,18 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
     document.addEventListener('selectstart', preventSelection);
     handle.setPointerCapture(event.pointerId);
   };
+  const renderDrag = () => {
+    frame = 0;
+    if (drag) drag.width = apply(drag.pendingWidth);
+  };
   const move = event => {
     if (!drag || drag.id !== event.pointerId) return;
-    drag.width = apply(drag.startWidth + sign * (event.clientX - drag.x));
+    drag.pendingWidth = drag.startWidth + sign * (event.clientX - drag.x);
+    if (!frame) frame = requestAnimationFrame(renderDrag);
   };
   const up = event => {
     if (!drag || drag.id !== event.pointerId) return;
-    move(event);
+    drag.width = apply(drag.startWidth + sign * (event.clientX - drag.x));
     return stop(true);
   };
   const cancel = event => {
@@ -193,7 +201,7 @@ export function registerResizeHandle(handle, componentRef, minWidth, maxWidth, r
       stop(false);
       return;
     }
-    if (drag || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    if (drag || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home' && event.key !== 'End')) return;
     event.preventDefault();
     const inlineWidth = root.style.getPropertyValue('--sidebar-width');
     const current = inlineWidth.endsWith('px') ? parseFloat(inlineWidth) : readWidth();

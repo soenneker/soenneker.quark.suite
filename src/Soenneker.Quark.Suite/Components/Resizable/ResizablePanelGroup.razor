@@ -15,6 +15,12 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private string? _lastPrependedClass;
+    private string? _lastBuiltStyle;
+
     private readonly List<ResizablePanel> _panels = [];
     private readonly List<ResizableHandle> _handles = [];
     private DotNetObjectReference<ResizablePanelGroup>? _dotNetRef;
@@ -39,9 +45,9 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "resizable-panel-group";
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.IsFull;
-        Width ??= Quark.Width.IsFull;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
 
     }
 
@@ -71,14 +77,15 @@
 
     internal int RegisterPanel(ResizablePanel panel)
     {
-        if (!_panels.Contains(panel))
+        var index = _panels.IndexOf(panel);
+        if (index < 0)
         {
+            index = _panels.Count;
             _panels.Add(panel);
             _layoutDirty = true;
             UpdatePanelIndexes();
         }
-
-        return _panels.IndexOf(panel);
+        return index;
     }
 
     internal void UnregisterPanel(ResizablePanel panel)
@@ -93,13 +100,14 @@
 
     internal int RegisterHandle(ResizableHandle handle)
     {
-        if (!_handles.Contains(handle))
+        var index = _handles.IndexOf(handle);
+        if (index < 0)
         {
+            index = _handles.Count;
             _handles.Add(handle);
             UpdateHandleIndexes();
         }
-
-        return _handles.IndexOf(handle);
+        return index;
     }
 
     internal void UnregisterHandle(ResizableHandle handle)
@@ -128,7 +136,7 @@
     internal string BuildPanelStyle(ResizablePanel panel, int index)
     {
         var size = GetPanelSize(index);
-        var styles = new PooledStringBuilder(256);
+        var styles = new PooledStringBuilder(stackalloc char[256]);
 
         try
         {
@@ -142,24 +150,42 @@
             AppendStyleDecl(ref styles, "padding: 0px");
             AppendStyleDecl(ref styles, "margin: 0px");
             AppendStyleDecl(ref styles, "display: flex");
-            AppendStyleDecl(ref styles, "flex: ", $"{size.ToString("0.###", CultureInfo.InvariantCulture)} 1 0px");
+            styles.Append("; flex: ");
+            styles.AppendInvariant(size);
+            styles.Append(" 1 0px");
             AppendStyleDecl(ref styles, "overflow: hidden");
 
             if (IsVertical)
             {
                 if (panel.MinSize.HasValue)
-                    AppendStyleDecl(ref styles, "min-height: ", $"{panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+                {
+                    styles.Append("; min-height: ");
+                    styles.AppendInvariant(panel.MinSize.Value);
+                    styles.Append("px");
+                }
 
                 if (panel.MaxSize.HasValue)
-                    AppendStyleDecl(ref styles, "max-height: ", $"{panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+                {
+                    styles.Append("; max-height: ");
+                    styles.AppendInvariant(panel.MaxSize.Value);
+                    styles.Append("px");
+                }
             }
             else
             {
                 if (panel.MinSize.HasValue)
-                    AppendStyleDecl(ref styles, "min-width: ", $"{panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+                {
+                    styles.Append("; min-width: ");
+                    styles.AppendInvariant(panel.MinSize.Value);
+                    styles.Append("px");
+                }
 
                 if (panel.MaxSize.HasValue)
-                    AppendStyleDecl(ref styles, "max-width: ", $"{panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+                {
+                    styles.Append("; max-width: ");
+                    styles.AppendInvariant(panel.MaxSize.Value);
+                    styles.Append("px");
+                }
             }
 
             return styles.ToString();
@@ -195,15 +221,15 @@
         return StartHandleDrag(handleIndex, e.ClientX, e.ClientY, 0);
     }
 
-    private async Task StartHandleDrag(int handleIndex, double clientX, double clientY, long pointerId)
+    private Task StartHandleDrag(int handleIndex, double clientX, double clientY, long pointerId)
     {
         if (_isDragging || handleIndex < 0 || handleIndex >= _panels.Count - 1)
-            return;
+            return Task.CompletedTask;
 
         _dotNetRef ??= DotNetObjectReference.Create(this);
         _isDragging = true;
 
-        await ResizableInterop.StartDrag(ElementRef, pointerId, clientX, clientY, OrientationValue, _dotNetRef, handleIndex);
+        return ResizableInterop.StartDrag(ElementRef, pointerId, clientX, clientY, OrientationValue, _dotNetRef, handleIndex).AsTask();
     }
 
     internal async Task HandleHandleKeyDown(int handleIndex, KeyboardEventArgs e)
@@ -273,7 +299,7 @@
             totalWeight += Math.Max(1, _panels[i].DefaultSize);
         }
 
-        var nextSizes = new double[_panels.Count];
+        var nextSizes = _sizes is not null && _sizes.Length == _panels.Count ? _sizes : new double[_panels.Count];
 
         for (var i = 0; i < _panels.Count; i++)
         {
@@ -370,23 +396,23 @@
         return Math.Clamp((pixelValue.Value / containerSize) * 100d, 0d, 100d);
     }
 
-    private static void NormalizeSizes(IList<double> sizes)
+    private static void NormalizeSizes(double[] sizes)
     {
-        if (sizes.Count == 0)
+        if (sizes.Length == 0)
             return;
 
         var total = 0d;
 
-        for (var i = 0; i < sizes.Count; i++)
+        for (var i = 0; i < sizes.Length; i++)
         {
             total += sizes[i];
         }
 
         if (total <= 0)
         {
-            var equal = 100d / sizes.Count;
+            var equal = 100d / sizes.Length;
 
-            for (var i = 0; i < sizes.Count; i++)
+            for (var i = 0; i < sizes.Length; i++)
             {
                 sizes[i] = equal;
             }
@@ -394,7 +420,7 @@
             return;
         }
 
-        for (var i = 0; i < sizes.Count; i++)
+        for (var i = 0; i < sizes.Length; i++)
         {
             sizes[i] = (sizes[i] / total) * 100d;
         }
@@ -438,17 +464,11 @@
         if (!attributes.ContainsKey("dir") && !string.IsNullOrWhiteSpace(DirectionProviderDir))
             attributes["dir"] = DirectionProviderDir!;
 
-        PrependClassAttribute(attributes, "aria-[orientation=vertical]:flex-col");
+        PrependClassAttribute(attributes, "aria-[orientation=vertical]:flex-col", ref _lastPrependedClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "height:100%");
-            AppendStyleDecl(ref sty, "width:100%");
-            AppendStyleDecl(ref sty, "overflow:hidden");
-            AppendStyleDecl(ref sty, "display:flex");
-            AppendStyleDecl(ref sty, $"flex-direction:{(IsVertical ? "column" : "row")}");
-            AppendStyleDecl(ref sty, "flex-wrap:nowrap");
-        });
+        PrependStyleAttribute(attributes, IsVertical
+            ? "height:100%; width:100%; overflow:hidden; display:flex; flex-direction:column; flex-wrap:nowrap"
+            : "height:100%; width:100%; overflow:hidden; display:flex; flex-direction:row; flex-wrap:nowrap", ref _lastBuiltStyle);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

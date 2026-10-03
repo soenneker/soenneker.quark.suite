@@ -35,10 +35,7 @@ internal sealed class ValidatorHandler : IValidationHandler
 
         if (args.Status == ValidationStatus.Error)
         {
-            var messages = new List<string>();
-
-            if (args.ErrorText.HasContent())
-                messages.Add(args.ErrorText);
+            string[] messages = args.ErrorText.HasContent() ? [args.ErrorText] : [];
 
             ctx.NotifyValidationStatusChanged(ValidationStatus.Error, messages);
         }
@@ -81,9 +78,7 @@ internal sealed class ValidatorHandler : IValidationHandler
 
         if (args.Status == ValidationStatus.Error)
         {
-            var messages = new List<string>();
-            if (args.ErrorText.HasContent())
-                messages.Add(args.ErrorText);
+            string[] messages = args.ErrorText.HasContent() ? [args.ErrorText] : [];
             ctx.NotifyValidationStatusChanged(ValidationStatus.Error, messages);
         }
         else

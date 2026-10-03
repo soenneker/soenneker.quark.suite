@@ -5,20 +5,26 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Between;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "item-header";
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Between;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "basis-full");
+        PrependClassAttribute(attributes, "basis-full", ref _lastPrependedClass);
     }
 }

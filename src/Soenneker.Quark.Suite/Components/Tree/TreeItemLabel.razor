@@ -6,17 +6,31 @@
     {
         if (ParentTreeItem.ToggleIconType == TreeToggleIconType.PlusMinus)
         {
-            <Icon Name="@(ParentTreeItem.Expanded ? LucideIcon.Minus : LucideIcon.Plus)" Size="Quark.Size.Is3_5" TextColor="Quark.TextColor.MutedForeground" aria-hidden="true" />
+            <Icon Name="@(ParentTreeItem.Expanded ? LucideIcon.Minus : LucideIcon.Plus)" Size="_renderCss0" TextColor="_renderCss1" aria-hidden="true" />
         }
         else
         {
-            <Icon Name="LucideIcon.ChevronDown" TextColor="Quark.TextColor.MutedForeground" Size="Quark.Size.Is4" Transition="Quark.Transition.Transform" Class="@GetChevronClass()" aria-hidden="true" />
+            <Icon Name="LucideIcon.ChevronDown" TextColor="_renderCss1" Size="_renderCss2" Transition="_renderCss3" Class="@GetChevronClass()" aria-hidden="true" />
         }
     }
     @ChildContent
 </Span>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2.OnY.Token("1.5");
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background.OnHover.Accent;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3_5;
+    private static readonly CssValue<TextColorBuilder> _renderCss1 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<SizeBuilder> _renderCss2 = Quark.Size.Is4;
+    private static readonly CssValue<TransitionBuilder> _renderCss3 = Quark.Transition.Transform;
+    private string? _lastPrependedClass;
+
     [CascadingParameter(Name = "ParentTreeItem")]
     public TreeItem? ParentTreeItem { get; set; }
 
@@ -27,32 +41,25 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree-item-label";
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Quark.Items.Center;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.OnX.Is2.OnY.Token("1.5");
-        TextSize ??= Quark.TextSize.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.Background.OnHover.Accent;
-        Transition ??= Quark.Transition.Colors;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground not-in-data-[folder=true]:ps-7 in-focus-visible:ring-3 in-focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0");
+        PrependClassAttribute(attributes, "in-data-[selected=true]:bg-accent in-data-[selected=true]:text-accent-foreground not-in-data-[folder=true]:ps-7 in-focus-visible:ring-3 in-focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0", ref _lastPrependedClass);
     }
 
-    private string GetChevronClass()
-    {
-        var cls = "duration-200 ease-out";
-
-        if (ParentTreeItem?.Expanded != true)
-            cls += " -rotate-90";
-
-        return cls;
-    }
+    private string GetChevronClass() => ParentTreeItem?.Expanded == true
+        ? "duration-200 ease-out" : "duration-200 ease-out -rotate-90";
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

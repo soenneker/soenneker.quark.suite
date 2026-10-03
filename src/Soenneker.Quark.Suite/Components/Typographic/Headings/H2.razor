@@ -5,6 +5,14 @@
 <h2 @attributes="BuildAttributes()">@ChildContent</h2>
 
 @code{
+    private static readonly CssValue<TextSizeBuilder> _typography0 = Quark.TextSize.ThreeXl;
+    private static readonly CssValue<FontWeightBuilder> _typography1 = Quark.FontWeight.Semibold;
+    private static readonly CssValue<TrackingBuilder> _typography2 = Quark.Tracking.Tight;
+    private static readonly CssValue<BorderBuilder> _typography3 = Quark.Border.FromBottom.Default;
+    private static readonly CssValue<PaddingBuilder> _typography4 = Quark.Padding.FromBottom.Is2;
+    private static readonly CssValue<TransitionBuilder> _typography5 = Quark.Transition.Token("transition-colors");
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -15,9 +23,9 @@
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "first:mt-0");
+        PrependClassAttribute(attributes, "first:mt-0", ref _lastPrependedClass);
 
-        BuildTypographyDefaultAttributes(attributes, Quark.TextSize.ThreeXl, Quark.FontWeight.Semibold, Quark.Tracking.Tight, "scroll-m-20", border: Quark.Border.FromBottom.Default,
-            padding: Quark.Padding.FromBottom.Is2, transition: Quark.Transition.Token("transition-colors"));
+        BuildTypographyDefaultAttributes(attributes, _typography0, _typography1, _typography2, "scroll-m-20", border: _typography3,
+            padding: _typography4, transition: _typography5);
     }
 }

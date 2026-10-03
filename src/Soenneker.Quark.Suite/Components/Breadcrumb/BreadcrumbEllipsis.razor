@@ -3,19 +3,26 @@
 
 <span @attributes="BuildAttributes()">
     <Icon Name="LucideIcon.Ellipsis" aria-hidden="true" />
-    <Span ScreenReader="Quark.ScreenReader.Only">More</Span>
+    <Span ScreenReader="_renderCss0">More</Span>
 </span>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is5;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "breadcrumb-ellipsis";
 
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is5;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,6 +32,6 @@
         attributes["role"] = "presentation";
         attributes["aria-hidden"] = "true";
 
-        PrependClassAttribute(attributes, "[&>svg]:size-4");
+        PrependClassAttribute(attributes, "[&>svg]:size-4", ref _lastPrependedClass);
     }
 }

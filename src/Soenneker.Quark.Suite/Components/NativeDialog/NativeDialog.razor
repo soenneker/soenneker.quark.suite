@@ -5,14 +5,27 @@
 @implements INativeDialog
 
 <dialog @ref="ElementRef"
-        @oncancel="HandleCancel"
+        @oncancel="(_cachedHandleCancelDelegate ??= HandleCancel)"
         @oncancel:preventDefault="@(!CloseOnEscape)"
-        @onclose="HandleClose"
+        @onclose="(_cachedHandleCloseDelegate ??= HandleClose)"
         @attributes="BuildAttributes()">
     @ChildContent
 </dialog>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.Auto;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Border;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is6;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private string? _lastPrependedClass;
+
+    private System.Func<Task>? _cachedHandleCancelDelegate;
+    private System.Func<Task>? _cachedHandleCloseDelegate;
+
     [Inject]
     private INativeDialogInterop Interop { get; set; } = null!;
 
@@ -39,38 +52,31 @@
 
     public Task ShowModal() => SetOpen(true, true);
 
-    public async Task Close(string? returnValue = null)
-    {
-        if (!_domOpen)
-        {
-            await SetOpen(false, Modal);
-            return;
-        }
-
-        await Interop.Close(ElementRef, returnValue);
-    }
+    public Task Close(string? returnValue = null) => !_domOpen
+        ? SetOpen(false, Modal)
+        : Interop.Close(ElementRef, returnValue).AsTask();
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "native-dialog";
 
-        Margin ??= Quark.Margin.Auto;
-        Width ??= Quark.Width.IsFull;
+        Margin ??= _defaultMargin;
+        Width ??= _defaultWidth;
         MaxWidth ??= "max-w-[calc(100%-2rem)] sm:max-w-lg";
-        Rounded ??= Quark.Rounded.Xl;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Border;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is6;
-        TextColor ??= Quark.TextColor.PopoverForeground;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "shadow-lg backdrop:bg-black/50 backdrop:backdrop-blur-xs");
+        PrependClassAttribute(attributes, "shadow-lg backdrop:bg-black/50 backdrop:backdrop-blur-xs", ref _lastPrependedClass);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -113,7 +119,9 @@
     {
         _domOpen = false;
 
-        string? returnValue = await Interop.GetReturnValue(ElementRef);
+        string? returnValue = OnClose.HasDelegate || OpenChanged.HasDelegate
+            ? await Interop.GetReturnValue(ElementRef)
+            : null;
 
         if (Open)
         {

@@ -87,7 +87,8 @@ test('node edges measure every unique endpoint before writing paths', async () =
     }
   });
   updateEdges({ edgeLayer: {}, root: { getBoundingClientRect: () => ({ left: 0, top: 0 }) },
-    ports, panX: 0, panY: 0, zoom: 1, edgeElements: [edge(0, 1), edge(1, 2)], addHandleElements: [] });
+    ports, portCenters: new Map(), geometryFrame: 0, panX: 0, panY: 0, zoom: 1,
+    edgeElements: [edge(0, 1), edge(1, 2)], addHandleElements: [] });
   assert.deepEqual(operations.slice(0, 3), ['read0', 'read1', 'read2']);
   assert.equal(operations.filter(op => op.startsWith('read')).length, 3);
   assert.ok(operations.slice(3).every(op => op === 'write'));

@@ -5,6 +5,10 @@
 <blockquote @attributes="BuildAttributes()">@ChildContent</blockquote>
 
 @code {
+    private static readonly CssValue<FontStyleBuilder> _defaultFontStyle = Quark.FontStyle.Italic;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is6;
+    private string? _lastPrependedClass;
+
     /// <summary>
     /// Gets or sets the cite attribute for the blockquote.
     /// </summary>
@@ -16,8 +20,8 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "blockquote";
 
-        FontStyle ??= Quark.FontStyle.Italic;
-        Margin ??= Quark.Margin.FromTop.Is6;
+        FontStyle ??= _defaultFontStyle;
+        Margin ??= _defaultMargin;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,7 +31,7 @@
         if (Cite.HasContent())
             attributes["cite"] = Cite;
 
-        PrependClassAttribute(attributes, "border-l-2 pl-6");
+        PrependClassAttribute(attributes, "border-l-2 pl-6", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

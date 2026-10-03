@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @using Microsoft.JSInterop
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -58,12 +58,7 @@
         DataSlot ??= "scrollspy";
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-    }
-
-    private async ValueTask Initialize()
+private async ValueTask Initialize()
     {
         using (await _interopLock.Lock())
         {
@@ -99,11 +94,8 @@
     }
 
     [JSInvokable]
-    public async Task HandleUpdate(string id)
-    {
-        if (OnUpdate.HasDelegate)
-            await OnUpdate.InvokeAsync(id);
-    }
+    public Task HandleUpdate(string id) =>
+        OnUpdate.HasDelegate ? OnUpdate.InvokeAsync(id) : Task.CompletedTask;
 
     public override async ValueTask DisposeAsync()
     {

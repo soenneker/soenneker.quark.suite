@@ -9,9 +9,9 @@
                   Disabled="@Disabled"
                   TextValue="@Text"
                   AdditionalAttributes="@ItemAttributes">
-    <Span DataSlot="select-item-indicator" Position="Quark.Position.Absolute" Right="Quark.Right.Is2" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Items.Center" Justify="Quark.Justify.Center">
+    <Span DataSlot="select-item-indicator" Position="_renderCss0" Right="_renderCss1" Display="_renderCss2" Size="_renderCss3" ItemsAlign="_staticCss0" Justify="_renderCss4">
         <BradixSelectItemIndicator>
-            <Svg Size="Quark.Size.Is4" aria-hidden="true" NativeWidth="24" NativeHeight="24" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke="Quark.Stroke.Current" StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round">
+            <Svg Size="_renderCss3" aria-hidden="true" NativeWidth="24" NativeHeight="24" ViewBox="0 0 24 24" Fill="_renderCss5" Stroke="_renderCss6" StrokeWidth="_renderCss7" StrokeLineCap="_renderCss8" StrokeLineJoin="_renderCss9">
                 <path d="M20 6 9 17l-5-5"></path>
             </Svg>
         </BradixSelectItemIndicator>
@@ -29,6 +29,30 @@
 </BradixSelectItem>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromRight.Is8.FromLeft.Token("1.5").OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnFocus.Accent;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.OnFocus.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Absolute;
+    private static readonly CssValue<RightBuilder> _renderCss1 = Quark.Right.Is2;
+    private static readonly CssValue<DisplayBuilder> _renderCss2 = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _renderCss3 = Quark.Size.Is4;
+    private static readonly CssValue<JustifyBuilder> _renderCss4 = Quark.Justify.Center;
+    private static readonly CssValue<FillBuilder> _renderCss5 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss6 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss7 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<StrokeLineCapBuilder> _renderCss8 = Quark.StrokeLineCap.Round;
+    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss9 = Quark.StrokeLineJoin.Round;
+    private string? _lastPrependedClass;
+
     private string? _registeredValue;
 
     /// <summary>
@@ -54,19 +78,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "select-item";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.FromRight.Is8.FromLeft.Token("1.5").OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
-        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Default;
+        Position ??= _defaultPosition;
+        Display ??= _renderCss2;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
 
     }
 
@@ -89,16 +113,13 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "not-data-[variant=destructive]:focus:**:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground");
-            AppendClass(ref cls, "data-disabled:pointer-events-none data-disabled:opacity-50");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2");
-        });
+            const string @class = "not-data-[variant=destructive]:focus:**:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
 
         if (Hidden)
-            attributes["hidden"] = true;
+            attributes["hidden"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

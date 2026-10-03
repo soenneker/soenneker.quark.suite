@@ -14,12 +14,33 @@
         }
         @if (MultipleSources)
         {
-            <Span DataSlot="citation-extra-count" TextSize="Quark.TextSize.Xs" Leading='Quark.Leading.Is4_5' FontWeight='Quark.FontWeight.Token("[350]")' TextColor="Quark.TextColor.MutedForeground" FontVariantNumeric="Quark.FontVariantNumeric.TabularNums">+@(ParentCitation.ResolvedCitations.Count - 1)</Span>
+            <Span DataSlot="citation-extra-count" TextSize="_renderCss0" Leading='_renderCss1' FontWeight='_renderCss2' TextColor="_renderCss3" FontVariantNumeric="_renderCss4">+@(ParentCitation.ResolvedCitations.Count - 1)</Span>
         }
     </HoverCardTrigger>
 }
 
 @code {
+    private static readonly CssValue<MaxWidthBuilder> _staticCss0 = Quark.MaxWidth.IsFull;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is5_5;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is100;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<VerticalAlignBuilder> _defaultVerticalAlign = Quark.VerticalAlign.Middle;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding3 = Quark.Padding.OnY.Is1.FromLeft.Is1.FromRight.Token("1.5");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnX.Is2.OnY.Is1;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<TextSizeBuilder> _renderCss0 = Quark.TextSize.Xs;
+    private static readonly CssValue<LeadingBuilder> _renderCss1 = Quark.Leading.Is4_5;
+    private static readonly CssValue<FontWeightBuilder> _renderCss2 = Quark.FontWeight.Token("[350]");
+    private static readonly CssValue<TextColorBuilder> _renderCss3 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<FontVariantNumericBuilder> _renderCss4 = Quark.FontVariantNumeric.TabularNums;
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private Citation? ParentCitation { get; set; }
 
@@ -55,29 +76,29 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "citation-trigger";
 
-        Display ??= Quark.Display.InlineFlex;
-        Height ??= Quark.Height.Is5_5;
-        MaxWidth ??= Quark.MaxWidth.IsFull;
-        Cursor ??= Quark.Cursor.Default;
-        ItemsAlign ??= Quark.Items.Center;
-        Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
-        Opacity ??= Quark.Opacity.Is100;
-        Transition ??= Quark.Transition.Colors;
-        VerticalAlign ??= Quark.VerticalAlign.Middle;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        MaxWidth ??= _staticCss0;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _defaultItemsAlign;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Opacity ??= _defaultOpacity;
+        Transition ??= _defaultTransition;
+        VerticalAlign ??= _defaultVerticalAlign;
 
         if (HasText && ShowFavicon)
         {
-            Gap ??= Quark.Gap.Is1;
-            Padding ??= Quark.Padding.OnY.Is1.FromLeft.Is1.FromRight.Token("1.5");
+            Gap ??= _defaultGap;
+            Padding ??= _defaultPadding3;
         }
         else if (HasText)
         {
-            Padding ??= Quark.Padding.OnX.Is2.OnY.Is1;
+            Padding ??= _defaultPadding2;
         }
         else if (ShowFavicon)
         {
-            Padding ??= Quark.Padding.Is1;
+            Padding ??= _defaultPadding;
         }
     }
 
@@ -85,6 +106,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "not-prose hover:bg-border data-[state=open]:opacity-100");
+        PrependClassAttribute(attributes, "not-prose hover:bg-border data-[state=open]:opacity-100", ref _lastPrependedClass);
     }
 }

@@ -1,4 +1,6 @@
 const editors = new Map();
+const edgeParts = new WeakMap();
+const addHandleParts = new WeakMap();
 
 export function initialize(id, optionsJson, dotNetRef) {
     destroy(id);
@@ -37,6 +39,8 @@ export function initialize(id, optionsJson, dotNetRef) {
         validationSequence: 0,
         destroyed: false,
         ports: new Map(),
+        portCenters: new Map(),
+        geometryFrame: 0,
         nodeElements: [],
         edgeElements: [],
         edgeElementsById: new Map(),
@@ -127,9 +131,10 @@ export function refresh(id, optionsJson, selectedNodeId, selectedNodeIds, select
 
     state.options = normalizeOptions(JSON.parse(optionsJson));
     state.selectedNodeId = selectedNodeId;
-    state.selectedNodeIds = new Set(Array.isArray(selectedNodeIds) && selectedNodeIds.length > 0
-        ? selectedNodeIds
-        : selectedNodeId ? [selectedNodeId] : []);
+    state.selectedNodeIds.clear();
+    if (Array.isArray(selectedNodeIds) && selectedNodeIds.length > 0) {
+        for (const nodeId of selectedNodeIds) state.selectedNodeIds.add(nodeId);
+    } else if (selectedNodeId) state.selectedNodeIds.add(selectedNodeId);
     state.selectedEdgeId = selectedEdgeId;
     state.viewport = state.root.querySelector("[data-slot='node-editor-viewport']");
     state.background = state.root.querySelector("[data-slot='node-editor-background']");
@@ -151,7 +156,7 @@ export function refresh(id, optionsJson, selectedNodeId, selectedNodeIds, select
     state.edgeElements.forEach(edge => {
         edge.dataset.selected = edge.dataset.edgeId === selectedEdgeId ? "true" : "false";
         edge.setAttribute("aria-pressed", edge.dataset.selected);
-        const path = edge.querySelector("[data-edge-path]");
+        const path = (edgeParts.get(edge) ?? refreshEdgeParts(edge)).path;
         if (path) {
             path.classList.toggle("stroke-primary", edge.dataset.selected === "true");
             path.classList.toggle("stroke-muted-foreground/35", edge.dataset.selected !== "true");
@@ -197,7 +202,7 @@ export function fitView(id) {
     }
 
     flushPointerMove(state);
-    const nodes = [...state.root.querySelectorAll("[data-slot='node-editor-node']")];
+    const nodes = state.root.querySelectorAll("[data-slot='node-editor-node']");
     if (nodes.length === 0) {
         resetView(id);
         return;
@@ -489,7 +494,7 @@ function handlePointerMove(state, event) {
 
     const deltaX = x - interaction.startX;
     const deltaY = y - interaction.startY;
-    interaction.nodes.forEach(item => setNodePosition(item.node, item.startX + deltaX, item.startY + deltaY));
+    for (const item of interaction.nodes) setNodePosition(item.node, item.startX + deltaX, item.startY + deltaY);
     scheduleEdgeUpdate(state);
 }
 
@@ -1033,9 +1038,14 @@ function selectNodes(state, nodeIds, notify = true, forceNotify = false) {
 }
 
 function setSelectedNodes(state, nodeIds) {
-    const ids = [...nodeIds];
-    state.selectedNodeIds = new Set(ids);
-    state.selectedNodeId = ids.length > 0 ? ids[ids.length - 1] : null;
+    if (nodeIds !== state.selectedNodeIds) {
+        state.selectedNodeIds.clear();
+        state.selectedNodeId = null;
+        for (const id of nodeIds) {
+            state.selectedNodeIds.add(id);
+            state.selectedNodeId = id;
+        }
+    }
     state.selectedEdgeId = null;
     state.nodeElements.forEach(node => {
         node.dataset.selected = state.selectedNodeIds.has(node.dataset.nodeId) ? "true" : "false";
@@ -1050,7 +1060,7 @@ function selectEdge(state, edgeId) {
     }
 
     state.selectedNodeId = null;
-    state.selectedNodeIds = new Set();
+    state.selectedNodeIds.clear();
     state.selectedEdgeId = edgeId;
     state.nodeElements.forEach(node => {
         node.dataset.selected = "false";
@@ -1065,7 +1075,7 @@ function applyEdgeSelectionAppearance(state) {
         const selected = edge.dataset.edgeId === state.selectedEdgeId;
         edge.dataset.selected = selected ? "true" : "false";
         edge.setAttribute("aria-pressed", edge.dataset.selected);
-        const path = edge.querySelector("[data-edge-path]");
+        const path = (edgeParts.get(edge) ?? refreshEdgeParts(edge)).path;
         if (path) {
             path.classList.toggle("stroke-primary", selected);
             path.classList.toggle("stroke-muted-foreground/35", !selected);
@@ -1091,25 +1101,28 @@ function updateMarqueeSelection(state, interaction, clientX, clientY) {
     const width = Math.abs(endX - startX);
     const height = Math.abs(endY - startY);
 
-    const selectionBounds = {
-        left: rootRect.left + left,
-        top: rootRect.top + top,
-        right: rootRect.left + left + width,
-        bottom: rootRect.top + top + height
-    };
-    const intersecting = new Set();
+    const selectionBounds = interaction.selectionBounds ??= {};
+    selectionBounds.left = rootRect.left + left;
+    selectionBounds.top = rootRect.top + top;
+    selectionBounds.right = rootRect.left + left + width;
+    selectionBounds.bottom = rootRect.top + top + height;
+    const intersecting = interaction.intersecting ??= new Set();
+    intersecting.clear();
     for (const node of state.nodeElements) {
         if (node.dataset.selectable === "true" && node.dataset.disabled !== "true" &&
             rectanglesIntersect(selectionBounds, node.getBoundingClientRect())) {
             intersecting.add(node.dataset.nodeId);
         }
     }
-    const next = new Set(interaction.mode === "replace" ? [] : interaction.baseSelection);
-
-    intersecting.forEach(nodeId => {
+    const next = interaction.nextSelection ??= new Set();
+    next.clear();
+    if (interaction.mode !== "replace") {
+        for (const nodeId of interaction.baseSelection) next.add(nodeId);
+    }
+    for (const nodeId of intersecting) {
         if (interaction.mode === "toggle" && interaction.baseSelection.has(nodeId)) next.delete(nodeId);
         else next.add(nodeId);
-    });
+    }
 
     if (state.selectionRectangle) {
         state.selectionRectangle.classList.remove("hidden");
@@ -1117,7 +1130,7 @@ function updateMarqueeSelection(state, interaction, clientX, clientY) {
         state.selectionRectangle.style.width = `${round(width)}px`;
         state.selectionRectangle.style.height = `${round(height)}px`;
     }
-    setSelectedNodes(state, [...next]);
+    setSelectedNodes(state, next);
 }
 
 function hideSelectionRectangle(state) {
@@ -1132,9 +1145,10 @@ function rectanglesIntersect(first, second) {
 }
 
 function setNodePosition(node, x, y) {
-    node.dataset.nodeX = `${round(x)}`;
-    node.dataset.nodeY = `${round(y)}`;
-    node.style.transform = `translate3d(${round(x)}px, ${round(y)}px, 0)`;
+    const roundedX = round(x), roundedY = round(y);
+    node.dataset.nodeX = `${roundedX}`;
+    node.dataset.nodeY = `${roundedY}`;
+    node.style.transform = `translate3d(${roundedX}px, ${roundedY}px, 0)`;
 }
 
 function applyViewport(state, notify = false) {
@@ -1208,7 +1222,7 @@ function scheduleViewportChanged(state) {
         clearTimeout(state.viewportTimer);
     }
 
-    state.viewportTimer = setTimeout(() => {
+    state.notifyViewportChanged ??= () => {
         state.viewportTimer = 0;
         if (!state.destroyed) {
             state.dotNetRef.invokeMethodAsync("InvokeViewportChanged", {
@@ -1217,11 +1231,13 @@ function scheduleViewportChanged(state) {
                 zoom: round(state.zoom)
             }).catch(console.error);
         }
-    }, 120);
+    };
+    state.viewportTimer = setTimeout(state.notifyViewportChanged, 120);
 }
 
 function rebuildGeometryIndex(state) {
-    state.ports = new Map();
+    state.portCenters.clear();
+    state.ports.clear();
     state.root.querySelectorAll("[data-slot='node-editor-port']").forEach(port => {
         const key = portKey(port.dataset.nodeId, port.dataset.portId);
         if (state.ports.has(key)) {
@@ -1232,11 +1248,12 @@ function rebuildGeometryIndex(state) {
     });
 
     state.nodeElements = [...state.root.querySelectorAll("[data-node-id][data-slot='node-editor-node']")];
-    state.edgeElements = [...state.root.querySelectorAll("[data-edge-id]")];
-    state.edgeElementsById = new Map();
-    state.connectionCounts = new Map();
+    state.edgeElements = state.root.querySelectorAll("[data-edge-id]");
+    state.edgeElementsById.clear();
+    state.connectionCounts.clear();
 
     state.edgeElements.forEach(edge => {
+        refreshEdgeParts(edge);
         const sourceKey = portKey(edge.dataset.sourceNode, edge.dataset.sourcePort);
         const targetKey = portKey(edge.dataset.targetNode, edge.dataset.targetPort);
         if (!state.ports.has(sourceKey)) {
@@ -1252,13 +1269,33 @@ function rebuildGeometryIndex(state) {
         incrementConnectionCount(state.connectionCounts, "target", edge.dataset.targetNode, edge.dataset.targetPort);
     });
 
-    state.addHandleElements = [...state.root.querySelectorAll("[data-add-handle-edge]")];
+    state.addHandleElements = state.root.querySelectorAll("[data-add-handle-edge]");
     state.addHandleElements.forEach(handle => {
+        refreshAddHandleParts(handle);
         const sourceKey = portKey(handle.dataset.sourceNode, handle.dataset.sourcePort);
         if (!state.ports.has(sourceKey)) {
             throw new Error(`Add handle '${handle.dataset.addHandleEdge}' references missing source port '${handle.dataset.sourcePort}' on node '${handle.dataset.sourceNode}'.`);
         }
     });
+}
+
+function refreshEdgeParts(edge) {
+    let parts = edgeParts.get(edge);
+    if (!parts) { parts = {}; edgeParts.set(edge, parts); }
+    parts.path = edge.querySelector("[data-edge-path]");
+    parts.hit = edge.querySelector("[data-edge-hit]");
+    parts.sourceEndpoint = edge.querySelector("[data-edge-endpoint='source']");
+    parts.targetEndpoint = edge.querySelector("[data-edge-endpoint='target']");
+    parts.label = edge.querySelector("[data-edge-label]");
+    return parts;
+}
+
+function refreshAddHandleParts(handle) {
+    let parts = addHandleParts.get(handle);
+    if (!parts) { parts = {}; addHandleParts.set(handle, parts); }
+    parts.path = handle.querySelector("[data-add-handle-path]");
+    parts.label = handle.querySelector("[data-edge-label]");
+    return parts;
 }
 
 function updateEdges(state) {
@@ -1267,34 +1304,27 @@ function updateEdges(state) {
     }
 
     const rootRect = state.root.getBoundingClientRect();
-    const portCenters = new Map();
-    const getPortCenter = port => {
-        let center = portCenters.get(port);
-        if (!center) {
-            center = portCenterInGraph(state, port, rootRect);
-            portCenters.set(port, center);
-        }
-        return center;
-    };
+    state.geometryFrame++;
 
     // Read port geometry before changing any SVG paths. Interleaving these reads with
     // path/label writes forces layout repeatedly on graphs with many connections.
     for (const edge of state.edgeElements) {
         const source = state.ports.get(portKey(edge.dataset.sourceNode, edge.dataset.sourcePort));
         const target = state.ports.get(portKey(edge.dataset.targetNode, edge.dataset.targetPort));
-        if (source) getPortCenter(source);
-        if (target) getPortCenter(target);
+        if (source) readEdgePortCenter(state, source, rootRect);
+        if (target) readEdgePortCenter(state, target, rootRect);
     }
     for (const placeholder of state.addHandleElements) {
         const source = state.ports.get(portKey(placeholder.dataset.sourceNode, placeholder.dataset.sourcePort));
-        if (source) getPortCenter(source);
+        if (source) readEdgePortCenter(state, source, rootRect);
     }
 
     state.edgeElements.forEach(edge => {
         const source = state.ports.get(portKey(edge.dataset.sourceNode, edge.dataset.sourcePort));
         const target = state.ports.get(portKey(edge.dataset.targetNode, edge.dataset.targetPort));
-        const path = edge.querySelector("[data-edge-path]");
-        const hit = edge.querySelector("[data-edge-hit]");
+        const parts = edgeParts.get(edge) ?? refreshEdgeParts(edge);
+        const path = parts.path;
+        const hit = parts.hit;
 
         if (!source || !target || !path || !hit) {
             edge.style.display = "none";
@@ -1302,37 +1332,38 @@ function updateEdges(state) {
         }
 
         edge.style.display = "";
-        const start = getPortCenter(source);
-        const end = getPortCenter(target);
+        const start = state.portCenters.get(source);
+        const end = state.portCenters.get(target);
         const d = edgePath(start.x, start.y, end.x, end.y, source.dataset.placement, target.dataset.placement);
 
         path.setAttribute("d", d);
         hit.setAttribute("d", d);
-        const sourceEndpoint = edge.querySelector("[data-edge-endpoint='source']");
-        const targetEndpoint = edge.querySelector("[data-edge-endpoint='target']");
+        const sourceEndpoint = parts.sourceEndpoint;
+        const targetEndpoint = parts.targetEndpoint;
         sourceEndpoint?.setAttribute("cx", `${round(start.x)}`);
         sourceEndpoint?.setAttribute("cy", `${round(start.y)}`);
         targetEndpoint?.setAttribute("cx", `${round(end.x)}`);
         targetEndpoint?.setAttribute("cy", `${round(end.y)}`);
 
-        const label = edge.querySelector("[data-edge-label]");
+        const label = parts.label;
         positionPathLabel(path, label);
     });
 
     state.addHandleElements.forEach(placeholder => {
         const source = state.ports.get(portKey(placeholder.dataset.sourceNode, placeholder.dataset.sourcePort));
-        const path = placeholder.querySelector("[data-add-handle-path]");
+        const parts = addHandleParts.get(placeholder) ?? refreshAddHandleParts(placeholder);
+        const path = parts.path;
         if (!source || !path) {
             placeholder.style.display = "none";
             return;
         }
 
         placeholder.style.display = "";
-        const start = getPortCenter(source);
+        const start = state.portCenters.get(source);
         const targetX = number(placeholder.dataset.targetX);
         const targetY = number(placeholder.dataset.targetY);
         path.setAttribute("d", edgePath(start.x, start.y, targetX, targetY, source.dataset.placement, oppositePlacement(source.dataset.placement)));
-        positionPathLabel(path, placeholder.querySelector("[data-edge-label]"));
+        positionPathLabel(path, parts.label);
     });
 }
 
@@ -1340,12 +1371,23 @@ function portKey(nodeId, portId) {
     return `${nodeId ?? ""}\u0000${portId ?? ""}`;
 }
 
-function portCenterInGraph(state, port, rootRect = state.root.getBoundingClientRect()) {
+function readEdgePortCenter(state, port, rootRect) {
+    let center = state.portCenters.get(port);
+    if (!center) {
+        center = { x: 0, y: 0, frame: -1 };
+        state.portCenters.set(port, center);
+    }
+    if (center.frame !== state.geometryFrame) {
+        portCenterInGraph(state, port, rootRect, center);
+        center.frame = state.geometryFrame;
+    }
+}
+
+function portCenterInGraph(state, port, rootRect = state.root.getBoundingClientRect(), result = {}) {
     const rect = port.getBoundingClientRect();
-    return {
-        x: ((rect.left + rect.width / 2) - rootRect.left - state.panX) / state.zoom,
-        y: ((rect.top + rect.height / 2) - rootRect.top - state.panY) / state.zoom
-    };
+    result.x = ((rect.left + rect.width / 2) - rootRect.left - state.panX) / state.zoom;
+    result.y = ((rect.top + rect.height / 2) - rootRect.top - state.panY) / state.zoom;
+    return result;
 }
 
 function findPort(state, nodeId, portId) {
@@ -1448,6 +1490,18 @@ function clientToGraph(state, clientX, clientY) {
     };
 }
 
+// Edge routing is synchronous and does not expose these scratch points.
+const routePoints = Array.from({ length: 6 }, () => ({ x: 0, y: 0 }));
+const cleanedRoutePoints = [];
+const routeTop = { x: 0, y: -1 }, routeRight = { x: 1, y: 0 };
+const routeLeft = { x: -1, y: 0 }, routeBottom = { x: 0, y: 1 };
+function setRoutePoint(index, x, y) {
+    const point = routePoints[index];
+    point.x = x;
+    point.y = y;
+    return point;
+}
+
 function edgePath(x1, y1, x2, y2, sourcePlacement, targetPlacement) {
     const source = direction(sourcePlacement);
     const target = direction(targetPlacement);
@@ -1458,9 +1512,10 @@ function edgePath(x1, y1, x2, y2, sourcePlacement, targetPlacement) {
     const lead = placementsOppose && forwardDistance > 0
         ? Math.min(preferredLead, forwardDistance / 3)
         : preferredLead;
-    const startLead = { x: x1 + source.x * lead, y: y1 + source.y * lead };
-    const endLead = { x: x2 + target.x * lead, y: y2 + target.y * lead };
-    const points = [{ x: x1, y: y1 }, startLead];
+    const startLead = setRoutePoint(1, x1 + source.x * lead, y1 + source.y * lead);
+    const endLead = setRoutePoint(4, x2 + target.x * lead, y2 + target.y * lead);
+    setRoutePoint(0, x1, y1);
+    let count = 2;
 
     const sourceIsHorizontal = source.x !== 0;
     const targetIsHorizontal = target.x !== 0;
@@ -1470,40 +1525,46 @@ function edgePath(x1, y1, x2, y2, sourcePlacement, targetPlacement) {
             const targetIsAhead = (endLead.x - startLead.x) * source.x > 0;
             if (targetIsAhead) {
                 const middleX = (startLead.x + endLead.x) / 2;
-                points.push({ x: middleX, y: startLead.y }, { x: middleX, y: endLead.y });
+                setRoutePoint(count++, middleX, startLead.y);
+                setRoutePoint(count++, middleX, endLead.y);
             } else {
                 const side = y2 === y1 ? 1 : Math.sign(y2 - y1);
                 const middleY = y1 + side * Math.max(72, lead * 1.5);
-                points.push({ x: startLead.x, y: middleY }, { x: endLead.x, y: middleY });
+                setRoutePoint(count++, startLead.x, middleY);
+                setRoutePoint(count++, endLead.x, middleY);
             }
         } else {
             const targetIsAhead = (endLead.y - startLead.y) * source.y > 0;
             if (targetIsAhead) {
                 const middleY = (startLead.y + endLead.y) / 2;
-                points.push({ x: startLead.x, y: middleY }, { x: endLead.x, y: middleY });
+                setRoutePoint(count++, startLead.x, middleY);
+                setRoutePoint(count++, endLead.x, middleY);
             } else {
                 const side = x2 === x1 ? 1 : Math.sign(x2 - x1);
                 const middleX = x1 + side * Math.max(72, lead * 1.5);
-                points.push({ x: middleX, y: startLead.y }, { x: middleX, y: endLead.y });
+                setRoutePoint(count++, middleX, startLead.y);
+                setRoutePoint(count++, middleX, endLead.y);
             }
         }
     } else {
-        points.push({ x: endLead.x, y: startLead.y });
+        setRoutePoint(count++, endLead.x, startLead.y);
     }
 
-    points.push(endLead, { x: x2, y: y2 });
-    return roundedOrthogonalPath(points, 12);
+    setRoutePoint(count++, endLead.x, endLead.y);
+    setRoutePoint(count++, x2, y2);
+    return roundedOrthogonalPath(routePoints, count, 12);
 }
 
-function roundedOrthogonalPath(points, requestedRadius) {
-    const cleaned = [];
-
-    points.forEach(point => {
+function roundedOrthogonalPath(points, count, requestedRadius) {
+    const cleaned = cleanedRoutePoints;
+    cleaned.length = 0;
+    for (let index = 0; index < count; index++) {
+        const point = points[index];
         const previous = cleaned[cleaned.length - 1];
         if (!previous || previous.x !== point.x || previous.y !== point.y) {
             cleaned.push(point);
         }
-    });
+    }
 
     for (let index = cleaned.length - 2; index > 0; index--) {
         const previous = cleaned[index - 1];
@@ -1514,7 +1575,8 @@ function roundedOrthogonalPath(points, requestedRadius) {
         const continuesHorizontally = previous.y === current.y && current.y === next.y &&
             (current.x - previous.x) * (next.x - current.x) > 0;
         if (continuesVertically || continuesHorizontally) {
-            cleaned.splice(index, 1);
+            for (let nextIndex = index + 1; nextIndex < cleaned.length; nextIndex++) cleaned[nextIndex - 1] = cleaned[nextIndex];
+            cleaned.length--;
         }
     }
 
@@ -1531,16 +1593,11 @@ function roundedOrthogonalPath(points, requestedRadius) {
         const incomingLength = Math.hypot(current.x - previous.x, current.y - previous.y);
         const outgoingLength = Math.hypot(next.x - current.x, next.y - current.y);
         const radius = Math.min(requestedRadius, incomingLength / 2, outgoingLength / 2);
-        const before = {
-            x: current.x + (previous.x - current.x) / incomingLength * radius,
-            y: current.y + (previous.y - current.y) / incomingLength * radius
-        };
-        const after = {
-            x: current.x + (next.x - current.x) / outgoingLength * radius,
-            y: current.y + (next.y - current.y) / outgoingLength * radius
-        };
-
-        path += ` L ${round(before.x)} ${round(before.y)} Q ${round(current.x)} ${round(current.y)} ${round(after.x)} ${round(after.y)}`;
+        const beforeX = current.x + (previous.x - current.x) / incomingLength * radius;
+        const beforeY = current.y + (previous.y - current.y) / incomingLength * radius;
+        const afterX = current.x + (next.x - current.x) / outgoingLength * radius;
+        const afterY = current.y + (next.y - current.y) / outgoingLength * radius;
+        path += ` L ${round(beforeX)} ${round(beforeY)} Q ${round(current.x)} ${round(current.y)} ${round(afterX)} ${round(afterY)}`;
     }
 
     const end = cleaned[cleaned.length - 1];
@@ -1548,10 +1605,10 @@ function roundedOrthogonalPath(points, requestedRadius) {
 }
 
 function direction(placement) {
-    if (placement === "top") return { x: 0, y: -1 };
-    if (placement === "right") return { x: 1, y: 0 };
-    if (placement === "left") return { x: -1, y: 0 };
-    return { x: 0, y: 1 };
+    if (placement === "top") return routeTop;
+    if (placement === "right") return routeRight;
+    if (placement === "left") return routeLeft;
+    return routeBottom;
 }
 
 function oppositePlacement(placement) {

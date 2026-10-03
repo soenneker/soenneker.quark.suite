@@ -7,6 +7,9 @@
 }
 
 @code {
+    private string? _panelId;
+    private string? _tabId;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
 
@@ -28,22 +31,22 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-content";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["role"] = "tabpanel";
-        attributes["id"] = $"stepper-panel-{ResolvedValue}";
-        attributes["aria-labelledby"] = $"stepper-tab-{ResolvedValue}";
+        attributes["id"] = QuarkStringCache.Concat("stepper-panel-", "", ResolvedValue, ref _panelId);
+        attributes["aria-labelledby"] = QuarkStringCache.Concat("stepper-tab-", "", ResolvedValue, ref _tabId);
         attributes["data-state"] = ParentStepper?.ActiveValue ?? "1";
 
         if (!IsActive && ForceMount)
         {
-            attributes["hidden"] = true;
+            attributes["hidden"] = QuarkAttributeValues.True;
             attributes["aria-hidden"] = "true";
-            attributes["inert"] = true;
+            attributes["inert"] = QuarkAttributeValues.True;
         }
     }
 

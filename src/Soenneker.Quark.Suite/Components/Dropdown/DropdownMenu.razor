@@ -23,6 +23,19 @@
 </BradixDropdownMenuPortal>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is32;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Token("(--radix-dropdown-menu-trigger-width)");
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowX = Quark.Overflow.X.Hidden;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private static readonly CssValue<DurationBuilder> _defaultDuration = Quark.Duration.Is150;
+    private string? _lastPrependedClass;
+
     /// <summary>
     /// Gets or sets whether the dropdown menu should be right-aligned.
     /// </summary>
@@ -84,31 +97,27 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "dropdown-menu-content";
 
-        ZIndex ??= Quark.ZIndex.Is50;
+        ZIndex ??= _defaultZIndex;
         MaxHeight ??= "max-h-(--radix-dropdown-menu-content-available-height)";
-        Width ??= Quark.Width.Token("(--radix-dropdown-menu-trigger-width)");
-        MinWidth ??= Quark.MinWidth.Is32;
-        OverflowX ??= Quark.Overflow.X.Hidden;
-        OverflowY ??= Quark.Overflow.Y.Auto;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is1;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Shadow ??= Quark.Shadow.Md;
-        Duration ??= Quark.Duration.Is150;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        OverflowX ??= _defaultOverflowX;
+        OverflowY ??= _defaultOverflowY;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
+        Duration ??= _defaultDuration;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "cn-menu-target cn-menu-translucent");
-            AppendClass(ref cls, "ring-1 ring-foreground/10");
-            AppendClass(ref cls, "origin-(--radix-dropdown-menu-content-transform-origin)");
-            AppendClass(ref cls, "data-[state=closed]:overflow-hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-        });
+            const string @class = "cn-menu-target cn-menu-translucent ring-1 ring-foreground/10 origin-(--radix-dropdown-menu-content-transform-origin) data-[state=closed]:overflow-hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()

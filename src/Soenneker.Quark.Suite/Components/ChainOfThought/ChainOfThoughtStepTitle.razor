@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 @if (StepContext?.HasContent == true)
@@ -6,11 +6,11 @@
     <CollapsibleTrigger Attributes="@BuildAttributes()">
         @TitleContent
         <Icon Name="LucideIcon.ChevronDown"
-              Margin="Quark.Margin.FromLeft.Auto"
-              Size="Quark.Size.Is4"
-              Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]"))'
+              Margin="_renderCss0"
+              Size="_renderCss1"
+              Opacity='_staticCss1'
               Rotate='Quark.Rotate.Is180.Modifier("group-data-[state=open]")'
-              Transition="Quark.Transition.All"
+              Transition="_renderCss2"
               aria-hidden="true" />
     </CollapsibleTrigger>
 }
@@ -22,6 +22,25 @@ else
 }
 
 @code {
+    private static readonly CssValue<CursorBuilder> _conditionalCss0 = Quark.Cursor.Pointer;
+    private static readonly CssValue<CursorBuilder> _conditionalCss1 = Quark.Cursor.Default;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<OpacityBuilder> _staticCss1 = CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.OnGroupHover, Quark.Opacity.Is100.Modifier("group-data-[state=open]"));
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.FromLeft.Auto;
+    private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
+    private static readonly CssValue<TransitionBuilder> _renderCss2 = Quark.Transition.All;
+    private static readonly CssValue<RoundedBuilder> _renderCss3 = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss4 = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<TruncateBuilder> _renderCss5 = Quark.Truncate.Default;
+    private string? _lastBuiltClass;
+
     [CascadingParameter]
     private ChainOfThoughtStepContext? StepContext { get; set; }
 
@@ -36,9 +55,9 @@ else
         }
         else
         {
-            <Span Size="Quark.Size.Is4" Rounded="Quark.Rounded.Full" BackgroundColor="Quark.BackgroundColor.Muted" aria-hidden="true" />
+            <Span Size="_renderCss1" Rounded="_renderCss3" BackgroundColor="_renderCss4" aria-hidden="true" />
         }
-        <Span MinWidth="Quark.MinWidth.Is0" Truncate="Quark.Truncate.Default">@ChildContent</Span>
+        <Span MinWidth="_staticCss0" Truncate="_renderCss5">@ChildContent</Span>
     </text>;
 
     protected override void ApplyDefaultParameters()
@@ -46,14 +65,14 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "chain-of-thought-step-title";
 
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Cursor ??= StepContext?.HasContent == true ? Quark.Cursor.Pointer : Quark.Cursor.Default;
-        ItemsAlign ??= Quark.Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Transition ??= Quark.Transition.Colors;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        Cursor ??= StepContext?.HasContent == true ? _conditionalCss0 : _conditionalCss1;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -61,7 +80,10 @@ else
         base.BuildAttributesCore(attributes);
 
         if (StepContext?.HasContent == true)
-            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group hover:text-foreground"));
+            {
+            const string @class = "group hover:text-foreground";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

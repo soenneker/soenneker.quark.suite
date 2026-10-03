@@ -4,17 +4,24 @@
 <p @attributes="BuildAttributes()">@ChildContent</p>
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-description";
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-pretty"));
+        {
+            const string @class = "text-pretty";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

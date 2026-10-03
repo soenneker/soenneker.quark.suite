@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
 public partial class SeoHead
 {
+    private InvariantDateTimeOffsetTextCache _publishedTime;
+    private InvariantDateTimeOffsetTextCache _modifiedTime;
+    private QuarkInt32Attribute _imageWidth;
+    private QuarkInt32Attribute _imageHeight;
+    private HashSet<string>? _validatedUrls;
+    private HashSet<string>? _alternateLanguages;
+
     [Parameter, EditorRequired] public string Title { get; set; } = "";
     [Parameter, EditorRequired] public string Description { get; set; } = "";
     [Parameter] public string? CanonicalUrl { get; set; }
@@ -48,6 +56,8 @@ public partial class SeoHead
 
     private string? _structuredDataJson;
     private string? _structuredDataMarkup;
+    private string? _robotsContent;
+    private (bool, bool, bool, bool, int?, string?, int?) _robotsInputs;
 
     private string EffectiveSocialTitle => ValueOr(SocialTitle, Title);
     private string EffectiveSocialDescription => ValueOr(SocialDescription, Description);
@@ -60,28 +70,57 @@ public partial class SeoHead
     {
         get
         {
-            var directives = new List<string> { NoIndex ? "noindex" : "index", NoFollow ? "nofollow" : "follow" };
-            if (NoSnippet)
-                directives.Add("nosnippet");
-            if (NoImageIndex)
-                directives.Add("noimageindex");
-            if (!NoIndex)
+            var inputs = (NoIndex, NoFollow, NoSnippet, NoImageIndex, MaxSnippet, MaxImagePreview, MaxVideoPreview);
+            if (_robotsContent is not null && inputs == _robotsInputs)
+                return _robotsContent;
+
+            var builder = new PooledStringBuilder(stackalloc char[128]);
+            try
             {
-                if (!NoSnippet && MaxSnippet.HasValue)
-                    directives.Add("max-snippet:" + MaxSnippet.Value.ToString(CultureInfo.InvariantCulture));
-                if (HasValue(MaxImagePreview))
-                    directives.Add("max-image-preview:" + MaxImagePreview);
-                if (!NoSnippet && MaxVideoPreview.HasValue)
-                    directives.Add("max-video-preview:" + MaxVideoPreview.Value.ToString(CultureInfo.InvariantCulture));
+                builder.Append(NoIndex ? "noindex, " : "index, ");
+                builder.Append(NoFollow ? "nofollow" : "follow");
+                if (NoSnippet) builder.Append(", nosnippet");
+                if (NoImageIndex) builder.Append(", noimageindex");
+                if (!NoIndex)
+                {
+                    if (!NoSnippet && MaxSnippet.HasValue)
+                        AppendRobotsLimit(ref builder, ", max-snippet:", MaxSnippet.Value);
+                    if (HasValue(MaxImagePreview))
+                    {
+                        builder.Append(", max-image-preview:");
+                        builder.Append(MaxImagePreview);
+                    }
+                    if (!NoSnippet && MaxVideoPreview.HasValue)
+                        AppendRobotsLimit(ref builder, ", max-video-preview:", MaxVideoPreview.Value);
+                }
+
+                _robotsContent = builder.ToString();
+                _robotsInputs = inputs;
+                return _robotsContent;
             }
-            return string.Join(", ", directives);
+            finally
+            {
+                builder.Dispose();
+            }
         }
+    }
+
+    private static void AppendRobotsLimit(ref PooledStringBuilder builder, string name, int value)
+    {
+        builder.Append(name);
+        Span<char> formatted = stackalloc char[11];
+        value.TryFormat(formatted, out int written, provider: CultureInfo.InvariantCulture);
+        builder.Append(formatted[..written]);
     }
 
     protected override void OnParametersSet()
     {
         if (NoIndex)
             return;
+
+        var urlCapacity = 3 + (AlternateLanguageUrls?.Count ?? 0) + (ArticleAuthorUrls?.Count ?? 0);
+        if (_validatedUrls is not null && _validatedUrls.Count > Math.Max(16, urlCapacity * 2))
+            _validatedUrls.Clear();
 
         ValidateUrl(CanonicalUrl, nameof(CanonicalUrl));
         ValidateUrl(SocialImageUrl, nameof(SocialImageUrl));
@@ -99,7 +138,8 @@ public partial class SeoHead
 
         if (AlternateLanguageUrls is not null)
         {
-            var languages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var languages = _alternateLanguages ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            languages.Clear();
             foreach (KeyValuePair<string, string> alternate in AlternateLanguageUrls)
             {
                 if (!HasValue(alternate.Key) || !languages.Add(alternate.Key))
@@ -136,20 +176,20 @@ public partial class SeoHead
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(fallback))]
     private static string? ValueOr(string? value, string? fallback) => HasValue(value) ? value : fallback;
 
-    private static string FormatDate(DateTimeOffset value) => value.ToString("O", CultureInfo.InvariantCulture);
 
-    private static void ValidateRequiredUrl(string? value, string parameterName)
+    private void ValidateRequiredUrl(string? value, string parameterName)
     {
         if (!HasValue(value))
             throw new ArgumentException("Supply an absolute public HTTP or HTTPS URL.", parameterName);
         ValidateUrl(value, parameterName);
     }
 
-    private static void ValidateUrl(string? value, string parameterName)
+    private void ValidateUrl(string? value, string parameterName)
     {
-        if (HasValue(value) &&
-            (!Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) ||
-             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
+        if (!HasValue(value) || _validatedUrls?.Contains(value) == true) return;
+        if (!Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
             throw new ArgumentException("Supply an absolute public HTTP or HTTPS URL.", parameterName);
+        (_validatedUrls ??= new HashSet<string>(StringComparer.Ordinal)).Add(value);
     }
 }

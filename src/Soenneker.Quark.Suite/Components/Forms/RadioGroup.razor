@@ -9,14 +9,14 @@
 <CascadingValue Name="ParentRadioGroup" Value="@this" IsFixed="true">
     @if (UsesAutoSaveStatusSlot)
     {
-        <Div Display="Quark.Display.InlineFlex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
+        <Div Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
             <BradixRadioGroup Name="@EffectiveName"
                               Required="@Required"
                               Disabled="@Disabled"
                               Value="@Value"
                               Dir="@ResolvedDirection"
                               Orientation="@ResolvedOrientation"
-                              ValueChanged="HandleValueChanged"
+                              ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                               AdditionalAttributes="@GroupAttributes">
                 @ChildContent
             </BradixRadioGroup>
@@ -37,7 +37,7 @@
                           Value="@Value"
                           Dir="@ResolvedDirection"
                           Orientation="@ResolvedOrientation"
-                          ValueChanged="HandleValueChanged"
+                          ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                           AdditionalAttributes="@GroupAttributes">
             @ChildContent
         </BradixRadioGroup>
@@ -45,8 +45,21 @@
 </CascadingValue>
 
 @code {
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<ItemsBuilder> _renderCss1 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+
+    private string? _lastBuiltClass;
+
+    private object? _cachedHandleGroupBlurFocusEventArgsCallback;
+    private object? _cachedHandleGroupKeyDownKeyboardEventArgsCallback;
+
     private string? _name;
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private AutoSaveController<string?> _autoSave;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? CascadedDirection { get; set; }
@@ -121,9 +134,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "radio-group";
 
-        Display ??= Quark.Display.Grid;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        Gap ??= _renderCss2;
     }
 
     /// <summary>
@@ -134,7 +147,7 @@
         if (Value == value) return;
         Value = value;
         await ValueChanged.InvokeAsync(Value);
-        await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         Refresh();
     }
 
@@ -147,16 +160,13 @@
         ApplyFieldControlAttributes(attributes);
 
         if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleGroupBlur);
+            attributes["onblur"] = (_cachedHandleGroupBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleGroupBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleGroupKeyDown);
+            attributes["onkeydown"] = (_cachedHandleGroupKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleGroupKeyDown));
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (Orientation?.Value == "horizontal")
-                AppendClass(ref cls, "grid-flow-col auto-cols-max");
-        });
+        if (Orientation?.Value == "horizontal")
+            PrependClassAttribute(attributes, "grid-flow-col auto-cols-max", ref _lastBuiltClass);
     }
 
     private Task HandleValueChanged(string? value)
@@ -167,7 +177,7 @@
     private async Task HandleGroupBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -175,7 +185,7 @@
     private async Task HandleGroupKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }

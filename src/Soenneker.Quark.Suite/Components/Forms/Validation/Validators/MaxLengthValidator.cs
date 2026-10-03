@@ -8,18 +8,18 @@ namespace Soenneker.Quark;
 public sealed class MaxLengthValidator : QuarkValidator
 {
     private readonly int _maxLength;
-    private readonly string _errorMessage;
+    private readonly ValidationResult _errorResult;
 
     public MaxLengthValidator(int maxLength)
     {
         _maxLength = maxLength;
-        _errorMessage = $"The field must be no more than {maxLength} characters long.";
+        _errorResult = ValidationResult.Error($"The field must be no more than {maxLength} characters long.");
     }
 
     public MaxLengthValidator(int maxLength, string errorMessage)
     {
         _maxLength = maxLength;
-        _errorMessage = errorMessage;
+        _errorResult = ValidationResult.Error(errorMessage);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public sealed class MaxLengthValidator : QuarkValidator
             return ValidationResult.Success(); // Non-string values are considered valid for max length
 
         if (str.Length > _maxLength)
-            return ValidationResult.Error(_errorMessage);
+            return _errorResult;
 
         return ValidationResult.Success();
     }

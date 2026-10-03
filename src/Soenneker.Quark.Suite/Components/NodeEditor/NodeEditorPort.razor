@@ -6,10 +6,34 @@
 
 <button type="button" @attributes="BuildAttributes()">
     @ChildContent
-    <Span ScreenReader="Quark.ScreenReader.Only">@AccessibleLabel</Span>
+    <Span ScreenReader="_renderCss0">@AccessibleLabel</Span>
 </button>
 
 @code {
+    private InvariantDoubleTextCache _offsetText;
+    private InvariantDoubleTextCache _positionText;
+    private int? _maxConnections;
+    private string _maxConnectionsText = "";
+    private string? _accessibleLabel;
+    private string? _positionStyle;
+    private string? _position;
+    private bool _horizontal;
+
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is3;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is2;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Xs;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
     [CascadingParameter]
     public NodeEditorNodeContext? NodeContext { get; set; }
 
@@ -37,7 +61,7 @@
     private NodeEditorPortPlacement EffectivePlacement =>
         Placement ?? (Type == NodeEditorPortType.Target ? NodeEditorPortPlacement.Top : NodeEditorPortPlacement.Bottom);
 
-    private string AccessibleLabel => Label ?? $"{Type.Value} connection";
+    private string AccessibleLabel => Label ?? QuarkStringCache.Concat(Type.Value, " ", "connection", ref _accessibleLabel);
 
     protected override void OnParametersSet()
     {
@@ -60,17 +84,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "node-editor-port";
-        Position ??= Quark.Position.Absolute;
-        Display ??= Quark.Display.Grid;
-        Size ??= Quark.Size.Is3;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Full;
-        Border ??= Quark.Border.Is2;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
-        Shadow ??= Quark.Shadow.Xs;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Shadow ??= _defaultShadow;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -84,40 +108,38 @@
         attributes["data-port-id"] = PortId;
         attributes["data-port-type"] = Type.Value;
         attributes["data-placement"] = EffectivePlacement.Value;
-        attributes["data-position"] = Offset.ToString("0.###", CultureInfo.InvariantCulture);
-        attributes["data-max-connections"] = MaxConnections?.ToString(CultureInfo.InvariantCulture) ?? "";
+        attributes["data-position"] = _offsetText.Get(Offset, "0.###");
+        if (_maxConnections != MaxConnections)
+        {
+            _maxConnections = MaxConnections;
+            _maxConnectionsText = MaxConnections?.ToString(CultureInfo.InvariantCulture) ?? "";
+        }
+        attributes["data-max-connections"] = _maxConnectionsText;
         attributes["data-at-capacity"] = "false";
         attributes["data-disabled"] = Disabled ? "true" : "false";
         attributes["aria-label"] = AccessibleLabel;
         attributes["title"] = AccessibleLabel;
-        attributes["disabled"] = Disabled;
+        attributes["disabled"] = Disabled ? QuarkAttributeValues.True : QuarkAttributeValues.False;
         attributes["aria-disabled"] = Disabled ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        const string prefix = "quark-node-editor-port z-20 touch-none border-muted-foreground/70 transition-[transform,background-color,border-color,box-shadow] duration-150 hover:scale-125 hover:border-primary hover:bg-primary focus-visible:scale-125 focus-visible:border-primary focus-visible:bg-primary focus-visible:ring-2 focus-visible:ring-ring aria-pressed:scale-125 aria-pressed:border-primary aria-pressed:bg-primary data-[connection-target=true]:scale-125 data-[connection-target=true]:border-primary data-[connection-target=true]:bg-primary/15 data-[connection-target=true]:ring-4 data-[connection-target=true]:ring-primary/10 data-[at-capacity=true]:border-muted-foreground/35 data-[at-capacity=true]:bg-muted data-[at-capacity=true]:opacity-60 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40 ";
+        PrependClassAttribute(attributes, EffectivePlacement.Value switch
         {
-            AppendClass(ref cls, "quark-node-editor-port z-20 touch-none border-muted-foreground/70 transition-[transform,background-color,border-color,box-shadow] duration-150");
-            AppendClass(ref cls, "hover:scale-125 hover:border-primary hover:bg-primary focus-visible:scale-125 focus-visible:border-primary focus-visible:bg-primary focus-visible:ring-2 focus-visible:ring-ring");
-            AppendClass(ref cls, "aria-pressed:scale-125 aria-pressed:border-primary aria-pressed:bg-primary");
-            AppendClass(ref cls, "data-[connection-target=true]:scale-125 data-[connection-target=true]:border-primary data-[connection-target=true]:bg-primary/15 data-[connection-target=true]:ring-4 data-[connection-target=true]:ring-primary/10");
-            AppendClass(ref cls, "data-[at-capacity=true]:border-muted-foreground/35 data-[at-capacity=true]:bg-muted data-[at-capacity=true]:opacity-60");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40");
+            "top" => prefix + "top-0 -translate-x-1/2 -translate-y-1/2",
+            "right" => prefix + "right-0 translate-x-1/2 -translate-y-1/2",
+            "bottom" => prefix + "bottom-0 -translate-x-1/2 translate-y-1/2",
+            _ => prefix + "left-0 -translate-x-1/2 -translate-y-1/2",
+        }, ref _lastBuiltClass);
 
-            AppendClass(ref cls, EffectivePlacement.Value switch
-            {
-                "top" => "top-0 -translate-x-1/2 -translate-y-1/2",
-                "right" => "right-0 translate-x-1/2 -translate-y-1/2",
-                "bottom" => "bottom-0 -translate-x-1/2 translate-y-1/2",
-                _ => "left-0 -translate-x-1/2 -translate-y-1/2"
-            });
-        });
-
-        BuildStyleAttribute(attributes, (ref sty) =>
+        var position = _positionText.Get(Offset * 100, "0.###");
+        var horizontal = EffectivePlacement.Value is "top" or "bottom";
+        if (_positionStyle is null || _position != position || _horizontal != horizontal)
         {
-            var position = (Offset * 100).ToString("0.###", CultureInfo.InvariantCulture);
-            AppendStyleDecl(ref sty, EffectivePlacement.Value is "top" or "bottom"
-                ? $"left: {position}%"
-                : $"top: {position}%");
-        });
+            _position = position;
+            _horizontal = horizontal;
+            _positionStyle = horizontal ? $"left: {position}%" : $"top: {position}%";
+        }
+        PrependStyleAttribute(attributes, _positionStyle, ref _lastBuiltStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hashCode)

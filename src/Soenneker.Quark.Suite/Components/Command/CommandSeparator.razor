@@ -4,14 +4,17 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Negative1;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsPx;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Border;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "command-separator";
 
-        Margin ??= Quark.Margin.OnX.Negative1;
-        Height ??= Quark.Height.IsPx;
-        BackgroundColor ??= Quark.BackgroundColor.Border;
+        Margin ??= _defaultMargin;
+        Height ??= _defaultHeight;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

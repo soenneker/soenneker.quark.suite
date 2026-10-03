@@ -30,22 +30,23 @@
                 data-sonner-theme="@GetThemeAttribute()"
                 data-y-position="@GetYPosition(group.Position)"
                 data-x-position="@GetXPosition(group.Position)"
-                style="@GetToasterStyle(group.Toasts)"
-                @onmouseenter="(() => SetExpanded(group.Position, true))"
-                @onmouseleave="(() => SetExpanded(group.Position, false))"
-                @onfocusin="(() => SetFocused(group.Position, true))"
-                @onfocusout="(() => SetFocused(group.Position, false))"
-                @onpointerdown="(() => SetInteracting(group.Position, true))"
-                @onpointerup="(() => SetInteracting(group.Position, false))"
-                @onpointercancel="(() => SetInteracting(group.Position, false))"
-                @onlostpointercapture="(() => SetInteracting(group.Position, false))">
+                style="@group.GetStyle()"
+                @onmouseenter="group.Enter"
+                @onmouseleave="group.Leave"
+                @onfocusin="group.FocusIn"
+                @onfocusout="group.FocusOut"
+                @onpointerdown="group.InteractStart"
+                @onpointerup="group.InteractEnd"
+                @onpointercancel="group.InteractEnd"
+                @onlostpointercapture="group.InteractEnd">
                 @for (var i = 0; i < group.Toasts.Count; i++)
                 {
                     var toast = group.Toasts[i];
+                    var view = GetToastView(toast);
                     var isVisible = i < VisibleToasts && !toast.Removed;
                     var expanded = IsExpanded(group.Position);
                     var toastHeight = GetToastHeight(toast);
-                    var toastStyle = GetToastStyle(group.Toasts.Count, i, toastOffset, toastHeight);
+                    var toastStyle = view.GetStyle(group.Toasts.Count, i, toastOffset, toastHeight);
                     toastOffset += toastHeight + DefaultGap;
 
                     <li @key="toast.Id"
@@ -62,7 +63,7 @@
                         data-visible="@GetBoolString(isVisible)"
                         data-y-position="@GetYPosition(group.Position)"
                         data-x-position="@GetXPosition(group.Position)"
-                        data-index="@i"
+                        data-index="@view.IndexAttribute.Get(i)"
                         data-front="@GetBoolString(i == 0)"
                         data-swiping="false"
                         data-dismissible="@GetBoolString(toast.Dismissible)"
@@ -77,7 +78,7 @@
                             </div>
                         }
 
-                        <Div data-content Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is0_5">
+                        <Div data-content Display="_renderCss0" FlexDirection="_renderCss1" Gap="_renderCss2">
                             @if (toast.Content is not null)
                             {
                                 @toast.Content
@@ -86,7 +87,7 @@
                             {
                                 @if (toast.Title.HasContent())
                                 {
-                                    <Div data-title FontWeight="Quark.FontWeight.Medium" Leading="Quark.Leading.Normal">@toast.Title</Div>
+                                    <Div data-title FontWeight="_renderCss3" Leading="_renderCss4">@toast.Title</Div>
                                 }
 
                                 @if (toast.Description.HasContent())
@@ -102,7 +103,7 @@
                                     class="@GetActionButtonClass()"
                                     data-button="true"
                                     data-action="true"
-                                    @onclick="() => HandleAction(toast)">
+                                    @onclick="view.Action">
                                 @toast.ActionLabel
                             </button>
                         }
@@ -113,8 +114,8 @@
                                     class="@GetCloseButtonClass()"
                                     data-close-button
                                     aria-label="Close toast"
-                                    @onclick="() => HandleDismiss(toast.Id)">
-                                <Icon Name="LucideIcon.X" Size="Quark.Size.Is3" aria-hidden="true" />
+                                    @onclick="view.Dismiss">
+                                <Icon Name="LucideIcon.X" Size="_renderCss5" aria-hidden="true" />
                             </button>
                         }
                     </li>
@@ -125,13 +126,27 @@
 }
 
 @code {
+    private string? _ariaLabel;
+    private Func<Task>? _stateChangedCallback;
+    private Predicate<string>? _staleSwipeId;
+    private GroupView?[]? _groupViews;
+    private Dictionary<string, ToastView>? _toastViews;
+    private HashSet<string>? _currentToastIds;
+    private string[]? _hotkeySnapshot;
+
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss1 = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is0_5;
+    private static readonly CssValue<FontWeightBuilder> _renderCss3 = Quark.FontWeight.Medium;
+    private static readonly CssValue<LeadingBuilder> _renderCss4 = Quark.Leading.Normal;
+    private static readonly CssValue<SizeBuilder> _renderCss5 = Quark.Size.Is3;
     private const double DefaultToastHeight = 73.3;
     private const int DefaultToastWidth = 356;
     private const int DefaultGap = 14;
     private const int DesktopOffset = 24;
     private const int MobileOffset = 16;
     private const string DefaultToasterId = "";
-    private static readonly IReadOnlyList<string> DefaultHotkey = ["altKey", "KeyT"];
+    private static readonly IReadOnlyList<string> DefaultHotkey = Array.AsReadOnly<string>(["altKey", "KeyT"]);
 
     [Parameter]
     public string? ToasterId { get; set; }
@@ -165,24 +180,24 @@
 
     private ElementReference _sectionRef;
     private Dictionary<string, double> _heights = new(StringComparer.Ordinal);
-    private readonly HashSet<SonnerPosition> _expandedPositions = [];
-    private readonly HashSet<SonnerPosition> _interactingPositions = [];
-    private readonly HashSet<SonnerPosition> _focusedPositions = [];
+    private byte _expandedPositions;
+    private byte _interactingPositions;
+    private byte _focusedPositions;
     private readonly HashSet<string> _swipeDismissedToastIds = new(StringComparer.Ordinal);
-    private IReadOnlyList<ToastGroup> _groups = [];
+    private readonly List<GroupView> _groups = [];
     private bool _shouldMeasureHeights = true;
     private string _registeredToasterId = DefaultToasterId;
-    private string? _registeredHotkey;
+    private string[]? _registeredHotkey;
     private DotNetObjectReference<Sonner>? _dotNetReference;
     private bool _hotkeyRegistered;
     private bool _swipeHandlersRegistered;
     private bool _toasterRegistered;
     private ValueAtomicBool _disposed = new(false);
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         SonnerService.StateChanged += OnStateChanged;
-        await RefreshToastGroups();
+        return Task.CompletedTask;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -210,7 +225,7 @@
         await SyncHotkeyRegistration();
         await SyncSwipeHandlers();
 
-        if (!_shouldMeasureHeights)
+        if (!_shouldMeasureHeights || _groups.Count == 0)
             return;
 
         try
@@ -237,62 +252,62 @@
         var toasts = await SonnerService.GetToasts(CancellationToken);
         var toasterId = NormalizeToasterId(ToasterId);
         var filterPosition = ToastPosition;
-        List<SonnerToast>? topLeft = null;
-        List<SonnerToast>? topCenter = null;
-        List<SonnerToast>? topRight = null;
-        List<SonnerToast>? bottomLeft = null;
-        List<SonnerToast>? bottomCenter = null;
-        List<SonnerToast>? bottomRight = null;
+        _groups.Clear();
+        if (_groupViews is not null)
+            for (var index = 0; index < _groupViews.Length; index++)
+                _groupViews[index]?.Toasts.Clear();
 
-        for (var i = toasts.Count - 1; i >= 0; i--)
+        _currentToastIds?.Clear();
+        for (var index = toasts.Count - 1; index >= 0; index--)
         {
-            var toast = toasts[i];
+            var toast = toasts[index];
+            if (!string.Equals(NormalizeToasterId(toast.ToasterId), toasterId, StringComparison.Ordinal) ||
+                (filterPosition is not null && toast.Position != filterPosition)) continue;
 
-            if (!string.Equals(NormalizeToasterId(toast.ToasterId), toasterId, StringComparison.Ordinal))
-                continue;
-
-            if (filterPosition is not null && toast.Position != filterPosition)
-                continue;
-
-            if (ReferenceEquals(toast.Position, SonnerPosition.TopLeft))
-                (topLeft ??= []).Add(toast);
-            else if (ReferenceEquals(toast.Position, SonnerPosition.TopCenter))
-                (topCenter ??= []).Add(toast);
-            else if (ReferenceEquals(toast.Position, SonnerPosition.TopRight))
-                (topRight ??= []).Add(toast);
-            else if (ReferenceEquals(toast.Position, SonnerPosition.BottomLeft))
-                (bottomLeft ??= []).Add(toast);
-            else if (ReferenceEquals(toast.Position, SonnerPosition.BottomCenter))
-                (bottomCenter ??= []).Add(toast);
-            else
-                (bottomRight ??= []).Add(toast);
+            var groupIndex = GetPositionIndex(toast.Position);
+            _groupViews ??= new GroupView?[6];
+            var group = _groupViews[groupIndex] ??= new GroupView(this, GetPosition(groupIndex));
+            group.Toasts.Add(toast);
+            (_currentToastIds ??= new(StringComparer.Ordinal)).Add(toast.Id);
         }
+        if (_groupViews is not null)
+            for (var index = 0; index < _groupViews.Length; index++)
+                if (_groupViews[index] is { Toasts.Count: > 0 } group) _groups.Add(group);
 
-        List<ToastGroup>? groups = null;
-
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopLeft, topLeft);
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopCenter, topCenter);
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.TopRight, topRight);
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomLeft, bottomLeft);
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomCenter, bottomCenter);
-        AddGroupIfNotEmpty(ref groups, SonnerPosition.BottomRight, bottomRight);
-
-        _groups = groups ?? [];
-
+        if (_toastViews is not null)
+            foreach (var pair in _toastViews)
+                if (_currentToastIds?.Contains(pair.Key) != true) _toastViews.Remove(pair.Key);
         CleanupSwipeDismissedIds();
     }
 
-    private static void AddGroupIfNotEmpty(ref List<ToastGroup>? groups, SonnerPosition position, List<SonnerToast>? toasts)
+    private ToastView GetToastView(SonnerToast toast)
     {
-        if (toasts is null || toasts.Count == 0)
-            return;
-
-        (groups ??= new List<ToastGroup>(6)).Add(new ToastGroup(position, toasts));
+        var views = _toastViews ??= new(StringComparer.Ordinal);
+        if (!views.TryGetValue(toast.Id, out var view) || !ReferenceEquals(view.Toast, toast))
+            views[toast.Id] = view = new ToastView(this, toast);
+        return view;
     }
+
+    private static int GetPositionIndex(SonnerPosition position) =>
+        ReferenceEquals(position, SonnerPosition.TopLeft) ? 0 :
+        ReferenceEquals(position, SonnerPosition.TopCenter) ? 1 :
+        ReferenceEquals(position, SonnerPosition.TopRight) ? 2 :
+        ReferenceEquals(position, SonnerPosition.BottomLeft) ? 3 :
+        ReferenceEquals(position, SonnerPosition.BottomCenter) ? 4 : 5;
+
+    private static SonnerPosition GetPosition(int index) => index switch
+    {
+        0 => SonnerPosition.TopLeft,
+        1 => SonnerPosition.TopCenter,
+        2 => SonnerPosition.TopRight,
+        3 => SonnerPosition.BottomLeft,
+        4 => SonnerPosition.BottomCenter,
+        _ => SonnerPosition.BottomRight
+    };
 
     private static string GetToasterClass() => "toaster group";
 
-    private string GetAriaLabel() => $"{ContainerAriaLabel} {HotkeyLabel}";
+    private string GetAriaLabel() => QuarkStringCache.Concat(ContainerAriaLabel ?? "", " ", HotkeyLabel ?? "", ref _ariaLabel);
 
     private static string GetBoolString(bool value) => value ? "true" : "false";
 
@@ -423,10 +438,7 @@
         return static _ => { };
     }
 
-    private async Task HandleDismiss(string id)
-    {
-        await SonnerService.Dismiss(id, CancellationToken);
-    }
+    private Task HandleDismiss(string id) => SonnerService.Dismiss(id, CancellationToken).AsTask();
 
     private async Task HandleAction(SonnerToast toast)
     {
@@ -438,7 +450,7 @@
 
     private async Task SyncHotkeyRegistration()
     {
-        var hotkeyKey = GetHotkeyKey(Hotkey);
+        var hotkeyKey = GetHotkeySnapshot(Hotkey);
 
         if (_groups.Count == 0 || hotkeyKey is null)
         {
@@ -446,11 +458,11 @@
             return;
         }
 
-        if (_hotkeyRegistered && string.Equals(_registeredHotkey, hotkeyKey, StringComparison.Ordinal))
+        if (_hotkeyRegistered && ReferenceEquals(_registeredHotkey, hotkeyKey))
             return;
 
         await UnregisterHotkey();
-        await SonnerInterop.RegisterHotkey(_sectionRef, Hotkey, CancellationToken);
+        await SonnerInterop.RegisterHotkey(_sectionRef, hotkeyKey, CancellationToken);
         _registeredHotkey = hotkeyKey;
         _hotkeyRegistered = true;
     }
@@ -500,27 +512,26 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private static string? GetHotkeyKey(IReadOnlyList<string>? hotkey)
+    private string[]? GetHotkeySnapshot(IReadOnlyList<string>? hotkey)
     {
         if (hotkey is null || hotkey.Count == 0)
             return null;
 
-        using var builder = new PooledStringBuilder(hotkey.Count * 8);
+        var unchanged = _hotkeySnapshot is not null && _hotkeySnapshot.Length == hotkey.Count;
+        if (unchanged)
+            for (var index = 0; index < hotkey.Count; index++)
+                if (_hotkeySnapshot![index] != hotkey[index]) { unchanged = false; break; }
+        if (unchanged) return _hotkeySnapshot;
 
-        for (var i = 0; i < hotkey.Count; i++)
-        {
-            if (i != 0)
-                builder.Append('+');
-
-            builder.Append(hotkey[i]);
-        }
-
-        return builder.ToString();
+        var snapshot = new string[hotkey.Count];
+        for (var index = 0; index < hotkey.Count; index++) snapshot[index] = hotkey[index];
+        _hotkeySnapshot = snapshot;
+        return snapshot;
     }
 
     private void OnStateChanged()
     {
-        _ = InvokeAsync(HandleStateChanged);
+        _ = InvokeAsync(_stateChangedCallback ??= HandleStateChanged);
     }
 
     private async Task HandleStateChanged()
@@ -536,37 +547,35 @@
 
     private Task SetExpanded(SonnerPosition position, bool value)
     {
-        return SetPositionState(_expandedPositions, position, value);
+        return SetPositionState(ref _expandedPositions, position, value);
     }
 
     private Task SetInteracting(SonnerPosition position, bool value)
     {
-        return SetPositionState(_interactingPositions, position, value);
+        return SetPositionState(ref _interactingPositions, position, value);
     }
 
     private Task SetFocused(SonnerPosition position, bool value)
     {
-        return SetPositionState(_focusedPositions, position, value);
+        return SetPositionState(ref _focusedPositions, position, value);
     }
 
-    private async Task SetPositionState(HashSet<SonnerPosition> state, SonnerPosition position, bool value)
+    private Task SetPositionState(ref byte state, SonnerPosition position, bool value)
     {
+        var mask = (byte)(1 << GetPositionIndex(position));
+        if (((state & mask) != 0) == value) return Task.CompletedTask;
         var wasActive = IsActive(position);
-        var changed = value ? state.Add(position) : state.Remove(position);
+        state = value ? (byte)(state | mask) : (byte)(state & ~mask);
+        return UpdatePositionState(position, wasActive, IsActive(position));
+    }
 
-        if (!changed)
-            return;
-
-        var isActive = IsActive(position);
-
+    private async Task UpdatePositionState(SonnerPosition position, bool wasActive, bool isActive)
+    {
         if (wasActive != isActive)
         {
-            if (isActive)
-                await SonnerService.Pause(ToasterId, position, CancellationToken);
-            else
-                await SonnerService.Resume(ToasterId, position, CancellationToken);
+            if (isActive) await SonnerService.Pause(ToasterId, position, CancellationToken);
+            else await SonnerService.Resume(ToasterId, position, CancellationToken);
         }
-
         await InvokeAsync(StateHasChanged);
     }
 
@@ -577,7 +586,7 @@
 
     private bool IsActive(SonnerPosition position)
     {
-        return _expandedPositions.Contains(position) || _interactingPositions.Contains(position) || _focusedPositions.Contains(position);
+        return ((_expandedPositions | _interactingPositions | _focusedPositions) & (1 << GetPositionIndex(position))) != 0;
     }
 
     private double GetToastHeight(SonnerToast toast)
@@ -607,24 +616,10 @@
         if (_swipeDismissedToastIds.Count == 0)
             return;
 
-        _swipeDismissedToastIds.RemoveWhere(id => !ContainsCurrentToastId(id));
+        _swipeDismissedToastIds.RemoveWhere(_staleSwipeId ??= IsStaleSwipeId);
     }
 
-    private bool ContainsCurrentToastId(string id)
-    {
-        for (var groupIndex = 0; groupIndex < _groups.Count; groupIndex++)
-        {
-            var toasts = _groups[groupIndex].Toasts;
-
-            for (var toastIndex = 0; toastIndex < toasts.Count; toastIndex++)
-            {
-                if (string.Equals(toasts[toastIndex].Id, id, StringComparison.Ordinal))
-                    return true;
-            }
-        }
-
-        return false;
-    }
+    private bool IsStaleSwipeId(string id) => _currentToastIds?.Contains(id) != true;
 
     public override async ValueTask DisposeAsync()
     {
@@ -694,6 +689,6 @@
 
     private bool IsPositionActive(SonnerPosition position)
     {
-        return _expandedPositions.Contains(position) || _interactingPositions.Contains(position) || _focusedPositions.Contains(position);
+        return ((_expandedPositions | _interactingPositions | _focusedPositions) & (1 << GetPositionIndex(position))) != 0;
     }
 }

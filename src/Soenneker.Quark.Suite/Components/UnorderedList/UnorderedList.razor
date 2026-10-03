@@ -7,6 +7,13 @@
 </ul>
 
 @code {
+    private string? _appendedClass0;
+    private string? _appendedClass1;
+    private string? _appendedClass2;
+    private string? _appendedClass3;
+    private string? _listStyleValue;
+    private string? _listStyleDeclaration;
+    private string? _appendedStyle;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -31,17 +38,17 @@
         base.BuildAttributesCore(attrs);
 
         if (ListVariant is null or { IsEmpty: true })
-            AppendClassAttribute(attrs, "my-6 ml-6 [&>li]:mt-2");
+            AppendClassAttribute(attrs, "my-6 ml-6 [&>li]:mt-2", ref _appendedClass0);
 
         if ((ListVariant is null or { IsEmpty: true }) && (ListStyleType is null or { IsEmpty: true }))
-            AppendClassAttribute(attrs, "list-disc");
+            AppendClassAttribute(attrs, "list-disc", ref _appendedClass1);
 
         if (ListVariant is { IsEmpty: false })
         {
             var cls = ListVariant.Value.ToString();
             if (cls.Length > 0)
             {
-                AppendClassAttribute(attrs, cls);
+                AppendClassAttribute(attrs, cls, ref _appendedClass2);
             }
         }
         
@@ -55,18 +62,22 @@
         }
     }
 
-    private static void AppendListStyleType(Dictionary<string, object> attrs, string value)
+    private void AppendListStyleType(Dictionary<string, object> attrs, string value)
     {
         const string arbitraryPrefix = "list-[";
 
         if (value.StartsWith(arbitraryPrefix, StringComparison.Ordinal) && value.EndsWith(']'))
         {
-            var listStyleType = value[arbitraryPrefix.Length..^1];
-            AppendStyleDeclAttr(attrs, $"list-style-type: {listStyleType}");
+            if (_listStyleValue != value)
+            {
+                _listStyleDeclaration = string.Concat("list-style-type: ", value.AsSpan(arbitraryPrefix.Length, value.Length - arbitraryPrefix.Length - 1));
+                _listStyleValue = value;
+            }
+            AppendStyleDeclAttr(attrs, _listStyleDeclaration!, ref _appendedStyle);
             return;
         }
 
-        AppendClassAttribute(attrs, value);
+        AppendClassAttribute(attrs, value, ref _appendedClass3);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

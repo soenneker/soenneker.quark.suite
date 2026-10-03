@@ -14,6 +14,27 @@ else
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss1 = Quark.MaxWidth.IsFull;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is7;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Transparent.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background.OnHover.Utility("bg-muted/50");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Xs;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private string? _lastBuiltClass;
+
     private const string _shadcnPillStateClass =
         "group/pill focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[slot=pill-close]:pr-1 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3.5 [&>svg]:shrink-0";
 
@@ -25,35 +46,32 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "pill";
 
-        Display ??= Quark.Display.InlineFlex;
-        Height ??= Quark.Height.Is7;
-        Width ??= Quark.Width.IsFit;
-        MaxWidth ??= Quark.MaxWidth.IsFull;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Full;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Transparent.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Background.OnHover.Utility("bg-muted/50");
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Xs;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Shadow ??= Quark.Shadow.Xs;
-        Transition ??= Quark.Transition.All;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss1;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        Whitespace ??= _defaultWhitespace;
+        Shadow ??= _defaultShadow;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _shadcnPillStateClass);
-        });
+        PrependClassAttribute(attributes, _shadcnPillStateClass, ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -34,32 +34,22 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
     }
 
-    public async ValueTask Initialize(string id, NodeEditorOptions options, DotNetObjectReference<NodeEditor> callbackReference,
-        CancellationToken cancellationToken = default)
-    {
-        await Invoke("initialize", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), callbackReference);
-    }
+    public ValueTask Initialize(string id, NodeEditorOptions options, DotNetObjectReference<NodeEditor> callbackReference,
+        CancellationToken cancellationToken = default) =>
+        Invoke("initialize", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), callbackReference);
 
-    public async ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
-        CancellationToken cancellationToken = default)
-    {
-        await Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), selectedNodeId, JsonSerializer.SerializeToElement(selectedNodeIds, QuarkInteropJsonContext.Default.IReadOnlyListString), selectedEdgeId);
-    }
+    public ValueTask Refresh(string id, NodeEditorOptions options, string? selectedNodeId, IReadOnlyList<string> selectedNodeIds, string? selectedEdgeId,
+        CancellationToken cancellationToken = default) =>
+        Invoke("refresh", cancellationToken, id, JsonUtil.Serialize(options, QuarkInteropJsonContext.Default.NodeEditorOptions), selectedNodeId, JsonSerializer.SerializeToElement(selectedNodeIds, QuarkInteropJsonContext.Default.IReadOnlyListString), selectedEdgeId);
 
-    public async ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default)
-    {
-        await Invoke("zoomBy", cancellationToken, id, delta);
-    }
+    public ValueTask ZoomBy(string id, double delta, CancellationToken cancellationToken = default) =>
+        Invoke("zoomBy", cancellationToken, id, delta);
 
-    public async ValueTask FitView(string id, CancellationToken cancellationToken = default)
-    {
-        await Invoke("fitView", cancellationToken, id);
-    }
+    public ValueTask FitView(string id, CancellationToken cancellationToken = default) =>
+        Invoke("fitView", cancellationToken, id);
 
-    public async ValueTask ResetView(string id, CancellationToken cancellationToken = default)
-    {
-        await Invoke("resetView", cancellationToken, id);
-    }
+    public ValueTask ResetView(string id, CancellationToken cancellationToken = default) =>
+        Invoke("resetView", cancellationToken, id);
 
     public async ValueTask<NodeEditorGraphPoint> ClientToGraph(string id, double clientX, double clientY, CancellationToken cancellationToken = default)
     {
@@ -74,10 +64,8 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         }
     }
 
-    public async ValueTask Destroy(string id, CancellationToken cancellationToken = default)
-    {
-        await Invoke("destroy", cancellationToken, id);
-    }
+    public ValueTask Destroy(string id, CancellationToken cancellationToken = default) =>
+        Invoke("destroy", cancellationToken, id);
 
     private async ValueTask Invoke(string identifier, CancellationToken cancellationToken, params object?[] args)
     {

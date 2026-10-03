@@ -11,6 +11,9 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public int DefaultValue { get; set; } = 1;
 
@@ -25,13 +28,12 @@
 
     internal int ActiveStep => Value ?? DefaultValue;
 
-    internal async Task SetActiveStep(int step)
+    internal Task SetActiveStep(int step)
     {
         if (Value is null)
             DefaultValue = step;
 
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(step);
+        return ValueChanged.HasDelegate ? ValueChanged.InvokeAsync(step) : Task.CompletedTask;
     }
 
     protected override void ApplyDefaultParameters()
@@ -39,7 +41,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "timeline";
 
-        Display ??= Quark.Display.Flex;
+        Display ??= _defaultDisplay;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -48,7 +50,7 @@
         attributes["aria-label"] = AriaLabel ?? "Timeline";
         attributes["data-orientation"] = NormalizeOrientation();
 
-        PrependClassAttribute(attributes, "group/timeline data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col");
+        PrependClassAttribute(attributes, "group/timeline data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

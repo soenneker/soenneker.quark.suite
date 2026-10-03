@@ -78,7 +78,7 @@ export function getMode() {
 }
 
 export function setMode(mode) {
-    if (!["system", "light", "dark"].includes(mode)) throw new Error("Invalid theme mode");
+    if (mode !== "system" && mode !== "light" && mode !== "dark") throw new Error("Invalid theme mode");
     savePreference(mode === "system" ? null : mode);
     return initialize();
 }
@@ -137,4 +137,22 @@ export function unregisterThemeChangedCallback(dotNetRef) {
     }
 
     removeThemeChangedListenerIfUnused();
+}
+
+// Return the preference and resolved appearance in the same interop call.
+export function initializeState(dotNetRef) {
+    registerThemeChangedCallback(dotNetRef);
+    return { isDark: initialize(), mode: getMode() };
+}
+
+export function toggleState() {
+    return { isDark: toggle(), mode: getMode() };
+}
+
+export function useSystemState() {
+    return { isDark: useSystem(), mode: getMode() };
+}
+
+export function setModeState(mode) {
+    return { isDark: setMode(mode), mode: getMode() };
 }

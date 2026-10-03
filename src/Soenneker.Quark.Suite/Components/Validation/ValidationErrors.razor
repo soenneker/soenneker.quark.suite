@@ -12,6 +12,14 @@
 }
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is1;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Token("destructive/30");
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("destructive/10");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Destructive;
     [CascadingParameter(Name = nameof(ParentValidations))]
     public Validations? ParentValidations { get; set; }
 
@@ -55,14 +63,14 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "validation-errors";
 
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Is1;
-        BorderColor ??= Quark.BorderColor.Token("destructive/30");
-        BackgroundColor ??= Quark.BackgroundColor.Token("destructive/10");
-        Padding ??= Quark.Padding.Is4;
-        TextColor ??= Quark.TextColor.Destructive;
+        Position ??= _defaultPosition;
+        Width ??= _defaultWidth;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
     }
 
     // shadcn alert destructive variant - new-york-v4 ui/alert.tsx + form error block

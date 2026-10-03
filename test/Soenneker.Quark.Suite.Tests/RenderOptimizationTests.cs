@@ -120,6 +120,23 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Switching_render_suppression_back_on_rebuilds_after_mutation()
+    {
+        var options = new QuarkOptions();
+        Services.AddSingleton(options);
+        var attributes = new Dictionary<string, object> { ["data-test"] = "first" };
+        var cut = Render<Div>(parameters => parameters.Add(component => component.Attributes, attributes));
+        options.AlwaysRender = true;
+        attributes["data-test"] = "second";
+        cut.Render(parameters => parameters.Add(component => component.Attributes, attributes));
+        cut.Find("div").GetAttribute("data-test").Should().Be("second");
+        options.AlwaysRender = false;
+        attributes["data-test"] = "third";
+        cut.Render(parameters => parameters.Add(component => component.Attributes, attributes));
+        cut.Find("div").GetAttribute("data-test").Should().Be("third");
+    }
+
+    [Test]
     public void Literal_class_prefix_matches_builder_and_reuses_literal_without_existing_class()
     {
         var probe = new LiteralClassProbe();

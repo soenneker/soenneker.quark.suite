@@ -4,33 +4,51 @@
 <kbd @attributes="BuildAttributes()">@ChildContent</kbd>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is5;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is5;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<FontFamilyBuilder> _defaultFontFamily = Quark.FontFamily.Sans;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "kbd";
 
-        Display ??= Quark.Display.InlineFlex;
-        Height ??= Quark.Height.Is5;
-        Width ??= Quark.Width.IsFit;
-        MinWidth ??= Quark.MinWidth.Is5;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.OnX.Is1;
-        TextSize ??= Quark.TextSize.Xs;
-        FontFamily ??= Quark.FontFamily.Sans;
-        FontWeight ??= Quark.FontWeight.Medium;
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        PointerEvents ??= Quark.PointerEvents.None;
-        UserSelect ??= Quark.UserSelect.None;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss1;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontFamily ??= _defaultFontFamily;
+        FontWeight ??= _defaultFontWeight;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        PointerEvents ??= _defaultPointerEvents;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3");
+        PrependClassAttribute(attributes, "in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3", ref _lastPrependedClass);
     }
 }

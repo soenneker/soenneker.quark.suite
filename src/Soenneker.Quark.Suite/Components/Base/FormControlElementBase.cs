@@ -81,22 +81,22 @@ public abstract class FormControlElementBase : InteractiveElement
         base.BuildOwnedAttributes(attrs);
 
         if (Disabled)
-            attrs["disabled"] = true;
+            attrs["disabled"] = QuarkAttributeValues.True;
 
         if (Name is not null)
             attrs["name"] = Name;
 
         if (ReadOnly)
-            attrs["readonly"] = true;
+            attrs["readonly"] = QuarkAttributeValues.True;
 
         if (Placeholder is not null)
             attrs["placeholder"] = Placeholder;
 
         if (Required)
-            attrs["required"] = true;
+            attrs["required"] = QuarkAttributeValues.True;
 
         if (AutoFocus)
-            attrs["autofocus"] = true;
+            attrs["autofocus"] = QuarkAttributeValues.True;
     }
 
     protected override void ApplyDefaultParameters()

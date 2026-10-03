@@ -32,6 +32,15 @@ public sealed class InteropJsonTests
     }
 
     [Test]
+    public void Theme_state_preserves_preference_separately_from_resolved_appearance()
+    {
+        using var payload = JsonDocument.Parse("""{"isDark":true,"mode":"system"}""");
+        var state = JsonSerializer.Deserialize(payload.RootElement, QuarkInteropJsonContext.Default.ThemeInteropState);
+        state.IsDark.Should().BeTrue();
+        state.Mode.Should().Be("system");
+    }
+
+    [Test]
     public void Input_selection_null_and_empty_values_remain_distinct()
     {
         QuarkInteropJson.Deserialize(null, QuarkInteropJsonContext.Default.InputSelectionSnapshot).Should().BeNull();

@@ -7,12 +7,33 @@
 @implements IAlertDialogAction
 
 <BradixAlertDialogAction Disabled="@Disabled"
-                         OnClick="HandleActionClick"
+                         OnClick="(_cachedHandleActionClickDelegate ??= HandleActionClick)"
                          AdditionalAttributes="@BuildAttributes()">
     @ChildContent
 </BradixAlertDialogAction>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSizeType.Default;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleActionClickDelegate;
+
+    private string? _lastBuiltClass;
+
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
@@ -41,21 +62,29 @@
     /// Gets or sets the size of the action button.
     /// </summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder> ButtonSize { get; set; } = ButtonSizeType.Default;
+    public CssValue<ButtonSizeBuilder> ButtonSize { get; set; } = _staticCss1;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
-            AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+                AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
+                AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 
     private async Task HandleActionClick(MouseEventArgs _)
@@ -67,22 +96,22 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "alert-dialog-action";
-        Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Shrink ??= Quark.Shrink.Is0;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Lg;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Border ??= Quark.Border.Default;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Shrink ??= _defaultShrink;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        Whitespace ??= _defaultWhitespace;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Border ??= _defaultBorder;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,19 +1,26 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<PaginationLink Href="@Href" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="ButtonSize.Default" @attributes="BuildAttributes()" aria-label="Go to next page">
-    <Span Display="Quark.Display.None.OnSm.Block">@Text</Span>
+<PaginationLink Href="@Href" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="_staticCss0" @attributes="BuildAttributes()" aria-label="Go to next page">
+    <Span Display="_renderCss0">@Text</Span>
     <Icon Name="LucideIcon.ChevronRight" data-icon="inline-end" Class="cn-rtl-flip" />
 </PaginationLink>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.Default;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.None.OnSm.Block;
+    private string? _lastBuiltClass;
+
     [Parameter] public string? Href { get; set; }
     [Parameter] public string Text { get; set; } = "Next";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "pr-1.5!"));
+        {
+            const string @class = "pr-1.5!";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

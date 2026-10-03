@@ -39,17 +39,17 @@ internal static class CitationSourceResolver
         if (host.Length == 0)
             return "Source";
 
-        var trimmed = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
-        var labelStart = 0;
+        var trimmed = host;
+        var labelStart = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? 4 : 0;
         var labelEnd = trimmed.Length;
         var lastDot = trimmed.LastIndexOf('.');
 
-        if (lastDot > 0)
+        if (lastDot > labelStart)
         {
             labelEnd = lastDot;
             var previousDot = trimmed.LastIndexOf('.', lastDot - 1);
 
-            if (previousDot >= 0)
+            if (previousDot >= labelStart)
                 labelStart = previousDot + 1;
         }
 

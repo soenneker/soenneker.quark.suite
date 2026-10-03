@@ -7,6 +7,10 @@
 </button>
 
 @code {
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Grab;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastBuiltClass;
+
     [Parameter, EditorRequired]
     public string Type { get; set; } = "";
 
@@ -28,8 +32,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "node-editor-palette-item";
-        Cursor ??= Quark.Cursor.Grab;
-        UserSelect ??= Quark.UserSelect.None;
+        Cursor ??= _defaultCursor;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -39,7 +43,10 @@
         attributes["data-palette-type"] = Type;
         attributes["data-palette-data"] = Data ?? "";
 
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "touch-manipulation active:cursor-grabbing"));
+        {
+            const string @class = "touch-manipulation active:cursor-grabbing";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hashCode)

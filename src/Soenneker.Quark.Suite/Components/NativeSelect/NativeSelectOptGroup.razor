@@ -5,6 +5,8 @@
 <optgroup @attributes="BuildAttributes()">@ChildContent</optgroup>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("[Canvas]");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("[CanvasText]");
     /// <summary>
     /// Gets or sets the group label.
     /// </summary>
@@ -26,7 +28,7 @@
             attributes["label"] = Label!;
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -40,8 +42,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "native-select-optgroup";
-        BackgroundColor ??= Quark.BackgroundColor.Token("[Canvas]");
-        TextColor ??= Quark.TextColor.Token("[CanvasText]");
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
 
     }
 }

@@ -9,6 +9,8 @@ internal sealed class FieldContext
     private int _errorRegistrations;
     private bool _explicitInvalid;
     private bool _validationInvalid;
+    private (string?, bool, bool)? _describedByInputs;
+    private string? _describedBy;
 
     public event Action? StateChanged;
 
@@ -57,22 +59,23 @@ internal sealed class FieldContext
     {
         _descriptionRegistrations++;
         StateChanged?.Invoke();
-        return new FieldRegistration(() =>
-        {
-            _descriptionRegistrations--;
-            StateChanged?.Invoke();
-        });
+        return new FieldRegistration(this, false);
     }
 
     public IDisposable RegisterError()
     {
         _errorRegistrations++;
         StateChanged?.Invoke();
-        return new FieldRegistration(() =>
-        {
+        return new FieldRegistration(this, true);
+    }
+
+    internal void Unregister(bool error)
+    {
+        if (error)
             _errorRegistrations--;
-            StateChanged?.Invoke();
-        });
+        else
+            _descriptionRegistrations--;
+        StateChanged?.Invoke();
     }
 
     public string? BuildDescribedBy(string? existing, bool isInvalid = false)
@@ -83,6 +86,10 @@ internal sealed class FieldContext
         if (!includeDescription && !includeError)
             return string.IsNullOrWhiteSpace(existing) ? null : existing;
 
+        var inputs = (existing, includeDescription, includeError);
+        if (_describedByInputs == inputs)
+            return _describedBy;
+        _describedByInputs = inputs;
         var result = string.IsNullOrWhiteSpace(existing) ? null : existing;
 
         if (includeDescription && !ContainsToken(result, DescriptionId))
@@ -91,7 +98,7 @@ internal sealed class FieldContext
         if (includeError && !ContainsToken(result, ErrorId))
             result = AppendToken(result, ErrorId);
 
-        return result;
+        return _describedBy = result;
     }
 
     private static string AppendToken(string? existing, string token)

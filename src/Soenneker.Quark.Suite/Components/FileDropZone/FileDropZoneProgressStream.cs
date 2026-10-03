@@ -39,7 +39,11 @@ internal sealed class FileDropZoneProgressStream(Stream inner, FileDropZoneUploa
 
         _loadedBytes += bytesRead;
         long totalBytes = request.BrowserFile.Size;
-        int? percent = totalBytes > 0 ? (int)Math.Min(100m, (decimal)_loadedBytes * 100 / totalBytes) : null;
+        int? percent = totalBytes > 0
+            ? _loadedBytes >= totalBytes ? 100
+                : _loadedBytes <= long.MaxValue / 100 ? (int)(_loadedBytes * 100 / totalBytes)
+                : (int)Math.Min(100m, (decimal)_loadedBytes * 100 / totalBytes)
+            : null;
         if (!_reported || percent != _lastPercent)
         {
             await request.ReportUploadProgress(percent);

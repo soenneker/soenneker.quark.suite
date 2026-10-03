@@ -2,17 +2,31 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
-    <InputGroup Class="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!" @onclick="@(() => FocusInput())">
-        <input @ref="_inputElement" value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
+    <InputGroup Class="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!" @onclick="(_focusInputCallback ??= FocusInput)">
+        <input @ref="_inputElement" value="@Value" @oninput="(_cachedHandleInputDelegate ??= HandleInput)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @attributes="BuildAttributes()" placeholder="@Placeholder" cmdk-input />
         <InputGroupAddon>
-            <Icon Name="LucideIcon.Search" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" Opacity="Quark.Opacity.Is50" />
+            <Icon Name="LucideIcon.Search" Size="_renderCss0" Shrink="_renderCss1" Opacity="_renderCss2" />
         </InputGroupAddon>
     </InputGroup>
 </div>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<ShrinkBuilder> _renderCss1 = Quark.Shrink.Is0;
+    private static readonly CssValue<OpacityBuilder> _renderCss2 = Quark.Opacity.Is50;
+    private string? _lastPrependedClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private ElementReference _inputElement;
+    private Func<Task>? _focusInputCallback;
     private bool _focusAfterSelect;
 
     [Parameter]
@@ -31,9 +45,9 @@
         await ValueChanged.InvokeAsync(Value);
     }
 
-    private ValueTask FocusInput()
+    private Task FocusInput()
     {
-        return _inputElement.FocusAsync();
+        return _inputElement.FocusAsync().AsTask();
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
@@ -80,11 +94,11 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "command-input";
 
-        Width ??= Quark.Width.IsFull;
-        TextSize ??= Quark.TextSize.Sm;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Width ??= _defaultWidth;
+        TextSize ??= _defaultTextSize;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -92,7 +106,7 @@
         var attrs = _wrapperAttributesBuffer.Create(3);
         attrs["data-slot"] = "command-input-wrapper";
         attrs["cmdk-input-wrapper"] = string.Empty;
-        PrependClassAttribute(attrs, "p-1 pb-0");
+        PrependClassAttribute(attrs, "p-1 pb-0", ref _lastPrependedClass);
         return attrs;
     }
 

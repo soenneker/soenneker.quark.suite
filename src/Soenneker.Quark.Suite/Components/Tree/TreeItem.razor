@@ -1,11 +1,11 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IDisposable
 
 <CascadingValue Name="ParentTreeItem" Value="@this">
     <div class="tree-item-motion" data-visible="@(Visible ? "true" : "false")" aria-hidden="@(Visible ? null : "true")" inert="@(!Visible)">
     <div class="tree-item-clip">
-    <button @ref="_element" @attributes="BuildAttributes()" @onclick="HandleClick" @onfocus="HandleFocus" @onkeydown="HandleKeyDown">
+    <button @ref="_element" @attributes="BuildAttributes()" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)">
         @ChildContent
     </button>
     </div>
@@ -13,6 +13,25 @@
 </CascadingValue>
 
 @code {
+    private QuarkInt32Attribute _sizeAttribute;
+    private QuarkInt32Attribute _positionAttribute;
+    private QuarkInt32Attribute _levelAttribute;
+    private CurrentCultureInt32TextCache _spacingText;
+    private string? _spacingStyle;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is10;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Start;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastPrependedClass;
+    private string? _lastBuiltStyle;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleFocusDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private ElementReference _element;
 
     /// <summary>Whether the row is visible. Keep collapsed descendants mounted and set this to false to animate them closed.</summary>
@@ -67,13 +86,13 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree-item";
-        ZIndex ??= Quark.ZIndex.Is10;
-        TextAlign ??= Quark.TextAlign.Start;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        ZIndex ??= _defaultZIndex;
+        TextAlign ??= _defaultTextAlign;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -85,14 +104,14 @@
         attributes["data-folder"] = Folder ? "true" : "false";
         attributes["data-selected"] = Selected ? "true" : "false";
         attributes["aria-selected"] = Selected ? "true" : "false";
-        attributes["aria-level"] = Math.Max(1, Level + 1);
+        attributes["aria-level"] = _levelAttribute.Get(Math.Max(1, Level + 1));
         attributes["tabindex"] = ParentTree?.IsCurrent(this) == true ? "0" : "-1";
 
         if (PositionInSet is > 0)
-            attributes["aria-posinset"] = PositionInSet.Value;
+            attributes["aria-posinset"] = _positionAttribute.Get(PositionInSet.Value);
 
         if (SetSize is > 0)
-            attributes["aria-setsize"] = SetSize.Value;
+            attributes["aria-setsize"] = _sizeAttribute.Get(SetSize.Value);
 
         if (Folder)
             attributes["aria-expanded"] = Expanded ? "true" : "false";
@@ -104,12 +123,11 @@
             attributes["disabled"] = "disabled";
         }
 
-        PrependClassAttribute(attributes, "ps-[var(--tree-padding)] not-last:pb-0.5 focus:z-20");
+        PrependClassAttribute(attributes, "ps-[var(--tree-padding)] not-last:pb-0.5 focus:z-20", ref _lastPrependedClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, $"--tree-padding:{Level * (ParentTree?.Indent ?? 20)}px");
-        });
+        var spacing = _spacingText.Get(Level * (ParentTree?.Indent ?? 20));
+        var declaration = QuarkStringCache.Concat("--tree-padding:", spacing, "px", ref _spacingStyle);
+        PrependStyleAttribute(attributes, declaration, ref _lastBuiltStyle);
     }
 
     private Task HandleClick(MouseEventArgs args)

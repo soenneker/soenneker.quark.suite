@@ -11,16 +11,16 @@ public class EmailValidator : QuarkValidator
 {
     private static readonly Regex _emailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
     
-    private readonly string _errorMessage;
+    private readonly ValidationResult _errorResult;
 
     public EmailValidator()
     {
-        _errorMessage = "Please enter a valid email address.";
+        _errorResult = ValidationResult.Error("Please enter a valid email address.");
     }
 
     public EmailValidator(string errorMessage)
     {
-        _errorMessage = errorMessage;
+        _errorResult = ValidationResult.Error(errorMessage);
     }
 
     /// <summary>
@@ -31,10 +31,10 @@ public class EmailValidator : QuarkValidator
     public override ValidationResult Validate(object value)
     {
         if (value is not string email)
-            return ValidationResult.Error(_errorMessage);
+            return _errorResult;
 
         if (!email.HasContent() || !_emailRegex.IsMatch(email))
-            return ValidationResult.Error(_errorMessage);
+            return _errorResult;
 
         return ValidationResult.Success();
     }

@@ -4,27 +4,38 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Token("[20px]");
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Is6_5;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Primary;
+    private static readonly CssValue<WidthBuilder> _defaultWidth2 = Quark.Width.IsFit;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor2 = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnX.Is4.OnY.Is2;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromBottom.Is2;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "message-content";
-        Rounded ??= Quark.Rounded.Token("[20px]");
-        TextSize ??= Quark.TextSize.Sm;
-        Leading ??= Quark.Leading.Is6_5;
-        TextColor ??= Quark.TextColor.Primary;
+        Rounded ??= _defaultRounded;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
+        TextColor ??= _defaultTextColor;
 
         if (From == "user")
         {
-            Width ??= Quark.Width.IsFit;
-            BackgroundColor ??= Quark.BackgroundColor.Secondary;
-            Padding ??= Quark.Padding.OnX.Is4.OnY.Is2;
+            Width ??= _defaultWidth2;
+            BackgroundColor ??= _defaultBackgroundColor2;
+            Padding ??= _defaultPadding2;
         }
         else
         {
-            Width ??= Quark.Width.IsFull;
-            BackgroundColor ??= Quark.BackgroundColor.Transparent;
-            Padding ??= Quark.Padding.OnX.Is2;
-            Margin ??= Quark.Margin.FromBottom.Is2;
+            Width ??= _defaultWidth;
+            BackgroundColor ??= _defaultBackgroundColor;
+            Padding ??= _defaultPadding;
+            Margin ??= _defaultMargin;
         }
     }
 

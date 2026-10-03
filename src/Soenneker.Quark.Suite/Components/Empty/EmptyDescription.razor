@@ -5,13 +5,17 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Token("sm/relaxed");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "empty-description";
-        TextSize ??= Quark.TextSize.Token("sm/relaxed");
-        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -19,7 +23,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");
+        PrependClassAttribute(attributes, "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary", ref _lastPrependedClass);
     }
 
 }

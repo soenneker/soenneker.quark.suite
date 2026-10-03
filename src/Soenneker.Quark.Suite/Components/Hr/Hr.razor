@@ -9,6 +9,10 @@
                  AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-border");
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private string? _lastPrependedClass;
+
     /// <summary>Orientation: horizontal (default) or vertical. Matches shadcn Separator.</summary>
     [Parameter]
     public SeparatorOrientation Orientation { get; set; } = SeparatorOrientation.Horizontal;
@@ -31,8 +35,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "separator";
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
-        Shrink ??= Quark.Shrink.Is0;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Shrink ??= _defaultShrink;
 
     }
 
@@ -41,7 +45,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch");
+        PrependClassAttribute(attributes, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

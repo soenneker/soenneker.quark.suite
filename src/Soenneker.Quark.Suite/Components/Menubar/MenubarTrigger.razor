@@ -4,12 +4,24 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <BradixMenubarTrigger Disabled="@Disabled"
-                      OnElementReferenceCaptured="HandleElementCaptured"
+                      OnElementReferenceCaptured="(_cachedHandleElementCapturedDelegate ??= HandleElementCaptured)"
                       AdditionalAttributes="@TriggerAttributes">
     @ChildContent
 </BradixMenubarTrigger>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1_5.OnY.Token("[2px]");
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private System.Func<ElementReference, Task>? _cachedHandleElementCapturedDelegate;
+
+    private string? _lastPrependedClass;
+
     private ElementReference _elementRef;
 
     [Parameter]
@@ -24,14 +36,14 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "menubar-trigger";
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.OnX.Is1_5.OnY.Token("[2px]");
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
 
     }
 
@@ -49,7 +61,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "hover:bg-muted aria-expanded:bg-muted");
+        PrependClassAttribute(attributes, "hover:bg-muted aria-expanded:bg-muted", ref _lastPrependedClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
@@ -64,10 +76,7 @@
         hc.Add(Disabled);
     }
 
-    internal async Task Focus()
-    {
-        await _elementRef.FocusAsync();
-    }
+    internal Task Focus() => _elementRef.FocusAsync().AsTask();
 
     public override ValueTask DisposeAsync() => base.DisposeAsync();
 }

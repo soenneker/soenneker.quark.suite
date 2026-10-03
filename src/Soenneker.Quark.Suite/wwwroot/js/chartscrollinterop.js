@@ -9,25 +9,28 @@ export function initialize(root) {
     let scroll = null;
     let radialFrame = null;
     const slices = new Map();
+    const radialElements = new Set();
 
     function radialPath([cx, cy, outer, start, sweep, inner]) {
         sweep = Math.min(359.999, Math.max(0, sweep));
-        const polar = (radius, angle) => {
-            const radians = angle * Math.PI / 180;
-            return `${cx + radius * Math.cos(radians)},${cy + radius * Math.sin(radians)}`;
-        };
+        const startRadians = start * Math.PI / 180;
+        const endRadians = (start + sweep) * Math.PI / 180;
+        const startCos = Math.cos(startRadians), startSin = Math.sin(startRadians);
+        const endCos = Math.cos(endRadians), endSin = Math.sin(endRadians);
+        const outerStart = `${cx + outer * startCos},${cy + outer * startSin}`;
+        const outerEnd = `${cx + outer * endCos},${cy + outer * endSin}`;
         const large = sweep > 180 ? 1 : 0;
-        const arc = `A${outer},${outer} 0 ${large} 1 ${polar(outer, start + sweep)}`;
+        const arc = `A${outer},${outer} 0 ${large} 1 ${outerEnd}`;
         return inner <= 0
-            ? `M${cx},${cy}L${polar(outer, start)}${arc}Z`
-            : `M${polar(outer, start)}${arc}L${polar(inner, start + sweep)}A${inner},${inner} 0 ${large} 0 ${polar(inner, start)}Z`;
+            ? `M${cx},${cy}L${outerStart}${arc}Z`
+            : `M${outerStart}${arc}L${cx + inner * endCos},${cy + inner * endSin}A${inner},${inner} 0 ${large} 0 ${cx + inner * startCos},${cy + inner * startSin}Z`;
     }
-
     function stopRadial() {
         if (radialFrame !== null) cancelAnimationFrame(radialFrame);
         radialFrame = null;
         for (const element of slices.keys()) element.style.removeProperty('d');
         slices.clear();
+        radialElements.clear();
     }
 
     function drawRadial(now) {
@@ -36,7 +39,8 @@ export function initialize(root) {
         for (const [element, state] of slices) {
             const progress = Math.min(1, Math.max(0, (now - state.started) / 500));
             const eased = progress * progress * (3 - 2 * progress);
-            state.current = state.to.map((value, index) => state.from[index] + (value - state.from[index]) * eased);
+            for (let index = 0; index < state.to.length; index++)
+                state.current[index] = state.from[index] + (state.to[index] - state.from[index]) * eased;
             if (progress < 1) {
                 // Override presentation only; Blazor retains ownership of the final d attribute.
                 element.style.setProperty('d', `path("${radialPath(state.current)}")`);
@@ -53,7 +57,9 @@ export function initialize(root) {
             stopRadial();
             return;
         }
-        const elements = new Set(root.querySelectorAll('[data-radial-geometry]'));
+        const elements = radialElements;
+        elements.clear();
+        for (const element of root.querySelectorAll('[data-radial-geometry]')) elements.add(element);
         for (const element of slices.keys()) {
             if (!elements.has(element)) {
                 element.style.removeProperty('d');
@@ -63,10 +69,24 @@ export function initialize(root) {
         const now = performance.now();
         let changed = false;
         for (const element of elements) {
-            const to = element.dataset.radialGeometry.split(' ').map(Number);
+            const geometry = element.dataset.radialGeometry;
             const old = slices.get(element);
-            if (old && to.every((value, index) => value === old.to[index])) continue;
-            slices.set(element, { from: old?.current ?? to, current: old?.current ?? to, to, started: old ? now : now - 500 });
+            if (old?.geometry === geometry) continue;
+            const to = geometry.split(' ').map(Number);
+            if (old && to.every((value, index) => value === old.to[index])) {
+                old.geometry = geometry;
+                continue;
+            }
+            if (old) {
+                const scratch = old.from;
+                old.from = old.current;
+                old.current = scratch;
+                old.to = to;
+                old.geometry = geometry;
+                old.started = now;
+            } else {
+                slices.set(element, { from: to, current: to.slice(), to, geometry, started: now - 500 });
+            }
             changed = true;
         }
         if (changed) {
@@ -93,7 +113,7 @@ export function initialize(root) {
         if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);
         scrollFrame = null;
         for (const element of scrollElements) element.style.removeProperty('transform');
-        scrollElements = [];
+        scrollElements.length = 0;
         scroll = null;
     }
 
@@ -172,10 +192,12 @@ export function initialize(root) {
         // Bound the continuation so a disconnected feed eventually stops moving.
         const end = Math.min(0, distance) - step;
         const duration = next.duration * (distance - end) / step;
-        const elements = [plot, overlay].filter(Boolean);
-        if (scrollElements.length !== elements.length || scrollElements.some((element, index) => element !== elements[index]))
+        const count = overlay ? 2 : 1;
+        if (scrollElements.length !== count || scrollElements[0] !== plot || (overlay && scrollElements[1] !== overlay)) {
             cancel();
-        scrollElements = elements;
+            scrollElements.push(plot);
+            if (overlay) scrollElements.push(overlay);
+        }
         if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);
         // SVG geometry and its compensating translation must reach the same paint.
         // A separate Web Animation can advance independently of Blazor's SVG updates,

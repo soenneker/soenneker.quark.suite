@@ -12,11 +12,5 @@ internal sealed class InputGroupContext
         _control = control;
     }
 
-    public async ValueTask FocusControl()
-    {
-        if (_control is not { } control)
-            return;
-
-        await control.FocusAsync();
-    }
+    public ValueTask FocusControl() => _control is { } control ? control.FocusAsync() : ValueTask.CompletedTask;
 }

@@ -6,18 +6,27 @@
 </main>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-inset";
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Width ??= Quark.Width.IsFull;
-        Flex ??= Quark.Flex.Is1;
-        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        MinWidth ??= _staticCss0;
+        Width ??= _defaultWidth;
+        Flex ??= _defaultFlex;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,6 +34,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2");
+        PrependClassAttribute(attributes, "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2", ref _lastPrependedClass);
     }
 }

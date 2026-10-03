@@ -10,6 +10,10 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
     private DotNetObjectReference<Thread>? _dotNetRef;
     private bool _initialized;
     private ValueAtomicBool _disposed;
@@ -25,10 +29,7 @@
     [Parameter]
     public bool StickToBottom { get; set; } = true;
 
-    internal async Task ScrollToBottom()
-    {
-        await ThreadsInterop.ScrollToBottom(ElementRef, Initial);
-    }
+    internal Task ScrollToBottom() => ThreadsInterop.ScrollToBottom(ElementRef, Initial).AsTask();
 
     [JSInvokable]
     public void SetIsAtBottom(bool isAtBottom)
@@ -44,10 +45,10 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "thread";
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        Height ??= Quark.Height.IsFull;
-        OverflowY ??= Quark.Overflow.Y.Auto;
+        Position ??= _defaultPosition;
+        Width ??= _defaultWidth;
+        Height ??= _defaultHeight;
+        OverflowY ??= _defaultOverflowY;
 
     }
 

@@ -6,6 +6,13 @@
 </div>
 
 @code {
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<ScrollPaddingBuilder> _defaultScrollPadding = Quark.ScrollPadding.OnY.Is1;
+    private string? _lastPrependedClass;
+    private string? _previousStyle;
+    private string? _paddedStyle;
+
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
@@ -15,9 +22,9 @@
         DataSlot ??= "combobox-list";
 
         MaxHeight ??= "max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))]";
-        OverflowY ??= Quark.Overflow.Y.Auto;
-        Padding ??= Quark.Padding.Is1;
-        ScrollPadding ??= Quark.ScrollPadding.OnY.Is1;
+        OverflowY ??= _defaultOverflowY;
+        Padding ??= _defaultPadding;
+        ScrollPadding ??= _defaultScrollPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -31,11 +38,15 @@
 
         if (!empty)
         {
-            attributes["style"] = attributes.TryGetValue("style", out var style) && style is not null
-                ? $"{style}; padding: 0.25rem;"
-                : "padding: 0.25rem;";
+            string? style = attributes.TryGetValue("style", out var value) ? value?.ToString() : null;
+            if (_paddedStyle is null || _previousStyle != style)
+            {
+                _previousStyle = style;
+                _paddedStyle = style is not null ? $"{style}; padding: 0.25rem;" : "padding: 0.25rem;";
+            }
+            attributes["style"] = _paddedStyle;
         }
 
-        PrependClassAttribute(attributes, "no-scrollbar overscroll-contain data-empty:p-0");
+        PrependClassAttribute(attributes, "no-scrollbar overscroll-contain data-empty:p-0", ref _lastPrependedClass);
     }
 }

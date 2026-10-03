@@ -1,11 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+<button type="button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
 @code {
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     private const string _baseClass =
         "inline-flex w-full touch-none cursor-grab select-none items-start justify-between gap-2 rounded-md text-left outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
 
@@ -29,13 +33,7 @@
         attributes["data-kanban-item-handle"] = string.Empty;
         attributes.TryAdd("aria-label", AriaLabel ?? "Drag item");
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _baseClass);
-
-            if (!ShowCursor)
-                AppendClass(ref cls, "cursor-default active:cursor-default");
-        });
+        PrependClassAttribute(attributes, ShowCursor ? _baseClass : _baseClass + " cursor-default active:cursor-default", ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

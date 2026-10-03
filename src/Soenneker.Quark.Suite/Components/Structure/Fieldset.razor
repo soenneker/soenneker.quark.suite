@@ -7,6 +7,11 @@
 </fieldset>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private string? _lastPrependedClass;
+
 
     /// <summary>
     /// Gets or sets the form attribute value, which associates the fieldset with a form.
@@ -19,9 +24,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field-set";
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is4;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -29,10 +34,10 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3 has-[>[role=checkbox]]:gap-3 has-[>[role=radio]]:gap-3");
+        PrependClassAttribute(attributes, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3 has-[>[role=checkbox]]:gap-3 has-[>[role=radio]]:gap-3", ref _lastPrependedClass);
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         if (Form.HasContent())
             attributes["form"] = Form;

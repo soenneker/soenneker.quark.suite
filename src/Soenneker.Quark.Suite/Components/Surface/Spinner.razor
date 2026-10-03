@@ -65,6 +65,17 @@
 </span>
 
 @code {
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is4;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineBlock;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Is0;
+    private static readonly CssValue<VerticalAlignBuilder> _defaultVerticalAlign = Quark.VerticalAlign.Middle;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
     private bool _styleInitialized;
 
     [Parameter]
@@ -127,15 +138,15 @@
         DataSlot ??= "spinner";
 
         if (!HasExplicitSizeClass())
-            Size ??= Quark.Size.Is4;
+            Size ??= _defaultSize;
 
-        Display ??= Quark.Display.InlineBlock;
-        Position ??= Quark.Position.Relative;
-        Shrink ??= Quark.Shrink.Is0;
-        PointerEvents ??= Quark.PointerEvents.None;
-        Overflow ??= Quark.Overflow.Hidden;
-        Leading ??= Quark.Leading.Is0;
-        VerticalAlign ??= Quark.VerticalAlign.Middle;
+        Display ??= _defaultDisplay;
+        Position ??= _defaultPosition;
+        Shrink ??= _defaultShrink;
+        PointerEvents ??= _defaultPointerEvents;
+        Overflow ??= _defaultOverflow;
+        Leading ??= _defaultLeading;
+        VerticalAlign ??= _defaultVerticalAlign;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -146,56 +157,13 @@
         attributes["data-reverse"] = Reverse ? "true" : "false";
         attributes["data-decorative"] = Decorative ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "quark-spinner");
-
-            if (HasColorAnimation)
-                AppendClass(ref cls, "quark-spinner-multicolor");
-
-            if (Name.HasValue)
-                AppendClass(ref cls, $"{GetLucideClass()} animate-spin");
-        });
-
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "contain:strict");
-
-            if (!Name.HasValue)
-            {
-                AppendStyleDecl(ref sty, $"--spinner-foreground:{ResolvedForegroundColor}");
-                AppendStyleDecl(ref sty, $"--spinner-track-color:{TrackColor}");
-                AppendStyleDecl(ref sty, $"--spinner-track-opacity:{Format(ResolvedTrackOpacity)}");
-                AppendStyleDecl(ref sty, $"--spinner-stroke-width:{Format(ResolvedStrokeWidth * 2)}");
-                AppendStyleDecl(ref sty, $"--spinner-track-stroke-width:{Format(ResolvedTrackStrokeWidth * 2)}");
-                AppendStyleDecl(ref sty, $"--spinner-radius:{Format(50 - ResolvedStrokeWidth)}");
-                AppendStyleDecl(ref sty, $"--spinner-track-radius:{Format(50 - ResolvedTrackStrokeWidth)}");
-                AppendStyleDecl(ref sty, $"--spinner-minimum-arc:{Format(ResolvedMinimumArcLength)}");
-                AppendStyleDecl(ref sty, $"--spinner-maximum-arc:{Format(ResolvedMaximumArcLength)}");
-                AppendStyleDecl(ref sty, $"--spinner-left-start:{Format(270 - ResolvedMinimumArcLength * 1.8)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-left-middle:{Format(270 - ResolvedMaximumArcLength * 1.8)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-right-start:{Format((270 - ResolvedMinimumArcLength * 1.8) * -1)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-right-middle:{Format((270 - ResolvedMaximumArcLength * 1.8) * -1)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-1:{Format(ResolvedArcTravel * 1.35)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-2:{Format(ResolvedArcTravel * 2.7)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-3:{Format(ResolvedArcTravel * 4.05)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-4:{Format(ResolvedArcTravel * 5.4)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-5:{Format(ResolvedArcTravel * 6.75)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-6:{Format(ResolvedArcTravel * 8.1)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-7:{Format(ResolvedArcTravel * 9.45)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-layer-8:{Format(ResolvedArcTravel * 10.8)}deg");
-                AppendStyleDecl(ref sty, $"--spinner-rotation-duration:{EffectiveRotationDuration}");
-                AppendStyleDecl(ref sty, $"--spinner-arc-duration:{EffectiveArcDuration}");
-                AppendStyleDecl(ref sty, $"--spinner-cycle-duration:{EffectiveCycleDuration}");
-                AppendStyleDecl(ref sty, $"--spinner-color-duration:{EffectiveColorDuration}");
-                AppendStyleDecl(ref sty, $"--spinner-easing:{ResolvedArcEasing}");
-                AppendStyleDecl(ref sty, $"--spinner-arc-travel:{Format(ResolvedArcTravel)}");
-                AppendStyleDecl(ref sty, $"--spinner-color-1:{GetPaletteColor(0)}");
-                AppendStyleDecl(ref sty, $"--spinner-color-2:{GetPaletteColor(1)}");
-                AppendStyleDecl(ref sty, $"--spinner-color-3:{GetPaletteColor(2)}");
-                AppendStyleDecl(ref sty, $"--spinner-color-4:{GetPaletteColor(3)}");
-            }
-        });
+        var classes = Name.HasValue
+            ? Name == LucideIcon.Loader
+                ? HasColorAnimation ? "quark-spinner quark-spinner-multicolor lucide lucide-loader animate-spin" : "quark-spinner lucide lucide-loader animate-spin"
+                : HasColorAnimation ? "quark-spinner quark-spinner-multicolor lucide lucide-loader-circle animate-spin" : "quark-spinner lucide lucide-loader-circle animate-spin"
+            : HasColorAnimation ? "quark-spinner quark-spinner-multicolor" : "quark-spinner";
+        PrependClassAttribute(attributes, classes, ref _lastBuiltClass);
+        PrependStyleAttribute(attributes, GetSpinnerStyle(), ref _lastBuiltStyle);
 
         if (Decorative)
         {
@@ -207,6 +175,123 @@
         {
             attributes.TryAdd("role", "status");
             attributes.TryAdd("aria-label", "Loading");
+        }
+    }
+
+    private SpinnerStyleKey _styleKey;
+    private string? _spinnerStyle;
+
+    private string GetSpinnerStyle()
+    {
+        if (Name.HasValue)
+            return "contain:strict";
+        var key = new SpinnerStyleKey(
+            Name.HasValue,
+            BitConverter.DoubleToInt64Bits(ResolvedTrackOpacity),
+            BitConverter.DoubleToInt64Bits(ResolvedStrokeWidth),
+            BitConverter.DoubleToInt64Bits(ResolvedTrackStrokeWidth),
+            BitConverter.DoubleToInt64Bits(ResolvedMinimumArcLength),
+            BitConverter.DoubleToInt64Bits(ResolvedMaximumArcLength),
+            BitConverter.DoubleToInt64Bits(ResolvedArcTravel),
+            BitConverter.DoubleToInt64Bits(ResolvedSpeed),
+            BitConverter.DoubleToInt64Bits(RotationDuration ?? ArcDuration * MaterialLinearRotationRatio),
+            BitConverter.DoubleToInt64Bits(ArcDuration),
+            BitConverter.DoubleToInt64Bits(ColorDuration ?? ArcDuration * 4),
+            ResolvedForegroundColor,
+            TrackColor,
+            ResolvedArcEasing,
+            GetPaletteColor(0),
+            GetPaletteColor(1),
+            GetPaletteColor(2),
+            GetPaletteColor(3));
+        if (_spinnerStyle is not null && _styleKey == key)
+            return _spinnerStyle;
+        var sty = new PooledStringBuilder(stackalloc char[128]);
+        try
+        {
+                AppendStyleDecl(ref sty, "contain:strict");
+                if (!Name.HasValue)
+                {
+                    AppendStyleDecl(ref sty, "--spinner-foreground:", ResolvedForegroundColor);
+                    AppendStyleDecl(ref sty, "--spinner-track-color:", TrackColor);
+                    sty.Append("; --spinner-track-opacity:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedTrackOpacity);
+                    sty.Append("; --spinner-stroke-width:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedStrokeWidth * 2);
+                    sty.Append("; --spinner-track-stroke-width:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedTrackStrokeWidth * 2);
+                    sty.Append("; --spinner-radius:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, 50 - ResolvedStrokeWidth);
+                    sty.Append("; --spinner-track-radius:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, 50 - ResolvedTrackStrokeWidth);
+                    sty.Append("; --spinner-minimum-arc:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedMinimumArcLength);
+                    sty.Append("; --spinner-maximum-arc:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedMaximumArcLength);
+                    sty.Append("; --spinner-left-start:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, 270 - ResolvedMinimumArcLength * 1.8);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-left-middle:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, 270 - ResolvedMaximumArcLength * 1.8);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-right-start:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, (270 - ResolvedMinimumArcLength * 1.8) * -1);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-right-middle:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, (270 - ResolvedMaximumArcLength * 1.8) * -1);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-1:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 1.35);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-2:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 2.7);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-3:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 4.05);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-4:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 5.4);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-5:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 6.75);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-6:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 8.1);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-7:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 9.45);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-layer-8:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel * 10.8);
+                    sty.Append("deg");
+                    sty.Append("; --spinner-rotation-duration:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, Math.Max(RotationDuration ?? ArcDuration * MaterialLinearRotationRatio, 0.001) / ResolvedSpeed);
+                    sty.Append("s");
+                    sty.Append("; --spinner-arc-duration:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, Math.Max(ArcDuration, 0.001) / ResolvedSpeed);
+                    sty.Append("s");
+                    sty.Append("; --spinner-cycle-duration:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, Math.Max(ArcDuration * 4, 0.001) / ResolvedSpeed);
+                    sty.Append("s");
+                    sty.Append("; --spinner-color-duration:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, Math.Max(ColorDuration ?? ArcDuration * 4, 0.001) / ResolvedSpeed);
+                    sty.Append("s");
+                    AppendStyleDecl(ref sty, "--spinner-easing:", ResolvedArcEasing);
+                    sty.Append("; --spinner-arc-travel:");
+                    InvariantNumberFormatting.AppendInvariant(ref sty, ResolvedArcTravel);
+                    AppendStyleDecl(ref sty, "--spinner-color-1:", GetPaletteColor(0));
+                    AppendStyleDecl(ref sty, "--spinner-color-2:", GetPaletteColor(1));
+                    AppendStyleDecl(ref sty, "--spinner-color-3:", GetPaletteColor(2));
+                    AppendStyleDecl(ref sty, "--spinner-color-4:", GetPaletteColor(3));
+                }
+
+            _spinnerStyle = sty.ToString();
+            _styleKey = key;
+            return _spinnerStyle;
+        }
+        finally
+        {
+            sty.Dispose();
         }
     }
 
@@ -262,10 +347,6 @@
     private bool HasColorAnimation => ForegroundColor is null && ForegroundColors is { Count: > 1 };
     private const double MaterialLinearRotationRatio = 1568.2352941176d / 1333d;
 
-    private string EffectiveRotationDuration => FormatDuration(RotationDuration ?? ArcDuration * MaterialLinearRotationRatio);
-    private string EffectiveArcDuration => FormatDuration(ArcDuration);
-    private string EffectiveCycleDuration => FormatDuration(ArcDuration * 4);
-    private string EffectiveColorDuration => FormatDuration(ColorDuration ?? ArcDuration * 4);
 
     private string GetPaletteColor(int index)
     {
@@ -275,9 +356,6 @@
         return ForegroundColors[index % Math.Min(ForegroundColors.Count, 4)];
     }
 
-    private string FormatDuration(double duration) => $"{Format(Math.Max(duration, 0.001) / ResolvedSpeed)}s";
-    private static string Format(double value) => value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
-    private string GetLucideClass() => Name == LucideIcon.Loader ? "lucide lucide-loader" : "lucide lucide-loader-circle";
 
     private bool HasExplicitSizeClass()
     {
@@ -286,6 +364,22 @@
 
         if (Attributes is null)
             return false;
+
+        if (Attributes is Dictionary<string, object> dictionary)
+        {
+            foreach (var attribute in dictionary)
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
+                    return true;
+            return false;
+        }
+
+        if (Attributes is System.Collections.Generic.OrderedDictionary<string, object> ordered)
+        {
+            foreach (var attribute in ordered)
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
+                    return true;
+            return false;
+        }
 
         foreach (var attribute in Attributes)
         {

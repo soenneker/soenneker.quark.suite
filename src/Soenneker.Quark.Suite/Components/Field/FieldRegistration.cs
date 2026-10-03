@@ -4,17 +4,19 @@ namespace Soenneker.Quark;
 
 internal sealed class FieldRegistration : IDisposable
 {
-    private Action? _dispose;
+    private FieldContext? _context;
+    private readonly bool _error;
 
-    public FieldRegistration(Action dispose)
+    public FieldRegistration(FieldContext context, bool error)
     {
-        _dispose = dispose;
+        _context = context;
+        _error = error;
     }
 
     public void Dispose()
     {
-        var dispose = _dispose;
-        _dispose = null;
-        dispose?.Invoke();
+        var context = _context;
+        _context = null;
+        context?.Unregister(_error);
     }
 }

@@ -1,11 +1,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<DialogClose Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Icon" Class="@BuildClass()" Attributes="@CloseAttributes">
+<DialogClose Variant="ButtonVariant.Ghost" ButtonSize="_staticCss0" Class="@BuildClass()" Attributes="@CloseAttributes">
     @if (ChildContent is null)
     {
         <Icon Name="LucideIcon.X" />
-        <Span ScreenReader="Quark.ScreenReader.Only">Close</Span>
+        <Span ScreenReader="_renderCss0">Close</Span>
     }
     else
     {
@@ -14,6 +14,9 @@
 </DialogClose>
 
 @code {
+    private string? _composedClass;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.Icon;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
     private static readonly IReadOnlyDictionary<string, object> CloseAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "image-lightbox-close"
@@ -22,6 +25,6 @@
     private string BuildClass()
     {
         const string baseClass = "text-white hover:bg-white/10 hover:text-white";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : AppendToClass(baseClass, Class!, ref _composedClass);
     }
 }

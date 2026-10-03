@@ -8,6 +8,11 @@
 </BradixDialogTitle>
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Foreground;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
@@ -17,9 +22,9 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "drawer-title";
-        TextSize ??= Quark.TextSize.Base;
-        TextColor ??= Quark.TextColor.Foreground;
-        FontWeight ??= Quark.FontWeight.Medium;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        FontWeight ??= _defaultFontWeight;
 
     }
 
@@ -28,7 +33,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "cn-font-heading");
+        PrependClassAttribute(attributes, "cn-font-heading", ref _lastPrependedClass);
 
     }
 

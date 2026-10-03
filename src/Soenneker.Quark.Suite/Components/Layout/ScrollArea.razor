@@ -26,8 +26,8 @@
 </BradixScrollArea>
 
 @code {
-    private QuarkAttributeDictionary _viewportAttributesBuffer;
-    private QuarkAttributeDictionary _cornerAttributesBuffer;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+
     [Parameter]
     public bool ShowVerticalScrollBar { get; set; } = true;
 
@@ -67,7 +67,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "scroll-area";
 
-        Position ??= Quark.Position.Relative;
+        Position ??= _defaultPosition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -77,23 +77,21 @@
         attributes.Remove("dir");
     }
 
-    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
+    private static readonly IReadOnlyDictionary<string, object> ViewportDefaults = new Dictionary<string, object>
     {
-        var attributes = _viewportAttributesBuffer.Create(2);
-        attributes["data-slot"] = "scroll-area-viewport";
+        ["data-slot"] = "scroll-area-viewport",
+        ["class"] = "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+    };
 
-        PrependClassAttribute(attributes, "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
+    private static IReadOnlyDictionary<string, object> BuildViewportAttributes() => ViewportDefaults;
 
-        return attributes;
-    }
-
-    private IReadOnlyDictionary<string, object> BuildCornerAttributes()
+    private static readonly IReadOnlyDictionary<string, object> CornerDefaults = new Dictionary<string, object>
     {
-        var attributes = _cornerAttributesBuffer.Create(2);
-        attributes["data-slot"] = "scroll-area-corner";
-        attributes["class"] = "bg-border/40 size-2.5";
-        return attributes;
-    }
+        ["data-slot"] = "scroll-area-corner",
+        ["class"] = "bg-border/40 size-2.5"
+    };
+
+    private static IReadOnlyDictionary<string, object> BuildCornerAttributes() => CornerDefaults;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 
 namespace Soenneker.Quark;
@@ -31,8 +31,9 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
 
     public string FormatRelative(DateTimeOffset value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
     {
-        var localValue = Convert(value, options);
-        var localNow = Convert(now, options);
+        var timeZone = QuarkDateTimeZoneResolver.Resolve(options.TimeZone, options.BrowserTimeZone);
+        var localValue = TimeZoneInfo.ConvertTime(value, timeZone);
+        var localNow = TimeZoneInfo.ConvertTime(now, timeZone);
         var delta = localValue - localNow;
         var future = delta > TimeSpan.Zero;
         var absolute = delta.Duration();
@@ -76,8 +77,9 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
 
     public string FormatUntil(DateTimeOffset value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
     {
-        var localValue = Convert(value, options);
-        var localNow = Convert(now, options);
+        var timeZone = QuarkDateTimeZoneResolver.Resolve(options.TimeZone, options.BrowserTimeZone);
+        var localValue = TimeZoneInfo.ConvertTime(value, timeZone);
+        var localNow = TimeZoneInfo.ConvertTime(now, timeZone);
         var remaining = localValue - localNow;
 
         if (remaining <= TimeSpan.Zero)
@@ -102,8 +104,9 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
     public string FormatCalendar(DateTimeOffset value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
     {
         var culture = ResolveCulture(options);
-        var localValue = Convert(value, options);
-        var localNow = Convert(now, options);
+        var timeZone = QuarkDateTimeZoneResolver.Resolve(options.TimeZone, options.BrowserTimeZone);
+        var localValue = TimeZoneInfo.ConvertTime(value, timeZone);
+        var localNow = TimeZoneInfo.ConvertTime(now, timeZone);
         var absolute = (localValue - localNow).Duration();
 
         if (absolute < TimeSpan.FromSeconds(10))
@@ -112,28 +115,24 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
         var valueDate = DateOnly.FromDateTime(localValue.DateTime);
         var nowDate = DateOnly.FromDateTime(localNow.DateTime);
         var dayDiff = valueDate.DayNumber - nowDate.DayNumber;
-        var time = localValue.ToString("t", culture);
-
         if (dayDiff == 0)
-            return $"Today at {time}";
+            return string.Create(culture, $"Today at {localValue:t}");
 
         if (dayDiff == 1)
-            return $"Tomorrow at {time}";
+            return string.Create(culture, $"Tomorrow at {localValue:t}");
 
         if (dayDiff == -1)
-            return $"Yesterday at {time}";
+            return string.Create(culture, $"Yesterday at {localValue:t}");
 
         if (dayDiff is >= 2 and <= 6)
-            return $"Next {culture.DateTimeFormat.GetDayName(localValue.DayOfWeek)} at {time}";
+            return string.Create(culture, $"Next {culture.DateTimeFormat.GetDayName(localValue.DayOfWeek)} at {localValue:t}");
 
         if (dayDiff is <= -2 and >= -6)
-            return $"Last {culture.DateTimeFormat.GetDayName(localValue.DayOfWeek)} at {time}";
+            return string.Create(culture, $"Last {culture.DateTimeFormat.GetDayName(localValue.DayOfWeek)} at {localValue:t}");
 
-        var date = localValue.Year == localNow.Year
-            ? localValue.ToString("MMM d", culture)
-            : localValue.ToString("MMM d, yyyy", culture);
-
-        return $"{date} at {time}";
+        return localValue.Year == localNow.Year
+            ? string.Create(culture, $"{localValue:MMM d} at {localValue:t}")
+            : string.Create(culture, $"{localValue:MMM d, yyyy} at {localValue:t}");
     }
 
 
@@ -153,15 +152,19 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
 
     public TimeSpan? GetNextUpdateInterval(QuarkDateTimeUpdateKind kind, DateTimeOffset value, DateTimeOffset now, QuarkDateTimeFormatOptions options)
     {
-        var localNow = Convert(now, options);
+        if (kind == QuarkDateTimeUpdateKind.Text)
+            return null;
+
+        var timeZone = QuarkDateTimeZoneResolver.Resolve(options.TimeZone, options.BrowserTimeZone);
+        var localNow = TimeZoneInfo.ConvertTime(now, timeZone);
 
         return kind switch
         {
             QuarkDateTimeUpdateKind.Text => null,
             QuarkDateTimeUpdateKind.Now => GetNowInterval(localNow, options.Format),
-            QuarkDateTimeUpdateKind.Relative => GetRelativeInterval(Convert(value, options), localNow),
-            QuarkDateTimeUpdateKind.Until => GetUntilInterval(Convert(value, options), localNow),
-            QuarkDateTimeUpdateKind.Calendar => GetCalendarInterval(Convert(value, options), localNow),
+            QuarkDateTimeUpdateKind.Relative => GetRelativeInterval(TimeZoneInfo.ConvertTime(value, timeZone), localNow),
+            QuarkDateTimeUpdateKind.Until => GetUntilInterval(TimeZoneInfo.ConvertTime(value, timeZone), localNow),
+            QuarkDateTimeUpdateKind.Calendar => GetCalendarInterval(TimeZoneInfo.ConvertTime(value, timeZone), localNow),
             _ => null
         };
     }
@@ -191,8 +194,10 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
         if (IsShortRelativeFormat(style))
             return FormatShortUnit(value, shortUnit, shortPluralUnit);
 
-        var text = FormatUnit(value, unit);
-        return future ? $"in {text}" : $"{text} ago";
+        string plural = value == 1 ? string.Empty : "s";
+        return future
+            ? string.Create(CultureInfo.InvariantCulture, $"in {value} {unit}{plural}")
+            : string.Create(CultureInfo.InvariantCulture, $"{value} {unit}{plural} ago");
     }
 
     private static bool IsShortRelativeFormat(DateRelativeFormatStyle style)

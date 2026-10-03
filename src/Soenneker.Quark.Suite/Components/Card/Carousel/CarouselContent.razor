@@ -1,13 +1,27 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildViewportAttributes()" @onpointerdown="HandlePointerDown" @onpointerup="HandlePointerUp" @onpointercancel="HandlePointerCancel" @ontouchstart="HandleTouchStart" @ontouchend="HandleTouchEnd" @ontouchcancel="HandleTouchCancel">
+<div @attributes="BuildViewportAttributes()" @onpointerdown="(_cachedHandlePointerDownDelegate ??= HandlePointerDown)" @onpointerup="(_cachedHandlePointerUpDelegate ??= HandlePointerUp)" @onpointercancel="(_cachedHandlePointerCancelDelegate ??= HandlePointerCancel)" @ontouchstart="(_cachedHandleTouchStartDelegate ??= HandleTouchStart)" @ontouchend="(_cachedHandleTouchEndDelegate ??= HandleTouchEnd)" @ontouchcancel="(_cachedHandleTouchCancelDelegate ??= HandleTouchCancel)">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+    private string? _transformStyle;
+    private double _transformOffset;
+    private bool _transformHorizontal;
+
+    private System.Action<PointerEventArgs>? _cachedHandlePointerDownDelegate;
+    private System.Action<PointerEventArgs>? _cachedHandlePointerUpDelegate;
+    private System.Action<PointerEventArgs>? _cachedHandlePointerCancelDelegate;
+    private System.Action<TouchEventArgs>? _cachedHandleTouchStartDelegate;
+    private System.Action<TouchEventArgs>? _cachedHandleTouchEndDelegate;
+    private System.Action<TouchEventArgs>? _cachedHandleTouchCancelDelegate;
+
     private static readonly IReadOnlyDictionary<string, object> ViewportAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "carousel-content",
@@ -22,7 +36,7 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Display ??= Quark.Display.Flex;
+        Display ??= _defaultDisplay;
     }
 
     protected override void OnParametersSet()
@@ -77,39 +91,57 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            var horizontal = ParentCarousel?.IsVertical != true;
-
-            if (horizontal)
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
             {
-                if (!HasClassToken("-ml-"))
-                    AppendClass(ref cls, "-ml-4");
+                var horizontal = ParentCarousel?.IsVertical != true;
+                if (horizontal)
+                {
+                    if (!HasClassToken("-ml-"))
+                        AppendClass(ref cls, "-ml-4");
+                }
+                else
+                {
+                    if (!HasClassToken("-mt-"))
+                        AppendClass(ref cls, "-mt-4");
+                    AppendClass(ref cls, "flex-col");
+                }
+
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
             }
-            else
+            finally
             {
-                if (!HasClassToken("-mt-"))
-                    AppendClass(ref cls, "-mt-4");
-
-                AppendClass(ref cls, "flex-col");
+                cls.Dispose();
             }
-        });
+        }
 
-        BuildStyleAttribute(attributes, (ref sty) =>
         {
-            var horizontal = ParentCarousel?.IsVertical != true;
-            var offset = ParentCarousel?.ScrollOffsetPixels ?? 0;
-
-            var formattedOffset = offset < 0.5 ? "0" : offset.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-
-            if (horizontal)
-                AppendStyleDecl(ref sty, $"transform: translate3d({(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px, 0px)");
-            else
-                AppendStyleDecl(ref sty, $"transform: translate3d(0px, {(offset < 0.5 ? "0" : $"-{formattedOffset}")}px, 0px)");
-
-            AppendStyleDecl(ref sty, "transition: transform 300ms ease-in-out");
-            AppendStyleDecl(ref sty, "will-change: transform");
-        });
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                var horizontal = ParentCarousel?.IsVertical != true;
+                var offset = ParentCarousel?.ScrollOffsetPixels ?? 0;
+                if (_transformStyle is null || !_transformOffset.Equals(offset) || _transformHorizontal != horizontal)
+                {
+                    _transformOffset = offset;
+                    _transformHorizontal = horizontal;
+                    var formattedOffset = offset < 0.5 ? "0" : offset.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                    var coordinate = offset < 0.5 ? "0" : string.Concat("-", formattedOffset);
+                    _transformStyle = horizontal
+                        ? $"transform: translate3d({coordinate}px, 0px, 0px)"
+                        : $"transform: translate3d(0px, {coordinate}px, 0px)";
+                }
+                AppendStyleDecl(ref sty, _transformStyle);
+                AppendStyleDecl(ref sty, "transition: transform 300ms ease-in-out");
+                AppendStyleDecl(ref sty, "will-change: transform");
+                BuildStyleAttribute(attributes, ref sty, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                sty.Dispose();
+            }
+        }
     }
 
     private bool HasClassToken(string tokenPart)

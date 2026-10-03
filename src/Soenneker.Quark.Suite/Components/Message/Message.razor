@@ -6,6 +6,15 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _conditionalCss0 = Quark.Margin.FromStart.Auto;
+    private static readonly CssValue<MarginBuilder> _conditionalCss1 = Quark.Margin.FromEnd.Auto;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss0 = Quark.MaxWidth.Token("[90%]");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Start;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastPrependedClass;
+
     private MessageContext? _context;
 
     private MessageContext Context
@@ -13,7 +22,7 @@
         get
         {
             if (_context is null || !string.Equals(_context.From, From, StringComparison.Ordinal))
-                _context = new MessageContext(From);
+                _context = From switch { "assistant" => MessageContext.Assistant, "user" => MessageContext.User, _ => new MessageContext(From) };
 
             return _context;
         }
@@ -28,12 +37,12 @@
         DataSlot ??= "message";
         Role ??= "article";
         AriaLabel ??= From == "user" ? "User message" : "Assistant message";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        MaxWidth ??= Quark.MaxWidth.Token("[90%]");
-        ItemsAlign ??= Quark.Items.Start;
-        Gap ??= Quark.Gap.Is2;
-        Margin ??= From == "user" ? Quark.Margin.FromStart.Auto : Quark.Margin.FromEnd.Auto;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss0;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        Margin ??= From == "user" ? _conditionalCss0 : _conditionalCss1;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -41,7 +50,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-from"] = From;
 
-        PrependClassAttribute(attributes, "group/message");
+        PrependClassAttribute(attributes, "group/message", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

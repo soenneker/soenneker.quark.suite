@@ -2,15 +2,15 @@
 @implements ISearchableSelect
 @implements IValidationInput
         <Combobox Value="@ItemValue"
-                  ValueChanged="HandleValueChanged"
+                  ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                   Search="@_search"
-                  SearchChanged="@((string? value) => _search = value)"
+                  SearchChanged="(_searchChanged ??= SetSearch)"
                   Open="@_open"
-                  OpenChanged="@((bool value) => _open = value)"
+                  OpenChanged="(_openChanged ??= SetOpen)"
                   Disabled="@Disabled"
                   AutoHighlight="true"
-                  Width="Width.IsFull"
-                  MinWidth="MinWidth.Is0">
+                  Width="_staticCss1"
+                  MinWidth="_staticCss0">
             <ComboboxInput DisplayValue="@DisplayValue" Placeholder="@Placeholder" @attributes="InputAttributes" />
             <ComboboxContent>
                 <ComboboxEmpty>@EmptyText</ComboboxEmpty>
@@ -20,7 +20,7 @@
                         SelectOption choice = Choices[index];
                         if (MatchesSearch(choice))
                         {
-                            <ComboboxItem @key="choice.Value" Value="@EncodeValue(choice.Value)" Disabled="@choice.Disabled">@choice.Label</ComboboxItem>
+                            <ComboboxItem @key="choice.Value" Value="@EncodeChoice(index, choice.Value)" Disabled="@choice.Disabled">@choice.Label</ComboboxItem>
                         }
                     }
                 </ComboboxList>
@@ -28,6 +28,17 @@
         </Combobox>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<WidthBuilder> _staticCss1 = Quark.Width.IsFull;
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+
+    private Action<string?>? _searchChanged;
+    private Action<bool>? _openChanged;
+    private string? _encodedValueSource;
+    private string? _encodedValue;
+    private string?[] _encodedChoices = [];
+    private void SetSearch(string? value) => _search = value;
+    private void SetOpen(bool value) => _open = value;
     private string? _search;
     private bool _open;
     [Parameter]
@@ -47,7 +58,29 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
     public object? ValidationValue => Value;
-    private string? ItemValue => Value is null ? null : EncodeValue(Value);
+    private string? ItemValue
+    {
+        get
+        {
+            if (_encodedValueSource != Value)
+            {
+                _encodedValueSource = Value;
+                _encodedValue = Value is null ? null : EncodeValue(Value);
+            }
+            return _encodedValue;
+        }
+    }
+
+    private string EncodeChoice(int index, string value)
+    {
+        if (_encodedChoices.Length != Choices.Count)
+            Array.Resize(ref _encodedChoices, Choices.Count);
+
+        string? encoded = _encodedChoices[index];
+        if (encoded is null || !encoded.AsSpan("option:".Length).SequenceEqual(value))
+            _encodedChoices[index] = encoded = EncodeValue(value);
+        return encoded;
+    }
     private string DisplayValue
     {
         get

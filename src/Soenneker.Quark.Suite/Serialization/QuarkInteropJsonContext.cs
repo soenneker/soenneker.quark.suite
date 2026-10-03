@@ -29,6 +29,7 @@ namespace Soenneker.Quark;
 [JsonSerializable(typeof(ScrollspyInteropOptions))]
 [JsonSerializable(typeof(SortableReorderEventArgs))]
 [JsonSerializable(typeof(IReadOnlyList<string>))]
+[JsonSerializable(typeof(ThemeInteropState))]
 [JsonSerializable(typeof(TableColumnSizingOptions))]
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]

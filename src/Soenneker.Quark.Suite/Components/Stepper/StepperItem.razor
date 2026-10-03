@@ -8,6 +8,18 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<FlexBuilder> _notLastFlex = Soenneker.Quark.Variant.Of(Quark.Flex.Is1).Custom("not-last");
+    private static readonly CssValue<FlexDirectionBuilder> _conditionalCss0 = Quark.FlexDirection.Col;
+    private static readonly CssValue<FlexDirectionBuilder> _conditionalCss1 = Quark.FlexDirection.Row;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign2 = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Start;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col.OnMd.Row;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull.OnMd.Auto;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<FlexBuilder> _defaultFlex2 = Quark.Flex.Is1;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.None.OnMd.Custom("not-last").Is1;
     private StepperItemContext? _itemContext;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
@@ -83,33 +95,33 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-item";
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _defaultItemsAlign2;
+        Justify ??= _defaultJustify;
 
         if (IsResponsive)
         {
-            ItemsAlign ??= Quark.Items.Start;
-            FlexDirection ??= Quark.FlexDirection.Col.OnMd.Row;
-            Width ??= Quark.Width.IsFull.OnMd.Auto;
+            ItemsAlign ??= _defaultItemsAlign;
+            FlexDirection ??= _defaultFlexDirection;
+            Width ??= _defaultWidth;
         }
         else
         {
-            FlexDirection ??= ParentStepper?.ResolvedOrientation == "vertical" ? Quark.FlexDirection.Col : Quark.FlexDirection.Row;
+            FlexDirection ??= ParentStepper?.ResolvedOrientation == "vertical" ? _conditionalCss0 : _conditionalCss1;
         }
 
         if (ReferenceEquals(Variant, StepperItemVariant.Stacked))
         {
-            Position ??= Quark.Position.Relative;
-            Flex ??= Quark.Flex.Is1;
+            Position ??= _defaultPosition;
+            Flex ??= _defaultFlex2;
         }
         else if (IsResponsive)
         {
-            Flex ??= Quark.Flex.None.OnMd.Custom("not-last").Is1;
+            Flex ??= _defaultFlex;
         }
         else
         {
-            Flex ??= Soenneker.Quark.Variant.Of(Quark.Flex.Is1).Custom("not-last");
+            Flex ??= _notLastFlex;
         }
     }
 

@@ -5,7 +5,7 @@
     <Div @attributes="BuildAttributes()">
         @if (Heading.HasContent())
         {
-            <Div cmdk-group-heading Padding='Quark.Padding.OnX.Is2.OnY.Token("1.5")' TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">@Heading</Div>
+            <Div cmdk-group-heading Padding='_renderCss0' TextSize="_renderCss1" FontWeight="_renderCss2" TextColor="_renderCss3">@Heading</Div>
         }
 
         <Div DataSlot="command-group-items">
@@ -15,6 +15,17 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Foreground;
+    private static readonly CssValue<PaddingBuilder> _renderCss0 = Quark.Padding.OnX.Is2.OnY.Token("1.5");
+    private static readonly CssValue<TextSizeBuilder> _renderCss1 = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _renderCss2 = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextColorBuilder> _renderCss3 = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
+    private string? _headingSnapshot;
+
     [Parameter]
     public string? Heading { get; set; }
 
@@ -23,14 +34,24 @@
 
     internal bool IsVisibleResolved => ParentCommand?.GroupHasVisibleItems(this) ?? true;
 
+    protected override void OnParametersSet()
+    {
+        if (!string.Equals(_headingSnapshot, Heading, StringComparison.Ordinal))
+        {
+            _headingSnapshot = Heading;
+            ParentCommand?.InvalidateItemOrder();
+        }
+        base.OnParametersSet();
+    }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "command-group";
 
-        Overflow ??= Quark.Overflow.Hidden;
-        Padding ??= Quark.Padding.Is1;
-        TextColor ??= Quark.TextColor.Foreground;
+        Overflow ??= _defaultOverflow;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -44,12 +65,10 @@
         if (ParentCommand?.HasRegisteredItems == true && !IsVisibleResolved)
             attributes["hidden"] = string.Empty;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground");
-            AppendClass(ref cls, "[&_[data-slot=command-group-items]]:flex [&_[data-slot=command-group-items]]:flex-col");
-            AppendClass(ref cls, "not-has-[[data-slot=command-item]:not([hidden])]:hidden");
-        });
+            const string @class = "**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[data-slot=command-group-items]]:flex [&_[data-slot=command-group-items]]:flex-col not-has-[[data-slot=command-item]:not([hidden])]:hidden";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -9,12 +9,28 @@
 }
 else
 {
-    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is0;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("sidebar-foreground");
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-sidebar-ring");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Transform;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     [Parameter]
     public bool AsChild { get; set; }
 
@@ -31,18 +47,18 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-group-action";
 
-        Position ??= Quark.Position.Absolute;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Size ??= Quark.Size.Is5;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is0;
-        TextColor ??= Quark.TextColor.Token("sidebar-foreground");
-        RingColor ??= Quark.RingColor.Utility("ring-sidebar-ring");
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Transition ??= Quark.Transition.Transform;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Size ??= _defaultSize;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
+        RingColor ??= _defaultRingColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Transition ??= _defaultTransition;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -53,7 +69,7 @@ else
         if (!AsChild)
             attributes["type"] = "button";
 
-        PrependClassAttribute(attributes, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground top-3.5 right-3 aspect-square focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 after:absolute after:-inset-2 md:after:hidden group-data-[collapsible=icon]:hidden");
+        PrependClassAttribute(attributes, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground top-3.5 right-3 aspect-square focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 after:absolute after:-inset-2 md:after:hidden group-data-[collapsible=icon]:hidden", ref _lastPrependedClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()

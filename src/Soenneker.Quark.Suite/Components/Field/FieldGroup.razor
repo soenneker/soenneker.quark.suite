@@ -6,6 +6,12 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is5;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public string Slot { get; set; } = "field-group";
 
@@ -16,20 +22,19 @@
         base.ApplyDefaultParameters();
         DataSlot ??= ResolvedSlot;
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is5;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Width ??= _defaultWidth;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/field-group @container/field-group");
-            AppendClass(ref cls, "data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4");
-        });
+            const string @class = "group/field-group @container/field-group data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

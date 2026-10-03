@@ -5,22 +5,36 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is6;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Center;
+    private static readonly CssValue<TextWrapBuilder> _defaultTextWrap = Quark.TextWrap.Balance;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "empty";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Flex ??= Quark.Flex.Is1;
-        MinWidth ??= Quark.MinWidth.Is0;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is4;
-        Rounded ??= Quark.Rounded.Xl;
-        Padding ??= Quark.Padding.Is6;
-        TextAlign ??= Quark.TextAlign.Center;
-        TextWrap ??= Quark.TextWrap.Balance;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        Flex ??= _defaultFlex;
+        MinWidth ??= _staticCss1;
+        FlexDirection ??= _defaultFlexDirection;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextAlign ??= _defaultTextAlign;
+        TextWrap ??= _defaultTextWrap;
 
     }
 
@@ -29,6 +43,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "border-dashed");
+        PrependClassAttribute(attributes, "border-dashed", ref _lastPrependedClass);
     }
 }

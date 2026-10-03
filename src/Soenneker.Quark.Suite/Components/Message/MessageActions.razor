@@ -4,13 +4,17 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<JustifyBuilder> _conditionalCss0 = Quark.Justify.End;
+    private static readonly CssValue<JustifyBuilder> _conditionalCss1 = Quark.Justify.Start;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "message-actions";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Justify ??= From == "user" ? Quark.Justify.End : Quark.Justify.Start;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        Justify ??= From == "user" ? _conditionalCss0 : _conditionalCss1;
     }
 
     [CascadingParameter]

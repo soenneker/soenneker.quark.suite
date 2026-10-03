@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
-@using System.Text
 @using System.Text.RegularExpressions
 
 <CascadingValue Value="_context" IsFixed="false">
@@ -9,15 +8,23 @@
         <div style="position:absolute;inset:0;pointer-events:none">
             <input @ref="_inputRef"
                    value="@CurrentValue"
-                   @oninput="HandleInput"
-                   @onfocus="HandleOtpFocus"
-                   @onblur="HandleOtpBlur"
+                   @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+                   @onfocus="(_cachedHandleOtpFocusDelegate ??= HandleOtpFocus)"
+                   @onblur="(_cachedHandleOtpBlurDelegate ??= HandleOtpBlur)"
                    @attributes="BuildAttributes()" />
         </div>
     </div>
 </CascadingValue>
 
 @code {
+    private QuarkInt32Attribute _selectionIndexAttribute, _lengthAttribute;
+    private (bool Disabled, string Height) _containerStyleKey;
+    private string? _containerStyle;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Action<FocusEventArgs>? _cachedHandleOtpFocusDelegate;
+    private System.Action<FocusEventArgs>? _cachedHandleOtpBlurDelegate;
+
     private InputOtpContext _context = new();
     private ElementReference _inputRef;
     private string _uncontrolledValue = string.Empty;
@@ -85,26 +92,26 @@
             return value;
 
         var regex = GetPatternRegex();
-        StringBuilder? builder = null;
+        var firstInvalid = 0;
+        while (firstInvalid < value.Length && regex.IsMatch(value.AsSpan(firstInvalid, 1)))
+            firstInvalid++;
 
-        for (var i = 0; i < value.Length; i++)
+        if (firstInvalid == value.Length)
+            return value;
+
+        var builder = new PooledStringBuilder(stackalloc char[64]);
+        try
         {
-            var character = value[i];
-            if (regex.IsMatch(value.AsSpan(i, 1)))
-            {
-                builder?.Append(character);
-                continue;
-            }
-
-            if (builder is null)
-            {
-                builder = new StringBuilder(value.Length);
-                if (i > 0)
-                    builder.Append(value, 0, i);
-            }
+            builder.Append(value.AsSpan(0, firstInvalid));
+            for (var remaining = firstInvalid + 1; remaining < value.Length; remaining++)
+                if (regex.IsMatch(value.AsSpan(remaining, 1)))
+                    builder.Append(value[remaining]);
+            return builder.ToString();
         }
-
-        return builder?.ToString() ?? value;
+        finally
+        {
+            builder.Dispose();
+        }
     }
 
     private Regex GetPatternRegex()
@@ -162,7 +169,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-otp";
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -172,12 +179,12 @@
         var selectionIndex = CurrentValue.Length < Length ? _context.ActiveIndex : 0;
 
         attributes["data-input-otp"] = "true";
-        attributes["data-input-otp-mss"] = selectionIndex;
-        attributes["data-input-otp-mse"] = selectionIndex;
+        attributes["data-input-otp-mss"] = _selectionIndexAttribute.Get(selectionIndex);
+        attributes["data-input-otp-mse"] = _selectionIndexAttribute.Get(selectionIndex);
         attributes["type"] = "text";
         attributes["autocomplete"] = AutoComplete;
         attributes["spellcheck"] = "false";
-        attributes["maxlength"] = Length;
+        attributes["maxlength"] = _lengthAttribute.Get(Length);
 
         if (!string.IsNullOrWhiteSpace(InputMode))
             attributes["inputmode"] = InputMode;
@@ -188,14 +195,14 @@
         if (Disabled)
         {
             attributes["data-disabled"] = "true";
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         }
 
         if (ReadOnly)
-            attributes["readonly"] = true;
+            attributes["readonly"] = QuarkAttributeValues.True;
 
         if (Required)
-            attributes["required"] = true;
+            attributes["required"] = QuarkAttributeValues.True;
 
         attributes["style"] =
             "position:absolute;inset:0;width:100%;height:100%;display:flex;text-align:left;opacity:1;color:transparent;pointer-events:all;background:transparent;caret-color:transparent;border:0 solid transparent;outline:0 solid transparent;box-shadow:none;line-height:1;letter-spacing:-.5em;font-size:var(--root-height);font-family:monospace;font-variant-numeric:tabular-nums";
@@ -207,16 +214,31 @@
         _context = CreateContext(CurrentValue, _context.Focused, _context.ActiveIndex);
     }
 
-    private string ContainerStyle => $"position: relative; display: inline-flex; width: fit-content; cursor: {(Disabled ? "default" : "text")}; user-select: none; pointer-events: none; --root-height: {RootHeight};";
+    private string ContainerStyle
+    {
+        get
+        {
+            var key = (Disabled, RootHeight);
+            if (_containerStyle is null || _containerStyleKey != key)
+            {
+                _containerStyleKey = key;
+                _containerStyle = $"position: relative; display: inline-flex; width: fit-content; cursor: {(Disabled ? "default" : "text")}; user-select: none; pointer-events: none; --root-height: {RootHeight};";
+            }
+            return _containerStyle;
+        }
+    }
 
     private InputOtpContext CreateContext(string value, bool focused, int? activeIndex = null)
     {
+        int index = Math.Clamp(activeIndex ?? 0, 0, Math.Max(0, Length - 1));
+        if (_context.Value == value && _context.Length == Length && _context.Focused == focused && _context.ActiveIndex == index)
+            return _context;
         return new InputOtpContext
         {
             Value = value,
             Length = Length,
             Focused = focused,
-            ActiveIndex = Math.Clamp(activeIndex ?? 0, 0, Math.Max(0, Length - 1))
+            ActiveIndex = index
         };
     }
 

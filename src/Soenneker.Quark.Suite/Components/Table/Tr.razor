@@ -12,6 +12,10 @@ else
 }
 
 @code {
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromBottom.Default;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private string? _lastPrependedClass;
+
     /// <summary>Adds a select-all header cell when the parent DataTable enables selection.
     /// Set on one header row only. This cell does not participate in server-side column indexing.</summary>
     [Parameter]
@@ -36,8 +40,8 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "table-row";
-        Border ??= Quark.Border.FromBottom.Default;
-        Transition ??= Quark.Transition.Colors;
+        Border ??= _defaultBorder;
+        Transition ??= _defaultTransition;
 
     }
 
@@ -45,7 +49,7 @@ else
 	{
 		base.BuildAttributesCore(attributes);
 
-		PrependClassAttribute(attributes, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted");
+		PrependClassAttribute(attributes, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted", ref _lastPrependedClass);
 	}
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

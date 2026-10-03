@@ -9,6 +9,15 @@
 </HoverCardContent>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Token("66");
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Token("[12px]");
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Border;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is0;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public Alignment Align { get; set; } = Alignment.Center;
 
@@ -19,18 +28,21 @@
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.Token("66");
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Token("[12px]");
-        BorderColor ??= Quark.BorderColor.Border;
-        Padding ??= Quark.Padding.Is0;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        FlexDirection ??= _defaultFlexDirection;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        BorderColor ??= _defaultBorderColor;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "shadow-modal dark:border-accent"));
+        {
+            const string @class = "shadow-modal dark:border-accent";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

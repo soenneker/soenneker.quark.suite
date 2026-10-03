@@ -15,7 +15,7 @@
             aria-hidden="@(!IsExpanded ? "true" : "false")"
             aria-labelledby="@TriggerId"
             class="@DetailRowClass">
-            <td colspan="@Colspan"
+            <td colspan="@_colspanAttribute.Get(Colspan)"
                 data-slot="table-row-detail-cell"
                 class="@DetailCellClass">
                 <div data-slot="table-row-detail-transition"
@@ -32,8 +32,13 @@
 </CascadingValue>
 
 @code {
-    private readonly string _generatedTriggerId = BlazorIdGenerator.New("quark-table-row-trigger");
-    private readonly string _generatedContentId = BlazorIdGenerator.New("quark-table-row-detail");
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromBottom.Default;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private string? _lastPrependedClass;
+
+    private string? _generatedTriggerId;
+    private string? _generatedContentId;
+    private QuarkInt32Attribute _colspanAttribute;
     private bool _expanded;
     private bool _initialized;
 
@@ -96,8 +101,8 @@
     /// </summary>
     public bool IsExpanded => Expanded ?? _expanded;
 
-    internal string TriggerId => _generatedTriggerId;
-    internal string ContentId => _generatedContentId;
+    internal string TriggerId => _generatedTriggerId ??= BlazorIdGenerator.New("quark-table-row-trigger");
+    internal string ContentId => _generatedContentId ??= BlazorIdGenerator.New("quark-table-row-detail");
 
     private string DetailTransitionClass => IsExpanded
         ? "grid grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity] duration-200 ease-out"
@@ -136,8 +141,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "table-row";
-        Border ??= Quark.Border.FromBottom.Default;
-        Transition ??= Quark.Transition.Colors;
+        Border ??= _defaultBorder;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -146,7 +151,7 @@
 
         attributes["data-state"] = IsExpanded ? "open" : "closed";
 
-        PrependClassAttribute(attributes, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-[state=open]:bg-muted/50");
+        PrependClassAttribute(attributes, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-[state=open]:bg-muted/50", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

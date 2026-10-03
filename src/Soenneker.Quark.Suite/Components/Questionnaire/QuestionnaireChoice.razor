@@ -1,12 +1,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<label @onclick="HandleClick" @onclick:preventDefault @attributes="BuildAttributes()">
+<label @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onclick:preventDefault @attributes="BuildAttributes()">
     <input @ref="_input" checked="@IsChecked" @attributes="BuildInputAttributes()" />
     <span aria-hidden="true" data-slot="questionnaire-choice-indicator" class="pointer-events-none relative flex size-4 shrink-0 translate-y-[0.45rem] items-center justify-center rounded-[4px] border border-input group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[type=radio]/questionnaire-choice:rounded-full group-data-checked/questionnaire-choice:border-primary group-data-checked/questionnaire-choice:bg-primary group-data-checked/questionnaire-choice:text-primary-foreground dark:bg-input/30 dark:group-data-checked/questionnaire-choice:bg-primary">
         @if (IsChecked && ParentItem?.Multiple == true)
         {
-            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is3_5" />
+            <Icon Name="LucideIcon.Check" Size="_renderCss0" />
         }
         else if (IsChecked)
         {
@@ -21,6 +21,26 @@
 </label>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Start;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is3.OnY.Is2_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Left;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3_5;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     private QuarkAttributeDictionary _inputAttributesBuffer;
     private ElementReference _input;
 
@@ -77,9 +97,9 @@
         if (ParentItem?.IsSkipped != true)
             attributes["name"] = ParentItem?.Name ?? string.Empty;
         if (Disabled || ParentItem?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         if (ParentItem?.Required == true && ParentItem.Multiple != true)
-            attributes["required"] = true;
+            attributes["required"] = QuarkAttributeValues.True;
         if (ParentItem?.EffectiveInvalid == true)
             attributes["aria-invalid"] = "true";
         if (Shortcut is not null)
@@ -95,21 +115,21 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-choice";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Cursor ??= Quark.Cursor.Pointer;
-        ItemsAlign ??= Quark.Items.Start;
-        Gap ??= Quark.Gap.Is2_5;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is3.OnY.Is2_5;
-        TextSize ??= Quark.TextSize.Sm;
-        TextAlign ??= Quark.TextAlign.Left;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        UserSelect ??= Quark.UserSelect.None;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        TextAlign ??= _defaultTextAlign;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -124,7 +144,7 @@
         if (Shortcut is not null)
             attributes["data-shortcut"] = Shortcut;
 
-        PrependClassAttribute(attributes, "group/questionnaire-choice hover:bg-muted/50 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-3 has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted min-h-11 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50");
+        PrependClassAttribute(attributes, "group/questionnaire-choice hover:bg-muted/50 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-3 has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted min-h-11 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

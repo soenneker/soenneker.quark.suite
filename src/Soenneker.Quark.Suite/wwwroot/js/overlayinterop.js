@@ -217,7 +217,7 @@ export function deactivate(overlayId, unlockScroll) {
 }
 
 export function releaseScrollLocks() {
-    traps.forEach((trap, overlayId) => disposeFocusTrap(overlayId));
+    for (const overlayId of traps.keys()) disposeFocusTrap(overlayId);
     overlayStack.length = 0;
 
     if (scrollLockOwners.size > 0) {

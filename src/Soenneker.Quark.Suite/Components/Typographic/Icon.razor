@@ -12,6 +12,10 @@
 @ChildContent
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineBlock;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is4;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<VerticalAlignBuilder> _defaultVerticalAlign = Quark.VerticalAlign.Middle;
 
     [Parameter]
     public LucideIcon Name { get; set; }
@@ -32,11 +36,11 @@
         base.ApplyDefaultParameters();
 
         DataSlot ??= "icon";
-        Display ??= Quark.Display.InlineBlock;
+        Display ??= _defaultDisplay;
         if (!HasExplicitSizeClass())
-            Size ??= Quark.Size.Is4;
-        Shrink ??= Quark.Shrink.Is0;
-        VerticalAlign ??= Quark.VerticalAlign.Middle;
+            Size ??= _defaultSize;
+        Shrink ??= _defaultShrink;
+        VerticalAlign ??= _defaultVerticalAlign;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -100,7 +104,7 @@
         if (raw.IsNullOrEmpty())
             return null;
 
-        return InjectAttributesIntoSvg(raw, attributes);
+        return SvgAttributeWriter.InjectAttributesIntoSvg(raw, attributes);
     }
 
     private string? GetSvg(string iconName)
@@ -120,6 +124,22 @@
 
         if (Attributes is null)
             return false;
+
+        if (Attributes is Dictionary<string, object> dictionary)
+        {
+            foreach (var attribute in dictionary)
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
+                    return true;
+            return false;
+        }
+
+        if (Attributes is System.Collections.Generic.OrderedDictionary<string, object> ordered)
+        {
+            foreach (var attribute in ordered)
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
+                    return true;
+            return false;
+        }
 
         foreach (var attribute in Attributes)
         {
@@ -178,165 +198,6 @@
         }
 
         return -1;
-    }
-
-    private static string InjectAttributesIntoSvg(string svg, IReadOnlyDictionary<string, object> attributes)
-    {
-        if (attributes.Count == 0)
-            return svg;
-
-        var svgStart = svg.IndexOf("<svg", StringComparison.OrdinalIgnoreCase);
-        if (svgStart < 0)
-            return svg;
-
-        var tagEnd = svg.IndexOf('>', svgStart);
-        if (tagEnd < 0)
-            return svg;
-
-        var attrSb = new PooledStringBuilder(128);
-        try
-        {
-            attrSb.Append(svg.AsSpan(0, tagEnd));
-            foreach (var kv in attributes)
-            {
-                var key = kv.Key;
-                var v = kv.Value;
-
-                if (key.Length == 0)
-                    continue;
-
-                if (IsClassKey(key))
-                {
-                    if (v is string cls && cls.Length > 0)
-                    {
-                        attrSb.Append(" class=\"");
-                        AppendEscapedHtmlAttribute(ref attrSb, cls);
-                        attrSb.Append('"');
-                    }
-
-                    continue;
-                }
-
-                if (IsStyleKey(key))
-                {
-                    if (v is string sty && sty.Length > 0)
-                    {
-                        attrSb.Append(" style=\"");
-                        AppendEscapedHtmlAttribute(ref attrSb, sty);
-                        attrSb.Append('"');
-                    }
-
-                    continue;
-                }
-
-                if (IsHiddenKey(key))
-                {
-                    if (v is true || (v is string hs && (hs == "true" || hs == "hidden")))
-                        attrSb.Append(" hidden");
-                    continue;
-                }
-
-                if (!IsSvgSafeAttribute(key) || v is null)
-                    continue;
-
-                if (v is bool b)
-                {
-                    if (b)
-                    {
-                        attrSb.Append(' ');
-                        attrSb.Append(key);
-                    }
-
-                    continue;
-                }
-
-                if (v is string s)
-                {
-                    if (s.Length == 0)
-                        continue;
-
-                    attrSb.Append(' ');
-                    attrSb.Append(key);
-                    attrSb.Append("=\"");
-                    AppendEscapedHtmlAttribute(ref attrSb, s);
-                    attrSb.Append('"');
-                    continue;
-                }
-
-                var val = v switch
-                {
-                    int i => i.ToString(CultureInfo.InvariantCulture),
-                    long l => l.ToString(CultureInfo.InvariantCulture),
-                    uint ui => ui.ToString(CultureInfo.InvariantCulture),
-                    ulong ul => ul.ToString(CultureInfo.InvariantCulture),
-                    float f => f.ToString("R", CultureInfo.InvariantCulture),
-                    double d => d.ToString("R", CultureInfo.InvariantCulture),
-                    decimal m => m.ToString(CultureInfo.InvariantCulture),
-                    IFormattable fmt => fmt.ToString(null, CultureInfo.InvariantCulture),
-                    _ => v.ToString()
-                };
-
-                if (val.HasContent())
-                {
-                    attrSb.Append(' ');
-                    attrSb.Append(key);
-                    attrSb.Append("=\"");
-                    AppendEscapedHtmlAttribute(ref attrSb, val);
-                    attrSb.Append('"');
-                }
-            }
-
-
-            if (attrSb.Length == tagEnd)
-                return svg;
-
-            attrSb.Append(svg.AsSpan(tagEnd));
-            return attrSb.ToString();
-        }
-        finally
-        {
-            attrSb.Dispose();
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsClassKey(string key) => key.Length == 5 && (key[0] == 'c' || key[0] == 'C') && key.Equals("class", StringComparison.OrdinalIgnoreCase);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsStyleKey(string key) => key.Length == 5 && (key[0] == 's' || key[0] == 'S') && key.Equals("style", StringComparison.OrdinalIgnoreCase);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsHiddenKey(string key) => key.Length == 6 && (key[0] == 'h' || key[0] == 'H') && key.Equals("hidden", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsSvgSafeAttribute(string key)
-    {
-        return key.Length > 0 && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase) || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase) || key.Equals("id", StringComparison.OrdinalIgnoreCase) || key.Equals("title", StringComparison.OrdinalIgnoreCase) || key.Equals("role", StringComparison.OrdinalIgnoreCase) || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase) || key.Equals("focusable", StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static void AppendEscapedHtmlAttribute(ref PooledStringBuilder sb, string value)
-    {
-        for (var i = 0; i < value.Length; i++)
-        {
-            var c = value[i];
-            switch (c)
-            {
-                case '&':
-                    sb.Append("&amp;");
-                    break;
-                case '"':
-                    sb.Append("&quot;");
-                    break;
-                case '<':
-                    sb.Append("&lt;");
-                    break;
-                case '>':
-                    sb.Append("&gt;");
-                    break;
-                default:
-                    sb.Append(c);
-                    break;
-            }
-        }
     }
 
 }

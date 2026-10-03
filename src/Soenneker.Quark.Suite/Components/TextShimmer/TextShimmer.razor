@@ -1,3 +1,4 @@
+@using System.Globalization
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
@@ -21,6 +22,9 @@ else
 }
 
 @code {
+    private string? _lastPrependedClass;
+    private string? _lastBuiltStyle;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -57,14 +61,26 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]");
+        PrependClassAttribute(attributes, "bg-size-[200%_auto] bg-clip-text animate-[text-shimmer_var(--text-shimmer-duration)_linear_infinite]", ref _lastPrependedClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--text-shimmer-duration:{Math.Max(ShimmerDuration + RepeatDelay, 0.001):0.###}s"));
-            AppendStyleDecl(ref sty, $"background-image:{BuildGradient()}");
-            AppendStyleDecl(ref sty, "-webkit-text-fill-color:transparent");
-        });
+        PrependStyleAttribute(attributes, GetShimmerStyle(), ref _lastBuiltStyle);
+    }
+
+    private (long Duration, int Spread, int Angle, string? Color, bool Invert) _styleKey;
+    private CultureInfo? _styleCulture;
+    private string? _shimmerStyle;
+    private string GetShimmerStyle()
+    {
+        var duration = Math.Max(ShimmerDuration + RepeatDelay, 0.001);
+        var key = (BitConverter.DoubleToInt64Bits(duration), Math.Clamp(Spread, 5, 45), Angle, Color, InvertColor);
+        var culture = CultureInfo.CurrentCulture;
+        if (_shimmerStyle is not null && key == _styleKey && culture.IsReadOnly && ReferenceEquals(culture, _styleCulture))
+            return _shimmerStyle;
+        var durationText = duration.ToString("0.###", CultureInfo.InvariantCulture);
+        _shimmerStyle = $"--text-shimmer-duration:{durationText}s; background-image:{BuildGradient()}; -webkit-text-fill-color:transparent";
+        _styleKey = key;
+        _styleCulture = culture;
+        return _shimmerStyle;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

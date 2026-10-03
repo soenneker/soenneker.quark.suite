@@ -5,13 +5,18 @@
 @RenderSemanticTitle()
 
 @code {
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Snug;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "card-title";
-        Leading ??= Quark.Leading.Snug;
-        FontWeight ??= Quark.FontWeight.Medium;
-        TextSize ??= Quark.TextSize.Base;
+        Leading ??= _defaultLeading;
+        FontWeight ??= _defaultFontWeight;
+        TextSize ??= _defaultTextSize;
 
     }
 
@@ -19,6 +24,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "cn-font-heading group-data-[size=sm]/card:text-sm");
+        PrependClassAttribute(attributes, "cn-font-heading group-data-[size=sm]/card:text-sm", ref _lastPrependedClass);
     }
 }

@@ -37,22 +37,10 @@ public static class QuarkDateTimeZoneResolver
         if (string.IsNullOrWhiteSpace(timeZone))
             return false;
 
-        try
-        {
-            resolved = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
-            return true;
-        }
-        catch (TimeZoneNotFoundException)
-        {
+        if (!TimeZoneInfo.TryFindSystemTimeZoneById(timeZone, out var candidate))
             return false;
-        }
-        catch (InvalidTimeZoneException)
-        {
-            return false;
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
+
+        resolved = candidate;
+        return true;
     }
 }

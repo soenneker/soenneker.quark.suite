@@ -10,7 +10,7 @@
             <TooltipTrigger AsChild="true">
                 @RenderAction()
             </TooltipTrigger>
-            <TooltipContent Side="@TooltipSide" Rounded="Quark.Rounded.Full">
+            <TooltipContent Side="@TooltipSide" Rounded="_renderCss0">
                 @Tooltip
                 @if (Shortcut.HasContent())
                 {
@@ -26,6 +26,9 @@ else
 }
 
 @code {
+    private static readonly CssValue<RoundedBuilder> _renderCss0 = Quark.Rounded.Full;
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _slotAttributesBuffer;
     [Parameter]
     public bool AsChild { get; set; }
@@ -48,7 +51,10 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-muted-foreground hover:text-foreground"));
+        {
+            const string @class = "text-muted-foreground hover:text-foreground";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     private RenderFragment? _actionContent;

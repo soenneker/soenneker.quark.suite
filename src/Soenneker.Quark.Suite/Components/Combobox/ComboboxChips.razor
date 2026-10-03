@@ -8,6 +8,20 @@
 </PopoverAnchor>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<MinHeightBuilder> _defaultMinHeight = Quark.MinHeight.Token("8");
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-[color,box-shadow]");
+    private string? _lastPrependedClass;
+
     private ElementReference _wrapperRef;
 
     [CascadingParameter(Name = "ParentCombobox")]
@@ -24,18 +38,18 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox-chips";
 
-        Display ??= Quark.Display.Flex;
-        MinHeight ??= Quark.MinHeight.Token("8");
-        FlexWrap ??= Quark.FlexWrap.Wrap;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        Transition ??= Quark.Transition.Token("transition-[color,box-shadow]");
+        Display ??= _defaultDisplay;
+        MinHeight ??= _defaultMinHeight;
+        FlexWrap ??= _defaultFlexWrap;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -44,6 +58,6 @@
 
         attributes["role"] = "toolbar";
 
-        PrependClassAttribute(attributes, "bg-clip-padding focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-[3px] has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "bg-clip-padding focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-[3px] has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 }

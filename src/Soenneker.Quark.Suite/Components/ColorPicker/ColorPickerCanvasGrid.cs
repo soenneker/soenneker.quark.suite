@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Components.Rendering;
 namespace Soenneker.Quark;
 
 // The accessible hit targets do not change as the hue, alpha or selected color changes.
-internal sealed class ColorPickerCanvasGrid : ComponentBase
+internal sealed partial class ColorPickerCanvasGrid : ComponentBase
 {
     private static readonly Cell[] _cells = CreateCells();
     private bool _renderedDisabled;
+    private CellEvents[]? _events;
 
     public ColorPickerCanvasGrid()
     {
@@ -25,8 +26,10 @@ internal sealed class ColorPickerCanvasGrid : ComponentBase
     {
         _renderedDisabled = Disabled;
 
-        foreach (Cell cell in _cells)
+        _events ??= new CellEvents[_cells.Length];
+        for (int i = 0; i < _cells.Length; i++)
         {
+            Cell cell = _cells[i];
             builder.OpenElement(0, "button");
             builder.AddAttribute(1, "type", "button");
             builder.AddAttribute(2, "data-slot", ColorPicker.CanvasCellSlot);
@@ -34,7 +37,7 @@ internal sealed class ColorPickerCanvasGrid : ComponentBase
             builder.AddAttribute(4, "class", ColorPicker.CanvasCellClass);
             builder.AddAttribute(5, "style", cell.Style);
             builder.AddAttribute(6, "disabled", Disabled);
-            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => Owner.SetCanvasColor(cell.Saturation, cell.Lightness)));
+            builder.AddAttribute(7, "onclick", (_events[i] ??= new CellEvents(this, i)).Click);
             builder.CloseElement();
         }
     }
@@ -59,5 +62,4 @@ internal sealed class ColorPickerCanvasGrid : ComponentBase
         return cells;
     }
 
-    private readonly record struct Cell(double Saturation, double Lightness, string Label, string Style);
 }

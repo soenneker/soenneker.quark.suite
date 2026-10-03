@@ -18,6 +18,18 @@
 </BradixAlertDialogPortal>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private string? _lastPrependedClass;
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _overlayAttributesBuffer;
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
@@ -35,15 +47,15 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "alert-dialog-content";
-        Position ??= Quark.Position.Fixed;
-        Display ??= Quark.Display.Grid;
-        ZIndex ??= Quark.ZIndex.Is50;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is4;
-        Rounded ??= Quark.Rounded.Xl;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is4;
-        TextColor ??= Quark.TextColor.PopoverForeground;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ZIndex ??= _defaultZIndex;
+        Width ??= _defaultWidth;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
 
     }
 
@@ -58,7 +70,7 @@
         var size = AlertDialogContentSize.AsSpan().Trim();
         var normalizedSize = size.Equals("sm", StringComparison.OrdinalIgnoreCase) ? "sm" : "default";
 
-        PrependClassAttribute(attributes, "group/alert-dialog-content top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ring-1 ring-foreground/10 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
+        PrependClassAttribute(attributes, "group/alert-dialog-content top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ring-1 ring-foreground/10 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95", ref _lastPrependedClass);
 
         attributes["data-size"] = normalizedSize;
     }
@@ -67,13 +79,11 @@
     {
         var attributes = _overlayAttributesBuffer.Create(3);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0");
-
-            if (ParentAlertDialog?.BlurBackdrop == true)
-                AppendClass(ref cls, "backdrop-blur");
-        });
+            const string @class = "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0";
+            const string variant = @class + " " + "backdrop-blur";
+            PrependClassAttribute(attributes, ParentAlertDialog?.BlurBackdrop == true ? variant : @class, ref _lastBuiltClass);
+        }
 
         attributes["data-slot"] = "alert-dialog-overlay";
         attributes["aria-hidden"] = "true";

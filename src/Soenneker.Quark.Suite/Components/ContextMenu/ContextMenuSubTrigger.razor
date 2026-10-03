@@ -6,10 +6,24 @@
 <BradixContextMenuSubTrigger Disabled="@Disabled"
                              AdditionalAttributes="@TriggerAttributes">
     @ChildContent
-    <Icon Name="LucideIcon.ChevronRight" Margin="Quark.Margin.FromLeft.Auto" Class="cn-rtl-flip" />
+    <Icon Name="LucideIcon.ChevronRight" Margin="_renderCss0" Class="cn-rtl-flip" />
 </BradixContextMenuSubTrigger>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnFocus.Accent;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.OnFocus.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.FromLeft.Auto;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool Indented { get; set; }
 
@@ -22,17 +36,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-sub-trigger";
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.OnX.Is1_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
-        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Default;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
 
     }
 
@@ -41,7 +55,7 @@
         base.BuildAttributesCore(attributes);
         if (Indented)
             attributes["data-inset"] = "true";
-        PrependClassAttribute(attributes, "data-inset:pl-7 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "data-inset:pl-7 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

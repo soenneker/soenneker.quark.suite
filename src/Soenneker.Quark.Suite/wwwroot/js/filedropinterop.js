@@ -18,8 +18,17 @@ export function register(target, inputId, options = defaultOptions) {
     let depth = 0, disposed = false, pending = false;
     const hooks = () => behaviors.get(target) ?? options;
     const input = () => document.getElementById(inputId);
-    const enabled = () => target.dataset.fileDropDisabled !== 'true' && input() && !input().disabled;
-    const hasFiles = event => Array.from(event.dataTransfer?.types ?? []).includes('Files');
+    const enabled = () => {
+        if (target.dataset.fileDropDisabled === 'true') return false;
+        const fileInput = input();
+        return fileInput && !fileInput.disabled;
+    };
+    const hasFiles = event => {
+        const types = event.dataTransfer?.types;
+        if (!types) return false;
+        for (let i = 0; i < types.length; i++) if (types[i] === 'Files') return true;
+        return false;
+    };
     const active = value => {
         target.dataset.dragActive = value ? 'true' : 'false';
         hooks().onActive?.(value);
@@ -37,8 +46,9 @@ export function register(target, inputId, options = defaultOptions) {
     const over = event => {
         if (!hasFiles(event)) return;
         consume(event);
-        event.dataTransfer.dropEffect = enabled() ? 'copy' : 'none';
-        if (!enabled()) reset();
+        const isEnabled = enabled();
+        event.dataTransfer.dropEffect = isEnabled ? 'copy' : 'none';
+        if (!isEnabled) reset();
         else hooks().onHover?.(event);
     };
     const leave = event => {

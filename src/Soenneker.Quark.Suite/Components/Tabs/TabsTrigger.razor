@@ -4,12 +4,21 @@
 
 <BradixTabsTrigger Value="@ResolvedValue"
                    Disabled="@Disabled"
-                   OnMouseDown="HandleClick"
+                   OnMouseDown="(_cachedHandleClickDelegate ??= HandleClick)"
                    AdditionalAttributes="@TriggerAttributes">
     @ChildContent
 </BradixTabsTrigger>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _attributesBuffer;
     [Parameter]
     public string? Value { get; set; }
@@ -50,22 +59,19 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "tabs-trigger";
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.InlineFlex;
-        Rounded ??= Quark.Rounded.Md;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Rounded ??= _defaultRounded;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (ParentTabs is not null)
-                AppendClass(ref cls, ParentTabs.TabsTriggerBaseClass);
-        });
+        if (ParentTabs is not null)
+            PrependClassAttribute(attributes, ParentTabs.TabsTriggerBaseClass, ref _lastBuiltClass);
     }
 
     internal Task Focus()

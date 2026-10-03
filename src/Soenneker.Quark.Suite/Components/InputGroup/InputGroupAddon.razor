@@ -2,9 +2,29 @@
 @inherits Soenneker.Quark.Element
 @implements IInputGroupAddon
 
-<div @onclick="HandleAddonClick" @attributes="BuildAttributes()">@ChildContent</div>
+<div @onclick="(_cachedHandleAddonClickDelegate ??= HandleAddonClick)" @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Auto;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Text;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify2 = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding4 = Quark.Padding.OnY.Is1_5.FromRight.Is2;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding3 = Quark.Padding.OnX.Is2_5.FromTop.Is2;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Start;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnX.Is2_5.FromBottom.Is2;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is1_5.FromLeft.Is2;
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleAddonClickDelegate;
+
     [CascadingParameter]
     internal InputGroupContext? InputGroupContext { get; set; }
 
@@ -16,40 +36,40 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "input-group-addon";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Auto;
-        Cursor ??= Quark.Cursor.Text;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        UserSelect ??= Quark.UserSelect.None;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify2;
+        Gap ??= _defaultGap;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
+        UserSelect ??= _defaultUserSelect;
 
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.InlineEnd))
         {
-            Padding ??= Quark.Padding.OnY.Is1_5.FromRight.Is2;
+            Padding ??= _defaultPadding4;
             return;
         }
 
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockStart))
         {
-            Width ??= Quark.Width.IsFull;
-            Justify ??= Quark.Justify.Start;
-            Padding ??= Quark.Padding.OnX.Is2_5.FromTop.Is2;
+            Width ??= _defaultWidth;
+            Justify ??= _defaultJustify;
+            Padding ??= _defaultPadding3;
             return;
         }
 
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockEnd))
         {
-            Width ??= Quark.Width.IsFull;
-            Justify ??= Quark.Justify.Start;
-            Padding ??= Quark.Padding.OnX.Is2_5.FromBottom.Is2;
+            Width ??= _defaultWidth;
+            Justify ??= _defaultJustify;
+            Padding ??= _defaultPadding2;
             return;
         }
 
-        Padding ??= Quark.Padding.OnY.Is1_5.FromLeft.Is2;
+        Padding ??= _defaultPadding;
     }
 
     private static string GetAlignValue(InputGroupAddonAlign align)
@@ -68,16 +88,17 @@
 
     private static string GetAlignClass(InputGroupAddonAlign align)
     {
+        const string prefix = "group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4 ";
         if (ReferenceEquals(align, InputGroupAddonAlign.InlineEnd))
-            return "order-last pr-2 has-[>button]:mr-[-0.3rem] has-[>kbd]:mr-[-0.15rem]";
+            return prefix + "order-last pr-2 has-[>button]:mr-[-0.3rem] has-[>kbd]:mr-[-0.15rem]";
 
         if (ReferenceEquals(align, InputGroupAddonAlign.BlockStart))
-            return "order-first w-full justify-start px-2.5 pt-2 pb-1.5 group-has-[>input]/input-group:pt-2 [.border-b]:pb-2";
+            return prefix + "order-first w-full justify-start px-2.5 pt-2 pb-1.5 group-has-[>input]/input-group:pt-2 [.border-b]:pb-2";
 
         if (ReferenceEquals(align, InputGroupAddonAlign.BlockEnd))
-            return "order-last w-full justify-start px-2.5 pt-1.5 pb-2 group-has-[>input]/input-group:pb-2 [.border-t]:pt-2";
+            return prefix + "order-last w-full justify-start px-2.5 pt-1.5 pb-2 group-has-[>input]/input-group:pb-2 [.border-t]:pt-2";
 
-        return "order-first pl-2 has-[>button]:ml-[-0.3rem] has-[>kbd]:ml-[-0.15rem]";
+        return prefix + "order-first pl-2 has-[>button]:ml-[-0.3rem] has-[>kbd]:ml-[-0.15rem]";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -87,11 +108,7 @@
         attributes["role"] = "group";
         attributes["data-align"] = GetAlignValue(AddonAlign);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, GetAlignClass(AddonAlign));
-        });
+        PrependClassAttribute(attributes, GetAlignClass(AddonAlign), ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -100,9 +117,5 @@
         hc.Add(AddonAlign);
     }
 
-    private async Task HandleAddonClick(MouseEventArgs _)
-    {
-        if (InputGroupContext is not null)
-            await InputGroupContext.FocusControl();
-    }
+    private Task HandleAddonClick(MouseEventArgs _) => InputGroupContext?.FocusControl().AsTask() ?? Task.CompletedTask;
 }

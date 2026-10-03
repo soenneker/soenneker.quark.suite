@@ -2,11 +2,26 @@
 @inherits Soenneker.Quark.Element
 
 <button type="button" @onclick="OnClick" @attributes="BuildAttributes()">
-    <Icon Name="LucideIcon.X" Size="Quark.Size.Is3" aria-hidden="true" />
-    <Span ScreenReader="Quark.ScreenReader.Only">@Label</Span>
+    <Icon Name="LucideIcon.X" Size="_renderCss0" aria-hidden="true" />
+    <Span ScreenReader="_renderCss1">@Label</Span>
 </button>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is5;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground.OnHover.Foreground;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnHover.Muted;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is2.OnFocusVisible;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Ring.OnFocusVisible;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss1 = Quark.ScreenReader.Only;
     [Parameter]
     public string Label { get; set; } = "Remove";
 
@@ -17,19 +32,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-close";
-        Display ??= Quark.Display.InlineFlex;
-        Size ??= Quark.Size.Is5;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Full;
-        TextColor ??= Quark.TextColor.MutedForeground.OnHover.Foreground;
-        BackgroundColor ??= Quark.BackgroundColor.OnHover.Muted;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Ring ??= Quark.Ring.Is2.OnFocusVisible;
-        RingColor ??= Quark.RingColor.Ring.OnFocusVisible;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        TextColor ??= _defaultTextColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

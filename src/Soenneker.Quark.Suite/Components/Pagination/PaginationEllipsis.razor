@@ -2,20 +2,28 @@
 @inherits Soenneker.Quark.Element
 
 <span @attributes="BuildAttributes()">
-    <Icon Name="LucideIcon.Ellipsis" Size="Quark.Size.Is4" aria-hidden="true" />
-    <Span ScreenReader="Quark.ScreenReader.Only">More pages</Span>
+    <Icon Name="LucideIcon.Ellipsis" Size="_renderCss0" aria-hidden="true" />
+    <Span ScreenReader="_renderCss1">More pages</Span>
 </span>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is8;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss1 = Quark.ScreenReader.Only;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pagination-ellipsis";
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Size ??= Quark.Size.Is8;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Size ??= _defaultSize;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -24,6 +32,6 @@
 
         attributes["aria-hidden"] = "true";
 
-        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 }

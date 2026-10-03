@@ -2,14 +2,22 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <input value="@GetDisplayValue()"
-       @oninput="HandleInput"
-       @onfocus="HandleFocus"
-       @onclick="HandleClickOpen"
-       @onkeydown="HandleKeyDown"
+       @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+       @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)"
+       @onclick="(_cachedHandleClickOpenDelegate ??= HandleClickOpen)"
+       @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
        @onkeydown:preventDefault="_preventDefaultKeys"
        @attributes="BuildAttributes()" />
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is16;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleFocusDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickOpenDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private bool _preventDefaultKeys;
 
     [CascadingParameter(Name = "ParentCombobox")]
@@ -60,9 +68,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox-chip-input";
 
-        MinWidth ??= Quark.MinWidth.Is16;
-        Flex ??= Quark.Flex.Is1;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        MinWidth ??= _staticCss0;
+        Flex ??= _defaultFlex;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -78,12 +86,12 @@
 
         if (ParentCombobox is not null)
         {
-            attributes["id"] = ParentCombobox.InputId;
+            attributes["id"] = Id ?? ParentCombobox.InputId;
             attributes["aria-controls"] = ParentCombobox.ContentId;
         }
 
         if (ParentCombobox?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
     }
 

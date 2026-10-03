@@ -5,6 +5,13 @@
 <code @attributes="BuildAttributes()">@ChildContent</code>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Default;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Token("[0.3rem]").OnY.Token("[0.2rem]");
+    private static readonly CssValue<FontFamilyBuilder> _defaultFontFamily = Quark.FontFamily.Mono;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Semibold;
     /// <summary>
     /// Gets or sets the programming language for syntax highlighting.
     /// </summary>
@@ -37,13 +44,13 @@
         if (!Inline)
             return;
 
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
-        Rounded ??= Quark.Rounded.Default;
-        Position ??= Quark.Position.Relative;
-        Padding ??= Quark.Padding.OnX.Token("[0.3rem]").OnY.Token("[0.2rem]");
-        FontFamily ??= Quark.FontFamily.Mono;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Semibold;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Rounded ??= _defaultRounded;
+        Position ??= _defaultPosition;
+        Padding ??= _defaultPadding;
+        FontFamily ??= _defaultFontFamily;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

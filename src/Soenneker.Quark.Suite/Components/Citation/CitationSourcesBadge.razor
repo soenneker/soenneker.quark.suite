@@ -7,8 +7,8 @@
         @if (ShowFavicons)
         {
             <Div DataSlot="citation-favicon-group"
-                 Display="Quark.Display.Flex"
-                 Space='Quark.Space.X.Token("-2")'
+                 Display="_renderCss0"
+                 Space='_renderCss1'
                  Class="*:data-[slot=citation-favicon]:ring-2 *:data-[slot=citation-favicon]:ring-secondary">
                 @for (var i = 0; i < Math.Min(3, ParentCitation.ResolvedCitations.Count); i++)
                 {
@@ -16,11 +16,24 @@
                 }
             </Div>
         }
-        <Span TextSize="Quark.TextSize.Xs" Leading='Quark.Leading.Is4_5' FontWeight="Quark.FontWeight.Normal" TextColor="Quark.TextColor.Primary">@(Label ?? $"{ParentCitation.ResolvedCitations.Count} {(ParentCitation.ResolvedCitations.Count == 1 ? "source" : "sources")}")</Span>
+        <Span TextSize="_renderCss2" Leading='_renderCss3' FontWeight="_renderCss4" TextColor="_renderCss5">@(Label ?? $"{ParentCitation.ResolvedCitations.Count} {(ParentCitation.ResolvedCitations.Count == 1 ? "source" : "sources")}")</Span>
     </div>
 }
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is0;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is6;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<SpaceBuilder> _renderCss1 = Quark.Space.X.Token("-2");
+    private static readonly CssValue<TextSizeBuilder> _renderCss2 = Quark.TextSize.Xs;
+    private static readonly CssValue<LeadingBuilder> _renderCss3 = Quark.Leading.Is4_5;
+    private static readonly CssValue<FontWeightBuilder> _renderCss4 = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.Primary;
     [CascadingParameter]
     private Citation? ParentCitation { get; set; }
 
@@ -30,24 +43,26 @@
     [Parameter]
     public string? Label { get; set; }
 
+    private static readonly CssValue<PaddingBuilder> _faviconPadding = Quark.Padding.FromRight.Is2.FromLeft.Is1;
+    private static readonly CssValue<PaddingBuilder> _textPadding = Quark.Padding.OnX.Is2;
     private CssValue<PaddingBuilder> SourcesBadgePadding =>
         ShowFavicons
-            ? Quark.Padding.FromRight.Is2.FromLeft.Is1
-            : Quark.Padding.OnX.Is2;
+            ? _faviconPadding
+            : _textPadding;
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "citation-sources-badge";
 
-        Margin ??= Quark.Margin.FromTop.Is0;
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is6;
-        Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Quark.Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        Margin ??= _defaultMargin;
+        Display ??= _renderCss0;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
         Padding ??= SourcesBadgePadding;
     }
 }

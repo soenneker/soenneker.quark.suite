@@ -8,12 +8,15 @@
 @inject ICarouselInterop CarouselInterop
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
-    <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
+    <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)">
         @ChildContent
     </div>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
 
     /// <summary>
     /// Gets or sets orientation: horizontal or vertical.
@@ -71,7 +74,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "carousel";
 
-        Position ??= Quark.Position.Relative;
+        Position ??= _defaultPosition;
     }
 
     protected override void OnInitialized()
@@ -85,10 +88,15 @@
         base.OnInitialized();
     }
 
-    private int[] GetScrollSnapList()
+    private IReadOnlyList<int>? _scrollSnapList;
+
+    private IReadOnlyList<int> GetScrollSnapList()
     {
         if (ItemCount <= 0)
             return [];
+
+        if (_scrollSnapList?.Count == ItemCount)
+            return _scrollSnapList;
 
         var items = new int[ItemCount];
 
@@ -97,7 +105,7 @@
             items[i] = i;
         }
 
-        return items;
+        return _scrollSnapList = Array.AsReadOnly(items);
     }
 
     protected override void OnParametersSet()
@@ -293,10 +301,7 @@
     }
 
     [JSInvokable]
-    public async Task OnCarouselMeasured(double offset)
-    {
-        await ApplyMeasuredOffset(offset);
-    }
+    public Task OnCarouselMeasured(double offset) => ApplyMeasuredOffset(offset);
 
     private async Task ApplyMeasuredOffset(double offset, bool notifyStateChanged = true)
     {

@@ -6,19 +6,23 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-otp-separator";
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Quark.Items.Center;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _defaultItemsAlign;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 }

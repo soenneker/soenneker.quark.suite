@@ -11,9 +11,24 @@
                                                        Options="BuildOptions()"
                                                        ObserveResize="@ObserveResize"
                                                        PreserveDrawingOnResize="@PreserveDrawingOnResize"
-                                                       OnReady="HandleReady" />
+                                                       OnReady="(_cachedHandleReadyDelegate ??= HandleReady)" />
 
 @code {
+    private SignaturePadOptions? _options;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Token("64");
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.White;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private System.Func<Task>? _cachedHandleReadyDelegate;
+
+    private string? _lastPrependedClass;
+
     private Soenneker.Blazor.SignaturePads.SignaturePadCanvas? _canvas;
     private bool? _lastInteractionDisabled;
 
@@ -57,16 +72,16 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "signature-pad";
-        Width ??= Quark.Width.IsFull;
-        Height ??= Quark.Height.Token("64");
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.White;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Width ??= _defaultWidth;
+        Height ??= _defaultHeight;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        RingColor ??= _defaultRingColor;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -76,7 +91,7 @@
         attributes["aria-disabled"] = Disabled ? "true" : "false";
         attributes["aria-readonly"] = ReadOnly ? "true" : "false";
 
-        PrependClassAttribute(attributes, "touch-none focus-visible:ring-3 aria-readonly:cursor-not-allowed aria-readonly:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "touch-none focus-visible:ring-3 aria-readonly:cursor-not-allowed aria-readonly:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -95,16 +110,25 @@
             await _canvas.Enable();
     }
 
-    private async Task HandleReady()
+    private Task HandleReady()
     {
         _lastInteractionDisabled = null;
 
-        if (OnReady.HasDelegate)
-            await OnReady.InvokeAsync();
+        return OnReady.HasDelegate ? OnReady.InvokeAsync() : Task.CompletedTask;
     }
 
-    private SignaturePadOptions BuildOptions() =>
-        new()
+    private static bool SameNumber(double? left, double? right) =>
+        left.HasValue == right.HasValue && BitConverter.DoubleToInt64Bits(left.GetValueOrDefault()) == BitConverter.DoubleToInt64Bits(right.GetValueOrDefault());
+
+    private SignaturePadOptions BuildOptions()
+    {
+        if (_options is { } options && SameNumber(options.DotSize, DotSize) && SameNumber(options.MinWidth, MinStrokeWidth) &&
+            SameNumber(options.MaxWidth, MaxStrokeWidth) && SameNumber(options.VelocityFilterWeight, VelocityFilterWeight) &&
+            options.Throttle == Throttle && options.MinDistance == MinDistance && options.BackgroundColor == CanvasBackgroundColor &&
+            options.PenColor == PenColor && options.CompositeOperation == CompositeOperation)
+            return options;
+
+        return _options = new SignaturePadOptions()
         {
             DotSize = DotSize,
             MinWidth = MinStrokeWidth,
@@ -116,6 +140,7 @@
             VelocityFilterWeight = VelocityFilterWeight,
             CompositeOperation = CompositeOperation
         };
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

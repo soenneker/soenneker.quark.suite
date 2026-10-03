@@ -14,7 +14,7 @@
         }
         else if (UniqueErrorMessages.Count > 1)
         {
-            <UnorderedList Margin="Quark.Margin.FromLeft.Is4" Display="Quark.Display.Flex" ListStyleType="Quark.ListStyleType.Disc" Flex="Quark.Flex.Col" Gap="Quark.Gap.Is1">
+            <UnorderedList Margin="_renderCss0" Display="_renderCss1" ListStyleType="_renderCss2" Flex="_renderCss3" Gap="_renderCss4">
                 @foreach (var message in UniqueErrorMessages)
                 {
                     <UnorderedListItem>@message</UnorderedListItem>
@@ -25,6 +25,15 @@
 }
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Destructive;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.FromLeft.Is4;
+    private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.Flex;
+    private static readonly CssValue<ListStyleTypeBuilder> _renderCss2 = Quark.ListStyleType.Disc;
+    private static readonly CssValue<FlexBuilder> _renderCss3 = Quark.Flex.Col;
+    private static readonly CssValue<GapBuilder> _renderCss4 = Quark.Gap.Is1;
     [Parameter]
     public IReadOnlyList<string?>? Errors { get; set; }
 
@@ -58,10 +67,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field-error";
 
-        Margin ??= Quark.Margin.FromTop.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Normal;
-        TextColor ??= Quark.TextColor.Destructive;
+        Margin ??= _defaultMargin;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -89,40 +98,55 @@
         await base.DisposeAsync();
     }
 
-    private static IReadOnlyList<string> BuildUniqueErrorMessages(IReadOnlyList<string?>? errors)
+    private string?[] _errorSnapshot = [];
+    private List<string>? _messageBuffer;
+    private HashSet<string>? _messageSet;
+
+    private IReadOnlyList<string> BuildUniqueErrorMessages(IReadOnlyList<string?>? errors)
     {
-        if (errors is null || errors.Count == 0)
-            return [];
-
-        List<string>? messages = null;
-
-        foreach (var error in errors)
+        int count = errors?.Count ?? 0;
+        bool unchanged = count == _errorSnapshot.Length;
+        if (unchanged)
         {
+            for (int i = 0; i < count; i++)
+            {
+                if (!string.Equals(errors![i], _errorSnapshot[i], StringComparison.Ordinal))
+                {
+                    unchanged = false;
+                    break;
+                }
+            }
+            if (unchanged)
+                return _uniqueErrorMessages;
+        }
+
+        if (_errorSnapshot.Length != count)
+            _errorSnapshot = count == 0 ? [] : new string?[count];
+        _messageBuffer?.Clear();
+        _messageSet?.Clear();
+        for (int i = 0; i < count; i++)
+        {
+            string? error = errors![i];
+            _errorSnapshot[i] = error;
             if (string.IsNullOrWhiteSpace(error))
                 continue;
 
-            var message = error.Trim();
-            if (messages is null)
+            var messages = _messageBuffer ??= [];
+            string message = error.Trim();
+            bool added;
+            if (messages.Count < 8)
+                added = !messages.Contains(message);
+            else
             {
-                messages = [message];
-                continue;
+                if (_messageSet is null)
+                    _messageSet = new HashSet<string>(messages, StringComparer.Ordinal);
+                else if (_messageSet.Count == 0)
+                    _messageSet.UnionWith(messages);
+                added = _messageSet.Add(message);
             }
-
-            if (!ContainsOrdinal(messages, message))
+            if (added)
                 messages.Add(message);
         }
-
-        return messages ?? [];
-    }
-
-    private static bool ContainsOrdinal(List<string> values, string value)
-    {
-        foreach (var candidate in values)
-        {
-            if (string.Equals(candidate, value, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
+        return _messageBuffer ?? (IReadOnlyList<string>)Array.Empty<string>();
     }
 }

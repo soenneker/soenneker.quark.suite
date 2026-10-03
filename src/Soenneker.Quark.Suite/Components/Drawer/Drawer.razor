@@ -5,7 +5,7 @@
 @inherits Soenneker.Quark.OverlayElement
 
 <BradixDialog Open="@Visible"
-              OpenChanged="HandleOpenChanged"
+              OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)"
               Modal="@TrapFocus">
     <CascadingValue Name="ParentDrawer" Value="@this">
         <CascadingValue Value="_context" IsFixed="true">
@@ -15,6 +15,8 @@
 </BradixDialog>
 
 @code {
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
     public Drawer()
     {
         LockScroll = false;
@@ -45,18 +47,12 @@
     /// <summary>
     /// Shows the drawer.
     /// </summary>
-    public async Task Show()
-    {
-        await SetVisible(true);
-    }
+    public Task Show() => SetVisible(true);
 
     /// <summary>
     /// Hides the drawer.
     /// </summary>
-    public async Task Hide()
-    {
-        await SetVisible(false);
-    }
+    public Task Hide() => SetVisible(false);
 
     private Task HandleOpenChanged(bool open)
     {

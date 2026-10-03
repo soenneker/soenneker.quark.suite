@@ -58,10 +58,8 @@ public class ComponentOptions
         if (scopedSelector.IsNullOrWhiteSpace())
             return;
 
-        foreach (var rule in options.GetCssRules(scopedSelector))
-        {
-            buffer.Add(rule);
-        }
+        options.CollectCssRules(buffer, scopedSelector);
+        options.CollectChildCssRules(buffer, scopedSelector);
     }
 
     private static string? ResolveScopedChildSelector(string baseSelector, string? selector, string scopedDefaultSelector, string optionDefaultSelector)
@@ -636,8 +634,10 @@ public class ComponentOptions
 
         var resolvedSelector = ResolveSelector(baseSelector, value.Value);
 
-        foreach (var declaration in declarations)
+        var batch = declarations.Value;
+        for (var i = 0; i < batch.Count; i++)
         {
+            var declaration = batch[i];
             if (!declaration.HasContent())
                 continue;
 
@@ -645,7 +645,7 @@ public class ComponentOptions
         }
     }
 
-    private static IEnumerable<string>? ConvertToDeclarations<TBuilder>(CssValue<TBuilder> value, string? fallbackProperty)
+    private static SmallBatch<string>? ConvertToDeclarations<TBuilder>(CssValue<TBuilder> value, string? fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
         var styleValue = value.StyleValue;
@@ -666,10 +666,10 @@ public class ComponentOptions
             return declarations;
         }
 
-        return [$"{fallbackProperty}: {rawValue.Trim()}"];
+        return new SmallBatch<string>($"{fallbackProperty}: {rawValue.Trim()}");
     }
 
-    private static IEnumerable<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
+    private static SmallBatch<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
         var resolved = rawValue.Trim();
@@ -686,7 +686,7 @@ public class ComponentOptions
                 _ => null
             };
 
-            return decoration is null ? null : [$"{fallbackProperty}: {decoration}"];
+            return decoration is null ? null : new SmallBatch<string>($"{fallbackProperty}: {decoration}");
         }
 
         if (typeof(TBuilder) == typeof(DisplayBuilder) &&
@@ -717,28 +717,28 @@ public class ComponentOptions
                 _ => null
             });
 
-            return display is null ? null : [$"{fallbackProperty}: {display}"];
+            return display is null ? null : new SmallBatch<string>($"{fallbackProperty}: {display}");
         }
 
         if (typeof(TBuilder) == typeof(TextColorBuilder) &&
             fallbackProperty.Equals("color", System.StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "text-");
-            return color is null ? null : [$"{fallbackProperty}: {color}"];
+            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
         }
 
         if (typeof(TBuilder) == typeof(BackgroundColorBuilder) &&
             fallbackProperty.Equals("background-color", System.StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "bg-");
-            return color is null ? null : [$"{fallbackProperty}: {color}"];
+            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
         }
 
         if (typeof(TBuilder) == typeof(BorderColorBuilder) &&
             fallbackProperty.Equals("border-color", System.StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "border-");
-            return color is null ? null : [$"{fallbackProperty}: {color}"];
+            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
         }
 
         if (typeof(TBuilder) == typeof(PaddingBuilder) &&
@@ -753,7 +753,7 @@ public class ComponentOptions
              fallbackProperty.Equals("max-width", System.StringComparison.Ordinal)))
         {
             var width = ConvertWidthUtility(resolved);
-            return width is null ? null : [$"{fallbackProperty}: {width}"];
+            return width is null ? null : new SmallBatch<string>($"{fallbackProperty}: {width}");
         }
 
         if ((typeof(TBuilder) == typeof(HeightBuilder) ||
@@ -764,7 +764,7 @@ public class ComponentOptions
              fallbackProperty.Equals("max-height", System.StringComparison.Ordinal)))
         {
             var height = ConvertHeightUtility(resolved);
-            return height is null ? null : [$"{fallbackProperty}: {height}"];
+            return height is null ? null : new SmallBatch<string>($"{fallbackProperty}: {height}");
         }
 
         if (typeof(TBuilder) == typeof(OverflowBuilder) &&
@@ -782,14 +782,14 @@ public class ComponentOptions
                 _ => null
             });
 
-            return overflow is null ? null : [$"{fallbackProperty}: {overflow}"];
+            return overflow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {overflow}");
         }
 
         if (typeof(TBuilder) == typeof(TextSizeBuilder) &&
             fallbackProperty.Equals("font-size", System.StringComparison.Ordinal))
         {
             var textSize = ConvertTextSizeUtility(resolved);
-            return textSize is null ? null : [$"{fallbackProperty}: {textSize}"];
+            return textSize is null ? null : new SmallBatch<string>($"{fallbackProperty}: {textSize}");
         }
 
         if (typeof(TBuilder) == typeof(ItemsBuilder) &&
@@ -805,14 +805,14 @@ public class ComponentOptions
                 _ => null
             });
 
-            return alignItems is null ? null : [$"{fallbackProperty}: {alignItems}"];
+            return alignItems is null ? null : new SmallBatch<string>($"{fallbackProperty}: {alignItems}");
         }
 
         if (typeof(TBuilder) == typeof(GapBuilder) &&
             fallbackProperty.Equals("gap", System.StringComparison.Ordinal))
         {
             var gap = ConvertSpacingUtility(resolved, "gap-");
-            return gap is null ? null : [$"{fallbackProperty}: {gap}"];
+            return gap is null ? null : new SmallBatch<string>($"{fallbackProperty}: {gap}");
         }
 
         if (typeof(TBuilder) == typeof(BorderBuilder) &&
@@ -837,7 +837,7 @@ public class ComponentOptions
                 _ => null
             });
 
-            return verticalAlign is null ? null : [$"{fallbackProperty}: {verticalAlign}"];
+            return verticalAlign is null ? null : new SmallBatch<string>($"{fallbackProperty}: {verticalAlign}");
         }
 
         if (typeof(TBuilder) == typeof(TextOverflowBuilder) &&
@@ -850,21 +850,21 @@ public class ComponentOptions
                 _ => null
             });
 
-            return textOverflow is null ? null : [$"{fallbackProperty}: {textOverflow}"];
+            return textOverflow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {textOverflow}");
         }
 
         if (typeof(TBuilder) == typeof(RoundedBuilder) &&
             fallbackProperty.Equals("border-radius", System.StringComparison.Ordinal))
         {
             var radius = ConvertRoundedUtility(resolved);
-            return radius is null ? null : [$"{fallbackProperty}: {radius}"];
+            return radius is null ? null : new SmallBatch<string>($"{fallbackProperty}: {radius}");
         }
 
         if (typeof(TBuilder) == typeof(ShadowBuilder) &&
             fallbackProperty.Equals("box-shadow", System.StringComparison.Ordinal))
         {
             var shadow = ConvertShadowUtility(resolved);
-            return shadow is null ? null : [$"{fallbackProperty}: {shadow}"];
+            return shadow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {shadow}");
         }
 
         if (typeof(TBuilder) == typeof(FontWeightBuilder) &&
@@ -884,7 +884,7 @@ public class ComponentOptions
                 _ => null
             });
 
-            return fontWeight is null ? null : [$"{fallbackProperty}: {fontWeight}"];
+            return fontWeight is null ? null : new SmallBatch<string>($"{fallbackProperty}: {fontWeight}");
         }
 
         if (typeof(TBuilder) == typeof(WhitespaceBuilder) &&
@@ -901,7 +901,7 @@ public class ComponentOptions
                 _ => null
             });
 
-            return whitespace is null ? null : [$"{fallbackProperty}: {whitespace}"];
+            return whitespace is null ? null : new SmallBatch<string>($"{fallbackProperty}: {whitespace}");
         }
 
         if (typeof(TBuilder) == typeof(FlexDirectionBuilder) &&
@@ -939,7 +939,7 @@ public class ComponentOptions
                 _ => null
             };
 
-            return grow is null ? null : [$"{fallbackProperty}: {grow}"];
+            return grow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {grow}");
         }
 
         if (typeof(TBuilder) == typeof(ShrinkBuilder) &&
@@ -952,14 +952,14 @@ public class ComponentOptions
                 _ => null
             };
 
-            return shrink is null ? null : [$"{fallbackProperty}: {shrink}"];
+            return shrink is null ? null : new SmallBatch<string>($"{fallbackProperty}: {shrink}");
         }
 
         if (typeof(TBuilder) == typeof(DurationBuilder) &&
             fallbackProperty.Equals("transition-duration", System.StringComparison.Ordinal))
         {
             var duration = ConvertDurationUtility(resolved);
-            return duration is null ? null : [$"{fallbackProperty}: {duration}"];
+            return duration is null ? null : new SmallBatch<string>($"{fallbackProperty}: {duration}");
         }
 
         return null;
@@ -973,12 +973,12 @@ public class ComponentOptions
         return converter(value);
     }
 
-    private static string? ConvertColorUtility(string value, string prefix)
+    private static string? ConvertColorUtility(ReadOnlySpan<char> value, string prefix)
     {
         if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
             return null;
 
-        var token = value.Substring(prefix.Length);
+        var token = value[prefix.Length..];
         var arbitrary = ConvertArbitraryToken(token);
 
         if (arbitrary is not null)
@@ -1012,7 +1012,7 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertWidthUtility(string value)
+    private static string? ConvertWidthUtility(ReadOnlySpan<char> value)
     {
         if (value.Contains(':') || value.Contains(' '))
             return null;
@@ -1020,11 +1020,11 @@ public class ComponentOptions
         var token = value;
 
         if (token.StartsWith("min-w-", System.StringComparison.Ordinal))
-            token = token.Substring("min-w-".Length);
+            token = token["min-w-".Length..];
         else if (token.StartsWith("max-w-", System.StringComparison.Ordinal))
-            token = token.Substring("max-w-".Length);
+            token = token["max-w-".Length..];
         else if (token.StartsWith("w-", System.StringComparison.Ordinal))
-            token = token.Substring("w-".Length);
+            token = token["w-".Length..];
         else
             return null;
 
@@ -1055,7 +1055,7 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertHeightUtility(string value)
+    private static string? ConvertHeightUtility(ReadOnlySpan<char> value)
     {
         if (value.Contains(':') || value.Contains(' '))
             return null;
@@ -1063,11 +1063,11 @@ public class ComponentOptions
         var token = value;
 
         if (token.StartsWith("min-h-", System.StringComparison.Ordinal))
-            token = token.Substring("min-h-".Length);
+            token = token["min-h-".Length..];
         else if (token.StartsWith("max-h-", System.StringComparison.Ordinal))
-            token = token.Substring("max-h-".Length);
+            token = token["max-h-".Length..];
         else if (token.StartsWith("h-", System.StringComparison.Ordinal))
-            token = token.Substring("h-".Length);
+            token = token["h-".Length..];
         else
             return null;
 
@@ -1099,12 +1099,12 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertTextSizeUtility(string value)
+    private static string? ConvertTextSizeUtility(ReadOnlySpan<char> value)
     {
         if (!value.StartsWith("text-", System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
-        var token = value.Substring("text-".Length);
+        var token = value["text-".Length..];
 
         var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
@@ -1129,16 +1129,16 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertSpacingUtility(string value, string prefix)
+    private static string? ConvertSpacingUtility(ReadOnlySpan<char> value, string prefix)
     {
         if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
-        var token = value.Substring(prefix.Length);
+        var token = value[prefix.Length..];
         return ConvertArbitraryToken(token) ?? ConvertSpacingScaleToken(token);
     }
 
-    private static IEnumerable<string>? ConvertBorderUtilities(string value)
+    private static SmallBatch<string>? ConvertBorderUtilities(ReadOnlySpan<char> value)
     {
         if (value.Contains(':') || value.Contains(' '))
             return null;
@@ -1157,19 +1157,19 @@ public class ComponentOptions
             _ => null
         };
 
-        string token;
+        ReadOnlySpan<char> token;
 
         if (property is not null)
             token = "1";
         else if (value.StartsWith("border-", System.StringComparison.Ordinal))
         {
-            var suffix = value.Substring("border-".Length);
+            var suffix = value["border-".Length..];
             var dash = suffix.IndexOf('-');
 
             if (dash > 0)
             {
-                var side = suffix.Substring(0, dash);
-                token = suffix.Substring(dash + 1);
+                var side = suffix[..dash];
+                token = suffix[(dash + 1)..];
                 property = side switch
                 {
                     "x" => "border-inline-width",
@@ -1196,10 +1196,10 @@ public class ComponentOptions
             return null;
 
         var width = ConvertBorderWidthToken(token);
-        return width is null ? null : [$"{property}: {width}", property.Replace("-width", "-style") + ": solid"];
+        return width is null ? null : new SmallBatch<string>($"{property}: {width}", property.Replace("-width", "-style") + ": solid");
     }
 
-    private static string? ConvertBorderWidthToken(string token)
+    private static string? ConvertBorderWidthToken(ReadOnlySpan<char> token)
     {
         var arbitrary = ConvertArbitraryToken(token);
         if (arbitrary is not null)
@@ -1216,7 +1216,7 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertFractionToken(string token)
+    private static string? ConvertFractionToken(ReadOnlySpan<char> token)
     {
         return token switch
         {
@@ -1247,13 +1247,17 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertArbitraryToken(string token)
+    private static string? ConvertArbitraryToken(ReadOnlySpan<char> token)
     {
         if (token.Length < 2)
             return null;
 
         if (token[0] == '[' && token[^1] == ']')
-            return token[1..^1].Replace('_', ' ');
+            return string.Create(token.Length - 2, token, static (destination, source) =>
+            {
+                source[1..^1].CopyTo(destination);
+                destination.Replace('_', ' ');
+            });
 
         if (token[0] == '(' && token[^1] == ')')
             return $"var({token[1..^1]})";
@@ -1261,38 +1265,38 @@ public class ComponentOptions
         return null;
     }
 
-    private static bool IsPaletteColorToken(string token)
+    private static bool IsPaletteColorToken(ReadOnlySpan<char> token)
     {
         var dash = token.LastIndexOf('-');
         if (dash <= 0 || dash == token.Length - 1)
             return false;
 
-        var family = token.Substring(0, dash);
-        var shade = token.Substring(dash + 1);
+        var family = token[..dash];
+        var shade = token[(dash + 1)..];
 
         return IsPaletteColorFamily(family) && IsPaletteColorShade(shade);
     }
 
-    private static bool IsPaletteColorFamily(string family)
+    private static bool IsPaletteColorFamily(ReadOnlySpan<char> family)
     {
         return family is "slate" or "gray" or "zinc" or "neutral" or "stone" or "red" or "orange" or "amber"
             or "yellow" or "lime" or "green" or "emerald" or "teal" or "cyan" or "sky" or "blue"
             or "indigo" or "violet" or "purple" or "fuchsia" or "pink" or "rose";
     }
 
-    private static bool IsPaletteColorShade(string shade)
+    private static bool IsPaletteColorShade(ReadOnlySpan<char> shade)
     {
         return shade is "50" or "100" or "200" or "300" or "400" or "500" or "600" or "700" or "800" or "900" or "950";
     }
 
-    private static IEnumerable<string>? ConvertPaddingUtilities(string value)
+    private static SmallBatch<string>? ConvertPaddingUtilities(string value)
     {
-        var tokens = value.Split(' ');
-        var declarations = new List<string>(tokens.Length * 2);
+        ReadOnlySpan<char> tokens = value;
+        var declarations = new SmallBatch<string>();
 
-        for (var i = 0; i < tokens.Length; i++)
+        foreach (var range in tokens.Split(' '))
         {
-            var token = tokens[i].Trim();
+            var token = tokens[range].Trim();
             if (token.Length == 0)
                 continue;
 
@@ -1334,18 +1338,18 @@ public class ComponentOptions
         return declarations.Count == 0 ? null : declarations;
     }
 
-    private static string? ConvertSpacingToken(string utility)
+    private static string? ConvertSpacingToken(ReadOnlySpan<char> utility)
     {
         var dash = utility.IndexOf('-');
         if (dash < 0 || dash == utility.Length - 1)
             return null;
 
-        var token = utility.Substring(dash + 1);
+        var token = utility[(dash + 1)..];
 
         return ConvertSpacingScaleToken(token);
     }
 
-    private static string? ConvertSpacingScaleToken(string token)
+    private static string? ConvertSpacingScaleToken(ReadOnlySpan<char> token)
     {
         return token switch
         {
@@ -1407,7 +1411,7 @@ public class ComponentOptions
         };
     }
 
-    private static string? ConvertDurationUtility(string value)
+    private static string? ConvertDurationUtility(ReadOnlySpan<char> value)
     {
         if (!value.StartsWith("duration-", System.StringComparison.Ordinal) || value.Contains(':'))
             return null;
@@ -1418,15 +1422,15 @@ public class ComponentOptions
             return null;
 
         if (token.Length >= 2 && token[0] == '[' && token[^1] == ']')
-            return token[1..^1];
+            return token[1..^1].ToString();
 
         if (token.Length >= 2 && token[0] == '(' && token[^1] == ')')
             return $"var({token[1..^1]})";
 
-        return token == "0" ? "0s" : token + "ms";
+        return token is "0" ? "0s" : string.Concat(token, "ms");
     }
 
-    private static IEnumerable<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, System.Func<string, string?> converter)
+    private static SmallBatch<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, Func<ReadOnlySpan<char>, string?> converter)
     {
         var hasFlexDisplay = false;
         string? resolvedValue = null;
@@ -1445,7 +1449,7 @@ public class ComponentOptions
             if (tokenStart < 0)
                 continue;
 
-            var token = rawValue.Substring(tokenStart, i - tokenStart);
+            var token = rawValue.AsSpan(tokenStart, i - tokenStart);
 
             if (token.Contains(':'))
                 return null;
@@ -1467,11 +1471,12 @@ public class ComponentOptions
         if (resolvedValue is null)
             return null;
 
-        return hasFlexDisplay ? ["display: flex", $"{fallbackProperty}: {resolvedValue}"] : [$"{fallbackProperty}: {resolvedValue}"];
+        return hasFlexDisplay ? new SmallBatch<string>("display: flex", $"{fallbackProperty}: {resolvedValue}") : new SmallBatch<string>($"{fallbackProperty}: {resolvedValue}");
     }
 
-    private static IEnumerable<string> SplitDeclarations(string value)
+    private static SmallBatch<string> SplitDeclarations(string value)
     {
+        var declarations = new SmallBatch<string>();
         var segmentStart = 0;
 
         for (var i = 0; i <= value.Length; i++)
@@ -1482,10 +1487,11 @@ public class ComponentOptions
             var segment = value.AsSpan(segmentStart, i - segmentStart).Trim().ToString();
 
             if (segment.Length > 0)
-                yield return segment;
+                declarations.Add(segment);
 
             segmentStart = i + 1;
         }
+        return declarations;
     }
 
     private static string ResolveSelector<TBuilder>(string baseSelector, CssValue<TBuilder> value)

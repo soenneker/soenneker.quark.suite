@@ -4,12 +4,14 @@
 @inherits Soenneker.Quark.Element
 
 <BradixDropdownMenuRadioGroup Value="@Value"
-                              ValueChanged="@SetValue"
+                              ValueChanged="(_cachedSetValueDelegate ??= SetValue)"
                               AdditionalAttributes="@GroupAttributes">
     @ChildContent
 </BradixDropdownMenuRadioGroup>
 
 @code {
+    private System.Func<string, Task>? _cachedSetValueDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

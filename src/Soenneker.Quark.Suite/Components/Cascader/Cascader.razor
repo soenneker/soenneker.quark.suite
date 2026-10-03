@@ -4,31 +4,31 @@
 @inherits Soenneker.Quark.FormControlElementBase
 
 <div @attributes="BuildRootAttributes()">
-    <Popover Open="@_open" OpenChanged="HandleOpenChanged">
+    <Popover Open="@_open" OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
         <PopoverTrigger AsChild Disabled="@Disabled">
             <Button Type="@ButtonType.Button"
                     Variant="ButtonVariant.Outline"
                     Disabled="@Disabled"
-                    Width='Quark.Width.Token("[200px]")'
-                    Justify="Quark.Justify.Between"
-                    Gap="Quark.Gap.Is2"
-                    Whitespace="Quark.Whitespace.Nowrap"
-                    Cursor="Quark.Cursor.Pointer"
-                    FontWeight="Quark.FontWeight.Normal"
+                    Width='_renderCss0'
+                    Justify="_renderCss1"
+                    Gap="_renderCss2"
+                    Whitespace="_renderCss3"
+                    Cursor="_renderCss4"
+                    FontWeight="_renderCss5"
                     TextColor="@TriggerTextColor"
                     Class="@TriggerClass"
                     AriaLabel="@Placeholder">
-                <Span Truncate="Quark.Truncate.Default" Flex="Quark.Flex.Is1" TextAlign="Quark.TextAlign.Start" FontWeight="Quark.FontWeight.Normal">@DisplayValueOrPlaceholder</Span>
-                <Span Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" Shrink="Quark.Shrink.Is0">
-                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" aria-hidden="true" />
+                <Span Truncate="_renderCss6" Flex="_renderCss7" TextAlign="_renderCss8" FontWeight="_renderCss5">@DisplayValueOrPlaceholder</Span>
+                <Span Display="_renderCss9" ItemsAlign="_renderCss10" Gap="_renderCss11" Shrink="_renderCss12">
+                    <Icon Name="LucideIcon.ChevronDown" Size="_renderCss13" Opacity="_renderCss14" aria-hidden="true" />
                 </Span>
             </Button>
         </PopoverTrigger>
 
         <PopoverContent Align="Alignment.Start"
                         UseDefaultLayout="false"
-                        Width="Quark.Width.Auto"
-                        Padding="Quark.Padding.Is0"
+                        Width="_renderCss15"
+                        Padding="_renderCss16"
                         Class="@PopupClass">
             @RenderColumns()
         </PopoverContent>
@@ -39,14 +39,40 @@
         <button type="button"
                 aria-label="Clear selection"
                 class="absolute end-8 top-1/2 z-10 inline-flex -translate-y-1/2 cursor-pointer items-center bg-transparent p-0 opacity-50 hover:opacity-100"
-                @onclick="ClearSelection">
-            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+                @onclick="(_cachedClearSelectionDelegate ??= ClearSelection)">
+            <Icon Name="LucideIcon.X" Size="_renderCss13" aria-hidden="true" />
         </button>
     }
 </div>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Token("[200px]");
+    private static readonly CssValue<JustifyBuilder> _renderCss1 = Quark.Justify.Between;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
+    private static readonly CssValue<WhitespaceBuilder> _renderCss3 = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<CursorBuilder> _renderCss4 = Quark.Cursor.Pointer;
+    private static readonly CssValue<FontWeightBuilder> _renderCss5 = Quark.FontWeight.Normal;
+    private static readonly CssValue<TruncateBuilder> _renderCss6 = Quark.Truncate.Default;
+    private static readonly CssValue<FlexBuilder> _renderCss7 = Quark.Flex.Is1;
+    private static readonly CssValue<TextAlignBuilder> _renderCss8 = Quark.TextAlign.Start;
+    private static readonly CssValue<DisplayBuilder> _renderCss9 = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _renderCss10 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss11 = Quark.Gap.Is1;
+    private static readonly CssValue<ShrinkBuilder> _renderCss12 = Quark.Shrink.Is0;
+    private static readonly CssValue<SizeBuilder> _renderCss13 = Quark.Size.Is4;
+    private static readonly CssValue<OpacityBuilder> _renderCss14 = Quark.Opacity.Is50;
+    private static readonly CssValue<WidthBuilder> _renderCss15 = Quark.Width.Auto;
+    private static readonly CssValue<PaddingBuilder> _renderCss16 = Quark.Padding.Is0;
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
+    private System.Func<Task>? _cachedClearSelectionDelegate;
+
     private QuarkAttributeDictionary _rootAttributes;
+    private string? _lastRootClass;
+    private string _displayValue = string.Empty;
+    private Dictionary<(CascaderOption Option, int Column, int Index), OptionEventHandlers>? _optionHandlers;
+    private int _optionHandlerGeneration;
+    private static readonly string[] OptionClasses = CreateOptionClasses();
     private RenderFragment? _columnsFragment;
     private bool _open;
     private string[] _internalValue = [];
@@ -61,11 +87,11 @@
     private IReadOnlyList<CascaderOption>? _columnsOptionsSource;
     private string[] _selectionPathSnapshot = [];
     private string[] _columnsPathSnapshot = [];
-    private static readonly CssValue<TruncateBuilder> OptionLabelTruncate = Quark.Truncate.Default;
-    private static readonly CssValue<SizeBuilder> OptionChevronSize = Quark.Size.Is4;
-    private static readonly CssValue<MarginBuilder> OptionChevronMargin = Quark.Margin.FromLeft.Is2;
-    private static readonly CssValue<ShrinkBuilder> OptionChevronShrink = Quark.Shrink.Is0;
-    private static readonly CssValue<OpacityBuilder> OptionChevronOpacity = Quark.Opacity.Is50;
+    private static readonly object OptionLabelTruncate = (CssValue<TruncateBuilder>) Quark.Truncate.Default;
+    private static readonly object OptionChevronSize = (CssValue<SizeBuilder>) Quark.Size.Is4;
+    private static readonly object OptionChevronMargin = (CssValue<MarginBuilder>) Quark.Margin.FromLeft.Is2;
+    private static readonly object OptionChevronShrink = (CssValue<ShrinkBuilder>) Quark.Shrink.Is0;
+    private static readonly object OptionChevronOpacity = (CssValue<OpacityBuilder>) Quark.Opacity.Is50;
 
     [Parameter]
     public IReadOnlyList<CascaderOption> Options { get; set; } = [];
@@ -113,7 +139,7 @@
         get
         {
             var selectedOptions = GetSelectedOptionsCached();
-            return DisplayRender?.Invoke(_selectedLabelsCache, selectedOptions) ?? string.Join(" / ", _selectedLabelsCache);
+            return DisplayRender?.Invoke(_selectedLabelsCache, selectedOptions) ?? _displayValue;
         }
     }
 
@@ -135,6 +161,8 @@
     private RenderFragment RenderColumns() => _columnsFragment ??= builder =>
     {
         var columns = GetColumns();
+        int generation = unchecked(++_optionHandlerGeneration);
+        var optionHandlers = _optionHandlers ??= new();
 
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "data-slot", "cascader-content");
@@ -150,18 +178,22 @@
             builder.AddAttribute(6, "data-slot", "cascader-column");
             builder.AddAttribute(7, "role", "group");
             builder.AddAttribute(8, "aria-label", $"Level {columnIndex + 1}");
-            var columnClass = "min-w-[120px] max-h-[300px] overflow-auto py-1 shrink-0";
-
-            if (columnIndex != columns.Count - 1)
-                columnClass = AppendToClass(columnClass, "border-r border-border");
+            var columnClass = columnIndex != columns.Count - 1
+                ? "min-w-[120px] max-h-[300px] overflow-auto py-1 shrink-0 border-r border-border"
+                : "min-w-[120px] max-h-[300px] overflow-auto py-1 shrink-0";
 
             builder.AddAttribute(9, "class", columnClass);
 
             for (var itemIndex = 0; itemIndex < column.Count; itemIndex++)
             {
                 var option = column[itemIndex];
-                var capturedColumnIndex = columnIndex;
-                var capturedItemIndex = itemIndex;
+                var key = (option, columnIndex, itemIndex);
+                if (!optionHandlers.TryGetValue(key, out var handlers))
+                {
+                    handlers = new OptionEventHandlers(this, option, columnIndex, itemIndex);
+                    optionHandlers.Add(key, handlers);
+                }
+                handlers.Generation = generation;
                 var isExpanded = _expandedPath.Length > columnIndex && string.Equals(_expandedPath[columnIndex], option.Value, StringComparison.Ordinal);
                 var isSelected = CurrentValue.Length > columnIndex && string.Equals(CurrentValue[columnIndex], option.Value, StringComparison.Ordinal);
 
@@ -178,10 +210,10 @@
 
                 builder.AddAttribute(17, "tabindex", _focusedColumn == columnIndex && _focusedIndex == itemIndex && _open ? 0 : -1);
                 builder.AddAttribute(18, "class", GetOptionClass(isSelected, isExpanded, option.Disabled));
-                builder.AddAttribute(19, "onclick", EventCallback.Factory.Create(this, () => SelectOption(option, capturedColumnIndex)));
-                builder.AddAttribute(20, "onmouseenter", EventCallback.Factory.Create(this, () => ExpandOnHover(option, capturedColumnIndex)));
-                builder.AddAttribute(21, "onfocus", EventCallback.Factory.Create(this, () => SetFocused(capturedColumnIndex, capturedItemIndex)));
-                builder.AddAttribute(22, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, args => HandleOptionKeyDown(args, option, capturedColumnIndex, capturedItemIndex)));
+                builder.AddAttribute(19, "onclick", handlers.Click);
+                builder.AddAttribute(20, "onmouseenter", handlers.MouseEnter);
+                builder.AddAttribute(21, "onfocus", handlers.Focus);
+                builder.AddAttribute(22, "onkeydown", handlers.KeyDown);
                 builder.AddAttribute(23, "onkeydown:preventDefault", _preventKeyDefault);
 
                 builder.OpenComponent<Span>(24);
@@ -212,6 +244,11 @@
         }
 
         builder.CloseElement();
+        foreach (var pair in optionHandlers)
+        {
+            if (pair.Value.Generation != generation)
+                optionHandlers.Remove(pair.Key);
+        }
     };
 
     private async Task HandleOpenChanged(bool open)
@@ -400,6 +437,7 @@
         _selectionPathSnapshot = [.. values];
         _selectedOptionsCache = selected;
         _selectedLabelsCache = labels;
+        _displayValue = string.Join(" / ", labels);
         return selected;
     }
 
@@ -429,7 +467,8 @@
             var found = FindOption(options, value);
             if (found is null)
                 break;
-            if (count >= _selectedOptionsCache.Count || !ReferenceEquals(_selectedOptionsCache[count], found))
+            if (count >= _selectedOptionsCache.Count || !ReferenceEquals(_selectedOptionsCache[count], found) ||
+                !string.Equals(_selectedLabelsCache[count], found.DisplayLabel, StringComparison.Ordinal))
                 return false;
             options = found.Children;
             count++;
@@ -477,7 +516,18 @@
         return result;
     }
 
-    private string GetOptionClass(bool isSelected, bool isExpanded, bool disabled)
+    private static string GetOptionClass(bool isSelected, bool isExpanded, bool disabled) =>
+        OptionClasses[(isSelected ? 1 : 0) | (isExpanded ? 2 : 0) | (disabled ? 4 : 0)];
+
+    private static string[] CreateOptionClasses()
+    {
+        var classes = new string[8];
+        for (int i = 0; i < classes.Length; i++)
+            classes[i] = BuildOptionClass((i & 1) != 0, (i & 2) != 0, (i & 4) != 0);
+        return classes;
+    }
+
+    private static string BuildOptionClass(bool isSelected, bool isExpanded, bool disabled)
     {
         var cls = "flex items-center justify-between px-3 py-1.5 cursor-pointer text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none";
 
@@ -497,7 +547,8 @@
     {
         var attributes = _rootAttributes.Create(BuildAttributes(), 2);
         ApplyFieldControlAttributes(attributes);
-        AppendToClassAttr(attributes, "relative inline-block");
+        attributes.TryGetValue("class", out var rootClass);
+        attributes["class"] = AppendToClass(rootClass?.ToString(), "relative inline-block", ref _lastRootClass);
         return attributes;
     }
 

@@ -12,7 +12,7 @@
            Name="@Name"
            Type="@Type"
            Value="@Value"
-           ValueChanged="@HandleValueChanged"
+           ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
            InputSize="@InputSize"
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
@@ -26,8 +26,8 @@
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
-           OnInput="HandleInput"
-           OnChange="HandleChange"
+           OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
+           OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
            AutoSave="@AutoSave"
            AutoSaveDelay="@AutoSaveDelay"
            AutoSaveOnBlur="@AutoSaveOnBlur"
@@ -39,11 +39,18 @@
            AutoSaveSavingClass="@AutoSaveSavingClass"
            AutoSaveSavedClass="@AutoSaveSavedClass"
            AutoSaveFailedClass="@AutoSaveFailedClass"
-           ValidationValueSelector="@(() => (object?)Value)" />
+           ValidationValueSelector="@(_validationValueSelector ??= () => (object?)Value)" />
 </div>
 
 @code {
-    private readonly RenderAttributeDictionary _wrapperAttributes = new();
+    private static readonly CssValue<InputSizeBuilder> _staticCss0 = Quark.InputSizes.Default;
+    private QuarkInt32Attribute _maxLengthAttribute;
+    private Func<object?>? _validationValueSelector;
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private QuarkAttributeDictionary _wrapperAttributes;
     /// <summary>
     /// Gets or sets the value.
     /// </summary>
@@ -90,7 +97,7 @@
     /// Gets or sets the size of the text input.
     /// </summary>
     [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
+    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss0;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -256,7 +263,7 @@
         var attributes = _wrapperAttributes.Create(AdditionalAttributes, 3);
 
         // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
-        if (MaxLength > 0) attributes["maxlength"] = MaxLength;
+        if (MaxLength > 0) attributes["maxlength"] = _maxLengthAttribute.Get(MaxLength);
         if (InputMode is not null) attributes["inputmode"] = InputMode.Value;
         if (EditMask.HasContent()) attributes["pattern"] = EditMask;
 

@@ -7,15 +7,15 @@
 <CascadingValue Name="ParentToggleGroup" Value="@this" IsFixed="true">
     @if (UsesAutoSaveStatusSlot)
     {
-        <Div Display="Quark.Display.InlineFlex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
+        <Div Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
             <BradixToggleGroup Type="@Type"
                                Disabled="@Disabled"
                                Value="@Value"
                                Values="@Values"
                                Dir="@ResolvedDirection"
                                Orientation="@Orientation"
-                               ValueChanged="HandleSingleValueChanged"
-                               ValuesChanged="HandleMultipleValuesChanged"
+                               ValueChanged="(_cachedHandleSingleValueChangedDelegate ??= HandleSingleValueChanged)"
+                               ValuesChanged="(_cachedHandleMultipleValuesChangedDelegate ??= HandleMultipleValuesChanged)"
                                AdditionalAttributes="@GroupAttributes">
                 @ChildContent
             </BradixToggleGroup>
@@ -36,8 +36,8 @@
                            Values="@Values"
                            Dir="@ResolvedDirection"
                            Orientation="@Orientation"
-                           ValueChanged="HandleSingleValueChanged"
-                           ValuesChanged="HandleMultipleValuesChanged"
+                           ValueChanged="(_cachedHandleSingleValueChangedDelegate ??= HandleSingleValueChanged)"
+                           ValuesChanged="(_cachedHandleMultipleValuesChangedDelegate ??= HandleMultipleValuesChanged)"
                            AdditionalAttributes="@GroupAttributes">
             @ChildContent
         </BradixToggleGroup>
@@ -45,9 +45,23 @@
 </CascadingValue>
 
 @code {
+    private string? _spacingDeclaration, _spacingStyle;
+    internal string SpacingText => Spacing.ToString();
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<ItemsBuilder> _renderCss1 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
+    private System.Func<string?, Task>? _cachedHandleSingleValueChangedDelegate;
+    private System.Func<IReadOnlyCollection<string>, Task>? _cachedHandleMultipleValuesChangedDelegate;
+
+    private string? _lastBuiltClass;
+
+    private object? _cachedHandleGroupBlurFocusEventArgsCallback;
+    private object? _cachedHandleGroupKeyDownKeyboardEventArgsCallback;
+
     private QuarkAttributeDictionary _groupAttributes;
-    private readonly AutoSaveController<string?> _autoSave = new();
-    private readonly AutoSaveController<string[]?> _autoSaveMultiple = new();
+    private AutoSaveController<string?> _autoSave;
+    private AutoSaveController<string[]?> _autoSaveMultiple;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? CascadedDirection { get; set; }
@@ -183,21 +197,18 @@
                 attributes["data-size"] = sizeDataAttribute;
 
             attributes["data-orientation"] = Orientation?.Value ?? Orientation.Horizontal.Value;
-            attributes["data-spacing"] = Spacing.ToString();
+            var spacingText = SpacingText;
+            attributes["data-spacing"] = spacingText;
 
             if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && (OnAutoSave is not null || OnAutoSaveMultiple is not null)))
-                attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleGroupBlur);
+                attributes["onblur"] = (_cachedHandleGroupBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleGroupBlur));
 
             if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && (OnAutoSave is not null || OnAutoSaveMultiple is not null)))
-                attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleGroupKeyDown);
+                attributes["onkeydown"] = (_cachedHandleGroupKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleGroupKeyDown));
 
-            AppendStyleDeclAttr(attributes, $"--gap:{Spacing}");
+            AppendStyleDeclAttr(attributes, QuarkStringCache.Concat("--gap:", "", spacingText, ref _spacingDeclaration), ref _spacingStyle);
 
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch");
-                AppendClass(ref cls, Toggle.GetToggleGroupVariantClass(Variant));
-            });
+            PrependClassAttribute(attributes, "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch", ref _lastBuiltClass);
 
             return attributes;
         }
@@ -208,7 +219,7 @@
         var normalized = value.HasContent() ? value : null;
         Value = normalized;
         await ValueChanged.InvokeAsync(normalized);
-        await _autoSave.NotifyValueChanged(normalized, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSave.NotifyValueChanged(normalized, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         Refresh();
     }
 
@@ -216,7 +227,7 @@
     {
         Values = values as string[] ?? CopyValues(values);
         await ValueChangedMultiple.InvokeAsync(Values);
-        await _autoSaveMultiple.NotifyValueChanged(Values, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSaveMultiple.NotifyValueChanged(Values, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         Refresh();
     }
 
@@ -239,16 +250,16 @@
     private Task FlushAutoSave()
     {
         return UsesMultipleAutosave
-            ? _autoSaveMultiple.Flush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread)
-            : _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            ? _autoSaveMultiple.Flush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread))
+            : _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     private void QueueAutoSaveFlush()
     {
         if (UsesMultipleAutosave)
-            _autoSaveMultiple.QueueFlush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, RefreshOffThread);
+            _autoSaveMultiple.QueueFlush(Values, AutoSave, OnAutoSaveMultiple, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         else
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     private bool ContainsValue(string value)

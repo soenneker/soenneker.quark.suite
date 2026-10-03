@@ -10,6 +10,12 @@
 </BradixScrollAreaScrollbar>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.IsPx;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private string? _lastPrependedClass;
+
     private static readonly IReadOnlyDictionary<string, object> ThumbAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "scroll-area-thumb",
@@ -34,10 +40,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "scroll-area-scrollbar";
 
-        Display ??= Quark.Display.Flex;
-        Padding ??= Quark.Padding.IsPx;
-        UserSelect ??= Quark.UserSelect.None;
-        Transition ??= Quark.Transition.Colors;
+        Display ??= _defaultDisplay;
+        Padding ??= _defaultPadding;
+        UserSelect ??= _defaultUserSelect;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -45,7 +51,7 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "touch-none data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent");
+        PrependClassAttribute(attributes, "touch-none data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent", ref _lastPrependedClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildScrollbarAttributes()

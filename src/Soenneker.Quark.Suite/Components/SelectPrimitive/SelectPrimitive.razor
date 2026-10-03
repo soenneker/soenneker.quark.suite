@@ -1,11 +1,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<select @onchange="HandleChange" @attributes="BuildAttributes()">
+<select @onchange="(_cachedHandleChangeDelegate ??= HandleChange)" @attributes="BuildAttributes()">
     @ChildContent
 </select>
 
 @code {
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

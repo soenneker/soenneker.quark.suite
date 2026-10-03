@@ -10,6 +10,10 @@
 </BradixAccordionContent>
 
 @code {
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _attributesBuffer;
 
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
@@ -22,13 +26,15 @@
 
     private IReadOnlyDictionary<string, object> OuterAttributes => BuildOuterAttributes();
 
-    private string InnerClass => AppendToClass("h-(--radix-accordion-content-height) pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4", Class ?? string.Empty);
+    private string? _lastInnerClass;
+
+    private string InnerClass => AppendToClass("h-(--radix-accordion-content-height) pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4", Class ?? string.Empty, ref _lastInnerClass);
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Overflow ??= Quark.Overflow.Hidden;
-        TextSize ??= Quark.TextSize.Sm;
+        Overflow ??= _defaultOverflow;
+        TextSize ??= _defaultTextSize;
     }
 
     private IReadOnlyDictionary<string, object> BuildOuterAttributes()
@@ -42,11 +48,19 @@
             Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 1);
             attributes["data-slot"] = "accordion-content";
 
-            BuildClassAttribute(attributes, (ref cls) =>
             {
-                if (ParentAccordion?.AnimationsEnabled == true)
-                    AppendClass(ref cls, "data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up");
-            });
+                var cls = new PooledStringBuilder(stackalloc char[64]);
+                try
+                {
+                    if (ParentAccordion?.AnimationsEnabled == true)
+                        AppendClass(ref cls, "data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up");
+                    BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+                }
+                finally
+                {
+                    cls.Dispose();
+                }
+            }
 
             return attributes;
         }

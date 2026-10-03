@@ -29,9 +29,10 @@ else
 
     private string? ResolvedPlaceholder => Context?.DefaultItemText() ?? Placeholder;
 
+    private RenderFragment? _placeholderContent;
     private RenderFragment? PlaceholderContent => ResolvedPlaceholder is null
         ? null
-        : builder => builder.AddContent(0, ResolvedPlaceholder);
+        : _placeholderContent ??= builder => builder.AddContent(0, ResolvedPlaceholder);
 
     private IReadOnlyDictionary<string, object> ValueAttributes => BuildAttributes();
 

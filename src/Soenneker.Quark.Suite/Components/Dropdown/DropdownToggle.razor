@@ -1,4 +1,4 @@
-﻿@using Soenneker.Bradix
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -54,13 +54,25 @@ else
 
         if (Disabled || ParentDropdown?.Disabled == true)
         {
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         }
     }
 
+    private (bool, BradixDropdownMenu?, bool, string?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
+    private Func<KeyboardEventArgs, Task>? _contextOnKeyDownCallback;
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Disabled || ParentDropdown?.Disabled == true, DropdownMenu, DropdownMenu?.CurrentOpen == true, DropdownMenu?.TriggerId, DropdownMenu?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = null,
             TriggerId = DropdownMenu?.TriggerId,
@@ -69,23 +81,23 @@ else
             DataState = DropdownMenu?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "menu",
             AriaControls = DropdownMenu?.ContentId,
-            RegisterElement = elementReference => { Menu?.RegisterTrigger(elementReference); },
+            RegisterElement = (_contextRegisterElementCallback ??= elementReference => { Menu?.RegisterTrigger(elementReference); }),
             PreventPointerDownDefault = DropdownMenu?.CurrentOpen != true,
-            OnPointerDownEvent = DropdownMenu is null ? null : async args =>
+            OnPointerDownEvent = DropdownMenu is null ? null : (_contextOnPointerDownEventCallback ??= async args =>
             {
                 if (Disabled || ParentDropdown?.Disabled == true || args.Button != 0 || args.CtrlKey)
                     return;
 
                 Menu?.SetFocusFirstItemOnOpen(false);
                 await DropdownMenu.ToggleOpen();
-            },
-            Open = DropdownMenu is null ? null : async () =>
+            }),
+            Open = DropdownMenu is null ? null : (_contextOpenCallback ??= async () =>
             {
                 Menu?.SetFocusFirstItemOnOpen(true);
                 await DropdownMenu.SetOpen(true);
-            },
-            Close = DropdownMenu is null ? null : () => DropdownMenu.SetOpen(false),
-            OnKeyDown = HandleToggleKeyDown
+            }),
+            Close = DropdownMenu is null ? null : (_contextCloseCallback ??= () => DropdownMenu.SetOpen(false)),
+            OnKeyDown = (_contextOnKeyDownCallback ??= HandleToggleKeyDown)
         };
     }
 

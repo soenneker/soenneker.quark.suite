@@ -7,50 +7,52 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <Popover Open="@EffectiveOpen"
-         OpenChanged="HandleOpenChanged">
+         OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
     <div class="relative w-fit">
         <PopoverTrigger AsChild="true" Id="@TriggerId">
             <Button Id="@TriggerId"
                     Type="@ButtonType.Button"
                     Variant="@TriggerVariant"
                     Disabled="Disabled"
-                    Justify="Quark.Justify.Between"
+                    Justify="_renderCss0"
                     Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (ShowCalendarIcon)
                 {
-                    <Icon Name="LucideIcon.CalendarDays" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
+                    <Icon Name="LucideIcon.CalendarDays" Size="_renderCss1" Shrink="_renderCss2" />
                 }
                 <span class="min-w-0 flex-1 truncate text-left">@TriggerLabel</span>
-                <Icon Name="@ChevronIcon" Margin="Quark.Margin.FromLeft.Auto" Size="Quark.Size.Is4" Opacity="Quark.Opacity.Is50" />
+                <Icon Name="@ChevronIcon" Margin="_renderCss3" Size="_renderCss1" Opacity="_renderCss4" />
             </Button>
         </PopoverTrigger>
 
         <PopoverContent Side="@Side"
                         Align="@Align"
                         SideOffset="@SideOffset"
-                        Width="Quark.Width.Auto"
-                        Padding="Quark.Padding.Is0"
+                        Width="_renderCss5"
+                        Padding="_renderCss6"
                         @attributes="BuildPanelAttributes()">
             <div class="@PanelClass">
                 @if (HasPresets)
                 {
                     <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="menu">
-                    @foreach (var preset in EffectivePresets)
+                    @for (int presetIndex = 0; presetIndex < EffectivePresets.Count; presetIndex++)
                     {
-                        var active = IsPresetActive(preset);
+                        var preset = EffectivePresets[presetIndex];
+                    var presetView = GetPresetView(presetIndex, preset);
+                    var active = IsPresetActive(preset);
 
                         <Button Type="@ButtonType.Button"
                                 Variant="ButtonVariant.Ghost"
-                                Justify="Quark.Justify.Between"
+                                Justify="_renderCss0"
                                 Class="@PresetButtonClass(active)"
                                 aria-pressed="@GetAriaBoolean(active)"
                                 Role="menuitemradio"
-                                OnClick="@(() => ApplyPreset(preset))">
+                                OnClick="presetView.Click">
                             <span class="min-w-0 flex-1 truncate text-left">@preset.Label</span>
                             @if (active)
                             {
-                                <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
+                                <Icon Name="LucideIcon.Check" Size="_renderCss1" Shrink="_renderCss2" />
                             }
                         </Button>
                     }
@@ -59,17 +61,17 @@
                 <div class="@CalendarPanelClass">
                     <Calendar Mode="CalendarSelectionMode.Range"
                               SelectedRange="@CalendarRange"
-                              SelectedRangeChanged="SetDateRange"
+                              SelectedRangeChanged="(_cachedSetDateRangeDelegate ??= SetDateRange)"
                               Min="@CalendarMinDate"
                               Max="@CalendarMaxDate"
                               DisplayMonth="@_displayMonth"
-                              DisplayMonthChanged="HandleCalendarMonthChanged"
+                              DisplayMonthChanged="(_cachedHandleCalendarMonthChangedDelegate ??= HandleCalendarMonthChanged)"
                               NumberOfMonths="@NumberOfMonths"
                               ShowOutsideDays="@ShowOutsideDays"
-                              Border="Quark.Border.Is0"
-                              Shadow="Quark.Shadow.None"
-                              Padding="Quark.Padding.Is0"
-                              MinWidth="Quark.MinWidth.Is0" />
+                              Border="_renderCss7"
+                              Shadow="_renderCss8"
+                              Padding="_renderCss6"
+                              MinWidth="_staticCss0" />
                 </div>
             </div>
         </PopoverContent>
@@ -77,6 +79,37 @@
 </Popover>
 
 @code {
+    private string? _triggerClass, _rangeLabel;
+    private ((DateOnly Start, DateOnly End) Range, string Format)? _rangeLabelKey;
+    private CalendarDateRange? _calendarRange;
+    private PresetView?[]? _presetViews;
+    private (DateOnly? From, DateOnly? To, DateOnly Min, DateOnly Max, int? Days, bool Limit)? _rangeKey;
+    private (DateOnly Start, DateOnly End)? _normalizedRange;
+
+    private PresetView GetPresetView(int index, PresetDateRangePickerOption preset)
+    {
+        if (_presetViews is null || _presetViews.Length != EffectivePresets.Count)
+            Array.Resize(ref _presetViews, EffectivePresets.Count);
+        var view = _presetViews[index];
+        if (view is null || !ReferenceEquals(view.Preset, preset))
+            _presetViews[index] = view = new PresetView(this, preset);
+        return view;
+    }
+
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<JustifyBuilder> _renderCss0 = Quark.Justify.Between;
+    private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
+    private static readonly CssValue<ShrinkBuilder> _renderCss2 = Quark.Shrink.Is0;
+    private static readonly CssValue<MarginBuilder> _renderCss3 = Quark.Margin.FromLeft.Auto;
+    private static readonly CssValue<OpacityBuilder> _renderCss4 = Quark.Opacity.Is50;
+    private static readonly CssValue<WidthBuilder> _renderCss5 = Quark.Width.Auto;
+    private static readonly CssValue<PaddingBuilder> _renderCss6 = Quark.Padding.Is0;
+    private static readonly CssValue<BorderBuilder> _renderCss7 = Quark.Border.Is0;
+    private static readonly CssValue<ShadowBuilder> _renderCss8 = Quark.Shadow.None;
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+    private System.Func<CalendarDateRange?, Task>? _cachedSetDateRangeDelegate;
+    private System.Func<DateOnly?, Task>? _cachedHandleCalendarMonthChangedDelegate;
+
     private QuarkAttributeDictionary _triggerAttributesBuffer;
     [Parameter]
     public CalendarDateRange? SelectedRange { get; set; }
@@ -149,11 +182,11 @@
     private DateOnly? _lastSyncedFrom;
     private DateOnly? _lastSyncedTo;
     private DateOnly? _rangeAnchorDate;
-    private readonly string _triggerId = BlazorIdGenerator.New("quark-preset-date-range-picker-trigger");
+    private string? _triggerId;
 
     private bool EffectiveOpen => OpenChanged.HasDelegate ? Open : _open;
 
-    private string TriggerId => Id ?? _triggerId;
+    private string TriggerId => Id ?? (_triggerId ??= BlazorIdGenerator.New("quark-preset-date-range-picker-trigger"));
 
     private DateOnly EffectiveMaxDate => Max ?? DateOnly.FromDateTime(DateTime.Today);
 
@@ -165,9 +198,33 @@
 
     private bool HasPresets => ShowPresets && EffectivePresets.Count > 0;
 
-    private (DateOnly Start, DateOnly End)? EffectiveRange => PresetDateRangePickerUtil.Normalize(SelectedRange, ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+    private (DateOnly Start, DateOnly End)? EffectiveRange
+    {
+        get
+        {
+            var max = EffectiveMaxDate;
+            var min = Min ?? max.AddYears(-100);
+            var key = (SelectedRange?.From, SelectedRange?.To, min, max, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+            if (_rangeKey != key)
+            {
+                _rangeKey = key;
+                _normalizedRange = PresetDateRangePickerUtil.Normalize(SelectedRange, min, max, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
+            }
+            return _normalizedRange;
+        }
+    }
 
-    private CalendarDateRange? CalendarRange => EffectiveRange is { } range ? new CalendarDateRange(range.Start, range.End) : SelectedRange;
+    private CalendarDateRange? CalendarRange
+    {
+        get
+        {
+            if (EffectiveRange is not { } range) return SelectedRange;
+            if (SelectedRange?.From == range.Start && SelectedRange.To == range.End) return SelectedRange;
+            if (_calendarRange?.From != range.Start || _calendarRange.To != range.End)
+                _calendarRange = new CalendarDateRange(range.Start, range.End);
+            return _calendarRange;
+        }
+    }
 
     private DateOnly CalendarMinDate => _rangeAnchorDate is { } anchor && MaxRangeDays is { } maxRangeDays
         ? MaxDate(EffectiveMinDate, anchor.AddDays(-Math.Max(1, maxRangeDays) + 1))
@@ -206,7 +263,7 @@
     private string GetTriggerClass()
     {
         const string baseClass = "w-[212px] text-left font-normal";
-        return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
+        return Class.HasContent() ? AppendToClass(Class, baseClass, ref _triggerClass) : baseClass;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
@@ -255,10 +312,13 @@
         if (EffectiveRange is not { } range)
             return null;
 
-        if (range.Start == range.End)
-            return FormatDate(range.Start);
-
-        return $"{FormatDate(range.Start)} - {FormatDate(range.End)}";
+        var key = (range, DisplayFormat);
+        if (_rangeLabelKey != key)
+        {
+            _rangeLabelKey = key;
+            _rangeLabel = range.Start == range.End ? FormatDate(range.Start) : $"{FormatDate(range.Start)} - {FormatDate(range.End)}";
+        }
+        return _rangeLabel;
     }
 
     private async Task HandleOpenChanged(bool open)

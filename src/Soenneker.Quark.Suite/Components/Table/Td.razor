@@ -6,6 +6,12 @@
 </td>
 
 @code {
+    private QuarkInt32Attribute _colspanAttribute;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is2;
+    private static readonly CssValue<VerticalAlignBuilder> _defaultVerticalAlign = Quark.VerticalAlign.Middle;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private string? _lastPrependedClass;
+
     /// <summary>
     /// Gets or sets the colspan attribute value.
     /// </summary>
@@ -17,9 +23,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "table-cell";
 
-        Padding ??= Quark.Padding.Is2;
-        VerticalAlign ??= Quark.VerticalAlign.Middle;
-        Whitespace ??= Quark.Whitespace.Nowrap;
+        Padding ??= _defaultPadding;
+        VerticalAlign ??= _defaultVerticalAlign;
+        Whitespace ??= _defaultWhitespace;
     }
 
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,9 +33,9 @@
         base.BuildAttributesCore(attributes);
 
         if (Colspan is > 1)
-            attributes["colspan"] = Colspan.Value;
+            attributes["colspan"] = _colspanAttribute.Get(Colspan.Value);
 
-		PrependClassAttribute(attributes, "[&:has([role=checkbox])]:pe-0");
+		PrependClassAttribute(attributes, "[&:has([role=checkbox])]:pe-0", ref _lastPrependedClass);
 	}
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -37,4 +43,4 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Colspan);
     }
-} 
+}

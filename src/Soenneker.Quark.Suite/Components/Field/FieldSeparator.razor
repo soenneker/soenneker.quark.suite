@@ -2,38 +2,53 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    <Hr Orientation="@SeparatorOrientation.Horizontal" Decorative="true" Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" Top="Quark.Top.Is1of2" />
+    <Hr Orientation="@SeparatorOrientation.Horizontal" Decorative="true" Position="_renderCss0" Inset="_renderCss1" Top="_renderCss2" />
     @if (ChildContent != null)
     {
         <Span DataSlot="field-separator-content"
-              Position="Quark.Position.Relative"
-              Margin="Quark.Margin.OnX.Auto"
-              Display="Quark.Display.Block"
-              Width="Quark.Width.IsFit"
-              BackgroundColor="Quark.BackgroundColor.Background"
-              Padding="Quark.Padding.OnX.Is2"
-              TextColor="Quark.TextColor.MutedForeground">
+              Position="_renderCss3"
+              Margin="_renderCss4"
+              Display="_renderCss5"
+              Width="_renderCss6"
+              BackgroundColor="_renderCss7"
+              Padding="_renderCss8"
+              TextColor="_renderCss9">
             @ChildContent
         </Span>
     }
 </div>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnY.Negative2;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _renderCss1 = Quark.Inset.Is0;
+    private static readonly CssValue<TopBuilder> _renderCss2 = Quark.Top.Is1of2;
+    private static readonly CssValue<PositionBuilder> _renderCss3 = Quark.Position.Relative;
+    private static readonly CssValue<MarginBuilder> _renderCss4 = Quark.Margin.OnX.Auto;
+    private static readonly CssValue<DisplayBuilder> _renderCss5 = Quark.Display.Block;
+    private static readonly CssValue<WidthBuilder> _renderCss6 = Quark.Width.IsFit;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss7 = Quark.BackgroundColor.Background;
+    private static readonly CssValue<PaddingBuilder> _renderCss8 = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<TextColorBuilder> _renderCss9 = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "field-separator";
 
-        Position ??= Quark.Position.Relative;
-        Margin ??= Quark.Margin.OnY.Negative2;
-        Height ??= Quark.Height.Is5;
-        TextSize ??= Quark.TextSize.Sm;
+        Position ??= _renderCss3;
+        Margin ??= _defaultMargin;
+        Height ??= _defaultHeight;
+        TextSize ??= _defaultTextSize;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-content"] = ChildContent != null ? "true" : "false";
-        PrependClassAttribute(attributes, "group-data-[variant=outline]/field-group:-mb-2");
+        PrependClassAttribute(attributes, "group-data-[variant=outline]/field-group:-mb-2", ref _lastPrependedClass);
     }
 }

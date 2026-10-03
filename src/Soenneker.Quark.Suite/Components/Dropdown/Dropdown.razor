@@ -7,7 +7,7 @@
 @implements IDropdown
 
 <BradixDropdownMenu Open="@Visible"
-                    OpenChanged="HandleOpenChanged"
+                    OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)"
                     ContentIdOverride="@DropdownMenuTargetId">
     <CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
         @if (RenderWrapper)
@@ -24,6 +24,10 @@
 </BradixDropdownMenu>
 
 @code {
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
+    private string? _lastBuiltClass;
+
     public Dropdown()
     {
         LockScroll = false;
@@ -102,17 +106,24 @@
         base.BuildAttributesCore(attributes);
         attributes["data-state"] = Visible ? "open" : "closed";
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, IsGroup ? "inline-flex relative" : "relative");
-            
-            if (Visible)
-                AppendClass(ref cls, "show z-50");
-            if (RightAligned)
-                AppendClass(ref cls, "dropend");
-            if (Disabled)
-                AppendClass(ref cls, "disabled");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, IsGroup ? "inline-flex relative" : "relative");
+                if (Visible)
+                    AppendClass(ref cls, "show z-50");
+                if (RightAligned)
+                    AppendClass(ref cls, "dropend");
+                if (Disabled)
+                    AppendClass(ref cls, "disabled");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

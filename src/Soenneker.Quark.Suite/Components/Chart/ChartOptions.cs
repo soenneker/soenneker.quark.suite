@@ -242,14 +242,16 @@ public sealed class ChartOptions
     /// Any browser-supported CSS color, including custom properties, hexadecimal, RGB, HSL, and OKLCH values, is accepted.
     /// Colors repeat when the number of series or slices exceeds the palette count. An empty palette falls back to <c>var(--series-1)</c>.
     /// </remarks>
-    public IReadOnlyList<string> Palette { get; init; } =
+    public IReadOnlyList<string> Palette { get; init; } = DefaultPalette;
+
+    private static readonly IReadOnlyList<string> DefaultPalette = Array.AsReadOnly<string>(
     [
         "var(--series-1)",
         "var(--series-2)",
         "var(--series-3)",
         "var(--series-4)",
         "var(--series-5)"
-    ];
+    ]);
 
     internal string FormatValue(double value) => ValueFormatter?.Invoke(value) ?? string.Create(CultureInfo.CurrentCulture, $"{value:0.##}{Unit}");
     internal string FormatLabel(string value) => LabelFormatter?.Invoke(value) ?? value;

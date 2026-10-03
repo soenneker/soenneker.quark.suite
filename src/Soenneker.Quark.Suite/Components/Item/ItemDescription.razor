@@ -5,21 +5,28 @@
 <p @attributes="BuildAttributes()">@ChildContent</p>
 
 @code {
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<LineClampBuilder> _defaultLineClamp = Quark.LineClamp.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Normal;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Normal;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "item-description";
 
-        TextColor ??= Quark.TextColor.MutedForeground;
-        LineClamp ??= Quark.LineClamp.Is2;
-        TextSize ??= Quark.TextSize.Sm;
-        Leading ??= Quark.Leading.Normal;
-        FontWeight ??= Quark.FontWeight.Normal;
+        TextColor ??= _defaultTextColor;
+        LineClamp ??= _defaultLineClamp;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "text-left group-data-[size=xs]/item:text-xs group-data-[size=xs]/item:leading-none [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");
+        PrependClassAttribute(attributes, "text-left group-data-[size=xs]/item:text-xs group-data-[size=xs]/item:leading-none [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary", ref _lastPrependedClass);
     }
 }

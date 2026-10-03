@@ -16,7 +16,7 @@
                @bind-value:get="Value"
                @bind-value:set="HandleInputValueChanged"
                @bind-value:event="oninput"
-               @onchange="HandleChange" />
+               @onchange="(_cachedHandleChangeDelegate ??= HandleChange)" />
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Class="@AutoSaveStatusClass"
@@ -32,15 +32,44 @@ else
            @bind-value:get="Value"
            @bind-value:set="HandleInputValueChanged"
            @bind-value:event="oninput"
-           @onchange="HandleChange" />
+           @onchange="(_cachedHandleChangeDelegate ??= HandleChange)" />
 }
 
 @code {
+    private static readonly CssValue<InputSizeBuilder> _staticCss1 = Quark.InputSizes.Default;
+    private (bool PlainText, bool AutoSaveSlot, string? Size, string? Validation, string? BaseClass) _builtInputClassKey;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<BorderBuilder> _defaultBorder2 = Quark.Border.Is0;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnY.Is2;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None.OnFocusVisible;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastBuiltClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private object? _cachedHandleInputBlurFocusEventArgsCallback;
+    private object? _cachedHandleInputKeyDownKeyboardEventArgsCallback;
+
     private ElementReference _elementRef;
     private bool _hasPendingNativeTimeValue;
     private string? _pendingNativeTimeValue;
     private bool _suppressNextRender;
-    private readonly AutoSaveController<string?> _autoSave = new();
+    private AutoSaveController<string?> _autoSave;
     private InputSelectionSnapshot? _pendingSelectionRestore;
 
     [CascadingParameter]
@@ -68,7 +97,7 @@ else
     /// Gets or sets the size of the input.
     /// </summary>
     [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
+    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -177,11 +206,6 @@ else
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-    }
-
     protected override bool ShouldRender()
     {
         if (_suppressNextRender)
@@ -229,7 +253,7 @@ else
         }
 
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     /// <summary>
@@ -263,7 +287,7 @@ else
         }
 
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     private async Task CapturePendingSelection(string? value)
@@ -325,8 +349,9 @@ else
             _pendingNativeTimeValue = null;
 
             await ValueChanged.InvokeIfHasDelegate(value);
-            await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
-            await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            if (OnChange.HasDelegate)
+                await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
+            await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
             if (ParentValidation is not null)
             {
@@ -336,7 +361,7 @@ else
         }
 
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -344,7 +369,7 @@ else
     private async Task HandleInputKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }
@@ -387,34 +412,34 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "input";
 
-        Width ??= Quark.Width.IsFull;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        Width ??= _defaultWidth;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextSize ??= _defaultTextSize;
 
         if (PlainText)
         {
-            Display ??= Quark.Display.Flex;
-            Border ??= Quark.Border.Is0;
-            Padding ??= Quark.Padding.OnY.Is2;
-            Ring ??= Quark.Ring.None.OnFocusVisible;
-            Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-            Opacity ??= Quark.Opacity.Is50.OnDisabled;
+            Display ??= _defaultDisplay;
+            Border ??= _defaultBorder2;
+            Padding ??= _defaultPadding2;
+            Ring ??= _defaultRing;
+            Cursor ??= _defaultCursor;
+            Opacity ??= _defaultOpacity;
         }
         else
         {
-            Height ??= Quark.Height.Is8;
-            MinWidth ??= Quark.MinWidth.Is0;
-            Rounded ??= Quark.Rounded.Lg;
-            Border ??= Quark.Border.Default;
-            BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-            Transition ??= Quark.Transition.Colors;
-            OutlineStyle ??= Quark.OutlineStyle.None;
-            Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-            RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-            PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-            Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-            Opacity ??= Quark.Opacity.Is50.OnDisabled;
+            Height ??= _defaultHeight;
+            MinWidth ??= _staticCss0;
+            Rounded ??= _defaultRounded;
+            Border ??= _defaultBorder;
+            BorderColor ??= _defaultBorderColor;
+            Transition ??= _defaultTransition;
+            OutlineStyle ??= _defaultOutlineStyle;
+            Padding ??= _defaultPadding;
+            RingColor ??= _defaultRingColor;
+            PointerEvents ??= _defaultPointerEvents;
+            Cursor ??= _defaultCursor;
+            Opacity ??= _defaultOpacity;
         }
     }
 
@@ -440,36 +465,52 @@ else
             attributes["type"] = inputType;
 
         if (IsNativeTimeInput() || OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur);
+            attributes["onblur"] = (_cachedHandleInputBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleInputKeyDown);
+            attributes["onkeydown"] = (_cachedHandleInputKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleInputKeyDown));
 
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
+        attributes.TryGetValue("class", out var existingClass);
+        var baseClass = existingClass as string ?? existingClass?.ToString();
+        if (existingClass is not null) attributes["class"] = baseClass!;
+        var classKey = (PlainText, UsesAutoSaveStatusSlot, sizeClass, validationClass, baseClass);
+        if (_lastBuiltClass is null || _builtInputClassKey != classKey)
         {
-            if (PlainText)
+            _builtInputClassKey = classKey;
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
             {
-                AppendClass(ref cls, "focus-visible:outline-none");
+                if (PlainText)
+                {
+                    AppendClass(ref cls, "focus-visible:outline-none");
+                }
+                else
+                {
+                    AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground");
+                    AppendClass(ref cls, "disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80");
+                    AppendClass(ref cls, "focus-visible:ring-3");
+                    AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+                }
+
+                if (sizeClass is not null)
+                    AppendClass(ref cls, sizeClass);
+                if (UsesAutoSaveStatusSlot)
+                    AppendClass(ref cls, "min-w-0 flex-1");
+                if (validationClass is not null)
+                    AppendClass(ref cls, validationClass);
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
             }
-            else
+            finally
             {
-                AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground");
-                AppendClass(ref cls, "disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80");
-                AppendClass(ref cls, "focus-visible:ring-3");
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+                cls.Dispose();
             }
-
-            var sizeClass = GetSizeClass();
-            if (sizeClass is not null) AppendClass(ref cls, sizeClass);
-
-            if (UsesAutoSaveStatusSlot)
-                AppendClass(ref cls, "min-w-0 flex-1");
-
-            var validationClass = GetValidationClass();
-            if (validationClass is not null) AppendClass(ref cls, validationClass);
-        });
+        }
+        else
+            attributes["class"] = _lastBuiltClass;
 
     }
 

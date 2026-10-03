@@ -15,7 +15,7 @@
                          CloseOnEscapeKeyDown="@(ParentDialog?.CloseOnEscape ?? true)"
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
-                         OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         OnPointerDownOutside="(_cachedHandleBackdropPointerDownOutsideDelegate ??= HandleBackdropPointerDownOutside)"
                          AdditionalAttributes="@ContentAttributes">
         @ChildContent
         @if (ShowCloseButton)
@@ -26,6 +26,20 @@
 </BradixDialogPortal>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private System.Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
+
+    private string? _lastBuiltClass;
+    private string? _lastBuiltClass2;
+
     private QuarkAttributeDictionary _overlayAttributesBuffer;
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
@@ -58,40 +72,47 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "dialog-content";
 
-        Position ??= Quark.Position.Fixed;
-        Display ??= Quark.Display.Grid;
-        ZIndex ??= Quark.ZIndex.Is50;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ZIndex ??= _defaultZIndex;
         MaxWidth ??= "max-w-[calc(100%-2rem)]";
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is4;
-        Rounded ??= Quark.Rounded.Xl;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is4;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Width ??= _defaultWidth;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 sm:max-w-sm");
-
-            if (ParentDialog?.Scrollable == true)
-                AppendClass(ref cls, "max-h-[90vh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
-
-            if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
             {
-                var size = ParentDialog.DialogSize.Value;
-                if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
-                    AppendClass(ref cls, "sm:max-w-sm");
-                else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
-                    AppendClass(ref cls, "sm:max-w-2xl");
-                else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
-                    AppendClass(ref cls, "sm:max-w-4xl");
+                AppendClass(ref cls, "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 sm:max-w-sm");
+                if (ParentDialog?.Scrollable == true)
+                    AppendClass(ref cls, "max-h-[90vh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
+                if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
+                {
+                    var size = ParentDialog.DialogSize.Value;
+                    if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
+                        AppendClass(ref cls, "sm:max-w-sm");
+                    else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
+                        AppendClass(ref cls, "sm:max-w-2xl");
+                    else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
+                        AppendClass(ref cls, "sm:max-w-4xl");
+                }
+
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
             }
-        });
+            finally
+            {
+                cls.Dispose();
+            }
+        }
 
     }
 
@@ -99,13 +120,11 @@
     {
         var attributes = _overlayAttributesBuffer.Create(4);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0");
-
-            if (ParentDialog?.BlurBackdrop == true)
-                AppendClass(ref cls, "backdrop-blur");
-        });
+            const string @class = "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0";
+            const string variant = @class + " " + "backdrop-blur";
+            PrependClassAttribute(attributes, ParentDialog?.BlurBackdrop == true ? variant : @class, ref _lastBuiltClass2);
+        }
 
         attributes["data-slot"] = "dialog-overlay";
         attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";

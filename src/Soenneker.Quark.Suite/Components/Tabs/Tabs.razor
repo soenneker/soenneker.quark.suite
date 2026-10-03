@@ -1,15 +1,23 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements ITabs
 
 <CascadingValue Name="ParentTabs" Value="this">
-    <BradixTabs Value="@SelectedTab" Orientation="@ResolvedOrientation" Dir="@ResolvedDir" ActivationMode="@ActivationMode" ValueChanged="HandleBradixValueChanged" AdditionalAttributes="@RootAttributes">
+    <BradixTabs Value="@SelectedTab" Orientation="@ResolvedOrientation" Dir="@ResolvedDir" ActivationMode="@ActivationMode" ValueChanged="(_cachedHandleBradixValueChangedDelegate ??= HandleBradixValueChanged)" AdditionalAttributes="@RootAttributes">
         @ChildContent
     </BradixTabs>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<FlexDirectionBuilder> _conditionalCss0 = Quark.FlexDirection.Row;
+    private static readonly CssValue<FlexDirectionBuilder> _conditionalCss1 = Quark.FlexDirection.Col;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private System.Func<string?, Task>? _cachedHandleBradixValueChangedDelegate;
+
+    private string? _lastPrependedClass;
+
     private QuarkAttributeDictionary _rootAttributes;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
@@ -58,9 +66,9 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tabs";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Vertical ? Quark.FlexDirection.Row : Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= Vertical ? _conditionalCss0 : _conditionalCss1;
+        Gap ??= _defaultGap;
     }
 
     public async Task SelectTab(string tabName)
@@ -105,7 +113,7 @@
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
 
-        PrependClassAttribute(attributes, "group/tabs data-[orientation=horizontal]:flex-col");
+        PrependClassAttribute(attributes, "group/tabs data-[orientation=horizontal]:flex-col", ref _lastPrependedClass);
     }
 
     private static readonly string LtrTabsTriggerBaseClass = CreateTabsTriggerBaseClass(false);

@@ -4,7 +4,12 @@ const owners = new Map();
 const registrations = new Map();
 
 export function insertionTarget(rows, clientY, excludedId = null) {
-    return rows.find(row => row.dataset.fileId !== excludedId && clientY < row.getBoundingClientRect().top + row.getBoundingClientRect().height / 2)?.dataset.fileId ?? null;
+    for (const row of rows) {
+        if (row.dataset.fileId === excludedId) continue;
+        const rect = row.getBoundingClientRect();
+        if (clientY < rect.top + rect.height / 2) return row.dataset.fileId;
+    }
+    return null;
 }
 
 export function initialize(owner, root, callback) {
@@ -13,7 +18,7 @@ export function initialize(owner, root, callback) {
     const controller = new AbortController();
     const placeholder = root.querySelector('[data-slot="file-drop-zone-placeholder"]');
     const ghost = root.querySelector('[data-slot="file-drop-zone-ghost"]');
-    const rows = () => [...root.querySelectorAll('[data-slot="file-drop-zone-file"]')];
+    const rows = () => root.querySelectorAll('[data-slot="file-drop-zone-file"]');
     const canReorder = () => root.dataset.canReorder === 'true';
     let drag = null, frame = 0, pending = false, external = false;
 
@@ -31,23 +36,32 @@ export function initialize(owner, root, callback) {
         placeholder.hidden = true;
         ghost.hidden = true;
     };
-    const showTarget = (beforeId, excludedId) => {
-        const items = rows().filter(row => row.dataset.fileId !== excludedId);
-        if (!items.length) {
+    const showTarget = (beforeId, excludedId, items) => {
+        let next = null, last = null;
+        for (const row of items) {
+            if (row.dataset.fileId === excludedId) continue;
+            last = row;
+            if (!next && row.dataset.fileId === beforeId) next = row;
+        }
+        if (!last) {
             placeholder.hidden = true;
             return;
         }
-        const next = items.find(row => row.dataset.fileId === beforeId);
         const rect = root.getBoundingClientRect();
-        const target = next?.getBoundingClientRect();
-        const last = items.at(-1)?.getBoundingClientRect();
-        const y = target ? target.top - 4 : last ? last.bottom + 4 : rect.bottom - 12;
+        const target = (next ?? last).getBoundingClientRect();
+        const y = next ? target.top - 4 : target.bottom + 4;
         placeholder.style.left = '8px';
         placeholder.style.right = '8px';
         placeholder.style.top = `${y - rect.top - root.clientTop + root.scrollTop - 4}px`;
         placeholder.hidden = false;
     };
-    const focusHandle = id => rows().find(row => row.dataset.fileId === id)?.querySelector('[data-file-drag-handle]')?.focus({ preventScroll: true });
+    const focusHandle = id => {
+        for (const row of rows()) {
+            if (row.dataset.fileId !== id) continue;
+            row.querySelector('[data-file-drag-handle]')?.focus({ preventScroll: true });
+            return;
+        }
+    };
     const move = async (id, before) => {
         if (pending || !canReorder()) return;
         pending = true;
@@ -62,8 +76,9 @@ export function initialize(owner, root, callback) {
         frame = 0;
         if (!drag?.active) return;
         if (!canReorder() || !drag.row.isConnected) { clear(); return; }
-        drag.before = insertionTarget(rows(), drag.y, drag.id);
-        showTarget(drag.before, drag.id);
+        const items = rows();
+        drag.before = insertionTarget(items, drag.y, drag.id);
+        showTarget(drag.before, drag.id, items);
         ghost.style.left = `${Math.max(8, Math.min(innerWidth - ghost.offsetWidth - 8, drag.x + 12))}px`;
         ghost.style.top = `${Math.max(8, Math.min(innerHeight - ghost.offsetHeight - 8, drag.y + 12))}px`;
         if (drag.y < 48) window.scrollBy(0, -12);
@@ -109,7 +124,11 @@ export function initialize(owner, root, callback) {
         if (event.key === 'Escape' && (drag || external)) { event.preventDefault(); clear(); return; }
         const handle = event.target.closest?.('[data-file-drag-handle]');
         if (!handle || !root.contains(handle) || !canReorder() || pending || drag || event.altKey || event.ctrlKey || event.metaKey) return;
-        const items = rows(), row = handle.closest('[data-slot="file-drop-zone-file"]'), index = items.indexOf(row);
+        const items = rows(), row = handle.closest('[data-slot="file-drop-zone-file"]');
+        let index = -1;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i] === row) { index = i; break; }
+        }
         let target = index;
         if (event.key === 'ArrowUp') target = Math.max(0, index - 1);
         else if (event.key === 'ArrowDown') target = Math.min(items.length - 1, index + 1);
@@ -118,8 +137,7 @@ export function initialize(owner, root, callback) {
         else return;
         event.preventDefault();
         if (target === index || index < 0) return;
-        const remaining = items.filter(item => item !== row);
-        void move(row.dataset.fileId, remaining[target]?.dataset.fileId ?? null);
+        void move(row.dataset.fileId, items[target >= index ? target + 1 : target]?.dataset.fileId ?? null);
     });
     configureFileDrop(root, {
         onActive: active => {
@@ -129,7 +147,8 @@ export function initialize(owner, root, callback) {
         },
         onHover: event => {
             external = true;
-            showTarget(insertionTarget(rows(), event.clientY));
+            const items = rows();
+            showTarget(insertionTarget(items, event.clientY), undefined, items);
         },
         beforeDrop: event => callback.invokeMethodAsync('SetDropTarget', insertionTarget(rows(), event.clientY))
     });

@@ -406,7 +406,7 @@ public abstract class Component : RenderComponent, IComponent
             attrs["title"] = Title!;
 
         if (Hidden)
-            attrs["hidden"] = true;
+            attrs["hidden"] = QuarkAttributeValues.True;
 
     }
 
@@ -651,12 +651,10 @@ public abstract class Component : RenderComponent, IComponent
 
     protected new void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)
     {
-        var cls = new PooledStringBuilder(64);
-
+        var cls = new PooledStringBuilder(stackalloc char[64]);
         try
         {
             builder(ref cls);
-
             attrs.TryGetValue("class", out var existing);
             var existingString = existing?.ToString();
             if (cls.Length == 0)
@@ -668,7 +666,6 @@ public abstract class Component : RenderComponent, IComponent
 
             if (!string.IsNullOrEmpty(existingString))
                 AppendClass(ref cls, existingString);
-
             attrs["class"] = cls.ToString();
         }
         finally

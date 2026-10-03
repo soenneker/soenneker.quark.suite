@@ -32,7 +32,8 @@
             @for (var index = 0; index < filteredAutocompleteOptions.Count; index++)
             {
                 var option = filteredAutocompleteOptions[index];
-                <button type="button" data-slot="tag-input-autocomplete-item" data-active="@(index == _activeAutocompleteIndex ? "true" : "false")" role="option" class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" @onclick="() => AddAutocompleteTag(option)">
+                var optionView = GetOptionView(option, index);
+                <button type="button" data-slot="tag-input-autocomplete-item" data-active="@(index == _activeAutocompleteIndex ? "true" : "false")" role="option" class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" @onclick="optionView.Click">
                     @option
                 </button>
             }
@@ -49,13 +50,51 @@
 
             @if (ClearAll && Values.Length > 0 && !ReadOnly && !Disabled)
             {
-                <button type="button" data-slot="tag-input-clear-all" class="font-medium text-foreground underline-offset-4 hover:underline" @onclick="ClearTags">Clear All</button>
+                <button type="button" data-slot="tag-input-clear-all" class="font-medium text-foreground underline-offset-4 hover:underline" @onclick="(_cachedClearTagsDelegate ??= ClearTags)">Clear All</button>
             }
         </div>
     }
 </div>
 
 @code {
+    private Func<ChangeEventArgs, Task>? _inputHandleInputCallback;
+    private Func<KeyboardEventArgs, Task>? _inputHandleKeyDownCallback;
+    private Func<FocusEventArgs, Task>? _inputHandleFocusCallback;
+    private Func<FocusEventArgs, Task>? _inputHandleBlurCallback;
+    private string? _classPart0;
+    private string? _classPart1;
+    private string? _classPart2;
+    private string? _classPart3;
+    private string? _classPart4;
+    private string? _classPart5;
+    private string? _classPart6;
+    private string? _classPart7;
+    private Func<Task>? _focusInput;
+    private Action<ElementReference>? _captureInput;
+    private Task FocusInput() => _inputRef.FocusAsync().AsTask();
+    private void CaptureInput(ElementReference element) => _inputRef = element;
+    private TagView[] _tagViews = [];
+    private OptionView?[]? _optionViews;
+    private TagView GetTagView(string tag, int index)
+    {
+        var view = _tagViews[index];
+        if (view is null || view.Tag != tag)
+            _tagViews[index] = view = new TagView(this, tag, index);
+        return view;
+    }
+    private OptionView GetOptionView(string option, int index)
+    {
+        _optionViews ??= new OptionView[8];
+        var view = _optionViews[index];
+        if (view is null || view.Option != option)
+            _optionViews[index] = view = new OptionView(this, option);
+        return view;
+    }
+
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private System.Func<Task>? _cachedClearTagsDelegate;
+
     private ElementReference _inputRef;
     private string _inputValue = string.Empty;
     private int? _activeTagIndexInternal;
@@ -66,6 +105,7 @@
     private RenderFragment? _inputWithAutocomplete;
     private RenderFragment? _inputWithoutAutocomplete;
     private List<string>? _filteredOptions;
+    private HashSet<string>? _autocompleteSelectedTags;
 
     [Parameter]
     public string[] Values { get; set; } = [];
@@ -194,7 +234,10 @@
         ? PlaceholderWhenFull!
         : Placeholder ?? string.Empty;
 
-    private string CounterMaxText => MaxTags is null ? string.Empty : $"/{MaxTags.Value}";
+    private CurrentCultureInt32TextCache _counterMaximum;
+    private string? _counterText;
+    private string CounterMaxText => MaxTags is null ? string.Empty
+        : QuarkStringCache.Concat("/", "", _counterMaximum.Get(MaxTags.Value), ref _counterText);
 
     private IReadOnlyList<string> GetFilteredAutocompleteOptions()
     {
@@ -204,10 +247,20 @@
 
         var input = _inputValue.Trim();
         var options = _filteredOptions;
+        HashSet<string>? selected = null;
+        if (!AllowDuplicates && AutocompleteFilter is null && Values.Length >= 16 && AutocompleteOptions.Length >= 8)
+        {
+            selected = _autocompleteSelectedTags ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            selected.Clear();
+            foreach (string value in Values)
+                selected.Add(value);
+        }
+        else
+            _autocompleteSelectedTags = null;
 
         foreach (var option in AutocompleteOptions)
         {
-            if (!option.HasContent() || (!AllowDuplicates && ContainsTag(option)))
+            if (!option.HasContent() || (!AllowDuplicates && (selected?.Contains(option) ?? ContainsTag(option))))
                 continue;
 
             if (!(AutocompleteFilter?.Invoke(option, input) ?? option.Contains(input, StringComparison.OrdinalIgnoreCase)))
@@ -227,8 +280,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tag-input";
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
+        Position ??= _defaultPosition;
+        Width ??= _defaultWidth;
     }
 
     private RenderFragment RenderInputContainer(bool autocomplete) => autocomplete
@@ -239,7 +292,7 @@
     {
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "data-slot", InlineTags ? "tag-input-inline-container" : "tag-input-field-container");
-        builder.AddAttribute(2, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => _inputRef.FocusAsync()));
+        builder.AddAttribute(2, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, _focusInput ??= FocusInput));
         builder.AddAttribute(3, "class", GetInputContainerClass());
 
         if (InlineTags)
@@ -247,11 +300,11 @@
 
         builder.OpenElement(5, "input");
         builder.AddAttribute(6, "value", _inputValue);
-        builder.AddAttribute(7, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput));
-        builder.AddAttribute(8, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown));
+        builder.AddAttribute(7, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, _inputHandleInputCallback ??= HandleInput));
+        builder.AddAttribute(8, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, _inputHandleKeyDownCallback ??= HandleKeyDown));
         builder.AddAttribute(9, "onkeydown:preventDefault", _preventDefaultKeys);
-        builder.AddAttribute(10, "onfocus", EventCallback.Factory.Create<FocusEventArgs>(this, HandleFocus));
-        builder.AddAttribute(11, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, HandleBlur));
+        builder.AddAttribute(10, "onfocus", EventCallback.Factory.Create<FocusEventArgs>(this, _inputHandleFocusCallback ??= HandleFocus));
+        builder.AddAttribute(11, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, _inputHandleBlurCallback ??= HandleBlur));
         builder.AddAttribute(12, "data-slot", "tag-input-input");
         builder.AddAttribute(13, "type", "text");
         builder.AddAttribute(14, "autocomplete", "off");
@@ -265,7 +318,7 @@
         builder.AddAttribute(22, "aria-label", AriaLabel);
         builder.AddAttribute(23, "aria-describedby", AriaDescribedBy);
         builder.AddAttribute(24, "class", "min-w-24 flex-1 bg-transparent px-1 py-1 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed");
-        builder.AddElementReferenceCapture(25, element => _inputRef = element);
+        builder.AddElementReferenceCapture(25, _captureInput ??= CaptureInput);
         builder.CloseElement();
 
         builder.CloseElement();
@@ -273,6 +326,7 @@
 
     private RenderFragment RenderTagList() => _tagListFragment ??= builder =>
     {
+        if (_tagViews.Length != Values.Length) _tagViews = new TagView[Values.Length];
         if (Values.Length == 0)
             return;
 
@@ -286,24 +340,25 @@
         {
             var tag = Values[i];
             var tagIndex = i;
+            var view = GetTagView(tag, i);
             builder.OpenElement(4, "span");
             builder.AddAttribute(5, "data-slot", "tag-input-tag");
             builder.AddAttribute(6, "data-active", CurrentActiveTagIndex == i ? "true" : "false");
             builder.AddAttribute(7, "role", "listitem");
-            builder.AddAttribute(8, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => HandleTagClick(tag, tagIndex)));
+            builder.AddAttribute(8, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Click));
             builder.AddAttribute(9, "class", tagClass);
 
             builder.OpenElement(10, "span");
             builder.AddAttribute(11, "data-slot", "tag-input-tag-text");
-            builder.AddContent(12, GetDisplayTag(tag));
+            builder.AddContent(12, view.GetText(TruncateTags, TruncateLength));
             builder.CloseElement();
 
             if (!ReadOnly && !Disabled)
             {
                 builder.OpenElement(13, "button");
                 builder.AddAttribute(14, "data-slot", "tag-input-tag-remove");
-                builder.AddAttribute(15, "aria-label", $"Remove {tag}");
-                builder.AddAttribute(16, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => RemoveTagAt(tagIndex, moveToPrevious: true)));
+                builder.AddAttribute(15, "aria-label", view.RemoveLabel);
+                builder.AddAttribute(16, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Remove));
                 builder.AddAttribute(17, "class", "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
                 builder.OpenComponent<Icon>(18);
                 builder.AddAttribute(19, nameof(Icon.Name), LucideIcon.X);
@@ -478,8 +533,16 @@
         await SetActiveTagIndex(null);
     }
 
+    private string? _lastDelimiter;
+    private string[]? _delimiterSnapshot;
+    private string[]? _splitDelimiters;
     private string[] GetSplitDelimiters()
     {
+        if (_splitDelimiters is not null && _lastDelimiter == Delimiter &&
+            DelimiterList.AsSpan().SequenceEqual(_delimiterSnapshot))
+            return _splitDelimiters;
+        _lastDelimiter = Delimiter;
+        _delimiterSnapshot = (string[])DelimiterList.Clone();
         var delimiters = new List<string>(DelimiterList.Length + 1);
 
         if (Delimiter.HasContent())
@@ -491,7 +554,7 @@
                 delimiters.Add(delimiter);
         }
 
-        return delimiters.Count == 0 ? [","] : delimiters.ToArray();
+        return _splitDelimiters = delimiters.Count == 0 ? [","] : delimiters.ToArray();
     }
 
     private bool ContainsSplitDelimiter(string value)
@@ -669,14 +732,6 @@
         return false;
     }
 
-    private string GetDisplayTag(string tag)
-    {
-        if (!TruncateTags || tag.Length <= TruncateLength)
-            return tag;
-
-        return string.Concat(tag.AsSpan(0, Math.Max(0, TruncateLength)), "...");
-    }
-
     private async Task HandleTagClick(string tag, int index)
     {
         await SetActiveTagIndex(index);
@@ -689,9 +744,9 @@
     {
         var cls = "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40";
         if (Disabled)
-            cls = AppendToClass(cls, "cursor-not-allowed opacity-50");
+            cls = AppendToClass(cls, "cursor-not-allowed opacity-50", ref _classPart0);
         if (InputClass.HasContent())
-            cls = AppendToClass(cls, InputClass!);
+            cls = AppendToClass(cls, InputClass!, ref _classPart1);
         return cls;
     }
 
@@ -701,26 +756,26 @@
             ? "flex w-full flex-col gap-1"
             : "flex flex-wrap items-center gap-1";
         if (!InlineTags)
-            cls = AppendToClass(cls, "mb-2");
+            cls = AppendToClass(cls, "mb-2", ref _classPart2);
         if (TagListClass.HasContent())
-            cls = AppendToClass(cls, TagListClass!);
+            cls = AppendToClass(cls, TagListClass!, ref _classPart3);
         return cls;
     }
 
     private string GetTagClass()
     {
         var cls = "inline-flex max-w-full items-center gap-1 border font-medium transition-colors data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-1";
-        cls = AppendToClass(cls, GetTagVariantClass());
-        cls = AppendToClass(cls, GetTagSizeClass());
+        cls = AppendToClass(cls, GetTagVariantClass(), ref _classPart4);
+        cls = AppendToClass(cls, GetTagSizeClass(), ref _classPart5);
         if (TagClass.HasContent())
-            cls = AppendToClass(cls, TagClass!);
+            cls = AppendToClass(cls, TagClass!, ref _classPart6);
         return cls;
     }
 
     private string GetAutocompleteClass()
     {
         var cls = "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md";
-        return AutocompleteClass.HasContent() ? AppendToClass(cls, AutocompleteClass!) : cls;
+        return AutocompleteClass.HasContent() ? AppendToClass(cls, AutocompleteClass!, ref _classPart7) : cls;
     }
 
     private string GetTagVariantClass()

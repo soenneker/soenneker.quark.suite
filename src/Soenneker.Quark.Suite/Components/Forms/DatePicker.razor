@@ -11,7 +11,7 @@
 @implements IDatePicker
 
 <Popover Open="@_open"
-         OpenChanged="HandleOpenChanged">
+         OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
     <div @attributes="GetContainerAttributes()">
         <input type="hidden" @attributes="BuildHiddenInputAttributes()" />
 
@@ -19,8 +19,8 @@
             <Button Variant="ButtonVariant.Outline"
                     Type="@ButtonType.Button"
                     Disabled="Disabled"
-                    OnBlur="HandleAutoSaveBlur"
-                    OnKeyDown="HandleAutoSaveKeyDown"
+                    OnBlur="(_cachedHandleAutoSaveBlurDelegate ??= HandleAutoSaveBlur)"
+                    OnKeyDown="(_cachedHandleAutoSaveKeyDownDelegate ??= HandleAutoSaveKeyDown)"
                     Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (SelectedDate.HasValue)
@@ -46,25 +46,42 @@
 
         <PopoverContent Side="Side.Bottom"
                         Align="Alignment.Start"
-                        Width="Quark.Width.Auto"
-                        Padding="Quark.Padding.Is0"
+                        Width="_renderCss0"
+                        Padding="_renderCss1"
                         @attributes="PanelAttributes">
             <Calendar SelectedDate="SelectedDate"
-                      SelectedDateChanged="HandleCalendarChanged"
+                      SelectedDateChanged="(_cachedHandleCalendarChangedDelegate ??= HandleCalendarChanged)"
                       DisplayMonth="_displayMonth"
-                      DisplayMonthChanged="HandleCalendarMonthChanged"
+                      DisplayMonthChanged="(_cachedHandleCalendarMonthChangedDelegate ??= HandleCalendarMonthChanged)"
                       Min="Min"
                       Max="Max"
-                      Border="Quark.Border.Is0"
-                      Shadow="Quark.Shadow.None"
-                      Padding="Quark.Padding.Is0"
-                      MinWidth="Quark.MinWidth.Is0" />
+                      Border="_renderCss2"
+                      Shadow="_renderCss3"
+                      Padding="_renderCss1"
+                      MinWidth="_staticCss0" />
         </PopoverContent>
     </div>
 </Popover>
 
 @code {
-    private readonly AutoSaveController<DateOnly?> _autoSave = new();
+    private static readonly CssValue<InputSizeBuilder> _staticCss1 = Quark.InputSizes.Default;
+    private string? _triggerClass;
+    private DateOnly _formattedDate;
+    private string? _formattedDisplay;
+    private DateInputValueCache _serializedDate;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Auto;
+    private static readonly CssValue<PaddingBuilder> _renderCss1 = Quark.Padding.Is0;
+    private static readonly CssValue<BorderBuilder> _renderCss2 = Quark.Border.Is0;
+    private static readonly CssValue<ShadowBuilder> _renderCss3 = Quark.Shadow.None;
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleAutoSaveBlurDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleAutoSaveKeyDownDelegate;
+    private System.Func<DateOnly?, Task>? _cachedHandleCalendarChangedDelegate;
+    private System.Func<DateOnly?, Task>? _cachedHandleCalendarMonthChangedDelegate;
+
+    private AutoSaveController<DateOnly?> _autoSave;
 
     [Parameter]
     public bool AutoSave { get; set; }
@@ -130,7 +147,7 @@
     /// Gets or sets the size of the date picker.
     /// </summary>
     [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
+    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.
@@ -161,7 +178,7 @@
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _lastSyncedSelectedDate;
-    private readonly string _triggerId = BlazorIdGenerator.New("quark-datepicker-trigger");
+    private string? _triggerId;
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
@@ -173,11 +190,16 @@
         ["class"] = "relative flex w-fit items-center gap-2"
     };
 
-    private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _triggerId;
+    private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? (_triggerId ??= BlazorIdGenerator.New("quark-datepicker-trigger"));
 
-    private static string FormatDisplay(DateOnly value)
+    private string FormatDisplay(DateOnly value)
     {
-        return value.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+        if (_formattedDisplay is null || _formattedDate != value)
+        {
+            _formattedDate = value;
+            _formattedDisplay = value.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+        }
+        return _formattedDisplay;
     }
 
     private string GetPlaceholderText()
@@ -187,13 +209,13 @@
 
     private string GetSerializedValue()
     {
-        return SelectedDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+        return _serializedDate.Get(null, SelectedDate, "date");
     }
 
     private string GetTriggerClass()
     {
         var baseClass = "w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground";
-        return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
+        return Class.HasContent() ? AppendToClass(Class, baseClass, ref _triggerClass) : baseClass;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
@@ -241,7 +263,7 @@
             attributes["name"] = Name!;
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         return attributes;
     }
@@ -296,14 +318,16 @@
 
     private async Task NotifyValueChanged(bool valueChanged)
     {
-        var serializedValue = GetSerializedValue();
-        var args = new ChangeEventArgs { Value = serializedValue };
+        ChangeEventArgs? args = OnInput.HasDelegate || OnChange.HasDelegate ? new ChangeEventArgs { Value = GetSerializedValue() } : null;
 
         if (valueChanged)
             await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
 
-        await OnInput.InvokeIfHasDelegate(args);
-        await OnChange.InvokeIfHasDelegate(args);
+        if (args is not null)
+        {
+            await OnInput.InvokeIfHasDelegate(args);
+            await OnChange.InvokeIfHasDelegate(args);
+        }
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(SelectedDate);
@@ -326,7 +350,7 @@
 
         await NotifyValueChanged(valueChanged);
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(SelectedDate, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(SelectedDate, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await ClosePanel();
     }
@@ -358,7 +382,7 @@
     private async Task HandleAutoSaveBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeAsync(e);
     }
@@ -366,7 +390,7 @@
     private async Task HandleAutoSaveKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(SelectedDate, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeAsync(e);
     }

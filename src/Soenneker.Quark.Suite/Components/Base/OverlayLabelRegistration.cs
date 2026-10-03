@@ -4,17 +4,19 @@ namespace Soenneker.Quark;
 
 internal sealed class OverlayLabelRegistration : IDisposable
 {
-    private Action? _dispose;
+    private OverlayLabelContext? _context;
+    private readonly bool _title;
 
-    public OverlayLabelRegistration(Action dispose)
+    public OverlayLabelRegistration(OverlayLabelContext context, bool title)
     {
-        _dispose = dispose;
+        _context = context;
+        _title = title;
     }
 
     public void Dispose()
     {
-        var dispose = _dispose;
-        _dispose = null;
-        dispose?.Invoke();
+        var context = _context;
+        _context = null;
+        context?.Unregister(_title);
     }
 }

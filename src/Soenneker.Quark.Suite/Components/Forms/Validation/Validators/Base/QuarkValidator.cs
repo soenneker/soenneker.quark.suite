@@ -10,7 +10,7 @@ public abstract class QuarkValidator : IQuarkValidator
 
     public virtual Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Validate(value));
+        return Validate(value).AsTask();
     }
 
     public virtual ValidationResult Validate(ValidatorEventArgs args)

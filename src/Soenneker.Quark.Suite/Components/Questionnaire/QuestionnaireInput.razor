@@ -2,10 +2,29 @@
 @inherits Soenneker.Quark.Element
 
 <div data-slot="questionnaire-input-wrapper" class="group/questionnaire-input relative w-full min-w-0">
-    <input value="@EffectiveValue" @oninput="HandleInput" @onkeydown:stopPropagation @attributes="BuildAttributes()" />
+    <input value="@EffectiveValue" @oninput="(_cachedHandleInputDelegate ??= HandleInput)" @onkeydown:stopPropagation @attributes="BuildAttributes()" />
 </div>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastPrependedClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+
     [CascadingParameter]
     internal QuestionnaireItem? ParentItem { get; set; }
 
@@ -36,21 +55,21 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-input";
-        Height ??= Quark.Height.Is8;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        RingColor ??= _defaultRingColor;
+        PointerEvents ??= _defaultPointerEvents;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -65,11 +84,11 @@
         else
             attributes.Remove("name");
         if (Disabled || ParentItem?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         if (ParentItem?.EffectiveInvalid == true)
             attributes["aria-invalid"] = "true";
 
-        PrependClassAttribute(attributes, "focus-visible:ring-3 disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80 min-h-11 sm:min-h-0 selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "focus-visible:ring-3 disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80 min-h-11 sm:min-h-0 selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

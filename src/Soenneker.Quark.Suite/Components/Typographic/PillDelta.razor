@@ -2,11 +2,19 @@
 @inherits Soenneker.Quark.Element
 
 <Span Attributes="@BuildAttributes()">
-    <Icon Name="@IconName" Size="Quark.Size.Is3" aria-hidden="true" />
+    <Icon Name="@IconName" Size="_renderCss0" aria-hidden="true" />
     @ChildContent
 </Span>
 
 @code {
+    private static readonly CssValue<TextColorBuilder> _variantColor0 = Quark.TextColor.Utility("text-red-600").OnDark.Utility("text-red-400");
+    private static readonly CssValue<TextColorBuilder> _variantColor1 = Quark.TextColor.Utility("text-green-600").OnDark.Utility("text-green-400");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Semibold;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3;
     [Parameter]
     public PillDeltaDirection Direction { get; set; } = PillDeltaDirection.Up;
 
@@ -16,11 +24,11 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-delta";
-        Display ??= Quark.Display.InlineFlex;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Quark.Items.Center;
-        Gap ??= Quark.Gap.Is0_5;
-        FontWeight ??= Quark.FontWeight.Semibold;
+        Display ??= _defaultDisplay;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _defaultItemsAlign;
+        Gap ??= _defaultGap;
+        FontWeight ??= _defaultFontWeight;
         TextColor ??= GetTextColor();
     }
 
@@ -34,8 +42,8 @@
     private CssValue<TextColorBuilder> GetTextColor()
     {
         return Direction == PillDeltaDirection.Down
-            ? Quark.TextColor.Utility("text-red-600").OnDark.Utility("text-red-400")
-            : Quark.TextColor.Utility("text-green-600").OnDark.Utility("text-green-400");
+            ? _variantColor0
+            : _variantColor1;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

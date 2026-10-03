@@ -14,6 +14,12 @@
 </BradixNavigationMenu>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool Viewport { get; set; } = true;
 
@@ -42,10 +48,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "navigation-menu";
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -54,7 +60,7 @@
 
         attributes["data-viewport"] = Viewport ? "true" : "false";
 
-        PrependClassAttribute(attributes, "group/navigation-menu max-w-max flex-1");
+        PrependClassAttribute(attributes, "group/navigation-menu max-w-max flex-1", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

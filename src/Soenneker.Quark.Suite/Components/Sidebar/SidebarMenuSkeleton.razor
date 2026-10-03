@@ -4,13 +4,21 @@
 <div @attributes="BuildAttributes()">
     @if (ShowIcon)
     {
-        <Skeleton Size="Quark.Size.Is4" Rounded="Quark.Rounded.Md" data-sidebar="menu-skeleton-icon" />
+        <Skeleton Size="_renderCss0" Rounded="_renderCss1" data-sidebar="menu-skeleton-icon" />
     }
     <Skeleton @attributes="BuildTextSkeletonAttributes()" />
 </div>
 
 @code {
-    private QuarkAttributeDictionary _textSkeletonAttributesBuffer;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<RoundedBuilder> _renderCss1 = Quark.Rounded.Md;
+
+    private Dictionary<string, object>? _textSkeletonAttributes;
     [Parameter]
     public bool ShowIcon { get; set; }
 
@@ -27,12 +35,12 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-skeleton";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is8;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.OnX.Is2;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _renderCss1;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -42,19 +50,12 @@
         attributes["data-sidebar"] = "menu-skeleton";
     }
 
-    private Dictionary<string, object> BuildTextSkeletonAttributes()
+    private Dictionary<string, object> BuildTextSkeletonAttributes() => _textSkeletonAttributes ??= new Dictionary<string, object>
     {
-        var attributes = _textSkeletonAttributesBuffer.Create(4);
-        attributes["data-sidebar"] = "menu-skeleton-text";
-
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
-        {
-            AppendClass(ref cls, "h-4 max-w-(--skeleton-width) flex-1");
-            AppendStyleDecl(ref sty, $"--skeleton-width: {_width}%");
-        });
-
-        return attributes;
-    }
+        ["data-sidebar"] = "menu-skeleton-text",
+        ["class"] = "h-4 max-w-(--skeleton-width) flex-1",
+        ["style"] = $"--skeleton-width: {_width}%"
+    };
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

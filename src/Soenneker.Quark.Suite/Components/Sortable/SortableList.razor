@@ -15,14 +15,18 @@
 </div>
 
 @code {
-    private readonly string _listId = BlazorIdGenerator.New("quark-sortable");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+
+    private string? _listId;
     private DotNetObjectReference<SortableList>? _dotNetRef;
     private string? _initializationError;
     private ValueAtomicBool _disposed;
     private InitializationKey? _lastInitializationKey;
     private InitializationKey? _lastFailedInitializationKey;
-    private readonly record struct InitializationKey(bool Disabled, bool Sort, int AnimationMs, bool ForceFallback,
-        string ItemSelector, string? HandleSelector, string? FilterSelector, string? Group, string ListId, bool NotifyOnReorder);
+
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -61,27 +65,19 @@
     public Task HandleReorderFromJson(JsonElement payload) =>
         HandleReorder(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.SortableReorderEventArgs)!);
 
-    public async Task HandleReorder(SortableReorderEventArgs args)
-    {
-        if (args.OldIndex < 0 || args.NewIndex < 0)
-        {
-            return;
-        }
-
-        if (OnReorder.HasDelegate)
-        {
-            await OnReorder.InvokeAsync(args);
-        }
-    }
+    public Task HandleReorder(SortableReorderEventArgs args) =>
+        args.OldIndex >= 0 && args.NewIndex >= 0 && OnReorder.HasDelegate
+            ? OnReorder.InvokeAsync(args)
+            : Task.CompletedTask;
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sortable-list";
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -107,14 +103,8 @@
             attributes["data-sortable-init-error"] = _initializationError;
         }
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-
-            if (Disabled)
-            {
-                AppendClass(ref cls, "opacity-80");
-            }
-        });
+        if (Disabled)
+            PrependClassAttribute(attributes, "opacity-80", ref _lastBuiltClass);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -214,6 +204,6 @@
 
     private string ResolveListId()
     {
-        return ListId.HasContent() ? ListId! : _listId;
+        return ListId.HasContent() ? ListId! : _listId ??= BlazorIdGenerator.New("quark-sortable");
     }
 }

@@ -6,13 +6,18 @@
 </tfoot>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("muted/50");
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromTop.Default;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "table-footer";
-        BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
-        Border ??= Quark.Border.FromTop.Default;
-        FontWeight ??= Quark.FontWeight.Medium;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Border ??= _defaultBorder;
+        FontWeight ??= _defaultFontWeight;
 
     }
 
@@ -21,6 +26,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "[&>tr]:last:border-b-0");
+        PrependClassAttribute(attributes, "[&>tr]:last:border-b-0", ref _lastPrependedClass);
     }
 }

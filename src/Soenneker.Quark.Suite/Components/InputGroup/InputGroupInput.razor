@@ -6,11 +6,35 @@
 
 <input @ref="_elementRef"
        value="@Value"
-       @oninput="HandleInput"
-       @onchange="HandleChange"
+       @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+       @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
        @attributes="BuildAttributes()" />
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-colors");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.None;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is0;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastPrependedClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+
+    private object? _cachedHandleInputBlurFocusEventArgsCallback;
+
     private ElementReference _elementRef;
     private bool _hasPendingNativeTimeValue;
     private string? _pendingNativeTimeValue;
@@ -29,49 +53,49 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-group-control";
-        Height ??= Quark.Height.Is8;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        Transition ??= Quark.Transition.Token("transition-colors");
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Flex ??= Quark.Flex.Is1;
-        Rounded ??= Quark.Rounded.None;
-        Border ??= Quark.Border.Is0;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Shadow ??= Quark.Shadow.None;
-        Ring ??= Quark.Ring.None;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        BorderColor ??= _defaultBorderColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Flex ??= _defaultFlex;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
+        PointerEvents ??= _defaultPointerEvents;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
     }
 
-    private async Task HandleInput(ChangeEventArgs e)
+    private Task HandleInput(ChangeEventArgs e)
     {
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(e);
-            return;
+            return Task.CompletedTask;
         }
 
         var value = e.Value?.ToString();
         Value = value;
-        await ValueChanged.InvokeIfHasDelegate(value);
+        return ValueChanged.InvokeIfHasDelegate(value);
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    private Task HandleChange(ChangeEventArgs e)
     {
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(e);
-            return;
+            return Task.CompletedTask;
         }
 
         var value = e.Value?.ToString();
         Value = value;
-        await ValueChanged.InvokeIfHasDelegate(value);
+        return ValueChanged.InvokeIfHasDelegate(value);
     }
 
     private void TrackPendingNativeTimeValue(ChangeEventArgs e)
@@ -107,12 +131,12 @@
         return base.ShouldRender();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
             InputGroupContext?.RegisterControl(_elementRef);
 
-        await base.OnAfterRenderAsync(firstRender);
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -124,18 +148,18 @@
             attributes["type"] = inputType;
 
         if (IsNativeTimeInput() || OnBlur.HasDelegate)
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur);
+            attributes["onblur"] = (_cachedHandleInputBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleInputBlur));
 
         if (Placeholder is not null)
             attributes["placeholder"] = Placeholder;
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         if (ReadOnly)
-            attributes["readonly"] = true;
+            attributes["readonly"] = QuarkAttributeValues.True;
         if (Required)
-            attributes["required"] = true;
+            attributes["required"] = QuarkAttributeValues.True;
 
-        PrependClassAttribute(attributes, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-0 disabled:bg-transparent aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-transparent dark:disabled:bg-transparent dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-0 disabled:bg-transparent aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-transparent dark:disabled:bg-transparent dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     private bool IsNativeTimeInput() => string.Equals(Type, "time", StringComparison.OrdinalIgnoreCase);

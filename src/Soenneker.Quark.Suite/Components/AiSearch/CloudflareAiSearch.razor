@@ -7,7 +7,10 @@
                                                                   @attributes="BuildAttributes()" />
 
 @code {
-    private CloudflareAiSearchBarConfiguration _configuration = new();
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
+    private readonly CloudflareAiSearchBarConfiguration _configuration = new();
 
     /// <summary>
     /// Configuration passed to the underlying Cloudflare AI Search bar.
@@ -23,24 +26,21 @@
 
     protected override void OnParametersSet()
     {
-        _configuration = new CloudflareAiSearchBarConfiguration
-        {
-            ApiUrl = Configuration.ApiUrl,
-            Placeholder = Configuration.Placeholder,
-            Theme = Configuration.Theme,
-            HideBranding = Configuration.HideBranding,
-            Translations = Configuration.Translations,
-            ScriptUrl = Configuration.ScriptUrl,
-            ScriptVersion = Configuration.ScriptVersion,
-            MaxResults = Configuration.MaxResults,
-            MaxRenderResults = Configuration.MaxRenderResults,
-            DebounceMilliseconds = Configuration.DebounceMilliseconds,
-            ShowUrl = Configuration.ShowUrl,
-            ShowDate = Configuration.ShowDate,
-            GroupBy = Configuration.GroupBy,
-            RequestOptions = Configuration.RequestOptions,
-            HideSubmitButton = HideSubmitButton
-        };
+        _configuration.ApiUrl = Configuration.ApiUrl;
+        _configuration.Placeholder = Configuration.Placeholder;
+        _configuration.Theme = Configuration.Theme;
+        _configuration.HideBranding = Configuration.HideBranding;
+        _configuration.Translations = Configuration.Translations;
+        _configuration.ScriptUrl = Configuration.ScriptUrl;
+        _configuration.ScriptVersion = Configuration.ScriptVersion;
+        _configuration.MaxResults = Configuration.MaxResults;
+        _configuration.MaxRenderResults = Configuration.MaxRenderResults;
+        _configuration.DebounceMilliseconds = Configuration.DebounceMilliseconds;
+        _configuration.ShowUrl = Configuration.ShowUrl;
+        _configuration.ShowDate = Configuration.ShowDate;
+        _configuration.GroupBy = Configuration.GroupBy;
+        _configuration.RequestOptions = Configuration.RequestOptions;
+        _configuration.HideSubmitButton = HideSubmitButton;
 
         base.OnParametersSet();
     }
@@ -55,10 +55,20 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "block w-full");
-            AppendStyleDecl(ref sty, "--search-snippet-width: 100%; --search-snippet-max-width: 100%; --search-snippet-min-width: 0; --search-snippet-background: var(--popover); --search-snippet-surface: var(--muted); --search-snippet-text-color: var(--popover-foreground); --search-snippet-text-secondary: var(--muted-foreground); --search-snippet-text-description: var(--muted-foreground); --search-snippet-border-color: var(--border); --search-snippet-hover-background: var(--accent); --search-snippet-primary-color: var(--foreground); --search-snippet-primary-hover: var(--foreground); --search-snippet-focus-ring: color-mix(in oklab, var(--ring) 35%, transparent); --search-snippet-font-family: var(--font-sans); --search-snippet-font-size-base: 14px; --search-snippet-font-size-sm: 12px; --search-snippet-spacing-sm: 8px; --search-snippet-spacing-md: 12px; --search-snippet-border-radius: 8px; --search-snippet-icon-size: 16px; --search-snippet-icon-margin-left: 0; --search-snippet-shadow: none;");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "block w-full");
+                AppendStyleDecl(ref sty, "--search-snippet-width: 100%; --search-snippet-max-width: 100%; --search-snippet-min-width: 0; --search-snippet-background: var(--popover); --search-snippet-surface: var(--muted); --search-snippet-text-color: var(--popover-foreground); --search-snippet-text-secondary: var(--muted-foreground); --search-snippet-text-description: var(--muted-foreground); --search-snippet-border-color: var(--border); --search-snippet-hover-background: var(--accent); --search-snippet-primary-color: var(--foreground); --search-snippet-primary-hover: var(--foreground); --search-snippet-focus-ring: color-mix(in oklab, var(--ring) 35%, transparent); --search-snippet-font-family: var(--font-sans); --search-snippet-font-size-base: 14px; --search-snippet-font-size-sm: 12px; --search-snippet-spacing-sm: 8px; --search-snippet-spacing-md: 12px; --search-snippet-border-radius: 8px; --search-snippet-icon-size: 16px; --search-snippet-icon-margin-left: 0; --search-snippet-shadow: none;");
+                BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastBuiltClass, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                cls.Dispose();
+                sty.Dispose();
+            }
+        }
     }
 }

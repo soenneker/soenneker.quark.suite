@@ -9,6 +9,7 @@ namespace Soenneker.Quark;
 public abstract class ValidationResultComponent : ComponentBase, IDisposable
 {
     private Validation? _previousParentValidation;
+    private Action? _stateChanged;
 
     /// <summary>
     /// Gets or sets the reference to the parent validation.
@@ -51,7 +52,7 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
     /// <param name="e">The event arguments.</param>
     protected virtual void OnValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        _ = InvokeAsync(StateHasChanged);
+        _ = InvokeAsync(_stateChanged ??= StateHasChanged);
     }
 
     /// <summary>

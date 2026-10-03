@@ -6,6 +6,8 @@
 </div>
 
 @code {
+    private string? _lastBuiltClass;
+
     private const string _baseClass = "flex h-full w-full flex-col overflow-hidden";
 
     protected override void ApplyDefaultParameters()
@@ -18,9 +20,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _baseClass);
-        });
+        PrependClassAttribute(attributes, _baseClass, ref _lastBuiltClass);
     }
 }

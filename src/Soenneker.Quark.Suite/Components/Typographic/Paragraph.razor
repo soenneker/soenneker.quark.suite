@@ -5,18 +5,21 @@
 <p @attributes="BuildAttributes()">@ChildContent</p>
 
 @code {
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Is7;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "paragraph";
 
-        Leading ??= Quark.Leading.Is7;
+        Leading ??= _defaultLeading;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "[&:not(:first-child)]:mt-6");
+        PrependClassAttribute(attributes, "[&:not(:first-child)]:mt-6", ref _lastPrependedClass);
     }
 }

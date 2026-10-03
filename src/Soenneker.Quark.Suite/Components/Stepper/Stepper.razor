@@ -8,7 +8,13 @@
 </CascadingValue>
 
 @code {
-    private readonly SortedDictionary<int, ElementReference> _triggers = [];
+    private int _stepValuesVersion;
+    private int _resolvedStepVersion = -1;
+    private string? _resolvedStepValue;
+    private int? _resolvedStep;
+
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private readonly SortedList<int, ElementReference> _triggers = [];
     private readonly HashSet<int> _disabledSteps = [];
     private readonly Dictionary<int, string> _stepValues = [];
 
@@ -118,6 +124,7 @@
         var fallbackActiveStep = Value ?? DefaultValue;
 
         _stepValues[step] = resolvedValue;
+        if (valueChanged) _stepValuesVersion++;
 
         if (disabled)
             _disabledSteps.Add(step);
@@ -132,7 +139,7 @@
     {
         _disabledSteps.Remove(step);
         _triggers.Remove(step);
-        _stepValues.Remove(step);
+        if (_stepValues.Remove(step)) _stepValuesVersion++;
     }
 
     internal void RegisterTrigger(int step, ElementReference element)
@@ -142,6 +149,7 @@
 
     internal async Task HandleTriggerKeyDown(int step, KeyboardEventArgs args)
     {
+        if (args.Key is not ("ArrowRight" or "ArrowDown" or "ArrowLeft" or "ArrowUp" or "Home" or "End" or "Enter" or " ")) return;
         var first = 0;
         var last = 0;
         var previous = 0;
@@ -151,8 +159,10 @@
         var hasNext = false;
         var foundCurrent = false;
 
-        foreach (var candidate in _triggers.Keys)
+        var keys = _triggers.Keys;
+        for (var index = 0; index < keys.Count; index++)
         {
+            var candidate = keys[index];
             if (_disabledSteps.Contains(candidate))
                 continue;
 
@@ -211,7 +221,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -243,13 +253,17 @@
 
     private int? GetStepForValue(string value)
     {
+        if (_resolvedStepVersion == _stepValuesVersion && _resolvedStepValue == value) return _resolvedStep;
+        int? resolved = null;
         foreach (var pair in _stepValues)
         {
-            if (string.Equals(pair.Value, value, StringComparison.Ordinal))
-                return pair.Key;
+            if (!string.Equals(pair.Value, value, StringComparison.Ordinal)) continue;
+            resolved = pair.Key;
+            break;
         }
-
-        return null;
+        _resolvedStepValue = value;
+        _resolvedStepVersion = _stepValuesVersion;
+        return _resolvedStep = resolved;
     }
 
     private static string? NormalizeValueKey(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;

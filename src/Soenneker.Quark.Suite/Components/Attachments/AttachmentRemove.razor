@@ -8,16 +8,35 @@
     }
     else
     {
-        <Icon Name="LucideIcon.X" Size="Quark.Size.Is3" aria-hidden="true" />
+        <Icon Name="LucideIcon.X" Size="_renderCss0" aria-hidden="true" />
     }
 </button>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Soenneker.Quark.ButtonSize.Sm;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<TopBuilder> _defaultTop = Quark.Top.Is1;
+    private static readonly CssValue<RightBuilder> _defaultRight = Quark.Right.Is1;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is10;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is4_5;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is100;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public ButtonType Type { get; set; } = ButtonType.Button;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.Sm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss1;
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
@@ -29,21 +48,21 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "attachment-remove";
-        Position ??= Quark.Position.Absolute;
-        Top ??= Quark.Top.Is1;
-        Right ??= Quark.Right.Is1;
-        ZIndex ??= Quark.ZIndex.Is10;
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is4_5;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Full;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Opacity ??= Quark.Opacity.Is100;
-        Transition ??= Quark.Transition.All;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
+        Position ??= _defaultPosition;
+        Top ??= _defaultTop;
+        Right ??= _defaultRight;
+        ZIndex ??= _defaultZIndex;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Opacity ??= _defaultOpacity;
+        Transition ??= _defaultTransition;
+        PointerEvents ??= _defaultPointerEvents;
 
     }
 
@@ -52,7 +71,7 @@
         base.BuildAttributesCore(attributes);
         attributes.TryAdd("aria-label", "Remove attachment");
 
-        PrependClassAttribute(attributes, "hover:bg-border hover:text-primary active:scale-[.97] disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
+        PrependClassAttribute(attributes, "hover:bg-border hover:text-primary active:scale-[.97] disabled:opacity-50 sm:opacity-0 group-hover:opacity-100", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

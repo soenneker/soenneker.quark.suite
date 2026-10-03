@@ -3,19 +3,39 @@
 
 @if (ShouldRenderControl)
 {
-    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
         }
         else
         {
-            <Icon Name="LucideIcon.ArrowDown" Size='Quark.Size.Is4_5' />
+            <Icon Name="LucideIcon.ArrowDown" Size='_renderCss0' />
         }
     </button>
 }
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<BottomBuilder> _defaultBottom = Quark.Bottom.Is6;
+    private static readonly CssValue<LeftBuilder> _defaultLeft = Quark.Left.Token("[50%]");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is8;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is1;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Border;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4_5;
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     [CascadingParameter]
     internal Thread? ParentThread { get; set; }
 
@@ -33,21 +53,21 @@
 
         DataSlot ??= "thread-scroll-to-bottom";
         Title ??= "Scroll to bottom";
-        Position ??= Quark.Position.Absolute;
-        Bottom ??= Quark.Bottom.Is6;
-        Left ??= Quark.Left.Token("[50%]");
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is8;
-        Cursor ??= Quark.Cursor.Pointer;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Full;
-        Border ??= Quark.Border.Is1;
-        BorderColor ??= Quark.BorderColor.Border;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Shadow ??= Quark.Shadow.Sm;
-        Transition ??= Quark.Transition.All;
+        Position ??= _defaultPosition;
+        Bottom ??= _defaultBottom;
+        Left ??= _defaultLeft;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -56,7 +76,10 @@
         attributes["type"] = "button";
         attributes["aria-label"] = Title ?? "Scroll to bottom";
 
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "translate-x-[-50%] hover:bg-border active:scale-95"));
+        {
+            const string @class = "translate-x-[-50%] hover:bg-border active:scale-95";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     private async Task HandleClick(MouseEventArgs args)

@@ -14,7 +14,7 @@ else if (ShouldRenderNavLink)
     <NavLink href="@Href"
              Match="@Match"
              ActiveClass="@_activeClass"
-             @onclick="HandleActivate"
+             @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
              @attributes="BuildAttributes()">
         @ChildContent
     </NavLink>
@@ -23,7 +23,7 @@ else if (Href.HasContent())
 {
     <Anchor Href="@Href"
             Target="@Target"
-            @onclick="HandleActivate"
+            @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
             @attributes="BuildAttributes()">
         @ChildContent
     </Anchor>
@@ -31,15 +31,53 @@ else if (Href.HasContent())
 else
 {
     <button @ref="_elementRef"
-            @onclick="HandleActivate"
+            @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
             @onclick:stopPropagation="StopClickPropagation"
-            @onkeydown="HandleKeyDown"
+            @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
             @attributes="BuildAttributes()">
         @RenderChildContent()
     </button>
 }
 
 @code {
+    private (string Size, string Variant, string? BaseClass)? _buttonClassKey;
+    private string? _navigationHref;
+    private bool _relativeNavigationHref;
+
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is2;
+    private static readonly CssValue<WidthBuilder> _defaultWidth2 = Quark.Width.IsFull;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow2 = Quark.Overflow.Hidden;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Left;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-sidebar-ring");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-[width,height,padding]");
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor2 = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<HeightBuilder> _defaultHeight4 = Quark.Height.Token("[30px]");
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Visible;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Transparent;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize3 = Quark.TextSize.Token("[0.8rem]");
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<HeightBuilder> _defaultHeight3 = Quark.Height.Is7;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize2 = Quark.TextSize.Xs;
+    private static readonly CssValue<HeightBuilder> _defaultHeight2 = Quark.Height.Is12;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleActivateDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     [Parameter]
     public SidebarMenuButtonVariant Variant { get; set; } = SidebarMenuButtonVariant.Default;
 
@@ -95,11 +133,19 @@ else
         State?.IsMobile != true &&
         State?.Open == false;
 
-    private bool ShouldRenderNavLink =>
-        Href.HasContent() &&
-        Target is null &&
-        !Href!.StartsWith('#') &&
-        !Uri.TryCreate(Href, UriKind.Absolute, out _);
+    private bool ShouldRenderNavLink
+    {
+        get
+        {
+            if (!Href.HasContent() || Target is not null || Href!.StartsWith('#')) return false;
+            if (_navigationHref != Href)
+            {
+                _relativeNavigationHref = !Uri.TryCreate(Href, UriKind.Absolute, out _);
+                _navigationHref = Href;
+            }
+            return _relativeNavigationHref;
+        }
+    }
 
     private static string GetVariantClass(SidebarMenuButtonVariant variant)
     {
@@ -136,38 +182,38 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-button";
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is2;
-        Width ??= Quark.Width.IsFull;
-        Overflow ??= Quark.Overflow.Hidden;
-        TextAlign ??= Quark.TextAlign.Left;
-        RingColor ??= Quark.RingColor.Utility("ring-sidebar-ring");
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Transition ??= Quark.Transition.Token("transition-[width,height,padding]");
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        Width ??= _defaultWidth2;
+        Overflow ??= _defaultOverflow2;
+        TextAlign ??= _defaultTextAlign;
+        RingColor ??= _defaultRingColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Transition ??= _defaultTransition;
+        BackgroundColor ??= _defaultBackgroundColor2;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
 
         if (ReferenceEquals(Variant, SidebarMenuButtonVariant.Outline))
         {
             ApplySizeDefaults();
-            BackgroundColor ??= Quark.BackgroundColor.Background;
+            BackgroundColor ??= _defaultBackgroundColor;
             Shadow ??= "shadow-[0_0_0_1px_hsl(var(--sidebar-border))]";
         }
         else if (ReferenceEquals(Variant, SidebarMenuButtonVariant.Navigation))
         {
-            Position ??= Quark.Position.Relative;
-            Height ??= Quark.Height.Token("[30px]");
-            Width ??= Quark.Width.IsFit;
-            Overflow ??= Quark.Overflow.Visible;
-            Border ??= Quark.Border.Default;
-            BorderColor ??= Quark.BorderColor.Transparent;
-            TextSize ??= Quark.TextSize.Token("[0.8rem]");
-            FontWeight ??= Quark.FontWeight.Medium;
+            Position ??= _defaultPosition;
+            Height ??= _defaultHeight4;
+            Width ??= _defaultWidth;
+            Overflow ??= _defaultOverflow;
+            Border ??= _defaultBorder;
+            BorderColor ??= _defaultBorderColor;
+            TextSize ??= _defaultTextSize3;
+            FontWeight ??= _defaultFontWeight;
         }
         else
         {
@@ -179,18 +225,18 @@ else
     {
         if (ReferenceEquals(ButtonSize, SidebarMenuButtonSize.Sm))
         {
-            Height ??= Quark.Height.Is7;
-            TextSize ??= Quark.TextSize.Xs;
+            Height ??= _defaultHeight3;
+            TextSize ??= _defaultTextSize2;
         }
         else if (ReferenceEquals(ButtonSize, SidebarMenuButtonSize.Lg))
         {
-            Height ??= Quark.Height.Is12;
-            TextSize ??= Quark.TextSize.Sm;
+            Height ??= _defaultHeight2;
+            TextSize ??= _defaultTextSize;
         }
         else
         {
-            Height ??= Quark.Height.Is8;
-            TextSize ??= Quark.TextSize.Sm;
+            Height ??= _defaultHeight;
+            TextSize ??= _defaultTextSize;
         }
     }
 
@@ -222,7 +268,7 @@ else
         }
 
         if (TriggerContext?.ParentDisabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         if (ShowCollapsedTooltip)
             attributes["title"] = Tooltip!;
@@ -230,12 +276,28 @@ else
         if (!AsChild && !Href.HasContent())
             attributes["type"] = "button";
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        var sizeClass = GetSizeClass(ButtonSize);
+        var variantClass = GetVariantClass(Variant);
+        attributes.TryGetValue("class", out var baseClass);
+        var key = (sizeClass, variantClass, baseClass?.ToString());
+        if (_buttonClassKey == key && _lastBuiltClass is not null)
+            attributes["class"] = _lastBuiltClass;
+        else
         {
-            AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
-            AppendClass(ref cls, GetSizeClass(ButtonSize));
-            AppendClass(ref cls, GetVariantClass(Variant));
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
+                AppendClass(ref cls, sizeClass);
+                AppendClass(ref cls, variantClass);
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
+        _buttonClassKey = key;
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
@@ -268,11 +330,8 @@ else
             await OnClick.InvokeAsync(args);
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs args)
-    {
-        if (TriggerContext?.OnKeyDown is not null)
-            await TriggerContext.OnKeyDown(args);
-    }
+    private Task HandleKeyDown(KeyboardEventArgs args) =>
+        TriggerContext?.OnKeyDown?.Invoke(args) ?? Task.CompletedTask;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

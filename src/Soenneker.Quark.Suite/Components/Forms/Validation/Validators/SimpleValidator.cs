@@ -7,24 +7,24 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IQuarkValidator"/>
 public class SimpleValidator : IQuarkValidator
 {
-    private readonly string _errorMessage;
+    private readonly ValidationResult _errorResult;
     private readonly Func<object?, bool> _validate;
 
     public SimpleValidator(string errorMessage, Func<object?, bool> validate)
     {
-        _errorMessage = errorMessage ?? throw new ArgumentNullException(nameof(errorMessage));
+        _errorResult = ValidationResult.Error(errorMessage ?? throw new ArgumentNullException(nameof(errorMessage)));
         _validate = validate ?? throw new ArgumentNullException(nameof(validate));
     }
 
     public ValidationResult Validate(object value)
     {
         var isValid = _validate(value);
-        return isValid ? ValidationResult.Success() : ValidationResult.Error(_errorMessage);
+        return isValid ? ValidationResult.Success() : _errorResult;
     }
 
     public Task<ValidationResult> Validate(object value, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Validate(value));
+        return Validate(value).AsTask();
     }
 
     public ValidationResult Validate(ValidatorEventArgs args)
@@ -41,6 +41,6 @@ public class SimpleValidator : IQuarkValidator
 
     public Task<ValidationResult> Validate(ValidatorEventArgs args, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Validate(args));
+        return Validate(args).AsTask();
     }
 }

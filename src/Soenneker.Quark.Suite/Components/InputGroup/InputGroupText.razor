@@ -5,20 +5,27 @@
 <span @attributes="BuildAttributes()">@ChildContent</span>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        TextSize ??= Quark.TextSize.Sm;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        TextColor ??= _defaultTextColor;
+        TextSize ??= _defaultTextSize;
 
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 }

@@ -22,6 +22,17 @@
 </BradixHoverCardPortal>
 
 @code {
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Is64;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is2_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool ForceMount { get; set; }
 
@@ -74,15 +85,15 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "hover-card-content";
 
-        ZIndex ??= Quark.ZIndex.Is50;
-        Width ??= Quark.Width.Is64;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is2_5;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Shadow ??= Quark.Shadow.Md;
+        ZIndex ??= _defaultZIndex;
+        Width ??= _defaultWidth;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Shadow ??= _defaultShadow;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -90,13 +101,10 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-hover-card-content-transform-origin)");
-            AppendClass(ref cls, "ring-1 ring-foreground/10 outline-hidden duration-100");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-        });
+            const string @class = "origin-(--radix-hover-card-content-transform-origin) ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -10,16 +10,16 @@
 
 @inject INodeEditorInterop EditorInterop
 
-<div @attributes="BuildAttributes()">
+<div @ref="ElementRef" @attributes="BuildAttributes()">
     <NodeEditorBackground />
 
     <Div DataSlot="node-editor-viewport"
-         Position="Quark.Position.Absolute"
-         Left="Quark.Left.Is0"
-         Top="Quark.Top.Is0"
-         Opacity="Quark.Opacity.Is0"
-         Transition="Quark.Transition.Opacity"
-         Duration="Quark.Duration.Is150" Class="quark-node-editor-viewport origin-top-left will-change-transform">
+         Position="_renderCss0"
+         Left="_renderCss1"
+         Top="_renderCss2"
+         Opacity="_renderCss3"
+         Transition="_renderCss4"
+         Duration="_renderCss5" Class="quark-node-editor-viewport origin-top-left will-change-transform">
         <svg data-slot="node-editor-edge-layer"
              class="quark-node-editor-edge-layer pointer-events-none absolute left-0 top-0 overflow-visible"
              width="1"
@@ -61,8 +61,9 @@
                 </g>
             }
 
-            @foreach (var edge in Edges)
+            @for (var edgeIndex = 0; edgeIndex < Edges.Count; edgeIndex++)
             {
+                var edge = Edges[edgeIndex];
                 <g @key="edge.Id"
                    data-edge-id="@edge.Id"
                    data-source-node="@edge.SourceNodeId"
@@ -75,7 +76,7 @@
                    data-selected="@(edge.Id == SelectedEdgeId ? "true" : "false")"
                    class="quark-node-editor-edge group pointer-events-auto cursor-pointer outline-none"
                    role="button"
-                   aria-label="@EdgeAccessibleLabel(edge)"
+                   aria-label="@EdgeAccessibleLabel(edgeIndex, edge)"
                    aria-pressed="@(edge.Id == SelectedEdgeId ? "true" : "false")"
                    aria-disabled="@(edge.Disabled ? "true" : "false")"
                    aria-keyshortcuts="@EdgeKeyboardShortcuts(edge)"
@@ -118,9 +119,9 @@
                                            aria-label="Connection label"
                                            placeholder="Connection label"
                                            class="h-7 w-full rounded-md border border-input bg-background px-2 text-[11px] font-medium text-foreground shadow-sm outline-none ring-1 ring-ring"
-                                           @oninput="UpdateEditingEdgeLabel"
-                                           @onkeydown="HandleEdgeLabelEditorKeyDown"
-                                           @onblur="HandleEdgeLabelEditorBlur" />
+                                           @oninput="(_cachedUpdateEditingEdgeLabelDelegate ??= UpdateEditingEdgeLabel)"
+                                           @onkeydown="(_cachedHandleEdgeLabelEditorKeyDownDelegate ??= HandleEdgeLabelEditorKeyDown)"
+                                           @onblur="(_cachedHandleEdgeLabelEditorBlurDelegate ??= HandleEdgeLabelEditorBlur)" />
                                 </div>
                             </foreignObject>
                         </g>
@@ -154,9 +155,9 @@
         </svg>
 
         <Div DataSlot="node-editor-node-layer"
-             Position="Quark.Position.Absolute"
-             Left="Quark.Left.Is0"
-             Top="Quark.Top.Is0"
+             Position="_renderCss0"
+             Left="_renderCss1"
+             Top="_renderCss2"
              Class="quark-node-editor-node-layer">
             @foreach (var node in Nodes)
             {
@@ -167,8 +168,9 @@
                 </CascadingValue>
             }
 
-            @foreach (var handle in AddHandles)
+            @for (var handleIndex = 0; handleIndex < AddHandles.Count; handleIndex++)
             {
+                var handle = AddHandles[handleIndex];
                 <button @key="handle.Id"
                         type="button"
                         data-slot="node-editor-add-handle"
@@ -181,7 +183,7 @@
                         aria-label="@(handle.AccessibleLabel ?? handle.Label ?? "Add step")"
                         title="@(handle.AccessibleLabel ?? handle.Label ?? "Add step")"
                         class="absolute left-0 top-0 z-20 grid size-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-border bg-background text-muted-foreground shadow-sm outline-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
-                        style="@HandleStyle(handle)">
+                        style="@HandleStyle(handleIndex, handle)">
                     <span aria-hidden="true" class="text-base font-medium leading-none">+</span>
                 </button>
             }
@@ -201,10 +203,37 @@
         @OverlayContent
     </CascadingValue>
 
-    <Div ScreenReader="Quark.ScreenReader.Only" aria-live="polite">@_announcement</Div>
+    <Div ScreenReader="_renderCss6" aria-live="polite">@_announcement</Div>
 </div>
 
 @code {
+    private Func<int, CancellationToken, ValueTask>? _autoSaveCallback;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private EdgeLabelCache[]? _edgeLabelCache;
+    private HandleStyleCache[]? _handleStyleCache;
+
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("muted/20");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Foreground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Absolute;
+    private static readonly CssValue<LeftBuilder> _renderCss1 = Quark.Left.Is0;
+    private static readonly CssValue<TopBuilder> _renderCss2 = Quark.Top.Is0;
+    private static readonly CssValue<OpacityBuilder> _renderCss3 = Quark.Opacity.Is0;
+    private static readonly CssValue<TransitionBuilder> _renderCss4 = Quark.Transition.Opacity;
+    private static readonly CssValue<DurationBuilder> _renderCss5 = Quark.Duration.Is150;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss6 = Quark.ScreenReader.Only;
+    private string? _lastBuiltClass;
+
+    private System.Action<ChangeEventArgs>? _cachedUpdateEditingEdgeLabelDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleEdgeLabelEditorKeyDownDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleEdgeLabelEditorBlurDelegate;
+
     [Parameter]
     public IReadOnlyList<NodeEditorNodeModel> Nodes { get; set; } = [];
 
@@ -303,7 +332,7 @@
     public bool HasAutoSaved => _autoSave.HasSaved;
 
     private readonly NodeEditorContext _context;
-    private readonly AutoSaveController<int> _autoSave = new();
+    private AutoSaveController<int> _autoSave;
     private readonly Dictionary<string, NodeEditorNodeModel> _nodesById = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NodeEditorEdgeModel> _edgesById = new(StringComparer.Ordinal);
     private readonly HashSet<string> _handleIds = new(StringComparer.Ordinal);
@@ -347,15 +376,15 @@
         DataSlot ??= "node-editor";
         Role ??= "application";
         AriaLabel ??= "Node editor";
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Xl;
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Token("muted/20");
-        TextColor ??= Quark.TextColor.Foreground;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Transition ??= Quark.Transition.Colors;
+        Position ??= _defaultPosition;
+        Width ??= _defaultWidth;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Transition ??= _defaultTransition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -366,13 +395,9 @@
         attributes["data-initialized"] = _initialized ? "true" : "false";
         attributes["data-drop-target"] = "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "quark-node-editor isolate focus-visible:ring-2 focus-visible:ring-ring");
-            if (MinHeight is null)
-                AppendClass(ref cls, "min-h-96");
-            AppendClass(ref cls, "data-[drop-target=true]:border-primary data-[drop-target=true]:ring-2 data-[drop-target=true]:ring-primary/15");
-        });
+        const string prefix = "quark-node-editor isolate focus-visible:ring-2 focus-visible:ring-ring";
+        const string suffix = "data-[drop-target=true]:border-primary data-[drop-target=true]:ring-2 data-[drop-target=true]:ring-primary/15";
+        PrependClassAttribute(attributes, MinHeight is null ? prefix + " min-h-96 " + suffix : prefix + " " + suffix, ref _lastBuiltClass);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -653,10 +678,10 @@
     /// <param name="message">The accessible rejection message.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     [JSInvokable]
-    public async Task InvokeInteractionRejected(string message)
+    public Task InvokeInteractionRejected(string message)
     {
         _announcement = message;
-        await InvokeAsync(StateHasChanged);
+        return InvokeAsync(StateHasChanged);
     }
 
     [JSInvokable(nameof(InvokeDeleteRequested))]
@@ -759,7 +784,7 @@
             AutoSaveDelay,
             AutoSaveCallback,
             AutoSaveStateChanged,
-            RefreshOffThread);
+            (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
 
     public Task SaveNow() =>
@@ -768,7 +793,7 @@
             AutoSave,
             AutoSaveCallback,
             AutoSaveStateChanged,
-            RefreshOffThread);
+            (_autoSaveRefreshCallback ??= RefreshOffThread));
 
     public Task FlushAutoSave() =>
         _autoSave.Flush(
@@ -776,7 +801,7 @@
             AutoSave,
             AutoSaveCallback,
             AutoSaveStateChanged,
-            RefreshOffThread);
+            (_autoSaveRefreshCallback ??= RefreshOffThread));
 
     public Task Undo() => InvokeUndoRequested();
 
@@ -797,7 +822,7 @@
         EditorInterop.ClientToGraph(Id!, clientX, clientY);
 
     private Func<int, CancellationToken, ValueTask>? AutoSaveCallback =>
-        OnAutoSave is null ? null : InvokeAutoSave;
+        OnAutoSave is null ? null : (_autoSaveCallback ??= InvokeAutoSave);
 
     private ValueTask InvokeAutoSave(int _, CancellationToken cancellationToken) =>
         OnAutoSave!(cancellationToken);
@@ -943,8 +968,17 @@
         hashCode.Add(_graphRenderKey);
     }
 
-    private static string EdgeAccessibleLabel(NodeEditorEdgeModel edge) =>
-        edge.AccessibleLabel ?? edge.Label ?? $"Connection from {edge.SourceNodeId} to {edge.TargetNodeId}";
+    private string EdgeAccessibleLabel(int index, NodeEditorEdgeModel edge)
+    {
+        if (edge.AccessibleLabel is { } accessibleLabel)
+            return accessibleLabel;
+        if (edge.Label is { } label)
+            return label;
+
+        if (_edgeLabelCache is null || _edgeLabelCache.Length != Edges.Count)
+            Array.Resize(ref _edgeLabelCache, Edges.Count);
+        return _edgeLabelCache[index].Get(edge);
+    }
 
     private static string EdgeKeyboardShortcuts(NodeEditorEdgeModel edge) =>
         edge.LabelEditable ? "Enter Space F2 Delete Backspace" : "Enter Space Delete Backspace";
@@ -971,8 +1005,15 @@
         return _selectedNodeIdsSet.Count == 0 && string.Equals(SelectedNodeId, nodeId, StringComparison.Ordinal);
     }
 
-    private IReadOnlyList<string> EffectiveSelectedNodeIds() =>
-        SelectedNodeIds.Count > 0 ? SelectedNodeIds : SelectedNodeId is null ? [] : [SelectedNodeId];
+    private string[]? _singleSelection;
+    private IReadOnlyList<string> EffectiveSelectedNodeIds()
+    {
+        if (SelectedNodeIds.Count > 0) return SelectedNodeIds;
+        if (SelectedNodeId is null) return [];
+        if (_singleSelection is null || _singleSelection[0] != SelectedNodeId)
+            _singleSelection = [SelectedNodeId];
+        return _singleSelection;
+    }
 
     private void ReconcileNodeSelectionParameters()
     {
@@ -1178,6 +1219,10 @@
         renderHash.Add(handle.AccessibleLabel);
     }
 
-    private static string HandleStyle(NodeEditorAddHandleModel handle) =>
-        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"transform: translate3d({handle.X:0.###}px, {handle.Y:0.###}px, 0) translate(-50%, -50%)");
+    private string HandleStyle(int index, NodeEditorAddHandleModel handle)
+    {
+        if (_handleStyleCache is null || _handleStyleCache.Length != AddHandles.Count)
+            Array.Resize(ref _handleStyleCache, AddHandles.Count);
+        return _handleStyleCache[index].Get(handle);
+    }
 }

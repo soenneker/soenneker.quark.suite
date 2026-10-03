@@ -6,6 +6,8 @@
 </div>
 
 @code {
+    private (long Size, bool Vertical, int? Min, int? Max)? _styleKey;
+    private string? _panelStyle;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -91,7 +93,15 @@
 
 
         if (ParentPanelGroup is not null)
-            attributes["style"] = ParentPanelGroup.BuildPanelStyle(this, _index);
+        {
+            var key = (BitConverter.DoubleToInt64Bits(ParentPanelGroup.GetPanelSize(_index)), ParentPanelGroup.IsVertical, MinSize, MaxSize);
+            if (_panelStyle is null || _styleKey != key)
+            {
+                _panelStyle = ParentPanelGroup.BuildPanelStyle(this, _index);
+                _styleKey = key;
+            }
+            attributes["style"] = _panelStyle;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

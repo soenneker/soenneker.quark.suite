@@ -3,10 +3,11 @@
     if (globalThis.__quarkPictureObserver) return;
     const root = document.documentElement;
     const selector = 'picture source[data-quark-theme]';
-    function synchronize(source) {
+    let selected = root.classList.contains('dark') ? 'dark' : 'light';
+
+  function synchronize(source) {
         const theme = source.getAttribute('data-quark-theme');
-        const selected = root.classList.contains('dark') ? 'dark' : 'light';
-        const media = theme === selected ? source.getAttribute('data-quark-media') || 'all' : 'not all';
+            const media = theme === selected ? source.getAttribute('data-quark-media') || 'all' : 'not all';
         if (source.getAttribute('media') !== media) source.setAttribute('media', media);
     }
     function synchronizeTree(node) {
@@ -15,9 +16,15 @@
         node.querySelectorAll(selector).forEach(synchronize);
     }
     const observer = new MutationObserver(records => {
-        for (const record of records) {
+        const next = root.classList.contains('dark') ? 'dark' : 'light';
+    if (next !== selected) {
+      selected = next;
+      synchronizeTree(root);
+      return;
+    }
+    for (const record of records) {
             if (record.type === 'childList') record.addedNodes.forEach(synchronizeTree);
-            else if (record.target === root && record.attributeName === 'class') synchronizeTree(root);
+            else if (record.target === root && record.attributeName === 'class') continue;
             else if (record.target.matches(selector)) synchronize(record.target);
         }
     });

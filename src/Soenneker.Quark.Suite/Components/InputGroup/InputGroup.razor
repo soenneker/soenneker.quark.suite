@@ -7,6 +7,19 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-colors");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private string? _lastPrependedClass;
+
     private readonly InputGroupContext _context = new();
 
     protected override void ApplyDefaultParameters()
@@ -14,17 +27,17 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "input-group";
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is8;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input;
-        Transition ??= Quark.Transition.Token("transition-colors");
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss1;
+        ItemsAlign ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -33,6 +46,6 @@
 
         attributes["role"] = "group";
 
-        PrependClassAttribute(attributes, "group/input-group dark:bg-input/30 in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 dark:has-disabled:bg-input/80 has-[>textarea]:h-auto has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 has-[>[data-align=inline-end]]:[&>input]:pr-1.5");
+        PrependClassAttribute(attributes, "group/input-group dark:bg-input/30 in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 dark:has-disabled:bg-input/80 has-[>textarea]:h-auto has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 has-[>[data-align=inline-end]]:[&>input]:pr-1.5", ref _lastPrependedClass);
     }
 }

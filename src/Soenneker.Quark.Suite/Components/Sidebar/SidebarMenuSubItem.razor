@@ -6,12 +6,15 @@
 </li>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-sub-item";
 
-        Position ??= Quark.Position.Relative;
+        Position ??= _defaultPosition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -19,6 +22,6 @@
         base.BuildAttributesCore(attributes);
         attributes["data-sidebar"] = "menu-sub-item";
 
-        PrependClassAttribute(attributes, "group/menu-sub-item");
+        PrependClassAttribute(attributes, "group/menu-sub-item", ref _lastPrependedClass);
     }
 }

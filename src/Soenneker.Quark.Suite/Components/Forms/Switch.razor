@@ -10,13 +10,13 @@
 
 @if (HasInlineLabel)
 {
-    <Label For="@ControlId" Display="Quark.Display.InlineFlex" Cursor="Quark.Cursor.Pointer" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
+    <Label For="@ControlId" Display="_renderCss0" Cursor="_renderCss1" ItemsAlign="_renderCss2" Gap="_renderCss3">
         <BradixSwitch Checked="@Checked"
                       Required="@Required"
                       Disabled="@Disabled"
                       Name="@Name"
                       Value="@ResolvedSwitchValue"
-                      CheckedChanged="HandleCheckedChanged"
+                      CheckedChanged="(_cachedHandleCheckedChangedDelegate ??= HandleCheckedChanged)"
                       OnClick="@OnClick"
                       AdditionalAttributes="@BuildControlAttributes()">
             <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
@@ -40,13 +40,13 @@
 }
 else if (UsesAutoSaveStatusSlot)
 {
-    <Span Display="Quark.Display.InlineFlex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
+    <Span Display="_renderCss0" ItemsAlign="_renderCss2" Gap="_renderCss3">
         <BradixSwitch Checked="@Checked"
                       Required="@Required"
                       Disabled="@Disabled"
                       Name="@Name"
                       Value="@ResolvedSwitchValue"
-                      CheckedChanged="HandleCheckedChanged"
+                      CheckedChanged="(_cachedHandleCheckedChangedDelegate ??= HandleCheckedChanged)"
                       OnClick="@OnClick"
                       AdditionalAttributes="@BuildControlAttributes()">
             <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
@@ -67,7 +67,7 @@ else
                   Disabled="@Disabled"
                   Name="@Name"
                   Value="@ResolvedSwitchValue"
-                  CheckedChanged="HandleCheckedChanged"
+                  CheckedChanged="(_cachedHandleCheckedChangedDelegate ??= HandleCheckedChanged)"
                   OnClick="@OnClick"
                   AdditionalAttributes="@BuildControlAttributes()">
         <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
@@ -75,16 +75,31 @@ else
 }
 
 @code {
+    private static readonly CssValue<SwitchSizeBuilder> _staticCss0 = Quark.SwitchSizes.Default;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<CursorBuilder> _renderCss1 = Quark.Cursor.Pointer;
+    private static readonly CssValue<ItemsBuilder> _renderCss2 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is2;
+    private System.Func<bool, Task>? _cachedHandleCheckedChangedDelegate;
+
+    private string? _lastBuiltClass;
+    private string? _lastPrependedClass;
+    private string? _lastPrependedClass2;
+
+    private object? _cachedHandleControlBlurFocusEventArgsCallback;
+    private object? _cachedHandleControlKeyDownKeyboardEventArgsCallback;
+
     private QuarkAttributeDictionary _labelAttributesBuffer;
     private QuarkAttributeDictionary _controlAttributesBuffer;
     private QuarkAttributeDictionary _thumbAttributesBuffer;
-    private readonly AutoSaveController<bool?> _autoSave = new();
+    private AutoSaveController<bool?> _autoSave;
 
     [Parameter]
     public string? Label { get; set; }
 
     [Parameter]
-    public CssValue<SwitchSizeBuilder>? SwitchSize { get; set; } = SwitchSizes.Default;
+    public CssValue<SwitchSizeBuilder>? SwitchSize { get; set; } = _staticCss0;
 
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -125,7 +140,7 @@ else
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    public object? ValidationValue => Checked;
+    public object? ValidationValue => Checked ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
     private bool HasInlineLabel => ChildContent != null || Label.HasContent();
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
@@ -176,7 +191,10 @@ else
     private Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = _labelAttributesBuffer.Create(1);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium leading-none"));
+        {
+            const string @class = "text-sm font-medium leading-none";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
         return attributes;
     }
 
@@ -193,10 +211,10 @@ else
             attributes["data-disabled"] = "";
 
         if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-            attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleControlBlur);
+            attributes["onblur"] = (_cachedHandleControlBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleControlBlur));
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
-            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown);
+            attributes["onkeydown"] = (_cachedHandleControlKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown));
 
         if (Attributes is not null)
         {
@@ -221,7 +239,7 @@ else
 
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
-        PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50");
+        PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80 data-disabled:cursor-not-allowed data-disabled:opacity-50", ref _lastPrependedClass);
 
         return attributes;
     }
@@ -231,7 +249,7 @@ else
         var attributes = _thumbAttributesBuffer.Create(2);
         attributes["data-slot"] = "switch-thumb";
 
-        PrependClassAttribute(attributes, "pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
+        PrependClassAttribute(attributes, "pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground", ref _lastPrependedClass2);
 
         return attributes;
     }
@@ -240,7 +258,7 @@ else
     {
         Checked = next;
         await CheckedChanged.InvokeAsync(next);
-        await _autoSave.NotifyValueChanged(next, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSave.NotifyValueChanged(next, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         if (ParentValidation is not null)
         {
@@ -256,7 +274,7 @@ else
     private async Task HandleControlBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -264,7 +282,7 @@ else
     private async Task HandleControlKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Checked, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }

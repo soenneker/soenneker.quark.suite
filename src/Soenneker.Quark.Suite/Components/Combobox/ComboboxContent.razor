@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Soenneker.Bradix
 
@@ -9,12 +9,12 @@
                 AvoidCollisions="@AvoidCollisions"
                 Slot="combobox-content"
                 Id="@ResolvedContentId"
-                Width='Quark.Width.Token("(--anchor-width)")'
-                MaxWidth='Quark.MaxWidth.Token("(--available-width)")'
-                Rounded="Quark.Rounded.Lg"
-                Border="Quark.Border.Is0"
-                Padding="Quark.Padding.Is0"
-                Display="Quark.Display.Block"
+                Width='_renderCss0'
+                MaxWidth='_staticCss1'
+                Rounded="_renderCss1"
+                Border="_renderCss2"
+                Padding="_renderCss3"
+                Display="_renderCss4"
                 UseDefaultLayout="false"
                 UseDefaultMotion="false"
                 OnOpenAutoFocusDetailed="HandleOpenAutoFocus"
@@ -23,6 +23,23 @@
 </PopoverContent>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Token("[calc(var(--anchor-width)+--spacing(7))]");
+    private static readonly CssValue<MaxWidthBuilder> _staticCss1 = Quark.MaxWidth.Token("(--available-width)");
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is1;
+    private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Token("(--anchor-width)");
+    private static readonly CssValue<RoundedBuilder> _renderCss1 = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _renderCss2 = Quark.Border.Is0;
+    private static readonly CssValue<PaddingBuilder> _renderCss3 = Quark.Padding.Is0;
+    private static readonly CssValue<DisplayBuilder> _renderCss4 = Quark.Display.Block;
+    private string? _lastPrependedClass;
+
+    private (bool Multiple, bool Reserve, int Offset, System.Globalization.CultureInfo Culture)? _styleInputs;
+    private string? _contentStyle;
     private QuarkAttributeDictionary _contentAttributes;
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
@@ -58,11 +75,17 @@
             attributes["data-slot"] = "combobox-content";
             attributes["data-chips"] = ParentCombobox?.Multiple == true ? "true" : "false";
             attributes["role"] = "presentation";
-            attributes["tabindex"] = -1;
+            attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
             if (ParentCombobox?.HasVisibleItems != true)
                 attributes["data-empty"] = string.Empty;
 
+            var styleInputs = (ParentCombobox?.Multiple == true, ParentCombobox?.TriggerReservesInlineEndAction == true,
+                AlignOffset, System.Globalization.CultureInfo.CurrentCulture);
+            if (_contentStyle is null || _styleInputs != styleInputs || !styleInputs.Item4.IsReadOnly ||
+                !ReferenceEquals(_styleInputs?.Culture, styleInputs.Item4))
+            {
+                _styleInputs = styleInputs;
             var anchorWidth = ParentCombobox?.Multiple == true
                 ? "var(--radix-popper-anchor-width)"
                 : ParentCombobox?.TriggerReservesInlineEndAction == true
@@ -72,9 +95,12 @@
                 ? "var(--anchor-width)"
                 : "calc(var(--anchor-width) + 1.75rem)";
 
-            attributes["style"] =
+            _contentStyle =
                 $"--anchor-width: {anchorWidth}; --available-width: var(--radix-popper-available-width); --available-height: var(--radix-popper-available-height); --transform-origin: var(--radix-popover-content-transform-origin); width: var(--anchor-width); min-width: {minWidth}; max-width: var(--available-width); max-height: var(--available-height);" +
                 (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
+
+            }
+            attributes["style"] = _contentStyle;
 
             if (ParentCombobox?.Multiple == true)
                 attributes["aria-multiselectable"] = "true";
@@ -87,30 +113,26 @@
     {
         base.ApplyDefaultParameters();
 
-        Position ??= Quark.Position.Relative;
-        MinWidth ??= Quark.MinWidth.Token("[calc(var(--anchor-width)+--spacing(7))]");
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Is0;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is0;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Shadow ??= Quark.Shadow.Md;
-        Ring ??= Quark.Ring.Is1;
+        Position ??= _defaultPosition;
+        MinWidth ??= _staticCss0;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _renderCss1;
+        Border ??= _renderCss2;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _renderCss3;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "cn-menu-target cn-menu-translucent group/combobox-content origin-(--transform-origin) ring-foreground/10 duration-100");
-            AppendClass(ref cls, "data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "*:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-            AppendClass(ref cls, "[&:has([data-slot=combobox-item]:not([hidden]))>[data-slot=combobox-empty]]:hidden");
-        });
+            const string @class = "cn-menu-target cn-menu-translucent group/combobox-content origin-(--transform-origin) ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 [&:has([data-slot=combobox-item]:not([hidden]))>[data-slot=combobox-empty]]:hidden";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

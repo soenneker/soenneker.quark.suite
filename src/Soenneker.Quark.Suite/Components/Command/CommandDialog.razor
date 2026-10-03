@@ -1,11 +1,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 
-<Dialog Visible="@Visible" VisibleChanged="@VisibleChanged" OnBackdropClick="@Close" Static="false">
-    <DialogContent ShowCloseButton="@ShowCloseButton" Padding="Quark.Padding.Is0" Top="Quark.Top.Is1of3" Overflow="Quark.Overflow.Hidden" Class="translate-y-0 rounded-xl!">
-        <DialogHeader ScreenReader="Quark.ScreenReader.Only">
-            <DialogTitle ScreenReader="Quark.ScreenReader.Only">@Title</DialogTitle>
-            <DialogDescription ScreenReader="Quark.ScreenReader.Only">@Description</DialogDescription>
+<Dialog Visible="@Visible" VisibleChanged="@VisibleChanged" OnBackdropClick="(_cachedCloseDelegate ??= Close)" Static="false">
+    <DialogContent ShowCloseButton="@ShowCloseButton" Padding="_renderCss0" Top="_renderCss1" Overflow="_renderCss2" Class="translate-y-0 rounded-xl!">
+        <DialogHeader ScreenReader="_renderCss3">
+            <DialogTitle ScreenReader="_renderCss3">@Title</DialogTitle>
+            <DialogDescription ScreenReader="_renderCss3">@Description</DialogDescription>
         </DialogHeader>
         <Command>
             @ChildContent
@@ -14,6 +14,12 @@
 </Dialog>
 
 @code {
+    private static readonly CssValue<PaddingBuilder> _renderCss0 = Quark.Padding.Is0;
+    private static readonly CssValue<TopBuilder> _renderCss1 = Quark.Top.Is1of3;
+    private static readonly CssValue<OverflowBuilder> _renderCss2 = Quark.Overflow.Hidden;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss3 = Quark.ScreenReader.Only;
+    private System.Func<Task>? _cachedCloseDelegate;
+
     public CommandDialog()
     {
         LockScroll = false;

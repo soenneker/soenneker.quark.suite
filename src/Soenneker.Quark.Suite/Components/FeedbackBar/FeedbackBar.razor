@@ -4,19 +4,25 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is12;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "feedback-bar";
 
-        Display ??= Quark.Display.InlineFlex;
-        Height ??= Quark.Height.Is12;
-        Width ??= Quark.Width.IsFull;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
         MaxWidth ??= "max-w-110";
         Rounded ??= "rounded-[12px]";
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Secondary;
-        TextSize ??= Quark.TextSize.Sm;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextSize ??= _defaultTextSize;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

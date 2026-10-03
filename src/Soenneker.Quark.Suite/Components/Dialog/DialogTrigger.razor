@@ -54,12 +54,34 @@ else
         return attributes;
     }
 
-    private static string? GetOverlayTriggerId(OverlayLabelContext? context) =>
-        context?.ContentId is { } contentId ? BlazorIdGenerator.Child(contentId, "trigger") : null;
+    private string? _triggerContentId;
+    private string? _overlayTriggerId;
+    private string? GetOverlayTriggerId(OverlayLabelContext? context)
+    {
+        string? contentId = context?.ContentId;
+        if (_triggerContentId != contentId)
+        {
+            _triggerContentId = contentId;
+            _overlayTriggerId = contentId is null ? null : BlazorIdGenerator.Child(contentId, "trigger");
+        }
+        return _overlayTriggerId;
+    }
+
+    private (bool, Dialog?, bool, BradixDialog?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+    private Func<Task>? _contextToggleCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
 
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Disabled, ParentDialog, ParentDialog?.Visible == true, BradixDialog, Context?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = null,
             TriggerId = GetOverlayTriggerId(Context),
@@ -68,16 +90,16 @@ else
             DataState = ParentDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
-            OnPointerDownEvent = ParentDialog is null || Disabled ? null : HandleTriggerPointerDown,
+            OnPointerDownEvent = ParentDialog is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
             SuppressClickAfterPointerDown = true,
-            RegisterElement = elementReference =>
+            RegisterElement = (_contextRegisterElementCallback ??= elementReference =>
             {
                 if (BradixDialog is not null)
                     BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
-            },
+            }),
             Toggle = ParentDialog is null
                 ? null
-                : async () =>
+                : (_contextToggleCallback ??= async () =>
                 {
                     if (ParentDialog.Visible)
                     {
@@ -87,9 +109,9 @@ else
                     {
                         await ParentDialog.Show();
                     }
-                },
-            Open = ParentDialog is null ? null : () => ParentDialog.Show(),
-            Close = ParentDialog is null ? null : () => ParentDialog.Hide()
+                }),
+            Open = ParentDialog is null ? null : (_contextOpenCallback ??= () => ParentDialog.Show()),
+            Close = ParentDialog is null ? null : (_contextCloseCallback ??= () => ParentDialog.Hide())
         };
     }
 

@@ -5,12 +5,14 @@
 <BradixCollapsible Open="@Open"
                    DefaultOpen="@DefaultOpen"
                    Disabled="@Disabled"
-                   OpenChanged="HandleOpenChanged"
+                   OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)"
                    AdditionalAttributes="@RootAttributes">
     @ChildContent
 </BradixCollapsible>
 
 @code {
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

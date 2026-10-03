@@ -1,17 +1,36 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="true">
     <CascadingValue Name="PromptInputAttachmentsVersion" Value="@_attachmentsVersion" IsFixed="false">
-        <form @ref="ElementRef" @onclick="HandleClick" @onsubmit="HandleSubmit" @onsubmit:preventDefault @attributes="BuildAttributes()">
+        <form @ref="ElementRef" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onsubmit="(_cachedHandleSubmitDelegate ??= HandleSubmit)" @onsubmit:preventDefault @attributes="BuildAttributes()">
             @ChildContent
         </form>
     </CascadingValue>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Auto;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Token("[24px]");
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Border;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Card;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Text;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private System.Func<Task>? _cachedHandleSubmitDelegate;
+
     private string? _value;
     private readonly List<PromptInputAttachmentInfo> _attachments = [];
+    private HashSet<string>? _attachmentIds;
+    private HashSet<(string Name, long Size, string? Type)>? _attachmentMetadata;
     private int _attachmentsVersion;
 
     [Parameter]
@@ -60,24 +79,56 @@
             });
     }
 
-    internal async Task AddAttachments(IReadOnlyList<PromptInputAttachmentInfo> attachments)
+    internal Task AddAttachments(IReadOnlyList<PromptInputAttachmentInfo> attachments)
     {
         if (attachments.Count == 0)
-            return;
+            return Task.CompletedTask;
 
         if (!Multiple)
             _attachments.Clear();
 
-        foreach (var attachment in attachments)
+        if (_attachments.Count + attachments.Count < 8)
         {
-            if (!ContainsSameAttachment(attachment))
-                _attachments.Add(attachment);
+            for (var index = 0; index < attachments.Count; index++)
+            {
+                var attachment = attachments[index];
+                if (!ContainsSameAttachment(attachment))
+                    _attachments.Add(attachment);
+            }
+        }
+        else
+        {
+            var ids = _attachmentIds ??= new(StringComparer.Ordinal);
+            var metadata = _attachmentMetadata ??= [];
+            try
+            {
+                for (var index = 0; index < _attachments.Count; index++)
+                {
+                    var existing = _attachments[index];
+                    ids.Add(existing.Id);
+                    metadata.Add((existing.Name, existing.Size, existing.Type));
+                }
+                for (var index = 0; index < attachments.Count; index++)
+                {
+                    var attachment = attachments[index];
+                    var key = (attachment.Name, attachment.Size, attachment.Type);
+                    if (ids.Contains(attachment.Id) || metadata.Contains(key)) continue;
+                    ids.Add(attachment.Id);
+                    metadata.Add(key);
+                    _attachments.Add(attachment);
+                }
+            }
+            finally
+            {
+                ids.Clear();
+                metadata.Clear();
+            }
         }
 
-        await NotifyAttachmentsChanged();
+        return NotifyAttachmentsChanged();
     }
 
-    internal async Task RemoveAttachment(string id)
+    internal Task RemoveAttachment(string id)
     {
         int kept = 0;
         for (int i = 0; i < _attachments.Count; i++)
@@ -88,20 +139,20 @@
         }
 
         if (kept == _attachments.Count)
-            return;
+            return Task.CompletedTask;
 
         _attachments.RemoveRange(kept, _attachments.Count - kept);
 
-        await NotifyAttachmentsChanged();
+        return NotifyAttachmentsChanged();
     }
 
-    internal async Task ClearAttachments()
+    internal Task ClearAttachments()
     {
         if (_attachments.Count == 0)
-            return;
+            return Task.CompletedTask;
 
         _attachments.Clear();
-        await NotifyAttachmentsChanged();
+        return NotifyAttachmentsChanged();
     }
 
     private async Task NotifyAttachmentsChanged()
@@ -121,20 +172,7 @@
                string.Equals(left.Type, right.Type, StringComparison.Ordinal));
     }
 
-    private PromptInputAttachmentInfo[] CopyAttachments()
-    {
-        if (_attachments.Count == 0)
-            return [];
-
-        var attachments = new PromptInputAttachmentInfo[_attachments.Count];
-
-        for (var i = 0; i < _attachments.Count; i++)
-        {
-            attachments[i] = _attachments[i];
-        }
-
-        return attachments;
-    }
+    private PromptInputAttachmentInfo[] CopyAttachments() => _attachments.ToArray();
 
     private bool ContainsSameAttachment(PromptInputAttachmentInfo attachment)
     {
@@ -157,18 +195,18 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "prompt-input";
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Height ??= Quark.Height.Auto;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is0;
-        Overflow ??= Quark.Overflow.Hidden;
-        Rounded ??= Quark.Rounded.Token("[24px]");
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Border;
-        BackgroundColor ??= Quark.BackgroundColor.Card;
-        Cursor ??= Quark.Cursor.Text;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        Gap ??= _defaultGap;
+        Overflow ??= _defaultOverflow;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -180,7 +218,7 @@
         attributes["data-global-drop"] = GlobalDrop ? "true" : "false";
         attributes["data-multiple"] = Multiple ? "true" : "false";
 
-        PrependClassAttribute(attributes, "dark:border-border/50 dark:bg-input/30");
+        PrependClassAttribute(attributes, "dark:border-border/50 dark:bg-input/30", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

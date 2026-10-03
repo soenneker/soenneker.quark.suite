@@ -6,6 +6,8 @@
 </Button>
 
 @code {
+    private string? _composedClass;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Soenneker.Quark.ButtonSize.IconSm;
     private static readonly IReadOnlyDictionary<string, object> ActionAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "image-action"
@@ -15,11 +17,11 @@
     public ButtonVariant Variant { get; set; } = ButtonVariant.Secondary;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.IconSm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss0;
 
     private string BuildClass()
     {
         const string baseClass = "pointer-events-auto bg-background/90 shadow-xs backdrop-blur hover:bg-background";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : AppendToClass(baseClass, Class!, ref _composedClass);
     }
 }

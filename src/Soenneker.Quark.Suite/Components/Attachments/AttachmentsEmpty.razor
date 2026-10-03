@@ -6,16 +6,24 @@
 </div>
 
 @code {
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
+    private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Center;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "attachments-empty";
-        Rounded ??= Quark.Rounded.Md;
-        Border ??= Quark.Border.Default;
-        Padding ??= Quark.Padding.Is4;
-        TextAlign ??= Quark.TextAlign.Center;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        Padding ??= _defaultPadding;
+        TextAlign ??= _defaultTextAlign;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
 
     }
 
@@ -23,6 +31,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "border-dashed");
+        PrependClassAttribute(attributes, "border-dashed", ref _lastPrependedClass);
     }
 }

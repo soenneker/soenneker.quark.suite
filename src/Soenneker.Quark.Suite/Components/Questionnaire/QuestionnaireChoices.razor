@@ -4,18 +4,26 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-choices";
-        Display ??= Quark.Display.Grid;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        MinWidth ??= _staticCss0;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "group/questionnaire-choices"));
+        {
+            const string @class = "group/questionnaire-choices";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

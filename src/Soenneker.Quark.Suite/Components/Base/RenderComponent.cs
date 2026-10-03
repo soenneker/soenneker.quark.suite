@@ -49,6 +49,17 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     public override Task SetParametersAsync(ParameterView parameters)
     {
         _defaultsApplied = false;
+
+        // No fingerprint is consumed while suppression is disabled. Forget the previous
+        // fingerprint so switching suppression back on forces a fresh render and cache.
+        if (AlwaysRender)
+        {
+            _hasIncomingParametersKey = false;
+            _incomingParametersChanged = true;
+            _cachedAttrs = null;
+            return base.SetParametersAsync(parameters);
+        }
+
         _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment, out _requiresDetailedRenderKey);
 
         // A render fragment can keep the same delegate identity while reading mutated state from its owner.
@@ -124,7 +135,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         {
             _shouldRender = true;
             _renderKeyDirty = false;
-            CommitIncomingParametersKey();
             return;
         }
 
@@ -175,8 +185,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             return _cachedAttrs;
 
         var attrs = BeginAttributeBuild(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
-        var cls = new PooledStringBuilder(64);
-        var sty = new PooledStringBuilder(128);
+        var cls = new PooledStringBuilder(stackalloc char[64]);
+        var sty = new PooledStringBuilder(stackalloc char[128]);
 
         try
         {
@@ -239,6 +249,17 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
         if (Id.HasContent())
             attrs["id"] = Id!;
+    }
+
+    protected void SetEventAttribute<T>(Dictionary<string, object> attrs, string name, EventCallback<T> callback)
+    {
+        // The other buffer still holds the previous render's boxed callback. Reuse it
+        // only when receiver and delegate both match, including replaced parameters.
+        var previous = _useAttrsA ? _attrsB : _attrsA;
+        attrs[name] = previous is not null && previous.TryGetValue(name, out object? boxed) &&
+                      callback.Equals(boxed)
+            ? boxed
+            : callback;
     }
 
     protected virtual void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -354,12 +375,47 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private static void AddIncomingParameterValue(ref HashCode hashCode, object? value)
     {
         if (value is IReadOnlyDictionary<string, object> attributes)
-        {
             AddAttributesToRenderKey(ref hashCode, attributes);
-            return;
+        else
+            AddRenderedValue(ref hashCode, value);
+    }
+
+    private static void AddRenderedValue(ref HashCode hashCode, object? value)
+    {
+        // Value equality can hide representation changes that affect rendered text.
+        switch (value)
+        {
+            case decimal number:
+                AddDecimalParameter(ref hashCode, number);
+                return;
+            case double number:
+                hashCode.Add(BitConverter.DoubleToInt64Bits(number));
+                return;
+            case float number:
+                hashCode.Add(BitConverter.SingleToInt32Bits(number));
+                return;
+            case DateTime date:
+                hashCode.Add(date.Ticks);
+                hashCode.Add(date.Kind);
+                return;
+            case DateTimeOffset date:
+                hashCode.Add(date.Ticks);
+                hashCode.Add(date.Offset);
+                return;
         }
 
         hashCode.Add(value);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void AddDecimalParameter(ref HashCode hashCode, decimal value)
+    {
+        // Equal decimal values can render different trailing zeroes. Include scale
+        // and sign so suppression does not discard a representation-only change.
+        Span<int> bits = stackalloc int[4];
+        decimal.GetBits(value, bits);
+        hashCode.Add(value);
+        hashCode.Add(bits[3]);
     }
 
     private void CommitIncomingParametersKey()
@@ -420,7 +476,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             foreach (var kv in dictionary)
             {
                 hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
-                hc.Add(kv.Value);
+                AddRenderedValue(ref hc, kv.Value);
             }
 
             return;
@@ -429,7 +485,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         foreach (var kv in attributes)
         {
             hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
-            hc.Add(kv.Value);
+            AddRenderedValue(ref hc, kv.Value);
         }
     }
 
@@ -569,6 +625,21 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         return string.Concat(existing, " ", toAdd);
     }
 
+    protected static string AppendToClass(string? existing, string toAdd, ref string? previous)
+    {
+        if (string.IsNullOrEmpty(toAdd))
+            return previous = existing ?? string.Empty;
+        if (string.IsNullOrEmpty(existing))
+            return previous = toAdd;
+
+        if (previous is null || previous.Length != existing.Length + 1 + toAdd.Length ||
+            previous[existing.Length] != ' ' || !previous.AsSpan(0, existing.Length).SequenceEqual(existing.AsSpan()) ||
+            !previous.AsSpan(existing.Length + 1).SequenceEqual(toAdd.AsSpan()))
+            previous = string.Concat(existing, " ", toAdd);
+
+        return previous;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureClassAttr(Dictionary<string, object> attrs, string token)
     {
@@ -589,6 +660,13 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             attrs["class"] = cls;
     }
 
+    protected static void AppendToClassAttr(Dictionary<string, object> attrs, string token, ref string? previous)
+    {
+        attrs.TryGetValue("class", out var value);
+        var css = AppendToClass(value as string ?? value?.ToString(), token, ref previous);
+        if (css.Length > 0) attrs["class"] = css;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendClassAttribute(Dictionary<string, object> attrs, string? className)
     {
@@ -604,11 +682,18 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AppendClassAttribute(Dictionary<string, object> attrs, string? className, ref string? previous)
+    {
+        if (string.IsNullOrWhiteSpace(className)) return;
+        attrs.TryGetValue("class", out var existing);
+        attrs["class"] = AppendToClass(existing?.ToString(), className, ref previous);
+    }
+
     protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes)
     {
         attrs.TryGetValue("class", out var existingObj);
         var existing = existingObj?.ToString();
-        var builder = new PooledStringBuilder(64);
+        var builder = new PooledStringBuilder(stackalloc char[64]);
 
         try
         {
@@ -650,7 +735,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)
     {
-        var cls = new PooledStringBuilder(64);
+        var cls = new PooledStringBuilder(stackalloc char[64]);
 
         try
         {
@@ -677,10 +762,41 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         }
     }
 
+    protected static void BuildClassAttribute(Dictionary<string, object> attrs, ref PooledStringBuilder cls)
+    {
+        attrs.TryGetValue("class", out var existing);
+        var existingString = existing as string ?? existing?.ToString();
+
+        if (cls.Length == 0)
+        {
+            if (existingString.HasContent()) attrs["class"] = existingString!;
+            return;
+        }
+
+        if (existingString.HasContent()) AppendClass(ref cls, existingString!);
+        attrs["class"] = cls.ToString();
+    }
+
+    protected static void BuildClassAttribute(Dictionary<string, object> attrs, ref PooledStringBuilder cls, ref string? previous)
+    {
+        attrs.TryGetValue("class", out var existing);
+        var existingString = existing as string ?? existing?.ToString();
+
+        if (cls.Length == 0)
+        {
+            previous = existingString;
+            if (existingString.HasContent()) attrs["class"] = existingString!;
+            return;
+        }
+
+        if (existingString.HasContent()) AppendClass(ref cls, existingString!);
+        attrs["class"] = ReuseString(ref cls, ref previous);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void BuildStyleAttribute(Dictionary<string, object> attrs, BuildStyleAction builder)
     {
-        var sty = new PooledStringBuilder(64);
+        var sty = new PooledStringBuilder(stackalloc char[64]);
 
         try
         {
@@ -703,6 +819,40 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         }
     }
 
+    protected static void BuildStyleAttribute(Dictionary<string, object> attrs, ref PooledStringBuilder sty)
+    {
+        if (attrs.TryGetValue("style", out var existing))
+        {
+            var existingString = existing.ToString();
+            if (existingString.HasContent()) AppendStyleDecl(ref sty, existingString);
+        }
+
+        if (sty.Length > 0) attrs["style"] = sty.ToString();
+    }
+
+    protected static void PrependStyleAttribute(Dictionary<string, object> attrs, string declaration, ref string? previous)
+    {
+        attrs.TryGetValue("style", out var existing);
+        var style = existing?.ToString();
+        attrs["style"] = style.HasContent()
+            ? QuarkStringCache.Concat(declaration, "; ", style, ref previous)
+            : previous = declaration;
+    }
+
+    protected static void BuildStyleAttribute(Dictionary<string, object> attrs, ref PooledStringBuilder sty, ref string? previous)
+    {
+        if (attrs.TryGetValue("style", out var existing))
+        {
+            var existingString = existing.ToString();
+            if (existingString.HasContent()) AppendStyleDecl(ref sty, existingString);
+        }
+
+        if (sty.Length > 0)
+            attrs["style"] = ReuseString(ref sty, ref previous);
+        else
+            previous = null;
+    }
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
@@ -715,8 +865,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         var existingClassLen = existingClassStr?.Length ?? 0;
         var existingStyleLen = existingStyleStr?.Length ?? 0;
 
-        var cls = new PooledStringBuilder(Math.Max(32, existingClassLen + 32));
-        var sty = new PooledStringBuilder(Math.Max(32, existingStyleLen + 32));
+        var cls = new PooledStringBuilder(stackalloc char[128]);
+        var sty = new PooledStringBuilder(stackalloc char[128]);
 
         try
         {
@@ -743,6 +893,53 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         }
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, ref PooledStringBuilder cls, ref PooledStringBuilder sty)
+    {
+        attrs.TryGetValue("class", out var existingClass);
+        attrs.TryGetValue("style", out var existingStyle);
+        var classText = existingClass as string ?? existingClass?.ToString();
+        var styleText = existingStyle as string ?? existingStyle?.ToString();
+        int classLength = classText?.Length ?? 0;
+        int styleLength = styleText?.Length ?? 0;
+
+        if (classLength != 0) AppendClass(ref cls, classText!);
+        if (styleLength != 0) AppendStyleDecl(ref sty, styleText!);
+        if (cls.Length > 0)
+            attrs["class"] = existingClass is string && cls.Length == classLength ? existingClass : cls.ToString();
+        if (sty.Length > 0)
+            attrs["style"] = existingStyle is string && sty.Length == styleLength ? existingStyle : sty.ToString();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, ref PooledStringBuilder cls, ref PooledStringBuilder sty,
+        ref string? previousClass, ref string? previousStyle)
+    {
+        BuildClassAttribute(attrs, ref cls, ref previousClass);
+        BuildStyleAttribute(attrs, ref sty, ref previousStyle);
+    }
+
+    protected static void PrependClassAttribute(Dictionary<string, object> attrs, string className, ref string? previous)
+    {
+        if (string.IsNullOrEmpty(className))
+            return;
+
+        attrs.TryGetValue("class", out var existing);
+        var existingString = existing as string ?? existing?.ToString();
+        if (!existingString.HasContent())
+        {
+            attrs["class"] = previous = className;
+            return;
+        }
+
+        if (previous is null || previous.Length != className.Length + 1 + existingString!.Length ||
+            previous[className.Length] != ' ' || !previous.AsSpan(0, className.Length).SequenceEqual(className.AsSpan()) ||
+            !previous.AsSpan(className.Length + 1).SequenceEqual(existingString.AsSpan()))
+            previous = string.Concat(className, " ", existingString);
+
+        attrs["class"] = previous;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendStyleDeclAttr(Dictionary<string, object> attrs, string fullDecl)
     {
@@ -753,20 +950,20 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (styleObj is string existing && existing.Length != 0)
         {
-            using var b = new PooledStringBuilder(existing.Length + 2 + fullDecl.Length);
-
-            b.Append(existing);
-
-            if (existing[^1] != ';')
-                b.Append(';');
-
-            b.Append(' ');
-            b.Append(fullDecl);
-            attrs["style"] = b.ToString();
+            attrs["style"] = string.Concat(existing, existing[^1] == ';' ? " " : "; ", fullDecl);
             return;
         }
 
         attrs["style"] = fullDecl;
+    }
+
+    protected static void AppendStyleDeclAttr(Dictionary<string, object> attrs, string fullDecl, ref string? previous)
+    {
+        if (string.IsNullOrWhiteSpace(fullDecl)) return;
+        attrs.TryGetValue("style", out var style);
+        attrs["style"] = style is string { Length: > 0 } existing
+            ? QuarkStringCache.Concat(existing, existing[^1] == ';' ? " " : "; ", fullDecl, ref previous)
+            : previous = fullDecl;
     }
 
     protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)

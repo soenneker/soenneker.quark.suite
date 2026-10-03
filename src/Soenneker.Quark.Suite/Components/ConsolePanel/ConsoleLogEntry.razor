@@ -6,33 +6,25 @@
     @if ((FormatExceptions ?? PanelFormatExceptions) && _traceStart >= 0)
     {
         <div class="console-exception">
-            @RenderMessage(_displaySummary)
+            @(_summaryMessage ??= RenderMessage(_displaySummary))
             <details class="@(ResolvedShowWrapToggle ? "console-has-wrap" : null)">
                 <summary><span class="console-show">Show stack trace</span><span class="console-hide">Hide stack trace</span></summary>
                 @RenderWrapToggle()
                 <div class="console-trace @(_wrap ? "console-wrap" : null)">
-                    @foreach (string line in _trace)
+                    @foreach (var frame in _trace)
                     {
                         <div class="console-frame">
-                            @if (line.TrimStart().StartsWith("at ", StringComparison.Ordinal))
+                            @if (frame.Method is not null)
                             {
-                                var location = line.LastIndexOf(" in ", StringComparison.Ordinal);
-                                var method = location >= 0 ? line[..location] : line;
-                                var args = method.IndexOf('(');
-                                var signature = args >= 0 ? method[..args] : method;
-                                var lastDot = signature.LastIndexOf('.');
-                                var namespaceEnd = lastDot > 0 ? signature.LastIndexOf('.', lastDot - 1) + 1 : 0;
-                                <span class="console-secondary">@signature[..namespaceEnd]</span><span>@signature[namespaceEnd..]</span><span class="console-secondary">@(args >= 0 ? method[args..] : "")</span>
-                                @if (location >= 0)
+                                <span class="console-secondary">@frame.Prefix</span><span>@frame.Method</span><span class="console-secondary">@frame.Arguments</span>
+                                @if (frame.File is not null)
                                 {
-                                    var path = line[(location + 4)..];
-                                    var separator = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
-                                    <div class="console-location"><span class="console-secondary">@(separator >= 0 ? path[..(separator + 1)] : "")</span><span>@path[(separator + 1)..]</span></div>
+                                    <div class="console-location"><span class="console-secondary">@frame.Directory</span><span>@frame.File</span></div>
                                 }
                             }
                             else
                             {
-                                @line
+                                @frame.Prefix
                             }
                         </div>
                     }
@@ -42,7 +34,7 @@
     }
     else
     {
-        @RenderMessage(_displayText)
+        @(_textMessage ??= RenderMessage(_displayText))
     }
 </div>
 
@@ -67,7 +59,7 @@
     private bool _previousFormatJson;
     private string? _previousText;
     private string _summary = "";
-    private string[] _trace = [];
+    private ConsoleStackFrame[] _trace = [];
     private int _traceStart = -1;
     private bool _wrap = true;
 
@@ -81,27 +73,35 @@
         _previousShowWrapToggle = ResolvedShowWrapToggle;
         bool formatJson = FormatJson ?? PanelFormatJson;
         if (_previousText == Text && _previousFormatJson == formatJson) return;
+        _textMessage = _summaryMessage = null;
         _previousFormatJson = formatJson;
         _displayText = formatJson ? ConsoleJsonFormatter.Format(Text) : new ConsoleJsonContent(Text, []);
         _previousText = Text;
         _traceStart = -1;
         _trace = [];
+        if (!Text.Contains("Exception", StringComparison.Ordinal) || Text.IndexOf('\n') < 0) return;
         string[] lines = Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         // Require both an exception heading and a stack frame; ordinary multiline logs remain plain text.
         var hasException = false;
         for (var i = 1; i < lines.Length; i++)
         {
             hasException |= lines[i - 1].Contains("Exception", StringComparison.Ordinal);
-            if (!hasException || !lines[i].TrimStart().StartsWith("at ", StringComparison.Ordinal)) continue;
+            if (!hasException || !lines[i].AsSpan().TrimStart().StartsWith("at ", StringComparison.Ordinal)) continue;
             _traceStart = i;
-            _summary = string.Join("\n", lines[..i]);
+            _summary = string.Join("\n", lines, 0, i);
             _displaySummary = formatJson ? ConsoleJsonFormatter.Format(_summary) : new ConsoleJsonContent(_summary, []);
-            _trace = lines[i..];
+            _trace = new ConsoleStackFrame[lines.Length - i];
+            for (int j = i; j < lines.Length; j++)
+                _trace[j - i] = ConsoleStackFrame.Parse(lines[j]);
             break;
         }
     }
 
-    private RenderFragment RenderWrapToggle() => @<text>
+    private RenderFragment? _textMessage;
+    private RenderFragment? _summaryMessage;
+    private RenderFragment? _wrapToggle;
+
+    private RenderFragment RenderWrapToggle() => _wrapToggle ??= @<text>
         @if (ResolvedShowWrapToggle)
         {
             <div class="console-tools"><Check @bind-Checked="_wrap">Wrap lines</Check></div>

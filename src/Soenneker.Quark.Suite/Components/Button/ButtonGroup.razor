@@ -11,11 +11,18 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Soenneker.Quark.ButtonSize.Default;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Stretch;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private string? _lastBuiltClass;
+
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.Default;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss1;
 
     [Parameter]
     public bool Vertical { get; set; }
@@ -27,12 +34,12 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "button-group";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Stretch;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
 
         if (Vertical)
-            FlexDirection ??= Quark.FlexDirection.Col;
+            FlexDirection ??= _defaultFlexDirection;
 
     }
 
@@ -53,23 +60,31 @@
         if (AriaLabel.HasContent())
             attributes["aria-label"] = AriaLabel;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button-group *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
-            AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
-            AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "group/button-group *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
+                AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
+                AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
+                if (Vertical)
+                {
+                    AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
+                    AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
+                }
+                else
+                {
+                    AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
+                    AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
+                }
 
-            if (Vertical)
-            {
-                AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
-                AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
             }
-            else
+            finally
             {
-                AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
-                AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
+                cls.Dispose();
             }
-        });
+        }
     }
 
     private string? EffectiveDirection => GetOwnDirection() ?? DirectionProviderDir;

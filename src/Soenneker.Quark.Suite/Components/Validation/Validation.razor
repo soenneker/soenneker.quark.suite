@@ -13,6 +13,21 @@
 @implements IValidation
 
 @code {
+    private Func<Task>? _noneStatusCallback;
+    private Func<Task>? _successStatusCallback;
+    private Func<Task>? _errorStatusCallback;
+    private Action? _refreshCallback;
+    private Task NotifyNoneStatus() => StatusChanged.InvokeAsync(ValidationStatus.None);
+    private Task NotifySuccessStatus() => StatusChanged.InvokeAsync(ValidationStatus.Success);
+    private Task NotifyErrorStatus() => StatusChanged.InvokeAsync(ValidationStatus.Error);
+    private Func<Task> GetStatusCallback(ValidationStatus status)
+    {
+        if (ReferenceEquals(status, ValidationStatus.None)) return _noneStatusCallback ??= NotifyNoneStatus;
+        if (ReferenceEquals(status, ValidationStatus.Success)) return _successStatusCallback ??= NotifySuccessStatus;
+        if (ReferenceEquals(status, ValidationStatus.Error)) return _errorStatusCallback ??= NotifyErrorStatus;
+        return () => StatusChanged.InvokeAsync(status);
+    }
+
     private IValidationInput? _input;
     private object? _lastKnownValue;
     private string? _patternString;
@@ -218,8 +233,9 @@
 
         if (PatternString.HasContent())
         {
+            if (Pattern is null || _patternString != PatternString)
+                Pattern = new Regex(PatternString);
             _patternString = PatternString;
-            Pattern = new Regex(PatternString);
             _hasPattern = true;
         }
         else
@@ -238,7 +254,7 @@
                 (EditContext?.Model is not null && !ReferenceEquals(EditContext.Model, _fieldIdentifier.Model)))
             {
                 _fieldIdentifier = FieldIdentifier.Create(expression);
-                _lastKnownValue = expression.Compile()
+                _lastKnownValue = expression.Compile(preferInterpretation: true)
                     .Invoke();
 
                 if (_hasFieldIdentifier && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
@@ -412,8 +428,8 @@
             SyncFieldInvalidState();
 
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
-            InvokeAsync(StateHasChanged);
-            InvokeAsync(() => StatusChanged.InvokeAsync(status));
+            InvokeAsync(_refreshCallback ??= StateHasChanged);
+            InvokeAsync(GetStatusCallback(status));
             ParentValidations?.NotifyValidationStatusChanged(this);
         }
         else
@@ -425,7 +441,7 @@
             {
                 SyncFieldInvalidState();
                 ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
-                InvokeAsync(StateHasChanged);
+                InvokeAsync(_refreshCallback ??= StateHasChanged);
                 ParentValidations?.NotifyValidationStatusChanged(this);
             }
         }
@@ -444,7 +460,7 @@
             SyncFieldInvalidState();
             // Broadcast to update UI with same status but new gating
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
-            InvokeAsync(StateHasChanged);
+            InvokeAsync(_refreshCallback ??= StateHasChanged);
         }
     }
 

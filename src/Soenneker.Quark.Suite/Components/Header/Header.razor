@@ -4,7 +4,7 @@
 
 <header @attributes="BuildAttributes()">
     <Div Presets="@ContainerPresets" Class="@ContainerClassValue">
-        <Div Display="Quark.Display.Flex" MinHeight='Quark.MinHeight.Token("12")' Height='Quark.Height.Token("(--header-height)")' ItemsAlign="Items.Center" Class="@InnerClassValue">
+        <Div Display="_renderCss0" MinHeight='_renderCss1' Height='_renderCss2' ItemsAlign="_staticCss0" Class="@InnerClassValue">
             @if (ShowSidebarTrigger)
             {
                 <button type="button"
@@ -17,7 +17,7 @@
                         aria-controls="@ResolvedSidebarTriggerControls"
                         data-state="@(SidebarIsExpanded ? "open" : "closed")"
                         class="@SidebarTriggerClass"
-                        @onclick="HandleSidebarTriggerClick">
+                        @onclick="(_cachedHandleSidebarTriggerClickDelegate ??= HandleSidebarTriggerClick)">
                     @if (SidebarIsExpanded && SidebarTriggerOpenContent is not null)
                     {
                         @SidebarTriggerOpenContent
@@ -28,16 +28,16 @@
                     }
                     else
                     {
-                        <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" Height="Quark.Height.Is8" Width="Quark.Width.Is4" ItemsAlign="Items.Center" Justify="Quark.Justify.Center">
-                            <Div Position="Quark.Position.Relative" Size="Quark.Size.Is4">
-                                <Span Position="Quark.Position.Absolute" Display="Quark.Display.Block" Height='Quark.Height.Is0_5' Width="Quark.Width.Is4" BackgroundColor='Quark.BackgroundColor.Foreground' Transition="Quark.Transition.All" Left="Quark.Left.Is0" Duration="Quark.Duration.Is200" Class="ease-in-out" style="@FirstSidebarTriggerLineStyle"></Span>
-                                <Span Position="Quark.Position.Absolute" Display="Quark.Display.Block" Height='Quark.Height.Is0_5' Width="Quark.Width.Is4" BackgroundColor='Quark.BackgroundColor.Foreground' Transition="Quark.Transition.All" Left="Quark.Left.Is0" Duration="Quark.Duration.Is200" Class="ease-in-out" style="@SecondSidebarTriggerLineStyle"></Span>
+                        <Div Position="_renderCss3" Display="_renderCss0" Height="_renderCss4" Width="_renderCss5" ItemsAlign="_staticCss0" Justify="_renderCss6">
+                            <Div Position="_renderCss3" Size="_renderCss7">
+                                <Span Position="_renderCss8" Display="_renderCss9" Height='_renderCss10' Width="_renderCss5" BackgroundColor='_renderCss11' Transition="_renderCss12" Left="_renderCss13" Duration="_renderCss14" Class="ease-in-out" style="@FirstSidebarTriggerLineStyle"></Span>
+                                <Span Position="_renderCss8" Display="_renderCss9" Height='_renderCss10' Width="_renderCss5" BackgroundColor='_renderCss11' Transition="_renderCss12" Left="_renderCss13" Duration="_renderCss14" Class="ease-in-out" style="@SecondSidebarTriggerLineStyle"></Span>
                             </Div>
-                            <Span ScreenReader="Quark.ScreenReader.Only">@SidebarTriggerLabel</Span>
+                            <Span ScreenReader="_renderCss15">@SidebarTriggerLabel</Span>
                         </Div>
                     }
 
-                    <Span Display="Quark.Display.Flex" Height="Quark.Height.Is8" ItemsAlign="Items.Center" TextSize="Quark.TextSize.Lg" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Medium">@SidebarTriggerText</Span>
+                    <Span Display="_renderCss0" Height="_renderCss4" ItemsAlign="_staticCss0" TextSize="_renderCss16" Leading="_renderCss17" FontWeight="_renderCss18">@SidebarTriggerText</Span>
                 </button>
             }
 
@@ -64,6 +64,30 @@
 </header>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<MinHeightBuilder> _renderCss1 = Quark.MinHeight.Token("12");
+    private static readonly CssValue<HeightBuilder> _renderCss2 = Quark.Height.Token("(--header-height)");
+    private static readonly CssValue<PositionBuilder> _renderCss3 = Quark.Position.Relative;
+    private static readonly CssValue<HeightBuilder> _renderCss4 = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _renderCss5 = Quark.Width.Is4;
+    private static readonly CssValue<JustifyBuilder> _renderCss6 = Quark.Justify.Center;
+    private static readonly CssValue<SizeBuilder> _renderCss7 = Quark.Size.Is4;
+    private static readonly CssValue<PositionBuilder> _renderCss8 = Quark.Position.Absolute;
+    private static readonly CssValue<DisplayBuilder> _renderCss9 = Quark.Display.Block;
+    private static readonly CssValue<HeightBuilder> _renderCss10 = Quark.Height.Is0_5;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss11 = Quark.BackgroundColor.Foreground;
+    private static readonly CssValue<TransitionBuilder> _renderCss12 = Quark.Transition.All;
+    private static readonly CssValue<LeftBuilder> _renderCss13 = Quark.Left.Is0;
+    private static readonly CssValue<DurationBuilder> _renderCss14 = Quark.Duration.Is200;
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss15 = Quark.ScreenReader.Only;
+    private static readonly CssValue<TextSizeBuilder> _renderCss16 = Quark.TextSize.Lg;
+    private static readonly CssValue<LeadingBuilder> _renderCss17 = Quark.Leading.None;
+    private static readonly CssValue<FontWeightBuilder> _renderCss18 = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
+    private System.Func<Task>? _cachedHandleSidebarTriggerClickDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -132,18 +156,15 @@
     private string FirstSidebarTriggerLineStyle => SidebarIsExpanded ? "top: 7px; transform: rotate(45deg);" : "top: 4px; transform: rotate(0deg);";
     private string SecondSidebarTriggerLineStyle => SidebarIsExpanded ? "top: 7px; transform: rotate(-45deg);" : "top: 10px; transform: rotate(0deg);";
 
-    private async Task HandleSidebarTriggerClick()
-    {
-        if (SidebarProvider is not null)
-            await SidebarProvider.SetOpenMobile(SidebarState?.OpenMobile != true);
-    }
+    private Task HandleSidebarTriggerClick() =>
+        SidebarProvider?.SetOpenMobile(SidebarState?.OpenMobile != true) ?? Task.CompletedTask;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "pointer-events-auto sticky top-0 z-50 w-full bg-background");
+        PrependClassAttribute(attributes, "pointer-events-auto sticky top-0 z-50 w-full bg-background", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

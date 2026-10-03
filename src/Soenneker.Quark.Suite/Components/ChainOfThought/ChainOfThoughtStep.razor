@@ -19,6 +19,8 @@ else
 }
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Block;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is1;
     private static readonly string PendingStatus = nameof(ChainOfThoughtStatus.Pending).ToLowerInvariant();
     private static readonly string RunningStatus = nameof(ChainOfThoughtStatus.Running).ToLowerInvariant();
     private static readonly string CompletedStatus = nameof(ChainOfThoughtStatus.Completed).ToLowerInvariant();
@@ -52,8 +54,8 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "chain-of-thought-step";
 
-        Display ??= Quark.Display.Block;
-        Padding ??= Quark.Padding.OnY.Is1;
+        Display ??= _defaultDisplay;
+        Padding ??= _defaultPadding;
     }
 
     private IReadOnlyDictionary<string, object> BuildStepAttributes()

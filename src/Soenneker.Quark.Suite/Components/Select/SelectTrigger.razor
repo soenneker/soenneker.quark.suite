@@ -11,6 +11,26 @@
 </BradixSelectTrigger>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth2 = Quark.Width.IsFull;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Between;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is2.FromRight.Is2.FromLeft.Token("2.5");
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastPrependedClass;
+
     [CascadingParameter(Name = "ParentSelectContext")]
     private SelectContext? Context { get; set; }
 
@@ -21,27 +41,27 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "select-trigger";
 
-        Display ??= Quark.Display.Flex;
+        Display ??= _defaultDisplay;
         if (Context?.FillFieldWidth() == true)
-            Width ??= Quark.Width.IsFull;
+            Width ??= _defaultWidth2;
         else
-            Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Between;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        TextSize ??= Quark.TextSize.Sm;
+            Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextSize ??= _defaultTextSize;
         Gap ??= "gap-1.5";
-        Padding ??= Quark.Padding.OnY.Is2.FromRight.Is2.FromLeft.Token("2.5");
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        UserSelect ??= Quark.UserSelect.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Padding ??= _defaultPadding;
+        Whitespace ??= _defaultWhitespace;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        RingColor ??= _defaultRingColor;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -50,8 +70,11 @@
 
         attributes["data-size"] = Context?.Size() ?? "default";
 
-        if (!attributes.ContainsKey("id") && Context is not null && Context.EffectiveTriggerId().HasContent())
-            attributes["id"] = Context.EffectiveTriggerId();
+        if (!attributes.ContainsKey("id") && Context is not null)
+        {
+            var triggerId = Context.EffectiveTriggerId();
+            if (triggerId.HasContent()) attributes["id"] = triggerId;
+        }
 
         if (Context?.IsInvalid() == true)
             attributes["aria-invalid"] = "true";
@@ -60,14 +83,10 @@
         if (describedBy.HasContent())
             attributes["aria-describedby"] = describedBy!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus-visible:ring-3");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
-            AppendClass(ref cls, "dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5");
-        });
+            const string @class = "focus-visible:ring-3 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

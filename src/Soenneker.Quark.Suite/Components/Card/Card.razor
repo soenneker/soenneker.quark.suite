@@ -9,6 +9,15 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.CardForeground;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Card;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public CardSize CardSize { get; set; } = CardSize.Default;
 
@@ -18,13 +27,13 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "card";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.CardForeground;
-        BackgroundColor ??= Quark.BackgroundColor.Card;
-        Rounded ??= Quark.Rounded.Xl;
-        Gap ??= Quark.Gap.Is4;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Rounded ??= _defaultRounded;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -32,13 +41,10 @@
         base.BuildAttributesCore(attributes);
         attributes["data-size"] = CardSize?.Value ?? Quark.CardSize.Default.Value;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/card overflow-hidden py-4 ring-1 ring-foreground/10");
-            AppendClass(ref cls, "has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0");
-            AppendClass(ref cls, "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0");
-            AppendClass(ref cls, "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl");
-        });
+            const string @class = "group/card overflow-hidden py-4 ring-1 ring-foreground/10 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

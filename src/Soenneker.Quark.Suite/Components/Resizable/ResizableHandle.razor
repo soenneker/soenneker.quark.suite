@@ -7,20 +7,38 @@
 
 <div @ref="ElementRef"
      @attributes="BuildAttributes()"
-     @onkeydown="HandleKeyDown">
+     @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)">
     @if (WithHandle)
     {
-        <Div Display="Quark.Display.Flex"
-             Height="Quark.Height.Is6"
-             Width="Quark.Width.Is1"
-             Shrink="Quark.Shrink.Is0"
-             Rounded="Quark.Rounded.Lg"
-             BackgroundColor='Quark.BackgroundColor.Utility("bg-border")'
-             ZIndex="Quark.ZIndex.Is10" />
+        <Div Display="_renderCss0"
+             Height="_renderCss1"
+             Width="_renderCss2"
+             Shrink="_renderCss3"
+             Rounded="_renderCss4"
+             BackgroundColor='_renderCss5'
+             ZIndex="_renderCss6" />
     }
 </div>
 
 @code {
+    private static readonly object _maximumValue = 100;
+    private QuarkDoubleAttribute _handleValue;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsPx;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _renderCss1 = Quark.Height.Is6;
+    private static readonly CssValue<WidthBuilder> _renderCss2 = Quark.Width.Is1;
+    private static readonly CssValue<ShrinkBuilder> _renderCss3 = Quark.Shrink.Is0;
+    private static readonly CssValue<RoundedBuilder> _renderCss4 = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss5 = Quark.BackgroundColor.Utility("bg-border");
+    private static readonly CssValue<ZIndexBuilder> _renderCss6 = Quark.ZIndex.Is10;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
 
@@ -48,12 +66,12 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "resizable-handle";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsPx;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+        Position ??= _defaultPosition;
+        Display ??= _renderCss0;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        BackgroundColor ??= _renderCss5;
 
     }
 
@@ -92,13 +110,8 @@
         _ = InvokeAsync(StateHasChanged);
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (ParentPanelGroup is null)
-            return;
-
-        await ParentPanelGroup.HandleHandleKeyDown(_index, e);
-    }
+    private Task HandleKeyDown(KeyboardEventArgs e) =>
+        ParentPanelGroup?.HandleHandleKeyDown(_index, e) ?? Task.CompletedTask;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -139,27 +152,17 @@
         base.BuildAttributesCore(attributes);
 
         attributes["role"] = "separator";
-        attributes["tabindex"] = 0;
+        attributes["tabindex"] = QuarkAttributeValues.Zero;
         attributes["aria-orientation"] = SeparatorOrientation;
-        attributes["aria-valuemin"] = 0;
-        attributes["aria-valuemax"] = 100;
-        attributes["aria-valuenow"] = ParentPanelGroup?.GetHandleValue(_index) ?? 50d;
+        attributes["aria-valuemin"] = QuarkAttributeValues.Zero;
+        attributes["aria-valuemax"] = _maximumValue;
+        attributes["aria-valuenow"] = _handleValue.Get(ParentPanelGroup?.GetHandleValue(_index) ?? 50d);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "ring-offset-background");
-            AppendClass(ref cls, IsRtl
-                ? "after:absolute after:inset-y-0 after:start-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 rtl:after:translate-x-1/2 rtl:aria-[orientation=horizontal]:after:-translate-x-0"
-                : "after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2");
-            AppendClass(ref cls, "[&[aria-orientation=horizontal]>div]:rotate-90");
-        });
+        PrependClassAttribute(attributes, IsRtl
+            ? "ring-offset-background after:absolute after:inset-y-0 after:start-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 rtl:after:translate-x-1/2 rtl:aria-[orientation=horizontal]:after:-translate-x-0 [&[aria-orientation=horizontal]>div]:rotate-90"
+            : "ring-offset-background after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 [&[aria-orientation=horizontal]>div]:rotate-90", ref _lastBuiltClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "flex-basis:auto");
-            AppendStyleDecl(ref sty, "flex-grow:0");
-            AppendStyleDecl(ref sty, "flex-shrink:0");
-        });
+        PrependStyleAttribute(attributes, "flex-basis:auto; flex-grow:0; flex-shrink:0", ref _lastBuiltStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

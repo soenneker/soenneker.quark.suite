@@ -8,6 +8,12 @@
 </BradixContextMenuLabel>
 
 @code {
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool Indented { get; set; }
 
@@ -18,10 +24,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-label";
 
-        Padding ??= Quark.Padding.OnX.Is1_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Xs;
-        FontWeight ??= Quark.FontWeight.Medium;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -30,7 +36,7 @@
         if (Indented)
             attributes["data-inset"] = "true";
 
-        PrependClassAttribute(attributes, "data-inset:pl-7");
+        PrependClassAttribute(attributes, "data-inset:pl-7", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

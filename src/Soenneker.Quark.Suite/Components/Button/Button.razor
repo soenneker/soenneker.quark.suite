@@ -13,10 +13,10 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@Href" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
+    <a href="@Href" @ref="_elementRef" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
         @if (Loading)
         {
-            <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
+            <Span Animation="_renderCss0" Size="_renderCss1" Margin="_renderCss2" Display="_renderCss3" Rounded="_renderCss4" Border="_renderCss5" BorderColor='_renderCss6' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
         }
         @if (LoadingTemplate is not null && Loading)
         {
@@ -30,10 +30,10 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onclick:stopPropagation="StopClickPropagation" @onpointerdown="TriggerPointerDownCallback" @onpointerdown:preventDefault="PreventPointerDownDefault" @onkeydown="KeyDownCallback" @attributes="BuildAttributes()">
         @if (Loading)
         {
-            <Span Animation="Quark.Animation.Spin" Size="Quark.Size.Is4" Margin="Quark.Margin.FromRight.Is2" Display="Quark.Display.InlineBlock" Rounded="Quark.Rounded.Full" Border="Quark.Border.Is2" BorderColor='Quark.BorderColor.Current' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
+            <Span Animation="_renderCss0" Size="_renderCss1" Margin="_renderCss2" Display="_renderCss3" Rounded="_renderCss4" Border="_renderCss5" BorderColor='_renderCss6' Class="border-t-transparent" role="status" aria-hidden="true"></Span>
         }
         @if (LoadingTemplate is not null && Loading)
         {
@@ -47,47 +47,46 @@ else
 }
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Quark.ButtonSize.Default;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<AnimationBuilder> _renderCss0 = Quark.Animation.Spin;
+    private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
+    private static readonly CssValue<MarginBuilder> _renderCss2 = Quark.Margin.FromRight.Is2;
+    private static readonly CssValue<DisplayBuilder> _renderCss3 = Quark.Display.InlineBlock;
+    private static readonly CssValue<RoundedBuilder> _renderCss4 = Quark.Rounded.Full;
+    private static readonly CssValue<BorderBuilder> _renderCss5 = Quark.Border.Is2;
+    private static readonly CssValue<BorderColorBuilder> _renderCss6 = Quark.BorderColor.Current;
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     private EventCallback<PointerEventArgs> TriggerPointerDownCallback =>
         TriggerContext?.OnPointerDownEvent is not null || TriggerContext?.OnPointerDown is not null
-            ? EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerDown)
+            ? TriggerEvents.PointerDownCallback
             : default;
 
     private EventCallback<KeyboardEventArgs> KeyDownCallback =>
         TriggerContext?.OnKeyDown is not null || OnKeyDown.HasDelegate
-            ? EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown)
+            ? EventCallback.Factory.Create<KeyboardEventArgs>(this, _keyDownHandler ??= HandleKeyDown)
             : default;
 
+    private Func<KeyboardEventArgs, Task>? _keyDownHandler;
     private TriggerEventReceiver? _triggerEvents;
     private TriggerEventReceiver TriggerEvents => _triggerEvents ??= new(this);
-
-    // These handlers forward to the overlay owner. Pointer bookkeeping has no visual
-    // state of its own; the owner's cascade delivers actual open/focus state changes.
-    private sealed class TriggerEventReceiver(Button owner) : IHandleEvent
-    {
-        public Task HandleTriggerMouseEnter(MouseEventArgs args) => owner.HandleTriggerMouseEnter(args);
-        public Task HandleTriggerMouseMove(MouseEventArgs args) => owner.HandleTriggerMouseMove(args);
-        public Task HandleTriggerMouseLeave(MouseEventArgs args) => owner.HandleTriggerMouseLeave(args);
-        public Task HandleTriggerPointerMove(PointerEventArgs args) => owner.HandleTriggerPointerMove(args);
-        public Task HandleTriggerPointerLeave(PointerEventArgs args) => owner.HandleTriggerPointerLeave(args);
-        public Task HandleTriggerPointerDown(PointerEventArgs args) => owner.HandleTriggerPointerDown(args);
-        public Task HandleTriggerPointerUp(PointerEventArgs args) => owner.HandleTriggerPointerUp(args);
-        public Task HandleTriggerFocusIn(FocusEventArgs args) => owner.HandleTriggerFocusIn(args);
-        public Task HandleTriggerFocusOut(FocusEventArgs args) => owner.HandleTriggerFocusOut(args);
-
-        public async Task HandleEventAsync(EventCallbackWorkItem callback, object? argument)
-        {
-            Task? callbackTask = null;
-            try
-            {
-                callbackTask = callback.InvokeAsync(argument);
-                await callbackTask;
-            }
-            catch (Exception exception) when (callbackTask?.IsCanceled != true)
-            {
-                await owner.DispatchExceptionAsync(exception);
-            }
-        }
-    }
 
     private RenderFragment? _triggerChildContent;
     private RenderAttributeDictionary? _wrapperAttributes;
@@ -122,7 +121,7 @@ else
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Quark.ButtonSize.Default;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss1;
 
     /// <summary>
     /// Gets or sets whether the button should span the full width of its container.
@@ -198,23 +197,23 @@ else
         base.ApplyDefaultParameters();
         Type ??= ButtonType.Button;
         DataSlot ??= ResolveDataSlot() ?? "button";
-        Display ??= Quark.Display.InlineFlex;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Border ??= Quark.Border.Default;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _defaultDisplay;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        Whitespace ??= _defaultWhitespace;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Border ??= _defaultBorder;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
 
         if (Block)
-            Width ??= Quark.Width.IsFull;
+            Width ??= _defaultWidth;
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -236,9 +235,9 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        RemoveAttribute(attributes, "onclick");
-        RemoveAttribute(attributes, "onkeydown");
-        RemoveAttribute(attributes, "onkeyup");
+        attributes.Remove("onclick");
+        attributes.Remove("onkeydown");
+        attributes.Remove("onkeyup");
 
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || attributes.ContainsKey("disabled");
@@ -254,22 +253,28 @@ else
         }
 
         if (isLink && isDisabled)
-            attributes.TryAdd("tabindex", -1);
+            attributes.TryAdd("tabindex", QuarkAttributeValues.MinusOne);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-
-            AppendClass(ref cls, GetButtonFocusClass(Variant));
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
-            if (!InputGroupButton && effectiveSize is not null)
-                AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
-
-            if (isLink && isDisabled)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+                AppendClass(ref cls, GetButtonFocusClass(Variant));
+                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+                AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
+                if (!InputGroupButton && effectiveSize is not null)
+                    AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
+                if (isLink && isDisabled)
+                    AppendClass(ref cls, "pointer-events-none opacity-50");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
 
         if (Loading)
             attributes["aria-busy"] = "true";
@@ -321,7 +326,7 @@ else
         else
         {
             if (isDisabled)
-                attributes["disabled"] = true;
+                attributes["disabled"] = QuarkAttributeValues.True;
         }
 
         if (Value.HasContent())
@@ -342,28 +347,28 @@ else
         base.BuildOwnedAttributes(attributes);
 
         if (TriggerContext?.OnMouseEnter is not null)
-            attributes["onmouseenter"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseEnter);
+            attributes["onmouseenter"] = TriggerEvents.MouseEnterCallback;
 
         if (TriggerContext?.OnMouseMove is not null)
-            attributes["onmousemove"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseMove);
+            attributes["onmousemove"] = TriggerEvents.MouseMoveCallback;
 
         if (TriggerContext?.OnMouseLeave is not null)
-            attributes["onmouseleave"] = EventCallback.Factory.Create<MouseEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerMouseLeave);
+            attributes["onmouseleave"] = TriggerEvents.MouseLeaveCallback;
 
         if (TriggerContext?.OnPointerMove is not null)
-            attributes["onpointermove"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerMove);
+            attributes["onpointermove"] = TriggerEvents.PointerMoveCallback;
 
         if (TriggerContext?.OnPointerLeave is not null)
-            attributes["onpointerleave"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerLeave);
+            attributes["onpointerleave"] = TriggerEvents.PointerLeaveCallback;
 
         if (TriggerContext?.OnPointerUp is not null)
-            attributes["onpointerup"] = EventCallback.Factory.Create<PointerEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerPointerUp);
+            attributes["onpointerup"] = TriggerEvents.PointerUpCallback;
 
         if (TriggerContext?.OnFocusIn is not null)
-            attributes["onfocusin"] = EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerFocusIn);
+            attributes["onfocusin"] = TriggerEvents.FocusInCallback;
 
         if (TriggerContext?.OnFocusOut is not null)
-            attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(TriggerEvents, TriggerEvents.HandleTriggerFocusOut);
+            attributes["onfocusout"] = TriggerEvents.FocusOutCallback;
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
@@ -483,26 +488,6 @@ else
         }
 
         return null;
-    }
-
-    private static void RemoveAttribute(IDictionary<string, object> attributes, string name)
-    {
-        if (attributes.Remove(name))
-            return;
-
-        string? keyToRemove = null;
-
-        foreach (var key in attributes.Keys)
-        {
-            if (string.Equals(key, name, StringComparison.OrdinalIgnoreCase))
-            {
-                keyToRemove = key;
-                break;
-            }
-        }
-
-        if (keyToRemove is not null)
-            attributes.Remove(keyToRemove);
     }
 
     private Task HandleTriggerMouseEnter(MouseEventArgs args)

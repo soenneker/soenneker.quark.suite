@@ -1,4 +1,4 @@
-﻿@using Soenneker.Bradix
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
@@ -21,6 +21,9 @@ else
 }
 
 @code {
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
     private QuarkAttributeDictionary _triggerAttributes;
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
@@ -40,9 +43,9 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "alert-dialog-trigger";
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -54,7 +57,7 @@ else
         attributes["aria-expanded"] = ParentAlertDialog?.Visible == true ? "true" : "false";
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
@@ -77,12 +80,34 @@ else
         return attributes;
     }
 
-    private static string? GetOverlayTriggerId(OverlayLabelContext? context) =>
-        context?.ContentId is { } contentId ? BlazorIdGenerator.Child(contentId, "trigger") : null;
+    private string? _triggerContentId;
+    private string? _overlayTriggerId;
+    private string? GetOverlayTriggerId(OverlayLabelContext? context)
+    {
+        string? contentId = context?.ContentId;
+        if (_triggerContentId != contentId)
+        {
+            _triggerContentId = contentId;
+            _overlayTriggerId = contentId is null ? null : BlazorIdGenerator.Child(contentId, "trigger");
+        }
+        return _overlayTriggerId;
+    }
+
+    private (bool, AlertDialog?, bool, BradixDialog?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+    private Func<Task>? _contextToggleCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
 
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Disabled, ParentAlertDialog, ParentAlertDialog?.Visible == true, BradixDialog, Context?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = null,
             TriggerId = GetOverlayTriggerId(Context),
@@ -91,29 +116,29 @@ else
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
-            OnPointerDownEvent = ParentAlertDialog is null || Disabled ? null : HandleTriggerPointerDown,
+            OnPointerDownEvent = ParentAlertDialog is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
             SuppressClickAfterPointerDown = true,
-            RegisterElement = elementReference =>
+            RegisterElement = (_contextRegisterElementCallback ??= elementReference =>
             {
                 if (BradixDialog is not null)
                     BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
-            },
+            }),
             Toggle = ParentAlertDialog is null
                 ? null
-                : async () =>
+                : (_contextToggleCallback ??= async () =>
                 {
                     if (ParentAlertDialog.Visible)
                         await ParentAlertDialog.Hide();
                     else
                         await ParentAlertDialog.Show();
-                },
+                }),
             Open = ParentAlertDialog is null
                 ? null
-                : async () =>
+                : (_contextOpenCallback ??= async () =>
                 {
                     await ParentAlertDialog.Show();
-                },
-            Close = ParentAlertDialog is null ? null : () => ParentAlertDialog.Hide()
+                }),
+            Close = ParentAlertDialog is null ? null : (_contextCloseCallback ??= () => ParentAlertDialog.Hide())
         };
     }
 

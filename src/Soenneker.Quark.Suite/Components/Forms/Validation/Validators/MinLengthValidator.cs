@@ -8,18 +8,18 @@ namespace Soenneker.Quark;
 public sealed class MinLengthValidator : QuarkValidator
 {
     private readonly int _minLength;
-    private readonly string _errorMessage;
+    private readonly ValidationResult _errorResult;
 
     public MinLengthValidator(int minLength)
     {
         _minLength = minLength;
-        _errorMessage = $"The field must be at least {minLength} characters long.";
+        _errorResult = ValidationResult.Error($"The field must be at least {minLength} characters long.");
     }
 
     public MinLengthValidator(int minLength, string errorMessage)
     {
         _minLength = minLength;
-        _errorMessage = errorMessage;
+        _errorResult = ValidationResult.Error(errorMessage);
     }
 
     /// <summary>
@@ -30,10 +30,10 @@ public sealed class MinLengthValidator : QuarkValidator
     public override ValidationResult Validate(object value)
     {
         if (value is not string str)
-            return ValidationResult.Error(_errorMessage);
+            return _errorResult;
 
         if (str.Length < _minLength)
-            return ValidationResult.Error(_errorMessage);
+            return _errorResult;
 
         return ValidationResult.Success();
     }

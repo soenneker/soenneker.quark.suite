@@ -6,15 +6,18 @@
 <BradixContextMenuSeparator AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Negative1.OnY.Is1;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsPx;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-border");
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-separator";
-        Margin ??= Quark.Margin.OnX.Negative1.OnY.Is1;
-        Height ??= Quark.Height.IsPx;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+        Margin ??= _defaultMargin;
+        Height ??= _defaultHeight;
+        BackgroundColor ??= _defaultBackgroundColor;
 
     }
 }

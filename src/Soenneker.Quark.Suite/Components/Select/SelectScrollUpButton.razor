@@ -4,12 +4,27 @@
 @inherits Soenneker.Quark.Element
 
 <BradixSelectScrollUpButton AdditionalAttributes="@ButtonAttributes">
-    <Svg Size="Quark.Size.Is4" aria-hidden="true" NativeWidth="24" NativeHeight="24" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke="Quark.Stroke.Current" StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round">
+    <Svg Size="_renderCss0" aria-hidden="true" NativeWidth="24" NativeHeight="24" ViewBox="0 0 24 24" Fill="_renderCss1" Stroke="_renderCss2" StrokeWidth="_renderCss3" StrokeLineCap="_renderCss4" StrokeLineJoin="_renderCss5">
         <path d="m18 15-6-6-6 6"></path>
     </Svg>
 </BradixSelectScrollUpButton>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is10;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is1;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<FillBuilder> _renderCss1 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss2 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss3 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<StrokeLineCapBuilder> _renderCss4 = Quark.StrokeLineCap.Round;
+    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss5 = Quark.StrokeLineJoin.Round;
+    private string? _lastPrependedClass;
+
     private IReadOnlyDictionary<string, object> ButtonAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -17,13 +32,13 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "select-scroll-up-button";
 
-        Display ??= Quark.Display.Flex;
-        ZIndex ??= Quark.ZIndex.Is10;
-        Cursor ??= Quark.Cursor.Default;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.OnY.Is1;
+        Display ??= _defaultDisplay;
+        ZIndex ??= _defaultZIndex;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -31,6 +46,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "[&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 }

@@ -12,6 +12,11 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public bool Horizontal { get; set; }
 
@@ -40,12 +45,12 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "form-item";
 
-        Display ??= Quark.Display.Grid;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        Gap ??= _defaultGap;
 
         if (Horizontal)
         {
-            ItemsAlign ??= Items.Center;
+            ItemsAlign ??= _staticCss0;
         }
     }
 
@@ -60,15 +65,11 @@
             attributes["aria-disabled"] = "true";
         }
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        if (Horizontal)
         {
-            if (Horizontal)
-            {
-                AppendClass(ref cls, "grid-cols-[auto_1fr]");
-                AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
-                AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
-            }
-        });
+            const string @class = "grid-cols-[auto_1fr]" + " " + "*:data-[slot=form-label]:flex-auto" + " " + "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

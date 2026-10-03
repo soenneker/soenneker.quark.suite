@@ -26,6 +26,18 @@
 </BradixTooltipPortal>
 
 @code {
+    private static readonly CssValue<MaxWidthBuilder> _staticCss0 = Quark.MaxWidth.IsXs;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-foreground");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is3.OnY.Token("1.5");
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Utility("text-background");
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private BradixTooltip? Tooltip { get; set; }
 
@@ -93,17 +105,17 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "tooltip-content";
 
-        ZIndex ??= Quark.ZIndex.Is50;
-        Display ??= Quark.Display.InlineFlex;
-        Width ??= Quark.Width.IsFit;
-        MaxWidth ??= Quark.MaxWidth.IsXs;
-        ItemsAlign ??= Quark.Items.Center;
+        ZIndex ??= _defaultZIndex;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss0;
+        ItemsAlign ??= _defaultItemsAlign;
         Gap ??= "gap-1.5";
-        Rounded ??= Quark.Rounded.Md;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-foreground");
-        Padding ??= Quark.Padding.OnX.Is3.OnY.Token("1.5");
-        TextSize ??= Quark.TextSize.Xs;
-        TextColor ??= Quark.TextColor.Utility("text-background");
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -111,13 +123,10 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-(--radix-tooltip-content-transform-origin)");
-            AppendClass(ref cls, "has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=delayed-open]:animate-in data-[state=instant-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=instant-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-[state=instant-open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-        });
+            const string @class = "origin-(--radix-tooltip-content-transform-origin) has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=delayed-open]:animate-in data-[state=instant-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=instant-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-[state=instant-open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

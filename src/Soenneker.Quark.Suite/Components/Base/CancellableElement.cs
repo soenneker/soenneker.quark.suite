@@ -37,7 +37,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
         base.BuildOwnedAttributes(attrs);
 
         if (TabIndex.HasValue)
-            attrs["tabindex"] = TabIndex.Value;
+            attrs["tabindex"] = QuarkAttributeValues.FromInt32(TabIndex.Value);
 
         if (Role is not null)
             attrs["role"] = Role;
@@ -91,7 +91,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
         return base.ShouldRender();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (_childContentChanged)
         {
@@ -99,6 +99,6 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
             _childContentChanged = false;
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        return base.OnAfterRenderAsync(firstRender);
     }
 }

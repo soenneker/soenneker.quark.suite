@@ -12,7 +12,7 @@
            Name="@Name"
            Type="number"
            Value="@GetNumericValueString()"
-           ValueChanged="@HandleValueChanged"
+           ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
            InputSize="@InputSize"
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
@@ -26,10 +26,10 @@
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
-           OnInput="HandleInput"
-           OnChange="HandleChange"
-           OnBlur="HandleInputBlur"
-           OnKeyDown="HandleInputKeyDown"
+           OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
+           OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
+           OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)"
+           OnKeyDown="(_cachedHandleInputKeyDownDelegate ??= HandleInputKeyDown)"
            ValidationValueSelector="@(_validationValueSelector ??= () => Value)" />
     <AutoSaveStatus State="@_autoSave.State"
                     HasSaved="@_autoSave.HasSaved"
@@ -41,10 +41,20 @@
 </div>
 
 @code {
+    private static readonly CssValue<InputSizeBuilder> _staticCss0 = Quark.InputSizes.Default;
+    private DecimalTextCache _valueText, _minText, _maxText, _stepText;
+    private string? _resolvedInputClass;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleInputBlurDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleInputKeyDownDelegate;
+
     private QuarkAttributeDictionary _inputAttributes;
     private QuarkAttributeDictionary _wrapperAttributes;
     private Func<object?>? _validationValueSelector;
-    private readonly AutoSaveController<decimal?> _autoSave = new();
+    private AutoSaveController<decimal?> _autoSave;
 
     /// <summary>
     /// Gets or sets the value.
@@ -86,7 +96,7 @@
     /// Gets or sets the size of the numeric input.
     /// </summary>
     [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = InputSizes.Default;
+    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss0;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -161,7 +171,7 @@
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     private string ResolvedInputClass => UsesAutoSaveStatusSlot
-        ? AppendToClass(Class, "min-w-0 flex-1")
+        ? AppendToClass(Class, "min-w-0 flex-1", ref _resolvedInputClass)
         : Class ?? string.Empty;
 
     public string? GetValidationClass()
@@ -188,7 +198,7 @@
 
     private string? GetNumericValueString()
     {
-        return Value?.ToString(CultureInfo.InvariantCulture);
+        return Value.HasValue ? _valueText.Get(Value.Value) : null;
     }
 
     private async Task HandleValueChanged(string? value)
@@ -205,7 +215,7 @@
         if (valueChanged)
         {
             await ValueChanged.InvokeIfHasDelegate(Value);
-            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         }
     }
 
@@ -222,7 +232,7 @@
     private async Task HandleInputBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -230,7 +240,7 @@
     private async Task HandleInputKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Value, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }
@@ -267,13 +277,13 @@
 
         // Add NumericInput-specific attributes
         if (Min.HasValue)
-            attributes["min"] = Min.Value.ToString(CultureInfo.InvariantCulture);
+            attributes["min"] = _minText.Get(Min.Value);
 
         if (Max.HasValue)
-            attributes["max"] = Max.Value.ToString(CultureInfo.InvariantCulture);
+            attributes["max"] = _maxText.Get(Max.Value);
 
         if (Step.HasValue)
-            attributes["step"] = Step.Value.ToString(CultureInfo.InvariantCulture);
+            attributes["step"] = _stepText.Get(Step.Value);
 
         return attributes;
     }

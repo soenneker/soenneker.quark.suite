@@ -6,6 +6,7 @@
 </DialogContent>
 
 @code {
+    private string? _composedClass;
     private static readonly IReadOnlyDictionary<string, object> LightboxAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "image-lightbox"
@@ -14,6 +15,6 @@
     private string BuildClass()
     {
         const string baseClass = "!flex !max-w-none !items-center !justify-center !border-0 !bg-transparent !p-0 !shadow-none !ring-0 sm:!max-w-none";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : AppendToClass(baseClass, Class!, ref _composedClass);
     }
 }

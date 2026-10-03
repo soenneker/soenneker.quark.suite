@@ -4,6 +4,8 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -18,16 +20,13 @@
         base.BuildAttributesCore(attributes);
         attributes["data-align"] = Align;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "pointer-events-none absolute z-10 flex shrink-0 items-center justify-between px-3 py-3");
-            AppendClass(ref cls, Align switch
-            {
-                "inline-start" => "top-1/2 left-0 h-full -translate-y-1/2 flex-col",
-                "inline-end" => "top-1/2 right-0 h-full -translate-y-1/2 flex-col",
-                "block-start" => "top-0 left-1/2 w-full -translate-x-1/2",
-                _ => "bottom-0 left-1/2 w-full -translate-x-1/2"
-            });
-        });
+        const string prefix = "pointer-events-none absolute z-10 flex shrink-0 items-center justify-between px-3 py-3 ";
+        PrependClassAttribute(attributes, Align switch
+                {
+                    "inline-start" => prefix + "top-1/2 left-0 h-full -translate-y-1/2 flex-col",
+                    "inline-end" => prefix + "top-1/2 right-0 h-full -translate-y-1/2 flex-col",
+                    "block-start" => prefix + "top-0 left-1/2 w-full -translate-x-1/2",
+                    _ => prefix + "bottom-0 left-1/2 w-full -translate-x-1/2"
+                }, ref _lastBuiltClass);
     }
 }

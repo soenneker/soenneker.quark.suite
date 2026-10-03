@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Component
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -10,47 +10,49 @@
             <HoverCardTrigger AsChild="true">
                 <Label For="@_triggerId">@Label</Label>
             </HoverCardTrigger>
-            <HoverCardContent Side="Side.Left" Align="Alignment.Start" Width='Quark.Width.Token("[260px]")' TextSize="Quark.TextSize.Sm">
+            <HoverCardContent Side="Side.Left" Align="Alignment.Start" Width='_renderCss0' TextSize="_renderCss1">
                 @Description
             </HoverCardContent>
         </HoverCard>
     }
 
-    <Popover Open="@_open" OpenChanged="HandleOpenChanged">
+    <Popover Open="@_open" OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
         <PopoverTrigger AsChild="true">
             <Button Id="@_triggerId" DataSlot="model-selector-trigger" Variant="ButtonVariant.Ghost" Role="button" AriaLabel="@AriaLabel" Class="@GetTriggerClass()">
-                <Span DataSlot="model-selector-trigger-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1">
+                <Span DataSlot="model-selector-trigger-content" Display="_renderCss2" MinWidth="_staticCss0" ItemsAlign="_renderCss3" Gap="_renderCss4">
                     @{ var selectedOption = SelectedOption; }
                     @if (selectedOption is not null)
                     {
-                        <Icon Name="@GetModelIcon(selectedOption)" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" />
+                        <Icon Name="@GetModelIcon(selectedOption)" Size="_renderCss5" Shrink="_renderCss6" />
                     }
-                    <Span DataSlot="model-selector-trigger-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm">@(selectedOption?.Label ?? Placeholder)</Span>
+                    <Span DataSlot="model-selector-trigger-title" Truncate="_renderCss7" TextSize="_renderCss1">@(selectedOption?.Label ?? Placeholder)</Span>
                 </Span>
-                <Span DataSlot="model-selector-trigger-chevron" Transition="Quark.Transition.Transform" Duration="Quark.Duration.Is200" Class="data-[state=open]:rotate-180">
-                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0"/>
+                <Span DataSlot="model-selector-trigger-chevron" Transition="_renderCss8" Duration="_renderCss9" Class="data-[state=open]:rotate-180">
+                    <Icon Name="LucideIcon.ChevronDown" Size="_renderCss5" Shrink="_renderCss6"/>
                 </Span>
             </Button>
         </PopoverTrigger>
         <PopoverContent Align="Alignment.Start" Class="@MenuClass">
             <Div DataSlot="model-selector-group">
-                <Div DataSlot="model-selector-label" Padding="Quark.Padding.OnX.Is3.OnY.Is2" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">Select model</Div>
+                <Div DataSlot="model-selector-label" Padding="_renderCss10" TextSize="_renderCss11" FontWeight="_renderCss12" TextColor="_renderCss13">Select model</Div>
                 <Div DataSlot="model-selector-radio-group">
-                    @foreach (var option in Options)
+                    @for (var optionIndex = 0; optionIndex < Options.Count; optionIndex++)
                     {
-                        <Button Type="@ButtonType.Button" DataSlot="model-selector-radio-item" Variant="ButtonVariant.Ghost" Width="Quark.Width.IsFull" MinHeight='Quark.MinHeight.Token("9")' Position="Quark.Position.Relative" Cursor="Quark.Cursor.Pointer" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Start" Gap="Quark.Gap.Is2" Rounded="Quark.Rounded.Md" Padding='Quark.Padding.OnY.Is2.FromRight.Token("9").FromLeft.Is3' TextAlign="Quark.TextAlign.Start" TextSize="Quark.TextSize.Sm" BackgroundColor="Quark.BackgroundColor.OnFocus.Accent" TextColor="Quark.TextColor.OnFocus.AccentForeground" OutlineStyle="Quark.OutlineStyle.Hidden" Transition="Quark.Transition.Colors" Duration="Quark.Duration.Is0" UserSelect="Quark.UserSelect.None" @onclick="@(() => SelectOption(option))">
-                            <Span DataSlot="model-selector-item-icon" Display="Quark.Display.Flex" Shrink="Quark.Shrink.Is0" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center">
-                                <Icon Name="@GetModelIcon(option)" Size="Quark.Size.Is4"/>
+                        var view = GetOptionView(optionIndex);
+                        var option = view.Option;
+                        <Button Type="@ButtonType.Button" DataSlot="model-selector-radio-item" Variant="ButtonVariant.Ghost" Width="_renderCss14" MinHeight='_renderCss15' Position="_renderCss16" Cursor="_renderCss17" ItemsAlign="_renderCss3" Justify="_renderCss18" Gap="_renderCss19" Rounded="_renderCss20" Padding='_renderCss21' TextAlign="_renderCss22" TextSize="_renderCss1" BackgroundColor="_renderCss23" TextColor="_renderCss24" OutlineStyle="_renderCss25" Transition="_renderCss26" Duration="_renderCss27" UserSelect="_renderCss28" @onclick="@view.Select">
+                            <Span DataSlot="model-selector-item-icon" Display="_renderCss2" Shrink="_renderCss6" ItemsAlign="_renderCss3" Justify="_renderCss29">
+                                <Icon Name="@GetModelIcon(option)" Size="_renderCss5"/>
                             </Span>
-                            <Span DataSlot="model-selector-radio-item-content" Display="Quark.Display.Flex" MinWidth="Quark.MinWidth.Is0" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap='Quark.Gap.Is0_25'>
-                                <Span DataSlot="model-selector-item-title" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Normal">@option.Label</Span>
+                            <Span DataSlot="model-selector-radio-item-content" Display="_renderCss2" MinWidth="_staticCss0" Flex="_renderCss30" FlexDirection="_renderCss31" Gap='_renderCss32'>
+                                <Span DataSlot="model-selector-item-title" Truncate="_renderCss7" TextSize="_renderCss1" FontWeight="_renderCss33">@option.Label</Span>
                                 @if (option.Description.HasContent())
                                 {
-                                    <Span DataSlot="model-selector-item-description" Truncate="Quark.Truncate.Default" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Light" TextColor="Quark.TextColor.MutedForeground">@option.Description</Span>
+                                    <Span DataSlot="model-selector-item-description" Truncate="_renderCss7" TextSize="_renderCss11" FontWeight="_renderCss34" TextColor="_renderCss13">@option.Description</Span>
                                 }
                             </Span>
-                            <Span DataSlot="model-selector-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Right="Quark.Right.Is3" Display="Quark.Display.Flex" Size="Quark.Size.Is4" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Opacity="@(IsSelected(option) ? Quark.Opacity.Is100 : Quark.Opacity.Is0)">
-                                <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4"/>
+                            <Span DataSlot="model-selector-item-indicator" PointerEvents="_renderCss35" Position="_renderCss36" Right="_renderCss37" Display="_renderCss2" Size="_renderCss5" ItemsAlign="_renderCss3" Justify="_renderCss29" Opacity="@(IsSelected(option) ? _selectedOpacity : _unselectedOpacity)">
+                                <Icon Name="LucideIcon.Check" Size="_renderCss5"/>
                             </Span>
                         </Button>
                     }
@@ -61,6 +63,66 @@
 </Div>
 
 @code {
+    private static readonly CssValue<OpacityBuilder> _selectedOpacity = Quark.Opacity.Is100;
+    private static readonly CssValue<OpacityBuilder> _unselectedOpacity = Quark.Opacity.Is0;
+    private OptionView?[]? _optionViews;
+    private string? _triggerClass;
+
+    private OptionView GetOptionView(int index)
+    {
+        if (_optionViews is null || _optionViews.Length != Options.Count)
+            Array.Resize(ref _optionViews, Options.Count);
+
+        var option = Options[index];
+        var view = _optionViews[index];
+        if (view is null || !ReferenceEquals(view.Option, option))
+            _optionViews[index] = view = new OptionView(this, option);
+        return view;
+    }
+
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is3;
+    private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Token("[260px]");
+    private static readonly CssValue<TextSizeBuilder> _renderCss1 = Quark.TextSize.Sm;
+    private static readonly CssValue<DisplayBuilder> _renderCss2 = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _renderCss3 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss4 = Quark.Gap.Is1;
+    private static readonly CssValue<SizeBuilder> _renderCss5 = Quark.Size.Is4;
+    private static readonly CssValue<ShrinkBuilder> _renderCss6 = Quark.Shrink.Is0;
+    private static readonly CssValue<TruncateBuilder> _renderCss7 = Quark.Truncate.Default;
+    private static readonly CssValue<TransitionBuilder> _renderCss8 = Quark.Transition.Transform;
+    private static readonly CssValue<DurationBuilder> _renderCss9 = Quark.Duration.Is200;
+    private static readonly CssValue<PaddingBuilder> _renderCss10 = Quark.Padding.OnX.Is3.OnY.Is2;
+    private static readonly CssValue<TextSizeBuilder> _renderCss11 = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _renderCss12 = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextColorBuilder> _renderCss13 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<WidthBuilder> _renderCss14 = Quark.Width.IsFull;
+    private static readonly CssValue<MinHeightBuilder> _renderCss15 = Quark.MinHeight.Token("9");
+    private static readonly CssValue<PositionBuilder> _renderCss16 = Quark.Position.Relative;
+    private static readonly CssValue<CursorBuilder> _renderCss17 = Quark.Cursor.Pointer;
+    private static readonly CssValue<JustifyBuilder> _renderCss18 = Quark.Justify.Start;
+    private static readonly CssValue<GapBuilder> _renderCss19 = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _renderCss20 = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _renderCss21 = Quark.Padding.OnY.Is2.FromRight.Token("9").FromLeft.Is3;
+    private static readonly CssValue<TextAlignBuilder> _renderCss22 = Quark.TextAlign.Start;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss23 = Quark.BackgroundColor.OnFocus.Accent;
+    private static readonly CssValue<TextColorBuilder> _renderCss24 = Quark.TextColor.OnFocus.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _renderCss25 = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<TransitionBuilder> _renderCss26 = Quark.Transition.Colors;
+    private static readonly CssValue<DurationBuilder> _renderCss27 = Quark.Duration.Is0;
+    private static readonly CssValue<UserSelectBuilder> _renderCss28 = Quark.UserSelect.None;
+    private static readonly CssValue<JustifyBuilder> _renderCss29 = Quark.Justify.Center;
+    private static readonly CssValue<FlexBuilder> _renderCss30 = Quark.Flex.Is1;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss31 = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _renderCss32 = Quark.Gap.Is0_25;
+    private static readonly CssValue<FontWeightBuilder> _renderCss33 = Quark.FontWeight.Normal;
+    private static readonly CssValue<FontWeightBuilder> _renderCss34 = Quark.FontWeight.Light;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss35 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss36 = Quark.Position.Absolute;
+    private static readonly CssValue<RightBuilder> _renderCss37 = Quark.Right.Is3;
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
     private readonly string _triggerId = BlazorIdGenerator.New("model-selector");
     private bool _open;
 
@@ -70,21 +132,23 @@
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    [Parameter]
-    public IReadOnlyList<ModelSelectorOption> Options { get; set; } =
-    [
+    private static readonly IReadOnlyList<ModelSelectorOption> _defaultOptions = Array.AsReadOnly<ModelSelectorOption>([
         new("gpt-4", "GPT-4", "OpenAI", "Most capable, best for complex tasks"),
         new("gpt-4o-mini", "GPT-4o Mini", "OpenAI", "Fast and affordable"),
         new("claude-3.5", "Claude 3.5", "Anthropic", "Strong reasoning and analysis"),
         new("gemini-1.5-flash", "Gemini 1.5 Flash", "Google", "Fast and versatile")
-    ];
+    ]);
 
     [Parameter]
-    public IReadOnlyList<ModelSelectorOption> SubmenuOptions { get; set; } =
-    [
+    public IReadOnlyList<ModelSelectorOption> Options { get; set; } = _defaultOptions;
+
+    private static readonly IReadOnlyList<ModelSelectorOption> _defaultSubmenuOptions = Array.AsReadOnly<ModelSelectorOption>([
         new("claude-opus-4.1", "Claude Opus 4.1", "Anthropic"),
         new("gemini-2.5-pro", "Gemini 2.5 Pro", "Google")
-    ];
+    ]);
+
+    [Parameter]
+    public IReadOnlyList<ModelSelectorOption> SubmenuOptions { get; set; } = _defaultSubmenuOptions;
 
     [Parameter]
     public string Placeholder { get; set; } = "Select a model...";
@@ -121,8 +185,8 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "model-selector";
 
-        Display ??= Quark.Display.Grid;
-        Gap ??= Quark.Gap.Is3;
+        Display ??= _defaultDisplay;
+        Gap ??= _defaultGap;
     }
 
     private Task HandleOpenChanged(bool open)
@@ -147,21 +211,21 @@
         return null;
     }
 
-    private async Task SelectOption(ModelSelectorOption option)
+    private Task SelectOption(ModelSelectorOption option)
     {
         _open = false;
 
         if (string.Equals(Value, option.Value, StringComparison.Ordinal))
-            return;
+            return Task.CompletedTask;
 
         Value = option.Value;
-        await ValueChanged.InvokeAsync(option.Value);
+        return ValueChanged.InvokeAsync(option.Value);
     }
 
     private string GetTriggerClass()
     {
         const string triggerClass = "inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-muted px-3 text-sm font-normal text-primary shadow-none transition-all duration-200 ease-out hover:bg-border";
-        return string.IsNullOrWhiteSpace(Class) ? triggerClass : $"{triggerClass} {Class}";
+        return string.IsNullOrWhiteSpace(Class) ? triggerClass : QuarkStringCache.Concat(triggerClass, " ", Class, ref _triggerClass);
     }
 
     private static LucideIcon GetModelIcon(ModelSelectorOption option)

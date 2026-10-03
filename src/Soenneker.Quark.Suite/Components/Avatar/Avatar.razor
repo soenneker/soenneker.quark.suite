@@ -8,6 +8,14 @@
 </BradixAvatar>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is8;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastPrependedClass;
+
 
     /// <summary>
     /// Size token aligned with shadcn avatar sizing.
@@ -22,12 +30,12 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "avatar";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is8;
-        Rounded ??= Quark.Rounded.Full;
-        Shrink ??= Quark.Shrink.Is0;
-        UserSelect ??= Quark.UserSelect.None;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Rounded ??= _defaultRounded;
+        Shrink ??= _defaultShrink;
+        UserSelect ??= _defaultUserSelect;
 
     }
 
@@ -37,7 +45,7 @@
 
         attributes["data-size"] = AvatarSize;
 
-        PrependClassAttribute(attributes, "group/avatar data-[size=lg]:size-10 data-[size=sm]:size-6 after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten");
+        PrependClassAttribute(attributes, "group/avatar data-[size=lg]:size-10 data-[size=sm]:size-6 after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

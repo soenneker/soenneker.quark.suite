@@ -11,6 +11,9 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -21,7 +24,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "navigation-menu-item";
 
-        Position ??= Quark.Position.Relative;
+        Position ??= _defaultPosition;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -32,11 +35,8 @@
         if (Disabled)
             attributes["aria-disabled"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (Disabled)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
+        if (Disabled)
+            PrependClassAttribute(attributes, "pointer-events-none opacity-50", ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

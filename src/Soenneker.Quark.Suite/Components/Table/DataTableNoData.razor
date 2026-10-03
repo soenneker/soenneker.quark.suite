@@ -11,11 +11,11 @@
         }
         else
         {
-            <Div DataSlot="datatable-empty-content" Display="Quark.Display.Flex" MaxWidth="Quark.MaxWidth.IsMd" FlexDirection="Quark.FlexDirection.Col" ItemsAlign="Items.Center" Gap="Quark.Gap.Is4" TextAlign="Quark.TextAlign.Center">
-                <Div DataSlot="datatable-empty-icon" TextColor="Quark.TextColor.MutedForeground" Opacity="Quark.Opacity.Is60">
-                    <Icon Name="LucideIcon.TableProperties" Size="Quark.Size.Is12" aria-hidden="true" />
+            <Div DataSlot="datatable-empty-content" Display="_renderCss0" MaxWidth="_staticCss1" FlexDirection="_renderCss1" ItemsAlign="_staticCss0" Gap="_renderCss2" TextAlign="_renderCss3">
+                <Div DataSlot="datatable-empty-icon" TextColor="_renderCss4" Opacity="_renderCss5">
+                    <Icon Name="LucideIcon.TableProperties" Size="_renderCss6" aria-hidden="true" />
                 </Div>
-                <Div DataSlot="datatable-empty-text" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1">
+                <Div DataSlot="datatable-empty-text" Display="_renderCss0" FlexDirection="_renderCss1" Gap="_renderCss7">
                     <H4>No data available</H4>
                     <Paragraph>There are no records to display at this time.</Paragraph>
                 </Div>
@@ -25,6 +25,24 @@
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss1 = Quark.MaxWidth.IsMd;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Card;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is4.OnY.Token("12");
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss1 = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is4;
+    private static readonly CssValue<TextAlignBuilder> _renderCss3 = Quark.TextAlign.Center;
+    private static readonly CssValue<TextColorBuilder> _renderCss4 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<OpacityBuilder> _renderCss5 = Quark.Opacity.Is60;
+    private static readonly CssValue<SizeBuilder> _renderCss6 = Quark.Size.Is12;
+    private static readonly CssValue<GapBuilder> _renderCss7 = Quark.Gap.Is1;
+    private string? _lastPrependedClass;
+
     [CascadingParameter(Name = "DataTable")]
     public IDataTable? DataTable { get; set; }
 
@@ -33,16 +51,16 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "datatable-empty";
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Card;
-        Padding ??= Quark.Padding.OnX.Is4.OnY.Token("12");
-        TextAlign ??= Quark.TextAlign.Center;
+        TextColor ??= _renderCss4;
+        Display ??= _renderCss0;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextAlign ??= _renderCss3;
 
     }
 
@@ -50,7 +68,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "[&>*]:mx-auto");
+        PrependClassAttribute(attributes, "[&>*]:mx-auto", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -59,4 +77,4 @@
         if (DataTable is not null)
             hc.Add(DataTable.HasLoadedOnce);
     }
-} 
+}

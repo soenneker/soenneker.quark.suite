@@ -116,9 +116,30 @@ else
 
     }
 
+    private (TriggerContext?, BradixTooltip?, bool, string?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<Task>? _contextOnClickCallback;
+    private Func<Task>? _contextOnPointerMoveCallback;
+    private Func<Task>? _contextOnPointerLeaveCallback;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Func<Task>? _contextOnPointerUpCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
+    private Func<Task>? _contextOnMouseEnterCallback;
+    private Func<Task>? _contextOnMouseMoveCallback;
+    private Func<Task>? _contextOnMouseLeaveCallback;
+    private Func<Task>? _contextOnFocusInCallback;
+    private Func<Task>? _contextOnFocusOutCallback;
+    private Func<KeyboardEventArgs, Task>? _contextOnKeyDownCallback;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (ParentTriggerContext, Tooltip, Tooltip?.CurrentOpen == true, Tooltip?.ContentId, Tooltip?.StateAttribute);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = ParentTriggerContext?.DataSlot ?? "tooltip-trigger",
             TriggerId = ParentTriggerContext?.TriggerId,
@@ -131,22 +152,22 @@ else
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
             SuppressClickAfterPointerDown = ParentTriggerContext?.SuppressClickAfterPointerDown == true,
-            OnClick = HandleTriggerClick,
-            OnPointerMove = HandleTriggerPointerMove,
-            OnPointerLeave = HandleTriggerPointerLeave,
-            OnPointerDownEvent = HandleTriggerPointerDown,
-            OnPointerUp = HandleTriggerPointerUp,
-            Open = Tooltip is null ? null : () => Tooltip.HandleTriggerEnter(),
-            Close = Tooltip is null ? null : () => Tooltip.Close(),
-            OnMouseEnter = HandleTriggerMouseEnter,
-            OnMouseMove = HandleTriggerMouseMove,
-            OnMouseLeave = HandleTriggerMouseLeave,
-            OnFocusIn = HandleTriggerFocusIn,
-            OnFocusOut = Tooltip is null ? null : () => Tooltip.HandleTriggerBlur(),
-            OnKeyDown = Tooltip is null ? null : e => HandleTriggerKeyDownCore(e, Tooltip),
+            OnClick = (_contextOnClickCallback ??= HandleTriggerClick),
+            OnPointerMove = (_contextOnPointerMoveCallback ??= HandleTriggerPointerMove),
+            OnPointerLeave = (_contextOnPointerLeaveCallback ??= HandleTriggerPointerLeave),
+            OnPointerDownEvent = (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
+            OnPointerUp = (_contextOnPointerUpCallback ??= HandleTriggerPointerUp),
+            Open = Tooltip is null ? null : (_contextOpenCallback ??= () => Tooltip.HandleTriggerEnter()),
+            Close = Tooltip is null ? null : (_contextCloseCallback ??= () => Tooltip.Close()),
+            OnMouseEnter = (_contextOnMouseEnterCallback ??= HandleTriggerMouseEnter),
+            OnMouseMove = (_contextOnMouseMoveCallback ??= HandleTriggerMouseMove),
+            OnMouseLeave = (_contextOnMouseLeaveCallback ??= HandleTriggerMouseLeave),
+            OnFocusIn = (_contextOnFocusInCallback ??= HandleTriggerFocusIn),
+            OnFocusOut = Tooltip is null ? null : (_contextOnFocusOutCallback ??= () => Tooltip.HandleTriggerBlur()),
+            OnKeyDown = Tooltip is null ? null : (_contextOnKeyDownCallback ??= e => HandleTriggerKeyDownCore(e, Tooltip)),
             RegisterElement = Tooltip is null
                 ? null
-                : elementReference => _ = InvokeAsync(() => HandleTriggerElementRegistered(elementReference))
+                : (_contextRegisterElementCallback ??= elementReference => _ = InvokeAsync(() => HandleTriggerElementRegistered(elementReference)))
         };
     }
 
@@ -173,6 +194,7 @@ else
         _triggerRegistered = true;
     }
 
+    private string? _combinedDescribedBy;
     private string? BuildAriaDescribedBy()
     {
         var tooltipId = Tooltip?.CurrentOpen == true ? Tooltip.ContentId : null;
@@ -184,7 +206,7 @@ else
         if (tooltipId is null)
             return parentDescribedBy;
 
-        return $"{parentDescribedBy} {tooltipId}";
+        return QuarkStringCache.Concat(parentDescribedBy, " ", tooltipId, ref _combinedDescribedBy);
     }
 
     private Task HandleTriggerPointerMove()

@@ -208,8 +208,8 @@ function configureInteractions(id) {
 
     windowData.cleanupDragging?.();
     windowData.cleanupDragging = null;
-    windowData.cleanupResizing?.forEach(cleanup => cleanup());
-    windowData.cleanupResizing = [];
+    for (const cleanup of windowData.cleanupResizing) cleanup();
+    windowData.cleanupResizing.length = 0;
 
     if (windowData.options.draggable) {
         setupDragging(id);
@@ -312,10 +312,8 @@ function startDragging(id, event) {
     cancelActiveInteraction(windowData, false);
     windowData.isDragging = true;
     windowData.activePointerId = event.pointerId;
-    windowData.dragStart = {
-        x: event.clientX - windowData.element.offsetLeft,
-        y: event.clientY - windowData.element.offsetTop
-    };
+    windowData.dragStart.x = event.clientX - windowData.element.offsetLeft;
+    windowData.dragStart.y = event.clientY - windowData.element.offsetTop;
 
     windowData.dotNetRef?.invokeMethodAsync("InvokeOnDragStart").catch(console.error);
 
@@ -356,14 +354,13 @@ function startResizing(id, event, direction) {
     windowData.isResizing = true;
     windowData.activePointerId = event.pointerId;
     windowData.resizeDirection = direction;
-    windowData.resizeStart = {
-        width: windowData.element.offsetWidth,
-        height: windowData.element.offsetHeight,
-        x: parseInt(windowData.element.style.left, 10) || 0,
-        y: parseInt(windowData.element.style.top, 10) || 0,
-        pointerX: event.clientX,
-        pointerY: event.clientY
-    };
+    const start = windowData.resizeStart;
+    start.width = windowData.element.offsetWidth;
+    start.height = windowData.element.offsetHeight;
+    start.x = parseInt(windowData.element.style.left, 10) || 0;
+    start.y = parseInt(windowData.element.style.top, 10) || 0;
+    start.pointerX = event.clientX;
+    start.pointerY = event.clientY;
 
     const onPointerMove = moveEvent => {
         if (moveEvent.pointerId === windowData.activePointerId && windowData.isResizing) {
@@ -445,10 +442,12 @@ function updateDragPosition(windowData, pointerX, pointerY) {
     let newY = pointerY - windowData.dragStart.y;
 
     if (windowData.options.constrainToViewport) {
-        const viewport = getViewportSize();
+        const viewport = window.visualViewport;
+    const viewportWidth = Math.round(viewport?.width ?? window.innerWidth);
+    const viewportHeight = Math.round(viewport?.height ?? window.innerHeight);
         const rect = windowData.element.getBoundingClientRect();
-        newX = clamp(newX, 0, Math.max(0, viewport.width - rect.width));
-        newY = clamp(newY, 0, Math.max(0, viewport.height - rect.height));
+        newX = clamp(newX, 0, Math.max(0, viewportWidth - rect.width));
+        newY = clamp(newY, 0, Math.max(0, viewportHeight - rect.height));
     }
 
     windowData.element.style.left = `${newX}px`;
@@ -460,11 +459,13 @@ function updateResizePosition(windowData, pointerX, pointerY) {
     const deltaX = pointerX - resizeStart.pointerX;
     const deltaY = pointerY - resizeStart.pointerY;
     const direction = windowData.resizeDirection;
-    const viewport = getViewportSize();
-    const minWidth = Math.min(options.minWidth, viewport.width);
-    const minHeight = Math.min(options.minHeight, viewport.height);
-    const maxWidth = Math.min(options.maxWidth ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewport.width : Number.POSITIVE_INFINITY);
-    const maxHeight = Math.min(options.maxHeight ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewport.height : Number.POSITIVE_INFINITY);
+    const viewport = window.visualViewport;
+    const viewportWidth = Math.round(viewport?.width ?? window.innerWidth);
+    const viewportHeight = Math.round(viewport?.height ?? window.innerHeight);
+    const minWidth = Math.min(options.minWidth, viewportWidth);
+    const minHeight = Math.min(options.minHeight, viewportHeight);
+    const maxWidth = Math.min(options.maxWidth ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewportWidth : Number.POSITIVE_INFINITY);
+    const maxHeight = Math.min(options.maxHeight ?? Number.POSITIVE_INFINITY, options.constrainToViewport ? viewportHeight : Number.POSITIVE_INFINITY);
     let newWidth = resizeStart.width;
     let newHeight = resizeStart.height;
     let newX = resizeStart.x;
@@ -489,10 +490,10 @@ function updateResizePosition(windowData, pointerX, pointerY) {
     }
 
     if (options.constrainToViewport) {
-        newX = clamp(newX, 0, Math.max(0, viewport.width - minWidth));
-        newY = clamp(newY, 0, Math.max(0, viewport.height - minHeight));
-        newWidth = Math.min(newWidth, viewport.width - newX);
-        newHeight = Math.min(newHeight, viewport.height - newY);
+        newX = clamp(newX, 0, Math.max(0, viewportWidth - minWidth));
+        newY = clamp(newY, 0, Math.max(0, viewportHeight - minHeight));
+        newWidth = Math.min(newWidth, viewportWidth - newX);
+        newHeight = Math.min(newHeight, viewportHeight - newY);
     }
 
     windowData.element.style.width = `${newWidth}px`;
@@ -830,15 +831,16 @@ function scheduleViewportReconciliation() {
     if (viewportResizeFrame) {
         return;
     }
-    viewportResizeFrame = requestAnimationFrame(() => {
-        viewportResizeFrame = 0;
+    viewportResizeFrame = requestAnimationFrame(reconcileWindowsToViewport);
+}
 
-        floatingWindows.forEach(windowData => {
-            if (windowData.options.enabled && windowData.options.constrainToViewport) {
-                reconcileToViewport(windowData);
-            }
-        });
-    });
+function reconcileWindowsToViewport() {
+    viewportResizeFrame = 0;
+    for (const windowData of floatingWindows.values()) {
+        if (windowData.options.enabled && windowData.options.constrainToViewport) {
+            reconcileToViewport(windowData);
+        }
+    }
 }
 
 function clamp(value, minimum, maximum) {

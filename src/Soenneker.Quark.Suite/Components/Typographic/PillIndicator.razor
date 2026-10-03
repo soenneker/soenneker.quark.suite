@@ -5,16 +5,30 @@
     @if (Pulse)
     {
         <Span DataSlot="pill-indicator-pulse"
-              Position="Quark.Position.Absolute"
-              Inset="Quark.Inset.Is0"
-              Rounded="Quark.Rounded.Full"
+              Position="_renderCss0"
+              Inset="_renderCss1"
+              Rounded="_renderCss2"
               BackgroundColor="@GetBackgroundColor()"
-              Animation="Quark.Animation.Ping"
-              Opacity="Quark.Opacity.Is75"></Span>
+              Animation="_renderCss3"
+              Opacity="_renderCss4"></Span>
     }
 </Span>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _variantColor0 = Quark.BackgroundColor.Utility("bg-red-500");
+    private static readonly CssValue<BackgroundColorBuilder> _variantColor1 = Quark.BackgroundColor.Utility("bg-amber-500");
+    private static readonly CssValue<BackgroundColorBuilder> _variantColor2 = Quark.BackgroundColor.Utility("bg-blue-500");
+    private static readonly CssValue<BackgroundColorBuilder> _variantColor3 = Quark.BackgroundColor.Utility("bg-muted-foreground");
+    private static readonly CssValue<BackgroundColorBuilder> _variantColor4 = Quark.BackgroundColor.Utility("bg-green-500");
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is2;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _renderCss1 = Quark.Inset.Is0;
+    private static readonly CssValue<RoundedBuilder> _renderCss2 = Quark.Rounded.Full;
+    private static readonly CssValue<AnimationBuilder> _renderCss3 = Quark.Animation.Ping;
+    private static readonly CssValue<OpacityBuilder> _renderCss4 = Quark.Opacity.Is75;
     [Parameter]
     public PillIndicatorVariant Variant { get; set; } = PillIndicatorVariant.Success;
 
@@ -25,11 +39,11 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "pill-indicator";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.InlineFlex;
-        Size ??= Quark.Size.Is2;
-        Shrink ??= Quark.Shrink.Is0;
-        Rounded ??= Quark.Rounded.Full;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Shrink ??= _defaultShrink;
+        Rounded ??= _renderCss2;
         BackgroundColor ??= GetBackgroundColor();
     }
 
@@ -63,14 +77,14 @@
     private CssValue<BackgroundColorBuilder> GetBackgroundColor()
     {
         if (ReferenceEquals(Variant, PillIndicatorVariant.Error))
-            return Quark.BackgroundColor.Utility("bg-red-500");
+            return _variantColor0;
         if (ReferenceEquals(Variant, PillIndicatorVariant.Warning))
-            return Quark.BackgroundColor.Utility("bg-amber-500");
+            return _variantColor1;
         if (ReferenceEquals(Variant, PillIndicatorVariant.Info))
-            return Quark.BackgroundColor.Utility("bg-blue-500");
+            return _variantColor2;
         if (ReferenceEquals(Variant, PillIndicatorVariant.Neutral))
-            return Quark.BackgroundColor.Utility("bg-muted-foreground");
+            return _variantColor3;
 
-        return Quark.BackgroundColor.Utility("bg-green-500");
+        return _variantColor4;
     }
 }

@@ -7,13 +7,18 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.ColReverse;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "alert-dialog-footer";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.ColReverse;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
 
     }
 
@@ -22,6 +27,6 @@
         base.BuildAttributesCore(attributes);
 
         // shadcn AlertDialogFooter - new-york-v4 ui/alert-dialog.tsx
-        PrependClassAttribute(attributes, "-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end");
+        PrependClassAttribute(attributes, "-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end", ref _lastPrependedClass);
     }
 }

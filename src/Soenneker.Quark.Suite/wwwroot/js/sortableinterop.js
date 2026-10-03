@@ -212,7 +212,11 @@ function unregisterKeyboardReorder(element) {
 }
 
 function getEnabledItems(element, itemSelector) {
-  return Array.from(element.children).filter(item => item.matches(itemSelector) && !isDisabledItem(item));
+    const items = [];
+    for (const item of element.children) {
+        if (item.matches(itemSelector) && !isDisabledItem(item)) items.push(item);
+    }
+    return items;
 }
 
 function createPointerReorderArgs(evt, itemSelector) {
@@ -234,20 +238,33 @@ function getDirectItemIds(element, itemSelector) {
     return [];
   }
 
-  return getItemIds(Array.from(element.children).filter(item => item.matches(itemSelector) && !isDisabledItem(item)));
+    const ids = [];
+    for (const item of element.children) {
+        if (!item.matches(itemSelector) || isDisabledItem(item)) continue;
+        const id = item.getAttribute("data-sortable-id");
+        if (id) ids.push(id);
+    }
+    return ids;
 }
 
 function getItemIds(items) {
-  return items
-    .map(item => item.getAttribute("data-sortable-id"))
-    .filter(id => id);
+    const ids = [];
+    for (const item of items) {
+        const id = item.getAttribute("data-sortable-id");
+        if (id) ids.push(id);
+    }
+    return ids;
 }
 
 function reorderItems(items, oldIndex, newIndex) {
-  const orderedItems = [...items];
-  const [item] = orderedItems.splice(oldIndex, 1);
-  orderedItems.splice(newIndex, 0, item);
-  return orderedItems;
+    const item = items[oldIndex];
+    if (newIndex < oldIndex) {
+        for (let index = oldIndex; index > newIndex; index--) items[index] = items[index - 1];
+    } else {
+        for (let index = oldIndex; index < newIndex; index++) items[index] = items[index + 1];
+    }
+    items[newIndex] = item;
+    return items;
 }
 
 function notifyReorder(dotNetRef, reorderArgs) {

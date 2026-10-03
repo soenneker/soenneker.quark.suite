@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentTree" Value="@this" IsFixed="true">
@@ -8,6 +8,12 @@
 </CascadingValue>
 
 @code {
+    private CurrentCultureInt32TextCache _spacingText;
+    private string? _spacingStyle;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private string? _lastBuiltStyle;
+
     private readonly List<TreeItem> _items = [];
     private TreeItem? _currentItem;
 
@@ -61,6 +67,7 @@
 
     internal async Task<bool> MoveFocus(TreeItem item, string? key)
     {
+        if (key is not ("ArrowDown" or "ArrowUp" or "Home" or "End")) return false;
         TreeItem? first = null;
         TreeItem? last = null;
         TreeItem? previous = null;
@@ -124,8 +131,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -135,10 +142,9 @@
         attributes["role"] = "tree";
         attributes["aria-label"] = AriaLabel ?? "Tree";
 
-        BuildStyleAttribute(attributes, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, $"--tree-indent:{Indent}px");
-        });
+        var spacing = _spacingText.Get(Indent);
+        var declaration = QuarkStringCache.Concat("--tree-indent:", spacing, "px", ref _spacingStyle);
+        PrependStyleAttribute(attributes, declaration, ref _lastBuiltStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

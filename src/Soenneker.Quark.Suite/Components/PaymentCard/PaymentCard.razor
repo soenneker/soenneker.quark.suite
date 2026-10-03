@@ -19,6 +19,7 @@
 </div>
 
 @code {
+    private string? _appendedClass0;
     private CreditCard? _creditCard;
 
     [Parameter]
@@ -59,7 +60,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         base.BuildAttributesCore(attrs);
-        AppendToClassAttr(attrs, "quark-payment-card-container");
+        AppendToClassAttr(attrs, "quark-payment-card-container", ref _appendedClass0);
     }
 
     public Task OnAnyInput(string cardNumber, string cardholderName, string expiryDate, string cvc) =>
@@ -67,12 +68,9 @@
 
     public void Flip() => _creditCard?.Flip();
 
-    public async ValueTask SetLast4(string last4, string type = "unknown", string issuer = "standard", string program = "standard",
-        CancellationToken cancellationToken = default)
-    {
-        if (_creditCard is not null)
-            await _creditCard.SetLast4(last4, type, issuer, program, cancellationToken);
-    }
+    public ValueTask SetLast4(string last4, string type = "unknown", string issuer = "standard", string program = "standard",
+        CancellationToken cancellationToken = default) =>
+        _creditCard?.SetLast4(last4, type, issuer, program, cancellationToken) ?? ValueTask.CompletedTask;
 
     public void ResetCardDetection() => _creditCard?.ResetCardDetection();
 }

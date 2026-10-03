@@ -1,3 +1,4 @@
+@using System.Globalization
 @using Soenneker.Atomics.ValueBools
 @using Microsoft.Extensions.Logging
 @using Soenneker.Blazor.Utils.Ids
@@ -11,31 +12,31 @@
     <CascadingValue Value="@IsLoading" Name="IsLoading" >
 		@if (Visible)
 		{
-			<Div Id="@ElementId" Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0">
+			<Div Id="@ElementId" Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0">
                 @TopContent
 
                 @if (SelectionEnabled && SelectedKeys.Count > 0)
                 {
                     <DataTableTopBar data-slot="datatable-selection-toolbar" role="region" aria-label="Selection actions"
-                                     TextSize="Quark.TextSize.Xs" Gap="Quark.Gap.Is2" Padding="Quark.Padding.OnY.Is1.OnX.Is3"
-                                     Margin="Quark.Margin.FromBottom.Is2" Shadow="Quark.Shadow.None">
-                        <Span role="status" TextSize="Quark.TextSize.Xs" FontWeight="Quark.FontWeight.Medium">@SelectedKeys.Count selected</Span>
+                                     TextSize="_renderCss2" Gap="_renderCss3" Padding="_renderCss4"
+                                     Margin="_renderCss5" Shadow="_renderCss6">
+                        <Span role="status" TextSize="_renderCss2" FontWeight="_renderCss7">@SelectedKeys.Count selected</Span>
                         @SelectionContent
-                        <Button Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.Sm" TextSize="Quark.TextSize.Xs"
-                                Height="Quark.Height.Is7" Padding="Quark.Padding.OnX.Is2" TextColor="Quark.TextColor.MutedForeground"
-                                Margin="Quark.Margin.FromLeft.Auto" OnClick="@(_ => ClearSelection())">Clear selection</Button>
+                        <Button Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" TextSize="_renderCss2"
+                                Height="_renderCss8" Padding="_renderCss9" TextColor="_renderCss10"
+                                Margin="_renderCss11" OnClick="@(_clearSelectionCallback ??= HandleClearSelection)">Clear selection</Button>
                     </DataTableTopBar>
                 }
 
-                <Div Position="Quark.Position.Relative" Width="Quark.Width.IsFull" MinWidth="Quark.MinWidth.Is0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="Quark.Overflow.X.Auto">
+                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="_renderCss12">
                     @OverlayContent
                     @if (IsLoading && OverlayContent is null)
                     {
-                        <Div data-slot="datatable-loading" Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" ZIndex="Quark.ZIndex.Is10"
-                             Display="Quark.Display.Flex" ItemsAlign="@(LoadingAtTop ? Quark.Items.Start : Quark.Items.Center)" Justify="Quark.Justify.Center"
-                             Padding="@(LoadingAtTop ? (CssValue<PaddingBuilder>?)Quark.Padding.FromTop.Is4 : null)"
+                        <Div data-slot="datatable-loading" Position="_renderCss13" Inset="_renderCss14" ZIndex="_renderCss15"
+                             Display="_renderCss16" ItemsAlign="@(LoadingAtTop ? _loadingItemsStart : _loadingItemsCenter)" Justify="_renderCss17"
+                             Padding="@(LoadingAtTop ? (CssValue<PaddingBuilder>?)_loadingPadding : null)"
                              Style="background: color-mix(in srgb, var(--background) 60%, transparent);">
-                            <Spinner Size="Quark.Size.Is6" aria-label="Loading data" />
+                            <Spinner Size="_renderCss18" aria-label="Loading data" />
                         </Div>
                     }
 
@@ -51,13 +52,13 @@
                     }
                     else if (!IsLoading && ChildContent == null)
                     {
-                        <Div TextAlign="Quark.TextAlign.Center" Padding="Quark.Padding.Is4">
+                        <Div TextAlign="_renderCss19" Padding="_renderCss20">
                             <p>No content available</p>
                         </Div>
                     }
                     else
                     {
-                        <Div Width="Quark.Width.IsFull">
+                        <Div Width="_renderCss1">
                             @if (ChildContent != null)
                             {
                                 @ChildContent
@@ -70,17 +71,17 @@
 
                 @if (ShouldRenderPageSizeSelector)
                 {
-                    <DataTableBottomBar Justify="Quark.Justify.Start"
-                                        Gap="Quark.Gap.Is1"
-                                        Border="Quark.Border.Is0"
-                                        BackgroundColor="Quark.BackgroundColor.Transparent"
-                                        Padding="Quark.Padding.OnY.Is2.OnX.Is0"
-                                        Rounded="Quark.Rounded.None"
-                                        Shadow="Quark.Shadow.None">
+                    <DataTableBottomBar Justify="_renderCss21"
+                                        Gap="_renderCss22"
+                                        Border="_renderCss23"
+                                        BackgroundColor="_renderCss24"
+                                        Padding="_renderCss25"
+                                        Rounded="_renderCss26"
+                                        Shadow="_renderCss6">
                         <DataTableInfo>
                             @PageSizeSelectorInfoText
                         </DataTableInfo>
-                        <Span TextColor="Quark.TextColor.MutedForeground" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" aria-hidden="true">–</Span>
+                        <Span TextColor="_renderCss10" TextSize="_renderCss27" FontWeight="_renderCss7" aria-hidden="true">–</Span>
                         <DataTablePageSizeSelector PageSizeOptions="@ResolvedPageSizeOptions"
                                                    Label="@Options.PageSizeSelectorLabel"
                                                    Suffix="@Options.PageSizeSelectorSuffix"
@@ -94,6 +95,45 @@
 </CascadingValue>
 
 @code {
+    private Func<MouseEventArgs, Task>? _clearSelectionCallback;
+    private Task HandleClearSelection(MouseEventArgs _) => ClearSelection();
+    private static readonly CssValue<ItemsBuilder> _loadingItemsStart = Quark.Items.Start;
+    private static readonly CssValue<ItemsBuilder> _loadingItemsCenter = Quark.Items.Center;
+    private static readonly CssValue<PaddingBuilder> _loadingPadding = Quark.Padding.FromTop.Is4;
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Quark.ButtonSize.Sm;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
+    private static readonly CssValue<TextSizeBuilder> _renderCss2 = Quark.TextSize.Xs;
+    private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is2;
+    private static readonly CssValue<PaddingBuilder> _renderCss4 = Quark.Padding.OnY.Is1.OnX.Is3;
+    private static readonly CssValue<MarginBuilder> _renderCss5 = Quark.Margin.FromBottom.Is2;
+    private static readonly CssValue<ShadowBuilder> _renderCss6 = Quark.Shadow.None;
+    private static readonly CssValue<FontWeightBuilder> _renderCss7 = Quark.FontWeight.Medium;
+    private static readonly CssValue<HeightBuilder> _renderCss8 = Quark.Height.Is7;
+    private static readonly CssValue<PaddingBuilder> _renderCss9 = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<TextColorBuilder> _renderCss10 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<MarginBuilder> _renderCss11 = Quark.Margin.FromLeft.Auto;
+    private static readonly CssValue<OverflowBuilder> _renderCss12 = Quark.Overflow.X.Auto;
+    private static readonly CssValue<PositionBuilder> _renderCss13 = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _renderCss14 = Quark.Inset.Is0;
+    private static readonly CssValue<ZIndexBuilder> _renderCss15 = Quark.ZIndex.Is10;
+    private static readonly CssValue<DisplayBuilder> _renderCss16 = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _renderCss17 = Quark.Justify.Center;
+    private static readonly CssValue<SizeBuilder> _renderCss18 = Quark.Size.Is6;
+    private static readonly CssValue<TextAlignBuilder> _renderCss19 = Quark.TextAlign.Center;
+    private static readonly CssValue<PaddingBuilder> _renderCss20 = Quark.Padding.Is4;
+    private static readonly CssValue<JustifyBuilder> _renderCss21 = Quark.Justify.Start;
+    private static readonly CssValue<GapBuilder> _renderCss22 = Quark.Gap.Is1;
+    private static readonly CssValue<BorderBuilder> _renderCss23 = Quark.Border.Is0;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss24 = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _renderCss25 = Quark.Padding.OnY.Is2.OnX.Is0;
+    private static readonly CssValue<RoundedBuilder> _renderCss26 = Quark.Rounded.None;
+    private static readonly CssValue<TextSizeBuilder> _renderCss27 = Quark.TextSize.Sm;
+    private string? _lastPrependedClass;
+    private string? _lastPrependedClass2;
+    private string? _lastBuiltStyle;
+
     [Inject]
     private ITablesInterop TablesInterop { get; set; } = null!;
 
@@ -127,9 +167,32 @@
     [Parameter]
     public RenderFragment? SelectionContent { get; set; }
 
-    public bool AllRowsSelected => SelectableRowKeys.Count > 0 && SelectableRowKeys.All(IsRowSelected);
+    public bool AllRowsSelected
+    {
+        get
+        {
+            if (SelectableRowKeys.Count == 0) return false;
+            foreach (var key in SelectableRowKeys)
+                if (!IsRowSelected(key)) return false;
+            return true;
+        }
+    }
 
-    public bool SomeRowsSelected => !AllRowsSelected && SelectableRowKeys.Any(IsRowSelected);
+    public bool SomeRowsSelected
+    {
+        get
+        {
+            var anySelected = false;
+            var anyUnselected = false;
+            foreach (var key in SelectableRowKeys)
+            {
+                if (IsRowSelected(key)) anySelected = true;
+                else anyUnselected = true;
+                if (anySelected && anyUnselected) return true;
+            }
+            return false;
+        }
+    }
 
     public bool IsRowSelected(string key) => SelectedKeys.Contains(key);
 
@@ -158,11 +221,18 @@
             await UpdateSelection(keys);
     }
 
-    public Task ClearSelection() => UpdateSelection(new HashSet<string>());
+    public Task ClearSelection() => PublishSelection(Array.Empty<string>());
 
-    private async Task UpdateSelection(HashSet<string> keys)
+    private Task UpdateSelection(HashSet<string> keys)
     {
-        SelectedKeys = keys.ToArray();
+        var snapshot = new string[keys.Count];
+        keys.CopyTo(snapshot);
+        return PublishSelection(snapshot);
+    }
+
+    private async Task PublishSelection(string[] keys)
+    {
+        SelectedKeys = keys;
         await SelectedKeysChanged.InvokeAsync(SelectedKeys);
         await RefreshOffThread();
     }
@@ -285,16 +355,32 @@
     private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
     private string VisibleRecordRangeText => StartRecord == EndRecord ? StartRecord.ToString() : $"{StartRecord}-{EndRecord}";
     private string PageInfoRecordSuffix => Options.PageInfoRecordText.HasContent() ? $" {Options.PageInfoRecordText}" : string.Empty;
-    private string PageSizeSelectorInfoText => HasExactTotalRecords
+    private (int Page, int Start, int End, int Total, bool Exact, string? Suffix) _pageInfoKey;
+    private CultureInfo? _pageInfoCulture;
+    private string? _pageInfoText;
+    private string PageSizeSelectorInfoText
+    {
+        get
+        {
+            var key = (CurrentPage, StartRecord, EndRecord, TotalRecordsCount, HasExactTotalRecords, Options.PageInfoRecordText);
+            var culture = CultureInfo.CurrentCulture;
+            if (_pageInfoText is not null && key == _pageInfoKey && culture.IsReadOnly && ReferenceEquals(culture, _pageInfoCulture))
+                return _pageInfoText;
+            _pageInfoText = HasExactTotalRecords
         ? $"Page {CurrentPage} – {VisibleRecordRangeText} of {TotalRecordsCount}{PageInfoRecordSuffix}"
         : $"Page {CurrentPage} – {VisibleRecordRangeText}{PageInfoRecordSuffix}";
+            _pageInfoKey = key;
+            _pageInfoCulture = culture;
+            return _pageInfoText;
+        }
+    }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "table";
-        Width ??= Quark.Width.IsFull;
-        TextSize ??= Quark.TextSize.Sm;
+        Width ??= _renderCss1;
+        TextSize ??= _renderCss27;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -302,13 +388,13 @@
         base.BuildAttributesCore(attributes);
         attributes["aria-busy"] = IsLoading ? "true" : "false";
 
-        PrependClassAttribute(attributes, "q-datatable caption-bottom");
+        PrependClassAttribute(attributes, "q-datatable caption-bottom", ref _lastPrependedClass);
 
         if (AdaptiveLayout)
-            PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden");
+            PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden", ref _lastPrependedClass2);
 
         if (FixedLayout)
-            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "table-layout: fixed;"));
+            PrependStyleAttribute(attributes, "table-layout: fixed;", ref _lastBuiltStyle);
     }
 
     protected override async Task OnInitializedAsync()

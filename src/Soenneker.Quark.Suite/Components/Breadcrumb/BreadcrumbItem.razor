@@ -59,6 +59,13 @@ else
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private string? _lastPrependedClass;
+    private string? _lastPrependedClass2;
+    private string? _lastPrependedClass3;
+
     private QuarkAttributeDictionary _listItemAttributesBuffer;
     private QuarkAttributeDictionary _separatorLiAttributesBuffer;
     private QuarkAttributeDictionary _linkAttributesBuffer;
@@ -90,9 +97,9 @@ else
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
     }
 
     protected override void OnInitialized()
@@ -147,7 +154,7 @@ else
         attributes["role"] = "presentation";
         attributes["aria-hidden"] = "true";
 
-        PrependClassAttribute(attributes, "[&>svg]:block [&>svg]:size-3.5");
+        PrependClassAttribute(attributes, "[&>svg]:block [&>svg]:size-3.5", ref _lastPrependedClass);
 
         return attributes;
     }
@@ -157,7 +164,7 @@ else
         var attributes = _linkAttributesBuffer.Create(3);
         attributes["data-slot"] = "breadcrumb-link";
 
-        PrependClassAttribute(attributes, "transition-colors hover:text-foreground");
+        PrependClassAttribute(attributes, "transition-colors hover:text-foreground", ref _lastPrependedClass2);
 
         if (Active)
             attributes["aria-current"] = "page";
@@ -171,7 +178,7 @@ else
         attributes["data-slot"] = "breadcrumb-page";
         attributes["aria-current"] = "page";
 
-        PrependClassAttribute(attributes, "font-normal text-foreground");
+        PrependClassAttribute(attributes, "font-normal text-foreground", ref _lastPrependedClass3);
 
         return attributes;
     }

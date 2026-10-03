@@ -1,15 +1,15 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Element
 
 @if (ShowPagination)
 {
     <nav @attributes="BuildAttributes()">
-        <ul @attributes="BuildControlsAttributes()">
+        <ul @attributes="_controlsAttributes">
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_ => HandleFirstPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to first page">«</PaginationLink>
+                <PaginationLink OnClick="@(_firstCallback ??= HandleFirstClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to first page">«</PaginationLink>
             </PaginationItem>
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_ => HandlePreviousPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to previous page">‹</PaginationLink>
+                <PaginationLink OnClick="@(_previousCallback ??= HandlePreviousClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to previous page">‹</PaginationLink>
             </PaginationItem>
 
             @if (ComputedTotalPages <= 1)
@@ -20,223 +20,242 @@
             }
             else
             {
-                @for (var p = StartPage; p <= EndPage; p++)
+                var pages = GetPageViews();
+                for (var i = 0; i < pages.Length; i++)
                 {
-                    var pageNumber = p;
+                    var pageView = pages[i];
+                    var pageNumber = pageView.Number;
                     <PaginationItem Class="list-none">
                         <PaginationLink Active="@(pageNumber == ComputedCurrentPage)"
-                                        OnClick="@(_ => HandleGoToPage(pageNumber))"
+                                        OnClick="@pageView.Click"
                                         Class="@(pageNumber == ComputedCurrentPage ? ActivePaginationButtonClass : null)">
-                            @pageNumber
+                            @pageView.Text
                         </PaginationLink>
                     </PaginationItem>
                 }
             }
 
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_ => HandleNextPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to next page">›</PaginationLink>
+                <PaginationLink OnClick="@(_nextCallback ??= HandleNextClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to next page">›</PaginationLink>
             </PaginationItem>
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_ => HandleLastPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to last page">»</PaginationLink>
+                <PaginationLink OnClick="@(_lastCallback ??= HandleLastClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to last page">»</PaginationLink>
             </PaginationItem>
         </ul>
     </nav>
 }
 
 @code {
-    private QuarkAttributeDictionary _controlsAttributesBuffer;
-	[CascadingParameter(Name = "DataTable")]
-	private IDataTable? DataTable { get; set; }
+    private Func<MouseEventArgs, Task>? _lastCallback;
+    private Task HandleLastClick(MouseEventArgs _) => HandleLastPage();
+    private Func<MouseEventArgs, Task>? _nextCallback;
+    private Task HandleNextClick(MouseEventArgs _) => HandleNextPage();
+    private Func<MouseEventArgs, Task>? _previousCallback;
+    private Task HandlePreviousClick(MouseEventArgs _) => HandlePreviousPage();
+    private Func<MouseEventArgs, Task>? _firstCallback;
+    private Task HandleFirstClick(MouseEventArgs _) => HandleFirstPage();
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
 
-	[Parameter]
-	public bool ShowPagination { get; set; } = true;
+    private static readonly IReadOnlyDictionary<string, object> _controlsAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "datatable-pagination-content",
+        ["class"] = "flex flex-wrap items-center justify-center gap-0.5"
+    };
+    private PageView[] _pages = [];
+    private PageView[] GetPageViews()
+    {
+        var start = StartPage;
+        var end = EndPage;
+        var count = Math.Max(0, end - start + 1);
+        if (_pages.Length != count) _pages = new PageView[count];
+        for (var i = 0; i < count; i++)
+        {
+            var number = start + i;
+            if (_pages[i] is null || _pages[i].Number != number)
+                _pages[i] = new PageView(this, number);
+        }
+        return _pages;
+    }
+    [CascadingParameter(Name = "DataTable")]
+    private IDataTable? DataTable { get; set; }
 
-	[Parameter]
-	public int CurrentPage { get; set; } = 1;
+    [Parameter]
+    public bool ShowPagination { get; set; } = true;
 
-	[Parameter]
-	public int TotalPages { get; set; } = 1;
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
 
-	[Parameter]
-	public int TotalRecords { get; set; }
+    [Parameter]
+    public int TotalPages { get; set; } = 1;
 
-	[Parameter]
-	public int PageSize { get; set; } = 10;
+    [Parameter]
+    public int TotalRecords { get; set; }
 
-	[Parameter]
-	public int MaxPageButtons { get; set; } = 5;
+    [Parameter]
+    public int PageSize { get; set; } = 10;
 
-	[Parameter]
-	public EventCallback<int> OnGoToPage { get; set; }
+    [Parameter]
+    public int MaxPageButtons { get; set; } = 5;
 
-	[Parameter]
-	public EventCallback OnFirstPage { get; set; }
+    [Parameter]
+    public EventCallback<int> OnGoToPage { get; set; }
 
-	[Parameter]
-	public EventCallback OnPreviousPage { get; set; }
+    [Parameter]
+    public EventCallback OnFirstPage { get; set; }
 
-	[Parameter]
-	public EventCallback OnNextPage { get; set; }
+    [Parameter]
+    public EventCallback OnPreviousPage { get; set; }
 
-	[Parameter]
-	public EventCallback OnLastPage { get; set; }
+    [Parameter]
+    public EventCallback OnNextPage { get; set; }
 
-	// Computed properties that use DataTable values When available
-	private int ComputedCurrentPage => Math.Max(1, DataTable?.CurrentPage ?? CurrentPage);
-	private int ComputedTotalPages => Math.Max(1, DataTable?.TotalPages ?? TotalPages);
-	private int ComputedTotalRecords => DataTable?.TotalRecordsCount ?? TotalRecords;
-	private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
-	private int ComputedMaxPageButtons => MaxPageButtons;
+    [Parameter]
+    public EventCallback OnLastPage { get; set; }
 
-	public int StartPage
-	{
-		get
-		{
-			if (ComputedTotalPages <= 0) return 1;
-			if (ComputedCurrentPage <= 0) return 1;
+    // Computed properties that use DataTable values When available
+    private int ComputedCurrentPage => Math.Max(1, DataTable?.CurrentPage ?? CurrentPage);
+    private int ComputedTotalPages => Math.Max(1, DataTable?.TotalPages ?? TotalPages);
+    private int ComputedTotalRecords => DataTable?.TotalRecordsCount ?? TotalRecords;
+    private int ComputedPageSize => DataTable?.PageSize ?? PageSize;
+    private int ComputedMaxPageButtons => MaxPageButtons;
 
-			var halfButtons = ComputedMaxPageButtons / 2;
-			var start = ComputedCurrentPage - halfButtons;
-			start = Math.Max(1, start);
+    public int StartPage
+    {
+        get
+        {
+            if (ComputedTotalPages <= 0) return 1;
+            if (ComputedCurrentPage <= 0) return 1;
 
-			if (start + ComputedMaxPageButtons - 1 > ComputedTotalPages)
-			{
-				start = Math.Max(1, ComputedTotalPages - ComputedMaxPageButtons + 1);
-			}
+            var halfButtons = ComputedMaxPageButtons / 2;
+            var start = ComputedCurrentPage - halfButtons;
+            start = Math.Max(1, start);
 
-			if (start > ComputedTotalPages) start = ComputedTotalPages;
+            if (start + ComputedMaxPageButtons - 1 > ComputedTotalPages)
+            {
+                start = Math.Max(1, ComputedTotalPages - ComputedMaxPageButtons + 1);
+            }
 
-			return start;
-		}
-	}
+            if (start > ComputedTotalPages) start = ComputedTotalPages;
 
-	public int EndPage => Math.Min(ComputedTotalPages, StartPage + ComputedMaxPageButtons - 1);
+            return start;
+        }
+    }
 
-	private async Task HandleFirstPage()
-	{
-		if (DataTable != null)
-		{
-			await DataTable.HandleGoToPage(1);
-		}
-		else if (OnFirstPage.HasDelegate)
-		{
-			await OnFirstPage.InvokeAsync();
-		}
-		else if (OnGoToPage.HasDelegate)
-		{
-			await OnGoToPage.InvokeAsync(1);
-		}
-	}
+    public int EndPage => Math.Min(ComputedTotalPages, StartPage + ComputedMaxPageButtons - 1);
 
-	private async Task HandlePreviousPage()
-	{
-		if (DataTable != null && ComputedCurrentPage > 1)
-		{
-			await DataTable.HandleGoToPage(ComputedCurrentPage - 1);
-		}
-		else if (OnPreviousPage.HasDelegate)
-		{
-			await OnPreviousPage.InvokeAsync();
-		}
-		else if (OnGoToPage.HasDelegate && ComputedCurrentPage > 1)
-		{
-			await OnGoToPage.InvokeAsync(ComputedCurrentPage - 1);
-		}
-	}
+    private async Task HandleFirstPage()
+    {
+        if (DataTable != null)
+        {
+            await DataTable.HandleGoToPage(1);
+        }
+        else if (OnFirstPage.HasDelegate)
+        {
+            await OnFirstPage.InvokeAsync();
+        }
+        else if (OnGoToPage.HasDelegate)
+        {
+            await OnGoToPage.InvokeAsync(1);
+        }
+    }
 
-	private async Task HandleNextPage()
-	{
-		if (DataTable != null && ComputedCurrentPage < ComputedTotalPages)
-		{
-			await DataTable.HandleGoToPage(ComputedCurrentPage + 1);
-		}
-		else if (OnNextPage.HasDelegate)
-		{
-			await OnNextPage.InvokeAsync();
-		}
-		else if (OnGoToPage.HasDelegate && ComputedCurrentPage < ComputedTotalPages)
-		{
-			await OnGoToPage.InvokeAsync(ComputedCurrentPage + 1);
-		}
-	}
+    private async Task HandlePreviousPage()
+    {
+        if (DataTable != null && ComputedCurrentPage > 1)
+        {
+            await DataTable.HandleGoToPage(ComputedCurrentPage - 1);
+        }
+        else if (OnPreviousPage.HasDelegate)
+        {
+            await OnPreviousPage.InvokeAsync();
+        }
+        else if (OnGoToPage.HasDelegate && ComputedCurrentPage > 1)
+        {
+            await OnGoToPage.InvokeAsync(ComputedCurrentPage - 1);
+        }
+    }
 
-	private async Task HandleLastPage()
-	{
-		if (DataTable != null)
-		{
-			await DataTable.HandleGoToPage(ComputedTotalPages);
-		}
-		else if (OnLastPage.HasDelegate)
-		{
-			await OnLastPage.InvokeAsync();
-		}
-		else if (OnGoToPage.HasDelegate)
-		{
-			await OnGoToPage.InvokeAsync(ComputedTotalPages);
-		}
-	}
+    private async Task HandleNextPage()
+    {
+        if (DataTable != null && ComputedCurrentPage < ComputedTotalPages)
+        {
+            await DataTable.HandleGoToPage(ComputedCurrentPage + 1);
+        }
+        else if (OnNextPage.HasDelegate)
+        {
+            await OnNextPage.InvokeAsync();
+        }
+        else if (OnGoToPage.HasDelegate && ComputedCurrentPage < ComputedTotalPages)
+        {
+            await OnGoToPage.InvokeAsync(ComputedCurrentPage + 1);
+        }
+    }
 
-	private async Task HandleGoToPage(int page)
-	{
-		if (DataTable != null)
-		{
-			await DataTable.HandleGoToPage(page);
-		}
-		else if (OnGoToPage.HasDelegate)
-		{
-			await OnGoToPage.InvokeAsync(page);
-		}
-	}
+    private async Task HandleLastPage()
+    {
+        if (DataTable != null)
+        {
+            await DataTable.HandleGoToPage(ComputedTotalPages);
+        }
+        else if (OnLastPage.HasDelegate)
+        {
+            await OnLastPage.InvokeAsync();
+        }
+        else if (OnGoToPage.HasDelegate)
+        {
+            await OnGoToPage.InvokeAsync(ComputedTotalPages);
+        }
+    }
 
-	// shadcn Pagination - new-york-v4 ui/pagination.tsx
-	private const string ActivePaginationButtonClass = "active";
+    private async Task HandleGoToPage(int page)
+    {
+        if (DataTable != null)
+        {
+            await DataTable.HandleGoToPage(page);
+        }
+        else if (OnGoToPage.HasDelegate)
+        {
+            await OnGoToPage.InvokeAsync(page);
+        }
+    }
+
+    // shadcn Pagination - new-york-v4 ui/pagination.tsx
+    private const string ActivePaginationButtonClass = "active";
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "datatable-pagination";
-        Display ??= Quark.Display.Flex;
-        FlexWrap ??= Quark.FlexWrap.Wrap;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
+        Display ??= _defaultDisplay;
+        FlexWrap ??= _defaultFlexWrap;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
 
     }
 
-	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-	{
-	    base.BuildAttributesCore(attributes);
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
         attributes["role"] = "navigation";
         attributes["aria-label"] = "data table pagination";
 
-	}
+    }
 
-	private Dictionary<string, object> BuildControlsAttributes()
-	{
-		var attributes = _controlsAttributesBuffer.Create(2);
-		attributes["data-slot"] = "datatable-pagination-content";
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, Quark.Display.Flex.ToClass());
-            AppendClass(ref cls, Quark.FlexWrap.Wrap.ToClass());
-            AppendClass(ref cls, Quark.Items.Center.ToClass());
-            AppendClass(ref cls, Quark.Justify.Center.ToClass());
-            AppendClass(ref cls, Quark.Gap.Is0_5.ToClass());
-        });
-		return attributes;
-	}
-
-	protected override void ComputeRenderKeyCore(ref HashCode hc)
-	{
-		base.ComputeRenderKeyCore(ref hc);
-		hc.Add(ShowPagination);
-		hc.Add(CurrentPage);
-		hc.Add(TotalPages);
-		hc.Add(TotalRecords);
-		hc.Add(PageSize);
-		hc.Add(MaxPageButtons);
-		hc.Add(ComputedCurrentPage);
-		hc.Add(ComputedTotalPages);
-		hc.Add(ComputedTotalRecords);
-		hc.Add(ComputedPageSize);
-	}
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ShowPagination);
+        hc.Add(CurrentPage);
+        hc.Add(TotalPages);
+        hc.Add(TotalRecords);
+        hc.Add(PageSize);
+        hc.Add(MaxPageButtons);
+        hc.Add(ComputedCurrentPage);
+        hc.Add(ComputedTotalPages);
+        hc.Add(ComputedTotalRecords);
+        hc.Add(ComputedPageSize);
+    }
 }

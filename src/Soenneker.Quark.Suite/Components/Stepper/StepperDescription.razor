@@ -4,6 +4,12 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize2 = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.None.OnMd.Block;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     [CascadingParameter(Name = nameof(ParentStepperItem))]
     internal StepperItemContext? ParentStepperItem { get; set; }
 
@@ -11,18 +17,18 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-description";
-        TextColor ??= Quark.TextColor.MutedForeground;
+        TextColor ??= _defaultTextColor;
 
         if (ParentStepperItem?.IsStacked == true)
         {
-            TextSize ??= Quark.TextSize.Xs;
-            FontWeight ??= Quark.FontWeight.Medium;
-            Whitespace ??= Quark.Whitespace.Nowrap;
-            Display ??= Quark.Display.None.OnMd.Block;
+            TextSize ??= _defaultTextSize2;
+            FontWeight ??= _defaultFontWeight;
+            Whitespace ??= _defaultWhitespace;
+            Display ??= _defaultDisplay;
         }
         else
         {
-            TextSize ??= Quark.TextSize.Sm;
+            TextSize ??= _defaultTextSize;
         }
     }
 

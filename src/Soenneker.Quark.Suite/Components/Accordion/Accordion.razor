@@ -4,12 +4,18 @@
 @implements IAccordion
 
 <CascadingValue Name="ParentAccordion" Value="this">
-    <BradixAccordion Type="@ResolvedType" Collapsible="@Collapsible" Disabled="@Disabled" Orientation="@Orientation" Value="@Value" DefaultValue="@DefaultValue" ValueChanged="@HandleValueChanged" Values="@Values" DefaultValues="@DefaultValues" ValuesChanged="@HandleValuesChanged" AdditionalAttributes="@RootAttributes">
+    <BradixAccordion Type="@ResolvedType" Collapsible="@Collapsible" Disabled="@Disabled" Orientation="@Orientation" Value="@Value" DefaultValue="@DefaultValue" ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)" Values="@Values" DefaultValues="@DefaultValues" ValuesChanged="(_cachedHandleValuesChangedDelegate ??= HandleValuesChanged)" AdditionalAttributes="@RootAttributes">
         @ChildContent
     </BradixAccordion>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+    private System.Func<IReadOnlyCollection<string>, Task>? _cachedHandleValuesChangedDelegate;
+
     private QuarkAttributeDictionary _attributesBuffer;
 
     [Parameter]
@@ -67,9 +73,9 @@
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        FlexDirection ??= Quark.FlexDirection.Col;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        FlexDirection ??= _defaultFlexDirection;
     }
 
     private IReadOnlyDictionary<string, object> RootAttributes

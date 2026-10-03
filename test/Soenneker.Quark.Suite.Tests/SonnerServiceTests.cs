@@ -9,6 +9,36 @@ public sealed class SonnerServiceTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
+    public async Task Promise_preserves_configuration_precedence_for_success_and_error(bool fail)
+    {
+        await using var service = new SonnerService { DefaultDuration = 0 };
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int successCalls = 0, errorCalls = 0;
+        string id = await service.Promise(new ValueTask(gate.Task), new SonnerPromiseOptions
+        {
+            Loading = "Loading", Success = "Saved", Error = "Failed", Description = "fallback",
+            SuccessDescription = "success description", ErrorDescription = "error description",
+            ConfigureLoading = options => { options.Id = "promise"; options.Description = "loading override"; },
+            ConfigureSuccess = options => { successCalls++; options.Description = "success override"; },
+            ConfigureError = options => { errorCalls++; options.Description = "error override"; }
+        }, default);
+        id.Should().Be("promise");
+        (await service.GetToasts())[0].Description.Should().Be("loading override");
+        if (fail) gate.SetException(new InvalidOperationException("failure")); else gate.SetResult();
+        var timeout = DateTime.UtcNow.AddSeconds(5);
+        while ((await service.GetToasts())[0].Type == SonnerToastType.Loading && DateTime.UtcNow < timeout)
+            await Task.Delay(10);
+        var toast = (await service.GetToasts()).Should().ContainSingle().Subject;
+        toast.Id.Should().Be(id);
+        toast.Title.Should().Be(fail ? "Failed" : "Saved");
+        toast.Description.Should().Be(fail ? "error override" : "success override");
+        successCalls.Should().Be(fail ? 0 : 1);
+        errorCalls.Should().Be(fail ? 1 : 0);
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
     public async ValueTask Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation)
     {
         await using var service = new SonnerService { DefaultDuration = 100 };

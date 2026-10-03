@@ -7,6 +7,8 @@
 </li>
 
 @code {
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -24,11 +26,8 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (Disabled)
-                AppendClass(ref cls, "opacity-50 pointer-events-none");
-        });
+        if (Disabled)
+            PrependClassAttribute(attributes, "opacity-50 pointer-events-none", ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

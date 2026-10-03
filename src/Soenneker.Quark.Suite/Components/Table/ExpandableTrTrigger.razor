@@ -9,12 +9,15 @@
 }
 else
 {
-    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button type="button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     /// <summary>
     /// Gets or sets whether the child component should act as the expansion trigger.
     /// </summary>
@@ -38,9 +41,19 @@ else
 
     private bool EffectiveDisabled => Disabled || Row?.Disabled == true;
 
+    private (ExpandableTr?, bool, bool, bool, string?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<Task>? _contextOnClickCallback;
+
+    private Task HandleContextClick() => OnClick.InvokeAsync(default(MouseEventArgs));
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Row, EffectiveDisabled, Row?.IsExpanded == true, OnClick.HasDelegate, Row?.TriggerId, Row?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = "table-row-trigger",
             TriggerId = Row?.TriggerId,
@@ -48,7 +61,7 @@ else
             IsOpen = Row?.IsExpanded == true,
             DataState = Row?.IsExpanded == true ? "open" : "closed",
             AriaControls = Row?.ContentId,
-            OnClick = OnClick.HasDelegate ? () => OnClick.InvokeAsync(default(MouseEventArgs)) : null,
+            OnClick = OnClick.HasDelegate ? (_contextOnClickCallback ??= HandleContextClick) : null,
             Toggle = Row is null ? null : Row.Toggle
         };
     }
@@ -68,7 +81,7 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "table-row-trigger";
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        Cursor ??= _defaultCursor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -85,7 +98,7 @@ else
         }
 
         if (EffectiveDisabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

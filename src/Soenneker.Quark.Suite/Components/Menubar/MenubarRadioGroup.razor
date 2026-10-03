@@ -6,12 +6,14 @@
 <BradixMenubarRadioGroup Value="@CurrentValue"
                          DefaultValue="@DefaultValue"
                          Disabled="@Disabled"
-                         ValueChanged="HandleValueChanged"
+                         ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                          AdditionalAttributes="@GroupAttributes">
     @ChildContent
 </BradixMenubarRadioGroup>
 
 @code {
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

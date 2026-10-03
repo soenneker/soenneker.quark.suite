@@ -7,13 +7,17 @@
 </legend>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromBottom.Is3;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "field-legend";
 
-        Margin ??= Quark.Margin.FromBottom.Is3;
-        FontWeight ??= Quark.FontWeight.Medium;
+        Margin ??= _defaultMargin;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -22,6 +26,6 @@
 
         attributes["data-variant"] = "legend";
 
-        PrependClassAttribute(attributes, "data-[variant=legend]:text-base data-[variant=label]:text-sm");
+        PrependClassAttribute(attributes, "data-[variant=legend]:text-base data-[variant=label]:text-sm", ref _lastPrependedClass);
     }
 }

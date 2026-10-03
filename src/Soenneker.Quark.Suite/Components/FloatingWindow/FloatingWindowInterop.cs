@@ -96,7 +96,7 @@ public sealed class FloatingWindowInterop : IFloatingWindowInterop
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             var position = QuarkInteropJson.Deserialize(await module.InvokeAsync<JsonElement?>("getPosition", linked, id),
                 QuarkInteropJsonContext.Default.FloatingWindowPosition);
-            return (position?.X ?? 0, position?.Y ?? 0);
+            return (position.X, position.Y);
         }
     }
 

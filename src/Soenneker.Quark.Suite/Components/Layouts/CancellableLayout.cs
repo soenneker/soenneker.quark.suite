@@ -17,7 +17,7 @@ public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayou
     protected CancellableLayout(CancellationToken linkedToken)
     {
         _atomic = new AtomicResource<CancellationTokenSource>(
-            factory: () => linkedToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(linkedToken) : new CancellationTokenSource(),
+            factory: linkedToken.CanBeCanceled ? CreateLinkedFactory(linkedToken) : static () => new CancellationTokenSource(),
             teardown: async cts =>
             {
                 try
@@ -32,6 +32,9 @@ public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayou
                 cts.Dispose();
             });
     }
+
+    private static System.Func<CancellationTokenSource> CreateLinkedFactory(CancellationToken token) =>
+        () => CancellationTokenSource.CreateLinkedTokenSource(token);
 
     public CancellationToken CancellationToken => _atomic.GetOrCreate()?.Token ?? CancellationToken.None;
 

@@ -14,19 +14,39 @@ else if (ShouldRenderNavLink)
     <NavLink href="@Href"
              Match="@Match"
              ActiveClass="@_activeClass"
-             @onclick="HandleActivate"
+             @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
              @attributes="BuildAttributes()">
         @ChildContent
     </NavLink>
 }
 else
 {
-    <Anchor Href="@Href" Target="@Target" @onclick="HandleActivate" @attributes="BuildAttributes()">
+    <Anchor Href="@Href" Target="@Target" @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)" @attributes="BuildAttributes()">
         @ChildContent
     </Anchor>
 }
 
 @code {
+    private string? _navigationHref;
+    private bool _relativeNavigationHref;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is7;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("sidebar-foreground");
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-sidebar-ring");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleActivateDelegate;
+
     private const string _activeClass = "bg-sidebar-accent text-sidebar-accent-foreground";
 
     [Parameter]
@@ -61,27 +81,35 @@ else
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-sub-button";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is7;
-        MinWidth ??= Quark.MinWidth.Is0;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.OnX.Is2;
-        Overflow ??= Quark.Overflow.Hidden;
-        TextColor ??= Quark.TextColor.Token("sidebar-foreground");
-        RingColor ??= Quark.RingColor.Utility("ring-sidebar-ring");
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        MinWidth ??= _staticCss1;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        Overflow ??= _defaultOverflow;
+        TextColor ??= _defaultTextColor;
+        RingColor ??= _defaultRingColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
     }
 
-    private bool ShouldRenderNavLink =>
-        Href.HasContent() &&
-        Target is null &&
-        !Href!.StartsWith('#') &&
-        !Uri.TryCreate(Href, UriKind.Absolute, out _);
+    private bool ShouldRenderNavLink
+    {
+        get
+        {
+            if (!Href.HasContent() || Target is not null || Href!.StartsWith('#')) return false;
+            if (_navigationHref != Href)
+            {
+                _relativeNavigationHref = !Uri.TryCreate(Href, UriKind.Absolute, out _);
+                _navigationHref = Href;
+            }
+            return _relativeNavigationHref;
+        }
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -91,7 +119,7 @@ else
         attributes["data-size"] = ButtonSize == SidebarMenuSubButtonSize.Sm ? "sm" : "md";
         attributes["data-active"] = Active ? "true" : "false";
 
-        PrependClassAttribute(attributes, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground -translate-x-px focus-visible:ring-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[size=md]:text-sm data-[size=sm]:text-xs group-data-[collapsible=icon]:hidden");
+        PrependClassAttribute(attributes, "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground -translate-x-px focus-visible:ring-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[size=md]:text-sm data-[size=sm]:text-xs group-data-[collapsible=icon]:hidden", ref _lastPrependedClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()

@@ -20,6 +20,17 @@
 </BradixContextMenuPortal>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is32;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Lg;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool ForceMount { get; set; }
 
@@ -57,27 +68,24 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-sub-content";
 
-        Overflow ??= Quark.Overflow.Hidden;
-        ZIndex ??= Quark.ZIndex.Is50;
-        MinWidth ??= Quark.MinWidth.Is32;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is1;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Shadow ??= Quark.Shadow.Lg;
+        Overflow ??= _defaultOverflow;
+        ZIndex ??= _defaultZIndex;
+        MinWidth ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "duration-25");
-            AppendClass(ref cls, "origin-(--radix-context-menu-content-transform-origin)");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-        });
+            const string @class = "duration-25 origin-(--radix-context-menu-content-transform-origin) data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     private IReadOnlyDictionary<string, object> BuildContentAttributes()

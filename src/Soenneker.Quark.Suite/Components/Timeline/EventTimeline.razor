@@ -9,15 +9,15 @@
             <Span Preset="@Appearance.ViewControlsLabelPreset">Timeline view</Span>
             <Div Preset="@Appearance.ViewControlsButtonsPreset">
                 <Button Type="@ButtonType.Button"
-                        ButtonSize="ButtonSize.Sm"
+                        ButtonSize="_staticCss1"
                         Variant="@(FitAll ? ButtonVariant.Default : ButtonVariant.Secondary)"
                         aria-pressed="@(FitAll ? "true" : "false")"
-                        OnClick="@(() => SetFitAll(true))">Fit all</Button>
+                        OnClick="@(_fitAllCallback ??= FitAllClick)">Fit all</Button>
                 <Button Type="@ButtonType.Button"
-                        ButtonSize="ButtonSize.Sm"
+                        ButtonSize="_staticCss1"
                         Variant="@(!FitAll ? ButtonVariant.Default : ButtonVariant.Secondary)"
                         aria-pressed="@(FitAll ? "false" : "true")"
-                        OnClick="@(() => SetFitAll(false))">Scroll</Button>
+                        OnClick="@(_scrollCallback ??= ScrollClick)">Scroll</Button>
             </Div>
         </Div>
     }
@@ -32,15 +32,16 @@
                 @for (int index = 0; index < TimelineItems.Count; index++)
                 {
                     EventTimelineItem item = TimelineItems[index];
+                    var view = GetItemView(item, index);
                     bool hasNext = index < TimelineItems.Count - 1;
-                    <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@ItemTestId(item)">
+                    <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@view.GetTestId(ItemTestIdPrefix)">
                         @if (hasNext)
                         {
                             <Div Preset="@Appearance.VerticalConnectorPreset" AriaHidden="true" data-slot="event-timeline-connector" />
                         }
                         <Div Preset="@Appearance.VerticalMarkerPreset" TextColor="@MarkerColor(item)" AriaHidden="true" data-slot="event-timeline-marker" />
                         <Div Preset="@Appearance.VerticalTimePreset">
-                            <time datetime="@item.When.ToString("O", CultureInfo.InvariantCulture)">@FormatWhen(item.When)</time>
+                            <time datetime="@view.DateTimeText">@FormatWhen(view)</time>
                         </Div>
                         <Div Preset="@Appearance.VerticalContentPreset">
                             @if (ItemTemplate is not null)
@@ -62,19 +63,20 @@
                 @for (int index = 0; index < TimelineItems.Count; index++)
                 {
                     EventTimelineItem item = TimelineItems[index];
+                    var view = GetItemView(item, index);
                     bool hasNext = index < TimelineItems.Count - 1;
-                    <Div Preset="@ItemPreset" data-testid="@ItemTestId(item)">
+                    <Div Preset="@ItemPreset" data-testid="@view.GetTestId(ItemTestIdPrefix)">
                         @if (hasNext)
                         {
                             <Div Preset="@Appearance.ConnectorPreset" AriaHidden="true"></Div>
                         }
 
                         <Div Preset="@MarkerPreset(item)" AriaHidden="true">
-                            <Icon Name="@item.Icon" Size="Size.Is4" />
+                            <Icon Name="@item.Icon" Size="_staticCss0" />
                         </Div>
                         <Span Preset="@LabelPreset(item)">@item.Label</Span>
                         <Div Preset="@Appearance.TimePreset">
-                            <time datetime="@item.When.ToString("O", CultureInfo.InvariantCulture)">@FormatWhen(item.When)</time>
+                            <time datetime="@view.DateTimeText">@FormatWhen(view)</time>
                         </Div>
                     </Div>
                 }
@@ -84,6 +86,27 @@
 </Section>
 
 @code {
+    private static readonly CssValue<TextColorBuilder> _markerColor4 = TextColor.Token("[var(--foreground)]");
+    private static readonly CssValue<TextColorBuilder> _markerColor3 = TextColor.Token("[var(--destructive)]");
+    private static readonly CssValue<TextColorBuilder> _markerColor2 = TextColor.Token("amber-700").OnDark.Token("amber-400");
+    private static readonly CssValue<TextColorBuilder> _markerColor1 = TextColor.Token("sky-700").OnDark.Token("sky-400");
+    private static readonly CssValue<TextColorBuilder> _markerColor0 = TextColor.Token("emerald-700").OnDark.Token("emerald-400");
+    private Action<MouseEventArgs>? _fitAllCallback;
+    private Action<MouseEventArgs>? _scrollCallback;
+    private void FitAllClick(MouseEventArgs _) => SetFitAll(true);
+    private void ScrollClick(MouseEventArgs _) => SetFitAll(false);
+    private ItemView[] _itemViews = [];
+    private ItemView GetItemView(EventTimelineItem item, int index)
+    {
+        if (_itemViews.Length != TimelineItems.Count) _itemViews = new ItemView[TimelineItems.Count];
+        var view = _itemViews[index];
+        if (view is null || !ReferenceEquals(view.Item, item))
+            _itemViews[index] = view = new ItemView(item);
+        return view;
+    }
+
+    private static readonly CssValue<SizeBuilder> _staticCss0 = Quark.Size.Is4;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Quark.ButtonSize.Sm;
     [Parameter]
     public IReadOnlyList<EventTimelineItem> Items { get; set; } = [];
 
@@ -158,6 +181,7 @@
             _sourceItems = new EventTimelineItem[Items.Count];
         for (int index = 0; index < Items.Count; index++)
             _sourceItems[index] = Items[index];
+        if (Items.Count == 0) _itemViews = [];
         _sortedNewestFirst = NewestFirst;
         var items = Items.Where(item => item.Label.HasContent());
         TimelineItems = (NewestFirst ? items.OrderByDescending(item => item.When) : items.OrderBy(item => item.When)).ToList();
@@ -174,17 +198,16 @@
         _fitAllOverride = fitAll;
     }
 
-    private string FormatWhen(DateTimeOffset when) => FormatTimestamp?.Invoke(when) ?? when.ToString("g", CultureInfo.CurrentCulture);
+    private string FormatWhen(ItemView view) => FormatTimestamp?.Invoke(view.Item.When) ?? view.GetFormattedTime();
 
-    private string? ItemTestId(EventTimelineItem item) => ItemTestIdPrefix is not null && item.Key.HasContent() ? $"{ItemTestIdPrefix}{item.Key}" : null;
 
-    private static TextColorBuilder MarkerColor(EventTimelineItem item)
+    private static CssValue<TextColorBuilder> MarkerColor(EventTimelineItem item)
     {
-        if (item.Tone == SemanticTone.Success) return TextColor.Token("emerald-700").OnDark.Token("emerald-400");
-        if (item.Tone == SemanticTone.Info) return TextColor.Token("sky-700").OnDark.Token("sky-400");
-        if (item.Tone == SemanticTone.Warning) return TextColor.Token("amber-700").OnDark.Token("amber-400");
-        if (item.Tone == SemanticTone.Danger) return TextColor.Token("[var(--destructive)]");
-        return TextColor.Token("[var(--foreground)]");
+        if (item.Tone == SemanticTone.Success) return _markerColor0;
+        if (item.Tone == SemanticTone.Info) return _markerColor1;
+        if (item.Tone == SemanticTone.Warning) return _markerColor2;
+        if (item.Tone == SemanticTone.Danger) return _markerColor3;
+        return _markerColor4;
     }
 
     private QuarkPresetToken MarkerPreset(EventTimelineItem item)

@@ -4,18 +4,26 @@
 <legend @attributes="BuildAttributes()">@ChildContent</legend>
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Snug;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-title";
-        TextSize ??= Quark.TextSize.Base;
-        Leading ??= Quark.Leading.Snug;
-        FontWeight ??= Quark.FontWeight.Medium;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-pretty [&:not(:has(~[data-slot=questionnaire-description]))]:mb-4"));
+        {
+            const string @class = "text-pretty [&:not(:has(~[data-slot=questionnaire-description]))]:mb-4";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

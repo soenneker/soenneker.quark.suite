@@ -5,7 +5,7 @@
 
 <CascadingValue Name="ParentCombobox" Value="@this">
     <Popover Open="@Open"
-             OpenChanged="HandlePopoverOpenChanged">
+             OpenChanged="(_cachedHandlePopoverOpenChangedDelegate ??= HandlePopoverOpenChanged)">
         <div @attributes="BuildAttributes()">
             @ChildContent
         </div>
@@ -13,17 +13,23 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private System.Func<bool, Task>? _cachedHandlePopoverOpenChangedDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox";
-        Position ??= Quark.Position.Relative;
+        Position ??= _defaultPosition;
     }
 
     private readonly string _comboboxId = BlazorIdGenerator.New("quark-combobox");
     private string? _inputId;
     private string? _contentId;
     private readonly List<ComboboxItem> _items = [];
+    private HashSet<ComboboxItem>? _registeredItems;
+    private ComboboxItem? _firstActiveItem;
+    private ComboboxItem? _visibleItem;
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
     private bool _triggerReservesInlineEndAction;
@@ -166,8 +172,21 @@
 
     internal void RegisterItem(ComboboxItem item)
     {
-        if (_items.Contains(item))
-            return;
+        if (_registeredItems is not null)
+        {
+            if (!_registeredItems.Add(item))
+                return;
+        }
+        else
+        {
+            if (_items.Contains(item))
+                return;
+            if (_items.Count >= 16)
+            {
+                _registeredItems = new HashSet<ComboboxItem>(_items);
+                _registeredItems.Add(item);
+            }
+        }
 
         bool hadVisibleItems = HasVisibleItems;
         string? activeItemId = ActiveItemId;
@@ -182,6 +201,12 @@
         bool hadVisibleItems = HasVisibleItems;
         if (!_items.Remove(item))
             return;
+
+        _registeredItems?.Remove(item);
+        if (ReferenceEquals(_firstActiveItem, item))
+            _firstActiveItem = null;
+        if (ReferenceEquals(_visibleItem, item))
+            _visibleItem = null;
 
         if (item.IsActiveItem)
             EnsureActiveItem();
@@ -394,16 +419,28 @@
 
     private void SetActiveValue(string? value)
     {
+        _firstActiveItem = null;
         foreach (var item in _items)
-            item.SetActive(string.Equals(item.Value, value, StringComparison.Ordinal));
+        {
+            bool active = string.Equals(item.Value, value, StringComparison.Ordinal);
+            item.SetActive(active);
+            if (active)
+                _firstActiveItem ??= item;
+        }
     }
 
     private string? GetActiveItemId()
     {
+        if (_firstActiveItem?.IsActiveItem == true)
+            return _firstActiveItem.ItemId;
+
         foreach (var item in _items)
         {
             if (item.IsActiveItem)
+            {
+                _firstActiveItem = item;
                 return item.ItemId;
+            }
         }
 
         return null;
@@ -411,10 +448,16 @@
 
     private bool HasAnyVisibleItem()
     {
+        if (_visibleItem is { Hidden: false })
+            return true;
+
         foreach (var item in _items)
         {
             if (!item.Hidden)
+            {
+                _visibleItem = item;
                 return true;
+            }
         }
 
         return false;
@@ -422,6 +465,9 @@
 
     private ComboboxItem? FindActiveSelectableItem()
     {
+        if (_firstActiveItem is { IsActiveItem: true, Hidden: false, Disabled: false })
+            return _firstActiveItem;
+
         foreach (var item in _items)
         {
             if (item.IsActiveItem && !item.Hidden && !item.Disabled)

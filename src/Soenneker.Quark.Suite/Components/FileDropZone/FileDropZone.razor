@@ -8,7 +8,9 @@
 @using Microsoft.JSInterop
 @inject IFileDropZoneInterop FileDropZoneInterop
 
-<FileDrop @attributes="BuildAttributes()" InputId="@_inputs[^1]" RenderInput="false" Disabled="@SelectionDisabled" OnElementRefReady="InitializeDrag">
+@{ _fileRenderGeneration = unchecked(_fileRenderGeneration + 1); }
+
+<FileDrop @attributes="BuildAttributes()" InputId="@_inputs[^1]" RenderInput="false" Disabled="@SelectionDisabled" OnElementRefReady="(_cachedInitializeDragDelegate ??= InitializeDrag)">
     <div hidden data-slot="file-drop-zone-placeholder" aria-hidden="true" class="pointer-events-none absolute z-10 h-2 rounded-full bg-primary/25 ring-1 ring-primary/20"></div>
     <div hidden data-slot="file-drop-zone-ghost" aria-hidden="true" class="pointer-events-none fixed z-50 truncate rounded-md border border-border bg-muted px-3 py-3 text-sm font-medium shadow-lg opacity-90"></div>
     <span class="sr-only" role="status" aria-live="polite">@_reorderAnnouncement</span>
@@ -17,78 +19,79 @@
         <div class="relative rounded-md px-3 text-center text-sm text-muted-foreground transition-colors hover:text-foreground has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring/50 data-[dragging=true]:bg-muted data-[disabled=true]:opacity-50"
              style="@(ReadOnly || Files.Count >= MaxFiles ? "display:none" : Files.Count > 0 ? "padding-block:8px" : "padding-block:24px")"
              data-slot="file-drop-zone-target" data-disabled="@(SelectionDisabled ? "true" : "false")">
-            <Div PointerEvents="Quark.PointerEvents.None">
+            <Div PointerEvents="_renderCss0">
                 @if (Files.Count == 0)
                 {
                     <Span>@Label </Span>
-                    <Span DecorationLine="Quark.DecorationLine.Underline" Class="underline-offset-4" FontWeight="Quark.FontWeight.Medium">Browse</Span>
+                    <Span DecorationLine="_renderCss1" Class="underline-offset-4" FontWeight="_renderCss2">Browse</Span>
                 }
                 else
                 {
-                    <Span DecorationLine="Quark.DecorationLine.Underline" Class="underline-offset-4">Add files</Span>
+                    <Span DecorationLine="_renderCss1" Class="underline-offset-4">Add files</Span>
                 }
                 @if (!string.IsNullOrWhiteSpace(Description))
                 {
-                    <Div TextSize="Quark.TextSize.Xs" Margin="Quark.Margin.FromTop.Is1">@Description</Div>
+                    <Div TextSize="_renderCss3" Margin="_renderCss4">@Description</Div>
                 }
             </Div>
             <span id="@_descriptionId" class="sr-only">@(Description ?? DefaultDescription)</span>
             @foreach (var inputKey in _inputs)
             {
-                <InputFile id="@inputKey" @key="inputKey" OnChange="args => SelectFiles(args, inputKey)" multiple="@(MaxFiles > 1)" accept="@Accept"
-                           disabled="@(SelectionDisabled || inputKey != _inputs[^1])" aria-label="@($"{Label} Browse")" aria-describedby="@_descriptionId"
+                <InputFile id="@inputKey" @key="inputKey" OnChange="GetInputEvents(inputKey).Changed" multiple="@(MaxFiles > 1)" accept="@Accept"
+                           disabled="@(SelectionDisabled || inputKey != _inputs[^1])" aria-label="@BrowseLabel" aria-describedby="@_descriptionId"
                            tabindex="@(inputKey == _inputs[^1] ? 0 : -1)"
                            style="@(inputKey == _inputs[^1] ? "position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer" : "display:none")" />
             }
         </div>
         @if (_selectionError is not null)
         {
-            <Div Role="alert" TextSize="Quark.TextSize.Xs" TextColor="Quark.TextColor.Destructive" Padding="Quark.Padding.Is2">@_selectionError</Div>
+            <Div Role="alert" TextSize="_renderCss3" TextColor="_renderCss5" Padding="_renderCss6">@_selectionError</Div>
         }
     }
     @if (Files.Count > 0)
     {
-        <Div Role="list" AriaLabel="Files" Space="Quark.Space.Y.Is2">
+        <Div Role="list" AriaLabel="Files" Space="_renderCss7">
             @foreach (var file in Files)
             {
+                var view = GetFileView(file);
                 <Div @key="file.Id" Role="listitem" data-slot="file-drop-zone-file" data-state="@file.State.Value" data-file-id="@file.Id"
-                     Position="Quark.Position.Relative" Overflow="Quark.Overflow.Hidden" Rounded="Quark.Rounded.Md" BackgroundColor="Quark.BackgroundColor.Muted">
-                    <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2" Padding="Quark.Padding.Is2">
+                     Position="_renderCss8" Overflow="_renderCss9" Rounded="_renderCss10" BackgroundColor="_renderCss11">
+                    <Div Display="_renderCss12" ItemsAlign="_staticCss1" Gap="_renderCss13" Padding="_renderCss6">
                         @if (!ReadOnly)
                         {
                             @if (_operations.ContainsKey(file.Id) && file.State != FileDropZoneState.Deleting)
                             {
-                                <Button Variant="ButtonVariant.Ghost" ButtonSize="Quark.ButtonSize.Icon" Size="Quark.Size.Is8" Rounded="Quark.Rounded.Full" Shrink="Quark.Shrink.Is0" Disabled="Disabled" aria-label="@($"Cancel upload of {file.Name}")" title="Cancel upload" OnClick="() => Cancel(file.Id)">
-                                    <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+                                <Button Variant="ButtonVariant.Ghost" ButtonSize="_renderCss14" Size="_renderCss15" Rounded="_renderCss16" Shrink="_renderCss17" Disabled="Disabled" aria-label="@view.CancelLabel" title="Cancel upload" OnClick="view.Cancel">
+                                    <Icon Name="LucideIcon.X" Size="_renderCss18" aria-hidden="true" />
                                 </Button>
                             }
                             else if (!_operations.ContainsKey(file.Id) && (file.ServerId is null || Delete is not null))
                             {
-                                <Button Variant="ButtonVariant.Ghost" ButtonSize="Quark.ButtonSize.Icon" Size="Quark.Size.Is8" Rounded="Quark.Rounded.Full" Shrink="Quark.Shrink.Is0" Disabled="Disabled" aria-label="@($"Delete {file.Name}")" title="Delete file" OnClick="() => DeleteFile(file.Id)">
-                                    <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+                                <Button Variant="ButtonVariant.Ghost" ButtonSize="_renderCss14" Size="_renderCss15" Rounded="_renderCss16" Shrink="_renderCss17" Disabled="Disabled" aria-label="@view.DeleteLabel" title="Delete file" OnClick="view.Delete">
+                                    <Icon Name="LucideIcon.X" Size="_renderCss18" aria-hidden="true" />
                                 </Button>
                             }
                         }
-                        <Div Flex="Quark.Flex.Is1" MinWidth="Quark.MinWidth.Is0">
-                            <Div TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Truncate="Quark.Truncate.Default" title="@file.Name">@file.Name</Div>
-                            <Div Display="Quark.Display.Flex" FlexWrap="Quark.FlexWrap.Wrap" Gap="Quark.Gap.Is2" TextSize="Quark.TextSize.Xs" TextColor="Quark.TextColor.MutedForeground">
-                                @if (file.Size is not null) { <Span>@FormatSize(file.Size.Value)</Span> }
+                        <Div Flex="_renderCss19" MinWidth="_staticCss0">
+                            <Div TextSize="_renderCss20" FontWeight="_renderCss2" Truncate="_renderCss21" title="@file.Name">@file.Name</Div>
+                            <Div Display="_renderCss12" FlexWrap="_renderCss22" Gap="_renderCss13" TextSize="_renderCss3" TextColor="_renderCss23">
+                                @if (file.Size is not null) { <Span>@view.Size</Span> }
                                 @if (file.State == FileDropZoneState.Complete && file.StatusText is null)
                                 {
                                     <span role="status" class="sr-only">Ready</span>
                                 }
                                 else if (!IsWorking(file) && !HasError(file))
                                 {
-                                    <Span Role="status">@Status(file)</Span>
+                                    <Span Role="status">@view.StatusText</Span>
                                 }
                             </Div>
                         </Div>
                         @if (IsWorking(file))
                         {
-                            <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2" MaxWidth='Quark.MaxWidth.Token("[50%]")'>
-                                <Div Role="status" TextSize="Quark.TextSize.Xs" TextAlign="Quark.TextAlign.Right">@Status(file)</Div>
-                                <svg role="progressbar" aria-label="@($"{file.Name}: {Status(file)}")" aria-valuemin="0" aria-valuemax="100"
-                                     aria-valuenow="@(file.Progress.HasValue ? Math.Clamp(file.Progress.Value, 0, 100) : (int?)null)" aria-valuetext="@Status(file)"
+                            <Div Display="_renderCss12" ItemsAlign="_staticCss1" Gap="_renderCss13" MaxWidth='_staticCss2'>
+                                <Div Role="status" TextSize="_renderCss3" TextAlign="_renderCss24">@view.StatusText</Div>
+                                <svg role="progressbar" aria-label="@view.ProgressLabel" aria-valuemin="0" aria-valuemax="100"
+                                     aria-valuenow="@(file.Progress.HasValue ? Math.Clamp(file.Progress.Value, 0, 100) : (int?)null)" aria-valuetext="@view.StatusText"
                                      viewBox="0 0 32 32" data-indeterminate="@(!file.Progress.HasValue ? "true" : "false")"
                                      class="size-8 shrink-0 -rotate-90 data-[indeterminate=true]:animate-spin">
                                     <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.15" />
@@ -99,41 +102,41 @@
                         }
                         @if (!ReadOnly && !_operations.ContainsKey(file.Id) && _browserFiles.ContainsKey(file.Id) && file.State == FileDropZoneState.Canceled)
                         {
-                            <Button Variant="ButtonVariant.Ghost" ButtonSize="Quark.ButtonSize.Icon" Size="Quark.Size.Is8" Rounded="Quark.Rounded.Full" Shrink="Quark.Shrink.Is0" Disabled="@(Disabled || Upload is null)" aria-label="@($"Retry upload of {file.Name}")" title="Retry upload" OnClick="() => UploadFile(file.Id)">
-                                <Icon Name="LucideIcon.RotateCcw" Size="Quark.Size.Is4" aria-hidden="true" />
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="_renderCss14" Size="_renderCss15" Rounded="_renderCss16" Shrink="_renderCss17" Disabled="@(Disabled || Upload is null)" aria-label="@view.RetryLabel" title="Retry upload" OnClick="view.Retry">
+                                <Icon Name="LucideIcon.RotateCcw" Size="_renderCss18" aria-hidden="true" />
                             </Button>
                         }
                         @if (AllowReorder && !ReadOnly && Files.Count > 1)
                         {
-                            <Button Variant="ButtonVariant.Ghost" ButtonSize="Quark.ButtonSize.Icon" Size="Quark.Size.Is6" Shrink="Quark.Shrink.Is0" Disabled="Disabled"
-                                    data-file-drag-handle="true" aria-label="@($"Reorder {file.Name}")" aria-describedby="@_reorderHelpId"
-                                    aria-keyshortcuts="ArrowUp ArrowDown Home End" Class="touch-none cursor-grab active:cursor-grabbing" TextColor="Quark.TextColor.MutedForeground">
-                                <Icon Name="LucideIcon.GripVertical" Size="Quark.Size.Is4" aria-hidden="true" />
+                            <Button Variant="ButtonVariant.Ghost" ButtonSize="_renderCss14" Size="_renderCss25" Shrink="_renderCss17" Disabled="Disabled"
+                                    data-file-drag-handle="true" aria-label="@view.ReorderLabel" aria-describedby="@_reorderHelpId"
+                                    aria-keyshortcuts="ArrowUp ArrowDown Home End" Class="touch-none cursor-grab active:cursor-grabbing" TextColor="_renderCss23">
+                                <Icon Name="LucideIcon.GripVertical" Size="_renderCss18" aria-hidden="true" />
                             </Button>
                         }
                     </Div>
                     @if (HasError(file))
                     {
-                        <Div data-slot="file-drop-zone-error" Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2"
-                             Padding="Quark.Padding.OnX.Is3.OnY.Is2" BackgroundColor='Quark.BackgroundColor.Token("destructive/5")'>
-                            <Icon Name="LucideIcon.CircleAlert" Size="Quark.Size.Is4" Shrink="Quark.Shrink.Is0" TextColor="Quark.TextColor.Destructive" aria-hidden="true" />
-                            <Div Role="alert" Flex="Quark.Flex.Is1" MinWidth="Quark.MinWidth.Is0" TextSize="Quark.TextSize.Xs" TextBreak="Quark.TextBreak.Words">
+                        <Div data-slot="file-drop-zone-error" Display="_renderCss12" ItemsAlign="_staticCss1" Gap="_renderCss13"
+                             Padding="_renderCss26" BackgroundColor='_renderCss27'>
+                            <Icon Name="LucideIcon.CircleAlert" Size="_renderCss18" Shrink="_renderCss17" TextColor="_renderCss5" aria-hidden="true" />
+                            <Div Role="alert" Flex="_renderCss19" MinWidth="_staticCss0" TextSize="_renderCss3" TextBreak="_renderCss28">
                                 @(file.Error ?? file.StatusText ?? (file.ServerId is null ? "Upload failed." : "Processing failed."))
                             </Div>
                             @if (!ReadOnly && !_operations.ContainsKey(file.Id))
                             {
                                 @if (_browserFiles.ContainsKey(file.Id) && file.State == FileDropZoneState.Failed)
                                 {
-                                    <Button Variant="ButtonVariant.Outline" ButtonSize="Quark.ButtonSize.Sm" Shrink="Quark.Shrink.Is0" Disabled="@(Disabled || Upload is null)"
-                                            aria-label="@($"Retry upload of {file.Name}")" OnClick="() => UploadFile(file.Id)">
-                                        <Icon Name="LucideIcon.RotateCcw" Size="Quark.Size.Is3" aria-hidden="true" />
+                                    <Button Variant="ButtonVariant.Outline" ButtonSize="_renderCss29" Shrink="_renderCss17" Disabled="@(Disabled || Upload is null)"
+                                            aria-label="@view.RetryLabel" OnClick="view.Retry">
+                                        <Icon Name="LucideIcon.RotateCcw" Size="_renderCss30" aria-hidden="true" />
                                         Retry
                                     </Button>
                                 }
                                 else if (file.ServerId is not null && Delete is not null && file.State != FileDropZoneState.Failed)
                                 {
-                                    <Button Variant="ButtonVariant.Outline" ButtonSize="Quark.ButtonSize.Sm" Shrink="Quark.Shrink.Is0" Disabled="Disabled"
-                                            aria-label="@($"Retry deleting {file.Name}")" OnClick="() => DeleteFile(file.Id)">Retry delete</Button>
+                                    <Button Variant="ButtonVariant.Outline" ButtonSize="_renderCss29" Shrink="_renderCss17" Disabled="Disabled"
+                                            aria-label="@view.RetryDeleteLabel" OnClick="view.Delete">Retry delete</Button>
                                 }
                             }
                         </Div>
@@ -148,11 +151,54 @@
     }
     else if (ReadOnly)
     {
-        <Div TextSize="Quark.TextSize.Sm" TextColor="Quark.TextColor.MutedForeground" Padding="Quark.Padding.Is2">No files</Div>
+        <Div TextSize="_renderCss20" TextColor="_renderCss23" Padding="_renderCss6">No files</Div>
     }
-    <span id="@_reorderHelpId" class="sr-only">Drag to reorder, or use the up and down arrow keys. Home moves first; End moves last. Escape cancels dragging.</span>
+    @if (AllowReorder && !ReadOnly && Files.Count > 1)
+    {
+        <span id="@_reorderHelpId" class="sr-only">Drag to reorder, or use the up and down arrow keys. Home moves first; End moves last. Escape cancels dragging.</span>
+    }
 </FileDrop>
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<ItemsBuilder> _staticCss1 = Quark.Items.Center;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss2 = Quark.MaxWidth.Token("[50%]");
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<DecorationLineBuilder> _renderCss1 = Quark.DecorationLine.Underline;
+    private static readonly CssValue<FontWeightBuilder> _renderCss2 = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextSizeBuilder> _renderCss3 = Quark.TextSize.Xs;
+    private static readonly CssValue<MarginBuilder> _renderCss4 = Quark.Margin.FromTop.Is1;
+    private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.Destructive;
+    private static readonly CssValue<PaddingBuilder> _renderCss6 = Quark.Padding.Is2;
+    private static readonly CssValue<SpaceBuilder> _renderCss7 = Quark.Space.Y.Is2;
+    private static readonly CssValue<PositionBuilder> _renderCss8 = Quark.Position.Relative;
+    private static readonly CssValue<OverflowBuilder> _renderCss9 = Quark.Overflow.Hidden;
+    private static readonly CssValue<RoundedBuilder> _renderCss10 = Quark.Rounded.Md;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss11 = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<DisplayBuilder> _renderCss12 = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _renderCss13 = Quark.Gap.Is2;
+    private static readonly CssValue<ButtonSizeBuilder> _renderCss14 = Quark.ButtonSize.Icon;
+    private static readonly CssValue<SizeBuilder> _renderCss15 = Quark.Size.Is8;
+    private static readonly CssValue<RoundedBuilder> _renderCss16 = Quark.Rounded.Full;
+    private static readonly CssValue<ShrinkBuilder> _renderCss17 = Quark.Shrink.Is0;
+    private static readonly CssValue<SizeBuilder> _renderCss18 = Quark.Size.Is4;
+    private static readonly CssValue<FlexBuilder> _renderCss19 = Quark.Flex.Is1;
+    private static readonly CssValue<TextSizeBuilder> _renderCss20 = Quark.TextSize.Sm;
+    private static readonly CssValue<TruncateBuilder> _renderCss21 = Quark.Truncate.Default;
+    private static readonly CssValue<FlexWrapBuilder> _renderCss22 = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<TextColorBuilder> _renderCss23 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TextAlignBuilder> _renderCss24 = Quark.TextAlign.Right;
+    private static readonly CssValue<SizeBuilder> _renderCss25 = Quark.Size.Is6;
+    private static readonly CssValue<PaddingBuilder> _renderCss26 = Quark.Padding.OnX.Is3.OnY.Is2;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss27 = Quark.BackgroundColor.Token("destructive/5");
+    private static readonly CssValue<TextBreakBuilder> _renderCss28 = Quark.TextBreak.Words;
+    private static readonly CssValue<ButtonSizeBuilder> _renderCss29 = Quark.ButtonSize.Sm;
+    private static readonly CssValue<SizeBuilder> _renderCss30 = Quark.Size.Is3;
+    private System.Func<ElementReference, Task>? _cachedInitializeDragDelegate;
+
     [Parameter] public IReadOnlyList<FileDropZoneFile> Files { get; set; } = [];
     [Parameter] public EventCallback<IReadOnlyList<FileDropZoneFile>> FilesChanged { get; set; }
     [Parameter] public Func<FileDropZoneUploadRequest, CancellationToken, ValueTask<FileDropZoneUploadResult>>? Upload { get; set; }
@@ -167,6 +213,33 @@
     [Parameter] public string Label { get; set; } = "Drag & drop your files or";
     [Parameter] public string? Description { get; set; }
 
+    private Dictionary<string, FileView>? _fileViews;
+    private Dictionary<string, InputEvents>? _inputEvents;
+    private int _fileRenderGeneration;
+    private string? _browseLabel;
+    private (string? Accept, long Size, int Count, System.Globalization.CultureInfo Culture)? _descriptionInputs;
+    private string? _defaultDescription;
+
+    private string BrowseLabel => QuarkStringCache.Concat(Label ?? string.Empty, " ", "Browse", ref _browseLabel);
+
+    private FileView GetFileView(FileDropZoneFile file)
+    {
+        var views = _fileViews ??= new Dictionary<string, FileView>(StringComparer.Ordinal);
+        if (!views.TryGetValue(file.Id, out var view))
+            views.Add(file.Id, view = new FileView(this, file.Id));
+        view.Update(file);
+        view.Generation = _fileRenderGeneration;
+        return view;
+    }
+
+    private InputEvents GetInputEvents(string key)
+    {
+        var entries = _inputEvents ??= new Dictionary<string, InputEvents>(StringComparer.Ordinal);
+        if (!entries.TryGetValue(key, out var entry))
+            entries.Add(key, entry = new InputEvents(this, key));
+        return entry;
+    }
+
     private readonly string _descriptionId = BlazorIdGenerator.New("file-drop-zone-help");
     private readonly string _reorderHelpId = BlazorIdGenerator.New("file-drop-zone-reorder");
     private DotNetObjectReference<FileDropZone>? _dragCallback;
@@ -176,6 +249,8 @@
     private readonly List<string> _inputs = [BlazorIdGenerator.New("file-drop-zone-input")];
     private readonly Dictionary<string, (IBrowserFile File, string Input, int Index)> _browserFiles = new();
     private readonly Dictionary<string, CancellationTokenSource> _operations = new();
+    private HashSet<string>? _fileIds;
+    private HashSet<string>? _usedInputIds;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly Dictionary<string, string> _previewUrls = new();
     private bool _previewInteropUsed;
@@ -183,20 +258,33 @@
     private string? _selectionError;
     private bool _disposed;
     private bool SelectionDisabled => Disabled || ReadOnly || _selecting || Upload is null || Files.Count >= MaxFiles;
-    private string DefaultDescription => $"{(string.IsNullOrWhiteSpace(Accept) ? "Any file type" : Accept)} · Up to {FormatSize(MaxFileSize)} each · {MaxFiles} {(MaxFiles == 1 ? "file" : "files")} maximum";
+    private string DefaultDescription
+    {
+        get
+        {
+            var inputs = (Accept, MaxFileSize, MaxFiles, System.Globalization.CultureInfo.CurrentCulture);
+            if (_defaultDescription is null || _descriptionInputs != inputs || !inputs.Item4.IsReadOnly ||
+                !ReferenceEquals(_descriptionInputs?.Culture, inputs.Item4))
+            {
+                _descriptionInputs = inputs;
+                _defaultDescription = $"{(string.IsNullOrWhiteSpace(Accept) ? "Any file type" : Accept)} · Up to {FormatSize(MaxFileSize)} each · {MaxFiles} {(MaxFiles == 1 ? "file" : "files")} maximum";
+            }
+            return _defaultDescription;
+        }
+    }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "file-drop-zone";
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Rounded ??= Quark.Rounded.Xl;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Input;
-        Padding ??= Quark.Padding.Is2;
-        Space ??= Quark.Space.Y.Is2;
+        Position ??= _renderCss8;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        Padding ??= _renderCss6;
+        Space ??= _renderCss7;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -210,12 +298,21 @@
     public async Task MoveFile(string fileId, string? beforeId)
     {
         if (_disposed || Disabled || ReadOnly || !AllowReorder || fileId == beforeId) return;
-        var file = Files.FirstOrDefault(item => item.Id == fileId);
-        if (file is null || (beforeId is not null && !Files.Any(item => item.Id == beforeId))) return;
-        var reordered = Files.Where(item => item.Id != fileId).ToList();
-        var index = beforeId is null ? reordered.Count : reordered.FindIndex(item => item.Id == beforeId);
+        var sourceIndex = -1;
+        var targetIndex = beforeId is null ? Files.Count : -1;
+        for (var i = 0; i < Files.Count; i++)
+        {
+            if (Files[i].Id == fileId) sourceIndex = i;
+            if (Files[i].Id == beforeId) targetIndex = i;
+        }
+        if (sourceIndex < 0 || targetIndex < 0) return;
+        var index = targetIndex > sourceIndex ? targetIndex - 1 : targetIndex;
+        if (index == sourceIndex) return;
+        var file = Files[sourceIndex];
+        var reordered = new List<FileDropZoneFile>(Files.Count);
+        for (var i = 0; i < Files.Count; i++)
+            if (i != sourceIndex) reordered.Add(Files[i]);
         reordered.Insert(index, file);
-        if (Files.Select(item => item.Id).SequenceEqual(reordered.Select(item => item.Id))) return;
         _reorderAnnouncement = $"{file.Name} moved to position {index + 1} of {reordered.Count}.";
         await SetFiles(reordered);
     }
@@ -232,12 +329,26 @@
         base.OnParametersSet();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(MaxFiles);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(MaxFileSize);
-        if (Files.Select(file => file.Id).Distinct(StringComparer.Ordinal).Count() != Files.Count)
-            throw new ArgumentException("File IDs must be unique.", nameof(Files));
-        foreach (var id in _browserFiles.Keys.Where(id => !Files.Any(file => file.Id == id)).ToArray())
+        _fileIds?.Clear();
+        if (Files.Count > 0)
         {
-            if (_operations.TryGetValue(id, out var operation)) operation.Cancel();
-            _browserFiles.Remove(id);
+            _fileIds ??= new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < Files.Count; i++)
+                if (!_fileIds.Add(Files[i].Id))
+                    throw new ArgumentException("File IDs must be unique.", nameof(Files));
+        }
+        // Snapshot removals before cancellation, which can invoke application callbacks.
+        List<string>? removedIds = null;
+        foreach (var id in _browserFiles.Keys)
+            if (_fileIds is null || !_fileIds.Contains(id))
+                (removedIds ??= new List<string>()).Add(id);
+        if (removedIds is not null)
+        {
+            foreach (var id in removedIds)
+            {
+                if (_operations.TryGetValue(id, out var operation)) operation.Cancel();
+                _browserFiles.Remove(id);
+            }
         }
         ReleaseUnusedInputs();
     }
@@ -281,7 +392,16 @@
         try
         {
             var updated = Files.ToList();
-            var insertionIndex = beforeId is null ? -1 : updated.FindIndex(file => file.Id == beforeId);
+            var insertionIndex = -1;
+            if (beforeId is not null)
+            {
+                for (int i = 0; i < updated.Count; i++)
+                {
+                    if (updated[i].Id != beforeId) continue;
+                    insertionIndex = i;
+                    break;
+                }
+            }
             updated.InsertRange(insertionIndex < 0 ? updated.Count : insertionIndex, added);
             await SetFiles(updated);
             if (ShowPreviews && added.Any(FileDropZoneMedia.CanPreview))
@@ -306,7 +426,15 @@
         _inputs.Add(BlazorIdGenerator.New("file-drop-zone-input"));
         ReleaseUnusedInputs();
         Refresh();
-        await Task.WhenAll(added.Select(file => UploadFile(file.Id)));
+        if (added.Count == 1)
+            await UploadFile(added[0].Id);
+        else if (added.Count > 1)
+        {
+            var uploads = new Task[added.Count];
+            for (int i = 0; i < uploads.Length; i++)
+                uploads[i] = UploadFile(added[i].Id);
+            await Task.WhenAll(uploads);
+        }
     }
 
     private bool Accepts(IBrowserFile file)
@@ -329,7 +457,7 @@
     {
         var handler = Upload;
         if (_disposed || Disabled || ReadOnly || handler is null || _operations.ContainsKey(id) || !_browserFiles.TryGetValue(id, out var source)) return;
-        var file = Files.FirstOrDefault(item => item.Id == id);
+        var file = FindFile(id);
         if (file is null) return;
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _operations[id] = cts;
@@ -339,7 +467,8 @@
             var request = new FileDropZoneUploadRequest(source.File, file, MaxFileSize, cts.Token, (state, progress, text) => InvokeAsync(async () =>
             {
                 if (_disposed || cts.IsCancellationRequested || !_operations.TryGetValue(id, out var current) || current != cts) return;
-                await Update(id, item => item with { State = state, Progress = progress.HasValue ? Math.Clamp(progress.Value, 0, 100) : null, StatusText = text });
+                await Update(id, (State: state, Progress: progress.HasValue ? Math.Clamp(progress.Value, 0, 100) : (int?)null, Text: text),
+                    static (item, update) => item with { State = update.State, Progress = update.Progress, StatusText = update.Text });
             }));
             var result = await handler(request, cts.Token);
             // A handler that successfully persisted despite cancellation still supplies a deletable server ID.
@@ -373,7 +502,7 @@
     private async Task DeleteFile(string id)
     {
         if (_disposed || Disabled || ReadOnly || _operations.ContainsKey(id)) return;
-        var file = Files.FirstOrDefault(item => item.Id == id);
+        var file = FindFile(id);
         if (file is null) return;
         var handler = Delete;
         if (file.ServerId is not null && handler is null) return;
@@ -399,8 +528,27 @@
         }
     }
 
-    private Task Update(string id, Func<FileDropZoneFile, FileDropZoneFile> update) =>
-        SetFiles(Files.Select(file => file.Id == id ? update(file) : file).ToArray());
+    private Task Update(string id, Func<FileDropZoneFile, FileDropZoneFile> update)
+    {
+        var updated = new FileDropZoneFile[Files.Count];
+        for (var i = 0; i < updated.Length; i++)
+        {
+            var file = Files[i];
+            updated[i] = file.Id == id ? update(file) : file;
+        }
+        return SetFiles(updated);
+    }
+
+    private Task Update<TState>(string id, TState state, Func<FileDropZoneFile, TState, FileDropZoneFile> update)
+    {
+        var updated = new FileDropZoneFile[Files.Count];
+        for (int i = 0; i < updated.Length; i++)
+        {
+            var file = Files[i];
+            updated[i] = file.Id == id ? update(file, state) : file;
+        }
+        return SetFiles(updated);
+    }
 
     private async Task SetFiles(IReadOnlyList<FileDropZoneFile> files)
     {
@@ -410,7 +558,26 @@
         await FilesChanged.InvokeAsync(files);
     }
 
-    private void ReleaseUnusedInputs() => _inputs.RemoveAll(input => input != _inputs[^1] && !_browserFiles.Values.Any(source => source.Input == input));
+    private void ReleaseUnusedInputs()
+    {
+        if (_inputs.Count <= 1)
+            return;
+        var used = _usedInputIds ??= new HashSet<string>(StringComparer.Ordinal);
+        used.Clear();
+        foreach (var source in _browserFiles.Values)
+            used.Add(source.Input);
+        for (int i = _inputs.Count - 2; i >= 0; i--)
+            if (!used.Contains(_inputs[i]))
+                _inputs.RemoveAt(i);
+    }
+
+    private FileDropZoneFile? FindFile(string id)
+    {
+        for (int i = 0; i < Files.Count; i++)
+            if (Files[i].Id == id)
+                return Files[i];
+        return null;
+    }
     private string? PreviewUrl(FileDropZoneFile file) => FileDropZoneMedia.IsPreviewUrl(file.PreviewUrl) ? file.PreviewUrl : _previewUrls.GetValueOrDefault(file.Id);
 
     private async Task InitializeDrag(ElementReference element)
@@ -428,10 +595,27 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        if (_fileViews is not null)
+        {
+            foreach (var pair in _fileViews)
+                if (pair.Value.Generation != _fileRenderGeneration)
+                    _fileViews.Remove(pair.Key);
+        }
+        if (_inputEvents is not null)
+        {
+            foreach (var pair in _inputEvents)
+                if (!_inputs.Contains(pair.Key))
+                    _inputEvents.Remove(pair.Key);
+        }
         if (_disposed || _selecting || _previewUrls.Count == 0 || !_previewInteropUsed) return;
-        var removed = _previewUrls.Keys.Where(id => !Files.Any(file => file.Id == id)).ToArray();
-        if (removed.Length == 0) return;
-        foreach (var id in removed) _previewUrls.Remove(id);
+        _fileIds ??= new HashSet<string>(StringComparer.Ordinal);
+        _fileIds.Clear();
+        for (var i = 0; i < Files.Count; i++) _fileIds.Add(Files[i].Id);
+        var removed = false;
+        // Dictionary permits removal during enumeration; no callbacks run in this loop.
+        foreach (var id in _previewUrls.Keys)
+            if (!_fileIds.Contains(id)) removed |= _previewUrls.Remove(id);
+        if (!removed) return;
         try { await FileDropZoneInterop.RetainPreviews(_descriptionId, _previewUrls.Keys.ToArray()); }
         catch (JSDisconnectedException) { }
     }

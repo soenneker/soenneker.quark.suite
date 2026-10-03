@@ -1,4 +1,4 @@
-﻿@using Soenneker.Bradix
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 @using System.Threading
 
@@ -8,8 +8,8 @@
 
 @if (UsesAutoSaveStatusSlot)
 {
-    <Span Display="Quark.Display.InlineFlex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
-        <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="HandleToggleKeyDown" AdditionalAttributes="@ToggleAttributes">
+    <Span Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
+        <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="(_cachedHandlePressedChangedDelegate ??= HandlePressedChanged)" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="(_cachedHandleToggleKeyDownDelegate ??= HandleToggleKeyDown)" AdditionalAttributes="@ToggleAttributes">
             @ChildContent
         </BradixToggle>
         <AutoSaveStatus State="@_autoSave.State"
@@ -23,14 +23,40 @@
 }
 else
 {
-    <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="HandlePressedChanged" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="HandleToggleKeyDown" AdditionalAttributes="@ToggleAttributes">
+    <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="(_cachedHandlePressedChangedDelegate ??= HandlePressedChanged)" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="(_cachedHandleToggleKeyDownDelegate ??= HandleToggleKeyDown)" AdditionalAttributes="@ToggleAttributes">
         @ChildContent
     </BradixToggle>
 }
 
 @code {
+    private (bool Rtl, string Variant, string Size, string? BaseClass) _toggleClassKey;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor2 = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<ItemsBuilder> _renderCss1 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
+    private System.Func<bool, Task>? _cachedHandlePressedChangedDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleToggleKeyDownDelegate;
+
+    private string? _lastBuiltClass;
+
+    private object? _cachedHandleToggleBlurFocusEventArgsCallback;
+
     private QuarkAttributeDictionary _toggleAttributes;
-    private readonly AutoSaveController<bool?> _autoSave = new();
+    private AutoSaveController<bool?> _autoSave;
 
     /// <summary>
     /// Gets or sets whether the toggle is pressed.
@@ -105,27 +131,27 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "toggle";
-        Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is1;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Display ??= _renderCss0;
+        ItemsAlign ??= _renderCss1;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
+        FontWeight ??= _defaultFontWeight;
+        Whitespace ??= _defaultWhitespace;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        RingColor ??= _defaultRingColor;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
 
         if (ReferenceEquals(Variant, ToggleVariant.Outline))
         {
-            Border ??= Quark.Border.Default;
-            BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-            BorderColor ??= Quark.BorderColor.OnFocusVisible.Ring;
+            Border ??= _defaultBorder;
+            BorderColor ??= _defaultBorderColor2;
+            BorderColor ??= _defaultBorderColor;
         }
 
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     private IReadOnlyDictionary<string, object> ToggleAttributes
@@ -148,17 +174,35 @@ else
             attributes["data-state"] = Pressed ? "on" : "off";
 
             if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
-                attributes["onblur"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleToggleBlur);
+                attributes["onblur"] = (_cachedHandleToggleBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleToggleBlur));
 
-            BuildClassAttribute(attributes, (ref cls) =>
+            var isRtl = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
+            var variantClass = GetToggleVariantClass(Variant);
+            var sizeClass = ResolveToggleSizeClass(ToggleSize, includeShrink: false, isRtl);
+            attributes.TryGetValue("class", out var existingClass);
+            var baseClass = existingClass as string ?? existingClass?.ToString();
+            if (existingClass is not null) attributes["class"] = baseClass!;
+            var classKey = (isRtl, variantClass, sizeClass, baseClass);
+            if (_lastBuiltClass is null || _toggleClassKey != classKey)
             {
-                var isRtl = string.Equals(ResolvedDir, "rtl", StringComparison.OrdinalIgnoreCase);
-                AppendClass(ref cls, "group/toggle hover:bg-muted hover:text-foreground focus-visible:ring-[3px]");
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
-                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
-                AppendClass(ref cls, GetToggleVariantClass(Variant));
-                AppendClass(ref cls, ResolveToggleSizeClass(ToggleSize, includeShrink: false, isRtl));
-            });
+                _toggleClassKey = classKey;
+                var cls = new PooledStringBuilder(stackalloc char[64]);
+                try
+                {
+                    AppendClass(ref cls, "group/toggle hover:bg-muted hover:text-foreground focus-visible:ring-[3px]");
+                    AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
+                    AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
+                    AppendClass(ref cls, variantClass);
+                    AppendClass(ref cls, sizeClass);
+                    BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+                }
+                finally
+                {
+                    cls.Dispose();
+                }
+            }
+            else
+                attributes["class"] = _lastBuiltClass;
 
             return attributes;
         }
@@ -168,7 +212,7 @@ else
     {
         Pressed = pressed;
         await PressedChanged.InvokeAsync(pressed);
-        await _autoSave.NotifyValueChanged(pressed, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+        await _autoSave.NotifyValueChanged(pressed, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         Refresh();
     }
@@ -176,7 +220,7 @@ else
     private async Task HandleToggleBlur(FocusEventArgs e)
     {
         if (AutoSaveOnBlur)
-            _autoSave.QueueFlush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            _autoSave.QueueFlush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnBlur.InvokeIfHasDelegate(e);
     }
@@ -184,7 +228,7 @@ else
     private async Task HandleToggleKeyDown(KeyboardEventArgs e)
     {
         if (AutoSaveOnEnter && string.Equals(e.Key, "Enter", StringComparison.Ordinal))
-            await _autoSave.Flush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.Flush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
     }

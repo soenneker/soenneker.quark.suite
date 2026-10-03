@@ -9,6 +9,8 @@
 </pre>
 
 @code {
+    private string? _scrollClass;
+    private string? _heightStyle;
     private QuarkAttributeDictionary _preAttributesBuffer;
     private QuarkAttributeDictionary _codeAttributesBuffer;
     [Parameter]
@@ -28,20 +30,15 @@
         var attributes = _preAttributesBuffer.Create(BuildAttributes(), 1);
         attributes["data-slot"] = "pre-code";
         if (Scrollable)
-            attributes.TryAdd("tabindex", 0);
+        attributes.TryAdd("tabindex", QuarkAttributeValues.Zero);
 
         if (!Class.HasContent())
         {
-            var baseClasses = "p-3 rounded";
-            
-            if (Scrollable)
-            {
-                baseClasses += " overflow-auto";
-            }
+            var baseClasses = Scrollable ? "p-3 rounded overflow-auto" : "p-3 rounded";
 
             if (MaxHeight.HasValue)
             {
-                attributes["style"] = $"max-height: {MaxHeight.Value}px;";
+                attributes["style"] = QuarkStringCache.Concat("max-height: ", MaxHeight.Value.ToString(), "px;", ref _heightStyle);
             }
 
             attributes["class"] = baseClasses;
@@ -49,10 +46,10 @@
         else
         {
             var currentClass = attributes.TryGetValue("class", out var classValue) ? classValue?.ToString() ?? Class : Class;
-            
+
             if (Scrollable && !currentClass.Contains("overflow-auto"))
             {
-                currentClass = AppendToClass(currentClass, "overflow-auto");
+                currentClass = AppendToClass(currentClass, "overflow-auto", ref _scrollClass);
             }
 
             attributes["class"] = currentClass;
@@ -72,9 +69,9 @@
             attributes["Theme"] = Theme;
 
         if (Highlight)
-            attributes["Highlight"] = Highlight;
+            attributes["Highlight"] = QuarkAttributeValues.True;
 
-        attributes["Inline"] = false;
+        attributes["Inline"] = QuarkAttributeValues.False;
 
         return attributes;
     }

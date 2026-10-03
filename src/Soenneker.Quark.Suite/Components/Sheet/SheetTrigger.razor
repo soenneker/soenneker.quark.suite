@@ -46,12 +46,34 @@ else
         return BuildAttributes();
     }
 
-    private static string? GetOverlayTriggerId(OverlayLabelContext? context) =>
-        context?.ContentId is { } contentId ? BlazorIdGenerator.Child(contentId, "trigger") : null;
+    private string? _triggerContentId;
+    private string? _overlayTriggerId;
+    private string? GetOverlayTriggerId(OverlayLabelContext? context)
+    {
+        string? contentId = context?.ContentId;
+        if (_triggerContentId != contentId)
+        {
+            _triggerContentId = contentId;
+            _overlayTriggerId = contentId is null ? null : BlazorIdGenerator.Child(contentId, "trigger");
+        }
+        return _overlayTriggerId;
+    }
+
+    private (bool, Sheet?, bool, BradixDialog?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+    private Func<Task>? _contextToggleCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
 
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Disabled, ParentSheet, ParentSheet?.Visible == true, BradixDialog, Context?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = "sheet-trigger",
             TriggerId = GetOverlayTriggerId(Context),
@@ -60,31 +82,18 @@ else
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
-            OnPointerDownEvent = ParentSheet is null || Disabled ? null : HandleTriggerPointerDown,
+            OnPointerDownEvent = ParentSheet is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
             SuppressClickAfterPointerDown = true,
-            RegisterElement = elementReference =>
+            RegisterElement = (_contextRegisterElementCallback ??= elementReference =>
             {
                 if (BradixDialog is not null)
                     BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
-            },
+            }),
             Toggle = ParentSheet is null
                 ? null
-                : async () =>
-                {
-                    if (ParentSheet.Visible)
-                    {
-                        await ParentSheet.Hide();
-                    }
-                    else
-                    {
-                        await ParentSheet.Show();
-                    }
-                },
-            Open = ParentSheet is null ? null : async () =>
-            {
-                await ParentSheet.Show();
-            },
-            Close = ParentSheet is null ? null : () => ParentSheet.Hide()
+                : (_contextToggleCallback ??= () => ParentSheet.Visible ? ParentSheet.Hide() : ParentSheet.Show()),
+            Open = ParentSheet is null ? null : (_contextOpenCallback ??= () => ParentSheet.Show()),
+            Close = ParentSheet is null ? null : (_contextCloseCallback ??= () => ParentSheet.Hide())
         };
     }
 

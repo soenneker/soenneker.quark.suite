@@ -5,13 +5,34 @@
     @ChildContent
     @if (ShowRemove)
     {
-        <Button Type="@ButtonType.Button" DataSlot="combobox-chip-remove" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconXs" Margin='Quark.Margin.FromLeft.Negative1' Opacity="CssValue<OpacityBuilder>.For(Quark.Opacity.Is50, Quark.Opacity.Is100.OnHover)" tabindex="-1" aria-label="Remove selection" Disabled="@(ParentCombobox?.Disabled == true)" @onclick="HandleRemoveClick" @onmousedown:preventDefault="true">
-            <Icon Name="LucideIcon.X" PointerEvents="Quark.PointerEvents.None" />
+        <Button Type="@ButtonType.Button" DataSlot="combobox-chip-remove" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss2" Margin='_renderCss0' Opacity="_staticCss1" tabindex="-1" aria-label="Remove selection" Disabled="@(ParentCombobox?.Disabled == true)" @onclick="(_cachedHandleRemoveClickDelegate ??= HandleRemoveClick)" @onmousedown:preventDefault="true">
+            <Icon Name="LucideIcon.X" PointerEvents="_renderCss1" />
         </Button>
     }
 </Span>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<OpacityBuilder> _staticCss1 = CssValue<OpacityBuilder>.For(Quark.Opacity.Is50, Quark.Opacity.Is100.OnHover);
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss2 = Quark.ButtonSize.IconXs;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Token("[calc(--spacing(5.25))]");
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Foreground;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.FromLeft.Negative1;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss1 = Quark.PointerEvents.None;
+    private string? _lastBuiltClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleRemoveClickDelegate;
+
     [Parameter]
     public string Value { get; set; } = string.Empty;
 
@@ -33,19 +54,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox-chip";
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Token("[calc(--spacing(5.25))]");
-        Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
-        Padding ??= Quark.Padding.OnX.Is1_5;
-        TextSize ??= Quark.TextSize.Xs;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        TextColor ??= Quark.TextColor.Foreground;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        Whitespace ??= _defaultWhitespace;
+        TextColor ??= _defaultTextColor;
 
     }
 
@@ -55,13 +76,11 @@
 
         attributes["data-value"] = Value;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "has-data-[slot=combobox-chip-remove]:pr-0");
-
-            if (ParentCombobox?.Disabled == true)
-                AppendClass(ref cls, "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50");
-        });
+            const string @class = "has-data-[slot=combobox-chip-remove]:pr-0";
+            const string variant = @class + " " + "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50";
+            PrependClassAttribute(attributes, ParentCombobox?.Disabled == true ? variant : @class, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

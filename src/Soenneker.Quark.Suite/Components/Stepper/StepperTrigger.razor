@@ -9,13 +9,28 @@
 }
 else
 {
-    <button @ref="_button" @onclick="HandleClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    <button @ref="_button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _conditionalCss0 = Quark.Display.Flex;
+    private static readonly CssValue<DisplayBuilder> _conditionalCss1 = Quark.Display.InlineFlex;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is60.OnDisabled;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private ElementReference _button;
+    private string? _tabId;
+    private string? _panelId;
 
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
@@ -45,17 +60,17 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-trigger";
-        Display ??= ParentStepperItem?.IsStacked == true ? Quark.Display.Flex : Quark.Display.InlineFlex;
-        Cursor ??= Quark.Cursor.Pointer;
-        ItemsAlign ??= Quark.Items.Center;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is60.OnDisabled;
-        Rounded ??= Quark.Rounded.Full;
-        Gap ??= Quark.Gap.Is2_5;
+        Display ??= ParentStepperItem?.IsStacked == true ? _conditionalCss0 : _conditionalCss1;
+        Cursor ??= _defaultCursor;
+        ItemsAlign ??= _defaultItemsAlign;
+        OutlineStyle ??= _defaultOutlineStyle;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
+        Rounded ??= _defaultRounded;
+        Gap ??= _defaultGap;
 
         if (ParentStepperItem?.IsStacked == true)
-            FlexDirection ??= Quark.FlexDirection.Col;
+            FlexDirection ??= _defaultFlexDirection;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -74,15 +89,15 @@ else
 
         attributes["type"] = "button";
         attributes["role"] = "tab";
-        attributes["id"] = $"stepper-tab-{StepValue}";
+        attributes["id"] = QuarkStringCache.Concat("stepper-tab-", "", StepValue, ref _tabId);
         attributes["aria-selected"] = Selected ? "true" : "false";
-        attributes["aria-controls"] = $"stepper-panel-{StepValue}";
-        attributes["tabindex"] = Selected ? 0 : -1;
+        attributes["aria-controls"] = QuarkStringCache.Concat("stepper-panel-", "", StepValue, ref _panelId);
+        attributes["tabindex"] = Selected ? QuarkAttributeValues.Zero : QuarkAttributeValues.MinusOne;
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
         attributes["data-loading"] = ParentStepperItem?.Loading == true ? "true" : "false";
 
         if (ParentStepperItem?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
     }
 

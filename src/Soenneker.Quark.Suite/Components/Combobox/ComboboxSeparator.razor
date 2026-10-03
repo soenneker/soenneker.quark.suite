@@ -4,14 +4,17 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-border");
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnY.Is1.OnX.Token("-1");
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsPx;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "combobox-separator";
 
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
-        Margin ??= Quark.Margin.OnY.Is1.OnX.Token("-1");
-        Height ??= Quark.Height.IsPx;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Margin ??= _defaultMargin;
+        Height ??= _defaultHeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

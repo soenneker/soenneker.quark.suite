@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Soenneker.Utils.PooledStringBuilders;
+using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
@@ -9,6 +9,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ValidationResult
 {
+    private Task<ValidationResult>? _task;
+    internal Task<ValidationResult> AsTask() => _task ??= Task.FromResult(this);
     private static readonly ValidationResult _success = new() { Status = ValidationStatus.Success };
     private static readonly ValidationResult _none = new() { Status = ValidationStatus.None };
 
@@ -74,14 +76,20 @@ public sealed class ValidationResult
     /// </summary>
     /// <param name="results">results to process.</param>
     /// <returns>The same builder instance, so additional classes or variants can be chained.</returns>
-    public static ValidationResult Combine(params ValidationResult[] results)
+    public static ValidationResult Combine(params ValidationResult[] results) => Combine(results.AsSpan());
+
+    /// <summary>Combines validation results without allocating a parameter array.</summary>
+    /// <param name="results">The results to combine in order.</param>
+    /// <returns>The combined status, error text, and distinct member names.</returns>
+    public static ValidationResult Combine(params ReadOnlySpan<ValidationResult> results)
     {
-        if (results == null || results.Length == 0)
+        if (results.Length == 0)
             return None();
 
         var hasError = false;
         List<string>? errorMessages = null;
         List<string>? memberNames = null;
+        HashSet<string>? memberSet = null;
 
         for (var i = 0; i < results.Length; i++)
         {
@@ -107,7 +115,9 @@ public sealed class ValidationResult
 
                 memberNames ??= [];
 
-                if (!ContainsOrdinal(memberNames, name))
+                if (memberSet is null && memberNames.Count >= 8)
+                    memberSet = new HashSet<string>(memberNames, StringComparer.Ordinal);
+                if (memberSet is not null ? memberSet.Add(name) : !ContainsOrdinal(memberNames, name))
                     memberNames.Add(name);
             }
         }
@@ -144,16 +154,6 @@ public sealed class ValidationResult
         if (errorMessages.Count == 1)
             return errorMessages[0];
 
-        using var builder = new PooledStringBuilder(errorMessages.Count * 32);
-
-        for (var i = 0; i < errorMessages.Count; i++)
-        {
-            if (i != 0)
-                builder.Append(' ');
-
-            builder.Append(errorMessages[i]);
-        }
-
-        return builder.ToString();
+        return string.Join(" ", errorMessages);
     }
 }

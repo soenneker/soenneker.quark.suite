@@ -49,6 +49,13 @@ else
 }
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.IconXs;
+    private string? _textClass;
+    private string? _copyButtonClass;
+    private string? _rootClass;
+    private string? _mergedTextClass;
+    private string? _mergedRootClass;
+    private string? _mergedRootStyle;
     [Parameter]
     public QuarkPresetToken? Preset { get; set; }
     [Parameter]
@@ -107,7 +114,7 @@ else
     public ButtonVariant CopyButtonVariant { get; set; } = ButtonVariant.Ghost;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = ButtonSize.IconXs;
+    public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = _staticCss0;
 
     [Parameter]
     public string CopyLabel { get; set; } = "Copy";
@@ -145,11 +152,11 @@ else
 
     private bool CopyDisabled => Disabled || (DisableCopyWhenEmpty && string.IsNullOrEmpty(CurrentCopyText));
 
-    private string ResolvedRootClass => AppendClass("inline-flex h-8 w-full min-w-0 cursor-default select-none items-center gap-1 rounded-lg border border-transparent bg-input/60 px-2 py-1 shadow-none dark:bg-input/40", Class);
+    private string ResolvedRootClass => AppendClass("inline-flex h-8 w-full min-w-0 cursor-default select-none items-center gap-1 rounded-lg border border-transparent bg-input/60 px-2 py-1 shadow-none dark:bg-input/40", Class, ref _rootClass);
 
-    private string ResolvedTextClass => AppendClass("min-w-0 flex-1 truncate font-mono text-[13px] leading-none text-foreground/80", TextClass);
+    private string ResolvedTextClass => AppendClass("min-w-0 flex-1 truncate font-mono text-[13px] leading-none text-foreground/80", TextClass, ref _textClass);
 
-    private string ResolvedCopyButtonClass => AppendClass("size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0", CopyButtonClass);
+    private string ResolvedCopyButtonClass => AppendClass("size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0", CopyButtonClass, ref _copyButtonClass);
 
     private Dictionary<string, object> BuildRootAttributes()
     {
@@ -172,8 +179,8 @@ else
         if (!string.IsNullOrWhiteSpace(AriaDescribedBy))
             attributes["aria-describedby"] = AriaDescribedBy!;
 
-        MergeAttribute(attributes, "class", ResolvedRootClass);
-        MergeAttribute(attributes, "style", Style);
+        MergeAttribute(attributes, "class", ResolvedRootClass, ref _mergedRootClass);
+        MergeAttribute(attributes, "style", Style, ref _mergedRootStyle);
 
         return attributes;
     }
@@ -181,17 +188,17 @@ else
     private Dictionary<string, object> BuildTextAttributes()
     {
         var attributes = CopyAttributes(TextAttributes, ref _textAttributes, 1);
-        MergeAttribute(attributes, "class", ResolvedTextClass);
+        MergeAttribute(attributes, "class", ResolvedTextClass, ref _mergedTextClass);
 
         return attributes;
     }
 
-    private static string AppendClass(string defaultClass, string? additionalClass)
+    private static string AppendClass(string defaultClass, string? additionalClass, ref string? previous)
     {
         if (string.IsNullOrWhiteSpace(additionalClass))
             return defaultClass;
 
-        return $"{defaultClass} {additionalClass}";
+        return QuarkStringCache.Concat(defaultClass, " ", additionalClass, ref previous);
     }
 
     private static Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source, ref QuarkAttributeDictionary buffer, int extraCapacity)
@@ -209,7 +216,7 @@ else
         return attributes;
     }
 
-    private static void MergeAttribute(Dictionary<string, object> attributes, string name, string? value)
+    private static void MergeAttribute(Dictionary<string, object> attributes, string name, string? value, ref string? previous)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
@@ -220,7 +227,7 @@ else
                 ? "; "
                 : " ";
 
-            attributes[name] = $"{existing}{separator}{value}";
+            attributes[name] = QuarkStringCache.Concat(existing.ToString()!, separator, value, ref previous);
         }
         else
         {

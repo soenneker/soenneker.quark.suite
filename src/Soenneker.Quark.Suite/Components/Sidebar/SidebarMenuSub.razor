@@ -6,20 +6,29 @@
 </ul>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Is3_5;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.FromLeft.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Token("sidebar-border");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Token("0.5");
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-sub";
 
-        Display ??= Quark.Display.Flex;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is1;
-        Margin ??= Quark.Margin.OnX.Is3_5;
-        Border ??= Quark.Border.FromLeft.Default;
-        BorderColor ??= Quark.BorderColor.Token("sidebar-border");
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Token("0.5");
+        Display ??= _defaultDisplay;
+        MinWidth ??= _staticCss0;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
+        Margin ??= _defaultMargin;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,6 +36,6 @@
         base.BuildAttributesCore(attributes);
         attributes["data-sidebar"] = "menu-sub";
 
-        PrependClassAttribute(attributes, "translate-x-px group-data-[collapsible=icon]:hidden");
+        PrependClassAttribute(attributes, "translate-x-px group-data-[collapsible=icon]:hidden", ref _lastPrependedClass);
     }
 }

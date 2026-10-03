@@ -10,6 +10,17 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Composition_searchable_select_preserves_explicit_input_id_for_labels()
+    {
+        var cut = Render<SearchableSelect>(p => p
+            .Add(c => c.Choices, [new SelectOption("test", "Test")])
+            .AddUnmatched("Id", "industry"));
+
+        cut.Find("input[role='combobox']").Id.Should().Be("industry");
+        cut.Find("input").GetAttribute("aria-controls").Should().NotBeNullOrEmpty();
+    }
+
+    [Test]
     public async ValueTask Composition_searchable_select_keeps_duplicate_labels_and_empty_values_distinct()
     {
         string? selected = null;

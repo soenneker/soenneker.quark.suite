@@ -27,6 +27,19 @@
 </BradixSelectPortal>
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is36;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowX = Quark.Overflow.X.Hidden;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is1;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-foreground/10");
+    private string? _lastBuiltClass;
+
     [Parameter]
     public Side Side { get; set; } = Side.Bottom;
 
@@ -78,18 +91,18 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "select-content";
 
-        Position ??= Quark.Position.Relative;
-        ZIndex ??= Quark.ZIndex.Is50;
+        Position ??= _defaultPosition;
+        ZIndex ??= _defaultZIndex;
         MaxHeight ??= "max-h-(--radix-select-content-available-height)";
-        MinWidth ??= Quark.MinWidth.Is36;
-        OverflowX ??= Quark.Overflow.X.Hidden;
-        OverflowY ??= Quark.Overflow.Y.Auto;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Shadow ??= Quark.Shadow.Md;
-        Ring ??= Quark.Ring.Is1;
-        RingColor ??= Quark.RingColor.Utility("ring-foreground/10");
+        MinWidth ??= _staticCss0;
+        OverflowX ??= _defaultOverflowX;
+        OverflowY ??= _defaultOverflowY;
+        Rounded ??= _defaultRounded;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -98,20 +111,10 @@
 
         attributes["data-align-trigger"] = ContentPosition == SelectPosition.ItemAligned ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "origin-(--radix-select-content-transform-origin)");
-
-            if (!UseDefaultMotion)
-                return;
-
-            AppendClass(ref cls, "duration-[50ms]");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-
-            if (ContentPosition == SelectPosition.Popper)
-                AppendClass(ref cls, "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1");
-        });
+        const string origin = "origin-(--radix-select-content-transform-origin)";
+        const string motion = "origin-(--radix-select-content-transform-origin) duration-[50ms] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+        const string popper = motion + " data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1";
+        PrependClassAttribute(attributes, !UseDefaultMotion ? origin : ContentPosition == SelectPosition.Popper ? popper : motion, ref _lastBuiltClass);
     }
 
     private static readonly IReadOnlyDictionary<string, object> PopperViewportAttributes = CreatePopperViewportAttributes();
@@ -120,10 +123,10 @@
     {
         var attributes = new Dictionary<string, object> { ["data-position"] = "popper" };
         // Keep the utility declaration visible to the Tailwind manifest generator.
-        RenderComponent.BuildClassAttribute(attributes, static (ref cls) =>
         {
-            AppendClass(ref cls, "data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)");
-        });
+            const string @class = "data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)";
+            PrependClassAttribute(attributes, @class);
+        }
         return new System.Collections.ObjectModel.ReadOnlyDictionary<string, object>(attributes);
     }
 

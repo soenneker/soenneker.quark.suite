@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <span @ref="ElementRef" @attributes="BuildAttributes()">
@@ -21,6 +21,10 @@
 </span>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.IconXs;
+    private string? _textClass;
+    private string? _copyButtonClass;
+    private string? _mergedTextClass;
     private QuarkAttributeDictionary _textAttributes;
     /// <summary>Text displayed by the component.</summary>
     [Parameter]
@@ -58,7 +62,7 @@
     public ButtonVariant CopyButtonVariant { get; set; } = ButtonVariant.Ghost;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = ButtonSize.IconXs;
+    public CssValue<ButtonSizeBuilder>? CopyButtonSize { get; set; } = _staticCss0;
 
     [Parameter]
     public LucideIcon IdleIcon { get; set; } = LucideIcon.Copy;
@@ -97,17 +101,15 @@
 
     private string? ResolvedCopyText => CopyText ?? Text;
     private bool CopyDisabled => Disabled || string.IsNullOrEmpty(ResolvedCopyText);
-    private string ResolvedTextClass => AppendClass(TruncateText ? "min-w-0 flex-1 truncate" : "min-w-0 flex-1", TextClass);
+    private string ResolvedTextClass => AppendClass(TruncateText ? "min-w-0 flex-1 truncate" : "min-w-0 flex-1", TextClass, ref _textClass);
 
     private string ResolvedCopyButtonClass
     {
         get
         {
-            var visibilityClass = AlwaysShowCopyButton
-                ? null
-                : "transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100";
-
-            return AppendClass($"shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0 {visibilityClass}", CopyButtonClass);
+            const string always = "shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0";
+            const string onHover = always + " transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100";
+            return AppendClass(AlwaysShowCopyButton ? always : onHover, CopyButtonClass, ref _copyButtonClass);
         }
     }
 
@@ -139,7 +141,7 @@
         if (TruncateText && ShowFullTextOnHover && !string.IsNullOrEmpty(Text) && !attributes.ContainsKey("title"))
             attributes["title"] = Text;
 
-        MergeAttribute(attributes, "class", ResolvedTextClass);
+        MergeAttribute(attributes, "class", ResolvedTextClass, ref _mergedTextClass);
         return attributes;
     }
 
@@ -179,8 +181,8 @@
         }
     }
 
-    private static string AppendClass(string defaultClass, string? additionalClass) =>
-        string.IsNullOrWhiteSpace(additionalClass) ? defaultClass.Trim() : $"{defaultClass.Trim()} {additionalClass}";
+    private static string AppendClass(string defaultClass, string? additionalClass, ref string? previous) =>
+        string.IsNullOrWhiteSpace(additionalClass) ? defaultClass.Trim() : QuarkStringCache.Concat(defaultClass.Trim(), " ", additionalClass, ref previous);
 
     private Dictionary<string, object> CopyAttributes(IReadOnlyDictionary<string, object>? source)
     {
@@ -195,13 +197,13 @@
         return attributes;
     }
 
-    private static void MergeAttribute(Dictionary<string, object> attributes, string name, string? value)
+    private static void MergeAttribute(Dictionary<string, object> attributes, string name, string? value, ref string? previous)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
 
         if (attributes.TryGetValue(name, out var existing) && !string.IsNullOrWhiteSpace(existing?.ToString()))
-            attributes[name] = $"{existing} {value}";
+            attributes[name] = QuarkStringCache.Concat(existing.ToString()!, " ", value, ref previous);
         else
             attributes[name] = value;
     }

@@ -6,6 +6,12 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Auto;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public bool HideScrollbar { get; set; } = true;
 
@@ -17,10 +23,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-content";
 
-        Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.Is1;
-        Gap ??= Quark.Gap.Is0;
-        Overflow ??= Quark.Overflow.Auto;
+        Display ??= _defaultDisplay;
+        Flex ??= _defaultFlex;
+        Gap ??= _defaultGap;
+        Overflow ??= _defaultOverflow;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -29,17 +35,11 @@
         attributes["data-sidebar"] = "content";
         attributes["data-fade"] = ShowFade ? "true" : "false";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "min-h-0 flex-col group-data-[collapsible=icon]:overflow-hidden");
-            AppendClass(ref cls, "group-data-[shell=navigation]:w-full group-data-[shell=navigation]:overflow-x-hidden group-data-[shell=navigation]:px-4 group-data-[shell=navigation]:pb-6 group-data-[shell=navigation]:lg:mx-auto group-data-[shell=navigation]:lg:w-(--sidebar-menu-width) group-data-[shell=navigation]:lg:px-2");
-
-            if (HideScrollbar)
-                AppendClass(ref cls, "no-scrollbar");
-
-            if (ShowFade)
-                AppendClass(ref cls, "[mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)]");
-        });
+        const string prefix = "min-h-0 flex-col group-data-[collapsible=icon]:overflow-hidden group-data-[shell=navigation]:w-full group-data-[shell=navigation]:overflow-x-hidden group-data-[shell=navigation]:px-4 group-data-[shell=navigation]:pb-6 group-data-[shell=navigation]:lg:mx-auto group-data-[shell=navigation]:lg:w-(--sidebar-menu-width) group-data-[shell=navigation]:lg:px-2";
+        const string scrollbar = " no-scrollbar";
+        const string fade = " [mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)]";
+        var classes = HideScrollbar ? ShowFade ? prefix + scrollbar + fade : prefix + scrollbar : ShowFade ? prefix + fade : prefix;
+        PrependClassAttribute(attributes, classes, ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

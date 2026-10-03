@@ -33,6 +33,19 @@ else
 }
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _typography0 = Quark.TextSize.FourXl;
+    private static readonly CssValue<FontWeightBuilder> _typography1 = Quark.FontWeight.Bold;
+    private static readonly CssValue<TrackingBuilder> _typography2 = Quark.Tracking.Tight;
+    private static readonly CssValue<TextSizeBuilder> _typography3 = Quark.TextSize.ThreeXl;
+    private static readonly CssValue<TextSizeBuilder> _typography4 = Quark.TextSize.TwoXl;
+    private static readonly CssValue<FontWeightBuilder> _typography5 = Quark.FontWeight.Semibold;
+    private static readonly CssValue<TextSizeBuilder> _typography6 = Quark.TextSize.Xl;
+    private static readonly CssValue<TextSizeBuilder> _typography7 = Quark.TextSize.Lg;
+    private static readonly CssValue<FontWeightBuilder> _typography8 = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextSizeBuilder> _typography9 = Quark.TextSize.Base;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
 
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; }
@@ -54,37 +67,47 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AddCss(ref sty, ref cls, Scale);
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AddCss(ref sty, ref cls, Scale);
+                BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastBuiltClass, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                cls.Dispose();
+                sty.Dispose();
+            }
+        }
 
         var visualLevel = GetScaleLevel();
 
         switch (visualLevel)
         {
             case 1:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.FourXl, Quark.FontWeight.Bold, Quark.Tracking.Tight);
+                BuildTypographyDefaultAttributes(attributes, _typography0, _typography1, _typography2);
                 break;
             case 2:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.ThreeXl, Quark.FontWeight.Bold, Quark.Tracking.Tight);
+                BuildTypographyDefaultAttributes(attributes, _typography3, _typography1, _typography2);
                 break;
             case 3:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.TwoXl, Quark.FontWeight.Semibold, Quark.Tracking.Tight);
+                BuildTypographyDefaultAttributes(attributes, _typography4, _typography5, _typography2);
                 break;
             case 4:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.Xl, Quark.FontWeight.Semibold);
+                BuildTypographyDefaultAttributes(attributes, _typography6, _typography5);
                 break;
             case 5:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.Lg, Quark.FontWeight.Medium);
+                BuildTypographyDefaultAttributes(attributes, _typography7, _typography8);
                 break;
             default:
-                BuildTypographyDefaultAttributes(attributes, Quark.TextSize.Base, Quark.FontWeight.Medium);
+                BuildTypographyDefaultAttributes(attributes, _typography9, _typography8);
                 break;
         }
     }
 
-    
+
 
     private int GetHeadingLevel()
     {

@@ -8,6 +8,20 @@
 </BradixTabsList>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _justifiedWidth = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Token("[3px]");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded2 = Quark.Rounded.None;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor2 = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private string? _lastBuiltClass;
+
     private QuarkAttributeDictionary _attributesBuffer;
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
@@ -30,29 +44,29 @@
 
         var hasExplicitWidth = Width is not null;
 
-        Display ??= Quark.Display.InlineFlex;
-        Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Padding ??= Quark.Padding.Token("[3px]");
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Padding ??= _defaultPadding;
+        TextColor ??= _defaultTextColor;
 
         if (ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Line))
-            Rounded ??= Quark.Rounded.None;
+            Rounded ??= _defaultRounded2;
         else
-            Rounded ??= Quark.Rounded.Lg;
+            Rounded ??= _defaultRounded;
 
         if (ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Default))
-            BackgroundColor ??= Quark.BackgroundColor.Muted;
+            BackgroundColor ??= _defaultBackgroundColor2;
 
         if (!ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Default))
         {
-            Gap ??= Quark.Gap.Is1;
-            BackgroundColor ??= Quark.BackgroundColor.Transparent;
+            Gap ??= _defaultGap;
+            BackgroundColor ??= _defaultBackgroundColor;
         }
 
         if (ParentTabs?.Justified == true && !hasExplicitWidth)
-            Width = Quark.Width.IsFull;
+            Width = _justifiedWidth;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -61,16 +75,11 @@
 
         attributes["data-variant"] = ReferenceEquals(ParentTabs?.TabsListVariant, TabsListVariant.Line) ? "line" : "default";
         attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
-        attributes["tabindex"] = -1;
+        attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/tabs-list data-[variant=line]:rounded-none");
-            AppendClass(ref cls, "group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col");
-
-            if (ParentTabs?.Justified == true)
-                AppendClass(ref cls, "[&>[data-slot=tabs-trigger]]:flex-1");
-        });
+        const string baseClass = "group/tabs-list data-[variant=line]:rounded-none group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col";
+        PrependClassAttribute(attributes, ParentTabs?.Justified == true
+            ? baseClass + " [&>[data-slot=tabs-trigger]]:flex-1" : baseClass, ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

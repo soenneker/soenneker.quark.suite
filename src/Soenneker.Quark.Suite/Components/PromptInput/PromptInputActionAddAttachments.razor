@@ -14,7 +14,7 @@
             Variant="@Variant"
             Disabled="@Disabled"
             aria-label="@Label"
-            OnClick="OpenFileDialog"
+            OnClick="(_cachedOpenFileDialogDelegate ??= OpenFileDialog)"
             @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
@@ -37,10 +37,14 @@
                accept="@EffectiveAccept"
                multiple="@EffectiveMultiple"
                aria-hidden="true"
-               OnChange="HandleFilesSelected" />
+               OnChange="(_cachedHandleFilesSelectedDelegate ??= HandleFilesSelected)" />
 </PromptInputButton>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Soenneker.Quark.ButtonSize.IconSm;
+    private System.Func<Task>? _cachedOpenFileDialogDelegate;
+    private System.Func<InputFileChangeEventArgs, Task>? _cachedHandleFilesSelectedDelegate;
+
     private readonly string _inputId = BlazorIdGenerator.New("prompt-input-file");
     private DotNetObjectReference<PromptInputActionAddAttachments>? _dotNetReference;
     private bool _registered;
@@ -68,7 +72,7 @@
     public LucideIcon IconName { get; set; } = LucideIcon.Paperclip;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.IconSm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss0;
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
@@ -77,12 +81,12 @@
 
     private string? EffectiveAccept => Accept ?? PromptInput?.Accept;
 
-    private async Task OpenFileDialog()
+    private Task OpenFileDialog()
     {
         if (Disabled || !_registered)
-            return;
+            return Task.CompletedTask;
 
-        await PromptInputInterop.OpenFileDialogById(_inputId);
+        return PromptInputInterop.OpenFileDialogById(_inputId).AsTask();
     }
 
     private async Task HandleFilesSelected(InputFileChangeEventArgs args)
@@ -128,13 +132,8 @@
     public Task AddAttachmentsFromJson(JsonElement payload) =>
         AddAttachments(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.PromptInputAttachmentInfoArray)!);
 
-    public async Task AddAttachments(PromptInputAttachmentInfo[] attachments)
-    {
-        if (PromptInput is null)
-            return;
-
-        await PromptInput.AddAttachments(attachments);
-    }
+    public Task AddAttachments(PromptInputAttachmentInfo[] attachments) =>
+        PromptInput?.AddAttachments(attachments) ?? Task.CompletedTask;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

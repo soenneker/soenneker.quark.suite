@@ -5,16 +5,16 @@ function scheduleScrollToBottom(element, state) {
         return;
     }
 
-    state.frame = window.requestAnimationFrame(() => {
-        state.frame = 0;
-        element.scrollTop = element.scrollHeight;
-    });
+    state.frame = window.requestAnimationFrame(state.scroll);
 }
 
 export function initializeAutoScroll(element) {
     destroyAutoScroll(element);
 
-    const state = { observer: null, frame: 0 };
+    const state = { observer: null, frame: 0, scroll: () => {
+        state.frame = 0;
+        element.scrollTop = element.scrollHeight;
+    } };
 
     const observer = new MutationObserver((mutations) => {
         const hasConsolePanelMutation = mutations.some((mutation) => {

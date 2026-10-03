@@ -22,6 +22,7 @@ function fixture(t, kind = 'node') {
       style: { setProperty() {} }, getBoundingClientRect() { operations.push('root:read'); return { left: 0, top: 0 }; },
       querySelectorAll() { return []; } },
     viewport: { style: {} }, background: null, edgeLayer: {}, edgeElements: [], addHandleElements: [],
+    portCenters: new Map(), geometryFrame: 0,
     selectionRectangle: { classList, style: {} }, nodeElements: [node], selectedNodeIds: new Set(['a']), selectedNodeId: 'a', selectedEdgeId: null,
     panX: 0, panY: 0, zoom: 1, options: { snapToGrid: false }, edgeFrame: 0, edgesDirty: false, renderingFrame: false,
     hasPendingPointerMove: false, pendingPointerMove: { type: 'pointermove', clientX: 0, clientY: 0, pointerId: 0 },
@@ -156,4 +157,32 @@ test('reset view does not get overwritten by an earlier queued pan', t => {
   env.flush();
   assert.equal(env.state.panX, 5);
   assert.equal(env.state.panY, 10);
+});
+
+test('shared ports are measured once per frame and reuse coordinates without retaining stale geometry', t => {
+  const env = fixture(t);
+  let x = 10, reads = 0;
+  const port = { dataset: { placement: 'bottom' }, getBoundingClientRect() {
+    reads++; return { left: x, top: 20, width: 4, height: 4 };
+  } };
+  const path = { setAttribute() {} };
+  let queries = 0;
+  const edge = { dataset: { sourceNode: 'a', sourcePort: 'out', targetNode: 'a', targetPort: 'out' }, style: {},
+    querySelector(selector) { queries++; return selector === '[data-edge-path]' || selector === '[data-edge-hit]' ? path : null; }
+  };
+  env.state.ports = new Map([['a\u0000out', port]]);
+  env.state.edgeElements = [edge, edge];
+  editor.scheduleEdgeUpdate(env.state);
+  env.flush();
+  const center = env.state.portCenters.get(port);
+  assert.equal(center.x, 12);
+  assert.equal(reads, 1);
+  const initialQueries = queries;
+  x = 40;
+  editor.scheduleEdgeUpdate(env.state);
+  env.flush();
+  assert.equal(env.state.portCenters.get(port), center);
+  assert.equal(center.x, 42);
+  assert.equal(reads, 2);
+  assert.equal(queries, initialQueries);
 });

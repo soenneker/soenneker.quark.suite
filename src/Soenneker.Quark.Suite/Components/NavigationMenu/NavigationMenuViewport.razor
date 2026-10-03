@@ -9,6 +9,16 @@
 </div>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is1_5;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Default;
+    private string? _lastPrependedClass;
+
     private IReadOnlyDictionary<string, object> ViewportAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -16,14 +26,14 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "navigation-menu-viewport";
 
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Position ??= Quark.Position.Relative;
-        Width ??= Quark.Width.IsFull;
-        Rounded ??= Quark.Rounded.Lg;
-        Margin ??= Quark.Margin.FromTop.Is1_5;
-        Overflow ??= Quark.Overflow.Hidden;
-        Shadow ??= Quark.Shadow.Default;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Position ??= _defaultPosition;
+        Width ??= _defaultWidth;
+        Rounded ??= _defaultRounded;
+        Margin ??= _defaultMargin;
+        Overflow ??= _defaultOverflow;
+        Shadow ??= _defaultShadow;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -31,10 +41,9 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-top-center h-(--radix-navigation-menu-viewport-height) ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:zoom-in-90 data-[state=closed]:animate-out data-[state=closed]:zoom-out-90");
-            AppendClass(ref cls, "md:w-(--radix-navigation-menu-viewport-width)");
-        });
+            const string @class = "origin-top-center h-(--radix-navigation-menu-viewport-height) ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:zoom-in-90 data-[state=closed]:animate-out data-[state=closed]:zoom-out-90 md:w-(--radix-navigation-menu-viewport-width)";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 }

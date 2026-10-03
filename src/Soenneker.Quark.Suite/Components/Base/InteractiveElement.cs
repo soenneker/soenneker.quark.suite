@@ -65,22 +65,22 @@ public abstract class InteractiveElement : Element
         base.BuildOwnedAttributes(attrs);
 
         if (OnDoubleClick.HasDelegate)
-            attrs["ondblclick"] = OnDoubleClick;
+            SetEventAttribute(attrs, "ondblclick", OnDoubleClick);
 
         if (OnMouseOver.HasDelegate)
-            attrs["onmouseover"] = OnMouseOver;
+            SetEventAttribute(attrs, "onmouseover", OnMouseOver);
 
         if (OnMouseOut.HasDelegate)
-            attrs["onmouseout"] = OnMouseOut;
+            SetEventAttribute(attrs, "onmouseout", OnMouseOut);
 
         if (OnKeyDown.HasDelegate)
-            attrs["onkeydown"] = OnKeyDown;
+            SetEventAttribute(attrs, "onkeydown", OnKeyDown);
 
         if (OnFocus.HasDelegate)
-            attrs["onfocus"] = OnFocus;
+            SetEventAttribute(attrs, "onfocus", OnFocus);
 
         if (OnBlur.HasDelegate)
-            attrs["onblur"] = OnBlur;
+            SetEventAttribute(attrs, "onblur", OnBlur);
     }
 
     protected virtual Task HandleClick(MouseEventArgs e) => OnClick.InvokeIfHasDelegate(e);

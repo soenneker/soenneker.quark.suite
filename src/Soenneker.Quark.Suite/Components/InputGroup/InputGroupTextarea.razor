@@ -7,9 +7,32 @@
 <textarea @ref="_elementRef"
           @attributes="BuildAttributes()"
           value="@Value"
-          @oninput="HandleInput"></textarea>
+          @oninput="(_cachedHandleInputDelegate ??= HandleInput)"></textarea>
 
 @code {
+    private QuarkInt32Attribute _rowsAttribute;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<MinHeightBuilder> _defaultMinHeight = Quark.MinHeight.Token("16");
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<ResizeBuilder> _defaultResize = Quark.Resize.None;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.None;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is0;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is2;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None.OnFocusVisible.Aria("invalid");
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-colors");
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private string? _lastPrependedClass;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+
     private ElementReference _elementRef;
 
     [CascadingParameter]
@@ -25,40 +48,40 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-group-control";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        MinHeight ??= Quark.MinHeight.Token("16");
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        Flex ??= Quark.Flex.Is1;
-        Resize ??= Quark.Resize.None;
-        Rounded ??= Quark.Rounded.None;
-        Border ??= Quark.Border.Is0;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is2;
-        Shadow ??= Quark.Shadow.None;
-        Ring ??= Quark.Ring.None.OnFocusVisible.Aria("invalid");
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
-        Transition ??= Quark.Transition.Token("transition-colors");
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        MinHeight ??= _defaultMinHeight;
+        BorderColor ??= _defaultBorderColor;
+        Flex ??= _defaultFlex;
+        Resize ??= _defaultResize;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
+        TextSize ??= _defaultTextSize;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
 
     }
 
-    private async Task HandleInput(ChangeEventArgs e)
+    private Task HandleInput(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
         Value = value;
-        await ValueChanged.InvokeIfHasDelegate(value);
+        return ValueChanged.InvokeIfHasDelegate(value);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
             InputGroupContext?.RegisterControl(_elementRef);
 
-        await base.OnAfterRenderAsync(firstRender);
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -68,15 +91,15 @@
         if (Placeholder is not null)
             attributes["placeholder"] = Placeholder;
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         if (ReadOnly)
-            attributes["readonly"] = true;
+            attributes["readonly"] = QuarkAttributeValues.True;
         if (Required)
-            attributes["required"] = true;
+            attributes["required"] = QuarkAttributeValues.True;
         if (Rows.HasValue)
-            attributes["rows"] = Rows.Value;
+            attributes["rows"] = _rowsAttribute.Get(Rows.Value);
 
-        PrependClassAttribute(attributes, "field-sizing-content placeholder:text-muted-foreground focus-visible:ring-0 disabled:bg-transparent aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-transparent dark:disabled:bg-transparent dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "field-sizing-content placeholder:text-muted-foreground focus-visible:ring-0 disabled:bg-transparent aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-transparent dark:disabled:bg-transparent dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

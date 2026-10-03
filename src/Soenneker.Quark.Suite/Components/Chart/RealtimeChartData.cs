@@ -159,21 +159,32 @@ public sealed class RealtimeChartData
             set => _items[PhysicalIndex(index)] = value;
         }
 
-        private int PhysicalIndex(int index) => index >= 0 && index < Count
-            ? (_start + index) % capacity : throw new ArgumentOutOfRangeException(nameof(index));
+        private int PhysicalIndex(int index)
+        {
+            if ((uint)index >= (uint)Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            int physical = index - (capacity - _start);
+            return physical < 0 ? physical + capacity : physical;
+        }
 
         public void Add(T value)
         {
-            _items[(_start + Count) % capacity] = value;
             if (Count == capacity)
-                _start = (_start + 1) % capacity;
+            {
+                _items[_start] = value;
+                _start++;
+                if (_start == capacity)
+                    _start = 0;
+            }
             else
-                Count++;
+                _items[Count++] = value;
         }
 
         public void Clear()
         {
-            Array.Clear(_items);
+            if (System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                Array.Clear(_items, 0, Count);
             _start = 0;
             Count = 0;
         }

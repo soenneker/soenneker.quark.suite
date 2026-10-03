@@ -4,7 +4,7 @@
 
 @if (Href.HasContent())
 {
-    <a @onclick="HandleClick"
+    <a @onclick="(_cachedHandleClickDelegate ??= HandleClick)"
        @onclick:preventDefault="PreventDefault"
        @attributes="BuildAttributes()">
         @ChildContent
@@ -12,7 +12,7 @@
 }
 else if (OnClick.HasDelegate)
 {
-    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button type="button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
@@ -24,6 +24,10 @@ else
 }
 
 @code {
+    private string? _slotClass;
+    private string? _slotStyle;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
@@ -77,7 +81,7 @@ else
                 attributes["data-enhance-nav"] = EnhanceNav.Value ? "true" : "false";
         }
 
-        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

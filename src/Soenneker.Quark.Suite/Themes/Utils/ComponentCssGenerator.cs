@@ -17,62 +17,68 @@ public static class ComponentCssGenerator
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static string Generate(ComponentOptions options)
     {
-        if (options is null)
-            return string.Empty;
+        var builder = new PooledStringBuilder(stackalloc char[128]);
+        try
+        {
+            Append(ref builder, options);
+            return builder.ToString();
+        }
+        finally
+        {
+            builder.Dispose();
+        }
+    }
 
+    internal static void Append(ref PooledStringBuilder builder, ComponentOptions options)
+    {
+        if (options is null) return;
         var rules = options.GetCssRules();
+        if (rules is null) return;
 
-        if (rules is null)
-            return string.Empty;
-
-        Dictionary<string, List<string>>? blocks = null;
-        List<string>? order = null;
-
+        string? firstSelector = null;
+        var firstDeclarations = new SmallBatch<string>();
+        OrderedDictionary<string, SmallBatch<string>>? blocks = null;
         foreach (var rule in rules)
         {
             if (rule.Selector.IsNullOrWhiteSpace() || rule.Declaration.IsNullOrWhiteSpace())
                 continue;
-
-            blocks ??= new Dictionary<string, List<string>>(8, StringComparer.Ordinal);
-            order ??= new List<string>(8);
-
-            if (!blocks.TryGetValue(rule.Selector, out var declarations))
+            firstSelector ??= rule.Selector;
+            if (string.Equals(firstSelector, rule.Selector, StringComparison.Ordinal))
+                firstDeclarations.Add(rule.Declaration);
+            else
             {
-                declarations = [];
-                blocks[rule.Selector] = declarations;
-                order.Add(rule.Selector);
+                blocks ??= new OrderedDictionary<string, SmallBatch<string>>(4, StringComparer.Ordinal);
+                if (blocks.TryGetValue(rule.Selector, out var declarations, out var index))
+                {
+                    declarations.Add(rule.Declaration);
+                    blocks.SetAt(index, declarations);
+                }
+                else blocks.Add(rule.Selector, new SmallBatch<string>(rule.Declaration));
             }
-
-            declarations.Add(rule.Declaration);
         }
-
-        if (blocks is null || blocks.Count == 0 || order is null || order.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-
-        foreach (var selector in order)
+        if (firstSelector is null) return;
+        if (builder.Length > 0) builder.Append('\n');
+        AppendBlock(ref builder, firstSelector, firstDeclarations);
+        if (blocks is not null)
         {
-            if (!blocks.TryGetValue(selector, out var declarations) || declarations.Count == 0)
-                continue;
-
-            sb.Append(selector);
-            sb.Append(" {\n");
-
-            foreach (var declaration in declarations)
+            foreach (var block in blocks)
             {
-                if (declaration.IsNullOrWhiteSpace())
-                    continue;
-
-                sb.Append("  ");
-                var trimmed = declaration.AsSpan().TrimEnd("; ");
-                sb.Append(trimmed);
-                sb.Append(";\n");
+                builder.Append('\n');
+                AppendBlock(ref builder, block.Key, block.Value);
             }
-
-            sb.Append("}\n");
         }
+    }
 
-        return sb.AsSpan().TrimEnd().ToString();
+    private static void AppendBlock(ref PooledStringBuilder builder, string selector, SmallBatch<string> declarations)
+    {
+        builder.Append(selector);
+        builder.Append(" {\n");
+        for (var i = 0; i < declarations.Count; i++)
+        {
+            builder.Append("  ");
+            builder.Append(declarations[i].AsSpan().TrimEnd("; "));
+            builder.Append(";\n");
+        }
+        builder.Append("}");
     }
 }

@@ -136,3 +136,24 @@ test('explicit mode selection works with blocked storage and rejects invalid mod
     assert.equal(f.root.dark, true);
     assert.throws(() => f.context.setMode('invalid'));
 });
+
+for (const dark of [false, true]) {
+    test(`combined theme calls return both values and register callbacks with system dark=${dark}`, () => {
+        const f = fixture(dark);
+        const updates = [];
+        const ref = { _id: 42, invokeMethodAsync(...args) { updates.push(args); return Promise.resolve(); } };
+        const initial = f.context.initializeState(ref);
+        assert.equal(initial.isDark, dark);
+        assert.equal(initial.mode, 'system');
+        const toggled = f.context.toggleState();
+        assert.equal(toggled.isDark, !dark);
+        assert.equal(toggled.mode, dark ? 'light' : 'dark');
+        assert.equal(f.context.setModeState('light').isDark, false);
+        const system = f.context.useSystemState();
+        assert.equal(system.isDark, dark);
+        assert.equal(system.mode, 'system');
+        assert.equal(updates.length, 4);
+        assert.deepEqual(updates.at(-1), ['OnThemeChanged', dark, 'system']);
+        f.context.unregisterThemeChangedCallback(ref);
+    });
+}

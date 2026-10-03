@@ -44,23 +44,17 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
     initialPending: true,
   };
 
-  const scheduleUpdate = () => {
-    if (instance.frame) {
-      return;
+  const update = () => {
+    instance.frame = 0;
+    if (instances.get(element) !== instance) return;
+    if (instance.initialPending || (stickToBottom && instance.lastIsAtBottom)) {
+      scrollToBottomInternal(element, instance.initialPending ? initial : resize);
     }
-
-    instance.frame = requestAnimationFrame(() => {
-      instance.frame = 0;
-      if (instances.get(element) !== instance) {
-        return;
-      }
-
-      if (instance.initialPending || (stickToBottom && instance.lastIsAtBottom)) {
-        scrollToBottomInternal(element, instance.initialPending ? initial : resize);
-      }
-      instance.initialPending = false;
-      notify(instance);
-    });
+    instance.initialPending = false;
+    notify(instance);
+  };
+  const scheduleUpdate = () => {
+    if (!instance.frame) instance.frame = requestAnimationFrame(update);
   };
 
   instance.onScroll = () => notify(instance);

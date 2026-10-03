@@ -5,16 +5,37 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 
-<BradixDropdownMenuCheckboxItem Checked="@ResolvedCheckedState" CheckedChanged="HandleCheckedStateChanged" CloseOnSelect="@AutoClose" Disabled="@Disabled" AdditionalAttributes="@CheckboxAttributes">
-    <Span DataSlot="dropdown-menu-checkbox-item-indicator" PointerEvents="Quark.PointerEvents.None" Position="Quark.Position.Absolute" Display="Quark.Display.Flex" ItemsAlign="Items.Center" Justify="Quark.Justify.Center" Right="Quark.Right.Is2">
+<BradixDropdownMenuCheckboxItem Checked="@ResolvedCheckedState" CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)" CloseOnSelect="@AutoClose" Disabled="@Disabled" AdditionalAttributes="@CheckboxAttributes">
+    <Span DataSlot="dropdown-menu-checkbox-item-indicator" PointerEvents="_renderCss0" Position="_renderCss1" Display="_renderCss2" ItemsAlign="_staticCss0" Justify="_renderCss3" Right="_renderCss4">
         <BradixDropdownMenuItemIndicator>
-            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4"/>
+            <Icon Name="LucideIcon.Check" Size="_renderCss5"/>
         </BradixDropdownMenuItemIndicator>
     </Span>
     @ChildContent
 </BradixDropdownMenuCheckboxItem>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromRight.Is8.FromLeft.Is1_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnFocus.Accent;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.OnFocus.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss1 = Quark.Position.Absolute;
+    private static readonly CssValue<DisplayBuilder> _renderCss2 = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _renderCss3 = Quark.Justify.Center;
+    private static readonly CssValue<RightBuilder> _renderCss4 = Quark.Right.Is2;
+    private static readonly CssValue<SizeBuilder> _renderCss5 = Quark.Size.Is4;
+    private System.Func<BradixCheckboxCheckedState, Task>? _cachedHandleCheckedStateChangedDelegate;
+
+    private string? _lastPrependedClass;
+
 
     [Parameter]
     public bool AutoClose { get; set; } = true;
@@ -34,25 +55,25 @@
         if (Indented)
             attributes["data-inset"] = "true";
 
-        PrependClassAttribute(attributes, "focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "dropdown-menu-checkbox-item";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.FromRight.Is8.FromLeft.Is1_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
-        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Default;
+        Position ??= _defaultPosition;
+        Display ??= _renderCss2;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
     }
 
     private IReadOnlyDictionary<string, object> BuildCheckboxAttributes()

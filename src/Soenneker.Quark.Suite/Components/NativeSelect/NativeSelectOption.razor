@@ -5,6 +5,8 @@
 <option @attributes="BuildAttributes()">@ChildContent</option>
 
 @code {
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("[Canvas]");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("[CanvasText]");
     /// <summary>
     /// Gets or sets the option value.
     /// </summary>
@@ -18,7 +20,7 @@
             attributes["value"] = Value!;
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -32,8 +34,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "native-select-option";
-        BackgroundColor ??= Quark.BackgroundColor.Token("[Canvas]");
-        TextColor ??= Quark.TextColor.Token("[CanvasText]");
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
 
     }
 }

@@ -13,6 +13,20 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Node_editor_exposes_a_configured_element_reference_for_focus()
+    {
+        ElementReference captured = default;
+        var cut = Render<NodeEditor>(parameters => parameters
+            .Add(component => component.OnElementRefReady, element => captured = element));
+
+        cut.WaitForAssertion(() =>
+        {
+            captured.Id.Should().NotBeNullOrEmpty();
+            captured.Context.Should().NotBeNull();
+        });
+    }
+
+    [Test]
     public void Node_editor_node_exposes_position_and_selection_state()
     {
         var node = new NodeEditorNodeModel { Id = "qualify", X = 120.5, Y = 240, Selectable = true };

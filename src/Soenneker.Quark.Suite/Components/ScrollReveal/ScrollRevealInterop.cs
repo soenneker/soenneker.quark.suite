@@ -28,7 +28,7 @@ public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
             await module.InvokeVoidAsync("initialize", linked, element, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.ScrollRevealInteropOptions));
         }
     }
@@ -39,7 +39,7 @@ public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
 
         using (source)
         {
-            var module = await GetModule(linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
             await module.InvokeVoidAsync("destroy", linked, element);
         }
     }
@@ -50,8 +50,4 @@ public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
         await _moduleImportUtil.DisposeContentModule(ModulePath);
     }
 
-    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
-    {
-        return await _moduleImportUtil.GetContentModuleReference(ModulePath, cancellationToken);
-    }
 }

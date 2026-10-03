@@ -2,13 +2,13 @@
 @using Soenneker.Quark.Dtos
 @inherits Soenneker.Quark.Element
 
-<button @onclick="HandleRailClick" @attributes="BuildAttributes()">
+<button @onclick="(_cachedHandleRailClickDelegate ??= HandleRailClick)" @attributes="BuildAttributes()">
     @if (ShowTrigger)
     {
         <span @attributes="BuildTriggerAttributes()">
             @if (ChildContent is null)
             {
-                <Svg Size="Quark.Size.Is4" Class="cn-rtl-flip" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" StrokeLineCap="Quark.StrokeLineCap.Round" StrokeLineJoin="Quark.StrokeLineJoin.Round" aria-hidden="true">
+                <Svg Size="_renderCss0" Class="cn-rtl-flip" ViewBox="0 0 24 24" Fill="_renderCss1" Stroke='_renderCss2' StrokeWidth="_renderCss3" StrokeLineCap="_renderCss4" StrokeLineJoin="_renderCss5" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                     <path d="M9 3v18"></path>
                 </Svg>
@@ -22,6 +22,19 @@
 </button>
 
 @code {
+    private string? _triggerStyle;
+    private (string Top, bool Open)? _triggerStyleKey;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<FillBuilder> _renderCss1 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss2 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss3 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<StrokeLineCapBuilder> _renderCss4 = Quark.StrokeLineCap.Round;
+    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss5 = Quark.StrokeLineJoin.Round;
+    private string? _lastBuiltClass;
+    private string? _lastBuiltClass2;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleRailClickDelegate;
+
     private QuarkAttributeDictionary _triggerAttributesBuffer;
     protected override void ApplyDefaultParameters()
     {
@@ -66,16 +79,10 @@
         attributes["aria-expanded"] = State?.Open == true ? "true" : "false";
 
         if (!ShowTrigger)
-            attributes["tabindex"] = -1;
+            attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "absolute inset-y-0 z-20 hidden w-4 cursor-default transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:-left-4 after:absolute after:inset-y-0 after:w-[2px] group-data-[side=left]:after:left-0 group-data-[side=right]:after:right-0 hover:after:bg-sidebar-border sm:flex");
-            AppendClass(ref cls, "hover:group-data-[collapsible=offcanvas]:bg-sidebar");
-
-            if (ShowTrigger)
-                AppendClass(ref cls, "focus-visible:outline-none focus-visible:[&>[data-sidebar=rail-trigger]]:ring-2 focus-visible:[&>[data-sidebar=rail-trigger]]:ring-sidebar-ring");
-        });
+        const string prefix = "absolute inset-y-0 z-20 hidden w-4 cursor-default transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:-left-4 after:absolute after:inset-y-0 after:w-[2px] group-data-[side=left]:after:left-0 group-data-[side=right]:after:right-0 hover:after:bg-sidebar-border sm:flex hover:group-data-[collapsible=offcanvas]:bg-sidebar";
+        PrependClassAttribute(attributes, ShowTrigger ? prefix + " focus-visible:outline-none focus-visible:[&>[data-sidebar=rail-trigger]]:ring-2 focus-visible:[&>[data-sidebar=rail-trigger]]:ring-sidebar-ring" : prefix, ref _lastBuiltClass);
     }
 
     private Dictionary<string, object> BuildTriggerAttributes()
@@ -83,17 +90,16 @@
         var attributes = _triggerAttributesBuffer.Create(4);
         attributes["data-sidebar"] = "rail-trigger";
         attributes["aria-hidden"] = "true";
-        attributes["style"] = $"top: {TriggerTop}; --sidebar-rail-trigger-offset: {(State?.Open == true ? "2.75rem" : "1rem")};";
-
-        RenderComponent.BuildClassAttribute(attributes, (ref cls) =>
+        var key = (TriggerTop, State?.Open == true);
+        if (_triggerStyle is null || _triggerStyleKey != key)
         {
-            AppendClass(ref cls, "absolute flex size-7 items-center justify-center rounded-md border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xs transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0");
-            AppendClass(ref cls, "group-data-[side=left]:right-(--sidebar-rail-trigger-offset) group-data-[side=right]:left-(--sidebar-rail-trigger-offset)");
-            AppendClass(ref cls, "group-data-[state=collapsed]:pointer-events-none group-data-[state=collapsed]:opacity-0 group-hover:pointer-events-auto! group-hover:opacity-100!");
+            _triggerStyle = $"top: {TriggerTop}; --sidebar-rail-trigger-offset: {(key.Item2 ? "2.75rem" : "1rem")};";
+            _triggerStyleKey = key;
+        }
+        attributes["style"] = _triggerStyle;
 
-            if (TriggerClass.HasContent())
-                AppendClass(ref cls, TriggerClass!);
-        });
+        const string prefix = "absolute flex size-7 items-center justify-center rounded-md border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xs transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 group-data-[side=left]:right-(--sidebar-rail-trigger-offset) group-data-[side=right]:left-(--sidebar-rail-trigger-offset) group-data-[state=collapsed]:pointer-events-none group-data-[state=collapsed]:opacity-0 group-hover:pointer-events-auto! group-hover:opacity-100!";
+        attributes["class"] = TriggerClass.HasContent() ? QuarkStringCache.Concat(prefix, " ", TriggerClass!, ref _lastBuiltClass2) : prefix;
 
         return attributes;
     }

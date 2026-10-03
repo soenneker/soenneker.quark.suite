@@ -6,13 +6,23 @@
 
 <CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
     <BradixMenubar Value="@_openMenuValue"
-                   ValueChanged="HandleValueChanged"
+                   ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                    AdditionalAttributes="@MenubarAttributes">
         @ChildContent
     </BradixMenubar>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss1 = Quark.MaxWidth.IsFull;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Token("[3px]");
+    private System.Func<string?, Task>? _cachedHandleValueChangedDelegate;
+
     private readonly string _menubarId = BlazorIdGenerator.New("quark-menubar");
     private string? _openMenuValue;
     private IReadOnlyDictionary<string, object> MenubarAttributes => BuildMenubarAttributes();
@@ -44,14 +54,14 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "menubar";
 
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is8;
-        MaxWidth ??= Quark.MaxWidth.IsFull;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is0_5;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        Padding ??= Quark.Padding.Token("[3px]");
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        MaxWidth ??= _staticCss1;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        Padding ??= _defaultPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

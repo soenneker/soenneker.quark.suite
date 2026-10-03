@@ -6,38 +6,61 @@
 <div @attributes="BuildAttributes()">
 	<Input Type="text"
 	       Value="@SearchTerm"
-	       OnInput="OnSearchInputHandler"
+	       OnInput="(_cachedOnSearchInputHandlerDelegate ??= OnSearchInputHandler)"
 	       Placeholder="@Placeholder"
-	       Height="Quark.Height.Is8"
-	       Width="Quark.Width.IsFull"
-	       MinWidth="Quark.MinWidth.Is0"
-	       Rounded="Quark.Rounded.Lg"
-	       Border="Quark.Border.Default"
-	       BorderColor="Quark.BorderColor.Input.OnFocusVisible.Ring"
-	       BackgroundColor="Quark.BackgroundColor.Transparent"
-	       Padding="Quark.Padding.OnX.Is2_5.OnY.Is1"
-	       TextSize="Quark.TextSize.Base.OnMd.Sm"
-	       TextColor='Quark.TextColor.MutedForeground.Modifier("placeholder")'
-	       RingColor="Quark.RingColor.OnFocusVisible.Ring50"
-	       PointerEvents="Quark.PointerEvents.None.OnDisabled"
-	       Cursor="Quark.Cursor.NotAllowed.OnDisabled"
-	       Opacity="Quark.Opacity.Is50.OnDisabled"
-	       Transition="Quark.Transition.Colors"
-	       OutlineStyle="Quark.OutlineStyle.None"
+	       Height="_renderCss0"
+	       Width="_renderCss1"
+	       MinWidth="_staticCss1"
+	       Rounded="_renderCss2"
+	       Border="_renderCss3"
+	       BorderColor="_renderCss4"
+	       BackgroundColor="_renderCss5"
+	       Padding="_renderCss6"
+	       TextSize="_renderCss7"
+	       TextColor='_renderCss8'
+	       RingColor="_renderCss9"
+	       PointerEvents="_renderCss10"
+	       Cursor="_renderCss11"
+	       Opacity="_renderCss12"
+	       Transition="_renderCss13"
+	       OutlineStyle="_renderCss14"
 	       Attributes="BuildInputAttributes()" />
 </div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<HeightBuilder> _renderCss0 = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _renderCss2 = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _renderCss3 = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _renderCss4 = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss5 = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _renderCss6 = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _renderCss7 = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<TextColorBuilder> _renderCss8 = Quark.TextColor.MutedForeground.Modifier("placeholder");
+    private static readonly CssValue<RingColorBuilder> _renderCss9 = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss10 = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _renderCss11 = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _renderCss12 = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<TransitionBuilder> _renderCss13 = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _renderCss14 = Quark.OutlineStyle.None;
+    private System.Func<ChangeEventArgs, Task>? _cachedOnSearchInputHandlerDelegate;
+
+    private string? _lastPrependedClass;
+
     private QuarkAttributeDictionary _inputAttributes;
 	// shadcn input in table toolbar - new-york-v4 ui/input.tsx
 	protected override void ApplyDefaultParameters()
 	{
 		base.ApplyDefaultParameters();
 		DataSlot ??= "datatable-search";
-		Display ??= Quark.Display.Flex;
-		Width ??= Quark.Width.IsFull;
-		ItemsAlign ??= Items.Center;
-		Gap ??= Quark.Gap.Is2;
+		Display ??= _defaultDisplay;
+		Width ??= _renderCss1;
+		ItemsAlign ??= _staticCss0;
+		Gap ??= _defaultGap;
 
 	}
 
@@ -45,7 +68,7 @@
 	{
 		base.BuildAttributesCore(attributes);
 
-		PrependClassAttribute(attributes, "sm:max-w-sm");
+		PrependClassAttribute(attributes, "sm:max-w-sm", ref _lastPrependedClass);
 	}
 
 	private Dictionary<string, object> BuildInputAttributes()

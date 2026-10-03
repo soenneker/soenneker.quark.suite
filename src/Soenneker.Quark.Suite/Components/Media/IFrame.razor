@@ -75,7 +75,7 @@
     {
         if (Lazy)
             return "lazy";
-        
+
         return Loading;
     }
 
@@ -104,20 +104,20 @@
             attributes["referrerpolicy"] = ReferrerPolicy;
 
         if (AllowFullscreen)
-            attributes["allowfullscreen"] = true;
+            attributes["allowfullscreen"] = QuarkAttributeValues.True;
 
         if (AllowPaymentRequest)
-            attributes["allowpaymentrequest"] = true;
+            attributes["allowpaymentrequest"] = QuarkAttributeValues.True;
 
         if (SrcDoc.HasContent())
             attributes["srcdoc"] = SrcDoc;
 
         // Add event handlers
         if (OnLoad.HasDelegate)
-            attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
+            SetEventAttribute(attributes, "onload", EventCallback.Factory.Create(this, OnLoad));
 
         if (OnError.HasDelegate)
-            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+            SetEventAttribute(attributes, "onerror", EventCallback.Factory.Create(this, OnError));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

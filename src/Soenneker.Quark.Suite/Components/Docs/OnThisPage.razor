@@ -1,4 +1,4 @@
-﻿@using System.Threading
+@using System.Threading
 @using Microsoft.AspNetCore.Components.Routing
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -9,21 +9,21 @@
 
 @if (!ShouldHide)
 {
-    <Aside Position="Position.Sticky" Display="Display.None.OnXl.Block" SelfAlign="Self.Start" Class="@GetAsideClass()" Attributes="@_docsOnThisPageAttributes">
-        <Div MaxHeight="@_containerMaxHeight" OverflowY="Overflow.Auto" Padding="@_containerPadding" Class="@ContainerClass">
-            <Paragraph Margin="Margin.FromBottom.Is4" TextSize="@_tocTextSize" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">
+    <Aside Position="_staticCss11" Display="_staticCss10" SelfAlign="_staticCss9" Class="@GetAsideClass()" Attributes="@_docsOnThisPageAttributes">
+        <Div MaxHeight="@_containerMaxHeight" OverflowY="_staticCss8" Padding="@_containerPadding" Class="@ContainerClass">
+            <Paragraph Margin="_staticCss7" TextSize="@_tocTextSize" FontWeight="_staticCss6" TextColor="_staticCss1">
                 @Title
             </Paragraph>
-            <Scrollspy Offset="96" Smooth="true" History="true" Display="Quark.Display.Contents">
-                <Nav Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is2" TextSize="@_tocTextSize" AriaLabel="@Title" Class="@NavClass">
+            <Scrollspy Offset="96" Smooth="true" History="true" Display="_renderCss0">
+                <Nav Display="_staticCss5" FlexDirection="_staticCss4" Gap="_staticCss3" TextSize="@_tocTextSize" AriaLabel="@Title" Class="@NavClass">
                     @foreach (var item in _items)
                     {
                         <Anchor @key="item.Id"
                                 Href="@GetLinkHref(item.Id)"
-                                Display="Display.Block"
+                                Display="_staticCss2"
                                 Leading="@_linkLeading"
-                                TextColor="TextColor.MutedForeground"
-                                Transition="Transition.Colors"
+                                TextColor="_staticCss1"
+                                Transition="_staticCss0"
                                 Class="@GetLinkClass(item)"
                                 data-scrollspy-anchor="@item.Id"
                                 data-scrollspy-offset="96">
@@ -37,22 +37,41 @@
 }
 
 @code {
+    private static readonly CssValue<TransitionBuilder> _staticCss0 = Quark.Transition.Colors;
+    private static readonly CssValue<TextColorBuilder> _staticCss1 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<DisplayBuilder> _staticCss2 = Quark.Display.Block;
+    private static readonly CssValue<GapBuilder> _staticCss3 = Quark.Gap.Is2;
+    private static readonly CssValue<FlexDirectionBuilder> _staticCss4 = Quark.FlexDirection.Col;
+    private static readonly CssValue<DisplayBuilder> _staticCss5 = Quark.Display.Flex;
+    private static readonly CssValue<FontWeightBuilder> _staticCss6 = Quark.FontWeight.Medium;
+    private static readonly CssValue<MarginBuilder> _staticCss7 = Quark.Margin.FromBottom.Is4;
+    private static readonly CssValue<OverflowBuilder> _staticCss8 = Quark.Overflow.Auto;
+    private static readonly CssValue<SelfBuilder> _staticCss9 = Quark.Self.Start;
+    private static readonly CssValue<DisplayBuilder> _staticCss10 = Quark.Display.None.OnXl.Block;
+    private static readonly CssValue<PositionBuilder> _staticCss11 = Quark.Position.Sticky;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Contents;
 
     private static readonly IReadOnlyDictionary<string, object> _docsOnThisPageAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "docs-on-this-page"
     };
-    
-    private static readonly MaxHeightBuilder _containerMaxHeight = MaxHeight.Token("[calc(100vh-var(--header-height)-2rem)]");
-    private static readonly PaddingBuilder _containerPadding = Padding.OnX.Is1;
-    private static readonly TextSizeBuilder _tocTextSize = TextSize.Token("[0.8rem]");
-    private static readonly LeadingBuilder _linkLeading = Leading.Is6;
+
+    private static readonly CssValue<MaxHeightBuilder> _containerMaxHeight = MaxHeight.Token("[calc(100vh-var(--header-height)-2rem)]");
+    private static readonly CssValue<PaddingBuilder> _containerPadding = Padding.OnX.Is1;
+    private static readonly CssValue<TextSizeBuilder> _tocTextSize = TextSize.Token("[0.8rem]");
+    private static readonly CssValue<LeadingBuilder> _linkLeading = Leading.Is6;
 
     private const string _defaultLinkClass = "hover:text-foreground";
     private const string _defaultAsideClass = "top-[calc(var(--header-height)+1rem)]";
 
     private CancellationTokenSource? _refreshCts;
     private string? _linkUri;
+    private Dictionary<string, string>? _linkHrefs;
+    private string? _lastLinkClass;
+    private string? _topLinkClass;
+    private string? _nestedLinkClass;
+    private string? _deepLinkClass;
+    private string? _asideClass;
     private string _linkPath = string.Empty;
     private readonly AsyncLock _refreshLock = new();
     private IReadOnlyList<OnThisPageTocItem> _items = [];
@@ -115,6 +134,7 @@
                 return;
 
             _items = items;
+            _linkHrefs?.Clear();
 
             await InvokeAsync(StateHasChanged);
         }
@@ -133,7 +153,16 @@
 
     private string GetLinkClass(OnThisPageTocItem item)
     {
-        var builder = new PooledStringBuilder(128);
+        if (_lastLinkClass != LinkClass)
+        {
+            _lastLinkClass = LinkClass;
+            _topLinkClass = _nestedLinkClass = _deepLinkClass = null;
+        }
+        ref string? result = ref (item.Level == 3 ? ref _nestedLinkClass : ref (item.Level >= 4 ? ref _deepLinkClass : ref _topLinkClass));
+        if (result is not null)
+            return result;
+
+        var builder = new PooledStringBuilder(stackalloc char[128]);
 
         AppendClass(ref builder, _defaultLinkClass);
         AppendClass(ref builder, LinkClass);
@@ -147,18 +176,12 @@
 
         AppendClass(ref builder, "data-[active=true]:font-medium data-[active=true]:!text-foreground");
 
-        return builder.ToStringAndDispose();
+        return result = builder.ToStringAndDispose();
     }
 
-    private string GetAsideClass()
-    {
-        var builder = new PooledStringBuilder(128);
-
-        AppendClass(ref builder, _defaultAsideClass);
-        AppendClass(ref builder, Class);
-
-        return builder.ToStringAndDispose();
-    }
+    private string GetAsideClass() => string.IsNullOrWhiteSpace(Class)
+        ? _defaultAsideClass
+        : QuarkStringCache.Concat(_defaultAsideClass, " ", Class, ref _asideClass);
 
     private string GetLinkHref(string id)
     {
@@ -167,20 +190,20 @@
         {
             var path = Navigation.ToBaseRelativePath(uri);
             var hashIndex = path.IndexOf('#');
-            _linkPath = hashIndex >= 0 ? path[..hashIndex] : path;
+            string nextPath = hashIndex >= 0 ? path[..hashIndex] : path;
+            if (_linkPath != nextPath)
+                _linkHrefs?.Clear();
+            _linkPath = nextPath;
             _linkUri = uri;
         }
 
-        var relativePath = _linkPath;
-        var builder = new PooledStringBuilder(relativePath.Length + id.Length + 1);
-
-        if (!string.IsNullOrWhiteSpace(relativePath))
-            builder.Append(relativePath);
-
-        builder.Append('#');
-        builder.Append(id);
-
-        return builder.ToStringAndDispose();
+        var hrefs = _linkHrefs ??= new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!hrefs.TryGetValue(id, out var href))
+        {
+            href = string.IsNullOrWhiteSpace(_linkPath) ? string.Concat("#", id) : string.Concat(_linkPath, "#", id);
+            hrefs.Add(id, href);
+        }
+        return href;
     }
 
     private static void AppendClass(ref PooledStringBuilder builder, string? className)

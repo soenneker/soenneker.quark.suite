@@ -6,6 +6,14 @@
 </ol>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastBuiltClass;
+
     [CascadingParameter(Name = "ParentBreadcrumb")]
     private Breadcrumb? ParentBreadcrumb { get; set; }
 
@@ -14,12 +22,12 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "breadcrumb-list";
 
-        Display ??= Quark.Display.Flex;
-        FlexWrap ??= Quark.FlexWrap.Wrap;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        Display ??= _defaultDisplay;
+        FlexWrap ??= _defaultFlexWrap;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,15 +35,21 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "wrap-break-word");
-
-            if (ParentBreadcrumb?.Large == true)
-                AppendClass(ref cls, "text-base");
-
-            if (ParentBreadcrumb?.Small == true)
-                AppendClass(ref cls, "text-xs");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "wrap-break-word");
+                if (ParentBreadcrumb?.Large == true)
+                    AppendClass(ref cls, "text-base");
+                if (ParentBreadcrumb?.Small == true)
+                    AppendClass(ref cls, "text-xs");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 }

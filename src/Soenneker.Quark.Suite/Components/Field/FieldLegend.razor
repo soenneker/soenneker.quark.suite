@@ -6,6 +6,10 @@
 </legend>
 
 @code {
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromBottom.Is1_5;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public string Variant { get; set; } = "legend";
 
@@ -16,8 +20,8 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field-legend";
 
-        FontWeight ??= Quark.FontWeight.Medium;
-        Margin ??= Quark.Margin.FromBottom.Is1_5;
+        FontWeight ??= _defaultFontWeight;
+        Margin ??= _defaultMargin;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -26,7 +30,7 @@
 
         attributes["data-variant"] = ResolvedVariant;
 
-        PrependClassAttribute(attributes, "data-[variant=label]:text-sm data-[variant=legend]:text-base");
+        PrependClassAttribute(attributes, "data-[variant=label]:text-sm data-[variant=legend]:text-base", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

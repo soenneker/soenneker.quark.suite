@@ -5,6 +5,36 @@
 <source @attributes="BuildAttributes()" />
 
 @code {
+    private ImageSrcSetCache _srcSetCache;
+    private QuarkInt32Attribute _widthAttribute, _heightAttribute;
+    private (string? Source, string? Extension) _sourceKey;
+    private string? _resolvedSource;
+    private (string Condition, bool Dark) _mediaKey;
+    private string? _themeMedia;
+
+    private string? GetSource()
+    {
+        var key = (Source, Extension ?? (AutoSrcSet ? "avif" : null));
+        if (_sourceKey != key)
+        {
+            var source = Source is null ? null : ImageSources.ApplyExtension(Source, key.Item2);
+            _sourceKey = key;
+            _resolvedSource = source;
+        }
+        return _resolvedSource;
+    }
+
+    private string GetThemeMedia(string condition, bool dark)
+    {
+        var key = (condition, dark);
+        if (_themeMedia is null || _mediaKey != key)
+        {
+            _themeMedia = BuildThemeMedia(condition, dark);
+            _mediaKey = key;
+        }
+        return _themeMedia;
+    }
+
     [Parameter]
     public string? Source { get; set; }
 
@@ -47,15 +77,15 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        string? source = Source is null ? null : ImageSources.ApplyExtension(Source, Extension ?? (AutoSrcSet ? "avif" : null));
+        string? source = GetSource();
         string? candidates = !string.IsNullOrWhiteSpace(SrcSet) ? SrcSet : AutoSrcSet
-            ? ImageSources.BuildSrcSet(source, SrcSetWidths, IntrinsicWidth) : source;
+            ? _srcSetCache.Get(source, SrcSetWidths, IntrinsicWidth) : source;
         if (!string.IsNullOrWhiteSpace(candidates)) attributes["srcset"] = candidates;
         string? sizes = Sizes ?? (AutoSrcSet && !string.IsNullOrWhiteSpace(candidates) ? "100vw" : null);
         if (sizes is not null) attributes["sizes"] = sizes;
         if (Type is not null) attributes["type"] = Type;
-        if (IntrinsicWidth.HasValue) attributes["width"] = IntrinsicWidth.Value;
-        if (IntrinsicHeight.HasValue) attributes["height"] = IntrinsicHeight.Value;
+        if (IntrinsicWidth.HasValue) attributes["width"] = _widthAttribute.Get(IntrinsicWidth.Value);
+        if (IntrinsicHeight.HasValue) attributes["height"] = _heightAttribute.Get(IntrinsicHeight.Value);
         string? media = Media;
         if (Theme == ThemeMode.Dark || Theme == ThemeMode.Light)
         {
@@ -64,8 +94,7 @@
             attributes["data-quark-theme"] = theme;
             attributes["data-quark-media"] = condition;
             // Keep media query lists grouped; each alternative needs the theme condition.
-            media = string.Join(", ", condition.Split(',').Select(part =>
-                part.Trim() == "all" ? $"(prefers-color-scheme: {theme})" : $"{part.Trim()} and (prefers-color-scheme: {theme})"));
+            media = GetThemeMedia(condition, Theme == ThemeMode.Dark);
         }
         if (media is not null) attributes["media"] = media;
     }
@@ -74,8 +103,29 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Source); hc.Add(Extension); hc.Add(SrcSet); hc.Add(AutoSrcSet);
-        foreach (int width in SrcSetWidths) hc.Add(width);
+        for (var index = 0; index < SrcSetWidths.Count; index++) hc.Add(SrcSetWidths[index]);
         hc.Add(Sizes); hc.Add(Media); hc.Add(Type);
         hc.Add(IntrinsicWidth); hc.Add(IntrinsicHeight); hc.Add(Theme);
+    }
+
+    private static string BuildThemeMedia(string condition, bool dark)
+    {
+        string themeQuery = dark ? "(prefers-color-scheme: dark)" : "(prefers-color-scheme: light)";
+        ReadOnlySpan<char> source = condition.AsSpan();
+        if (source.Trim().SequenceEqual("all")) return themeQuery;
+
+        using var result = new PooledStringBuilder(condition.Length + themeQuery.Length + 5);
+        foreach (Range range in source.Split(','))
+        {
+            if (result.Length != 0) result.Append(", ");
+            ReadOnlySpan<char> part = source[range].Trim();
+            if (!part.SequenceEqual("all"))
+            {
+                result.Append(part);
+                result.Append(" and ");
+            }
+            result.Append(themeQuery);
+        }
+        return result.ToString();
     }
 }

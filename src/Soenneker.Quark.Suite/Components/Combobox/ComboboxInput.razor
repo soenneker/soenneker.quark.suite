@@ -10,22 +10,22 @@
             @ChildContent
         }
         <input value="@GetDisplayValue()"
-               @oninput="HandleInput"
-               @onfocus="HandleFocus"
-               @onclick="HandleClickOpen"
-               @onkeydown="HandleKeyDown"
+               @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+               @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)"
+               @onclick="(_cachedHandleClickOpenDelegate ??= HandleClickOpen)"
+               @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
                @onkeydown:preventDefault="_preventDefaultKeys"
                @attributes="BuildAttributes()" />
         @if (ParentCombobox?.ShowClear == true && ParentCombobox.HasClearValue)
         {
-            <button type="button" @onclick="Clear" @onmousedown:preventDefault="true" @attributes="BuildClearButtonAttributes()">
-                <Svg DataSlot="combobox-clear-icon" PointerEvents="Quark.PointerEvents.None" Size="Quark.Size.Is4" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
+            <button type="button" @onclick="(_cachedClearDelegate ??= Clear)" @onmousedown:preventDefault="true" @attributes="BuildClearButtonAttributes()">
+                <Svg DataSlot="combobox-clear-icon" PointerEvents="_renderCss0" Size="_renderCss1" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss2" Stroke='_renderCss3' StrokeWidth="_renderCss4" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
             </button>
         }
         @if (ShowTrigger)
         {
-            <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
-                <Svg DataSlot="combobox-trigger-icon" PointerEvents="Quark.PointerEvents.None" Size="Quark.Size.Is4" TextColor="Quark.TextColor.MutedForeground" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></Svg>
+            <button type="button" @onclick="(_cachedToggleOpenDelegate ??= ToggleOpen)" @attributes="BuildButtonAttributes()">
+                <Svg DataSlot="combobox-trigger-icon" PointerEvents="_renderCss0" Size="_renderCss1" TextColor="_renderCss5" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss2" Stroke='_renderCss3' StrokeWidth="_renderCss4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></Svg>
             </button>
         }
     </div>
@@ -39,28 +39,67 @@ else
             @ChildContent
         }
         <input value="@GetDisplayValue()"
-               @oninput="HandleInput"
-               @onfocus="HandleFocus"
-               @onclick="HandleClickOpen"
-               @onkeydown="HandleKeyDown"
+               @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+               @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)"
+               @onclick="(_cachedHandleClickOpenDelegate ??= HandleClickOpen)"
+               @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
                @onkeydown:preventDefault="_preventDefaultKeys"
                @attributes="BuildAttributes()" />
         @if (ParentCombobox?.ShowClear == true && ParentCombobox.HasClearValue)
         {
-            <button type="button" @onclick="Clear" @onmousedown:preventDefault="true" @attributes="BuildClearButtonAttributes()">
-                <Svg DataSlot="combobox-clear-icon" PointerEvents="Quark.PointerEvents.None" Size="Quark.Size.Is4" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
+            <button type="button" @onclick="(_cachedClearDelegate ??= Clear)" @onmousedown:preventDefault="true" @attributes="BuildClearButtonAttributes()">
+                <Svg DataSlot="combobox-clear-icon" PointerEvents="_renderCss0" Size="_renderCss1" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss2" Stroke='_renderCss3' StrokeWidth="_renderCss4" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
             </button>
         }
         @if (ShowTrigger)
         {
-            <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
-                <Svg DataSlot="combobox-trigger-icon" PointerEvents="Quark.PointerEvents.None" Size="Quark.Size.Is4" TextColor="Quark.TextColor.MutedForeground" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="Quark.Fill.None" Stroke='Quark.Stroke.Current' StrokeWidth="Quark.StrokeWidth.Is2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></Svg>
+            <button type="button" @onclick="(_cachedToggleOpenDelegate ??= ToggleOpen)" @attributes="BuildButtonAttributes()">
+                <Svg DataSlot="combobox-trigger-icon" PointerEvents="_renderCss0" Size="_renderCss1" TextColor="_renderCss5" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss2" Stroke='_renderCss3' StrokeWidth="_renderCss4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></Svg>
             </button>
         }
     </div>
 }
 
 @code {
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.None;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is0;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground.Modifier("placeholder");
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium.Modifier("file");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex.Modifier("file");
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
+    private static readonly CssValue<FillBuilder> _renderCss2 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss3 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss4 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+    private string? _lastPrependedClass2;
+    private string? _lastPrependedClass3;
+    private string? _lastPrependedClass4;
+
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleFocusDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickOpenDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedClearDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedToggleOpenDelegate;
+
     private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private QuarkAttributeDictionary _buttonAttributesBuffer;
     private QuarkAttributeDictionary _clearButtonAttributesBuffer;
@@ -148,27 +187,27 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-group-control";
-        Height ??= Quark.Height.Is8;
-        Width ??= Quark.Width.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Flex ??= Quark.Flex.Is1;
-        Rounded ??= Quark.Rounded.None;
-        Border ??= Quark.Border.Is0;
-        BorderColor ??= Quark.BorderColor.Input.OnFocusVisible.Ring;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
-        Padding ??= Quark.Padding.OnX.Is2_5.OnY.Is1;
-        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
-        Transition ??= Quark.Transition.Colors;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        Shadow ??= Quark.Shadow.None;
-        Ring ??= Quark.Ring.None;
-        RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Cursor ??= Quark.Cursor.NotAllowed.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
-        TextColor ??= Quark.TextColor.MutedForeground.Modifier("placeholder");
-        FontWeight ??= Quark.FontWeight.Medium.Modifier("file");
-        Display ??= Quark.Display.InlineFlex.Modifier("file");
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        MinWidth ??= _staticCss0;
+        Flex ??= _defaultFlex;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
+        PointerEvents ??= _defaultPointerEvents;
+        Cursor ??= _defaultCursor;
+        Opacity ??= _defaultOpacity;
+        TextColor ??= _defaultTextColor;
+        FontWeight ??= _defaultFontWeight;
+        Display ??= _defaultDisplay;
 
     }
 
@@ -185,14 +224,14 @@ else
 
         if (ParentCombobox is not null)
         {
-            attributes["id"] = ParentCombobox.InputId;
+            attributes["id"] = Id ?? ParentCombobox.InputId;
             attributes["aria-controls"] = ParentCombobox.ContentId;
         }
 
         if (ParentCombobox?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
-        PrependClassAttribute(attributes, "file:h-6 file:border-0 file:bg-transparent file:text-sm file:text-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 aria-invalid:ring-0");
+        PrependClassAttribute(attributes, "file:h-6 file:border-0 file:bg-transparent file:text-sm file:text-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 aria-invalid:ring-0", ref _lastPrependedClass);
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -202,7 +241,7 @@ else
         attributes["data-combobox-slot"] = "combobox-control";
         attributes["role"] = "group";
 
-        PrependClassAttribute(attributes, "group/input-group relative flex h-8 min-w-0 items-center rounded-lg border border-input transition-[color,box-shadow] outline-none dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>textarea]:h-auto has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 w-auto");
+        PrependClassAttribute(attributes, "group/input-group relative flex h-8 min-w-0 items-center rounded-lg border border-input transition-[color,box-shadow] outline-none dark:bg-input/30 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>textarea]:h-auto has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 w-auto", ref _lastPrependedClass2);
 
         return attributes;
     }
@@ -216,12 +255,12 @@ else
         attributes["type"] = "button";
         attributes["aria-controls"] = ParentCombobox?.ContentId ?? string.Empty;
         attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
-        attributes["tabindex"] = -1;
+        attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
         if (ParentCombobox?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
-        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex items-center gap-2 text-sm shadow-none size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 flex items-center gap-2 text-sm shadow-none size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0 group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass3);
 
         return attributes;
     }
@@ -235,9 +274,9 @@ else
         attributes["type"] = "button";
 
         if (ParentCombobox?.Disabled == true)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
-        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 flex size-6 items-center gap-2 rounded-[calc(var(--radius)-3px)] p-0 text-sm text-muted-foreground hover:text-foreground");
+        PrependClassAttribute(attributes, "group/button shrink-0 justify-center border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 flex size-6 items-center gap-2 rounded-[calc(var(--radius)-3px)] p-0 text-sm text-muted-foreground hover:text-foreground", ref _lastPrependedClass4);
 
         return attributes;
     }

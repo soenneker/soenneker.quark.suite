@@ -10,6 +10,8 @@
 </CascadingValue>
 
 @code {
+    private Func<Task>? _validatedAllCallback;
+    private Task NotifyValidatedAll() => ValidatedAll.InvokeAsync();
     private readonly List<IValidation> _validations = [];
     private EditContext? _ownedEditContext;
 
@@ -116,7 +118,7 @@
         if (result)
         {
             RaiseStatusChanged(ValidationStatus.Success, null, null);
-            await InvokeAsync(() => ValidatedAll.InvokeAsync());
+            await InvokeAsync(_validatedAllCallback ??= NotifyValidatedAll);
         }
         else if (HasFailedValidations)
         {
@@ -195,6 +197,7 @@
 
     private void RaiseStatusChanged(ValidationStatus status, IReadOnlyCollection<string>? messages, IValidation? validation)
     {
+        if (_statusChanged is null && !StatusChanged.HasDelegate) return;
         var args = new ValidationsStatusChangedEventArgs(status, messages, validation);
         _statusChanged?.Invoke(args);
         InvokeAsync(() => StatusChanged.InvokeAsync(args));

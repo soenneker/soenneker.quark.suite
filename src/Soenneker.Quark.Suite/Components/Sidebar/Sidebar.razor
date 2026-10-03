@@ -12,16 +12,16 @@
 }
 else if (ShouldRenderMobileSidebar)
 {
-    <Sheet Visible="State?.OpenMobile == true" VisibleChanged="OnMobileVisibleChanged" ShowBackdrop="MobileShowBackdrop" CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick" CloseOnEscape="MobileCloseOnEscape" LockScroll="MobileLockScroll" TrapFocus="@ResolvedMobileTrapFocus">
+    <Sheet Visible="State?.OpenMobile == true" VisibleChanged="(_cachedOnMobileVisibleChangedDelegate ??= OnMobileVisibleChanged)" ShowBackdrop="MobileShowBackdrop" CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick" CloseOnEscape="MobileCloseOnEscape" LockScroll="MobileLockScroll" TrapFocus="@ResolvedMobileTrapFocus">
         <SheetContent Side="@ToSheetSide(Side)" KeepMounted="MobileKeepMounted" ShowCloseButton="MobileShowCloseButton" ContainerClass="@GetMobileContainerClass()" ContainerStyle="@GetMobileContainerStyle()" OverlayClass="@MobileOverlayClass" OverlayStyle="@GetMobileOverlayStyle()" @attributes="BuildMobileAttributes()">
-            <SheetHeader ScreenReader="Quark.ScreenReader.Only">
+            <SheetHeader ScreenReader="_renderCss0">
                 <SheetTitle>Sidebar</SheetTitle>
                 <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
-            <Div Display="Quark.Display.Flex" Height="Quark.Height.IsFull" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col">
+            <Div Display="_renderCss1" Height="_renderCss2" Width="_renderCss3" FlexDirection="_renderCss4">
                 @if (IsNavigationShell(Shell))
                 {
-                    <Div Display="Quark.Display.Flex" Flex="Quark.Flex.Is1" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is12" BackgroundColor="Quark.BackgroundColor.Background" Padding="Quark.Padding.Is6" Class="no-scrollbar min-h-0 overflow-y-auto">
+                    <Div Display="_renderCss1" Flex="_renderCss5" FlexDirection="_renderCss4" Gap="_renderCss6" BackgroundColor="_renderCss7" Padding="_renderCss8" Class="no-scrollbar min-h-0 overflow-y-auto">
                         @RenderMobileBody()
                     </Div>
                 }
@@ -38,8 +38,8 @@ else if (IsNoneCollapsible(Collapsible))
     <aside @attributes="BuildStaticAttributes()">
         @if (IsNavigationShell(Shell))
         {
-            <Div Height="Quark.Height.Is9" Class="hidden lg:block"></Div>
-            <Div Position="Quark.Position.Absolute" Top="Quark.Top.Is12" Right="Quark.Right.Is2" Bottom="Quark.Bottom.Is0" Height="Quark.Height.IsFull" Class="hidden w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></Div>
+            <Div Height="_renderCss9" Class="hidden lg:block"></Div>
+            <Div Position="_renderCss10" Top="_renderCss11" Right="_renderCss12" Bottom="_renderCss13" Height="_renderCss2" Class="hidden w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></Div>
         }
 
         @ChildContent
@@ -60,6 +60,42 @@ else
 }
 
 @code {
+    private InvariantDoubleTextCache _resizeWidthText;
+    private string? _resizeDeclaration;
+    private string? _resizeStyle;
+    private string? _navigationStyle;
+    private string? _containerStyle;
+    private string? _overlayStyle;
+    private string? _mobileContainerClass;
+    private string? _offsetTopDeclaration;
+    private string? _rootClass;
+    private string? _rootStyle;
+    private (bool Close, bool Full, bool Navigation, string? Offset, string? Class, string? Style, string? BaseClass, string? BaseStyle)? _mobileStyleKey;
+
+    private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
+    private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _renderCss2 = Quark.Height.IsFull;
+    private static readonly CssValue<WidthBuilder> _renderCss3 = Quark.Width.IsFull;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss4 = Quark.FlexDirection.Col;
+    private static readonly CssValue<FlexBuilder> _renderCss5 = Quark.Flex.Is1;
+    private static readonly CssValue<GapBuilder> _renderCss6 = Quark.Gap.Is12;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss7 = Quark.BackgroundColor.Background;
+    private static readonly CssValue<PaddingBuilder> _renderCss8 = Quark.Padding.Is6;
+    private static readonly CssValue<HeightBuilder> _renderCss9 = Quark.Height.Is9;
+    private static readonly CssValue<PositionBuilder> _renderCss10 = Quark.Position.Absolute;
+    private static readonly CssValue<TopBuilder> _renderCss11 = Quark.Top.Is12;
+    private static readonly CssValue<RightBuilder> _renderCss12 = Quark.Right.Is2;
+    private static readonly CssValue<BottomBuilder> _renderCss13 = Quark.Bottom.Is0;
+    private System.Func<bool, Task>? _cachedOnMobileVisibleChangedDelegate;
+    private System.Func<double, Task>? _cachedOnResizeWidthChangedDelegate;
+
+    private string? _lastBuiltClass;
+    private string? _lastBuiltClass2;
+    private string? _lastBuiltClass3;
+    private string? _lastBuiltStyle;
+    private string? _lastBuiltClass4;
+    private string? _lastBuiltClass5;
+
     private static readonly IReadOnlyDictionary<string, object> InnerAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "sidebar-inner",
@@ -118,11 +154,13 @@ else
     private bool CanResize => Resizable && State?.IsMobile != true && !ShouldRenderMobileSidebar &&
         (IsNoneCollapsible(Collapsible) || !IsCollapsed);
 
-    private RenderFragment ResizeHandle => @<text>
+    private RenderFragment? _resizeHandle;
+
+    private RenderFragment ResizeHandle => _resizeHandle ??= @<text>
         @if (CanResize)
         {
             <SidebarResizeHandle MinWidth="MinResizeWidth" MaxWidth="MaxResizeWidth" RightSide="IsRightSide(Side)"
-                                 WidthChanged="OnResizeWidthChanged" />
+                                 WidthChanged="(_cachedOnResizeWidthChangedDelegate ??= OnResizeWidthChanged)" />
         }
     </text>;
 
@@ -203,10 +241,9 @@ else
         attributes["data-sidebar-resize-root"] = "";
         if (ExpandedWidth is { } width)
         {
-            var value = (Resizable ? Math.Clamp(width, MinResizeWidth, MaxResizeWidth) : width)
-                .ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var value = _resizeWidthText.Get(Resizable ? Math.Clamp(width, MinResizeWidth, MaxResizeWidth) : width, "G");
             attributes["style"] = CombineStyleDecls(attributes.TryGetValue("style", out var style) ? style?.ToString() : null,
-                $"--sidebar-width: {value}px;")!;
+                QuarkStringCache.Concat("--sidebar-width: ", value, "px;", ref _resizeDeclaration), ref _resizeStyle)!;
         }
     }
 
@@ -367,13 +404,11 @@ else
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group peer hidden text-sidebar-foreground md:block");
-
-            if (Contained)
-                AppendClass(ref cls, "relative");
-        });
+            const string @class = "group peer hidden text-sidebar-foreground md:block";
+            const string variant = @class + " " + "relative";
+            PrependClassAttribute(attributes, Contained ? variant : @class, ref _lastBuiltClass);
+        }
     }
 
     private Dictionary<string, object> BuildStaticAttributes()
@@ -391,21 +426,13 @@ else
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, IsNavigationShell(Shell) ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex" : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
-
-            if (Resizable && !IsNavigationShell(Shell))
-                AppendClass(ref cls, "relative shrink-0");
-
-            if (IsNavigationShell(Shell))
-                AppendClass(ref cls, "sticky self-start shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
-        });
+        var prefix = IsNavigationShell(Shell) ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex sticky self-start shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent" : Resizable ? "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground relative shrink-0" : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground";
+        PrependClassAttribute(attributes, prefix, ref _lastBuiltClass2);
 
         if (IsNavigationShell(Shell))
         {
             const string navigationShellStyle = "top: var(--header-height, 0px); height: calc(100svh - var(--header-height, 0px)); max-height: calc(100svh - var(--header-height, 0px));";
-            attributes["style"] = CombineStyleDecls(navigationShellStyle, attributes.TryGetValue("style", out var style) ? style?.ToString() : null)!;
+            attributes["style"] = CombineStyleDecls(navigationShellStyle, attributes.TryGetValue("style", out var style) ? style?.ToString() : null, ref _navigationStyle)!;
         }
 
         return attributes;
@@ -428,32 +455,48 @@ else
         if (ResolvedDir.HasContent())
             attributes["dir"] = ResolvedDir!;
 
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        attributes.TryGetValue("class", out var baseClass);
+        attributes.TryGetValue("style", out var baseStyle);
+        var key = (MobileShowCloseButton, IsFullScreenMobileMode(ResolvedMobileMode), IsNavigationShell(Shell), MobileOffsetTop, MobileClass, MobileStyle, baseClass?.ToString(), baseStyle?.ToString());
+        if (_mobileStyleKey == key && _lastBuiltClass3 is not null && _lastBuiltStyle is not null)
         {
-            AppendClass(ref cls, "group w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground");
-            AppendStyleDecl(ref sty, "--sidebar-width: var(--sidebar-width-mobile)");
-
-            if (MobileOffsetTop.HasContent())
+            attributes["class"] = _lastBuiltClass3;
+            attributes["style"] = _lastBuiltStyle;
+        }
+        else
+        {
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
             {
-                AppendStyleDecl(ref sty, $"top: {MobileOffsetTop}");
-                AppendStyleDecl(ref sty, $"height: calc(100svh - {MobileOffsetTop})");
+                AppendClass(ref cls, "group w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground");
+                AppendStyleDecl(ref sty, "--sidebar-width: var(--sidebar-width-mobile)");
+                if (MobileOffsetTop.HasContent())
+                {
+                    AppendStyleDecl(ref sty, $"top: {MobileOffsetTop}");
+                    AppendStyleDecl(ref sty, $"height: calc(100svh - {MobileOffsetTop})");
+                }
+
+                if (!MobileShowCloseButton)
+                    AppendClass(ref cls, "[&>button]:hidden");
+                if (IsFullScreenMobileMode(ResolvedMobileMode))
+                    AppendClass(ref cls, "inset-0 h-svh w-screen! max-w-none! rounded-none border-0 sm:max-w-none!");
+                if (IsNavigationShell(Shell))
+                    AppendClass(ref cls, "gap-0 border-none bg-background/90 shadow-none backdrop-blur");
+                if (MobileClass.HasContent())
+                    AppendClass(ref cls, MobileClass!);
+                if (MobileStyle.HasContent())
+                    AppendStyleDecl(ref sty, MobileStyle!);
+                BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastBuiltClass3, ref _lastBuiltStyle);
             }
+            finally
+            {
+                cls.Dispose();
+                sty.Dispose();
+            }
+        }
 
-            if (!MobileShowCloseButton)
-                AppendClass(ref cls, "[&>button]:hidden");
-
-            if (IsFullScreenMobileMode(ResolvedMobileMode))
-                AppendClass(ref cls, "inset-0 h-svh w-screen! max-w-none! rounded-none border-0 sm:max-w-none!");
-
-            if (IsNavigationShell(Shell))
-                AppendClass(ref cls, "gap-0 border-none bg-background/90 shadow-none backdrop-blur");
-
-            if (MobileClass.HasContent())
-                AppendClass(ref cls, MobileClass!);
-
-            if (MobileStyle.HasContent())
-                AppendStyleDecl(ref sty, MobileStyle!);
-        });
+        _mobileStyleKey = key;
 
         return attributes;
     }
@@ -464,7 +507,7 @@ else
             return MobileContainerClass;
 
         return MobileContainerClass.HasContent()
-            ? AppendToClass("z-40", MobileContainerClass!)
+            ? AppendToClass("z-40", MobileContainerClass!, ref _mobileContainerClass)
             : "z-40";
     }
 
@@ -473,7 +516,7 @@ else
         if (!MobileOffsetTop.HasContent())
             return MobileContainerStyle;
 
-        return CombineStyleDecls($"top: {MobileOffsetTop};", MobileContainerStyle);
+        return CombineStyleDecls(QuarkStringCache.Concat("top: ", MobileOffsetTop!, ";", ref _offsetTopDeclaration), MobileContainerStyle, ref _containerStyle);
     }
 
     private string? GetMobileOverlayStyle()
@@ -481,10 +524,10 @@ else
         if (!MobileOffsetTop.HasContent())
             return MobileOverlayStyle;
 
-        return CombineStyleDecls($"top: {MobileOffsetTop};", MobileOverlayStyle);
+        return CombineStyleDecls(QuarkStringCache.Concat("top: ", MobileOffsetTop!, ";", ref _offsetTopDeclaration), MobileOverlayStyle, ref _overlayStyle);
     }
 
-    private static string? CombineStyleDecls(string? first, string? second)
+    private static string? CombineStyleDecls(string? first, string? second, ref string? previous)
     {
         var hasFirst = first.HasContent();
         var hasSecond = second.HasContent();
@@ -498,7 +541,7 @@ else
         if (!hasSecond)
             return first;
 
-        return $"{first} {second}";
+        return QuarkStringCache.Concat(first!, " ", second!, ref previous);
     }
 
     private RenderFragment RenderMobileBody() => _mobileBody ??= builder =>
@@ -520,17 +563,8 @@ else
         var attributes = _gapAttributeDictionaries.Create(8);
         attributes["data-slot"] = "sidebar-gap";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear");
-            AppendClass(ref cls, "group-data-[collapsible=offcanvas]:w-0");
-            AppendClass(ref cls, "group-data-[side=right]:rotate-180");
-
-            if (IsFloatingLikeVariant(Variant))
-                AppendClass(ref cls, "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]");
-            else
-                AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon)");
-        });
+        const string prefix = "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180 ";
+        PrependClassAttribute(attributes, IsFloatingLikeVariant(Variant) ? prefix + "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]" : prefix + "group-data-[collapsible=icon]:w-(--sidebar-width-icon)", ref _lastBuiltClass4);
 
         return attributes;
     }
@@ -541,17 +575,14 @@ else
         attributes["data-slot"] = "sidebar-container";
         attributes["data-side"] = ToDataSide(Side);
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, Contained
-                ? "absolute inset-y-0 z-10 hidden h-full w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex"
-                : "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex");
-
-            if (IsFloatingLikeVariant(Variant))
-                AppendClass(ref cls, "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
-            else
-                AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l");
-        });
+        const string contained = "absolute inset-y-0 z-10 hidden h-full w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex ";
+        const string fixedContainer = "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex ";
+        const string floating = "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]";
+        const string sidebar = "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l";
+        var prefix = Contained
+            ? IsFloatingLikeVariant(Variant) ? contained + floating : contained + sidebar
+            : IsFloatingLikeVariant(Variant) ? fixedContainer + floating : fixedContainer + sidebar;
+        PrependClassAttribute(attributes, prefix, ref _lastBuiltClass5);
 
         return attributes;
     }
@@ -563,8 +594,8 @@ else
         var attributes = _rootAttributeDictionaries.Create(capacity + (Attributes?.Count ?? 0));
         base.BuildOwnedAttributes(attributes);
 
-        var cls = new PooledStringBuilder(64);
-        var sty = new PooledStringBuilder(128);
+        var cls = new PooledStringBuilder(stackalloc char[64]);
+        var sty = new PooledStringBuilder(stackalloc char[128]);
 
         try
         {
@@ -595,10 +626,10 @@ else
             }
 
             if (cls.Length > 0)
-                attributes["class"] = cls.ToString();
+                attributes["class"] = _rootClass is not null && cls.AsSpan().SequenceEqual(_rootClass.AsSpan()) ? _rootClass : _rootClass = cls.ToString();
 
             if (sty.Length > 0)
-                attributes["style"] = sty.ToString();
+                attributes["style"] = _rootStyle is not null && sty.AsSpan().SequenceEqual(_rootStyle.AsSpan()) ? _rootStyle : _rootStyle = sty.ToString();
 
             return attributes;
         }

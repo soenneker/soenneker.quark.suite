@@ -4,15 +4,19 @@
 <div role="separator" @attributes="BuildAttributes()"></div>
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Is2;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsPx;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Auto;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-sidebar-border");
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-separator";
 
-        Margin ??= Quark.Margin.OnX.Is2;
-        Height ??= Quark.Height.IsPx;
-        Width ??= Quark.Width.Auto;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-sidebar-border");
+        Margin ??= _defaultMargin;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

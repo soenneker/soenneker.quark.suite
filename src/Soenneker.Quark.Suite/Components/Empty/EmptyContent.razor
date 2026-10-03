@@ -5,23 +5,32 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss2 = Quark.MaxWidth.IsSm;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextWrapBuilder> _defaultTextWrap = Quark.TextWrap.Balance;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "empty-content";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        MaxWidth ??= Quark.MaxWidth.IsSm;
-        MinWidth ??= Quark.MinWidth.Is0;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss2;
+        MinWidth ??= _staticCss1;
         if (Class?.Contains("flex-", StringComparison.Ordinal) != true)
-            FlexDirection ??= Quark.FlexDirection.Col;
+            FlexDirection ??= _defaultFlexDirection;
 
-        ItemsAlign ??= Items.Center;
+        ItemsAlign ??= _staticCss0;
         if (Class?.Contains("gap-", StringComparison.Ordinal) != true)
-            Gap ??= Quark.Gap.Is2_5;
+            Gap ??= _defaultGap;
 
-        TextSize ??= Quark.TextSize.Sm;
-        TextWrap ??= Quark.TextWrap.Balance;
+        TextSize ??= _defaultTextSize;
+        TextWrap ??= _defaultTextWrap;
 
     }
 }

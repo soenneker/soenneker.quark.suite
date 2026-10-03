@@ -5,6 +5,11 @@
 <Image @attributes="BuildAttributes()"/>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded2 = Quark.Rounded.Top.Xl;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Bottom.Xl;
+    private string? _lastPrependedClass;
+
     /// <summary>
     /// Gets or sets whether the image should be positioned at the top of the card.
     /// </summary>
@@ -21,19 +26,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "card-img";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
 
         if (AtTop)
-            Rounded ??= Quark.Rounded.Top.Xl;
+            Rounded ??= _defaultRounded2;
         else if (AtBottom)
-            Rounded ??= Quark.Rounded.Bottom.Xl;
+            Rounded ??= _defaultRounded;
 
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "object-cover");
+        PrependClassAttribute(attributes, "object-cover", ref _lastPrependedClass);
 
         if (Source.HasContent())
             attributes["src"] = Source;

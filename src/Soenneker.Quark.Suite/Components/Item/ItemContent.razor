@@ -5,20 +5,26 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "item-content";
-        Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.Is1;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is1;
+        Display ??= _defaultDisplay;
+        Flex ??= _defaultFlex;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
 
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none");
+        PrependClassAttribute(attributes, "group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none", ref _lastPrependedClass);
     }
 }

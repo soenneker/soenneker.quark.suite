@@ -13,12 +13,12 @@
     <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="true">
         @if (UsesAutoSaveStatusSlot)
         {
-            <Div Display="Quark.Display.InlineFlex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is2">
+            <Div Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
                 <BradixSelect Value="@SelectedValueString"
                               Name="@Name"
                               Disabled="@Disabled"
                               Required="@Required"
-                              ValueChanged="HandleBradixValueChanged">
+                              ValueChanged="(_cachedHandleBradixValueChangedDelegate ??= HandleBradixValueChanged)">
                     @ChildContent
                 </BradixSelect>
                 <AutoSaveStatus State="@_autoSave.State"
@@ -36,7 +36,7 @@
                           Name="@Name"
                           Disabled="@Disabled"
                           Required="@Required"
-                          ValueChanged="HandleBradixValueChanged">
+                          ValueChanged="(_cachedHandleBradixValueChangedDelegate ??= HandleBradixValueChanged)">
                 @ChildContent
             </BradixSelect>
         }
@@ -44,7 +44,16 @@
 </CascadingValue>
 
 @code {
-    private readonly AutoSaveController<TValue?> _autoSave = new();
+    private static readonly CssValue<SelectSizeBuilder> _staticCss0 = Quark.SelectSizes.Default;
+    private Func<Task>? _autoSaveRefreshCallback;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
+    private static readonly CssValue<ItemsBuilder> _renderCss1 = Quark.Items.Center;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
+    private System.Func<string?, Task>? _cachedHandleBradixValueChangedDelegate;
+
+    private string? _lastBuiltClass;
+
+    private AutoSaveController<TValue?> _autoSave;
 
     /// <summary>
     /// Gets or sets the selected value.
@@ -74,7 +83,7 @@
     /// Gets or sets the size of the select.
     /// </summary>
     [Parameter]
-    public CssValue<SelectSizeBuilder>? SelectSize { get; set; } = SelectSizes.Default;
+    public CssValue<SelectSizeBuilder>? SelectSize { get; set; } = _staticCss0;
 
     [Parameter]
     public bool AutoSave { get; set; }
@@ -196,7 +205,7 @@
             await SelectedValueChanged.InvokeAsync(nextValue);
 
         if (valueChanged)
-            await _autoSave.NotifyValueChanged(nextValue, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, RefreshOffThread);
+            await _autoSave.NotifyValueChanged(nextValue, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         if (OnChange.HasDelegate)
             await OnChange.InvokeAsync(new ChangeEventArgs { Value = value });
@@ -266,8 +275,8 @@
     {
         base.BuildAttributesCore(attributes);
         var validationClass = GetValidationClass();
-        if (validationClass != null)
-            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, validationClass));
+        if (validationClass is not null)
+            PrependClassAttribute(attributes, validationClass, ref _lastBuiltClass);
     }
 
     public override async ValueTask DisposeAsync()

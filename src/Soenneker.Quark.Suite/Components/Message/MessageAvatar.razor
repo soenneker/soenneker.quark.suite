@@ -2,11 +2,14 @@
 @inherits Soenneker.Quark.Component
 
 <Avatar AvatarSize="@AvatarSize" Attributes="@BuildAttributes()">
-    <AvatarImage Src="@Src" Alt="@Alt" Margin='Quark.Margin.OnY.Token("0!")' Attributes="@ImageAttributes" />
-    <AvatarFallback Margin='Quark.Margin.OnY.Token("0!")' Shrink="Quark.Shrink.Is0" Attributes="@FallbackAttributes">@Fallback</AvatarFallback>
+    <AvatarImage Src="@Src" Alt="@Alt" Margin='_renderCss0' Attributes="@ImageAttributes" />
+    <AvatarFallback Margin='_renderCss0' Shrink="_renderCss1" Attributes="@FallbackAttributes">@Fallback</AvatarFallback>
 </Avatar>
 
 @code {
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is7;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.OnY.Token("0!");
+    private static readonly CssValue<ShrinkBuilder> _renderCss1 = Quark.Shrink.Is0;
     [Parameter]
     public string? Src { get; set; }
 
@@ -23,8 +26,8 @@
     {
         base.ApplyDefaultParameters();
 
-        Size ??= Quark.Size.Is7;
-        Shrink ??= Quark.Shrink.Is0;
+        Size ??= _defaultSize;
+        Shrink ??= _renderCss1;
     }
 
     private static readonly IReadOnlyDictionary<string, object> ImageAttributes = new Dictionary<string, object>

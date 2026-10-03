@@ -3,28 +3,55 @@
 @implements INodeEditorControls
 
 <div @attributes="BuildAttributes()">
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Disabled="@(!CanUndo)" AriaLabel="Undo" Title="Undo" OnClick="Undo">
-        <Icon Name="LucideIcon.Undo2" Size="Quark.Size.Is4" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" Disabled="@(!CanUndo)" AriaLabel="Undo" Title="Undo" OnClick="(_cachedUndoDelegate ??= Undo)">
+        <Icon Name="LucideIcon.Undo2" Size="_renderCss0" />
     </Button>
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Disabled="@(!CanRedo)" AriaLabel="Redo" Title="Redo" OnClick="Redo">
-        <Icon Name="LucideIcon.Redo2" Size="Quark.Size.Is4" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" Disabled="@(!CanRedo)" AriaLabel="Redo" Title="Redo" OnClick="(_cachedRedoDelegate ??= Redo)">
+        <Icon Name="LucideIcon.Redo2" Size="_renderCss0" />
     </Button>
-    <Div Width="Quark.Width.IsPx" Height="Quark.Height.Is5" BackgroundColor="Quark.BackgroundColor.Border" aria-hidden="true" />
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Zoom out" Title="Zoom out" OnClick="ZoomOut">
-        <Icon Name="LucideIcon.Minus" Size="Quark.Size.Is4" />
+    <Div Width="_renderCss1" Height="_renderCss2" BackgroundColor="_renderCss3" aria-hidden="true" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" AriaLabel="Zoom out" Title="Zoom out" OnClick="(_cachedZoomOutDelegate ??= ZoomOut)">
+        <Icon Name="LucideIcon.Minus" Size="_renderCss0" />
     </Button>
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Reset view" Title="Reset view" OnClick="ResetView">
-        <Icon Name="LucideIcon.Scan" Size="Quark.Size.Is4" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" AriaLabel="Reset view" Title="Reset view" OnClick="(_cachedResetViewDelegate ??= ResetView)">
+        <Icon Name="LucideIcon.Scan" Size="_renderCss0" />
     </Button>
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Fit to view" Title="Fit to view" OnClick="FitView">
-        <Icon Name="LucideIcon.Maximize" Size="Quark.Size.Is4" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" AriaLabel="Fit to view" Title="Fit to view" OnClick="(_cachedFitViewDelegate ??= FitView)">
+        <Icon Name="LucideIcon.Maximize" Size="_renderCss0" />
     </Button>
-    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" AriaLabel="Zoom in" Title="Zoom in" OnClick="ZoomIn">
-        <Icon Name="LucideIcon.Plus" Size="Quark.Size.Is4" />
+    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" AriaLabel="Zoom in" Title="Zoom in" OnClick="(_cachedZoomInDelegate ??= ZoomIn)">
+        <Icon Name="LucideIcon.Plus" Size="_renderCss0" />
     </Button>
 </div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Quark.ButtonSize.IconSm;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<BottomBuilder> _defaultBottom = Quark.Bottom.Is4;
+    private static readonly CssValue<LeftBuilder> _defaultLeft = Quark.Left.Is4;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Token("border/80");
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("background/90");
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Sm;
+    private static readonly CssValue<BackdropBlurBuilder> _defaultBackdropBlur = Quark.BackdropBlur.Sm;
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
+    private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsPx;
+    private static readonly CssValue<HeightBuilder> _renderCss2 = Quark.Height.Is5;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss3 = Quark.BackgroundColor.Border;
+    private System.Func<Task>? _cachedUndoDelegate;
+    private System.Func<Task>? _cachedRedoDelegate;
+    private System.Func<Task>? _cachedZoomOutDelegate;
+    private System.Func<Task>? _cachedResetViewDelegate;
+    private System.Func<Task>? _cachedFitViewDelegate;
+    private System.Func<Task>? _cachedZoomInDelegate;
+
+    private string? _lastBuiltClass;
+
     [CascadingParameter]
     public NodeEditorContext? EditorContext { get; set; }
 
@@ -38,19 +65,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "node-editor-controls";
-        Position ??= Quark.Position.Absolute;
-        Bottom ??= Quark.Bottom.Is4;
-        Left ??= Quark.Left.Is4;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is0_5;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
-        BorderColor ??= Quark.BorderColor.Token("border/80");
-        BackgroundColor ??= Quark.BackgroundColor.Token("background/90");
-        Padding ??= Quark.Padding.Is1;
-        Shadow ??= Quark.Shadow.Sm;
-        BackdropBlur ??= Quark.BackdropBlur.Sm;
+        Position ??= _defaultPosition;
+        Bottom ??= _defaultBottom;
+        Left ??= _defaultLeft;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Padding ??= _defaultPadding;
+        Shadow ??= _defaultShadow;
+        BackdropBlur ??= _defaultBackdropBlur;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -58,7 +85,10 @@
         base.BuildAttributesCore(attributes);
         attributes["role"] = "toolbar";
         attributes["aria-label"] = "View controls";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "z-30"));
+        {
+            const string @class = "z-30";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
 
     }
 

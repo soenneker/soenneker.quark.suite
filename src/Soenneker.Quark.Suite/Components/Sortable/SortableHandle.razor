@@ -2,11 +2,21 @@
 @inherits Soenneker.Quark.Element
 @implements ISortableHandle
 
-<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+<button type="button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Grab;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
@@ -19,12 +29,12 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sortable-handle";
-        Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Shrink ??= Quark.Shrink.Is0;
-        Cursor ??= Quark.Cursor.Grab;
-        UserSelect ??= Quark.UserSelect.None;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Shrink ??= _defaultShrink;
+        Cursor ??= _defaultCursor;
+        UserSelect ??= _defaultUserSelect;
 
     }
 
@@ -40,6 +50,6 @@
             attributes["aria-label"] = "Drag handle";
         }
 
-        PrependClassAttribute(attributes, "touch-none");
+        PrependClassAttribute(attributes, "touch-none", ref _lastPrependedClass);
     }
 }

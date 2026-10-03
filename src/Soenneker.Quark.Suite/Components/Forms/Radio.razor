@@ -15,9 +15,9 @@
                                       Value="@ResolvedGroupedValue"
                                       InputValue="@ResolvedGroupedValue"
                                       Disabled="@Disabled"
-                                  OnClick="HandleGroupedClick"
-                                  OnFocus="HandleGroupedFocus"
-                                  OnKeyDown="HandleGroupedKeyDown"
+                                  OnClick="(_cachedHandleGroupedClickDelegate ??= HandleGroupedClick)"
+                                  OnFocus="(_cachedHandleGroupedFocusDelegate ??= HandleGroupedFocus)"
+                                  OnKeyDown="(_cachedHandleGroupedKeyDownDelegate ??= HandleGroupedKeyDown)"
                                       AdditionalAttributes="@BuildGroupedItemAttributes()">
                     <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
                         <Span @attributes="BuildGroupedIndicatorDotAttributes()" ></Span>
@@ -35,9 +35,9 @@
                               Value="@ResolvedGroupedValue"
                               InputValue="@ResolvedGroupedValue"
                               Disabled="@Disabled"
-                              OnClick="HandleGroupedClick"
-                              OnFocus="HandleGroupedFocus"
-                              OnKeyDown="HandleGroupedKeyDown"
+                              OnClick="(_cachedHandleGroupedClickDelegate ??= HandleGroupedClick)"
+                              OnFocus="(_cachedHandleGroupedFocusDelegate ??= HandleGroupedFocus)"
+                              OnKeyDown="(_cachedHandleGroupedKeyDownDelegate ??= HandleGroupedKeyDown)"
                               AdditionalAttributes="@BuildGroupedItemAttributes()">
             <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()">
                 <Span @attributes="BuildGroupedIndicatorDotAttributes()"></Span>
@@ -53,9 +53,9 @@ else
             <label @attributes="BuildLabelAttributes()">
                 <input
                     @attributes="BuildInputAttributes()"
-                    @onclick="HandleInputClick"
-                    @onchange="HandleChange"
-                    @onkeydown="HandleKeyDown"
+                    @onclick="(_cachedHandleInputClickDelegate ??= HandleInputClick)"
+                    @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
+                    @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
                     @onkeydown:preventDefault="_preventDefault" />
                 <Span @attributes="BuildIndicatorAttributes()">
                     @if (EffectiveChecked)
@@ -73,9 +73,9 @@ else
         {
             <input
                 @attributes="BuildInputAttributes()"
-                @onclick="HandleInputClick"
-                @onchange="HandleChange"
-                @onkeydown="HandleKeyDown"
+                @onclick="(_cachedHandleInputClickDelegate ??= HandleInputClick)"
+                @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
+                @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
                 @onkeydown:preventDefault="_preventDefault" />
             <Span @attributes="BuildIndicatorAttributes()">
                 @if (EffectiveChecked)
@@ -88,6 +88,41 @@ else
 }
 
 @code {
+    private (string? Size, string? Validation) _itemClassKey;
+    private string? _itemClass;
+
+    private string GetRadioItemClass()
+    {
+        var size = GetSizeClass();
+        var validation = GetValidationClass();
+        var key = (size, validation);
+        if (_itemClass is null || _itemClassKey != key)
+        {
+            _itemClassKey = key;
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, _shadcnRadioItemBase);
+                if (size.HasContent()) AppendClass(ref cls, size);
+                if (validation is not null) AppendClass(ref cls, validation);
+                _itemClass = cls.ToString();
+            }
+            finally { cls.Dispose(); }
+        }
+        return _itemClass;
+    }
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleGroupedClickDelegate;
+    private System.Func<FocusEventArgs, Task>? _cachedHandleGroupedFocusDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleGroupedKeyDownDelegate;
+
+    private string? _lastBuiltClass;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleInputClickDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private static readonly IReadOnlyDictionary<string, object> GroupedIndicatorAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "radio-group-indicator",
@@ -161,7 +196,7 @@ else
     /// Gets the value used for validation.
     /// Inside a radio group, the selected option value is the real control state.
     /// </summary>
-    public object? ValidationValue => ParentRadioGroup is not null ? ParentRadioGroup.Value : EffectiveChecked;
+    public object? ValidationValue => ParentRadioGroup is not null ? ParentRadioGroup.Value : EffectiveChecked ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
     protected override void OnInitialized()
     {
@@ -216,12 +251,11 @@ else
     private Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = _wrapperAttributeDictionaries.Create(1);
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex items-center gap-2");
-            if (Inline)
-                AppendClass(ref cls, "inline-flex");
-        });
+            const string @class = "flex items-center gap-2";
+            const string variant = @class + " " + "inline-flex";
+            PrependClassAttribute(attributes, Inline ? variant : @class, ref _lastBuiltClass);
+        }
 
         return attributes;
     }
@@ -302,13 +336,8 @@ else
     private Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = _labelAttributeDictionaries.Create(2);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex items-center gap-3 text-sm font-medium leading-none select-none");
-            AppendClass(ref cls, "focus-within:outline-none rounded-[4px] cursor-pointer");
-            if (EffectiveDisabled)
-                AppendClass(ref cls, "cursor-not-allowed opacity-50");
-        });
+        const string labelClass = "flex items-center gap-3 text-sm font-medium leading-none select-none focus-within:outline-none rounded-[4px] cursor-pointer";
+        attributes["class"] = EffectiveDisabled ? labelClass + " cursor-not-allowed opacity-50" : labelClass;
         attributes["for"] = ControlId;
         return attributes;
     }
@@ -320,18 +349,18 @@ else
         attributes["type"] = "radio";
         attributes["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId;
         attributes["value"] = Value ?? string.Empty;
-        attributes["checked"] = EffectiveChecked;
+        attributes["checked"] = EffectiveChecked ? QuarkAttributeValues.True : QuarkAttributeValues.False;
         attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
-        attributes["tabindex"] = 0;
+        attributes["tabindex"] = QuarkAttributeValues.Zero;
 
         if (Required)
-            attributes["required"] = true;
+            attributes["required"] = QuarkAttributeValues.True;
 
         if (AutoFocus)
-            attributes["autofocus"] = true;
+            attributes["autofocus"] = QuarkAttributeValues.True;
 
         if (EffectiveDisabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         if (Attributes is not null)
         {
@@ -347,7 +376,7 @@ else
             }
         }
 
-        PrependClassAttribute(attributes, "peer sr-only");
+        PrependClassAttribute(attributes, "peer sr-only", ref _lastPrependedClass);
 
         if (ParentRadioGroup is null)
             ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
@@ -364,16 +393,7 @@ else
         if (EffectiveDisabled)
             attributes["data-disabled"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _shadcnRadioItemBase);
-            var sizeClass = GetSizeClass();
-            if (sizeClass.HasContent())
-                AppendClass(ref cls, sizeClass);
-            var validationClass = GetValidationClass();
-            if (validationClass != null)
-                AppendClass(ref cls, validationClass);
-        });
+        attributes["class"] = GetRadioItemClass();
 
         return attributes;
     }
@@ -383,16 +403,7 @@ else
         var attributes = _groupedItemAttributeDictionaries.Create(4 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
         attributes["data-slot"] = "radio-group-item";
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _shadcnRadioItemBase);
-            var sizeClass = GetSizeClass();
-            if (sizeClass.HasContent())
-                AppendClass(ref cls, sizeClass);
-            var validationClass = GetValidationClass();
-            if (validationClass != null)
-                AppendClass(ref cls, validationClass);
-        });
+        attributes["class"] = GetRadioItemClass();
 
         ApplyGroupedPassthroughAttributes(attributes, AdditionalAttributes);
         ApplyGroupedPassthroughAttributes(attributes, Attributes);

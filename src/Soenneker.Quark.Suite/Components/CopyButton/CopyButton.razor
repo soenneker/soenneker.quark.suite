@@ -16,16 +16,16 @@
         AriaLabel="@ResolvedAriaLabel"
         Title="@ResolvedTitle"
         Attributes="@Attributes"
-        OnClick="Copy">
+        OnClick="(_cachedCopyDelegate ??= Copy)">
     <span class="@IconWrapClass" aria-hidden="true">
         <span class="@GetIconLayerClass(CopyButtonState.Idle)">
-            <Icon Name="@IdleIcon" Size="Size.Is4" />
+            <Icon Name="@IdleIcon" Size="_staticCss0" />
         </span>
         <span class="@GetIconLayerClass(CopyButtonState.Done)">
-            <Icon Name="@DoneIcon" Size="Size.Is4" />
+            <Icon Name="@DoneIcon" Size="_staticCss0" />
         </span>
         <span class="@GetIconLayerClass(CopyButtonState.Error)">
-            <Icon Name="@ErrorIcon" Size="Size.Is4" />
+            <Icon Name="@ErrorIcon" Size="_staticCss0" />
         </span>
     </span>
     @if (ChildContent is not null)
@@ -35,6 +35,10 @@
 </Button>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Soenneker.Quark.ButtonSize.IconSm;
+    private static readonly CssValue<SizeBuilder> _staticCss0 = Quark.Size.Is4;
+    private System.Func<Task>? _cachedCopyDelegate;
+
     [Parameter]
     public QuarkPresetToken? Preset { get; set; }
 
@@ -56,7 +60,7 @@
     public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.IconSm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss1;
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -107,14 +111,21 @@
     private string ResolvedAriaLabel => ResolvedLabel;
     private string ResolvedTitle => ResolvedLabel;
 
+    private (bool InputGroup, string? Size, bool Content, string? Class)? _buttonClassInputs;
+    private string? _buttonClass;
     private string ButtonClass
     {
         get
         {
+            string? sizeClass = InputGroupButton ? Button.GetInputGroupButtonSizeClass(ButtonSize) : null;
+            var inputs = (InputGroupButton, sizeClass, ChildContent is not null, Class);
+            if (_buttonClass is not null && _buttonClassInputs == inputs)
+                return _buttonClass;
+            _buttonClassInputs = inputs;
             var cls = "relative overflow-hidden";
 
             if (InputGroupButton)
-                cls += $" {Button.GetInputGroupButtonSizeClass(ButtonSize)}";
+                cls += $" {sizeClass}";
 
             if (ChildContent is not null)
                 cls += " gap-1.5 px-2.5";
@@ -122,7 +133,7 @@
             if (!string.IsNullOrWhiteSpace(Class))
                 cls += $" {Class}";
 
-            return cls;
+            return _buttonClass = cls;
         }
     }
 

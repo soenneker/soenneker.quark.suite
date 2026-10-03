@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
 @if (ShowErrorMessages && ParentValidation?.ShouldShowInvalid == true && HasRenderableMessage(ParentValidation.Messages))
@@ -15,6 +15,10 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
 }
 
 @code {
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.FromTop.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Destructive;
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
@@ -41,10 +45,10 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
         base.ApplyDefaultParameters();
         DataSlot ??= "field-error";
 
-        Margin ??= Quark.Margin.FromTop.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Normal;
-        TextColor ??= Quark.TextColor.Destructive;
+        Margin ??= _defaultMargin;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
     }
 
 	protected override void OnInitialized()
@@ -97,12 +101,16 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
 
     private IEnumerable<string> _renderedMessages = [];
     private RenderFragment? _messagesContent;
+    private List<string>? _messageBuffer;
+    private HashSet<string>? _messageSet;
 
     private RenderFragment RenderMessages(IEnumerable<string> messages)
     {
         _renderedMessages = messages;
         return _messagesContent ??= builder =>
         {
+            _messageBuffer?.Clear();
+            _messageSet?.Clear();
             string? single = null;
             List<string>? list = null;
 
@@ -117,7 +125,11 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
                     continue;
                 }
 
-                list ??= [single];
+                if (list is null)
+                {
+                    list = _messageBuffer ??= new List<string>();
+                    list.Add(single);
+                }
                 list.Add(message);
             }
 
@@ -158,13 +170,21 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && H
         return false;
     }
 
-    private static bool ContainsMessage(string? single, List<string>? list, string message)
+    private bool ContainsMessage(string? single, List<string>? list, string message)
     {
         if (single is null)
             return false;
 
         if (list is null)
             return string.Equals(single, message, StringComparison.Ordinal);
+
+        if (list.Count >= 8)
+        {
+            _messageSet ??= new HashSet<string>(StringComparer.Ordinal);
+            if (_messageSet.Count == 0)
+                foreach (var value in list) _messageSet.Add(value);
+            return !_messageSet.Add(message);
+        }
 
         for (var i = 0; i < list.Count; i++)
         {

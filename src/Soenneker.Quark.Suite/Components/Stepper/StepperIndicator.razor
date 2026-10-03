@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    <Div Position="Quark.Position.Absolute">
+    <Div Position="_renderCss0">
         @if (IndicatorContent is not null)
         {
             @IndicatorContent
@@ -15,6 +15,32 @@
 </div>
 
 @code {
+    private static readonly CssValue<BorderBuilder> _stateCss0 = Quark.Border.Default;
+    private static readonly CssValue<BorderColorBuilder> _stateCss1 = Quark.BorderColor.Token("foreground");
+    private static readonly CssValue<BorderColorBuilder> _stateCss2 = Quark.BorderColor.Border;
+    private static readonly CssValue<BorderColorBuilder> _stateCss3 = Quark.BorderColor.Background;
+    private static readonly CssValue<BackgroundColorBuilder> _stateCss4 = Quark.BackgroundColor.Background;
+    private static readonly CssValue<BackgroundColorBuilder> _stateCss5 = Quark.BackgroundColor.Primary;
+    private static readonly CssValue<BackgroundColorBuilder> _stateCss6 = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<TextColorBuilder> _stateCss7 = Quark.TextColor.Foreground;
+    private static readonly CssValue<TextColorBuilder> _stateCss8 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<TextColorBuilder> _stateCss9 = Quark.TextColor.PrimaryForeground;
+    private static readonly CssValue<RingBuilder> _stateCss10 = Quark.Ring.Is2;
+    private static readonly CssValue<RingColorBuilder> _stateCss11 = Quark.RingColor.Token("primary/30");
+    private static readonly CssValue<RingOffsetBuilder> _stateCss12 = Quark.RingOffset.Background.Width(3);
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is8;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<DurationBuilder> _defaultDuration = Quark.Duration.Is300;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Absolute;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
 
@@ -38,27 +64,27 @@
         if (!HasExplicitParameter(nameof(Border)))
         {
             if (IsOutline)
-                Border = Quark.Border.Default;
+                Border = _stateCss0;
             else
                 Border = null;
         }
 
         if (!HasExplicitParameter(nameof(BorderColor)))
             BorderColor = IsOutline
-                ? IsActive ? Quark.BorderColor.Token("foreground") : Quark.BorderColor.Border
-                : Quark.BorderColor.Background;
+                ? IsActive ? _stateCss1 : _stateCss2
+                : _stateCss3;
 
         if (!HasExplicitParameter(nameof(BackgroundColor)))
             BackgroundColor = IsOutline
-                ? Quark.BackgroundColor.Background
-                : IsActive || IsCompleted ? Quark.BackgroundColor.Primary : Quark.BackgroundColor.Muted;
+                ? _stateCss4
+                : IsActive || IsCompleted ? _stateCss5 : _stateCss6;
 
         if (!HasExplicitParameter(nameof(TextColor)))
         {
             if (IsOutline)
-                TextColor = IsActive || IsCompleted ? Quark.TextColor.Foreground : Quark.TextColor.MutedForeground;
+                TextColor = IsActive || IsCompleted ? _stateCss7 : _stateCss8;
             else if (IsActive || IsCompleted)
-                TextColor = Quark.TextColor.PrimaryForeground;
+                TextColor = _stateCss9;
             else
                 TextColor = null;
         }
@@ -66,7 +92,7 @@
         if (!HasExplicitParameter(nameof(Ring)))
         {
             if (!IsOutline && IsActive)
-                Ring = Quark.Ring.Is2;
+                Ring = _stateCss10;
             else
                 Ring = null;
         }
@@ -74,7 +100,7 @@
         if (!HasExplicitParameter(nameof(RingColor)))
         {
             if (!IsOutline && IsActive)
-                RingColor = Quark.RingColor.Token("primary/30");
+                RingColor = _stateCss11;
             else
                 RingColor = null;
         }
@@ -82,23 +108,23 @@
         if (!HasExplicitParameter(nameof(RingOffset)))
         {
             if (!IsOutline && IsActive)
-                RingOffset = Quark.RingOffset.Background.Width(3);
+                RingOffset = _stateCss12;
             else
                 RingOffset = null;
         }
 
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.Is8;
-        Shrink ??= Quark.Shrink.Is0;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Overflow ??= Quark.Overflow.Hidden;
-        Transition ??= Quark.Transition.All;
-        Duration ??= Quark.Duration.Is300;
-        Rounded ??= Quark.Rounded.Md;
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Shrink ??= _defaultShrink;
+        ItemsAlign ??= _defaultItemsAlign;
+        Justify ??= _defaultJustify;
+        Overflow ??= _defaultOverflow;
+        Transition ??= _defaultTransition;
+        Duration ??= _defaultDuration;
+        Rounded ??= _defaultRounded;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

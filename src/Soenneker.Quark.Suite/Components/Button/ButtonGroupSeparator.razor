@@ -8,6 +8,12 @@
                  AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    private static readonly CssValue<SelfBuilder> _staticCss0 = Quark.Self.Stretch;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Utility("bg-input");
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private string? _lastPrependedClass;
+
     [Parameter]
     public SeparatorOrientation? Orientation { get; set; }
 
@@ -26,17 +32,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "button-group-separator";
-        Position ??= Quark.Position.Relative;
-        SelfAlign ??= Self.Stretch;
-        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-input");
-        Shrink ??= Quark.Shrink.Is0;
+        Position ??= _defaultPosition;
+        SelfAlign ??= _staticCss0;
+        BackgroundColor ??= _defaultBackgroundColor;
+        Shrink ??= _defaultShrink;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "data-[orientation=horizontal]:mx-px data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-auto data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto data-[orientation=vertical]:w-px");
+        PrependClassAttribute(attributes, "data-[orientation=horizontal]:mx-px data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-auto data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto data-[orientation=vertical]:w-px", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

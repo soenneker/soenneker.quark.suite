@@ -22,6 +22,9 @@ else
 }
 
 @code {
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
     [CascadingParameter]
     private BradixPopover? BradixPopover { get; set; }
 
@@ -38,9 +41,9 @@ else
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "popover-trigger";
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-        PointerEvents ??= Quark.PointerEvents.None.OnDisabled;
-        Opacity ??= Quark.Opacity.Is50.OnDisabled;
+        Cursor ??= _defaultCursor;
+        PointerEvents ??= _defaultPointerEvents;
+        Opacity ??= _defaultOpacity;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
@@ -51,9 +54,21 @@ else
         return attributes;
     }
 
+    private (bool, BradixPopover?, bool, string?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
+    private Func<Task>? _contextToggleCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
+    private Action<ElementReference>? _contextRegisterElementCallback;
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Disabled, BradixPopover, BradixPopover?.CurrentOpen == true, ResolvedTriggerId, BradixPopover?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = "popover-trigger",
             TriggerId = ResolvedTriggerId,
@@ -62,20 +77,20 @@ else
             DataState = BradixPopover?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = BradixPopover?.ContentId,
-            OnPointerDownEvent = BradixPopover is null || Disabled ? null : HandleTriggerPointerDown,
+            OnPointerDownEvent = BradixPopover is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
             SuppressClickAfterPointerDown = true,
-            Toggle = BradixPopover is null || Disabled ? null : () => BradixPopover.ToggleOpen(),
-            Open = BradixPopover is null || Disabled ? null : () => BradixPopover.SetOpen(true),
-            Close = BradixPopover is null ? null : () => BradixPopover.SetOpen(false),
+            Toggle = BradixPopover is null || Disabled ? null : (_contextToggleCallback ??= () => BradixPopover.ToggleOpen()),
+            Open = BradixPopover is null || Disabled ? null : (_contextOpenCallback ??= () => BradixPopover.SetOpen(true)),
+            Close = BradixPopover is null ? null : (_contextCloseCallback ??= () => BradixPopover.SetOpen(false)),
             RegisterElement = BradixPopover is null
                 ? null
-                : elementReference =>
+                : (_contextRegisterElementCallback ??= elementReference =>
                 {
                     BradixPopover.RegisterTrigger(elementReference, ResolvedTriggerId);
 
                     if (BradixPopover.HasCustomAnchor != true)
                         BradixPopover.RegisterAnchor(elementReference);
-                }
+                })
         };
     }
 

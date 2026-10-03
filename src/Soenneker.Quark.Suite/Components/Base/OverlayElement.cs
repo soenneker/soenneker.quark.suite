@@ -103,6 +103,9 @@ public abstract class OverlayElement : InteractiveElement
         var wasVisible = _renderedVisible;
         _renderedVisible = Visible;
 
+        if (wasVisible == Visible)
+            return base.OnAfterRenderAsync(firstRender);
+
         return HandleAfterRender(firstRender, wasVisible);
     }
 

@@ -19,6 +19,17 @@ else
 }
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is2;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public string? Href { get; set; }
 
@@ -43,15 +54,15 @@ else
 
         if (!UsesTriggerStyle)
         {
-            Display ??= Quark.Display.Flex;
-            ItemsAlign ??= Items.Center;
-            Gap ??= Quark.Gap.Is2;
-            Rounded ??= Quark.Rounded.Lg;
-            Padding ??= Quark.Padding.Is2;
-            TextSize ??= Quark.TextSize.Sm;
-            Transition ??= Quark.Transition.All;
-            OutlineStyle ??= Quark.OutlineStyle.None;
-            RingColor ??= Quark.RingColor.OnFocusVisible.Ring50;
+            Display ??= _defaultDisplay;
+            ItemsAlign ??= _staticCss0;
+            Gap ??= _defaultGap;
+            Rounded ??= _defaultRounded;
+            Padding ??= _defaultPadding;
+            TextSize ??= _defaultTextSize;
+            Transition ??= _defaultTransition;
+            OutlineStyle ??= _defaultOutlineStyle;
+            RingColor ??= _defaultRingColor;
         }
     }
 
@@ -65,15 +76,8 @@ else
         if (Target.HasContent())
             attributes["target"] = Target!;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (!UsesTriggerStyle)
-            {
-                AppendClass(ref cls, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:outline-1");
-                AppendClass(ref cls, "in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted");
-                AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
-            }
-        });
+        if (!UsesTriggerStyle)
+            PrependClassAttribute(attributes, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:outline-1 in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4", ref _lastBuiltClass);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()

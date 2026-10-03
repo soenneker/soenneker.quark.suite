@@ -6,21 +6,28 @@
 </div>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Snug;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "field-content";
 
-        Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.Is1;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is0_5;
-        Leading ??= Quark.Leading.Snug;
+        Display ??= _defaultDisplay;
+        Flex ??= _defaultFlex;
+        FlexDirection ??= _defaultFlexDirection;
+        Gap ??= _defaultGap;
+        Leading ??= _defaultLeading;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        PrependClassAttribute(attributes, "group/field-content");
+        PrependClassAttribute(attributes, "group/field-content", ref _lastPrependedClass);
     }
 }

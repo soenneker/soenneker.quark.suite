@@ -1,53 +1,84 @@
 @namespace Soenneker.Quark
 
-@if (FileDropZoneMedia.IsPreviewUrl(Url) && FileDropZoneMedia.CanPreview(File))
+@{
+    bool validPreviewUrl = _validPreviewUrl;
+    string contentType = _contentType;
+}
+@if (validPreviewUrl && FileDropZoneMedia.CanPreview(contentType))
 {
     <div data-slot="file-drop-zone-preview" class="overflow-hidden border-t border-border/50 bg-background/30">
         @if (_failed)
         {
             <div class="px-3 py-4 text-center text-xs text-muted-foreground" role="status">Preview unavailable</div>
         }
-        else if (FileDropZoneMedia.ContentType(File).StartsWith("image/", StringComparison.Ordinal))
+        else if (contentType.StartsWith("image/", StringComparison.Ordinal))
         {
-            <img @key="Url" src="@Url" alt="@File.Name" class="block max-h-72 w-full object-contain" loading="lazy" @onerror="OnError" />
+            <img @key="Url" src="@Url" alt="@File.Name" class="block max-h-72 w-full object-contain" loading="lazy" @onerror="(_cachedOnErrorDelegate ??= OnError)" />
         }
-        else if (FileDropZoneMedia.ContentType(File).StartsWith("video/", StringComparison.Ordinal))
+        else if (contentType.StartsWith("video/", StringComparison.Ordinal))
         {
-            <video @key="Url" src="@Url" controls playsinline preload="metadata" aria-label="@($"Preview of {File.Name}")"
-                   class="block max-h-72 w-full" @onerror="OnError">
+            <video @key="Url" src="@Url" controls playsinline preload="metadata" aria-label="@PreviewLabel"
+                   class="block max-h-72 w-full" @onerror="(_cachedOnErrorDelegate ??= OnError)">
                 Your browser cannot play this video.
             </video>
         }
         else
         {
-            <object @key="Url" data="@PdfPreviewUrl" type="application/pdf" aria-label="@($"Preview of {File.Name}")" class="block h-72 w-full">
+            <object @key="Url" data="@PdfPreviewUrl" type="application/pdf" aria-label="@PreviewLabel" class="block h-72 w-full">
                 <div class="p-4 text-center text-xs text-muted-foreground">Use Open PDF to view this document.</div>
             </object>
         }
-        @if (_failed || FileDropZoneMedia.ContentType(File) == "application/pdf")
+        @if (_failed || contentType == "application/pdf")
         {
-            <a href="@Url" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 text-center text-xs underline underline-offset-4">@(FileDropZoneMedia.ContentType(File) == "application/pdf" ? "Open PDF" : "Open file")</a>
+            <a href="@Url" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 text-center text-xs underline underline-offset-4">@(contentType == "application/pdf" ? "Open PDF" : "Open file")</a>
         }
     </div>
 }
 
 @code {
+    private System.Action? _cachedOnErrorDelegate;
+
     /// <summary>The file whose media is being displayed.</summary>
     [Parameter, EditorRequired] public FileDropZoneFile File { get; set; } = null!;
     /// <summary>The local object URL or application-supplied preview URL.</summary>
     [Parameter] public string? Url { get; set; }
 
     private string? _previousUrl;
+    private FileDropZoneFile? _previousFile;
+    private bool _validPreviewUrl;
+    private string _contentType = string.Empty;
+    private string? _pdfPreviewUrl;
+    private string? _previewLabel;
+    private string PreviewLabel => QuarkStringCache.Concat("Preview of", " ", File.Name, ref _previewLabel);
     private bool _failed;
 
     // Keep viewer settings confined to the inline preview; Open PDF retains the original URL.
-    private string? PdfPreviewUrl => Url is null ? null : $"{Url.Split('#')[0]}#toolbar=0&navpanes=0&pagemode=none&view=FitH";
+    private string? PdfPreviewUrl
+    {
+        get
+        {
+            if (Url is null) return null;
+            if (_pdfPreviewUrl is not null) return _pdfPreviewUrl;
+            int fragment = Url.IndexOf('#');
+            return _pdfPreviewUrl = string.Concat(Url.AsSpan(0, fragment < 0 ? Url.Length : fragment), "#toolbar=0&navpanes=0&pagemode=none&view=FitH");
+        }
+    }
 
     protected override void OnParametersSet()
     {
-        if (_previousUrl == Url) return;
-        _previousUrl = Url;
-        _failed = false;
+        bool urlChanged = _previousUrl != Url;
+        if (urlChanged)
+        {
+            _previousUrl = Url;
+            _failed = false;
+            _pdfPreviewUrl = null;
+            _validPreviewUrl = FileDropZoneMedia.IsPreviewUrl(Url);
+        }
+        if (urlChanged || !ReferenceEquals(_previousFile, File))
+        {
+            _contentType = _validPreviewUrl ? FileDropZoneMedia.ContentType(File) : string.Empty;
+            _previousFile = File;
+        }
     }
 
     private void OnError() => _failed = true;

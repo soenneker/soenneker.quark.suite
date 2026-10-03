@@ -32,21 +32,23 @@ internal sealed class OverlayLabelContext
     {
         _titleRegistrations++;
         StateChanged?.Invoke();
-        return new OverlayLabelRegistration(() =>
-        {
-            _titleRegistrations--;
-            StateChanged?.Invoke();
-        });
+        return new OverlayLabelRegistration(this, title: true);
     }
 
     public IDisposable RegisterDescription()
     {
         _descriptionRegistrations++;
         StateChanged?.Invoke();
-        return new OverlayLabelRegistration(() =>
-        {
+        return new OverlayLabelRegistration(this, title: false);
+    }
+
+    internal void Unregister(bool title)
+    {
+        if (title)
+            _titleRegistrations--;
+        else
             _descriptionRegistrations--;
-            StateChanged?.Invoke();
-        });
+
+        StateChanged?.Invoke();
     }
 }

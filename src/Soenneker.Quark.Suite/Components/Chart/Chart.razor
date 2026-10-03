@@ -5,12 +5,12 @@
 @using Microsoft.JSInterop
 @inject IChartScrollInterop ChartScrollInterop
 
-<div @ref="_scrollElement" @attributes="BuildAttributes()" @onpointerleave="HoverEvents.Clear" aria-busy="@(IsLoading ? "true" : "false")"
+<div @ref="_scrollElement" @attributes="BuildAttributes()" @onpointerleave="HoverEvents.ClearCallback" aria-busy="@(IsLoading ? "true" : "false")"
      data-radial-animated="@(IsRadial && Options.Animate ? "true" : "false")"
      data-scroll-enabled="@(RealtimeScrollingEnabled ? "true" : "false")" data-scroll-paused="@(ScrollPaused ? "true" : "false")"
-     data-scroll-version="@_geometryVersion" data-scroll-duration="@F(Options.RealtimeScrollDuration.TotalMilliseconds)"
-     data-scroll-x-min="@F(_xMinimum)" data-scroll-x-max="@F(_xMaximum)"
-     data-scroll-y-min="@F(_minimum)" data-scroll-y-max="@F(_maximum)" data-scroll-width="@F(PlotWidth)" data-scroll-height="@F(PlotHeight)">
+     data-scroll-version="@_geometryVersion" data-scroll-duration="@F(Options.RealtimeScrollDuration.TotalMilliseconds, ref _scrollDurationText)"
+     data-scroll-x-min="@F(_xMinimum, ref _scrollXMinimumText)" data-scroll-x-max="@F(_xMaximum, ref _scrollXMaximumText)"
+     data-scroll-y-min="@F(_minimum, ref _scrollYMinimumText)" data-scroll-y-max="@F(_maximum, ref _scrollYMaximumText)" data-scroll-width="@F(PlotWidth, ref _scrollWidthText)" data-scroll-height="@F(PlotHeight, ref _scrollHeightText)">
     @if (HeaderContent is not null)
     {
         <div class="quark-chart-header" data-slot="chart-header">
@@ -39,7 +39,7 @@
             <svg viewBox="@ViewBox" role="group" aria-label="@(AriaLabel ?? "Chart")" preserveAspectRatio="xMidYMid meet" class="h-full w-full overflow-visible">
                 <ChartRenderBoundary Version="_geometryVersion">
                     <defs>
-                        <clipPath id="@($"{_instanceId}-plot-clip")">
+                        <clipPath id="@PlotClipId">
                             <rect x="@F(PlotLeft)" y="@F(PlotTop - PlotClipPaddingY)" width="@F(PlotWidth)" height="@F(PlotHeight + 2 * PlotClipPaddingY)" />
                         </clipPath>
                         @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
@@ -82,12 +82,13 @@
                             var value = RadialValue(index);
                             var sweep = total <= 0 ? 0 : value / total * 360;
                             var sliceIndex = index;
-                            var path = ArcPath(cx, cy, radius, angle, sweep, Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0);
 
                             if (sweep > 0)
                             {
-                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Slice(sliceIndex));
-                                <path @key="sliceIndex" d="@path" data-radial-geometry="@($"{F(cx)} {F(cy)} {F(radius)} {F(angle)} {F(sweep)} {F(Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0)}")" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.Clear" @onkeydown="args => HandleSliceKeyDown(args, sliceIndex)" @onclick="() => SelectSlice(sliceIndex)"/>
+                                var path = ArcPath(cx, cy, radius, angle, sweep, Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0);
+                                var events = GetItemEvents(sliceIndex, -2);
+                                var hover = events.Hover;
+                                <path @key="sliceIndex" d="@path" data-radial-geometry="@($"{F(cx)} {F(cy)} {F(radius)} {F(angle)} {F(sweep)} {F(Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0)}")" fill="@SliceFill(sliceIndex)" fill-opacity="@F(Series[0].FillOpacity)" class="@AnimationClass" data-slot="chart-slice" tabindex="0" role="button" aria-label="@SliceAriaLabel(sliceIndex)" @onpointerenter="hover" @onpointerdown="hover" @onfocus="hover" @onblur="HoverEvents.ClearCallback" @onkeydown="events.KeyDown" @onclick="events.Click"/>
                             }
 
                             angle += sweep;
@@ -137,7 +138,7 @@
                             }
                         }
 
-                        <g clip-path="@(ClipPlot ? $"url(#{_instanceId}-plot-clip)" : null)">
+                        <g clip-path="@(ClipPlot ? PlotClipReference : null)">
                         <g data-slot="chart-plot" data-plot-width="@F(PlotWidth)" style="@(Options.EnableRangeSelection ? "touch-action:none" : null)">
                         <ChartRenderBoundary Version="_hitAreaVersion">
                         @if (!Options.EnableRangeSelection && (Options.ShowTooltip || Options.ShowCursor))
@@ -145,7 +146,7 @@
                             @for (var index = VisibleStart; index <= VisibleEnd; index++)
                             {
                                 var currentIndex = index;
-                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Category(currentIndex));
+                                var hover = GetItemEvents(currentIndex, -1).Hover;
                                 <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-hit-area" @onpointerenter="hover" @onpointerdown="hover"/>
                             }
                         }
@@ -155,9 +156,10 @@
                             @for (var index = VisibleStart; index <= VisibleEnd; index++)
                             {
                                 var rangeIndex = index;
-                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Category(rangeIndex));
-                                var press = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.PressCategory(rangeIndex));
-                                <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-range-hit-area cursor-crosshair" data-slot="chart-range-hit-area" style="touch-action:none" @onpointerdown="press" @onpointerenter="hover" @onpointerup="() => CompleteRangeSelection(rangeIndex)" @onpointercancel="CancelRangeSelection" @onpointerdown:preventDefault="true"/>
+                                var events = GetItemEvents(rangeIndex, -1);
+                                var hover = events.Hover;
+                                var press = events.Press;
+                                <rect x="@F(CategoryStart(index))" y="@F(PlotTop)" width="@F(CategoryWidthAt(index))" height="@F(PlotHeight)" fill="transparent" class="quark-chart-range-hit-area cursor-crosshair" data-slot="chart-range-hit-area" style="touch-action:none" @onpointerdown="press" @onpointerenter="hover" @onpointerup="events.Complete" @onpointercancel="(_cachedCancelRangeSelectionDelegate ??= CancelRangeSelection)" @onpointerdown:preventDefault="true"/>
                             }
                         }
 
@@ -180,9 +182,10 @@
                                         {
                                             var bar = GetBarRect(currentSeries, index, value.Value);
                                             var currentIndex = index;
-                                            var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Point(currentIndex, currentSeries));
-                                            var press = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.PressPoint(currentIndex, currentSeries));
-                                            <rect x="@F(bar.X)" y="@F(bar.Y)" width="@F(bar.Width)" height="@F(bar.Height)" rx="@F(Math.Min(Options.BarRadius, bar.Width / 2))" fill="@SeriesFill(currentSeries)" fill-opacity="@F(series.FillOpacity)" class="@AnimationClass" data-slot="chart-bar" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="() => CompleteRangeSelection(currentIndex)" @onpointercancel="CancelRangeSelection" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="EventCallback.Factory.Create(HoverEvents, () => HoverEvents.FocusPoint(currentIndex, currentSeries))" @onblur="HoverEvents.Clear" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => Options.EnableRangeSelection ? Task.CompletedTask : SelectPoint(currentIndex, currentSeries)"/>
+                                            var events = GetItemEvents(currentIndex, currentSeries);
+                                            var hover = events.Hover;
+                                            var press = events.Press;
+                                            <rect x="@F(bar.X)" y="@F(bar.Y)" width="@F(bar.Width)" height="@F(bar.Height)" rx="@F(Math.Min(Options.BarRadius, bar.Width / 2))" fill="@SeriesFill(currentSeries)" fill-opacity="@F(series.FillOpacity)" class="@AnimationClass" data-slot="chart-bar" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="events.Complete" @onpointercancel="(_cachedCancelRangeSelectionDelegate ??= CancelRangeSelection)" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="events.Focus" @onblur="HoverEvents.ClearCallback" @onkeydown="events.KeyDown" @onclick="events.Click"/>
                                         }
                                     }
                                 }
@@ -216,9 +219,10 @@
                                             if (value is not null && ShouldRenderMarker(series, index))
                                             {
                                                 var currentIndex = index;
-                                                var hover = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.Point(currentIndex, currentSeries));
-                                                var press = EventCallback.Factory.Create(HoverEvents, () => HoverEvents.PressPoint(currentIndex, currentSeries));
-                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="quark-chart-point cursor-pointer outline-none transition-colors" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="() => CompleteRangeSelection(currentIndex)" @onpointercancel="CancelRangeSelection" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="EventCallback.Factory.Create(HoverEvents, () => HoverEvents.FocusPoint(currentIndex, currentSeries))" @onblur="HoverEvents.Clear" @onkeydown="args => HandlePointKeyDown(args, currentIndex, currentSeries)" @onclick="() => Options.EnableRangeSelection ? Task.CompletedTask : SelectPoint(currentIndex, currentSeries)"/>
+                                                var events = GetItemEvents(currentIndex, currentSeries);
+                                            var hover = events.Hover;
+                                                var press = events.Press;
+                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="quark-chart-point cursor-pointer outline-none transition-colors" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="events.Complete" @onpointercancel="(_cachedCancelRangeSelectionDelegate ??= CancelRangeSelection)" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="events.Focus" @onblur="HoverEvents.ClearCallback" @onkeydown="events.KeyDown" @onclick="events.Click"/>
                                             }
                                         }
                                     }
@@ -231,7 +235,7 @@
                     }
                 </ChartRenderBoundary>
 
-                <g clip-path="@(ClipPlot ? $"url(#{_instanceId}-plot-clip)" : null)">
+                <g clip-path="@(ClipPlot ? PlotClipReference : null)">
                 <g data-slot="chart-plot-overlay">
                 @if (!IsRadial && Options.EnableRangeSelection && _rangeAnchorIndex is not null && _rangeCurrentIndex is not null)
                 {
@@ -336,6 +340,18 @@
 </div>
 
 @code {
+    private (double Value, string? Text) _scrollDurationText;
+    private (double Value, string? Text) _scrollXMinimumText;
+    private (double Value, string? Text) _scrollXMaximumText;
+    private (double Value, string? Text) _scrollYMinimumText;
+    private (double Value, string? Text) _scrollYMaximumText;
+    private (double Value, string? Text) _scrollWidthText;
+    private (double Value, string? Text) _scrollHeightText;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private string? _lastBuiltClass;
+
+    private System.Action? _cachedCancelRangeSelectionDelegate;
+
     private ElementReference _scrollElement;
     private Task _scrollWork = Task.CompletedTask;
     private bool _scrollAttached;
@@ -425,6 +441,10 @@
         }
     }
 
+    private string? _plotClipId;
+    private string? _plotClipReference;
+    private string PlotClipId => _plotClipId ??= string.Concat(_instanceId, "-plot-clip");
+    private string PlotClipReference => _plotClipReference ??= string.Concat("url(#", PlotClipId, ")");
     private readonly string _instanceId = BlazorIdGenerator.New("quark-chart");
     private readonly HashSet<int> _hiddenSeries = [];
     private bool _legendFilterActive;
@@ -443,6 +463,10 @@
     private int _barSeriesCount;
     private readonly Dictionary<int, int> _barSeriesPositions = [];
     private readonly Dictionary<int, string> _linePaths = [];
+    private System.Text.StringBuilder? _pathBuilder;
+    private readonly List<List<ChartPoint>> _segments = [];
+    private readonly List<List<ChartPoint>> _segmentBuffers = [];
+    private int _usedSegmentBuffers;
     private readonly Dictionary<int, string> _areaPaths = [];
     private readonly List<ChartTooltipRow> _tooltipRows = [];
     private IReadOnlyList<ChartSeries>? _initializedSeries;
@@ -454,6 +478,7 @@
     private RenderFragment? _renderedDonutContent;
     private string? _renderedAriaLabel;
     private IReadOnlyList<ChartSeries> _accessibleSeries = [];
+    private readonly List<ChartSeries> _accessibleSeriesBuffer = [];
     private readonly ChartSeries[] _radialAccessibleSeries = new ChartSeries[1];
     private string[] _legendNames = [];
     private ChartTooltipContext? _tooltipContext;
@@ -610,14 +635,18 @@
     // Marks are centered on their data coordinates. Leave room for their painted
     // edges at the Y bounds, while keeping the scrolling X window strictly clipped.
     private double PlotClipPaddingY => Math.Max(Math.Max(Options.PointRadius, Options.ActivePointRadius) + 1,
-        Series.Count == 0 ? 0 : Series.Max(series => series.StrokeWidth) / 2);
+        _maximumStrokeWidth / 2);
     private int TickCount => _tickValues.Length;
     private string ViewBox => _viewBox;
     private string StageStyle => _stageStyle;
     private string AnimationClass => Options.Animate ? "quark-chart-mark animate-in fade-in zoom-in-95 duration-500" : "quark-chart-mark";
     private double RadialTotal => _radialTotal;
     private string XAxisTextAnchor => Options.XAxisLabelRotation > 0 ? "start" : Options.XAxisLabelRotation < 0 ? "end" : "middle";
-    private ChartOverlayContext OverlayContext => _overlayContext!;
+    private Func<int, double>? _categoryCenterAccessor;
+    private Func<double, double>? _valueYAccessor;
+    private ChartOverlayContext OverlayContext => _overlayContext ??= new ChartOverlayContext(
+        Options.Width, Options.Height, PlotLeft, PlotTop, PlotRight, PlotBottom,
+        _categoryCenterAccessor ??= CategoryCenter, _valueYAccessor ??= ValueY);
     private IReadOnlyList<ChartSeries> AccessibleSeries => _accessibleSeries;
 
     private RenderFragment LegendContent => _legendContent ??= RenderLegend;
@@ -640,7 +669,7 @@
             builder.AddAttribute(13, "data-hidden", !IsRadial && IsSeriesHidden(index) ? "true" : null);
             if (interactive)
             {
-                builder.AddAttribute(14, "onclick", EventCallback.Factory.Create(this, () => ToggleSeries(itemIndex)));
+                builder.AddAttribute(14, "onclick", GetItemEvents(itemIndex, -3).Click);
                 builder.AddAttribute(15, "aria-pressed", _legendFilterActive && !IsSeriesHidden(index) ? "true" : "false");
                 builder.AddAttribute(16, "data-selected", _legendFilterActive && !IsSeriesHidden(index) ? "true" : null);
             }
@@ -681,6 +710,7 @@
         base.OnParametersSet();
         if (IsLoading)
         {
+            _itemEvents?.Clear();
             ClearHover();
             ClearRangeSelection();
         }
@@ -733,13 +763,16 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "chart";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "quark-chart relative min-w-0 text-foreground"));
+        {
+            const string @class = "quark-chart relative min-w-0 text-foreground";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 
     private void CalculateDomain()
@@ -821,7 +854,7 @@
         RebuildGeometry();
         _viewBox = $"0 0 {F(Options.Width)} {F(Options.Height)}";
         _stageStyle = $"aspect-ratio:{F(Options.Width)}/{F(Options.Height)}";
-        _overlayContext = new ChartOverlayContext(Options.Width, Options.Height, PlotLeft, PlotTop, PlotRight, PlotBottom, CategoryCenter, ValueY);
+        _overlayContext = null;
 
         if (_hoveredIndex >= PointCount)
             ClearHover();
@@ -847,11 +880,15 @@
         var maximumValueCount = 0;
         var hasFiniteValue = false;
         _radialTotal = 0;
+        _maximumStrokeWidth = Series.Count == 0 ? 0 : Series[0].StrokeWidth;
         _hasBarSeries = false;
         _allLineOrAreaSeries = true;
 
         for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
         {
+            double strokeWidth = Series[seriesIndex].StrokeWidth;
+            if (strokeWidth > _maximumStrokeWidth || double.IsNaN(_maximumStrokeWidth))
+                _maximumStrokeWidth = strokeWidth;
             var seriesType = Series[seriesIndex].Type ?? Type;
             _hasBarSeries |= seriesType == ChartType.Bar;
             _allLineOrAreaSeries &= seriesType == ChartType.Line || seriesType == ChartType.Area;
@@ -870,6 +907,12 @@
         }
 
         _pointCount = IsRadial ? Math.Max(Labels.Count, Series.Count == 0 ? 0 : Series[0].Values.Count) : Math.Max(Labels.Count, maximumValueCount);
+        PruneItemEvents();
+        if (_seriesGradientReferences.Length > Series.Count)
+            Array.Resize(ref _seriesGradientReferences, Series.Count);
+        int sliceCount = IsRadial ? _pointCount : 0;
+        if (_sliceGradientReferences.Length > sliceCount)
+            Array.Resize(ref _sliceGradientReferences, sliceCount);
         _hasData = IsRadial ? _radialTotal > 0 : Series.Count > 0 && _pointCount > 0 && hasFiniteValue;
         if (IsRadial && Series.Count > 0)
         {
@@ -878,7 +921,18 @@
         }
         else
         {
-            _accessibleSeries = IsRadial ? Array.Empty<ChartSeries>() : Series.Where((_, index) => !IsSeriesHidden(index)).ToArray();
+            if (IsRadial)
+                _accessibleSeries = Array.Empty<ChartSeries>();
+            else if (_hiddenSeries.Count == 0)
+                _accessibleSeries = Series;
+            else
+            {
+                _accessibleSeriesBuffer.Clear();
+                for (int index = 0; index < Series.Count; index++)
+                    if (!IsSeriesHidden(index))
+                        _accessibleSeriesBuffer.Add(Series[index]);
+                _accessibleSeries = _accessibleSeriesBuffer;
+            }
         }
 
         var legendCount = IsRadial ? _pointCount : Series.Count;
@@ -977,6 +1031,7 @@
 
     private void RebuildGeometry()
     {
+        _usedSegmentBuffers = 0;
         _linePaths.Clear();
         _areaPaths.Clear();
         _barSeriesPositions.Clear();
@@ -1003,6 +1058,9 @@
             if (seriesType == ChartType.Area)
                 _areaPaths[seriesIndex] = BuildAreaPath(segments);
         }
+        _segments.Clear();
+        if (_segmentBuffers.Count > _usedSegmentBuffers)
+            _segmentBuffers.RemoveRange(_usedSegmentBuffers, _segmentBuffers.Count - _usedSegmentBuffers);
     }
 
     private void PrepareHitAreas()
@@ -1115,7 +1173,7 @@
         return gradients is null || index >= gradients.Count ? null : gradients[index];
     }
 
-    private string SliceFill(int index) => SliceGradient(index) is null ? SliceColor(index) : $"url(#{SliceGradientId(index)})";
+    private string SliceFill(int index) => SliceGradient(index) is null ? SliceColor(index) : GradientReference(index, true).Fill!;
 
     private string SliceLegendBackground(int index)
     {
@@ -1124,41 +1182,41 @@
     }
 
     private string PaletteColor(int index) => Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[index % Options.Palette.Count];
-    private string SeriesFill(int index) => Series[index].Gradient is null ? SeriesColor(index) : $"url(#{GradientId(index)})";
-    private string GradientId(int index) => BlazorIdGenerator.Child(_instanceId, $"gradient-{index}");
-    private string SliceGradientId(int index) => BlazorIdGenerator.Child(_instanceId, $"slice-gradient-{index}");
+    private double _maximumStrokeWidth;
+    private (string? Id, string? Fill)[] _seriesGradientReferences = [];
+    private (string? Id, string? Fill)[] _sliceGradientReferences = [];
+    private string SeriesFill(int index) => Series[index].Gradient is null ? SeriesColor(index) : GradientReference(index, false).Fill!;
+    private string GradientId(int index) => GradientReference(index, false).Id!;
+    private string SliceGradientId(int index) => GradientReference(index, true).Id!;
+
+    private (string? Id, string? Fill) GradientReference(int index, bool slice)
+    {
+        ref var references = ref (slice ? ref _sliceGradientReferences : ref _seriesGradientReferences);
+        int count = slice ? PointCount : Series.Count;
+        if (references.Length != count)
+            Array.Resize(ref references, count);
+        ref var reference = ref references[index];
+        if (reference.Id is null)
+        {
+            string id = BlazorIdGenerator.Child(_instanceId, slice ? $"slice-gradient-{index}" : $"gradient-{index}");
+            reference = (id, $"url(#{id})");
+        }
+        return reference;
+    }
     private string LinePath(int seriesIndex) => _linePaths.GetValueOrDefault(seriesIndex, string.Empty);
     private string AreaPath(int seriesIndex) => _areaPaths.GetValueOrDefault(seriesIndex, string.Empty);
-    private static string F(double value)
+    private static string F(double value) => ChartNumberFormatting.Format(value);
+
+    private static string F(double value, ref (double Value, string? Text) previous)
     {
-        // SVG coordinates have only three decimal places. Format their integer and
-        // fractional parts directly instead of running the floating-point custom
-        // formatter hundreds of times on the WebAssembly UI thread every sample.
-        if (!double.IsFinite(value) || Math.Abs(value) >= 1_000_000_000)
-            return value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
-        var scaled = (long)Math.Round(Math.Abs(Math.Round(value, 3, MidpointRounding.AwayFromZero)) * 1000);
-        Span<char> buffer = stackalloc char[32];
-        var start = value < 0 ? 1 : 0;
-        if (start != 0) buffer[0] = '-';
-        (scaled / 1000).TryFormat(buffer[start..], out var length, provider: System.Globalization.CultureInfo.InvariantCulture);
-        length += start;
-        var fraction = (int)(scaled % 1000);
-        if (fraction != 0)
-        {
-            buffer[length++] = '.';
-            buffer[length++] = (char)('0' + fraction / 100);
-            if (fraction % 100 != 0)
-            {
-                buffer[length++] = (char)('0' + fraction / 10 % 10);
-                if (fraction % 10 != 0) buffer[length++] = (char)('0' + fraction % 10);
-            }
-        }
-        return new string(buffer[..length]);
+        if (previous.Text is null || !previous.Value.Equals(value))
+            previous = (value, F(value));
+        return previous.Text;
     }
 
     private string BuildLinePath(IReadOnlyList<List<ChartPoint>> segments)
     {
-        var builder = new System.Text.StringBuilder();
+        var builder = (_pathBuilder ??= new System.Text.StringBuilder()).Clear();
         foreach (var points in segments)
         {
             if (points.Count == 0)
@@ -1172,14 +1230,14 @@
     private string BuildAreaPath(IReadOnlyList<List<ChartPoint>> segments)
     {
         var baseline = ValueY(Math.Clamp(0, _minimum, _maximum));
-        var builder = new System.Text.StringBuilder();
+        var builder = (_pathBuilder ??= new System.Text.StringBuilder()).Clear();
         foreach (var segment in segments)
         {
             if (segment.Count == 0)
                 continue;
-            builder.Append('M').Append(F(segment[0].X)).Append(',').Append(F(baseline));
+            builder.Append('M').AppendChartNumber(segment[0].X).Append(',').AppendChartNumber(baseline);
             AppendPathForPoints(builder, segment, 'L');
-            builder.Append('L').Append(F(segment[^1].X)).Append(',').Append(F(baseline)).Append('Z');
+            builder.Append('L').AppendChartNumber(segment[^1].X).Append(',').AppendChartNumber(baseline).Append('Z');
         }
 
         return builder.ToString();
@@ -1187,7 +1245,7 @@
 
     private void AppendPathForPoints(System.Text.StringBuilder builder, List<ChartPoint> points, char startCommand = 'M')
     {
-        builder.Append(startCommand).Append(F(points[0].X)).Append(',').Append(F(points[0].Y));
+        builder.Append(startCommand).AppendChartNumber(points[0].X).Append(',').AppendChartNumber(points[0].Y);
         if (Options.Curve == ChartCurve.Monotone && points.Count > 1)
         {
             AppendMonotoneCurve(builder, points);
@@ -1201,7 +1259,7 @@
             if (Options.Curve == ChartCurve.Step)
             {
                 var middle = (previous.X + point.X) / 2;
-                builder.Append('H').Append(F(middle)).Append('V').Append(F(point.Y)).Append('H').Append(F(point.X));
+                builder.Append('H').AppendChartNumber(middle).Append('V').AppendChartNumber(point.Y).Append('H').AppendChartNumber(point.X);
             }
             else if (Options.Curve == ChartCurve.Smooth)
             {
@@ -1211,10 +1269,10 @@
                 var maximumY = Math.Max(previous.Y, point.Y);
                 var firstControlY = Math.Clamp(previous.Y + (point.Y - before.Y) / 6, minimumY, maximumY);
                 var secondControlY = Math.Clamp(point.Y - (after.Y - previous.Y) / 6, minimumY, maximumY);
-                builder.Append('C').Append(F(previous.X + (point.X - before.X) / 6)).Append(',').Append(F(firstControlY)).Append(' ').Append(F(point.X - (after.X - previous.X) / 6)).Append(',').Append(F(secondControlY)).Append(' ').Append(F(point.X)).Append(',').Append(F(point.Y));
+                builder.Append('C').AppendChartNumber(previous.X + (point.X - before.X) / 6).Append(',').AppendChartNumber(firstControlY).Append(' ').AppendChartNumber(point.X - (after.X - previous.X) / 6).Append(',').AppendChartNumber(secondControlY).Append(' ').AppendChartNumber(point.X).Append(',').AppendChartNumber(point.Y);
             }
             else
-                builder.Append('L').Append(F(point.X)).Append(',').Append(F(point.Y));
+                builder.Append('L').AppendChartNumber(point.X).Append(',').AppendChartNumber(point.Y);
         }
 
         return;
@@ -1223,44 +1281,57 @@
     private static void AppendMonotoneCurve(System.Text.StringBuilder builder, IReadOnlyList<ChartPoint> points)
     {
         var count = points.Count;
-        var slopes = new double[count - 1];
-        var tangents = new double[count];
-        for (var index = 0; index < count - 1; index++)
-            slopes[index] = (points[index + 1].Y - points[index].Y) / (points[index + 1].X - points[index].X);
-
-        tangents[0] = slopes[0];
-        tangents[^1] = slopes[^1];
-        for (var index = 1; index < count - 1; index++)
+        double[]? rented = null;
+        int length = checked(count * 2 - 1);
+        Span<double> work = length <= 256
+            ? stackalloc double[256]
+            : (rented = System.Buffers.ArrayPool<double>.Shared.Rent(length));
+        var slopes = work[..(count - 1)];
+        var tangents = work.Slice(count - 1, count);
+        try
         {
-            var previous = slopes[index - 1];
-            var next = slopes[index];
-            if (previous * next <= 0)
+            for (var index = 0; index < count - 1; index++)
+                slopes[index] = (points[index + 1].Y - points[index].Y) / (points[index + 1].X - points[index].X);
+
+            tangents[0] = slopes[0];
+            tangents[^1] = slopes[^1];
+            for (var index = 1; index < count - 1; index++)
             {
-                tangents[index] = 0;
-                continue;
+                var previous = slopes[index - 1];
+                var next = slopes[index];
+                if (previous * next <= 0)
+                {
+                    tangents[index] = 0;
+                    continue;
+                }
+
+                var previousWidth = points[index].X - points[index - 1].X;
+                var nextWidth = points[index + 1].X - points[index].X;
+                var weighted = (previous * nextWidth + next * previousWidth) / (previousWidth + nextWidth);
+                tangents[index] = (Math.Sign(previous) + Math.Sign(next)) * Math.Min(Math.Min(Math.Abs(previous), Math.Abs(next)), 0.5 * Math.Abs(weighted));
             }
 
-            var previousWidth = points[index].X - points[index - 1].X;
-            var nextWidth = points[index + 1].X - points[index].X;
-            var weighted = (previous * nextWidth + next * previousWidth) / (previousWidth + nextWidth);
-            tangents[index] = (Math.Sign(previous) + Math.Sign(next)) * Math.Min(Math.Min(Math.Abs(previous), Math.Abs(next)), 0.5 * Math.Abs(weighted));
+            for (var index = 0; index < count - 1; index++)
+            {
+                var current = points[index];
+                var next = points[index + 1];
+                if (current.Y == next.Y)
+                {
+                    // Monotone tangents are zero along a flat run. One straight segment
+                    // is identical to all those cubic curves, including at either join.
+                    while (index + 2 < count && points[index + 2].Y == current.Y)
+                        next = points[++index + 1];
+                    builder.Append('L').AppendChartNumber(next.X).Append(',').AppendChartNumber(next.Y);
+                    continue;
+                }
+                var width = next.X - current.X;
+                builder.Append('C').AppendChartNumber(current.X + width / 3).Append(',').AppendChartNumber(current.Y + tangents[index] * width / 3).Append(' ').AppendChartNumber(next.X - width / 3).Append(',').AppendChartNumber(next.Y - tangents[index + 1] * width / 3).Append(' ').AppendChartNumber(next.X).Append(',').AppendChartNumber(next.Y);
+            }
         }
-
-        for (var index = 0; index < count - 1; index++)
+        finally
         {
-            var current = points[index];
-            var next = points[index + 1];
-            if (current.Y == next.Y)
-            {
-                // Monotone tangents are zero along a flat run. One straight segment
-                // is identical to all those cubic curves, including at either join.
-                while (index + 2 < count && points[index + 2].Y == current.Y)
-                    next = points[++index + 1];
-                builder.Append('L').Append(F(next.X)).Append(',').Append(F(next.Y));
-                continue;
-            }
-            var width = next.X - current.X;
-            builder.Append('C').Append(F(current.X + width / 3)).Append(',').Append(F(current.Y + tangents[index] * width / 3)).Append(' ').Append(F(next.X - width / 3)).Append(',').Append(F(next.Y - tangents[index + 1] * width / 3)).Append(' ').Append(F(next.X)).Append(',').Append(F(next.Y));
+            if (rented is not null)
+                System.Buffers.ArrayPool<double>.Shared.Return(rented);
         }
     }
 
@@ -1338,7 +1409,9 @@
 
     private List<List<ChartPoint>> BuildSegments(ChartSeries series, int seriesIndex)
     {
-        List<List<ChartPoint>> segments = [];
+        var segments = _segments;
+        segments.Clear();
+        int bufferIndex = 0;
         List<ChartPoint>? current = null;
         if (_scrollHistory is not null)
         {
@@ -1354,6 +1427,7 @@
 
         if (current is { Count: > 0 })
             segments.Add(current);
+        _usedSegmentBuffers = Math.Max(_usedSegmentBuffers, bufferIndex);
         return segments;
 
         void AddSample(double x, double? value)
@@ -1365,7 +1439,16 @@
                 current = null;
             }
             else
-                (current ??= []).Add(new ChartPoint(x, ValueY(value.Value), value.Value));
+            {
+                if (current is null)
+                {
+                    if (bufferIndex == _segmentBuffers.Count)
+                        _segmentBuffers.Add(new List<ChartPoint>());
+                    current = _segmentBuffers[bufferIndex++];
+                    current.Clear();
+                }
+                current.Add(new ChartPoint(x, ValueY(value.Value), value.Value));
+            }
         }
     }
 
@@ -1446,6 +1529,8 @@
             return owner.Options.EnableRangeSelection ? owner.PauseForSelectionAsync() : Task.CompletedTask;
         }
         public void Slice(int index) => owner.HoverSlice(index);
+        private EventCallback _clearCallback;
+        public EventCallback ClearCallback => _clearCallback.HasDelegate ? _clearCallback : _clearCallback = EventCallback.Factory.Create(this, Clear);
         public void Clear() => owner.ClearHover();
 
         public async Task HandleEventAsync(EventCallbackWorkItem callback, object? argument)

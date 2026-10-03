@@ -7,6 +7,12 @@
 </div>
 
 @code {
+    private static readonly CssValue<MaxWidthBuilder> _staticCss0 = Quark.MaxWidth.Is7xl;
+    private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Auto;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is4.OnMd.OnX.Is6.OnLg.OnX.Is8;
+    private string? _lastBuiltClass;
+
 	[Parameter]
 	public string? ContainerType { get; set; }
 
@@ -15,10 +21,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "container";
 
-        Margin ??= Quark.Margin.OnX.Auto;
-        Width ??= Quark.Width.IsFull;
-        MaxWidth ??= Quark.MaxWidth.Is7xl;
-        Padding ??= Quark.Padding.OnX.Is4.OnMd.OnX.Is6.OnLg.OnX.Is8;
+        Margin ??= _defaultMargin;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss0;
+        Padding ??= _defaultPadding;
     }
 
     // Default to the common shadcn-style centered content wrapper.
@@ -27,12 +33,7 @@
         base.BuildAttributesCore(attributes);
 
         if (ContainerType.HasContent())
-        {
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, ContainerType!);
-            });
-        }
+            PrependClassAttribute(attributes, ContainerType!, ref _lastBuiltClass);
     }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)

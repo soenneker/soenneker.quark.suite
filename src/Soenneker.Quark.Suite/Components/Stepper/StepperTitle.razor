@@ -4,6 +4,9 @@
 <h3 @attributes="BuildAttributes()">@ChildContent</h3>
 
 @code {
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.None;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     [CascadingParameter(Name = nameof(ParentStepperItem))]
     internal StepperItemContext? ParentStepperItem { get; set; }
 
@@ -11,16 +14,16 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "stepper-title";
-        FontWeight ??= Quark.FontWeight.Medium;
+        FontWeight ??= _defaultFontWeight;
 
         if (ParentStepperItem?.IsStacked == true)
         {
-            TextSize ??= Quark.TextSize.Sm;
+            TextSize ??= _defaultTextSize;
         }
         else
         {
-            Leading ??= Quark.Leading.None;
-            TextSize ??= Quark.TextSize.Sm;
+            Leading ??= _defaultLeading;
+            TextSize ??= _defaultTextSize;
         }
     }
 

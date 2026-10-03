@@ -1,11 +1,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Component
 
-<Button Variant="ButtonVariant.Ghost" ButtonSize="@ButtonSize" OnClick="@HandleClick" Attributes="@BuildAttributes()">
+<Button Variant="ButtonVariant.Ghost" ButtonSize="@ButtonSize" OnClick="(_cachedHandleClickDelegate ??= HandleClick)" Attributes="@BuildAttributes()">
     @ChildContent
 </Button>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Soenneker.Quark.ButtonSize.Sm;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -22,7 +27,7 @@
     public string? Value { get; set; }
 
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = Soenneker.Quark.ButtonSize.Sm;
+    public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss0;
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
@@ -36,7 +41,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, GetVariantClass()));
+        PrependClassAttribute(attributes, GetVariantClass(), ref _lastBuiltClass);
     }
 
     private string GetVariantClass()

@@ -24,6 +24,22 @@
 </BradixPopoverPortal>
 
 @code {
+    private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.PopoverForeground;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Is72;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is2_5;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.Md;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is1;
+    private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-foreground/10");
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private BradixPopover? BradixPopover { get; set; }
 
@@ -92,24 +108,24 @@
         base.ApplyDefaultParameters();
         DataSlot ??= Slot;
 
-        ZIndex ??= Quark.ZIndex.Is50;
+        ZIndex ??= _defaultZIndex;
         if (UseDefaultLayout)
         {
-            Display ??= Quark.Display.Flex;
-            FlexDirection ??= Quark.FlexDirection.Col;
-            Gap ??= Quark.Gap.Is2_5;
+            Display ??= _defaultDisplay;
+            FlexDirection ??= _defaultFlexDirection;
+            Gap ??= _defaultGap;
         }
 
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        TextColor ??= Quark.TextColor.PopoverForeground;
-        Width ??= Quark.Width.Is72;
-        Rounded ??= Quark.Rounded.Lg;
-        Padding ??= Quark.Padding.Is2_5;
-        TextSize ??= Quark.TextSize.Sm;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        Shadow ??= Quark.Shadow.Md;
-        Ring ??= Quark.Ring.Is1;
-        RingColor ??= Quark.RingColor.Utility("ring-foreground/10");
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Width ??= _defaultWidth;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        OutlineStyle ??= _defaultOutlineStyle;
+        Shadow ??= _defaultShadow;
+        Ring ??= _defaultRing;
+        RingColor ??= _defaultRingColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -117,16 +133,11 @@
         base.BuildAttributesCore(attributes);
 
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        if (UseDefaultMotion)
         {
-            if (!UseDefaultMotion)
-                return;
-
-            AppendClass(ref cls, "origin-(--radix-popover-content-transform-origin)");
-            AppendClass(ref cls, "duration-100");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
-        });
+            const string @class = "origin-(--radix-popover-content-transform-origin) duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

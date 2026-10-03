@@ -2,21 +2,56 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    @(InputOtpContext?.GetCharacter(Index))
+    @CharacterText
     @if (ShouldShowFakeCaret)
     {
-        <Div PointerEvents="Quark.PointerEvents.None"
-             Position="Quark.Position.Absolute"
-             Inset="Quark.Inset.Is0"
-             Display="Quark.Display.Flex"
-             ItemsAlign="Quark.Items.Center"
-             Justify="Quark.Justify.Center">
-            <Div Height="Quark.Height.Is4" Width="Quark.Width.IsPx" BackgroundColor='Quark.BackgroundColor.Foreground' Duration="Quark.Duration.Is1000" Class="animate-caret-blink"></Div>
+        <Div PointerEvents="_renderCss0"
+             Position="_renderCss1"
+             Inset="_renderCss2"
+             Display="_renderCss3"
+             ItemsAlign="_renderCss4"
+             Justify="_renderCss5">
+            <Div Height="_renderCss6" Width="_renderCss7" BackgroundColor='_renderCss8' Duration="_renderCss9" Class="animate-caret-blink"></Div>
         </Div>
     }
 </div>
 
 @code {
+    private char? _character;
+    private string? _characterText;
+    private string? CharacterText
+    {
+        get
+        {
+            var character = InputOtpContext?.GetCharacter(Index);
+            if (_character != character)
+            {
+                _character = character;
+                _characterText = character?.ToString();
+            }
+            return _characterText;
+        }
+    }
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Is8;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.OnY.Default.FromRight.Default;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss1 = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _renderCss2 = Quark.Inset.Is0;
+    private static readonly CssValue<DisplayBuilder> _renderCss3 = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _renderCss4 = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _renderCss5 = Quark.Justify.Center;
+    private static readonly CssValue<HeightBuilder> _renderCss6 = Quark.Height.Is4;
+    private static readonly CssValue<WidthBuilder> _renderCss7 = Quark.Width.IsPx;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss8 = Quark.BackgroundColor.Foreground;
+    private static readonly CssValue<DurationBuilder> _renderCss9 = Quark.Duration.Is1000;
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private InputOtpContext? InputOtpContext { get; set; }
 
@@ -32,17 +67,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "input-otp-slot";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is8;
-        Width ??= Quark.Width.Is8;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Border ??= Quark.Border.OnY.Default.FromRight.Default;
-        BorderColor ??= Quark.BorderColor.Input;
-        TextSize ??= Quark.TextSize.Sm;
-        Transition ??= Quark.Transition.All;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Position ??= _defaultPosition;
+        Display ??= _renderCss3;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _renderCss4;
+        Justify ??= _renderCss5;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        TextSize ??= _defaultTextSize;
+        Transition ??= _defaultTransition;
+        OutlineStyle ??= _defaultOutlineStyle;
 
     }
 
@@ -52,7 +87,7 @@
 
         attributes["data-active"] = InputOtpContext?.IsActive(Index) == true ? "true" : "false";
 
-        PrependClassAttribute(attributes, "first:rounded-l-lg first:border-l last:rounded-r-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40");
+        PrependClassAttribute(attributes, "first:rounded-l-lg first:border-l last:rounded-r-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

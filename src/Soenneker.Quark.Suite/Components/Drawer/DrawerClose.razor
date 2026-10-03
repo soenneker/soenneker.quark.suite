@@ -5,7 +5,7 @@
 
 @if (AsChild && AutoClose)
 {
-    <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" OnClick="HandleBradixCloseClick">
+    <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" OnClick="(_cachedHandleBradixCloseClickDelegate ??= HandleBradixCloseClick)">
         <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
             @ChildContent
         </CascadingValue>
@@ -19,23 +19,28 @@ else if (AsChild)
 }
 else if (AutoClose)
 {
-    <BradixDialogClose OnClick="HandleBradixCloseClick" AdditionalAttributes="@CloseAttributes">
+    <BradixDialogClose OnClick="(_cachedHandleBradixCloseClickDelegate ??= HandleBradixCloseClick)" AdditionalAttributes="@CloseAttributes">
         @ChildContent
     </BradixDialogClose>
 }
 else
 {
-    <button type="button" @onclick="HandleNonAutoCloseClick" @attributes="CloseAttributes">
+    <button type="button" @onclick="(_cachedHandleNonAutoCloseClickDelegate ??= HandleNonAutoCloseClick)" @attributes="CloseAttributes">
         @ChildContent
     </button>
 }
 
 @code {
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleBradixCloseClickDelegate;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleNonAutoCloseClickDelegate;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "drawer-close";
-        Cursor ??= Quark.Cursor.Pointer.OnDisabled.NotAllowed;
+        Cursor ??= _defaultCursor;
     }
 
 
@@ -65,12 +70,20 @@ else
             await OnClick.InvokeAsync(e);
     }
 
+    private bool? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<Task>? _contextOnClickCallback;
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = AutoClose;
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = "drawer-close",
-            OnClick = AutoClose ? null : () => OnClick.InvokeAsync()
+            OnClick = AutoClose ? null : (_contextOnClickCallback ??= () => OnClick.InvokeAsync())
         };
     }
 

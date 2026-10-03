@@ -19,6 +19,7 @@
 </SortableList>
 
 @code {
+    private string? _sourceClass, _composedClass;
     private const string _baseClass = "flex min-h-20 flex-1 flex-col gap-2 overflow-y-auto rounded-lg p-0.5";
 
     [Parameter]
@@ -71,6 +72,12 @@
 
     private string GetClass()
     {
-        return string.IsNullOrWhiteSpace(Class) ? _baseClass : $"{_baseClass} {Class}".TrimEnd();
+        if (string.IsNullOrWhiteSpace(Class)) return _baseClass;
+        if (_composedClass is null || _sourceClass != Class)
+        {
+            _sourceClass = Class;
+            _composedClass = string.Concat(_baseClass.AsSpan(), " ".AsSpan(), Class.AsSpan().TrimEnd());
+        }
+        return _composedClass;
     }
 }

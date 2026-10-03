@@ -91,13 +91,13 @@ public sealed partial class RenderedShadcnParityTests
             }));
 
         stopwatch.Start();
-        cut.Find("input").Input("f");
+        await cut.InvokeAsync(() => cut.Find("input").Input("f"));
 
         // A busy runner can resume this wait after the debounce has already expired.
         // Check the actual save timestamps instead of assuming the wait resumes on time.
         await Task.Delay(100);
         var secondInputTime = stopwatch.ElapsedMilliseconds;
-        cut.Find("input").Input("fi");
+        await cut.InvokeAsync(() => cut.Find("input").Input("fi"));
 
         cut.WaitForAssertion(() =>
         {

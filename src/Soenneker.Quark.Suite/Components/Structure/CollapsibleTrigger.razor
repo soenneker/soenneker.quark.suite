@@ -18,6 +18,8 @@ else
 }
 
 @code {
+    private string? _slotClass;
+    private string? _slotStyle;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -39,9 +41,19 @@ else
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
+    private (BradixCollapsible?, bool, bool, string?, string?)? _contextSnapshotKey;
+    private TriggerContext? _contextSnapshot;
+    private Func<Task>? _contextToggleCallback;
+    private Func<Task>? _contextOpenCallback;
+    private Func<Task>? _contextCloseCallback;
+
     private TriggerContext GetTriggerContext()
     {
-        return new TriggerContext
+        var key = (Collapsible, Collapsible?.Disabled == true, Collapsible?.IsOpen == true, Collapsible?.TriggerId, Collapsible?.ContentId);
+        if (_contextSnapshot is not null && _contextSnapshotKey == key)
+            return _contextSnapshot;
+        _contextSnapshotKey = key;
+        return _contextSnapshot = new TriggerContext
         {
             DataSlot = "collapsible-trigger",
             TriggerId = Collapsible?.TriggerId,
@@ -49,9 +61,9 @@ else
             IsOpen = Collapsible?.IsOpen == true,
             DataState = Collapsible?.IsOpen == true ? "open" : "closed",
             AriaControls = Collapsible?.ContentId,
-            Toggle = Collapsible is null ? null : () => Collapsible.Toggle(),
-            Open = Collapsible is null ? null : () => Collapsible.SetOpen(true),
-            Close = Collapsible is null ? null : () => Collapsible.SetOpen(false)
+            Toggle = Collapsible is null ? null : (_contextToggleCallback ??= () => Collapsible.Toggle()),
+            Open = Collapsible is null ? null : (_contextOpenCallback ??= () => Collapsible.SetOpen(true)),
+            Close = Collapsible is null ? null : (_contextCloseCallback ??= () => Collapsible.SetOpen(false))
         };
     }
 
@@ -76,7 +88,7 @@ else
         }
 
         if (AsChild)
-            SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
+            SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

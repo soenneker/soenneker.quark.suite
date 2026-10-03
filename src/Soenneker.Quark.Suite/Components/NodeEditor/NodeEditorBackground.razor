@@ -5,24 +5,27 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _defaultInset = Quark.Inset.Is0;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "node-editor-background";
-        PointerEvents ??= Quark.PointerEvents.None;
-        Position ??= Quark.Position.Absolute;
-        Inset ??= Quark.Inset.Is0;
+        PointerEvents ??= _defaultPointerEvents;
+        Position ??= _defaultPosition;
+        Inset ??= _defaultInset;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "quark-node-editor-background");
-            AppendClass(ref cls, "bg-[radial-gradient(circle_at_center,hsl(var(--border))_1px,transparent_1px)] bg-[length:20px_20px]");
-            AppendClass(ref cls, "[mask-image:linear-gradient(to_bottom,black,rgba(0,0,0,0.72))]");
-        });
+            const string @class = "quark-node-editor-background bg-[radial-gradient(circle_at_center,hsl(var(--border))_1px,transparent_1px)] bg-[length:20px_20px] [mask-image:linear-gradient(to_bottom,black,rgba(0,0,0,0.72))]";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 }

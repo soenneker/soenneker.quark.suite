@@ -3,14 +3,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
+@{ BeginDayRender(); }
+
 <Div @attributes="BuildAttributes()">
-    <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col.OnMd.Row" Gap="Quark.Gap.Is4" Class="rdp-months">
-        <Nav Position="Quark.Position.Absolute" Inset="Quark.Inset.OnX.Is0" Top="Quark.Top.Is0" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Between" Gap="Quark.Gap.Is1" AriaLabel="" Class="rdp-nav">
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="@(_ => PrevMonth())">
-                <Icon Name="LucideIcon.ChevronLeft" Size="Quark.Size.Is4" Class="rdp-chevron" aria-hidden="true"/>
+    <Div Position="_renderCss0" Display="_renderCss1" FlexDirection="_renderCss2" Gap="_renderCss3" Class="rdp-months">
+        <Nav Position="_renderCss4" Inset="_renderCss5" Top="_renderCss6" Display="_renderCss1" Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss9" Gap="_renderCss10" AriaLabel="" Class="rdp-nav">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="(_calendarPrevCallback ??= PrevMonth)">
+                <Icon Name="LucideIcon.ChevronLeft" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="Quark.UserSelect.None" Opacity='Quark.Opacity.Is50.Aria("disabled")' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="@(_ => NextMonth())">
-                <Icon Name="LucideIcon.ChevronRight" Size="Quark.Size.Is4" Class="rdp-chevron" aria-hidden="true"/>
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="(_calendarNextCallback ??= NextMonth)">
+                <Icon Name="LucideIcon.ChevronRight" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
         </Nav>
 
@@ -19,66 +21,66 @@
             var month = _displayMonth.AddMonths(monthIndex);
             var weeks = BuildMonthWeeks(month);
 
-            <Div @key="month" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4" Class="rdp-month">
-                <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Padding='Quark.Padding.OnX.Token("(--cell-size)")' Class="rdp-month_caption">
+            <Div @key="month" Display="_renderCss1" Width="_renderCss7" FlexDirection="_renderCss14" Gap="_renderCss3" Class="rdp-month">
+                <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Padding='_renderCss17' Class="rdp-month_caption">
                     @if (CaptionLayout == "dropdown")
                     {
-                        <Div Display="Quark.Display.Flex" Height='Quark.Height.Token("(--cell-size)")' Width="Quark.Width.IsFull" ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" Gap='Quark.Gap.Is1_5' TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" Class="rdp-dropdowns">
-                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded='Quark.Rounded.Token("(--cell-radius)")' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" BackgroundColor="Quark.BackgroundColor.Popover" Opacity="Quark.Opacity.Is0" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((month.Month - 1).ToString(CultureInfo.InvariantCulture))" OnChange="OnMonthChanged">
+                        <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Gap='_renderCss18' TextSize="_renderCss19" FontWeight="_renderCss20" Class="rdp-dropdowns">
+                            <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((month.Month - 1).ToString(CultureInfo.InvariantCulture))" OnChange="(_cachedOnMonthChangedDelegate ??= OnMonthChanged)">
                                     @for (var optionMonth = 0; optionMonth < 12; optionMonth++)
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
                                 </SelectPrimitive>
-                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" TextSize="Quark.TextSize.Sm" Rounded='Quark.Rounded.Token("(--cell-radius)")' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                <Span FontWeight="_renderCss20" UserSelect="_renderCss11" Display="_renderCss1" ItemsAlign="_renderCss8" Gap="_renderCss10" TextSize="_renderCss19" Rounded='_renderCss21' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
                                     <Span>@GetMonthDropdownLabel(month.Month)</Span>
-                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
+                                    <Icon Name="LucideIcon.ChevronDown" Size="_renderCss13" Class="rdp-chevron"/>
                                 </Span>
                             </Span>
-                            <Span data-disabled="false" Position="Quark.Position.Relative" Rounded='Quark.Rounded.Token("(--cell-radius)")' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="Quark.Position.Absolute" Inset="Quark.Inset.Is0" BackgroundColor="Quark.BackgroundColor.Popover" Opacity="Quark.Opacity.Is0" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@month.Year.ToString(CultureInfo.InvariantCulture)" OnChange="OnYearChanged">
+                            <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@month.Year.ToString(CultureInfo.InvariantCulture)" OnChange="(_cachedOnYearChangedDelegate ??= OnYearChanged)">
                                     @for (var year = GetMinSelectableYear(); year <= GetMaxSelectableYear(); year++)
                                     {
                                         <option value="@year">@year</option>
                                     }
                                 </SelectPrimitive>
-                                <Span FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" Display="Quark.Display.Flex" ItemsAlign="Quark.Items.Center" Gap="Quark.Gap.Is1" TextSize="Quark.TextSize.Sm" Rounded='Quark.Rounded.Token("(--cell-radius)")' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
+                                <Span FontWeight="_renderCss20" UserSelect="_renderCss11" Display="_renderCss1" ItemsAlign="_renderCss8" Gap="_renderCss10" TextSize="_renderCss19" Rounded='_renderCss21' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
                                     <Span>@month.Year</Span>
-                                    <Icon Name="LucideIcon.ChevronDown" Size="Quark.Size.Is4" Class="rdp-chevron"/>
+                                    <Icon Name="LucideIcon.ChevronDown" Size="_renderCss13" Class="rdp-chevron"/>
                                 </Span>
                             </Span>
                         </Div>
                     }
                     else
                     {
-                        <Span Role="status" aria-live="polite" FontWeight="Quark.FontWeight.Medium" UserSelect="Quark.UserSelect.None" TextSize="Quark.TextSize.Sm" Class="cn-calendar-caption rdp-caption_label">@GetMonthCaption(month)</Span>
+                        <Span Role="status" aria-live="polite" FontWeight="_renderCss20" UserSelect="_renderCss11" TextSize="_renderCss19" Class="cn-calendar-caption rdp-caption_label">@GetCachedMonthCaption(month)</Span>
                     }
                 </Div>
-                <table role="grid" aria-multiselectable="@GetDataBoolean(IsMultipleMode || IsRangeMode)" aria-label="@GetMonthCaption(month)" class="rdp-month_grid">
+                <table role="grid" aria-multiselectable="@GetDataBoolean(IsMultipleMode || IsRangeMode)" aria-label="@GetCachedMonthCaption(month)" class="rdp-month_grid">
                     <TheadPrimitive aria-hidden="true">
-                        <TrPrimitive Display="Quark.Display.Flex" Class="rdp-weekdays">
+                        <TrPrimitive Display="_renderCss1" Class="rdp-weekdays">
                             @if (ShowWeekNumber)
                             {
-                                <ThPrimitive Width='Quark.Width.Token("(--cell-size)")' UserSelect="Quark.UserSelect.None" Class="rdp-week_number_header" scope="col" aria-label="Week Number"></ThPrimitive>
+                                <ThPrimitive Width='_renderCss25' UserSelect="_renderCss11" Class="rdp-week_number_header" scope="col" aria-label="Week Number"></ThPrimitive>
                             }
 
                             @for (var dayIndex = 0; dayIndex < _dayNames.Length; dayIndex++)
                             {
                                 var capturedDayIndex = dayIndex;
 
-                                <ThPrimitive Flex="Quark.Flex.Is1" Rounded='Quark.Rounded.Token("(--cell-radius)")' TextSize='Quark.TextSize.Token("[0.8rem]")' FontWeight="Quark.FontWeight.Normal" TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="rdp-weekday" scope="col" aria-label="@_fullDayNames[capturedDayIndex]">@_dayNames[capturedDayIndex]</ThPrimitive>
+                                <ThPrimitive Flex="_renderCss26" Rounded='_renderCss21' TextSize='_renderCss27' FontWeight="_renderCss28" TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-weekday" scope="col" aria-label="@_fullDayNames[capturedDayIndex]">@_dayNames[capturedDayIndex]</ThPrimitive>
                             }
                         </TrPrimitive>
                     </TheadPrimitive>
                     <TbodyPrimitive Class="rdp-weeks">
                         @foreach (var week in weeks)
                         {
-                            <TrPrimitive @key="week[0].Date" Margin="Quark.Margin.FromTop.Is2" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" Class="rdp-week">
+                            <TrPrimitive @key="week[0].Date" Margin="_renderCss30" Display="_renderCss1" Width="_renderCss7" Class="rdp-week">
                                 @if (ShowWeekNumber)
                                 {
-                                    <ThPrimitive TextSize='Quark.TextSize.Token("[0.8rem]")' TextColor="Quark.TextColor.MutedForeground" UserSelect="Quark.UserSelect.None" Class="rdp-week_number" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
-                                        <Div Display="Quark.Display.Flex" Size='Quark.Size.Token("(--cell-size)")' ItemsAlign="Quark.Items.Center" Justify="Quark.Justify.Center" TextAlign="Quark.TextAlign.Center">
+                                    <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
+                                        <Div Display="_renderCss1" Size='_renderCss31' ItemsAlign="_renderCss8" Justify="_renderCss16" TextAlign="_renderCss32">
                                             @GetWeekNumber(week[0].Date).ToString("00", CultureInfo.InvariantCulture)
                                         </Div>
                                     </ThPrimitive>
@@ -86,19 +88,21 @@
 
                                 @foreach (var day in week)
                                 {
-                                    var dayContext = BuildDayContext(day);
-                                    var cellCss = GetDayCellClass(dayContext, day);
+                                    var view = GetDayView(day);
+                                var dayContext = BuildDayContext(day, view);
+                                view.UpdateFormatting(_formatVersion, dayContext);
+                                    var cellCss = GetDayCellClass(dayContext, day, ref view.CellClass);
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
-                                    <TdPrimitive @key="day.Date" Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@day.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-month="@day.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture)" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="Quark.Display.Flex" Width="Quark.Width.IsFull" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is1" Leading="Quark.Leading.None" FontWeight="Quark.FontWeight.Normal" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@GetDayAriaLabel(dayContext)" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@GetDataDay(day.Date)" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="@(_ => SelectDate(day.Date))">
+                                    <TdPrimitive @key="day.Date" Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@view.IsoDate" data-month="@view.IsoMonth" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
+                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="_renderCss1" Width="_renderCss7" FlexDirection="_renderCss14" Gap="_renderCss10" Leading="_renderCss33" FontWeight="_renderCss28" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@view.AriaLabel" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@view.DataDay" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="view.Click">
                                             @if (DayContent is not null)
                                             {
                                                 @DayContent(dayContext)
                                             }
                                             else
                                             {
-                                                @GetDayLabel(day.Date)
+                                                @view.Label
                                             }
                                         </Button>
                                     </TdPrimitive>
@@ -113,6 +117,45 @@
 </Div>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss2 = Quark.FlexDirection.Col.OnMd.Row;
+    private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is4;
+    private static readonly CssValue<PositionBuilder> _renderCss4 = Quark.Position.Absolute;
+    private static readonly CssValue<InsetBuilder> _renderCss5 = Quark.Inset.OnX.Is0;
+    private static readonly CssValue<TopBuilder> _renderCss6 = Quark.Top.Is0;
+    private static readonly CssValue<WidthBuilder> _renderCss7 = Quark.Width.IsFull;
+    private static readonly CssValue<ItemsBuilder> _renderCss8 = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _renderCss9 = Quark.Justify.Between;
+    private static readonly CssValue<GapBuilder> _renderCss10 = Quark.Gap.Is1;
+    private static readonly CssValue<UserSelectBuilder> _renderCss11 = Quark.UserSelect.None;
+    private static readonly CssValue<OpacityBuilder> _renderCss12 = Quark.Opacity.Is50.Aria("disabled");
+    private static readonly CssValue<SizeBuilder> _renderCss13 = Quark.Size.Is4;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss14 = Quark.FlexDirection.Col;
+    private static readonly CssValue<HeightBuilder> _renderCss15 = Quark.Height.Token("(--cell-size)");
+    private static readonly CssValue<JustifyBuilder> _renderCss16 = Quark.Justify.Center;
+    private static readonly CssValue<PaddingBuilder> _renderCss17 = Quark.Padding.OnX.Token("(--cell-size)");
+    private static readonly CssValue<GapBuilder> _renderCss18 = Quark.Gap.Is1_5;
+    private static readonly CssValue<TextSizeBuilder> _renderCss19 = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _renderCss20 = Quark.FontWeight.Medium;
+    private static readonly CssValue<RoundedBuilder> _renderCss21 = Quark.Rounded.Token("(--cell-radius)");
+    private static readonly CssValue<InsetBuilder> _renderCss22 = Quark.Inset.Is0;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss23 = Quark.BackgroundColor.Popover;
+    private static readonly CssValue<OpacityBuilder> _renderCss24 = Quark.Opacity.Is0;
+    private static readonly CssValue<WidthBuilder> _renderCss25 = Quark.Width.Token("(--cell-size)");
+    private static readonly CssValue<FlexBuilder> _renderCss26 = Quark.Flex.Is1;
+    private static readonly CssValue<TextSizeBuilder> _renderCss27 = Quark.TextSize.Token("[0.8rem]");
+    private static readonly CssValue<FontWeightBuilder> _renderCss28 = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _renderCss29 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<MarginBuilder> _renderCss30 = Quark.Margin.FromTop.Is2;
+    private static readonly CssValue<SizeBuilder> _renderCss31 = Quark.Size.Token("(--cell-size)");
+    private static readonly CssValue<TextAlignBuilder> _renderCss32 = Quark.TextAlign.Center;
+    private static readonly CssValue<LeadingBuilder> _renderCss33 = Quark.Leading.None;
+    private System.Func<ChangeEventArgs, Task>? _cachedOnMonthChangedDelegate;
+    private System.Func<ChangeEventArgs, Task>? _cachedOnYearChangedDelegate;
+
+    private string? _lastBuiltClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -235,6 +278,65 @@
     [Parameter]
     public RenderFragment<CalendarDayContext>? DayContent { get; set; }
 
+    private Func<Task>? _calendarPrevCallback;
+    private Func<Task>? _calendarNextCallback;
+    private Dictionary<(DateOnly Date, bool InMonth), DayView>? _dayViews;
+    private Dictionary<DateOnly, string>? _monthCaptions;
+    private List<string>? _modifierScratch;
+    private HashSet<DateOnly>? _selectedDateSet;
+    private HashSet<DateOnly>? _disabledDateSet;
+    private DateOnly[] _disabledDatesSnapshot = [];
+    private int _disabledDatesVersion;
+    private int _dayGeneration;
+    private int _formatVersion;
+    private CultureInfo? _formatCulture;
+    private bool _formatUsesCultureCalendar;
+
+    private void BeginDayRender()
+    {
+        _dayGeneration = unchecked(_dayGeneration + 1);
+        if (IsMultipleMode && EffectiveSelectedDates.Count > 8)
+        {
+            var selected = _selectedDateSet ??= [];
+            selected.Clear();
+            for (int i = 0; i < EffectiveSelectedDates.Count; i++)
+                selected.Add(EffectiveSelectedDates[i]);
+        }
+    }
+
+    private DayView GetDayView(Cell day)
+    {
+        var views = _dayViews ??= [];
+        var key = (day.Date, day.InMonth);
+        if (!views.TryGetValue(key, out var view))
+            views.Add(key, view = new DayView(this, day.Date));
+        view.Generation = _dayGeneration;
+        return view;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_dayViews is not null)
+        {
+            foreach (var pair in _dayViews)
+                if (pair.Value.Generation != _dayGeneration)
+                    _dayViews.Remove(pair.Key);
+        }
+    }
+
+    private string GetCachedMonthCaption(DateOnly month)
+    {
+        var captions = _monthCaptions ??= [];
+        if (!captions.TryGetValue(month, out var caption))
+        {
+            if (captions.Count >= Math.Max(NumberOfMonths * 2, 12))
+                captions.Clear();
+            captions.Add(month, caption = GetMonthCaption(month));
+        }
+        return caption;
+    }
+
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _lastAppliedDisplayMonth;
     private string[] _dayNames = [];
@@ -244,7 +346,7 @@
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private readonly Dictionary<DateOnly, List<Cell[]>> _monthWeeks = [];
     private CalendarGridState _calendarGridState;
-    private string? _dayNamesCultureName;
+    private CultureInfo? _dayNamesCulture;
     private DayOfWeek _dayNamesFirstDay;
     private bool _dayNamesInitialized;
     private bool _initialized;
@@ -259,13 +361,20 @@
         base.OnParametersSet();
         _today = DateOnly.FromDateTime(DateTime.Today);
         _resolvedCulture = ResolveCultureCore();
-        _nativeDigits = _resolvedCulture.Name.StartsWith("fa", StringComparison.OrdinalIgnoreCase)
-            ? PersianDigits
-            : _resolvedCulture.NumberFormat.NativeDigits;
+        if (!ReferenceEquals(_formatCulture, _resolvedCulture) || _formatUsesCultureCalendar != UseCultureCalendar || !_resolvedCulture.IsReadOnly)
+        {
+            _formatCulture = _resolvedCulture;
+            _formatUsesCultureCalendar = UseCultureCalendar;
+            _formatVersion = unchecked(_formatVersion + 1);
+            _monthCaptions?.Clear();
+            _nativeDigits = _resolvedCulture.Name.StartsWith("fa", StringComparison.OrdinalIgnoreCase)
+                ? PersianDigits
+                : _resolvedCulture.NumberFormat.NativeDigits;
+        }
         InitializeDayNames();
 
         var gridState = new CalendarGridState(_resolvedCulture.Name, GetFirstDayOfWeek(_resolvedCulture), UseCultureCalendar,
-            ShowOutsideDays, FixedWeeks, Min, Max, GetDisabledDatesHash());
+            ShowOutsideDays, FixedWeeks, Min, Max, GetDisabledDatesVersion());
 
         if (!_calendarGridState.Equals(gridState))
         {
@@ -304,7 +413,7 @@
         var culture = _resolvedCulture;
         var first = GetFirstDayOfWeek(culture);
 
-        if (_dayNamesInitialized && string.Equals(_dayNamesCultureName, culture.Name, StringComparison.Ordinal) && _dayNamesFirstDay == first)
+        if (_dayNamesInitialized && culture.IsReadOnly && ReferenceEquals(_dayNamesCulture, culture) && _dayNamesFirstDay == first)
             return;
 
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
@@ -322,7 +431,7 @@
 
         _dayNames = dayNames;
         _fullDayNames = fullDayNames;
-        _dayNamesCultureName = culture.Name;
+        _dayNamesCulture = culture;
         _dayNamesFirstDay = first;
         _dayNamesInitialized = true;
     }
@@ -335,7 +444,7 @@
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
 
     private readonly record struct CalendarGridState(string CultureName, DayOfWeek FirstDayOfWeek, bool UseCultureCalendar,
-        bool ShowOutsideDays, bool FixedWeeks, DateOnly? Min, DateOnly? Max, int DisabledDatesHash);
+        bool ShowOutsideDays, bool FixedWeeks, DateOnly? Min, DateOnly? Max, int DisabledDatesVersion);
 
     private List<Cell[]> BuildMonthWeeks(DateOnly month)
     {
@@ -371,7 +480,8 @@
         {
             var d = gridStart.AddDays(i);
             var inMonth = IsInDisplayedMonth(d, month, calendar, cultureCalendarYear, cultureCalendarMonth);
-            var disabled = IsDisabledDate(d);
+            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value) ||
+                (_disabledDatesSnapshot.Length > 8 ? _disabledDateSet!.Contains(d) : ContainsDisabledDate(d));
             if (!ShowOutsideDays && !inMonth)
                 disabled = true;
 
@@ -400,18 +510,23 @@
         return weeks;
     }
 
-    private int GetDisabledDatesHash()
+    private int GetDisabledDatesVersion()
     {
-        if (DisabledDates is null || DisabledDates.Length == 0)
-            return 0;
-
-        var hash = new HashCode();
-        hash.Add(DisabledDates.Length);
-
-        for (var i = 0; i < DisabledDates.Length; i++)
-            hash.Add(DisabledDates[i]);
-
-        return hash.ToHashCode();
+        if (DisabledDates.AsSpan().SequenceEqual(_disabledDatesSnapshot))
+            return _disabledDatesVersion;
+        _disabledDatesVersion = unchecked(_disabledDatesVersion + 1);
+        int count = DisabledDates?.Length ?? 0;
+        if (_disabledDatesSnapshot.Length != count)
+            _disabledDatesSnapshot = count == 0 ? [] : new DateOnly[count];
+        DisabledDates.AsSpan().CopyTo(_disabledDatesSnapshot);
+        _disabledDateSet?.Clear();
+        if (count > 8)
+        {
+            var dates = _disabledDateSet ??= [];
+            for (int i = 0; i < count; i++)
+                dates.Add(_disabledDatesSnapshot[i]);
+        }
+        return _disabledDatesVersion;
     }
 
     private bool IsInDisplayedMonth(DateOnly date, DateOnly month, System.Globalization.Calendar calendar, int cultureCalendarYear, int cultureCalendarMonth)
@@ -501,7 +616,8 @@
     private bool IsDateSelected(DateOnly date)
     {
         if (IsMultipleMode)
-            return ContainsDate(EffectiveSelectedDates, date);
+            return EffectiveSelectedDates.Count > 8 && _selectedDateSet is not null
+                ? _selectedDateSet.Contains(date) : ContainsDate(EffectiveSelectedDates, date);
 
         return EffectiveSelectedDate.HasValue && date == EffectiveSelectedDate.Value;
     }
@@ -587,15 +703,16 @@
 
     private static bool TryGetGregorianMonthNames(CultureInfo culture, out GregorianMonthNames? names)
     {
-        var key = culture.Name;
+        ReadOnlySpan<char> key = culture.Name;
+        var lookup = _gregorianMonthNamesByCulture.GetAlternateLookup<ReadOnlySpan<char>>();
 
         while (key.Length > 0)
         {
-            if (_gregorianMonthNamesByCulture.TryGetValue(key, out names))
+            if (lookup.TryGetValue(key, out names))
                 return true;
 
             var separatorIndex = key.LastIndexOf('-');
-            key = separatorIndex > 0 ? key[..separatorIndex] : string.Empty;
+            key = separatorIndex > 0 ? key[..separatorIndex] : [];
         }
 
         names = null;
@@ -916,11 +1033,28 @@
         return nextValues;
     }
 
-    private CalendarDayContext BuildDayContext(Cell day)
+    private CalendarDayContext BuildDayContext(Cell day, DayView view)
     {
         var modifiers = GetModifierNames(day.Date);
+        var previous = view.Context;
+        bool today = day.Date == _today;
+        bool selected = IsDateSelected(day.Date);
+        bool start = EffectiveSelectedRange?.From == day.Date;
+        bool end = EffectiveSelectedRange?.To == day.Date;
+        bool middle = IsDateInRange(day.Date);
+        bool sameModifiers = previous is not null && previous.Modifiers.Count == modifiers.Count;
+        if (sameModifiers)
+        {
+            for (int i = 0; i < modifiers.Count; i++)
+                if (previous!.Modifiers[i] != modifiers[i]) { sameModifiers = false; break; }
+        }
+        if (previous is not null && previous.Disabled == day.Disabled && previous.IsToday == today &&
+            previous.IsSelected == selected && previous.IsRangeStart == start && previous.IsRangeEnd == end &&
+            previous.IsRangeMiddle == middle && sameModifiers)
+            return previous;
 
-        return new CalendarDayContext(day.Date, day.InMonth, day.Disabled, day.Date == _today, IsDateSelected(day.Date), EffectiveSelectedRange?.From == day.Date, EffectiveSelectedRange?.To == day.Date, IsDateInRange(day.Date), modifiers);
+        IReadOnlyList<string> snapshot = sameModifiers ? previous!.Modifiers : modifiers.Count == 0 ? Array.Empty<string>() : modifiers.ToArray();
+        return view.Context = new CalendarDayContext(day.Date, day.InMonth, day.Disabled, today, selected, start, end, middle, snapshot);
     }
 
     private IReadOnlyList<string> GetModifierNames(DateOnly date)
@@ -928,40 +1062,57 @@
         if (Modifiers is null || Modifiers.Count == 0)
             return [];
 
-        List<string>? matches = null;
+        var matches = _modifierScratch ??= [];
+        matches.Clear();
 
         foreach (var pair in Modifiers)
         {
             if (pair.Value.Invoke(date))
-                (matches ??= new List<string>()).Add(pair.Key);
+                matches.Add(pair.Key);
         }
 
-        return matches is null ? Array.Empty<string>() : matches;
+        return matches;
     }
 
-    private string AppendModifierClasses(string css, IReadOnlyList<string> modifiers)
+    private string AppendModifierClasses(string css, IReadOnlyList<string> modifiers, ref string? previous)
     {
         if (ModifierClasses is null || modifiers.Count == 0)
             return css;
 
-        foreach (var modifier in modifiers)
+        var builder = new PooledStringBuilder(stackalloc char[512]);
+        try
         {
-            if (ModifierClasses.TryGetValue(modifier, out var classes) && !classes.IsNullOrEmpty())
-                css += $" {classes}";
+            builder.Append(css);
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                if (ModifierClasses.TryGetValue(modifiers[i], out var classes) && !classes.IsNullOrEmpty())
+                {
+                    builder.Append(' ');
+                    builder.Append(classes);
+                }
+            }
+            if (previous is null || !builder.AsSpan().SequenceEqual(previous.AsSpan()))
+                previous = builder.ToString();
+            return previous;
         }
-
-        return css;
+        finally { builder.Dispose(); }
     }
 
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, string> DayCellClasses = new();
+    private static readonly string?[] DayCellClasses = new string?[256];
 
-    private string GetDayCellClass(CalendarDayContext context, Cell day)
+    private string GetDayCellClass(CalendarDayContext context, Cell day, ref string? previous)
     {
         var state = (ShowWeekNumber ? 1 : 0) | (context.IsRangeStart ? 2 : 0) |
             (context.IsRangeEnd ? 4 : 0) | (context.IsRangeMiddle ? 8 : 0) |
             (!ShowOutsideDays && !day.InMonth ? 16 : 0) | (!day.InMonth ? 32 : 0) |
             (context.IsToday ? 64 : 0) | (day.Disabled ? 128 : 0);
-        return AppendModifierClasses(DayCellClasses.GetOrAdd(state, static key => CreateDayCellClass(key)), context.Modifiers);
+        string? css = System.Threading.Volatile.Read(ref DayCellClasses[state]);
+        if (css is null)
+        {
+            css = CreateDayCellClass(state);
+            css = System.Threading.Interlocked.CompareExchange(ref DayCellClasses[state], css, null) ?? css;
+        }
+        return AppendModifierClasses(css, context.Modifiers, ref previous);
     }
 
     private static string CreateDayCellClass(int state)
@@ -1063,21 +1214,25 @@
 
         attributes["data-mode"] = ReferenceEquals(Mode, CalendarSelectionMode.Multiple) ? "multiple" : ReferenceEquals(Mode, CalendarSelectionMode.Range) ? "range" : "single";
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
-
-            if (!HasClassOverride("p-"))
-                AppendClass(ref cls, "p-2");
-
-            if (!HasClassOverride("--cell-radius"))
-                AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
-
-            if (!HasClassOverride("--cell-size"))
-                AppendClass(ref cls, "[--cell-size:--spacing(7)]");
-
-            AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
+                if (!HasClassOverride("p-"))
+                    AppendClass(ref cls, "p-2");
+                if (!HasClassOverride("--cell-radius"))
+                    AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
+                if (!HasClassOverride("--cell-size"))
+                    AppendClass(ref cls, "[--cell-size:--spacing(7)]");
+                AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
 
         if (ShowWeekNumber)
             attributes["data-week-numbers"] = "true";

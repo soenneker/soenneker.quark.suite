@@ -65,7 +65,7 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
     const useGlobalDrop = globalDrop || promptInput?.dataset.globalDrop === "true";
 
     const addFiles = files => {
-        const attachments = Array.from(files || []).map(file => ({
+        const attachments = Array.from(files || [], file => ({
             id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
             name: file.name,
             size: file.size,
@@ -147,5 +147,8 @@ function hasFiles(event) {
         return false;
     }
 
-    return Array.from(event.dataTransfer.types || []).includes("Files");
+    const types = event.dataTransfer.types;
+    if (!types) return false;
+    for (let index = 0; index < types.length; index++) if (types[index] === "Files") return true;
+    return false;
 }

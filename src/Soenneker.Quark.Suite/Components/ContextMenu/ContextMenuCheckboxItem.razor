@@ -6,21 +6,41 @@
 @inherits Soenneker.Quark.ToggleElement
 
 <BradixContextMenuCheckboxItem Checked="@ResolvedCheckedState"
-                               CheckedChanged="HandleCheckedStateChanged"
+                               CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)"
                                Disabled="@Disabled"
                                AdditionalAttributes="@CheckboxAttributes">
     <Span DataSlot="context-menu-checkbox-item-indicator"
-          PointerEvents="Quark.PointerEvents.None"
-          Position="Quark.Position.Absolute"
-          Right="Quark.Right.Is2">
+          PointerEvents="_renderCss0"
+          Position="_renderCss1"
+          Right="_renderCss2">
         <BradixContextMenuItemIndicator>
-            <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" />
+            <Icon Name="LucideIcon.Check" Size="_renderCss3" />
         </BradixContextMenuItemIndicator>
     </Span>
     @ChildContent
 </BradixContextMenuCheckboxItem>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.OnFocus.Accent;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.OnFocus.AccentForeground;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
+    private static readonly CssValue<PositionBuilder> _renderCss1 = Quark.Position.Absolute;
+    private static readonly CssValue<RightBuilder> _renderCss2 = Quark.Right.Is2;
+    private static readonly CssValue<SizeBuilder> _renderCss3 = Quark.Size.Is4;
+    private System.Func<BradixCheckboxCheckedState, Task>? _cachedHandleCheckedStateChangedDelegate;
+
+    private string? _lastPrependedClass;
+
     [Parameter]
     public bool Indented { get; set; }
 
@@ -35,25 +55,25 @@
         if (Indented)
             attributes["data-inset"] = "true";
 
-        PrependClassAttribute(attributes, "data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7 pr-8 pl-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        PrependClassAttribute(attributes, "data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7 pr-8 pl-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", ref _lastPrependedClass);
     }
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-checkbox-item";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is1_5;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.OnY.Is1;
-        TextSize ??= Quark.TextSize.Sm;
-        BackgroundColor ??= Quark.BackgroundColor.OnFocus.Accent;
-        TextColor ??= Quark.TextColor.OnFocus.AccentForeground;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Default;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
 
     }
 

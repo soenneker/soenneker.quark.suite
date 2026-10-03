@@ -2,12 +2,17 @@
 @inherits Soenneker.Quark.Component
 
 <CascadingValue Value="@Context" IsFixed="false">
-    <Collapsible Open="@ResolvedOpen" DefaultOpen="@ResolvedDefaultOpen" OpenChanged="@HandleOpenChanged" Attributes="@BuildRootAttributes()">
+    <Collapsible Open="@ResolvedOpen" DefaultOpen="@ResolvedDefaultOpen" OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)" Attributes="@BuildRootAttributes()">
         @ChildContent
     </Collapsible>
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private System.Func<bool, Task>? _cachedHandleOpenChangedDelegate;
+
+    private string? _lastBuiltClass;
+
     private bool _initialized;
     private bool _open;
     private DateTimeOffset? _startedAt;
@@ -92,13 +97,13 @@
         base.OnParametersSet();
     }
 
-    private async Task HandleOpenChanged(bool open)
+    private Task HandleOpenChanged(bool open)
     {
         var nextOpen = IsStreaming || open;
         if (Open is null)
             _open = nextOpen;
 
-        await OpenChanged.InvokeAsync(nextOpen);
+        return OpenChanged.InvokeAsync(nextOpen);
     }
 
     protected override void ApplyDefaultParameters()
@@ -106,7 +111,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "reasoning";
 
-        Width ??= Quark.Width.IsFull;
+        Width ??= _defaultWidth;
     }
 
     private IReadOnlyDictionary<string, object> BuildRootAttributes()
@@ -119,6 +124,9 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "not-prose"));
+        {
+            const string @class = "not-prose";
+            PrependClassAttribute(attributes, @class, ref _lastBuiltClass);
+        }
     }
 }

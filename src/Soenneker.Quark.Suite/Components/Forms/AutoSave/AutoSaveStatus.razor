@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 
 @if (Visible)
 {
@@ -10,21 +10,22 @@
           aria-label="@AriaLabel"
           aria-hidden="@AriaHidden">
         <span class="@GetIconLayerClass(IsSavingState)">
-            <Icon Name="LucideIcon.LoaderCircle" Size="Quark.Size.Is4" Animation="@(IsSavingState ? (CssValue<AnimationBuilder>?)Quark.Animation.Spin : null)" aria-hidden="true" />
+            <Icon Name="LucideIcon.LoaderCircle" Size="_renderCss0" Animation="@(IsSavingState ? (CssValue<AnimationBuilder>?)_savingAnimation : null)" aria-hidden="true" />
         </span>
         @if (HasSaved)
         {
             <span class="@GetIconLayerClass(IsSavedState)">
-                <Icon Name="LucideIcon.Check" Size="Quark.Size.Is4" aria-hidden="true" />
+                <Icon Name="LucideIcon.Check" Size="_renderCss0" aria-hidden="true" />
             </span>
         }
         <span class="@GetIconLayerClass(IsState(AutoSaveState.Failed))">
-            <Icon Name="LucideIcon.X" Size="Quark.Size.Is4" aria-hidden="true" />
+            <Icon Name="LucideIcon.X" Size="_renderCss0" aria-hidden="true" />
         </span>
     </span>
 }
 
 @code {
+    private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
     [Parameter]
     public AutoSaveState State { get; set; } = AutoSaveState.Idle;
 
@@ -68,16 +69,23 @@
         }
         : null;
 
+    private static readonly CssValue<AnimationBuilder> _savingAnimation = Quark.Animation.Spin;
+    private (AutoSaveState State, bool Saved, string? Class, string? Saving, string? SavedClass, string? Failed)? _rootClassInputs;
+    private string? _rootClass;
     private string RootClass
     {
         get
         {
+            var inputs = (State, HasSaved, Class, SavingClass, SavedClass, FailedClass);
+            if (_rootClass is not null && _rootClassInputs == inputs)
+                return _rootClass;
+            _rootClassInputs = inputs;
             var cls = $"pointer-events-none {PositionClass} grid size-4 shrink-0 place-items-center overflow-hidden {StateClass}";
 
             if (!string.IsNullOrWhiteSpace(Class))
                 cls = $"{cls} {Class}";
 
-            return cls;
+            return _rootClass = cls;
         }
     }
 

@@ -8,20 +8,30 @@
 </BradixAvatarFallback>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Muted;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.IsFull;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private string? _lastPrependedClass;
+
     private IReadOnlyDictionary<string, object> FallbackAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "avatar-fallback";
-        BackgroundColor ??= Quark.BackgroundColor.Muted;
-        TextColor ??= Quark.TextColor.MutedForeground;
-        Display ??= Quark.Display.Flex;
-        Size ??= Quark.Size.IsFull;
-        Rounded ??= Quark.Rounded.Full;
-        TextSize ??= Quark.TextSize.Sm;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
+        BackgroundColor ??= _defaultBackgroundColor;
+        TextColor ??= _defaultTextColor;
+        Display ??= _defaultDisplay;
+        Size ??= _defaultSize;
+        Rounded ??= _defaultRounded;
+        TextSize ??= _defaultTextSize;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
 
     }
 
@@ -30,6 +40,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "group-data-[size=sm]/avatar:text-xs");
+        PrependClassAttribute(attributes, "group-data-[size=sm]/avatar:text-xs", ref _lastPrependedClass);
     }
 }

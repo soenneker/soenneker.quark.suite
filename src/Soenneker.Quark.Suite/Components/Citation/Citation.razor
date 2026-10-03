@@ -11,6 +11,7 @@
 
 @code {
     private ResolvedCitation[] _resolved = [];
+    private (string Url, RenderFragment? Title, RenderFragment? Description)[] _sources = [];
 
     internal int ActiveIndex { get; private set; }
 
@@ -54,24 +55,37 @@
 
     protected override void OnParametersSet()
     {
-        _resolved = BuildResolvedCitations(Citations);
+        ResolveCitations(Citations);
 
         if (ActiveIndex >= _resolved.Length)
             ActiveIndex = Math.Max(0, _resolved.Length - 1);
     }
 
-    private static ResolvedCitation[] BuildResolvedCitations(IReadOnlyList<CitationSourceInput> citations)
+    private void ResolveCitations(IReadOnlyList<CitationSourceInput> citations)
     {
         if (citations.Count == 0)
-            return [];
-
-        var resolved = new ResolvedCitation[citations.Count];
-
-        for (var i = 0; i < resolved.Length; i++)
         {
-            resolved[i] = CitationSourceResolver.Resolve(citations[i]);
+            _resolved = [];
+            _sources = [];
+            return;
         }
 
-        return resolved;
+        if (_resolved.Length != citations.Count)
+        {
+            _resolved = new ResolvedCitation[citations.Count];
+            _sources = new (string, RenderFragment?, RenderFragment?)[citations.Count];
+        }
+
+        for (int i = 0; i < citations.Count; i++)
+        {
+            var source = citations[i];
+            var previous = _sources[i];
+            if (_resolved[i] is not null && previous.Url == source.Url &&
+                ReferenceEquals(previous.Title, source.Title) && ReferenceEquals(previous.Description, source.Description))
+                continue;
+
+            _resolved[i] = CitationSourceResolver.Resolve(source);
+            _sources[i] = (source.Url, source.Title, source.Description);
+        }
     }
 }

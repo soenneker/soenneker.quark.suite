@@ -1,11 +1,11 @@
 namespace Soenneker.Quark;
 
 /// <summary>The position returned by the floating window JavaScript module.</summary>
-internal sealed class FloatingWindowPosition
+internal readonly struct FloatingWindowPosition
 {
     /// <summary>Gets or sets the horizontal position.</summary>
-    public int X { get; set; }
+    public int X { get; init; }
 
     /// <summary>Gets or sets the vertical position.</summary>
-    public int Y { get; set; }
+    public int Y { get; init; }
 }

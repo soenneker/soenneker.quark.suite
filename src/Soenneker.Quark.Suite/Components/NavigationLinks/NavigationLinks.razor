@@ -26,7 +26,7 @@
                   data-size="sm"
                   data-active="false"
                   data-new="@BoolString(item.IsNew)"
-                  class="@($"{GetHeaderItemClass(false)} opacity-75")">
+                  class="@_disabledHeaderClass">
                 @item.Title
             </Span>
         }
@@ -34,33 +34,36 @@
 }
 else if (ReferenceEquals(Mode, NavigationLinksMode.Stack))
 {
-    <Div Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is4">
+    <Div Display="_renderCss0" FlexDirection="_renderCss1" Gap="_renderCss2">
         @if (!string.IsNullOrWhiteSpace(Title))
         {
-            <Div TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium" TextColor="Quark.TextColor.MutedForeground">@Title</Div>
+            <Div TextSize="_renderCss3" FontWeight="_renderCss4" TextColor="_renderCss5">@Title</Div>
         }
 
-        <Div Display="Quark.Display.Flex" FlexDirection="Quark.FlexDirection.Col" Gap="Quark.Gap.Is3">
+        <Div Display="_renderCss0" FlexDirection="_renderCss1" Gap="_renderCss6">
+            @{ var viewIndex = 0; }
             @foreach (var item in Items)
             {
                 var isActive = IsItemActive(item);
                 @if (item.Href is not null)
                 {
-                    <Anchor Href="@item.Href" PreventDefault="@ShouldHandleStackNavigation(item)" OnClick="@(() => HandleStackItemClick(item))" aria-current="@(isActive ? "page" : null)" class="@GetStackItemClass(isActive)">
+                    var view = GetStackView(viewIndex++, item);
+                    <Anchor Href="@item.Href" PreventDefault="@(view.IsRelativeNavigation && SidebarProvider is not null && SidebarState?.OpenMobile == true)" OnClick="@view.Click" aria-current="@(isActive ? "page" : null)" class="@GetStackItemClass(isActive)">
                         @item.Title
                         @if (item.IsNew)
                         {
-                            <Span Size="Quark.Size.Is2" Display="Quark.Display.Flex" Rounded="Quark.Rounded.Full" BackgroundColor='Quark.BackgroundColor.Utility("blue-500")' title="New"></Span>
+                            <Span Size="_renderCss7" Display="_renderCss0" Rounded="_renderCss8" BackgroundColor='_renderCss9' title="New"></Span>
                         }
                     </Anchor>
                 }
                 else
                 {
-                    <Span class="@($"{GetStackItemClass(false)} opacity-70")">
+                    <Span class="@_disabledStackClass">
                         @item.Title
                     </Span>
                 }
             }
+            @{ TrimStackViews(viewIndex); }
         </Div>
     </Div>
 }
@@ -87,20 +90,20 @@ else
                                 <Span>@item.Title</Span>
                                 @if (item.IsNew)
                                 {
-                                    <Span Size="Quark.Size.Is2" Display="Quark.Display.Flex" Rounded="Quark.Rounded.Full" BackgroundColor='Quark.BackgroundColor.Utility("blue-500")' title="New"></Span>
+                                    <Span Size="_renderCss7" Display="_renderCss0" Rounded="_renderCss8" BackgroundColor='_renderCss9' title="New"></Span>
                                 }
                             </SidebarMenuButton>
                         }
                         else
                         {
                             <SidebarMenuButton Variant="SidebarMenuButtonVariant.Navigation"
-                                               Opacity="Opacity.Is70"
+                                               Opacity="_staticCss0"
                                                aria-disabled="true"
                                                tabindex="-1">
                                 <Span>@item.Title</Span>
                                 @if (item.IsNew)
                                 {
-                                    <Span Size="Quark.Size.Is2" Display="Quark.Display.Flex" Rounded="Quark.Rounded.Full" BackgroundColor='Quark.BackgroundColor.Utility("blue-500")' title="New"></Span>
+                                    <Span Size="_renderCss7" Display="_renderCss0" Rounded="_renderCss8" BackgroundColor='_renderCss9' title="New"></Span>
                                 }
                             </SidebarMenuButton>
                         }
@@ -112,6 +115,43 @@ else
 }
 
 @code {
+    private static readonly string _disabledHeaderClass = GetHeaderItemClass(false) + " opacity-75";
+    private static readonly string _disabledStackClass = GetStackItemClass(false) + " opacity-70";
+    private List<StackItemView>? _stackViews;
+
+    private StackItemView GetStackView(int index, NavigationItem item)
+    {
+        _stackViews ??= [];
+        if (index == _stackViews.Count)
+        {
+            var added = new StackItemView(this, item);
+            _stackViews.Add(added);
+            return added;
+        }
+
+        var view = _stackViews[index];
+        if (!ReferenceEquals(view.Item, item))
+            _stackViews[index] = view = new StackItemView(this, item);
+        return view;
+    }
+
+    private void TrimStackViews(int count)
+    {
+        if (_stackViews is { } views && views.Count > count)
+            views.RemoveRange(count, views.Count - count);
+    }
+
+    private static readonly CssValue<OpacityBuilder> _staticCss0 = Quark.Opacity.Is70;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _renderCss1 = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is4;
+    private static readonly CssValue<TextSizeBuilder> _renderCss3 = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _renderCss4 = Quark.FontWeight.Medium;
+    private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.MutedForeground;
+    private static readonly CssValue<GapBuilder> _renderCss6 = Quark.Gap.Is3;
+    private static readonly CssValue<SizeBuilder> _renderCss7 = Quark.Size.Is2;
+    private static readonly CssValue<RoundedBuilder> _renderCss8 = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _renderCss9 = Quark.BackgroundColor.Utility("blue-500");
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -142,27 +182,26 @@ else
 
     private static string BoolString(bool value) => value ? "true" : "false";
 
-    private async Task HandleStackItemClick(NavigationItem item)
-    {
-        if (!ShouldHandleStackNavigation(item))
-            return;
+    private Task HandleStackItemClick(NavigationItem item) => ShouldHandleStackNavigation(item)
+        ? CloseAndNavigateStackItem(item)
+        : Task.CompletedTask;
 
-        await CloseAndNavigateStackItem(item);
-    }
-
-    private async Task CloseAndNavigateStackItem(NavigationItem item)
+    private Task CloseAndNavigateStackItem(NavigationItem item)
     {
         var href = item.Href;
 
         if (!href.HasContent())
-            return;
+            return Task.CompletedTask;
 
         _navigationTargetAfterClose = GetNavigationTarget(href);
-        await SidebarProvider!.SetOpenMobile(false);
+        return SidebarProvider!.SetOpenMobile(false);
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
+        if (!ReferenceEquals(Mode, NavigationLinksMode.Stack))
+            _stackViews = null;
+
         if (_navigationTargetAfterClose is null || SidebarState?.OpenMobile == true)
             return;
 

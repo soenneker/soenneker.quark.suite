@@ -9,6 +9,12 @@
 </BradixNavigationMenuList>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0;
+    private string? _lastPrependedClass;
+
     private IReadOnlyDictionary<string, object> ListAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()
@@ -16,10 +22,10 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "navigation-menu-list";
 
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is0;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,6 +33,6 @@
         base.BuildAttributesCore(attributes);
 
 
-        PrependClassAttribute(attributes, "group flex-1 list-none");
+        PrependClassAttribute(attributes, "group flex-1 list-none", ref _lastPrependedClass);
     }
 }

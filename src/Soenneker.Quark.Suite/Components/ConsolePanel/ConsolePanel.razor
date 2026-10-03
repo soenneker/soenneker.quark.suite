@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @using Microsoft.JSInterop
 @using Soenneker.Asyncs.Locks
 @using Soenneker.Atomics.ValueBools
@@ -11,30 +11,30 @@
     @if (ShowDownload || ShowCopy)
     {
         <Div DataSlot="console-actions"
-             Display="Quark.Display.Flex"
-             FlexWrap="Quark.FlexWrap.Wrap"
-             ItemsAlign="Quark.Items.Center"
-             Justify="Quark.Justify.End"
-             Gap="Quark.Gap.Is2"
-             Margin="Quark.Margin.FromBottom.Is3"
-             Position="Quark.Position.Sticky"
-             Top="Quark.Top.Is0"
-             ZIndex="Quark.ZIndex.Is10"
-             FontFamily="Quark.FontFamily.Sans">
+             Display="_renderCss0"
+             FlexWrap="_renderCss1"
+             ItemsAlign="_renderCss2"
+             Justify="_renderCss3"
+             Gap="_renderCss4"
+             Margin="_renderCss5"
+             Position="_renderCss6"
+             Top="_renderCss7"
+             ZIndex="_renderCss8"
+             FontFamily="_renderCss9">
             @if (ShowDownload)
             {
                 <Button Type="@ButtonType.Button"
                         Variant="@ActionVariant"
                         ButtonSize="@ActionSize"
                         Disabled="@ActionsDisabled"
-                        OnClick="Download">
-                    <Icon Name="@DownloadIcon" Size="Quark.Size.Is3" />
+                        OnClick="(_cachedDownloadDelegate ??= Download)">
+                    <Icon Name="@DownloadIcon" Size="_renderCss10" />
                     <Span>@DownloadLabel</Span>
                 </Button>
             }
             @if (ShowCopy)
             {
-                <CopyButton TextProvider="ResolveText"
+                <CopyButton TextProvider="(_resolveTextCallback ??= ResolveText)"
                             Variant="@ActionVariant"
                             ButtonSize="@ActionSize"
                             Disabled="@ActionsDisabled"
@@ -61,6 +61,34 @@
 </div>
 
 @code {
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.Sm;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Auto;
+    private static readonly CssValue<OverscrollBuilder> _defaultOverscroll = Quark.Overscroll.Contain;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is1;
+    private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Border;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
+    private static readonly CssValue<FontFamilyBuilder> _defaultFontFamily = Quark.FontFamily.Mono;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Normal;
+    private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.Flex;
+    private static readonly CssValue<FlexWrapBuilder> _renderCss1 = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<ItemsBuilder> _renderCss2 = Quark.Items.Center;
+    private static readonly CssValue<JustifyBuilder> _renderCss3 = Quark.Justify.End;
+    private static readonly CssValue<GapBuilder> _renderCss4 = Quark.Gap.Is2;
+    private static readonly CssValue<MarginBuilder> _renderCss5 = Quark.Margin.FromBottom.Is3;
+    private static readonly CssValue<PositionBuilder> _renderCss6 = Quark.Position.Sticky;
+    private static readonly CssValue<TopBuilder> _renderCss7 = Quark.Top.Is0;
+    private static readonly CssValue<ZIndexBuilder> _renderCss8 = Quark.ZIndex.Is10;
+    private static readonly CssValue<FontFamilyBuilder> _renderCss9 = Quark.FontFamily.Sans;
+    private static readonly CssValue<SizeBuilder> _renderCss10 = Quark.Size.Is3;
+    private System.Func<Task>? _cachedDownloadDelegate;
+
+    private string? _lastPrependedClass;
+    private string? _lastBuiltStyle;
+
     [Parameter]
     public bool FormatExceptions { get; set; }
     [Parameter]
@@ -68,6 +96,7 @@
     [Parameter] public bool WrapLines { get; set; } = true;
     [Parameter] public bool ShowWrapToggle { get; set; } = true;
     private ElementReference _element;
+    private Func<string?>? _resolveTextCallback;
     private readonly AsyncLock _interopLock = new();
     private bool _autoScrollInitialized;
     private ValueAtomicBool _disposed = new(false);
@@ -126,7 +155,7 @@
 
     /// <summary>Size used by the built-in actions.</summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? ActionSize { get; set; } = ButtonSize.Sm;
+    public CssValue<ButtonSizeBuilder>? ActionSize { get; set; } = _staticCss0;
 
     /// <summary>Optional actions rendered after the built-in actions.</summary>
     [Parameter]
@@ -164,6 +193,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_disposed.Value || AutoScroll == _autoScrollInitialized)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            return;
+        }
+
         using (await _interopLock.Lock())
         {
             if (!_disposed.Value && AutoScroll != _autoScrollInitialized)
@@ -210,17 +245,17 @@
         DataSlot ??= "console";
         Role ??= "log";
         AriaLabel ??= "Console output";
-        Position ??= Quark.Position.Relative;
-        Shrink ??= Quark.Shrink.Is0;
-        OverflowY ??= Quark.Overflow.Auto;
-        Overscroll ??= Quark.Overscroll.Contain;
-        Border ??= Quark.Border.Is1;
-        BorderColor ??= Quark.BorderColor.Border;
-        Rounded ??= Quark.Rounded.Xl;
-        Padding ??= Quark.Padding.Is4;
-        FontFamily ??= Quark.FontFamily.Mono;
-        TextSize ??= Quark.TextSize.Xs;
-        Leading ??= Quark.Leading.Normal;
+        Position ??= _defaultPosition;
+        Shrink ??= _defaultShrink;
+        OverflowY ??= _defaultOverflowY;
+        Overscroll ??= _defaultOverscroll;
+        Border ??= _defaultBorder;
+        BorderColor ??= _defaultBorderColor;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        FontFamily ??= _defaultFontFamily;
+        TextSize ??= _defaultTextSize;
+        Leading ??= _defaultLeading;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -228,13 +263,21 @@
         base.BuildAttributesCore(attributes);
         attributes["aria-live"] = "polite";
 
-        PrependClassAttribute(attributes, "min-w-0 max-w-full h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]");
+        PrependClassAttribute(attributes, "min-w-0 max-w-full h-[var(--console-height-small)] min-h-[var(--console-height-small)] max-h-[var(--console-height-small)] md:h-[var(--console-height-medium)] md:min-h-[var(--console-height-medium)] md:max-h-[var(--console-height-medium)] bg-muted/30 [scrollbar-gutter:stable] [scrollbar-width:thin]", ref _lastPrependedClass);
 
-        BuildStyleAttribute(attributes, (ref sty) =>
         {
-            AppendStyleDecl(ref sty, "--console-height-small: ", ResolveHeight(SmallScreenHeight, "24rem"));
-            AppendStyleDecl(ref sty, "--console-height-medium: ", ResolveHeight(MediumScreenHeight, "32rem"));
-        });
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendStyleDecl(ref sty, "--console-height-small: ", ResolveHeight(SmallScreenHeight, "24rem"));
+                AppendStyleDecl(ref sty, "--console-height-medium: ", ResolveHeight(MediumScreenHeight, "32rem"));
+                BuildStyleAttribute(attributes, ref sty, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                sty.Dispose();
+            }
+        }
     }
 
     private static string ResolveHeight(string? value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value.Trim().Trim('[', ']');

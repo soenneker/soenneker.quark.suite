@@ -4,20 +4,26 @@
 <Div Attributes="@BuildAttributes()"></Div>
 
 @code {
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is0_5;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.Token("[unset]");
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Primary;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree-drag-line";
-        Position ??= Quark.Position.Absolute;
-        Height ??= Quark.Height.Is0_5;
-        Width ??= Quark.Width.Token("[unset]");
-        BackgroundColor ??= Quark.BackgroundColor.Primary;
+        Position ??= _defaultPosition;
+        Height ??= _defaultHeight;
+        Width ??= _defaultWidth;
+        BackgroundColor ??= _defaultBackgroundColor;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        PrependClassAttribute(attributes, "z-30 -mt-px before:bg-background before:border-primary before:absolute before:-top-[3px] before:left-0 before:size-2 before:rounded-full before:border-2");
+        PrependClassAttribute(attributes, "z-30 -mt-px before:bg-background before:border-primary before:absolute before:-top-[3px] before:left-0 before:size-2 before:rounded-full before:border-2", ref _lastPrependedClass);
     }
 }

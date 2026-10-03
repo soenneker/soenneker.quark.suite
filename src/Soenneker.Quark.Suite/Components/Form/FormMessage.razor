@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark.Forms
+@namespace Soenneker.Quark.Forms
 @inherits Soenneker.Quark.TypographyElement
 
 @if (HasChildContent)
@@ -27,6 +27,9 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 }
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Normal;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Destructive;
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
@@ -75,9 +78,9 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         base.ApplyDefaultParameters();
         DataSlot ??= "form-message";
 
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Normal;
-        TextColor ??= Quark.TextColor.Destructive;
+        TextSize ??= _defaultTextSize;
+        FontWeight ??= _defaultFontWeight;
+        TextColor ??= _defaultTextColor;
     }
 
     private void OnStatusChanged(ValidationsStatusChangedEventArgs args)
@@ -155,6 +158,8 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         if (messages is null)
             return 0;
 
+        if (messages.TryGetNonEnumeratedCount(out int knownCount))
+            return knownCount;
         var count = 0;
 
         foreach (var _ in messages)

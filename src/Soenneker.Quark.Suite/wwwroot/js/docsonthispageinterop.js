@@ -7,14 +7,13 @@ export function getItems(options) {
   const headingSelector = options?.headingSelector || "h2[id], h3[id]";
   const ignoreSelector = options?.ignoreSelector || "[data-docs-ignore-toc]";
 
-  return Array.from(root.querySelectorAll(headingSelector))
-    .filter((heading) => !ignoreSelector || !heading.closest(ignoreSelector))
-    .map((heading) => {
-      const id = heading.id;
-      const title = heading.textContent?.trim();
-      const level = Number(heading.tagName.substring(1));
-
-      return { id, title, level };
-    })
-    .filter((item) => item.id && item.title && Number.isFinite(item.level));
+    const items = [];
+    for (const heading of root.querySelectorAll(headingSelector)) {
+        if (ignoreSelector && heading.closest(ignoreSelector)) continue;
+        const id = heading.id;
+        const title = heading.textContent?.trim();
+        const level = Number(heading.tagName.substring(1));
+        if (id && title && Number.isFinite(level)) items.push({ id, title, level });
+    }
+    return items;
 }

@@ -9,11 +9,16 @@
           @attributes="TextareaAttributes"
           value="@Value"
           placeholder="@Placeholder"
-          rows="@Rows"
-          @oninput="HandleInput"
-          @onkeydown="HandleKeyDown"></textarea>
+          rows="@(Rows.HasValue ? _rowsAttribute.Get(Rows.Value) : null)"
+          @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
+          @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"></textarea>
 
 @code {
+    private QuarkInt32Attribute _rowsAttribute;
+    private string? _textareaClass;
+    private System.Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private ElementReference _element;
     private bool _registered;
     private ValueAtomicBool _disposed;
@@ -50,24 +55,23 @@
             const string baseClass =
                 "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent";
             var existingClassString = existingClass?.ToString();
-            attributes["class"] = string.IsNullOrWhiteSpace(existingClassString) ? baseClass : $"{baseClass} {existingClassString}";
+            attributes["class"] = string.IsNullOrWhiteSpace(existingClassString) ? baseClass : QuarkStringCache.Concat(baseClass, " ", existingClassString, ref _textareaClass);
 
             return attributes;
         }
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs args)
-    {
-        if (args.Key == "Enter" && !args.ShiftKey && PromptInput is not null)
-            await PromptInput.Submit(Value);
-    }
+    private Task HandleKeyDown(KeyboardEventArgs args) =>
+        args.Key == "Enter" && !args.ShiftKey && PromptInput is not null
+            ? PromptInput.Submit(Value)
+            : Task.CompletedTask;
 
-    private async Task HandleInput(ChangeEventArgs args)
+    private Task HandleInput(ChangeEventArgs args)
     {
         var value = args.Value?.ToString();
         Value = value;
         PromptInput?.SetValue(value);
-        await ValueChanged.InvokeAsync(value);
+        return ValueChanged.InvokeAsync(value);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

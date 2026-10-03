@@ -3,7 +3,7 @@
 
 @if (FullWidth)
 {
-    <GridItem Preset="Appearance.InfoItemPreset" ColumnSpan="ColumnSpan.Is1.OnSm.Is2">
+    <GridItem Preset="Appearance.InfoItemPreset" ColumnSpan="_staticCss0">
         @ItemContent
     </GridItem>
 }
@@ -15,6 +15,7 @@ else
 }
 
 @code {
+    private static readonly CssValue<ColumnSpanBuilder> _staticCss0 = Quark.ColumnSpan.Is1.OnSm.Is2;
     [Parameter]
     public DetailsItemAppearance Appearance { get; set; } = new();
 
@@ -45,7 +46,9 @@ else
     [Parameter]
     public string? LinkUrl { get; set; }
 
-    private RenderFragment ItemContent => @<text>
+    private RenderFragment? _itemContent;
+
+    private RenderFragment ItemContent => _itemContent ??= @<text>
         <Label Preset="Appearance.InfoItemLabelPreset">@Label</Label>
         <Div Presets="@ValuePresets">
             @if (IsLink && !LinkUrl.IsNullOrEmpty())
@@ -70,17 +73,23 @@ else
         </Div>
     </text>;
 
+    private QuarkPresetToken[]? _valuePresets;
     private IReadOnlyList<QuarkPresetToken> ValuePresets
     {
         get
         {
-            List<QuarkPresetToken> presets = [Appearance.InfoItemValuePreset];
+            int count = 1 + (IsCode ? 1 : 0) + (IsMuted ? 1 : 0);
+            if (_valuePresets?.Length != count)
+                _valuePresets = new QuarkPresetToken[count];
+            var presets = _valuePresets;
+            int index = 0;
+            presets[index++] = Appearance.InfoItemValuePreset;
 
             if (IsCode)
-                presets.Add(Appearance.InfoItemCodeValuePreset);
+                presets[index++] = Appearance.InfoItemCodeValuePreset;
 
             if (IsMuted)
-                presets.Add(Appearance.InfoItemMutedValuePreset);
+                presets[index] = Appearance.InfoItemMutedValuePreset;
 
             return presets;
         }

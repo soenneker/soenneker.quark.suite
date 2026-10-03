@@ -7,7 +7,14 @@
 </div>
 
 @code {
-    private readonly string _orphanListId = BlazorIdGenerator.New("quark-command-list");
+    private static readonly CssValue<MaxHeightBuilder> _defaultMaxHeight = Quark.MaxHeight.Token("72");
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowX = Quark.Overflow.X.Hidden;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<ScrollPaddingBuilder> _defaultScrollPadding = Quark.ScrollPadding.OnY.Is1;
+    private string? _lastPrependedClass;
+
+    private string? _orphanListId;
 
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
@@ -17,22 +24,22 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "command-list";
 
-        MaxHeight ??= Quark.MaxHeight.Token("72");
-        OverflowX ??= Quark.Overflow.X.Hidden;
-        OverflowY ??= Quark.Overflow.Y.Auto;
-        OutlineStyle ??= Quark.OutlineStyle.None;
-        ScrollPadding ??= Quark.ScrollPadding.OnY.Is1;
+        MaxHeight ??= _defaultMaxHeight;
+        OverflowX ??= _defaultOverflowX;
+        OverflowY ??= _defaultOverflowY;
+        OutlineStyle ??= _defaultOutlineStyle;
+        ScrollPadding ??= _defaultScrollPadding;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["id"] = ParentCommand?.ListId ?? _orphanListId;
+        attributes["id"] = ParentCommand?.ListId ?? (_orphanListId ??= BlazorIdGenerator.New("quark-command-list"));
         attributes["role"] = "listbox";
         attributes["aria-label"] = "Suggestions";
 
-        PrependClassAttribute(attributes, "no-scrollbar");
+        PrependClassAttribute(attributes, "no-scrollbar", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

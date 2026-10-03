@@ -2,12 +2,23 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="false">
-    <fieldset @ref="_element" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    <fieldset @ref="_element" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @attributes="BuildAttributes()">
         @ChildContent
     </fieldset>
 </CascadingValue>
 
 @code {
+    private static readonly string[] _numberShortcuts = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    private static readonly string[] _letterShortcuts = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;
+    private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Is0;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is0;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+
     private readonly List<QuestionnaireChoice> _choices = [];
     private readonly HashSet<string> _selectedValues = new(StringComparer.Ordinal);
     private ElementReference _element;
@@ -92,13 +103,15 @@
             if (ReferenceEquals(candidate, choice))
             {
                 if (mode == QuestionnaireShortcutMode.Letters && enabledIndex < 26)
-                    return ((char)('A' + enabledIndex)).ToString();
+                    return _letterShortcuts[enabledIndex];
                 if (mode == QuestionnaireShortcutMode.Numbers && enabledIndex < 9)
-                    return (enabledIndex + 1).ToString();
+                    return _numberShortcuts[enabledIndex];
                 return null;
             }
 
             enabledIndex++;
+            if (enabledIndex >= (mode == QuestionnaireShortcutMode.Letters ? 26 : 9))
+                return null;
         }
 
         return null;
@@ -178,13 +191,12 @@
 
     internal IReadOnlyList<string> GetAnswers()
     {
-        if (!HasAnswer)
-            return Array.Empty<string>();
-
-        var answers = new List<string>(_selectedValues.Count + 1);
-        answers.AddRange(_selectedValues);
-        if (!string.IsNullOrWhiteSpace(_inputValue))
-            answers.Add(_inputValue.Trim());
+        var hasInput = HasInputAnswer;
+        var count = _selectedValues.Count + (hasInput ? 1 : 0);
+        if (count == 0) return Array.Empty<string>();
+        var answers = new string[count];
+        _selectedValues.CopyTo(answers);
+        if (hasInput) answers[^1] = _inputValue!.Trim();
         return answers;
     }
 
@@ -231,15 +243,14 @@
         }
     }
 
-    private async Task NotifyStatusChanged()
+    private Task NotifyStatusChanged()
     {
         var status = Status;
         if (status == _lastNotifiedStatus)
-            return;
+            return Task.CompletedTask;
 
         _lastNotifiedStatus = status;
-        if (StatusChanged.HasDelegate)
-            await StatusChanged.InvokeAsync(status);
+        return StatusChanged.HasDelegate ? StatusChanged.InvokeAsync(status) : Task.CompletedTask;
     }
 
     private Task HandleKeyDown(KeyboardEventArgs args)
@@ -254,19 +265,19 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "questionnaire-item";
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        MinWidth ??= Quark.MinWidth.Is0;
-        Gap ??= Quark.Gap.Is4;
-        Border ??= Quark.Border.Is0;
-        Padding ??= Quark.Padding.Is0;
-        OutlineStyle ??= Quark.OutlineStyle.None;
+        Display ??= _defaultDisplay;
+        FlexDirection ??= _defaultFlexDirection;
+        MinWidth ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Border ??= _defaultBorder;
+        Padding ??= _defaultPadding;
+        OutlineStyle ??= _defaultOutlineStyle;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["tabindex"] = -1;
+        attributes["tabindex"] = QuarkAttributeValues.MinusOne;
         attributes["data-status"] = Status switch
         {
             QuestionnaireItemStatus.Skipped => "skipped",
@@ -278,13 +289,13 @@
             attributes["data-active"] = string.Empty;
         else
         {
-            attributes["hidden"] = true;
-            attributes["inert"] = true;
+            attributes["hidden"] = QuarkAttributeValues.True;
+            attributes["inert"] = QuarkAttributeValues.True;
             attributes["aria-hidden"] = "true";
         }
 
         if (Disabled)
-            attributes["disabled"] = true;
+            attributes["disabled"] = QuarkAttributeValues.True;
         if (EffectiveInvalid)
             attributes["aria-invalid"] = "true";
     }

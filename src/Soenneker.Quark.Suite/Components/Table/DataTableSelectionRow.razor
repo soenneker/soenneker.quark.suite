@@ -10,16 +10,16 @@
             <th scope="col" class="h-10 w-10 px-2 text-start align-middle" data-slot="datatable-selection-head">
                 <span @onclick:stopPropagation="true">
                     <Check Checked="@DataTable.AllRowsSelected" Indeterminate="@DataTable.SomeRowsSelected"
-                           CheckedChanged="DataTable.SelectAllRows" Disabled="@(DataTable.IsLoading || DataTable.SelectableRowKeys.Count == 0)"
+                           CheckedChanged="@(_selectAll ??= SelectAll)" Disabled="@(DataTable.IsLoading || DataTable.SelectableRowKeys.Count == 0)"
                            AriaLabel="Select all rows on this page" />
                 </span>
             </th>
         }
         else if (SelectionKey is not null)
         {
-            <Td Width="Quark.Width.Is10">
+            <Td Width="_renderCss0">
                 <span @onclick:stopPropagation="true">
-                    <Check Checked="@DataTable.IsRowSelected(SelectionKey)" CheckedChanged="@((bool selected) => DataTable.SetRowSelected(SelectionKey, selected))"
+                    <Check Checked="@DataTable.IsRowSelected(SelectionKey)" CheckedChanged="@(_selectRow ??= SelectRow)"
                            Disabled="@(DataTable.IsLoading || !DataTable.SelectableRowKeys.Contains(SelectionKey))"
                            AriaLabel="@SelectionLabel" />
                 </span>
@@ -30,6 +30,12 @@
 </tr>
 
 @code {
+    private Func<bool, Task>? _selectAll;
+    private Func<bool, Task>? _selectRow;
+    private Task SelectAll(bool selected) => DataTable?.SelectAllRows(selected) ?? Task.CompletedTask;
+    private Task SelectRow(bool selected) => DataTable is not null && SelectionKey is not null
+        ? DataTable.SetRowSelected(SelectionKey, selected) : Task.CompletedTask;
+    private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Is10;
     [CascadingParameter(Name = "DataTable")] private IDataTable? DataTable { get; set; }
     [Parameter] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }

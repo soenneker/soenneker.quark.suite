@@ -6,26 +6,43 @@
 </div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is5;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
+    private static readonly CssValue<RightBuilder> _defaultRight = Quark.Right.Is1;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is5;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Md;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is1;
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Xs;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("sidebar-foreground");
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
+    private static readonly CssValue<FontVariantNumericBuilder> _defaultFontVariantNumeric = Quark.FontVariantNumeric.TabularNums;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private string? _lastPrependedClass;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sidebar-menu-badge";
 
-        Position ??= Quark.Position.Absolute;
-        Right ??= Quark.Right.Is1;
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.Is5;
-        MinWidth ??= Quark.MinWidth.Is5;
-        ItemsAlign ??= Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.OnX.Is1;
-        TextSize ??= Quark.TextSize.Xs;
-        TextColor ??= Quark.TextColor.Token("sidebar-foreground");
-        FontWeight ??= Quark.FontWeight.Medium;
-        FontVariantNumeric ??= Quark.FontVariantNumeric.TabularNums;
-        PointerEvents ??= Quark.PointerEvents.None;
-        UserSelect ??= Quark.UserSelect.None;
+        Position ??= _defaultPosition;
+        Right ??= _defaultRight;
+        Display ??= _defaultDisplay;
+        Height ??= _defaultHeight;
+        MinWidth ??= _staticCss1;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
+        FontWeight ??= _defaultFontWeight;
+        FontVariantNumeric ??= _defaultFontVariantNumeric;
+        PointerEvents ??= _defaultPointerEvents;
+        UserSelect ??= _defaultUserSelect;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -33,6 +50,6 @@
         base.BuildAttributesCore(attributes);
         attributes["data-sidebar"] = "menu-badge";
 
-        PrependClassAttribute(attributes, "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden");
+        PrependClassAttribute(attributes, "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden", ref _lastPrependedClass);
     }
 }

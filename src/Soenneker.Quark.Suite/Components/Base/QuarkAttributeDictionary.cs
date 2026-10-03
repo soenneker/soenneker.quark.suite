@@ -28,9 +28,10 @@ internal struct QuarkAttributeDictionary
         return buffer;
     }
 
-    public Dictionary<string, object> Create(IReadOnlyDictionary<string, object> source, int extraCapacity = 0)
+    public Dictionary<string, object> Create(IReadOnlyDictionary<string, object>? source, int extraCapacity = 0)
     {
-        var attributes = Create(source.Count + extraCapacity);
+        var attributes = Create((source?.Count ?? 0) + extraCapacity);
+        if (source is null) return attributes;
         if (source is Dictionary<string, object> dictionary)
         {
             foreach (var pair in dictionary)

@@ -193,8 +193,9 @@ export function initialize(table, columns, options) {
     if (!table?.isConnected || !table.parentElement || !columns || tables.has(table)) return;
     const state = { table, columns, container: table.parentElement, options, widths: null, measured: [], styled: [], styles: [], available: 0, reset: true,
         frame: 0, disposed: false, layout: saveStyle(table, 'table-layout'), width: saveStyle(table, 'width') };
+    const render = () => update(state);
     const schedule = () => {
-        if (!state.disposed && !state.frame) state.frame = requestAnimationFrame(() => update(state));
+        if (!state.disposed && !state.frame) state.frame = requestAnimationFrame(render);
     };
     state.mutations = new MutationObserver(records => {
         for (const record of records) {

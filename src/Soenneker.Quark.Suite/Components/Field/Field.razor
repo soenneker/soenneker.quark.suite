@@ -14,6 +14,11 @@
 </CascadingValue>
 
 @code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private string? _lastBuiltClass;
+
     [Parameter]
     public BradixOrientation? Orientation { get; set; }
 
@@ -68,9 +73,9 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "field";
 
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Gap ??= Quark.Gap.Is2;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        Gap ??= _defaultGap;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -92,29 +97,13 @@
         if (_fieldContext.IsInvalid)
             attributes["data-invalid"] = "true";
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/field data-[invalid=true]:text-destructive");
-            if (_resolvedOrientation == BradixOrientation.Horizontal)
-            {
-                AppendClass(ref cls, "flex-row items-center");
-                AppendClass(ref cls, "*:data-[slot=field-label]:flex-auto");
-                AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
-
-                if (Selectable)
-                {
-                    AppendClass(ref cls, "overflow-hidden rounded-lg border px-3! py-1.5! transition-all duration-100 ease-linear");
-                    AppendClass(ref cls, "has-[>[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[>[data-slot=checkbox][data-state=checked]]:bg-muted");
-                    AppendClass(ref cls, "dark:has-[>[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/10");
-                    AppendClass(ref cls, "has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[>[data-slot=radio-group-item][data-state=checked]]:bg-muted");
-                    AppendClass(ref cls, "dark:has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/10");
-                }
-            }
-            else
-            {
-                AppendClass(ref cls, "flex-col *:w-full [&>.sr-only]:w-auto");
-            }
-        });
+            const string @class = "group/field data-[invalid=true]:text-destructive";
+            const string horizontal = @class + " " + "flex-row items-center" + " " + "*:data-[slot=field-label]:flex-auto" + " " + "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px";
+            const string selectable = horizontal + " " + "overflow-hidden rounded-lg border px-3! py-1.5! transition-all duration-100 ease-linear" + " " + "has-[>[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[>[data-slot=checkbox][data-state=checked]]:bg-muted" + " " + "dark:has-[>[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/10" + " " + "has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[>[data-slot=radio-group-item][data-state=checked]]:bg-muted" + " " + "dark:has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/10";
+            const string vertical = @class + " " + "flex-col *:w-full [&>.sr-only]:w-auto";
+            PrependClassAttribute(attributes, IsHorizontalResolved ? (Selectable ? selectable : horizontal) : vertical, ref _lastBuiltClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

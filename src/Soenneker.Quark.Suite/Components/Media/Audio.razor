@@ -107,16 +107,16 @@
             attributes["src"] = Source;
 
         if (Autoplay)
-            attributes["autoplay"] = true;
+            attributes["autoplay"] = QuarkAttributeValues.True;
 
         if (Loop)
-            attributes["loop"] = true;
+            attributes["loop"] = QuarkAttributeValues.True;
 
         if (Muted)
-            attributes["muted"] = true;
+            attributes["muted"] = QuarkAttributeValues.True;
 
         if (Controls)
-            attributes["controls"] = true;
+            attributes["controls"] = QuarkAttributeValues.True;
 
         if (Preload.HasContent())
             attributes["preload"] = Preload;
@@ -126,28 +126,28 @@
 
         // Add event handlers
         if (OnLoadedMetadata.HasDelegate)
-            attributes["onloadedmetadata"] = EventCallback.Factory.Create(this, OnLoadedMetadata);
+            SetEventAttribute(attributes, "onloadedmetadata", EventCallback.Factory.Create(this, OnLoadedMetadata));
 
         if (OnCanPlay.HasDelegate)
-            attributes["oncanplay"] = EventCallback.Factory.Create(this, OnCanPlay);
+            SetEventAttribute(attributes, "oncanplay", EventCallback.Factory.Create(this, OnCanPlay));
 
         if (OnPlay.HasDelegate)
-            attributes["onplay"] = EventCallback.Factory.Create(this, OnPlay);
+            SetEventAttribute(attributes, "onplay", EventCallback.Factory.Create(this, OnPlay));
 
         if (OnPause.HasDelegate)
-            attributes["onpause"] = EventCallback.Factory.Create(this, OnPause);
+            SetEventAttribute(attributes, "onpause", EventCallback.Factory.Create(this, OnPause));
 
         if (OnEnded.HasDelegate)
-            attributes["onended"] = EventCallback.Factory.Create(this, OnEnded);
+            SetEventAttribute(attributes, "onended", EventCallback.Factory.Create(this, OnEnded));
 
         if (OnError.HasDelegate)
-            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+            SetEventAttribute(attributes, "onerror", EventCallback.Factory.Create(this, OnError));
 
         if (OnTimeUpdate.HasDelegate)
-            attributes["ontimeupdate"] = EventCallback.Factory.Create(this, OnTimeUpdate);
+            SetEventAttribute(attributes, "ontimeupdate", EventCallback.Factory.Create(this, OnTimeUpdate));
 
         if (OnVolumeChange.HasDelegate)
-            attributes["onvolumechange"] = EventCallback.Factory.Create(this, OnVolumeChange);
+            SetEventAttribute(attributes, "onvolumechange", EventCallback.Factory.Create(this, OnVolumeChange));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

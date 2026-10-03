@@ -30,6 +30,10 @@ class Element {
 
 function fixture(t, right = false, staticSidebar = false) {
   globalThis.document = new Element();
+  const frames = new Map();
+  let nextFrame = 1;
+  globalThis.requestAnimationFrame = callback => { const id = nextFrame++; frames.set(id, callback); return id; };
+  globalThis.cancelAnimationFrame = id => frames.delete(id);
   let disconnected = false;
   globalThis.ResizeObserver = class { observe() {} disconnect() { disconnected = true; } };
   const root = new Element(), gap = new Element(), handle = new Element();
@@ -43,7 +47,8 @@ function fixture(t, right = false, staticSidebar = false) {
   const receiver = { invokeMethodAsync(...args) { calls.push(args); return Promise.resolve(); } };
   registerResizeHandle(handle, receiver, 192, 480, right);
   t.after(() => unregisterResizeHandle(handle));
-  return { root, gap, container, handle, calls, receiver, disconnected: () => disconnected };
+  return { root, gap, container, handle, calls, receiver, frames, disconnected: () => disconnected,
+    flush() { const callbacks = [...frames.values()]; frames.clear(); for (const callback of callbacks) callback(); } };
 }
 
 for (const right of [false, true]) {
@@ -53,11 +58,14 @@ for (const right of [false, true]) {
     e.handle.emit('pointermove', { pointerId: 2, clientX: 900 });
     assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '');
     e.handle.emit('pointermove', { clientX: right ? -900 : 900 });
+    assert.equal(e.frames.size, 1);
+    e.flush();
     assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '480px');
     assert.equal(e.calls.length, 0);
     e.handle.emit('pointerup', { clientX: right ? 900 : -900 });
     assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '192px');
     assert.deepEqual(e.calls, [['OnWidthChanged', 192]]);
+    assert.equal(e.frames.size, 0);
     assert.equal(e.handle.capture, null);
     assert.equal(e.container.style.transition, 'width 200ms');
     assert.equal(document.listeners.get('selectstart').size, 0);
@@ -85,6 +93,7 @@ for (const operation of ['pointercancel', 'lostpointercapture', 'Escape', 'unreg
     else if (operation === 'Escape') e.handle.emit('keydown', { key: 'Escape' });
     else e.handle.emit(operation);
     assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '280px');
+    assert.equal(e.frames.size, 0);
     assert.equal(e.handle.capture, null);
     assert.equal(e.calls.length, 0);
     assert.equal(e.gap.style.transition, 'width 200ms');
@@ -103,3 +112,17 @@ test('multiple handles keep independent widths and registrations', t => {
   assert.deepEqual(b.calls, [['OnWidthChanged', 264]]);
   assert.equal(a.root.style.getPropertyValue('--sidebar-width'), '');
 });
+
+ test('pointer bursts share one paint and release commits the final position', t => {
+  const e = fixture(t);
+  e.handle.emit('pointerdown');
+  for (let i = 1; i <= 100; i++) e.handle.emit('pointermove', { clientX: 100 + i });
+  assert.equal(e.frames.size, 1);
+  assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '');
+  e.flush();
+  assert.equal(e.root.style.getPropertyValue('--sidebar-width'), '356px');
+  e.handle.emit('pointermove', { clientX: 250 });
+  e.handle.emit('pointerup', { clientX: 260 });
+  assert.equal(e.frames.size, 0);
+  assert.deepEqual(e.calls, [['OnWidthChanged', 416]]);
+ });

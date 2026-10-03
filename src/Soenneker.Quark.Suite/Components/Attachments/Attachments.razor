@@ -4,6 +4,25 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.End;
+    private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
+    private static readonly CssValue<MaxWidthBuilder> _staticCss2 = Quark.MaxWidth.IsFull;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
+    private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
+    private static readonly CssValue<OverflowBuilder> _defaultOverflowX = Quark.Overflow.X.Auto;
+    private static readonly CssValue<OverscrollBuilder> _defaultOverscroll = Quark.Overscroll.XContain;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromBottom.Is0_5;
+    private static readonly string _variantClass0 = Quark.Display.Flex.Data("variant", "list").ToClass();
+    private static readonly string _variantClass1 = Quark.FlexDirection.Row.Data("variant", "list").ToClass();
+    private static readonly string _variantClass2 = Quark.FlexWrap.Wrap.Data("variant", "list").ToClass();
+    private static readonly string _variantClass3 = Quark.Display.Flex.Data("variant", "inline").ToClass();
+    private static readonly string _variantClass4 = Quark.FlexWrap.Wrap.Data("variant", "inline").ToClass();
+    private static readonly string _variantClass5 = Quark.Gap.Is2.Data("variant", "inline").ToClass();
+    private string? _lastBuiltClass;
+
     [Parameter]
     public string Variant { get; set; } = "list";
 
@@ -11,17 +30,17 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "attachment-list";
-        Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        MaxWidth ??= Quark.MaxWidth.IsFull;
-        MinWidth ??= Quark.MinWidth.Is0;
-        FlexWrap ??= Quark.FlexWrap.Wrap;
-        ItemsAlign ??= Items.End;
-        Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2_5;
-        OverflowX ??= Quark.Overflow.X.Auto;
-        Overscroll ??= Quark.Overscroll.XContain;
-        Padding ??= Quark.Padding.FromBottom.Is0_5;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        MaxWidth ??= _staticCss2;
+        MinWidth ??= _staticCss1;
+        FlexWrap ??= _defaultFlexWrap;
+        ItemsAlign ??= _staticCss0;
+        Justify ??= _defaultJustify;
+        Gap ??= _defaultGap;
+        OverflowX ??= _defaultOverflowX;
+        Overscroll ??= _defaultOverscroll;
+        Padding ??= _defaultPadding;
 
     }
 
@@ -30,17 +49,25 @@
         base.BuildAttributesCore(attributes);
         attributes["data-variant"] = Variant;
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "[scrollbar-color:var(--scrollbar-thumb)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-track]:bg-transparent");
-            AppendClass(ref cls, Quark.Display.Flex.Data("variant", "list").ToClass());
-            AppendClass(ref cls, Quark.FlexDirection.Row.Data("variant", "list").ToClass());
-            AppendClass(ref cls, Quark.FlexWrap.Wrap.Data("variant", "list").ToClass());
-            AppendClass(ref cls, Quark.Display.Flex.Data("variant", "inline").ToClass());
-            AppendClass(ref cls, Quark.FlexWrap.Wrap.Data("variant", "inline").ToClass());
-            AppendClass(ref cls, Quark.Gap.Is2.Data("variant", "inline").ToClass());
-            AppendClass(ref cls, "data-[variant=grid]:grid data-[variant=grid]:grid-cols-2 data-[variant=grid]:gap-2");
-        });
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "[scrollbar-color:var(--scrollbar-thumb)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-track]:bg-transparent");
+                AppendClass(ref cls, _variantClass0);
+                AppendClass(ref cls, _variantClass1);
+                AppendClass(ref cls, _variantClass2);
+                AppendClass(ref cls, _variantClass3);
+                AppendClass(ref cls, _variantClass4);
+                AppendClass(ref cls, _variantClass5);
+                AppendClass(ref cls, "data-[variant=grid]:grid data-[variant=grid]:grid-cols-2 data-[variant=grid]:gap-2");
+                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
+            }
+            finally
+            {
+                cls.Dispose();
+            }
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

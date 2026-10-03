@@ -10,7 +10,7 @@
 @implements ISlider
 
 @{
-	var resolvedValues = GetResolvedValues();
+    var resolvedValues = GetResolvedValues();
 }
 
 <BradixSlider Values="resolvedValues"
@@ -21,127 +21,141 @@
               Disabled="@Disabled"
               Orientation="@Orientation"
               Dir="@(ResolveIsRtl() ? "rtl" : "ltr")"
-              OnValuesChange="HandleBradixValuesChange"
-              OnValueCommit="HandleBradixValueCommit"
+              OnValuesChange="(_cachedHandleBradixValuesChangeDelegate ??= HandleBradixValuesChange)"
+              OnValueCommit="(_cachedHandleBradixValueCommitDelegate ??= HandleBradixValueCommit)"
               @attributes="BuildWrapperAttributes()">
-	<BradixSliderTrack @attributes="BuildTrackAttributes()">
-		<BradixSliderRange @attributes="BuildRangeAttributes(resolvedValues)" />
-	</BradixSliderTrack>
-	@for (var index = 0; index < resolvedValues.Length; index++)
-	{
-		var thumbIndex = index;
-		<BradixSliderThumb AriaLabel="@ResolveThumbLabel(thumbIndex, resolvedValues.Length)"
-		                   @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])" />
-	}
+    <BradixSliderTrack @attributes="BuildTrackAttributes()">
+        <BradixSliderRange @attributes="BuildRangeAttributes(resolvedValues)" />
+    </BradixSliderTrack>
+    @for (var index = 0; index < resolvedValues.Length; index++)
+    {
+        var thumbIndex = index;
+        <BradixSliderThumb AriaLabel="@ResolveThumbLabel(thumbIndex, resolvedValues.Length)"
+                           @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])" />
+    }
 </BradixSlider>
 
 @code {
-	private QuarkAttributeDictionary _wrapperAttributeDictionaries;
-	private QuarkAttributeDictionary _trackAttributeDictionaries;
-	private QuarkAttributeDictionary _rangeAttributeDictionaries;
-	private QuarkAttributeDictionary[] _thumbAttributeDictionaries = [];
+    private static readonly CssValue<SliderSizeBuilder> _staticCss1 = Quark.SliderSizes.Default;
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private System.Func<IReadOnlyList<double>, Task>? _cachedHandleBradixValuesChangeDelegate;
+    private System.Func<IReadOnlyList<double>, Task>? _cachedHandleBradixValueCommitDelegate;
 
-	[Parameter]
-	public double SliderValue { get; set; }
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+    private string? _lastPrependedClass;
+    private string? _lastPrependedClass2;
 
-	[Parameter]
-	public Expression<Func<double>>? SliderValueExpression { get; set; }
+    private QuarkAttributeDictionary _wrapperAttributeDictionaries;
+    private QuarkAttributeDictionary _trackAttributeDictionaries;
+    private QuarkAttributeDictionary _rangeAttributeDictionaries;
+    private ThumbView[] _thumbViews = [];
 
-	[Parameter]
-	public double[]? Values { get; set; }
+    [Parameter]
+    public double SliderValue { get; set; }
 
-	[Parameter]
-	public EventCallback<double[]> ValuesChanged { get; set; }
+    [Parameter]
+    public Expression<Func<double>>? SliderValueExpression { get; set; }
 
-	[Parameter]
-	public Expression<Func<double[]?>>? ValuesExpression { get; set; }
+    [Parameter]
+    public double[]? Values { get; set; }
 
-	[Parameter]
-	public double Min { get; set; }
+    [Parameter]
+    public EventCallback<double[]> ValuesChanged { get; set; }
 
-	[Parameter]
-	public double Max { get; set; } = 100;
+    [Parameter]
+    public Expression<Func<double[]?>>? ValuesExpression { get; set; }
 
-	[Parameter]
-	public double Step { get; set; } = 1;
+    [Parameter]
+    public double Min { get; set; }
 
-	[Parameter]
-	public EventCallback<double> SliderValueChanged { get; set; }
+    [Parameter]
+    public double Max { get; set; } = 100;
 
-	[Parameter]
-	public CssValue<SliderSizeBuilder>? SliderSize { get; set; } = SliderSizes.Default;
+    [Parameter]
+    public double Step { get; set; } = 1;
 
-	[Parameter]
-	public bool PlainText { get; set; }
+    [Parameter]
+    public EventCallback<double> SliderValueChanged { get; set; }
 
-	[Parameter]
-	public bool FloatingLabel { get; set; }
+    [Parameter]
+    public CssValue<SliderSizeBuilder>? SliderSize { get; set; } = _staticCss1;
 
-	[Parameter]
-	public string? Label { get; set; }
+    [Parameter]
+    public bool PlainText { get; set; }
 
-	[Parameter]
-	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+    [Parameter]
+    public bool FloatingLabel { get; set; }
 
-	[Parameter]
-	public EventCallback<ChangeEventArgs> OnInput { get; set; }
+    [Parameter]
+    public string? Label { get; set; }
 
-	[Parameter]
-	public Orientation Orientation { get; set; } = Orientation.Horizontal;
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-	protected override void ApplyDefaultParameters()
-	{
-		base.ApplyDefaultParameters();
-		DataSlot ??= "slider";
-		Position ??= Quark.Position.Relative;
-		Display ??= Quark.Display.Flex;
-		Width ??= Quark.Width.IsFull;
-		ItemsAlign ??= Items.Center;
-		UserSelect ??= Quark.UserSelect.None;
-	}
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
-	[CascadingParameter(Name = nameof(ParentValidation))]
-	public Validation? ParentValidation { get; set; }
+    [Parameter]
+    public Orientation Orientation { get; set; } = Orientation.Horizontal;
 
-	[CascadingParameter(Name = "DirectionProviderDir")]
-	private string? DirectionProviderDir { get; set; }
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "slider";
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+        ItemsAlign ??= _staticCss0;
+        UserSelect ??= _defaultUserSelect;
+    }
 
-	private const string ThumbSizeClass = "size-3";
-	private double[]? _resolvedValues;
-	private double[] _sourceValuesSnapshot = [];
-	private (double Min, double Max, double Step, double Value, bool Multiple) _resolvedValuesState;
-	private double[] _valuesBeforeSlideStart = [];
-	private int _focusedThumbIndex = -1;
-	private int _draggingThumbIndex = -1;
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
 
-	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
-	private bool IsVertical => Orientation == Orientation.Vertical;
-	private string OrientationValue => Orientation.Value;
-	private bool IsInteractive => !Disabled && !ReadOnly;
-	public object? ValidationValue => UsesValuesApi ? (double[])GetResolvedValues().Clone() : SliderValue;
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
 
-	private bool ResolveIsRtl()
-	{
-		if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-			return true;
+    private const string ThumbSizeClass = "size-3";
+    private double[]? _resolvedValues;
+    private double[] _sourceValuesSnapshot = [];
+    private (double Min, double Max, double Step, double Value, bool Multiple) _resolvedValuesState;
+    private double[] _valuesBeforeSlideStart = [];
+    private int _focusedThumbIndex = -1;
+    private int _draggingThumbIndex = -1;
 
-		if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
-			return false;
+    private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
+    private bool IsVertical => Orientation == Orientation.Vertical;
+    private string OrientationValue => Orientation.Value;
+    private bool IsInteractive => !Disabled && !ReadOnly;
+    public object? ValidationValue => UsesValuesApi ? (double[])GetResolvedValues().Clone() : SliderValue;
 
-		if (Attributes is not null &&
-			Attributes.TryGetValue("dir", out var dirValue))
-		{
-			var direction = dirValue?.ToString();
+    private bool ResolveIsRtl()
+    {
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
 
-			if (string.Equals(direction, "rtl", StringComparison.OrdinalIgnoreCase))
-				return true;
+        if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
+            return false;
 
-			if (string.Equals(direction, "ltr", StringComparison.OrdinalIgnoreCase))
-				return false;
-		}
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue))
+        {
+            var direction = dirValue?.ToString();
 
-		return false;
-	}
+            if (string.Equals(direction, "rtl", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(direction, "ltr", StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return false;
+    }
 
     private double[] GetResolvedValues()
     {
@@ -149,533 +163,569 @@
         if (_resolvedValues is not null && _resolvedValuesState.Equals(state) && Values.AsSpan().SequenceEqual(_sourceValuesSnapshot))
             return _resolvedValues;
         _resolvedValuesState = state;
-        _sourceValuesSnapshot = Values is null ? [] : (double[])Values.Clone();
+        if (_sourceValuesSnapshot.Length != (Values?.Length ?? 0))
+            _sourceValuesSnapshot = new double[Values?.Length ?? 0];
+        Values.AsSpan().CopyTo(_sourceValuesSnapshot);
         return _resolvedValues = CreateResolvedValues();
     }
 
-	private double[] CreateResolvedValues()
-	{
-		if (UsesValuesApi)
-		{
-			if (Values is { Length: > 0 })
-				return NormalizeValues(Values, allowMultiple: true);
-
-			if (Max > Min)
-			{
-				double[] defaults = [NormalizeValue(Min), NormalizeValue(Max)];
-				Array.Sort(defaults);
-				return defaults;
-			}
-
-			return [NormalizeValue(Min)];
-		}
-
-		return [NormalizeValue(SliderValue)];
-	}
-
-	private double[] NormalizeValues(IReadOnlyList<double> source, bool allowMultiple)
-	{
-		if (source.Count == 0)
-			return allowMultiple && Max > Min ? [NormalizeValue(Min), NormalizeValue(Max)] : [NormalizeValue(Min)];
-
-		var length = allowMultiple ? source.Count : 1;
-		var normalized = new double[length];
-
-		for (var i = 0; i < length; i++)
-		{
-			normalized[i] = NormalizeValue(source[i]);
-		}
-
-		Array.Sort(normalized);
-		return normalized;
-	}
-
-	private double NormalizeValue(double value)
-	{
-		var clamped = Math.Clamp(value, Min, Max);
-
-		if (Step <= 0)
-			return clamped;
-
-		var steps = Math.Round((clamped - Min) / Step, MidpointRounding.AwayFromZero);
-		var snapped = Min + (steps * Step);
-
-		return Math.Clamp(snapped, Min, Max);
-	}
-
-	private double ValueToPercent(double value)
-	{
-		if (Max <= Min)
-			return 0d;
-
-		return Math.Clamp(((value - Min) / (Max - Min)) * 100d, 0d, 100d);
-	}
-
-	private int FindNearestThumbIndex(IReadOnlyList<double> values, double pointerValue)
-	{
-		var nearestIndex = 0;
-		var nearestDistance = double.MaxValue;
-
-		for (var i = 0; i < values.Count; i++)
-		{
-			var distance = Math.Abs(values[i] - pointerValue);
-
-			if (distance < nearestDistance)
-			{
-				nearestDistance = distance;
-				nearestIndex = i;
-			}
-		}
-
-		return nearestIndex;
-	}
-
-	private double ConstrainThumbValue(IReadOnlyList<double> values, int index, double nextValue)
-	{
-		var normalized = NormalizeValue(nextValue);
-		var minLimit = index > 0 ? values[index - 1] : Min;
-		var maxLimit = index < values.Count - 1 ? values[index + 1] : Max;
-
-		return Math.Clamp(normalized, minLimit, maxLimit);
-	}
-
-	private static bool AreValuesEqual(IReadOnlyList<double> left, IReadOnlyList<double> right)
-	{
-		if (left.Count != right.Count)
-			return false;
-
-		for (var i = 0; i < left.Count; i++)
-		{
-			if (!left[i].Equals(right[i]))
-				return false;
-		}
-
-		return true;
-	}
-
-	private ChangeEventArgs CreateChangeEventArgs(double value)
-	{
-		return new ChangeEventArgs
-		{
-			Value = FormatSliderNumber(value)
-		};
-	}
-
-	private static string FormatSliderNumber(double value)
-	{
-		return value.ToString("G15", CultureInfo.InvariantCulture);
-	}
-
-	private async Task<double> UpdateValue(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
-	{
-		var currentValues = GetResolvedValues();
-
-		if (index < 0 || index >= currentValues.Length)
-			return Min;
-
-		var constrainedValue = ConstrainThumbValue(currentValues, index, nextValue);
-		var valueChanged = false;
-
-		if (UsesValuesApi)
-		{
-			var updatedValues = (double[]) currentValues.Clone();
-			updatedValues[index] = constrainedValue;
-
-			if (!AreValuesEqual(currentValues, updatedValues))
-			{
-				Values = updatedValues;
-				await ValuesChanged.InvokeIfHasDelegate(updatedValues);
-				valueChanged = true;
-			}
-		}
-		else if (!SliderValue.Equals(constrainedValue))
-		{
-			SliderValue = constrainedValue;
-			await SliderValueChanged.InvokeAsync(SliderValue);
-			valueChanged = true;
-		}
-
-		if (ParentValidation is not null && (valueChanged || markTouched))
-		{
-			if (markTouched)
-				ParentValidation.MarkTouched();
-
-			await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-
-		if (notifyInput && valueChanged && OnInput.HasDelegate)
-			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
-
-		if (notifyChange && (valueChanged || markTouched) && OnChange.HasDelegate)
-			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
-
-		if (valueChanged)
-			Refresh();
-
-		return constrainedValue;
-	}
-
-	private async Task HandleBradixValuesChange(IReadOnlyList<double> values)
-	{
-		if (!IsInteractive)
-			return;
-
-		var normalized = NormalizeValues(values, UsesValuesApi);
-
-		if (UsesValuesApi)
-		{
-			if (!AreValuesEqual(GetResolvedValues(), normalized))
-			{
-				Values = normalized;
-				await ValuesChanged.InvokeIfHasDelegate(normalized);
-			}
-		}
-		else
-		{
-			var nextValue = normalized.Length > 0 ? normalized[0] : Min;
-
-			if (!SliderValue.Equals(nextValue))
-			{
-				SliderValue = nextValue;
-				await SliderValueChanged.InvokeAsync(SliderValue);
-			}
-		}
-
-		if (ParentValidation is not null)
-			await ParentValidation.NotifyInputChanged(ValidationValue);
-
-		if (normalized.Length > 0 && OnInput.HasDelegate)
-			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
-
-		Refresh();
-	}
-
-	private async Task HandleBradixValueCommit(IReadOnlyList<double> values)
-	{
-		if (!IsInteractive)
-			return;
-
-		var normalized = NormalizeValues(values, UsesValuesApi);
-
-		if (ParentValidation is not null)
-		{
-			ParentValidation.MarkTouched();
-			await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-
-		if (normalized.Length > 0 && OnChange.HasDelegate)
-			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
-	}
-
-	private double GetValueFromFractions(double xFraction, double yFraction)
-	{
-		var range = Max - Min;
-
-		if (range <= 0)
-			return Min;
-
-		if (IsVertical)
-			return Max - (Math.Clamp(yFraction, 0d, 1d) * range);
-
-		var clampedX = Math.Clamp(xFraction, 0d, 1d);
-		return ResolveIsRtl()
-			? Max - (clampedX * range)
-			: Min + (clampedX * range);
-	}
-
-	private async Task RestoreValues()
-	{
-		if (_valuesBeforeSlideStart.Length == 0)
-			return;
-
-		if (UsesValuesApi)
-		{
-			var restoredValues = (double[]) _valuesBeforeSlideStart.Clone();
-			Values = restoredValues;
-			await ValuesChanged.InvokeIfHasDelegate(restoredValues);
-
-			if (ParentValidation is not null)
-				await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-		else
-		{
-			var restoredValue = _valuesBeforeSlideStart[0];
-
-			if (!SliderValue.Equals(restoredValue))
-			{
-				SliderValue = restoredValue;
-				await SliderValueChanged.InvokeAsync(SliderValue);
-			}
-
-			if (ParentValidation is not null)
-				await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-
-		Refresh();
-	}
-
-	private Dictionary<string, object> BuildWrapperAttributes()
-	{
-		var attributes = _wrapperAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
-
-		if (Attributes is not null)
-		{
-			if (Attributes.TryGetValue("class", out var @class))
-				attributes["class"] = @class;
-
-			if (Attributes.TryGetValue("style", out var style))
-				attributes["style"] = style;
-		}
-
-		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
-		{
-			AppendClass(ref cls, "touch-none data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
-
-			BuildOwnedClassAndStyle(ref sty, ref cls);
-
-			if (!IsVertical)
-				AppendStyleDecl(ref sty, "--radix-slider-thumb-transform: translateX(-50%)");
-		});
-
-		attributes["data-slot"] = DataSlot!;
-
-		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
-			attributes["id"] = CurrentFieldContext.ControlId;
-		else if (Id is not null)
-			attributes["id"] = Id;
-
-		attributes["role"] = "group";
-
-		if (!string.IsNullOrWhiteSpace(AriaLabel))
-			attributes["aria-label"] = AriaLabel!;
-
-		if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
-			attributes["aria-labelledby"] = AriaLabelledBy!;
-
-		var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-			? existingDescribedBy?.ToString()
-			: null, ParentValidation?.Status == ValidationStatus.Error);
-
-		if (!string.IsNullOrWhiteSpace(describedBy))
-			attributes["aria-describedby"] = describedBy;
-
-		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
-			attributes["aria-invalid"] = "true";
-
-		return attributes;
-	}
-
-	private Dictionary<string, object> BuildTrackAttributes()
-	{
-		var attributes = _trackAttributeDictionaries.Create(2);
-		attributes["data-slot"] = "slider-track";
-
-		PrependClassAttribute(attributes, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1");
-
-		return attributes;
-	}
-
-	private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
-	{
-
-		var attributes = _rangeAttributeDictionaries.Create(4);
-		attributes["data-slot"] = "slider-range";
-
-		PrependClassAttribute(attributes, "absolute bg-primary select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
-
-		return attributes;
-	}
-
-	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
-	{
-		if (_thumbAttributeDictionaries.Length <= index)
-			Array.Resize(ref _thumbAttributeDictionaries, Math.Max(index + 1, Math.Max(2, _thumbAttributeDictionaries.Length * 2)));
-
-		var attributes = _thumbAttributeDictionaries[index].Create(12 + (index == 0 ? Attributes?.Count ?? 0 : 0));
-		attributes["data-slot"] = "slider-thumb";
-
-		if (AutoFocus && index == 0)
-			attributes["autofocus"] = true;
-
-		if (index > 0 && Id is not null)
-		{
-			attributes["id"] = BlazorIdGenerator.Child(Id, index.ToString(CultureInfo.InvariantCulture));
-		}
-
-		if (Attributes is not null && index == 0)
-		{
-			foreach (var attribute in Attributes)
-			{
-				if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-				    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-				    attribute.Key.Equals("id", StringComparison.OrdinalIgnoreCase))
-				{
-					continue;
-				}
-
-				attributes[attribute.Key] = attribute.Value;
-			}
-		}
-
-		// Shared descriptions and labels belong on every focusable thumb.
-		if (Attributes is not null)
-		{
-			foreach (var attribute in Attributes)
-			{
-				if (attribute.Key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase))
-					attributes[attribute.Key] = attribute.Value;
-			}
-		}
-
-		if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
-			attributes["aria-labelledby"] = AriaLabelledBy;
-
-		if (!string.IsNullOrWhiteSpace(AriaDescribedBy))
-			attributes["aria-describedby"] = AriaDescribedBy;
-
-		if (ReadOnly)
-			attributes["aria-readonly"] = "true";
-
-		var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-			? existingDescribedBy?.ToString() : null, ParentValidation?.Status == ValidationStatus.Error);
-		if (!string.IsNullOrWhiteSpace(describedBy))
-			attributes["aria-describedby"] = describedBy;
-
-		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
-			attributes["aria-invalid"] = "true";
-
-		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
-		{
-			AppendClass(ref cls, "relative block");
-			AppendClass(ref cls, ThumbSizeClass);
-			AppendClass(ref cls, "shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50");
-		});
-
-		return attributes;
-	}
-
-	private string? ResolveThumbLabel(int index, int totalValues)
-	{
-		var label = !string.IsNullOrWhiteSpace(AriaLabel) ? AriaLabel : Label;
-		var suffix = totalValues == 2 ? (index == 0 ? "Minimum" : "Maximum")
-			: totalValues > 2 ? $"Value {index + 1} of {totalValues}" : null;
-		return string.IsNullOrWhiteSpace(label) ? suffix : suffix is null ? label : $"{label} {suffix}";
-	}
-
-	[JSInvokable]
-	public async Task HandlePointerStart(double xFraction, double yFraction, int thumbIndex)
-	{
-		if (!IsInteractive)
-			return;
-
-		_valuesBeforeSlideStart = GetResolvedValues();
-		var currentValues = _valuesBeforeSlideStart;
-		var index = thumbIndex >= 0
-			? thumbIndex
-			: FindNearestThumbIndex(currentValues, GetValueFromFractions(xFraction, yFraction));
-
-		_draggingThumbIndex = index;
-		_focusedThumbIndex = index;
-		Refresh();
-
-		if (thumbIndex < 0)
-			await UpdateValue(index, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
-	}
-
-	[JSInvokable]
-	public async Task HandlePointerMove(double xFraction, double yFraction)
-	{
-		if (!IsInteractive || _draggingThumbIndex < 0)
-			return;
-
-		_focusedThumbIndex = _draggingThumbIndex;
-		await UpdateValue(_draggingThumbIndex, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
-	}
-
-	[JSInvokable]
-	public async Task HandlePointerEnd()
-	{
-		if (_draggingThumbIndex < 0)
-			return;
-
-		var index = _draggingThumbIndex;
-		var currentValues = GetResolvedValues();
-		var value = index < currentValues.Length ? currentValues[index] : Min;
-
-		await UpdateValue(index, value, notifyInput: false, notifyChange: true, markTouched: true);
-		_draggingThumbIndex = -1;
-		_focusedThumbIndex = index;
-		Refresh();
-	}
-
-	[JSInvokable]
-	public async Task HandlePointerCancel()
-	{
-		if (_draggingThumbIndex < 0)
-			return;
-
-		await RestoreValues();
-		_draggingThumbIndex = -1;
-		Refresh();
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			if (ParentValidation is not null)
-			{
-				if (ValuesExpression is not null)
-					await ParentValidation.InitializeInputExpression(ValuesExpression);
-				else if (SliderValueExpression is not null)
-					await ParentValidation.InitializeInputExpression(SliderValueExpression);
-			}
-
-		}
-
-		await base.OnAfterRenderAsync(firstRender);
-	}
-
-	protected override void OnParametersSet()
-	{
-		var values = GetResolvedValues();
-
-		if (_focusedThumbIndex >= values.Length)
-			_focusedThumbIndex = values.Length - 1;
-
-		if (_draggingThumbIndex >= values.Length)
-			_draggingThumbIndex = values.Length - 1;
-
-		base.OnParametersSet();
-	}
-
-	protected override void ComputeRenderKeyCore(ref HashCode hc)
-	{
-	    base.ComputeRenderKeyCore(ref hc);
-		hc.Add(SliderValue);
-		hc.Add(Min);
-		hc.Add(Max);
-		hc.Add(Step);
-		hc.Add(OrientationValue);
-
-		var values = GetResolvedValues();
-		hc.Add(values.Length);
-
-		for (var i = 0; i < values.Length; i++)
-		{
-			hc.Add(values[i]);
-		}
-
-		AddIf(ref hc, SliderSize);
-		hc.Add(PlainText);
-		hc.Add(FloatingLabel);
-		hc.Add(Label);
-		hc.Add(Placeholder);
-		hc.Add(Disabled);
-		hc.Add(ReadOnly);
-		hc.Add(Required);
-		hc.Add(DirectionProviderDir);
-		hc.Add(_focusedThumbIndex);
-		hc.Add(_draggingThumbIndex);
-	}
+    private double[] CreateResolvedValues()
+    {
+        if (UsesValuesApi)
+        {
+            if (Values is { Length: > 0 })
+                return NormalizeValues(Values, allowMultiple: true);
+
+            if (Max > Min)
+            {
+                double[] defaults = [NormalizeValue(Min), NormalizeValue(Max)];
+                Array.Sort(defaults);
+                return defaults;
+            }
+
+            return [NormalizeValue(Min)];
+        }
+
+        return [NormalizeValue(SliderValue)];
+    }
+
+    private double[] NormalizeValues(IReadOnlyList<double> source, bool allowMultiple, double[]? unchanged = null)
+    {
+        if (source.Count == 0)
+            return allowMultiple && Max > Min ? [NormalizeValue(Min), NormalizeValue(Max)] : [NormalizeValue(Min)];
+
+        var length = allowMultiple ? source.Count : 1;
+        if (unchanged is not null)
+        {
+            double[]? rented = null;
+            Span<double> buffer = length <= 64 ? stackalloc double[length] : (rented = System.Buffers.ArrayPool<double>.Shared.Rent(length)).AsSpan(0, length);
+            try
+            {
+                for (int i = 0; i < length; i++) buffer[i] = NormalizeValue(source[i]);
+                buffer.Sort();
+                return buffer.SequenceEqual(unchanged) ? unchanged : buffer.ToArray();
+            }
+            finally
+            {
+                if (rented is not null) System.Buffers.ArrayPool<double>.Shared.Return(rented);
+            }
+        }
+        var normalized = new double[length];
+
+        for (var i = 0; i < length; i++)
+        {
+            normalized[i] = NormalizeValue(source[i]);
+        }
+
+        Array.Sort(normalized);
+        return normalized;
+    }
+
+    private double NormalizeValue(double value)
+    {
+        var clamped = Math.Clamp(value, Min, Max);
+
+        if (Step <= 0)
+            return clamped;
+
+        var steps = Math.Round((clamped - Min) / Step, MidpointRounding.AwayFromZero);
+        var snapped = Min + (steps * Step);
+
+        return Math.Clamp(snapped, Min, Max);
+    }
+
+    private double ValueToPercent(double value)
+    {
+        if (Max <= Min)
+            return 0d;
+
+        return Math.Clamp(((value - Min) / (Max - Min)) * 100d, 0d, 100d);
+    }
+
+    private int FindNearestThumbIndex(IReadOnlyList<double> values, double pointerValue)
+    {
+        var nearestIndex = 0;
+        var nearestDistance = double.MaxValue;
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            var distance = Math.Abs(values[i] - pointerValue);
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestIndex = i;
+            }
+        }
+
+        return nearestIndex;
+    }
+
+    private double ConstrainThumbValue(IReadOnlyList<double> values, int index, double nextValue)
+    {
+        var normalized = NormalizeValue(nextValue);
+        var minLimit = index > 0 ? values[index - 1] : Min;
+        var maxLimit = index < values.Count - 1 ? values[index + 1] : Max;
+
+        return Math.Clamp(normalized, minLimit, maxLimit);
+    }
+
+    private static bool AreValuesEqual(IReadOnlyList<double> left, IReadOnlyList<double> right)
+    {
+        if (left.Count != right.Count)
+            return false;
+
+        for (var i = 0; i < left.Count; i++)
+        {
+            if (!left[i].Equals(right[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    private ChangeEventArgs CreateChangeEventArgs(double value)
+    {
+        return new ChangeEventArgs
+        {
+            Value = FormatSliderNumber(value)
+        };
+    }
+
+    private static string FormatSliderNumber(double value)
+    {
+        return value.ToString("G15", CultureInfo.InvariantCulture);
+    }
+
+    private async Task<double> UpdateValue(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
+    {
+        var currentValues = GetResolvedValues();
+
+        if (index < 0 || index >= currentValues.Length)
+            return Min;
+
+        var constrainedValue = ConstrainThumbValue(currentValues, index, nextValue);
+        var valueChanged = false;
+
+        if (UsesValuesApi)
+        {
+            if (!currentValues[index].Equals(constrainedValue))
+            {
+                var updatedValues = (double[])currentValues.Clone();
+                updatedValues[index] = constrainedValue;
+                Values = updatedValues;
+                await ValuesChanged.InvokeIfHasDelegate(updatedValues);
+                valueChanged = true;
+            }
+        }
+        else if (!SliderValue.Equals(constrainedValue))
+        {
+            SliderValue = constrainedValue;
+            await SliderValueChanged.InvokeAsync(SliderValue);
+            valueChanged = true;
+        }
+
+        if (ParentValidation is not null && (valueChanged || markTouched))
+        {
+            if (markTouched)
+                ParentValidation.MarkTouched();
+
+            await ParentValidation.NotifyInputChanged(ValidationValue);
+        }
+
+        if (notifyInput && valueChanged && OnInput.HasDelegate)
+            await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
+
+        if (notifyChange && (valueChanged || markTouched) && OnChange.HasDelegate)
+            await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
+
+        if (valueChanged)
+            Refresh();
+
+        return constrainedValue;
+    }
+
+    private async Task HandleBradixValuesChange(IReadOnlyList<double> values)
+    {
+        if (!IsInteractive)
+            return;
+
+        var normalized = NormalizeValues(values, UsesValuesApi, GetResolvedValues());
+
+        if (UsesValuesApi)
+        {
+            if (!AreValuesEqual(GetResolvedValues(), normalized))
+            {
+                Values = normalized;
+                await ValuesChanged.InvokeIfHasDelegate(normalized);
+            }
+        }
+        else
+        {
+            var nextValue = normalized.Length > 0 ? normalized[0] : Min;
+
+            if (!SliderValue.Equals(nextValue))
+            {
+                SliderValue = nextValue;
+                await SliderValueChanged.InvokeAsync(SliderValue);
+            }
+        }
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(ValidationValue);
+
+        if (normalized.Length > 0 && OnInput.HasDelegate)
+            await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
+
+        Refresh();
+    }
+
+    private async Task HandleBradixValueCommit(IReadOnlyList<double> values)
+    {
+        if (!IsInteractive)
+            return;
+
+        var normalized = NormalizeValues(values, UsesValuesApi, GetResolvedValues());
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(ValidationValue);
+        }
+
+        if (normalized.Length > 0 && OnChange.HasDelegate)
+            await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(normalized[0]));
+    }
+
+    private double GetValueFromFractions(double xFraction, double yFraction)
+    {
+        var range = Max - Min;
+
+        if (range <= 0)
+            return Min;
+
+        if (IsVertical)
+            return Max - (Math.Clamp(yFraction, 0d, 1d) * range);
+
+        var clampedX = Math.Clamp(xFraction, 0d, 1d);
+        return ResolveIsRtl()
+            ? Max - (clampedX * range)
+            : Min + (clampedX * range);
+    }
+
+    private async Task RestoreValues()
+    {
+        if (_valuesBeforeSlideStart.Length == 0)
+            return;
+
+        if (UsesValuesApi)
+        {
+            var restoredValues = (double[]) _valuesBeforeSlideStart.Clone();
+            Values = restoredValues;
+            await ValuesChanged.InvokeIfHasDelegate(restoredValues);
+
+            if (ParentValidation is not null)
+                await ParentValidation.NotifyInputChanged(ValidationValue);
+        }
+        else
+        {
+            var restoredValue = _valuesBeforeSlideStart[0];
+
+            if (!SliderValue.Equals(restoredValue))
+            {
+                SliderValue = restoredValue;
+                await SliderValueChanged.InvokeAsync(SliderValue);
+            }
+
+            if (ParentValidation is not null)
+                await ParentValidation.NotifyInputChanged(ValidationValue);
+        }
+
+        Refresh();
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = _wrapperAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
+
+        if (Attributes is not null)
+        {
+            if (Attributes.TryGetValue("class", out var @class))
+                attributes["class"] = @class;
+
+            if (Attributes.TryGetValue("style", out var style))
+                attributes["style"] = style;
+        }
+
+        {
+            var cls = new PooledStringBuilder(stackalloc char[64]);
+            var sty = new PooledStringBuilder(stackalloc char[64]);
+            try
+            {
+                AppendClass(ref cls, "touch-none data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
+                BuildOwnedClassAndStyle(ref sty, ref cls);
+                if (!IsVertical)
+                    AppendStyleDecl(ref sty, "--radix-slider-thumb-transform: translateX(-50%)");
+                BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastBuiltClass, ref _lastBuiltStyle);
+            }
+            finally
+            {
+                cls.Dispose();
+                sty.Dispose();
+            }
+        }
+
+        attributes["data-slot"] = DataSlot!;
+
+        if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = CurrentFieldContext.ControlId;
+        else if (Id is not null)
+            attributes["id"] = Id;
+
+        attributes["role"] = "group";
+
+        if (!string.IsNullOrWhiteSpace(AriaLabel))
+            attributes["aria-label"] = AriaLabel!;
+
+        if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
+            attributes["aria-labelledby"] = AriaLabelledBy!;
+
+        var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+            ? existingDescribedBy?.ToString()
+            : null, ParentValidation?.Status == ValidationStatus.Error);
+
+        if (!string.IsNullOrWhiteSpace(describedBy))
+            attributes["aria-describedby"] = describedBy;
+
+        if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
+            attributes["aria-invalid"] = "true";
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildTrackAttributes()
+    {
+        var attributes = _trackAttributeDictionaries.Create(2);
+        attributes["data-slot"] = "slider-track";
+
+        PrependClassAttribute(attributes, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1", ref _lastPrependedClass);
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
+    {
+
+        var attributes = _rangeAttributeDictionaries.Create(4);
+        attributes["data-slot"] = "slider-range";
+
+        PrependClassAttribute(attributes, "absolute bg-primary select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full", ref _lastPrependedClass2);
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildThumbAttributes(int index, double value)
+    {
+        ref var view = ref GetThumbView(index);
+        var attributes = view.Attributes.Create(12 + (index == 0 ? Attributes?.Count ?? 0 : 0));
+        attributes["data-slot"] = "slider-thumb";
+
+        if (AutoFocus && index == 0)
+            attributes["autofocus"] = QuarkAttributeValues.True;
+
+        if (index > 0 && Id is not null)
+        {
+            if (view.ParentId != Id || view.Id is null)
+            {
+                view.ParentId = Id;
+                view.Id = BlazorIdGenerator.Child(Id, index.ToString(CultureInfo.InvariantCulture));
+            }
+            attributes["id"] = view.Id;
+        }
+
+        if (Attributes is not null && index == 0)
+        {
+            foreach (var attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("id", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        // Shared descriptions and labels belong on every focusable thumb.
+        if (Attributes is not null)
+        {
+            foreach (var attribute in Attributes)
+            {
+                if (attribute.Key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase))
+                    attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
+            attributes["aria-labelledby"] = AriaLabelledBy;
+
+        if (!string.IsNullOrWhiteSpace(AriaDescribedBy))
+            attributes["aria-describedby"] = AriaDescribedBy;
+
+        if (ReadOnly)
+            attributes["aria-readonly"] = "true";
+
+        var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+            ? existingDescribedBy?.ToString() : null, ParentValidation?.Status == ValidationStatus.Error);
+        if (!string.IsNullOrWhiteSpace(describedBy))
+            attributes["aria-describedby"] = describedBy;
+
+        if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
+            attributes["aria-invalid"] = "true";
+
+        attributes["class"] = "relative block " + ThumbSizeClass + " shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50";
+
+        return attributes;
+    }
+
+    private ref ThumbView GetThumbView(int index)
+    {
+        if (_thumbViews.Length <= index)
+            Array.Resize(ref _thumbViews, Math.Max(index + 1, Math.Max(2, _thumbViews.Length * 2)));
+        return ref _thumbViews[index];
+    }
+
+    private string? ResolveThumbLabel(int index, int totalValues)
+    {
+        var label = !string.IsNullOrWhiteSpace(AriaLabel) ? AriaLabel : Label;
+        ref var view = ref GetThumbView(index);
+        if (view.TotalValues != totalValues || view.SourceLabel != label)
+        {
+            view.TotalValues = totalValues;
+            view.SourceLabel = label;
+            var suffix = totalValues == 2 ? (index == 0 ? "Minimum" : "Maximum")
+                : totalValues > 2 ? $"Value {index + 1} of {totalValues}" : null;
+            view.Label = string.IsNullOrWhiteSpace(label) ? suffix : suffix is null ? label : $"{label} {suffix}";
+        }
+        return view.Label;
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerStart(double xFraction, double yFraction, int thumbIndex)
+    {
+        if (!IsInteractive)
+            return;
+
+        _valuesBeforeSlideStart = GetResolvedValues();
+        var currentValues = _valuesBeforeSlideStart;
+        var index = thumbIndex >= 0
+            ? thumbIndex
+            : FindNearestThumbIndex(currentValues, GetValueFromFractions(xFraction, yFraction));
+
+        _draggingThumbIndex = index;
+        _focusedThumbIndex = index;
+        Refresh();
+
+        if (thumbIndex < 0)
+            await UpdateValue(index, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerMove(double xFraction, double yFraction)
+    {
+        if (!IsInteractive || _draggingThumbIndex < 0)
+            return;
+
+        _focusedThumbIndex = _draggingThumbIndex;
+        await UpdateValue(_draggingThumbIndex, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerEnd()
+    {
+        if (_draggingThumbIndex < 0)
+            return;
+
+        var index = _draggingThumbIndex;
+        var currentValues = GetResolvedValues();
+        var value = index < currentValues.Length ? currentValues[index] : Min;
+
+        await UpdateValue(index, value, notifyInput: false, notifyChange: true, markTouched: true);
+        _draggingThumbIndex = -1;
+        _focusedThumbIndex = index;
+        Refresh();
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerCancel()
+    {
+        if (_draggingThumbIndex < 0)
+            return;
+
+        await RestoreValues();
+        _draggingThumbIndex = -1;
+        Refresh();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (ParentValidation is not null)
+            {
+                if (ValuesExpression is not null)
+                    await ParentValidation.InitializeInputExpression(ValuesExpression);
+                else if (SliderValueExpression is not null)
+                    await ParentValidation.InitializeInputExpression(SliderValueExpression);
+            }
+
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        var values = GetResolvedValues();
+
+        if (_focusedThumbIndex >= values.Length)
+            _focusedThumbIndex = values.Length - 1;
+
+        if (_draggingThumbIndex >= values.Length)
+            _draggingThumbIndex = values.Length - 1;
+
+        base.OnParametersSet();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(SliderValue);
+        hc.Add(Min);
+        hc.Add(Max);
+        hc.Add(Step);
+        hc.Add(OrientationValue);
+
+        var values = GetResolvedValues();
+        hc.Add(values.Length);
+
+        for (var i = 0; i < values.Length; i++)
+        {
+            hc.Add(values[i]);
+        }
+
+        AddIf(ref hc, SliderSize);
+        hc.Add(PlainText);
+        hc.Add(FloatingLabel);
+        hc.Add(Label);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+        hc.Add(Required);
+        hc.Add(DirectionProviderDir);
+        hc.Add(_focusedThumbIndex);
+        hc.Add(_draggingThumbIndex);
+    }
 }

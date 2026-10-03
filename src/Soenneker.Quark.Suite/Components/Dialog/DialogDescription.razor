@@ -8,6 +8,10 @@
 </BradixDialogDescription>
 
 @code {
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
+    private string? _lastPrependedClass;
+
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
@@ -17,8 +21,8 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "dialog-description";
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= _defaultTextSize;
+        TextColor ??= _defaultTextColor;
 
     }
 
@@ -26,10 +30,10 @@
     {
         base.BuildAttributesCore(attributes);
 
-        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "*:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground");
-        });
+            const string @class = "*:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground";
+            PrependClassAttribute(attributes, @class, ref _lastPrependedClass);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

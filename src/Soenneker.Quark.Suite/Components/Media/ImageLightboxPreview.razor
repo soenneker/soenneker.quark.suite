@@ -4,6 +4,8 @@
 <img @attributes="BuildPreviewAttributes()" />
 
 @code {
+    private QuarkInt32Attribute _widthAttribute, _heightAttribute;
+    private string? _appendedClass0;
     [CascadingParameter]
     private ImageContext? ImageContext { get; set; }
 
@@ -17,12 +19,12 @@
     {
         var attributes = BuildAttributes();
         if (ImageContext?.IntrinsicWidth is int width)
-            attributes["width"] = width;
+            attributes["width"] = _widthAttribute.Get(width);
         if (ImageContext?.IntrinsicHeight is int height)
-            attributes["height"] = height;
+            attributes["height"] = _heightAttribute.Get(height);
         attributes["src"] = ImageContext?.Source ?? string.Empty;
         attributes["alt"] = ImageContext?.Alt ?? string.Empty;
-        AppendToClassAttr(attributes, "max-h-[85vh] max-w-[90vw] rounded-lg object-contain");
+        AppendToClassAttr(attributes, "max-h-[85vh] max-w-[90vw] rounded-lg object-contain", ref _appendedClass0);
         return attributes;
     }
 }

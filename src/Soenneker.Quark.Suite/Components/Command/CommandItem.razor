@@ -1,13 +1,33 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 
-<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseMove" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+<div @onclick="(_cachedHandleItemClickDelegate ??= HandleItemClick)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @onmouseenter="(_cachedHandleMouseMoveDelegate ??= HandleMouseMove)" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
     @ChildContent
-    <Icon Name="LucideIcon.Check" Margin="Quark.Margin.FromLeft.Auto" Display='Quark.Display.None.Modifier("group-has-data-[slot=command-shortcut]/command-item")' Opacity='CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.Modifier("group-data-[checked=true]/command-item"))' />
+    <Icon Name="LucideIcon.Check" Margin="_renderCss0" Display='_renderCss1' Opacity='_staticCss1' />
 </div>
 
 @code {
+    private static readonly CssValue<ItemsBuilder> _staticCss0 = Quark.Items.Center;
+    private static readonly CssValue<OpacityBuilder> _staticCss1 = CssValue<OpacityBuilder>.For(Quark.Opacity.Is0, Quark.Opacity.Is100.Modifier("group-data-[checked=true]/command-item"));
+    private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
+    private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Sm;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2.OnY.Token("1.5");
+    private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
+    private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Default;
+    private static readonly CssValue<MarginBuilder> _renderCss0 = Quark.Margin.FromLeft.Auto;
+    private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.None.Modifier("group-has-data-[slot=command-shortcut]/command-item");
+    private string? _lastBuiltStyle;
+    private string? _lastPrependedClass;
+
+    private System.Func<MouseEventArgs, Task>? _cachedHandleItemClickDelegate;
+    private System.Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
+    private System.Func<MouseEventArgs, Task>? _cachedHandleMouseMoveDelegate;
+
     private ElementReference _elementRef;
     private string _searchText = string.Empty;
     private string? _searchValueSnapshot;
@@ -39,16 +59,16 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "command-item";
-        Position ??= Quark.Position.Relative;
-        Display ??= Quark.Display.Flex;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.OnX.Is2.OnY.Token("1.5");
-        TextSize ??= Quark.TextSize.Sm;
-        OutlineStyle ??= Quark.OutlineStyle.Hidden;
-        UserSelect ??= Quark.UserSelect.None;
-        Cursor ??= Quark.Cursor.Default;
+        Position ??= _defaultPosition;
+        Display ??= _defaultDisplay;
+        ItemsAlign ??= _staticCss0;
+        Gap ??= _defaultGap;
+        Rounded ??= _defaultRounded;
+        Padding ??= _defaultPadding;
+        TextSize ??= _defaultTextSize;
+        OutlineStyle ??= _defaultOutlineStyle;
+        UserSelect ??= _defaultUserSelect;
+        Cursor ??= _defaultCursor;
 
     }
 
@@ -64,7 +84,6 @@
 
     protected override void OnParametersSet()
     {
-        base.OnParametersSet();
         if (!string.Equals(_searchValueSnapshot, SearchValue, StringComparison.Ordinal) || !Keywords.AsSpan().SequenceEqual(_keywordsSnapshot))
         {
             _searchText = BuildSearchText();
@@ -72,6 +91,7 @@
             _keywordsSnapshot = Keywords is null ? null : [.. Keywords];
         }
         ParentCommand?.UpdateItemGroup(this, ParentCommandGroup);
+        base.OnParametersSet();
     }
 
     private async Task HandleItemClick(MouseEventArgs _)
@@ -102,7 +122,7 @@
 
         attributes["cmdk-item"] = string.Empty;
         attributes["id"] = Id!;
-        attributes["tabindex"] = Disabled ? -1 : -1;
+        attributes["tabindex"] = QuarkAttributeValues.MinusOne;
         var selected = ParentCommand?.IsItemActive(this) == true;
         attributes["aria-selected"] = selected ? "true" : "false";
         attributes["data-selected"] = selected ? "true" : "false";
@@ -115,9 +135,20 @@
             attributes["aria-disabled"] = "true";
 
         if (ParentCommand?.GetItemOrder(this) is { } order)
-            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "order: ", order.ToString()));
+            {
+                var sty = new PooledStringBuilder(stackalloc char[64]);
+                try
+                {
+                    AppendStyleDecl(ref sty, "order: ", order.ToString());
+                    BuildStyleAttribute(attributes, ref sty, ref _lastBuiltStyle);
+                }
+                finally
+                {
+                    sty.Dispose();
+                }
+            }
 
-        PrependClassAttribute(attributes, "group/command-item in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground");
+        PrependClassAttribute(attributes, "group/command-item in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
