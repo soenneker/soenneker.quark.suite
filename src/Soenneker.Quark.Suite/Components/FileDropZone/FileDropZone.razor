@@ -90,14 +90,22 @@
                         {
                             <Div Display="_renderCss12" ItemsAlign="_staticCss1" Gap="_renderCss13" MaxWidth='_staticCss2'>
                                 <Div Role="status" TextSize="_renderCss3" TextAlign="_renderCss24">@view.StatusText</Div>
-                                <svg role="progressbar" aria-label="@view.ProgressLabel" aria-valuemin="0" aria-valuemax="100"
-                                     aria-valuenow="@(file.Progress.HasValue ? Math.Clamp(file.Progress.Value, 0, 100) : (int?)null)" aria-valuetext="@view.StatusText"
-                                     viewBox="0 0 32 32" data-indeterminate="@(!file.Progress.HasValue ? "true" : "false")"
-                                     class="size-8 shrink-0 -rotate-90 data-[indeterminate=true]:animate-spin">
-                                    <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.15" />
-                                    <circle cx="16" cy="16" r="12" pathLength="100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                            stroke-dasharray="@(file.Progress.HasValue ? "100" : "25 75")" stroke-dashoffset="@(file.Progress.HasValue ? 100 - Math.Clamp(file.Progress.Value, 0, 100) : 0)" />
-                                </svg>
+                                @if (!file.Progress.HasValue)
+                                {
+                                    <Div Role="progressbar" AriaLabel="@view.ProgressLabel" aria-valuemin="0" aria-valuemax="100" aria-valuetext="@view.StatusText">
+                                        <Spinner Size="Quark.Size.Is8" Decorative="true" />
+                                    </Div>
+                                }
+                                else
+                                {
+                                    <svg role="progressbar" aria-label="@view.ProgressLabel" aria-valuemin="0" aria-valuemax="100"
+                                         aria-valuenow="@Math.Clamp(file.Progress.Value, 0, 100)" aria-valuetext="@view.StatusText"
+                                         viewBox="0 0 32 32" data-indeterminate="false" class="size-8 shrink-0 -rotate-90">
+                                        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.15" />
+                                        <circle cx="16" cy="16" r="12" pathLength="100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                stroke-dasharray="100" stroke-dashoffset="@(100 - Math.Clamp(file.Progress.Value, 0, 100))" />
+                                    </svg>
+                                }
                             </Div>
                         }
                         @if (!ReadOnly && !_operations.ContainsKey(file.Id) && _browserFiles.ContainsKey(file.Id) && file.State == FileDropZoneState.Canceled)

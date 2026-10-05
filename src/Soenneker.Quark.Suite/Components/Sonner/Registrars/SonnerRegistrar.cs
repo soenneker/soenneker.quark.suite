@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ModuleImport.Registrars;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -18,7 +17,7 @@ public static class SonnerRegistrar
     public static IServiceCollection AddQuarkSonnerAsScoped(this IServiceCollection services)
     {
         services.AddModuleImportUtilAsScoped();
-        services.AddResourceLoaderAsScoped();
+        services.AddQuarkSpinnerAsScoped();
         services.TryAddScoped<ISonnerService, SonnerService>();
         services.TryAddScoped<ISonnerUtil, SonnerUtil>();
         services.TryAddScoped<ISonnerInterop, SonnerInterop>();

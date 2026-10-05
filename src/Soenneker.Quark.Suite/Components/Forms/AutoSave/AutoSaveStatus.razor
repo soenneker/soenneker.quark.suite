@@ -10,7 +10,10 @@
           aria-label="@AriaLabel"
           aria-hidden="@AriaHidden">
         <span class="@GetIconLayerClass(IsSavingState)">
-            <Icon Name="LucideIcon.LoaderCircle" Size="_renderCss0" Animation="@(IsSavingState ? (CssValue<AnimationBuilder>?)_savingAnimation : null)" aria-hidden="true" />
+            @if (IsSavingState)
+            {
+                <Spinner Size="_renderCss0" Decorative="true" />
+            }
         </span>
         @if (HasSaved)
         {
@@ -69,7 +72,6 @@
         }
         : null;
 
-    private static readonly CssValue<AnimationBuilder> _savingAnimation = Quark.Animation.Spin;
     private (AutoSaveState State, bool Saved, string? Class, string? Saving, string? SavedClass, string? Failed)? _rootClassInputs;
     private string? _rootClass;
     private string RootClass

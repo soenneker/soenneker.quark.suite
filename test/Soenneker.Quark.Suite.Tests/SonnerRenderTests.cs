@@ -70,8 +70,8 @@ public sealed partial class RenderedShadcnParityTests
         await cut.InvokeAsync(async () => await service.Loading("Loading", options => options.Id = "same-toast"));
         cut.WaitForAssertion(() =>
         {
-            cut.FindComponent<Icon>().Instance.Name.Should().Be(LucideIcon.LoaderCircle);
-            cut.FindComponent<Icon>().Instance.Class.Should().Contain("animate-spin");
+            cut.FindComponent<Spinner>().Instance.Name.Should().BeNull();
+            cut.FindAll(".quark-spinner-circle").Should().HaveCount(3);
         });
         await cut.InvokeAsync(async () => await service.Toast("Done", options => options.Id = "same-toast"));
         cut.WaitForAssertion(() => cut.FindComponents<Icon>().Should().BeEmpty());

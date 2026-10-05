@@ -165,14 +165,12 @@ public sealed partial class RenderedShadcnParityTests
             }));
 
         stopwatch.Start();
-        cut.Find("input").Input("server work");
+        await cut.InvokeAsync(() => cut.Find("input").Input("server work"));
 
         cut.WaitForAssertion(() => HasState(AutoSaveState.Saving).Should().BeTrue());
 
-        await Task.Delay(100);
-
-        HasState(AutoSaveState.Saved).Should().BeFalse();
-
+        // A busy runner can resume after the minimum saving duration has expired.
+        // Verify the recorded transition timestamps instead of the state after a wait.
         cut.WaitForAssertion(() => HasState(AutoSaveState.Saved).Should().BeTrue(), TimeSpan.FromSeconds(2));
 
         ElapsedBetween(AutoSaveState.Saving, AutoSaveState.Saved).Should().BeGreaterThanOrEqualTo(450);

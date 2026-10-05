@@ -37,10 +37,10 @@ public sealed partial class RenderedShadcnParityTests
     public void AutoSaveStatus_animates_only_while_saving()
     {
         var cut = Render<AutoSaveStatus>();
-        cut.FindAll(".animate-spin").Should().BeEmpty();
+        cut.FindComponents<Spinner>().Should().BeEmpty();
         cut.Render(p => p.Add(c => c.State, AutoSaveState.Saving));
-        cut.FindAll(".animate-spin").Should().ContainSingle();
+        cut.FindComponents<Spinner>().Should().ContainSingle();
         cut.Render(p => p.Add(c => c.State, AutoSaveState.Saved).Add(c => c.HasSaved, true));
-        cut.FindAll(".animate-spin").Should().BeEmpty();
+        cut.FindComponents<Spinner>().Should().BeEmpty();
     }
 }

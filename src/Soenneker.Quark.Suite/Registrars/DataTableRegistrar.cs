@@ -16,7 +16,7 @@ public static class DataTableRegistrar
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddQuarkDataTableAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped().TryAddScoped<ITablesInterop, TablesInterop>();
+        services.AddQuarkSpinnerAsScoped().AddModuleImportUtilAsScoped().TryAddScoped<ITablesInterop, TablesInterop>();
         return services;
     }
 }

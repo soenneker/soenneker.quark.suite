@@ -9,7 +9,7 @@ public static class FileDropZoneRegistrar
     /// <summary>Adds <see cref="IFileDropZoneInterop"/> and its file drop dependencies as scoped services.</summary>
     public static IServiceCollection AddQuarkFileDropZoneAsScoped(this IServiceCollection services)
     {
-        services.AddQuarkFileDropAsScoped().TryAddScoped<IFileDropZoneInterop, FileDropZoneInterop>();
+        services.AddQuarkSpinnerAsScoped().AddQuarkFileDropAsScoped().TryAddScoped<IFileDropZoneInterop, FileDropZoneInterop>();
         return services;
     }
 }
