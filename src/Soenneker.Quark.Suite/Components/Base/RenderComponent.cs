@@ -580,16 +580,9 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     // many closed generic versions of this method; forced inlining produced a ~939 KB AOT
     // function with a ~96 KB stack frame in a production build.
     [MethodImpl(MethodImplOptions.NoInlining)]
-    protected static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
+    protected static void AddCss<T>(ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
     {
-        // A missing value is the empty CssValue. Read its representation once;
-        // no parsing, class conflict resolution, or declaration deduplication is needed.
-        var value = v.GetValueOrDefault();
-        var style = value.StyleValue;
-        if (style.Length != 0)
-            AppendStyleDecl(ref styB, style);
-        else
-            AppendClass(ref clsB, value.ToString());
+        AppendClass(ref clsB, v.GetValueOrDefault().ToString());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -961,17 +954,17 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        AddCss(ref sty, ref cls, value);
+        AddCss(ref cls, value);
     }
 
     protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        AddCss(ref sty, ref cls, value);
+        AddCss(ref cls, value);
     }
 
     protected virtual void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
     {
-        AddCss(ref sty, ref cls, value);
+        AddCss(ref cls, value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

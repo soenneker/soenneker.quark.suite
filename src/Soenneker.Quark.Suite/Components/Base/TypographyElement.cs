@@ -24,21 +24,21 @@ public abstract class TypographyElement : Element
             try
             {
                 if (TextSize is null && preset?.TextSize is null)
-                    AddCss(ref sty, ref cls, textSize);
+                    AddCss(ref cls, textSize);
                 if (FontWeight is null && preset?.FontWeight is null)
-                    AddCss(ref sty, ref cls, fontWeight);
+                    AddCss(ref cls, fontWeight);
                 if (Tracking is null && preset?.Tracking is null)
-                    AddCss(ref sty, ref cls, tracking);
+                    AddCss(ref cls, tracking);
                 if (ScrollMargin is null && preset?.ScrollMargin is null)
-                    AddCss(ref sty, ref cls, scrollMargin);
+                    AddCss(ref cls, scrollMargin);
                 if (TextWrap is null && preset?.TextWrap is null)
-                    AddCss(ref sty, ref cls, textWrap);
+                    AddCss(ref cls, textWrap);
                 if (Border is null && preset?.Border is null)
-                    AddCss(ref sty, ref cls, border);
+                    AddCss(ref cls, border);
                 if (Padding is null && preset?.Padding is null)
-                    AddCss(ref sty, ref cls, padding);
+                    AddCss(ref cls, padding);
                 if (Transition is null && preset?.Transition is null)
-                    AddCss(ref sty, ref cls, transition);
+                    AddCss(ref cls, transition);
                 BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastTypographyClass, ref _lastTypographyStyle);
             }
             finally

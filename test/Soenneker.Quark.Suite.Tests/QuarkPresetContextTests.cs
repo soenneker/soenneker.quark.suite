@@ -8,11 +8,11 @@ public class QuarkPresetContextTests
     public void ComposedPresets_CanOverwriteAndClearValues()
     {
         var context = new QuarkPresetContext();
-        var first = new QuarkPresetToken("first", static c => { c.Width = 120; c.Height = 80; });
-        var second = new QuarkPresetToken("second", static c => { c.Width = 240; c.Height = null; });
+        var first = new QuarkPresetToken("first", static c => { c.Width = Width.Token("[120px]"); c.Height = Height.Token("[80px]"); });
+        var second = new QuarkPresetToken("second", static c => { c.Width = Width.Token("[240px]"); c.Height = null; });
         first.Apply(context);
         second.Apply(context);
-        context.Width.Should().Be((CssValue<WidthBuilder>) 240);
+        context.Width.Should().Be((CssValue<WidthBuilder>) Width.Token("[240px]"));
         context.Height.Should().BeNull();
         context.Padding.Should().BeNull();
     }
@@ -30,14 +30,14 @@ public class QuarkPresetContextTests
     [Test]
     public void ApplyingCallbackAgain_ObservesChangedCapturedState()
     {
-        var width = 120;
+        CssValue<WidthBuilder> width = Width.Token("[120px]");
         var token = new QuarkPresetToken("dynamic", c => c.Width = width);
         var first = new QuarkPresetContext();
         token.Apply(first);
-        width = 240;
+        width = Width.Token("[240px]");
         var second = new QuarkPresetContext();
         token.Apply(second);
-        first.Width.Should().Be((CssValue<WidthBuilder>) 120);
-        second.Width.Should().Be((CssValue<WidthBuilder>) 240);
+        first.Width.Should().Be((CssValue<WidthBuilder>) Width.Token("[120px]"));
+        second.Width.Should().Be((CssValue<WidthBuilder>) Width.Token("[240px]"));
     }
 }

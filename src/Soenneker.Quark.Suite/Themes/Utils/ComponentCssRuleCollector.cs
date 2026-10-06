@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Soenneker.Utils.PooledStringBuilders;
-using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -11,26 +10,8 @@ internal struct ComponentCssRuleCollector
     private PooledCssDeclarations _firstDeclarations;
     private OrderedDictionary<string, PooledCssDeclarations>? _blocks;
 
-    internal void Add(string selector, string declaration) => Add(selector, new ComponentCssDeclaration(null, declaration.AsMemory()));
-
-    internal void AddStyle(string selector, string style)
+    internal void Add(string selector, ThemeCssDeclaration declaration)
     {
-        var span = style.AsSpan();
-        foreach (var range in span.Split(';'))
-        {
-            var segment = span[range];
-            var trimmedStart = segment.TrimStart();
-            var trimmed = trimmedStart.TrimEnd();
-            if (!trimmed.IsEmpty)
-                Add(selector, new ComponentCssDeclaration(null, style.AsMemory(range.Start.Value + segment.Length - trimmedStart.Length, trimmed.Length)));
-        }
-    }
-
-    internal void Add(string selector, ComponentCssDeclaration declaration)
-    {
-        if (selector.IsNullOrWhiteSpace() || declaration.Property is null && declaration.Value.Span.IsWhiteSpace())
-            return;
-
         _firstSelector ??= selector;
         if (string.Equals(_firstSelector, selector, StringComparison.Ordinal))
             _firstDeclarations.Add(declaration);
@@ -89,13 +70,9 @@ internal struct ComponentCssRuleCollector
         {
             builder.Append("  ");
             var declaration = declarations[i];
-            var value = declaration.Value.Span.TrimEnd("; ");
-            if (declaration.Property is not null)
-            {
-                builder.Append(declaration.Property);
-                builder.Append(value.IsEmpty ? ":" : ": ");
-            }
-            builder.Append(value);
+            builder.Append(declaration.Property);
+            builder.Append(": ");
+            builder.Append(declaration.Value);
             builder.Append(";\n");
         }
         builder.Append("}");

@@ -137,8 +137,7 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "spinner";
 
-        if (!HasExplicitSizeClass())
-            Size ??= _defaultSize;
+        Size ??= _defaultSize;
 
         Display ??= _defaultDisplay;
         Position ??= _defaultPosition;
@@ -357,71 +356,4 @@
     }
 
 
-    private bool HasExplicitSizeClass()
-    {
-        if (ClassHasExplicitSize(Class))
-            return true;
-
-        if (Attributes is null)
-            return false;
-
-        if (Attributes is Dictionary<string, object> dictionary)
-        {
-            foreach (var attribute in dictionary)
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
-                    return true;
-            return false;
-        }
-
-        if (Attributes is OrderedDictionary<string, object> ordered)
-        {
-            foreach (var attribute in ordered)
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
-                    return true;
-            return false;
-        }
-
-        foreach (var attribute in Attributes)
-        {
-            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool ClassHasExplicitSize(string? className)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return false;
-
-        var remaining = className.AsSpan();
-
-        while (!remaining.IsEmpty)
-        {
-            remaining = remaining.TrimStart();
-            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
-            var token = separator < 0 ? remaining : remaining[..separator];
-
-            if (IsExplicitSizeToken(token))
-                return true;
-
-            if (separator < 0)
-                break;
-
-            remaining = remaining[(separator + 1)..];
-        }
-
-        return false;
-    }
-
-    private static bool IsExplicitSizeToken(ReadOnlySpan<char> token)
-    {
-        var separator = token.LastIndexOf(':');
-        var utility = separator >= 0 ? token[(separator + 1)..] : token;
-
-        return utility.StartsWith("size-", StringComparison.Ordinal) ||
-               utility.StartsWith("w-", StringComparison.Ordinal) ||
-               utility.StartsWith("h-", StringComparison.Ordinal);
-    }
 }

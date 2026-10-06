@@ -7,11 +7,11 @@ public sealed class ComponentStylingProbe : Component
         QuarkOptions = new QuarkOptions { AlwaysRender = true };
         if (styled)
         {
-            Width = 240;
+            Width = Quark.Width.Token("[240px]");
             Display = Soenneker.Quark.Display.Flex;
         }
         if (usePreset)
-            Preset = new QuarkPresetToken("benchmark", static context => context.Width = 240);
+            Preset = new QuarkPresetToken("benchmark", static context => context.Width = Quark.Width.Token("[240px]"));
     }
 
     public object Rebuild() => BuildAttributes();

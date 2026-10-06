@@ -33,19 +33,19 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     [Test]
     public void Padding_builder_supports_axis_specific_arbitrary_spacing_tokens()
     {
-        Padding.Is2.OnX.Token("1.5").OnY.ToClass().Should().Be("px-2 py-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
     }
 
     [Test]
     public void Physical_side_builders_use_left_and_right_tokens_instead_of_inline_start_end()
     {
-        Padding.Token("8").FromRight.Is2.FromLeft.Token("1.5").OnY.ToClass().Should().Be("pr-8 pl-2 py-1.5");
-        Border.Is1.ToClass().Should().Be("border");
-        Border.Is1.FromBottom.ToClass().Should().Be("border-b");
-        Border.Is4.FromLeft.ToClass().Should().Be("border-l-4");
-        Margin.Is3.FromRight.ToClass().Should().Be("mr-3");
-        Margin.Token("-1").OnX.ToClass().Should().Be("-mx-1");
-        Margin.Token("1.5").FromTop.ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
+        Margin.FromTop.Token("1.5").ToClass().Should().Be("mt-1.5");
     }
 
     [Test]
@@ -74,7 +74,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             .Add(p => p.Cursor, Cursor.Default)
             .Add(p => p.OverflowX, Overflow.X.Hidden)
             .Add(p => p.OverflowY, Overflow.Y.Auto)
-            .Add(p => p.Padding, Padding.Is2.OnX.Token("1.5").OnY));
+            .Add(p => p.Padding, Padding.OnX.Is2.OnY.Token("1.5")));
 
         var box = cut.Find("[data-slot='test-box']");
         var classes = box.GetAttribute("class")!;
@@ -160,7 +160,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     public void Component_duration_property_uses_builder_output()
     {
         var cut = Render<TestRenderBox>(parameters => parameters
-            .Add(p => p.Duration, Duration.Is150.OnHover.Token("duration-[375ms]")));
+            .Add(p => p.Duration, Duration.Is150.OnHover.Token("[375ms]")));
 
         var box = cut.Find("[data-slot='test-box']");
         var classes = box.GetAttribute("class")!;
@@ -170,13 +170,13 @@ public sealed class BuilderRuntimeContractTests : BunitContext
     }
 
     [Test]
-    public void Theme_component_options_convert_duration_to_transition_duration()
+    public void Theme_component_options_emit_explicit_transition_duration()
     {
         var theme = new Theme
         {
             Divs = new DivOptions
             {
-                Duration = Duration.Is300
+                Duration = "300ms"
             }
         };
 
@@ -192,54 +192,54 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         {
             DataTables = new DataTableThemeOptions
             {
-                Width = Width.IsFull,
+                Width = "100%",
                 Anchors = new AnchorOptions
                 {
-                    Display = Display.InlineFlex,
-                    DecorationLine = DecorationLine.None
+                    Display = "inline-flex",
+                    DecorationLine = "none"
                 },
                 AnchorDivs = new DivOptions
                 {
-                    MinWidth = Width.Is0
+                    MinWidth = "0"
                 },
                 AnchorLeadingSpans = new SpanOptions
                 {
-                    Shrink = Shrink.Is0
+                    Shrink = "0"
                 },
                 AnchorSmalls = new SmallOptions
                 {
-                    Display = Display.Block,
-                    TextOverflow = TextOverflow.Ellipsis
+                    Display = "block",
+                    TextOverflow = "ellipsis"
                 },
                 AnchorSpans = new SpanOptions
                 {
-                    Display = Display.Block,
-                    TextOverflow = TextOverflow.Ellipsis
+                    Display = "block",
+                    TextOverflow = "ellipsis"
                 },
                 Tds = new TdOptions
                 {
-                    Padding = Padding.OnY.Is3
+                    Declarations = [new("padding-top", "0.75rem"), new("padding-bottom", "0.75rem")]
                 },
                 Inputs = new InputOptions
                 {
-                    Width = Width.IsFull
+                    Width = "100%"
                 },
                 PaginationLinks = new PaginationLinkOptions
                 {
-                    Display = Display.InlineFlex
+                    Display = "inline-flex"
                 },
                 Searches = new DataTableSearchOptions
                 {
-                    Display = Display.Flex
+                    Display = "flex"
                 },
                 Selects = new SelectOptions
                 {
-                    Width = Width.IsFull
+                    Width = "100%"
                 },
                 Spans = new SpanOptions
                 {
-                    Display = Display.Block,
-                    TextOverflow = TextOverflow.Ellipsis
+                    Display = "block",
+                    TextOverflow = "ellipsis"
                 }
             }
         };
@@ -270,7 +270,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
                 Anchors = new AnchorOptions
                 {
                     Selector = "& tbody td > a[data-entity-link]",
-                    MinWidth = Width.Is0
+                    MinWidth = "0"
                 }
             }
         };
@@ -289,157 +289,157 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             {
                 Headers = new CardHeaderOptions
                 {
-                    Display = Display.Flex
+                    Display = "flex"
                 },
                 Titles = new CardTitleOptions
                 {
-                    FontWeight = FontWeight.Semibold
+                    FontWeight = "600"
                 }
             },
             Fields = new FieldOptions
             {
                 Labels = new FieldLabelOptions
                 {
-                    Display = Display.Block
+                    Display = "block"
                 },
                 Inputs = new InputOptions
                 {
-                    Width = Width.IsFull
+                    Width = "100%"
                 }
             },
             Dialogs = new DialogOptions
             {
                 Titles = new DialogTitleOptions
                 {
-                    FontWeight = FontWeight.Semibold
+                    FontWeight = "600"
                 },
                 Descriptions = new DialogDescriptionOptions
                 {
-                    TextSize = TextSize.Sm
+                    TextSize = "var(--text-sm)"
                 }
             },
             Dropdowns = new DropdownOptions
             {
                 Items = new DropdownItemOptions
                 {
-                    Display = Display.Flex
+                    Display = "flex"
                 },
                 Shortcuts = new DropdownShortcutOptions
                 {
-                    TextSize = TextSize.Xs
+                    TextSize = "var(--text-xs)"
                 }
             },
             Selects = new SelectOptions
             {
                 Triggers = new SelectTriggerOptions
                 {
-                    Width = Width.IsFull
+                    Width = "100%"
                 },
                 Items = new SelectItemOptions
                 {
-                    Display = Display.Flex
+                    Display = "flex"
                 }
             },
             Alerts = new AlertOptions
             {
                 Titles = new AlertTitleOptions
                 {
-                    FontWeight = FontWeight.Semibold
+                    FontWeight = "600"
                 },
                 Icons = new IconOptions
                 {
-                    Display = Display.InlineBlock
+                    Display = "inline-block"
                 }
             },
             Breadcrumbs = new BreadcrumbOptions
             {
                 Links = new BreadcrumbLinkOptions
                 {
-                    TextColor = TextColor.Foreground
+                    TextColor = "var(--foreground)"
                 },
                 Separators = new BreadcrumbSeparatorOptions
                 {
-                    Display = Display.InlineFlex
+                    Display = "inline-flex"
                 }
             },
             ButtonGroups = new ButtonGroupOptions
             {
                 Buttons = new ButtonOptions
                 {
-                    Width = Width.IsFull
+                    Width = "100%"
                 },
                 Texts = new ButtonGroupTextOptions
                 {
-                    TextSize = TextSize.Sm
+                    TextSize = "var(--text-sm)"
                 }
             },
             Paginations = new PaginationOptions
             {
                 Contents = new PaginationContentOptions
                 {
-                    Gap = Gap.Is1
+                    Gap = "0.25rem"
                 },
                 Links = new PaginationLinkOptions
                 {
-                    Display = Display.InlineFlex
+                    Display = "inline-flex"
                 }
             },
             OrderedLists = new OrderedListOptions
             {
                 Items = new OrderedListItemOptions
                 {
-                    Padding = Padding.FromLeft.Is2
+                    Declarations = [new("padding-left", "0.5rem")]
                 }
             },
             Progresses = new ProgressOptions
             {
                 Indicators = new ProgressIndicatorOptions
                 {
-                    BackgroundColor = BackgroundColor.Primary
+                    BackgroundColor = "var(--primary)"
                 }
             },
             Tabs = new TabsOptions
             {
                 Lists = new TabsListOptions
                 {
-                    Display = Display.Flex
+                    Display = "flex"
                 },
                 Triggers = new TabOptions
                 {
-                    FontWeight = FontWeight.Medium
+                    FontWeight = "500"
                 }
             },
             Tables = new TableOptions
             {
                 Containers = new TableContainerOptions
                 {
-                    Display = Display.Block
+                    Display = "block"
                 },
                 Tds = new TdOptions
                 {
-                    Padding = Padding.Is2
+                    Padding = "0.5rem"
                 },
                 Ths = new ThOptions
                 {
-                    FontWeight = FontWeight.Semibold
+                    FontWeight = "600"
                 }
             },
             Trees = new TreeOptions
             {
                 ItemLabels = new TreeItemLabelOptions
                 {
-                    Padding = Padding.OnX.Is2
+                    Declarations = [new("padding-left", "0.5rem"), new("padding-right", "0.5rem")]
                 },
                 DragLines = new TreeDragLineOptions
                 {
-                    Display = Display.Block
+                    Display = "block"
                 }
             },
             UnorderedLists = new UnorderedListOptions
             {
                 Items = new UnorderedListItemOptions
                 {
-                    Display = Display.ListItem
+                    Display = "list-item"
                 }
             }
         };

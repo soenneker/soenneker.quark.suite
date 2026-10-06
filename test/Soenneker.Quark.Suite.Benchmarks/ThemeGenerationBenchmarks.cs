@@ -8,31 +8,31 @@ public class ThemeGenerationBenchmarks
     private readonly ComponentOptions _empty = new();
     private readonly ComponentOptions _styles = new()
     {
-        Width = 240,
-        Height = 120,
-        Padding = Padding.OnY.Is2.OnX.Is4,
-        Display = Display.Flex,
-        TextColor = TextColor.Primary,
-        BackgroundColor = BackgroundColor.Card,
-        Rounded = Rounded.Lg
+        Width = "240px",
+        Height = "120px",
+        Padding = "0.5rem 1rem",
+        Display = "flex",
+        TextColor = "var(--primary)",
+        BackgroundColor = "var(--card)",
+        Rounded = "0.5rem"
     };
     private readonly Theme _emptyTheme = new();
     private readonly Theme _theme = new()
     {
         Buttons = new ButtonOptions
         {
-            Padding = Padding.OnY.Is2.OnX.Is4,
-            TextColor = TextColor.Primary,
-            BackgroundColor = BackgroundColor.Primary,
-            Rounded = Rounded.Lg
+            Padding = "0.5rem 1rem",
+            TextColor = "var(--primary)",
+            BackgroundColor = "var(--primary)",
+            Rounded = "0.5rem"
         },
         Cards = new CardOptions
         {
-            Width = 320,
-            Height = 240,
-            Padding = Padding.OnY.Is2.OnX.Is4,
-            Buttons = new ButtonOptions { Width = 120, Height = 40 },
-            Bodies = new CardBodyOptions { Width = 280, Height = 180 }
+            Width = "320px",
+            Height = "240px",
+            Padding = "0.5rem 1rem",
+            Buttons = new ButtonOptions { Width = "120px", Height = "40px" },
+            Bodies = new CardBodyOptions { Width = "280px", Height = "180px" }
         }
     };
 

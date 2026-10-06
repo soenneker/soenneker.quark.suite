@@ -37,8 +37,7 @@
 
         DataSlot ??= "simple-icon";
         Display ??= _defaultDisplay;
-        if (!HasExplicitSizeClass())
-            Size ??= _defaultSize;
+        Size ??= _defaultSize;
         Shrink ??= _defaultShrink;
         VerticalAlign ??= _defaultVerticalAlign;
     }
@@ -115,89 +114,6 @@
             return svg;
 
         return SvgProvider?.GetSvg(iconName);
-    }
-
-    private bool HasExplicitSizeClass()
-    {
-        if (ClassHasExplicitSize(Class))
-            return true;
-
-        if (Attributes is null)
-            return false;
-
-        if (Attributes is Dictionary<string, object> dictionary)
-        {
-            foreach (var attribute in dictionary)
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
-                    return true;
-            return false;
-        }
-
-        if (Attributes is OrderedDictionary<string, object> ordered)
-        {
-            foreach (var attribute in ordered)
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) && ClassHasExplicitSize(attribute.Value?.ToString()))
-                    return true;
-            return false;
-        }
-
-        foreach (var attribute in Attributes)
-        {
-            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) &&
-                ClassHasExplicitSize(attribute.Value?.ToString()))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool ClassHasExplicitSize(string? className)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return false;
-
-        var remaining = className.AsSpan();
-
-        while (!remaining.IsEmpty)
-        {
-            remaining = remaining.TrimStart();
-
-            var separator = remaining.IndexOfAny(" \t\r\n".AsSpan());
-            var token = separator < 0 ? remaining : remaining[..separator];
-
-            if (IsExplicitSizeToken(token))
-                return true;
-
-            if (separator < 0)
-                break;
-
-            remaining = remaining[(separator + 1)..];
-        }
-
-        return false;
-    }
-
-    private static bool IsExplicitSizeToken(ReadOnlySpan<char> token)
-    {
-        var separator = LastUnescapedColonIndex(token);
-        var utility = separator >= 0 ? token[(separator + 1)..] : token;
-
-        return utility.StartsWith("size-", StringComparison.Ordinal) ||
-               utility.StartsWith("w-", StringComparison.Ordinal) ||
-               utility.StartsWith("h-", StringComparison.Ordinal);
-    }
-
-    private static int LastUnescapedColonIndex(ReadOnlySpan<char> token)
-    {
-        for (var i = token.Length - 1; i >= 0; i--)
-        {
-            if (token[i] == ':' && (i == 0 || token[i - 1] != '\\'))
-                return i;
-        }
-
-        return -1;
     }
 
 }

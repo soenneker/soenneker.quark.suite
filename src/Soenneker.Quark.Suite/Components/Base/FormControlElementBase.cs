@@ -72,8 +72,8 @@ public abstract class FormControlElementBase : InteractiveElement
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
 
-        AddCss(ref sty, ref cls, AccentColor);
-        AddCss(ref sty, ref cls, CaretColor);
+        AddCss(ref cls, AccentColor);
+        AddCss(ref cls, CaretColor);
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)

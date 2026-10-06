@@ -17,8 +17,8 @@ public class ComponentCssRuleCollectorTests
             {
                 for (var i = 0; i < 100; i++)
                 {
-                    collector.Add("a", $"--item-{i}: {i}");
-                    collector.Add("b", $"--other-{i}: {i}");
+                    collector.Add("a", new($"--item-{i}", i.ToString()));
+                    collector.Add("b", new($"--other-{i}", i.ToString()));
                 }
                 collector.AppendTo(ref builder);
                 var output = builder.ToString();
@@ -31,12 +31,14 @@ public class ComponentCssRuleCollectorTests
     }
 
     [Test]
-    public void Styles_TrimSegmentsAndKeepGroupingOrder()
+    public void Declarations_KeepValuesAndGroupingOrder()
     {
         var collector = new ComponentCssRuleCollector();
-        collector.AddStyle("a", " ;  width: 10px ;\t; height: 20px;  ");
-        collector.Add("b", "display: block");
-        collector.AddStyle("a", "color: red;opacity: 1");
+        collector.Add("a", new("width", "10px"));
+        collector.Add("a", new("height", "20px"));
+        collector.Add("b", new("display", "block"));
+        collector.Add("a", new("color", "red"));
+        collector.Add("a", new("opacity", "1"));
         var builder = new PooledStringBuilder(stackalloc char[256]);
         try
         {
@@ -47,10 +49,9 @@ public class ComponentCssRuleCollectorTests
     }
 
     [Test]
-    public void BlankStyles_DoNotCreateBlocksOrSeparators()
+    public void EmptyCollector_DoesNotCreateBlocksOrSeparators()
     {
         var collector = new ComponentCssRuleCollector();
-        collector.AddStyle("a", " ; ;\t; ");
         var builder = new PooledStringBuilder(stackalloc char[64]);
         try
         {

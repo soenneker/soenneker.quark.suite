@@ -19,33 +19,26 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
-    public void Style_only_css_values_render_and_update()
+    public void Explicit_styles_render_and_update()
     {
-        var cut = Render<Div>(p => p.Add(c => c.Width, CssValue<WidthBuilder>.For(new StyleOnlyBuilder("width:12px"))));
-        cut.Find("div").GetAttribute("style").Should().Contain("width:12px");
-        cut.Render(p => p.Add(c => c.Width, CssValue<WidthBuilder>.For(new StyleOnlyBuilder("width:24px"))));
-        cut.Find("div").GetAttribute("style").Should().Contain("width:24px").And.NotContain("width:12px");
-        cut.Render(p => p.Add(c => c.Width, default(CssValue<WidthBuilder>)));
-        (cut.Find("div").GetAttribute("style") ?? "").Should().NotContain("width:");
-    }
-
-    private sealed class StyleOnlyBuilder(string style) : CssBuilderBase
-    {
-        public override string ToClass() => string.Empty;
-        public override string ToStyle() => style;
+        var cut = Render<Div>(p => p.Add(c => c.Style, "width:12px"));
+        cut.Find("div").GetAttribute("style").Should().Be("width:12px");
+        cut.Render(p => p.Add(c => c.Style, "width:24px"));
+        cut.Find("div").GetAttribute("style").Should().Be("width:24px");
+        cut.Render(p => p.Add(c => c.Style, (string?)null));
+        cut.Find("div").HasAttribute("style").Should().BeFalse();
     }
 
     [Test]
-    public void Css_values_with_equal_text_but_different_style_rebuild_markup()
+    public void Class_only_css_values_render_update_and_clear()
     {
-        // Integer dimensions are inline styles; the same string is a class value.
-        var cut = Render<Div>(p => p.Add(c => c.Width, (CssValue<WidthBuilder>)12));
-        cut.Find("div").GetAttribute("style").Should().Contain("width: 12px");
-        cut.Render(p => p.Add(c => c.Width, (CssValue<WidthBuilder>)"12px"));
-        cut.Find("div").GetAttribute("class").Should().Contain("12px");
-        (cut.Find("div").GetAttribute("style") ?? "").Should().NotContain("width: 12px");
+        var cut = Render<Div>(p => p.Add(c => c.Width, Width.Token("[12px]")));
+        cut.Find("div").GetAttribute("class").Should().Be("w-[12px]");
+        cut.Render(p => p.Add(c => c.Width, Width.Token("[24px]")));
+        cut.Find("div").GetAttribute("class").Should().Be("w-[24px]");
+        cut.Find("div").HasAttribute("style").Should().BeFalse();
         cut.Render(p => p.Add(c => c.Width, default(CssValue<WidthBuilder>)));
-        (cut.Find("div").GetAttribute("class") ?? "").Should().NotContain("12px");
+        (cut.Find("div").GetAttribute("class") ?? "").Should().BeEmpty();
     }
 
     [Test]

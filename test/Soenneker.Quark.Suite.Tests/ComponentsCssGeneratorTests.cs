@@ -6,35 +6,52 @@ namespace Soenneker.Quark.Suite.Tests;
 public class ComponentsCssGeneratorTests
 {
     [Test]
-    [Arguments("p-2 md:p-4")]
-    [Arguments("p-2 w-4")]
-    [Arguments("p-2 unknown")]
-    public void Generate_WithUnsupportedPaddingComposite_DoesNotEmitPartialDeclarations(string padding)
+    public void Generate_EmitsLiteralValuesWithoutUtilityInterpretation()
     {
-        ComponentCssGenerator.Generate(new ComponentOptions { Padding = padding }).Should().BeEmpty();
+        var options = new ComponentOptions
+        {
+            Width = "calc(100% - var(--sidebar-width))",
+            Height = "100dvh",
+            MinHeight = "4rem",
+            MaxHeight = "none",
+            BackgroundColor = "oklch(0.7 0.15 30)"
+        };
+        ComponentCssGenerator.Generate(options).Should().Be(
+            ":root {\n  width: calc(100% - var(--sidebar-width));\n  height: 100dvh;\n  min-height: 4rem;\n  max-height: none;\n  background-color: oklch(0.7 0.15 30);\n}");
     }
 
     [Test]
-    [Arguments("border", "border")]
-    [Arguments("border-x", "border-inline")]
-    [Arguments("border-y", "border-block")]
-    [Arguments("border-s", "border-inline-start")]
-    [Arguments("border-e", "border-inline-end")]
-    [Arguments("border-t", "border-top")]
-    [Arguments("border-r", "border-right")]
-    [Arguments("border-b", "border-bottom")]
-    [Arguments("border-l", "border-left")]
-    public void Generate_WithBorderUtilities_PreservesWidthAndStyle(string border, string property)
+    public void Generate_DoesNotRepairClassTokensPassedAsCssValues()
     {
-        ComponentCssGenerator.Generate(new ComponentOptions { Border = border })
-            .Should().Be($":root {{\n  {property}-width: 1px;\n  {property}-style: solid;\n}}");
+        ComponentCssGenerator.Generate(new ComponentOptions { Width = "w-0", Padding = "p-2 md:p-4" })
+            .Should().Be(":root {\n  padding: p-2 md:p-4;\n  width: w-0;\n}");
     }
 
     [Test]
-    public void Generate_WithEmptyArbitraryValue_PreservesDeclarationFormatting()
+    public void Generate_PreservesCustomDeclarationsDuplicatesAndNestedSelectors()
     {
-        ComponentCssGenerator.Generate(new ComponentOptions { Width = "w-[]" })
-            .Should().Be(":root {\n  width:;\n}");
+        var options = new ComponentOptions
+        {
+            Selector = ".card",
+            Width = "20rem",
+            Declarations = [new("--surface", "var(--card)"), new("width", "30rem"), new("width", "30rem")],
+            Rules = [new() { Selector = "&:hover", TextColor = "var(--primary)" },
+                new() { Selector = ".title", FontWeight = "600" }]
+        };
+        ComponentCssGenerator.Generate(options).Should().Be(
+            ".card {\n  width: 20rem;\n  --surface: var(--card);\n  width: 30rem;\n  width: 30rem;\n}\n" +
+            ".card:hover {\n  color: var(--primary);\n}\n.card .title {\n  font-weight: 600;\n}");
+    }
+
+    [Test]
+    public void Generate_PreservesSemicolonsInsideCssValues()
+    {
+        var options = new ComponentOptions
+        {
+            Declarations = [new("content", "\"a;b\""), new("background-image", "url('data:image/svg+xml;base64,PHN2Zy8+')")]
+        };
+        ComponentCssGenerator.Generate(options).Should().Be(
+            ":root {\n  content: \"a;b\";\n  background-image: url('data:image/svg+xml;base64,PHN2Zy8+');\n}");
     }
 
     [Test]
@@ -49,11 +66,11 @@ public class ComponentsCssGeneratorTests
         var options = new CardOptions
         {
             Selector = ".card",
-            Display = Display.Block,
-            Anchors = new AnchorOptions { Selector = "& .shared", Display = Display.Flex },
-            Bodies = new CardBodyOptions { Selector = "&", Display = Display.Grid },
-            Buttons = new ButtonOptions { Selector = "& .other", Display = Display.Inline },
-            Descriptions = new CardDescriptionOptions { Selector = "& .shared", Display = Display.Block }
+            Display = "block",
+            Anchors = new AnchorOptions { Selector = "& .shared", Display = "flex" },
+            Bodies = new CardBodyOptions { Selector = "&", Display = "grid" },
+            Buttons = new ButtonOptions { Selector = "& .other", Display = "inline" },
+            Descriptions = new CardDescriptionOptions { Selector = "& .shared", Display = "block" }
         };
 
         ComponentCssGenerator.Generate(options).Should().Be(
@@ -93,7 +110,7 @@ public class ComponentsCssGeneratorTests
         {
             Divs = new DivOptions
             {
-                DecorationLine = DecorationLine.Underline
+                DecorationLine = "underline"
             }
         };
 
@@ -113,7 +130,7 @@ public class ComponentsCssGeneratorTests
             Anchors = new AnchorOptions
             {
                 Selector = "a",
-                DecorationLine = DecorationLine.Underline
+                DecorationLine = "underline"
             }
         };
 
@@ -131,7 +148,7 @@ public class ComponentsCssGeneratorTests
         {
             Divs = new DivOptions
             {
-                Shrink = Shrink.Is0
+                Shrink = "0"
             }
         };
 
@@ -147,9 +164,9 @@ public class ComponentsCssGeneratorTests
         {
             Divs = new DivOptions
             {
-                FlexDirection = FlexDirection.Col,
-                FlexWrap = FlexWrap.Wrap,
-                Grow = Grow.Is0
+                FlexDirection = "column",
+                FlexWrap = "wrap",
+                Grow = "0"
             }
         };
 
@@ -165,9 +182,9 @@ public class ComponentsCssGeneratorTests
         {
             Divs = new DivOptions
             {
-                Display = Display.InlineFlex,
-                FlexDirection = FlexDirection.Col,
-                FlexWrap = FlexWrap.Wrap
+                Display = "inline-flex",
+                FlexDirection = "column",
+                FlexWrap = "wrap"
             }
         };
 
@@ -177,99 +194,99 @@ public class ComponentsCssGeneratorTests
         result.Should().NotContain("display: flex;");
     }
     [Test]
-    public void Generate_WithQuarkBuilderValues_ReturnsComponentCss()
+    public void Generate_WithExplicitCssValues_ReturnsComponentCss()
     {
         var theme = new Theme
         {
             Anchors = new AnchorOptions
             {
                 Selector = "a",
-                DecorationLine = DecorationLine.None,
-                TextColor = TextColor.Primary
+                DecorationLine = "none",
+                TextColor = "var(--primary)"
             },
             Buttons = new ButtonOptions
             {
-                BackgroundColor = BackgroundColor.Primary,
-                TextColor = TextColor.Blue.Is100,
-                Rounded = Rounded.Lg,
-                Padding = Padding.OnY.Is2.OnX.Is4
+                BackgroundColor = "var(--primary)",
+                TextColor = "var(--color-blue-100)",
+                Rounded = "0.5rem",
+                Padding = "0.5rem 1rem"
             },
             Cards = new CardOptions
             {
-                BackgroundColor = BackgroundColor.Card,
-                Rounded = Rounded.Xl,
-                Shadow = Shadow.Sm
+                BackgroundColor = "var(--card)",
+                Rounded = "0.75rem",
+                Shadow = "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)"
             }
         };
 
         var result = ComponentsCssGenerator.Generate(theme);
 
-        result.Should().Be("a {\n  color: var(--primary);\n  text-decoration: none;\n}\n[data-slot='button'] {\n  padding-top: 0.5rem;\n  padding-bottom: 0.5rem;\n  padding-left: 1rem;\n  padding-right: 1rem;\n  color: var(--color-blue-100);\n  background-color: var(--primary);\n  border-radius: 0.5rem;\n}\n[data-slot='card'] {\n  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);\n  background-color: var(--card);\n  border-radius: 0.75rem;\n}");
+        result.Should().Be("a {\n  color: var(--primary);\n  text-decoration: none;\n}\n[data-slot='button'] {\n  padding: 0.5rem 1rem;\n  color: var(--color-blue-100);\n  background-color: var(--primary);\n  border-radius: 0.5rem;\n}\n[data-slot='card'] {\n  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);\n  background-color: var(--card);\n  border-radius: 0.75rem;\n}");
     }
 
     [Test]
-    public void Generate_WithDataTableThemeUtilities_ReturnsComponentCss()
+    public void Generate_WithDataTableCssValues_ReturnsComponentCss()
     {
         var theme = new Theme
         {
             Anchors = new AnchorOptions
             {
                 Selector = ".q-datatable tbody td > a",
-                Display = Display.InlineFlex,
-                MaxWidth = Width.IsFull,
-                MinWidth = Width.Is0,
-                ItemsAlign = Items.Center,
-                Gap = Gap.Is2,
-                Overflow = Overflow.Hidden,
-                DecorationLine = DecorationLine.None
+                Display = "inline-flex",
+                MaxWidth = "100%",
+                MinWidth = "0",
+                ItemsAlign = "center",
+                Gap = "0.5rem",
+                Overflow = "hidden",
+                DecorationLine = "none"
             },
             Divs = new DivOptions
             {
                 Selector = ".q-datatable tbody td > a > div",
-                MinWidth = Width.Is0,
-                Overflow = Overflow.Hidden
+                MinWidth = "0",
+                Overflow = "hidden"
             },
             Spans = new SpanOptions
             {
                 Selector = ".q-datatable tbody td > a > div > span",
-                Display = Display.Block,
-                Overflow = Overflow.Hidden,
-                TextOverflow = TextOverflow.Ellipsis,
-                Whitespace = Whitespace.Nowrap
+                Display = "block",
+                Overflow = "hidden",
+                TextOverflow = "ellipsis",
+                Whitespace = "nowrap"
             },
             Trs = new TrOptions
             {
                 Selector = ".q-datatable tbody tr",
-                Border = Border.FromBottom.Is1,
-                BorderColor = BorderColor.Token("[var(--border)]")
+                Declarations = [new("border-bottom-width", "1px"), new("border-bottom-style", "solid")],
+                BorderColor = "var(--border)"
             },
             Tds = new TdOptions
             {
                 Selector = ".q-datatable tbody td",
-                MinWidth = Width.Is0,
-                Padding = Padding.OnY.Is3,
-                VerticalAlign = VerticalAlign.Top
+                MinWidth = "0",
+                Declarations = [new("padding-top", "0.75rem"), new("padding-bottom", "0.75rem")],
+                VerticalAlign = "top"
             },
             Ths = new ThOptions
             {
                 Selector = ".q-datatable thead th",
-                TextSize = TextSize.Sm,
-                FontWeight = FontWeight.Semibold
+                TextSize = "var(--text-sm)",
+                FontWeight = "600"
             },
             DataTableTopBars = new DataTableTopBarOptions
             {
-                BackgroundColor = BackgroundColor.Token("[var(--surface)]")
+                BackgroundColor = "var(--surface)"
             },
             DataTables = new DataTableThemeOptions
             {
-                Width = Width.IsFull,
-                MinWidth = Width.Token("[42rem]"),
-                BackgroundColor = BackgroundColor.Transparent
+                Width = "100%",
+                MinWidth = "42rem",
+                BackgroundColor = "transparent"
             }
         };
 
         var result = ComponentsCssGenerator.Generate(theme);
 
-        result.Should().Be(".q-datatable tbody td > a {\n  display: inline-flex;\n  min-width: 0;\n  max-width: 100%;\n  overflow: hidden;\n  gap: 0.5rem;\n  text-decoration: none;\n  align-items: center;\n}\n.q-datatable tbody td > a > div {\n  min-width: 0;\n  overflow: hidden;\n}\n.q-datatable tbody td > a > div > span {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.q-datatable tbody tr {\n  border-bottom-width: 1px;\n  border-bottom-style: solid;\n  border-color: var(--border);\n}\n.q-datatable tbody td {\n  vertical-align: top;\n  padding-top: 0.75rem;\n  padding-bottom: 0.75rem;\n  min-width: 0;\n}\n.q-datatable thead th {\n  font-size: var(--text-sm);\n  font-weight: 600;\n}\n.q-datatable-top-bar {\n  background-color: var(--surface);\n}\n.q-datatable {\n  width: 100%;\n  min-width: 42rem;\n  background-color: transparent;\n}");
+        result.Should().Be(".q-datatable tbody td > a {\n  display: inline-flex;\n  min-width: 0;\n  max-width: 100%;\n  overflow: hidden;\n  gap: 0.5rem;\n  text-decoration: none;\n  align-items: center;\n}\n.q-datatable tbody td > a > div {\n  min-width: 0;\n  overflow: hidden;\n}\n.q-datatable tbody td > a > div > span {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.q-datatable tbody tr {\n  border-color: var(--border);\n  border-bottom-width: 1px;\n  border-bottom-style: solid;\n}\n.q-datatable tbody td {\n  vertical-align: top;\n  min-width: 0;\n  padding-top: 0.75rem;\n  padding-bottom: 0.75rem;\n}\n.q-datatable thead th {\n  font-size: var(--text-sm);\n  font-weight: 600;\n}\n.q-datatable-top-bar {\n  background-color: var(--surface);\n}\n.q-datatable {\n  width: 100%;\n  min-width: 42rem;\n  background-color: transparent;\n}");
     }
 }

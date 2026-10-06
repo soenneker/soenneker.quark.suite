@@ -6,21 +6,21 @@ namespace Soenneker.Quark;
 // The collector owns this buffer. Copies must never be disposed independently.
 internal struct PooledCssDeclarations
 {
-    private ComponentCssDeclaration _first;
-    private ComponentCssDeclaration _second;
-    private ComponentCssDeclaration[]? _rest;
+    private ThemeCssDeclaration _first;
+    private ThemeCssDeclaration _second;
+    private ThemeCssDeclaration[]? _rest;
     internal int Count { get; private set; }
 
-    internal readonly ComponentCssDeclaration this[int index] =>
+    internal readonly ThemeCssDeclaration this[int index] =>
         index == 0 ? _first : index == 1 ? _second : _rest![index - 2];
 
-    internal PooledCssDeclarations(ComponentCssDeclaration first)
+    internal PooledCssDeclarations(ThemeCssDeclaration first)
     {
         _first = first;
         Count = 1;
     }
 
-    internal void Add(ComponentCssDeclaration value)
+    internal void Add(ThemeCssDeclaration value)
     {
         if (Count == 0)
             _first = value;
@@ -30,12 +30,12 @@ internal struct PooledCssDeclarations
         {
             var index = Count - 2;
             if (_rest is null)
-                _rest = ArrayPool<ComponentCssDeclaration>.Shared.Rent(16);
+                _rest = ArrayPool<ThemeCssDeclaration>.Shared.Rent(16);
             else if (index == _rest.Length)
             {
-                var expanded = ArrayPool<ComponentCssDeclaration>.Shared.Rent(checked(_rest.Length * 2));
+                var expanded = ArrayPool<ThemeCssDeclaration>.Shared.Rent(checked(_rest.Length * 2));
                 _rest.CopyTo(expanded, 0);
-                ArrayPool<ComponentCssDeclaration>.Shared.Return(_rest, clearArray: true);
+                ArrayPool<ThemeCssDeclaration>.Shared.Return(_rest, clearArray: true);
                 _rest = expanded;
             }
 
@@ -48,7 +48,7 @@ internal struct PooledCssDeclarations
     internal void Dispose()
     {
         if (_rest is not null)
-            ArrayPool<ComponentCssDeclaration>.Shared.Return(_rest, clearArray: true);
+            ArrayPool<ThemeCssDeclaration>.Shared.Return(_rest, clearArray: true);
         this = default;
     }
 }

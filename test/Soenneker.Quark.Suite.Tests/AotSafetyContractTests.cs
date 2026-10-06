@@ -10,7 +10,6 @@ public sealed class AotSafetyContractTests
     [Test]
     [Arguments(typeof(RenderComponent), "AddCss")]
     [Arguments(typeof(RenderComponent), "AddIf")]
-    [Arguments(typeof(ComponentOptions), "AddRules")]
     [Arguments(typeof(Component), "BuildTypographyClassAndStyle")]
     [Arguments(typeof(Component), "BuildLayoutClassAndStyle")]
     [Arguments(typeof(Component), "BuildInteractionClassAndStyle")]

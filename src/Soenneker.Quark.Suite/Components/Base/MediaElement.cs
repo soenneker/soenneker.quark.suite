@@ -85,15 +85,15 @@ public abstract class MediaElement : Element
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
 
-        AddCss(ref sty, ref cls, AspectRatio);
-        AddCss(ref sty, ref cls, ObjectFit);
-        AddCss(ref sty, ref cls, ObjectPosition);
-        AddCss(ref sty, ref cls, Fill);
-        AddCss(ref sty, ref cls, Stroke);
-        AddCss(ref sty, ref cls, StrokeWidth);
-        AddCss(ref sty, ref cls, StrokeLineCap);
-        AddCss(ref sty, ref cls, StrokeLineJoin);
-        AddCss(ref sty, ref cls, FillRule);
+        AddCss(ref cls, AspectRatio);
+        AddCss(ref cls, ObjectFit);
+        AddCss(ref cls, ObjectPosition);
+        AddCss(ref cls, Fill);
+        AddCss(ref cls, Stroke);
+        AddCss(ref cls, StrokeWidth);
+        AddCss(ref cls, StrokeLineCap);
+        AddCss(ref cls, StrokeLineJoin);
+        AddCss(ref cls, FillRule);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

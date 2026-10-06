@@ -15,6 +15,7 @@
     private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.Is2;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Background;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Primary;
     private string? _lastBuiltClass;
 
 
@@ -28,6 +29,7 @@
         TextColor ??= _defaultTextColor;
         ItemsAlign ??= _staticCss0;
         Justify ??= _defaultJustify;
+        BackgroundColor ??= _defaultBackgroundColor;
         Ring ??= _defaultRing;
         RingColor ??= _defaultRingColor;
         UserSelect ??= _defaultUserSelect;
@@ -41,8 +43,6 @@
             var cls = new PooledStringBuilder(stackalloc char[64]);
             try
             {
-                if (BackgroundColor is null && !HasBackgroundClass())
-                    AppendClass(ref cls, "bg-primary");
                 AppendClass(ref cls, "end-0 bottom-0 z-10");
                 AppendClass(ref cls, "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden");
                 AppendClass(ref cls, "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2");
@@ -54,51 +54,6 @@
                 cls.Dispose();
             }
         }
-    }
-
-    private bool HasBackgroundClass()
-    {
-        if (string.IsNullOrWhiteSpace(Class))
-            return false;
-
-        var span = Class.AsSpan();
-        var tokenStart = -1;
-
-        for (var i = 0; i <= span.Length; i++)
-        {
-            if (i < span.Length && !char.IsWhiteSpace(span[i]))
-            {
-                if (tokenStart < 0)
-                    tokenStart = i;
-
-                continue;
-            }
-
-            if (tokenStart < 0)
-                continue;
-
-            if (IsBackgroundToken(span[tokenStart..i]))
-                return true;
-
-            tokenStart = -1;
-        }
-
-        return false;
-    }
-
-    private static bool IsBackgroundToken(ReadOnlySpan<char> token)
-    {
-        var importantIndex = token.LastIndexOf('!');
-
-        if (importantIndex >= 0)
-            token = token[(importantIndex + 1)..];
-
-        var prefixIndex = token.LastIndexOf(':');
-
-        if (prefixIndex >= 0)
-            token = token[(prefixIndex + 1)..];
-
-        return token.StartsWith("bg-", StringComparison.Ordinal);
     }
 
 }
