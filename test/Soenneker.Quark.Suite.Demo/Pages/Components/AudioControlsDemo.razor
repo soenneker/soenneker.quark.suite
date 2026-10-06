@@ -1,0 +1,131 @@
+@page "/components/audio-controls"
+
+<QuarkSeoHead Title="Blazor Audio Controls: Playback, Seeking &amp; Volume | Quark Suite"
+              Description="Explore Quark AudioControls with controlled playback, seeking, volume, compact mode, and disabled states." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Paragraph>
+        AudioControls provides the controls for a player owned by your application, including native audio players.
+        These interactive examples update local state without playing sound. Connect the callbacks to your player
+        and update the parameters from its playback events. Hover over or focus the speaker to reveal volume;
+        press it to mute or restore the previous volume. Volume ranges from zero to one; time is measured in seconds.
+    </Paragraph>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Playback, seeking, and volume" Description="Toggle play/pause and adjust position and volume. The application owns each value."
+                     Code="@PlaybackCode" CodeLanguage="razor">
+            <AudioControls IsPlaying="@_isPlaying" MediaDuration="245"
+                           @bind-CurrentTime="_currentTime" @bind-Volume="_volume"
+                           OnTogglePlayback="TogglePlayback" />
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Stop instead of pause" Description="Stopping resets the position; seeking is enabled while playing."
+                     Code="@StopCode" CodeLanguage="razor">
+            <AudioControls IsPlaying="@_stopPlaying" MediaDuration="3661"
+                           @bind-CurrentTime="_stopTime" @bind-Volume="_stopVolume"
+                           StopInsteadOfPause="true" CanSeek="@_stopPlaying"
+                           OnTogglePlayback="ToggleStopPlayback" />
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Compact" Description="A single play/stop button for inline previews."
+                     Code="@CompactCode" CodeLanguage="razor">
+            <AudioControls Compact="true" StopInsteadOfPause="true" IsPlaying="@_compactPlaying"
+                           OnTogglePlayback="ToggleCompactPlayback" />
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Disabled and unknown duration" Description="Disable all interaction while loading, or leave duration at zero to disable only seeking."
+                     Code="@DisabledCode" CodeLanguage="razor">
+            <Div Space="Space.Y.Is6" Width="Width.IsFull">
+                <AudioControls Disabled="true" MediaDuration="245" CurrentTime="65" Volume="0.5" />
+                <AudioControls MediaDuration="0" IsPlaying="@_unknownPlaying" @bind-Volume="_unknownVolume"
+                               OnTogglePlayback="ToggleUnknownPlayback" />
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private bool _isPlaying;
+    private double _currentTime = 42;
+    private double _volume = 0.5;
+    private bool _stopPlaying;
+    private double _stopTime;
+    private double _stopVolume = 0.5;
+    private bool _compactPlaying;
+    private bool _unknownPlaying;
+    private double _unknownVolume = 0.5;
+
+    private void TogglePlayback() => _isPlaying = !_isPlaying;
+    private void ToggleCompactPlayback() => _compactPlaying = !_compactPlaying;
+    private void ToggleUnknownPlayback() => _unknownPlaying = !_unknownPlaying;
+
+    private void ToggleStopPlayback()
+    {
+        _stopPlaying = !_stopPlaying;
+        if (!_stopPlaying)
+            _stopTime = 0;
+    }
+
+    private const string PlaybackCode = """
+        <AudioControls IsPlaying="@_isPlaying" MediaDuration="245"
+                       @bind-CurrentTime="_currentTime" @bind-Volume="_volume"
+                       OnTogglePlayback="TogglePlayback" />
+
+        @code {
+            private bool _isPlaying;
+            private double _currentTime = 42;
+            private double _volume = 0.5;
+            private void TogglePlayback() => _isPlaying = !_isPlaying;
+        }
+        """;
+
+    private const string StopCode = """
+        <AudioControls IsPlaying="@_stopPlaying" MediaDuration="3661"
+                       @bind-CurrentTime="_stopTime" @bind-Volume="_stopVolume"
+                       StopInsteadOfPause="true" CanSeek="@_stopPlaying"
+                       OnTogglePlayback="ToggleStopPlayback" />
+
+        @code {
+            private bool _stopPlaying;
+            private double _stopTime;
+            private double _stopVolume = 0.5;
+
+            private void ToggleStopPlayback()
+            {
+                _stopPlaying = !_stopPlaying;
+                if (!_stopPlaying)
+                    _stopTime = 0;
+            }
+        }
+        """;
+
+    private const string CompactCode = """
+        <AudioControls Compact="true" StopInsteadOfPause="true" IsPlaying="@_compactPlaying"
+                       OnTogglePlayback="ToggleCompactPlayback" />
+
+        @code {
+            private bool _compactPlaying;
+            private void ToggleCompactPlayback() => _compactPlaying = !_compactPlaying;
+        }
+        """;
+
+    private const string DisabledCode = """
+        <Div Space="Space.Y.Is6" Width="Width.IsFull">
+            <AudioControls Disabled="true" MediaDuration="245" CurrentTime="65" Volume="0.5" />
+            <AudioControls MediaDuration="0" IsPlaying="@_unknownPlaying" @bind-Volume="_unknownVolume"
+                           OnTogglePlayback="ToggleUnknownPlayback" />
+        </Div>
+
+        @code {
+            private bool _unknownPlaying;
+            private double _unknownVolume = 0.5;
+            private void ToggleUnknownPlayback() => _unknownPlaying = !_unknownPlaying;
+        }
+        """;
+}

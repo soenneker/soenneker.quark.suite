@@ -36,6 +36,7 @@ public static class DocsNavigation
         new("Alert Dialog", ComponentRoute("alert-dialog")),
         new("Announcement", ComponentRoute("announcement")),
         new("Aspect Ratio", ComponentRoute("aspect-ratio")),
+        new("Audio Controls", ComponentRoute("audio-controls"), IsNew: true),
         new("Avatar", ComponentRoute("avatar")),
         new("Autosave", ComponentRoute("autosave")),
         new("Badge", ComponentRoute("badge")),

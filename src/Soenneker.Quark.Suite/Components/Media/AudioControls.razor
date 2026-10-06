@@ -1,0 +1,127 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAudioControls
+
+<div @attributes="BuildAttributes()">
+    <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2.OnSm.Is3" Rounded="Quark.Rounded.Full"
+         BackgroundColor="Quark.BackgroundColor.Secondary"
+         Class="@BarClass" data-disabled="@Disabled.ToString().ToLowerInvariant()">
+        <Button Class="shrink-0 text-foreground" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="Quark.Rounded.Full"
+                Disabled="@Disabled" title="@PlaybackLabel" aria-label="@PlaybackLabel"
+                OnClick="() => OnTogglePlayback.InvokeAsync()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                @if (!IsPlaying)
+                {
+                    <path d="M8 5v14l11-7z" />
+                }
+                else if (StopInsteadOfPause)
+                {
+                    <path d="M6 6h12v12H6z" />
+                }
+                else
+                {
+                    <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                }
+            </svg>
+        </Button>
+        @if (!Compact)
+        {
+            <Span Class="shrink-0 whitespace-nowrap text-sm font-normal tabular-nums">@FormatTime(CurrentTime) / @FormatTime(MediaDuration)</Span>
+            <Div Class="group/seek min-w-8 flex-1">
+                <Slider Class="min-h-7 [&_[data-slot=slider-track]]:bg-foreground/20 [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 group-focus-within/seek:[&_[data-slot=slider-thumb]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none" Min="0" Max="@Math.Max(SafeDuration, 1)" Step="1"
+                        SliderValue="@Math.Clamp(SafeSeconds(CurrentTime), 0, SafeDuration)"
+                        SliderValueChanged="CurrentTimeChanged" Disabled="@(Disabled || !CanSeek || SafeDuration <= 0)"
+                        Label="Playback position" />
+            </Div>
+            <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Class="group/volume shrink-0">
+                <Button Class="shrink-0 text-foreground" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="Quark.Rounded.Full"
+                        Disabled="@Disabled" title="@(SafeVolume > 0 ? "Mute" : "Unmute")" aria-label="@(SafeVolume > 0 ? "Mute" : "Unmute")"
+                        OnClick="ToggleMute">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" stroke="none" />
+                        @if (SafeVolume > 0)
+                        {
+                            <path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" />
+                        }
+                        else
+                        {
+                            <path d="m16 9 6 6m0-6-6 6" />
+                        }
+                    </svg>
+                </Button>
+                <Div Class="order-first invisible w-0 overflow-hidden opacity-0 transition-[width,opacity] duration-200 ease-out group-hover/volume:visible group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:visible group-focus-within/volume:w-20 group-focus-within/volume:opacity-100 motion-reduce:transition-none">
+                    <Div Class="w-20 px-2">
+                        <Slider Class="min-h-7 [&_[data-slot=slider-track]]:bg-foreground/20" Min="0" Max="1" Step="0.01" SliderValue="@SafeVolume"
+                                SliderValueChanged="VolumeChanged" Disabled="@Disabled" Label="Volume" />
+                    </Div>
+                </Div>
+            </Div>
+        }
+    </Div>
+    @ChildContent
+</div>
+@code {
+    [Parameter] public bool IsPlaying { get; set; }
+    [Parameter] public double MediaDuration { get; set; }
+    [Parameter] public double CurrentTime { get; set; }
+    [Parameter] public double Volume { get; set; } = 0.5;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public bool StopInsteadOfPause { get; set; }
+    [Parameter] public bool CanSeek { get; set; } = true;
+    [Parameter] public EventCallback OnTogglePlayback { get; set; }
+    [Parameter] public EventCallback<double> CurrentTimeChanged { get; set; }
+    [Parameter] public EventCallback<double> VolumeChanged { get; set; }
+
+    private string BarClass => Compact
+        ? "w-fit p-2 text-foreground data-[disabled=true]:opacity-50"
+        : "w-full min-h-14 px-3 py-2 text-foreground data-[disabled=true]:opacity-50";
+
+    private double _volumeBeforeMute = 0.5;
+
+    private Task ToggleMute()
+    {
+        if (SafeVolume > 0)
+        {
+            _volumeBeforeMute = SafeVolume;
+            return VolumeChanged.InvokeAsync(0);
+        }
+
+        return VolumeChanged.InvokeAsync(_volumeBeforeMute);
+    }
+
+    private string PlaybackLabel => IsPlaying ? (StopInsteadOfPause ? "Stop" : "Pause") : "Play";
+    private double SafeDuration => SafeSeconds(MediaDuration);
+    private double SafeVolume => double.IsFinite(Volume) ? Math.Clamp(Volume, 0, 1) : 0;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "audio-controls";
+        Width ??= Quark.Width.IsFull;
+    }
+
+    private static double SafeSeconds(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, TimeSpan.MaxValue.TotalSeconds - 1) : 0;
+
+    private static string FormatTime(double seconds)
+    {
+        var time = TimeSpan.FromSeconds(SafeSeconds(seconds));
+        return time.TotalHours >= 1 ? $"{(long)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}" : $"{time.Minutes}:{time.Seconds:00}";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(IsPlaying);
+        hc.Add(MediaDuration);
+        hc.Add(CurrentTime);
+        hc.Add(Volume);
+        hc.Add(Disabled);
+        hc.Add(Compact);
+        hc.Add(StopInsteadOfPause);
+        hc.Add(CanSeek);
+        hc.Add(OnTogglePlayback);
+        hc.Add(CurrentTimeChanged);
+        hc.Add(VolumeChanged);
+    }
+}
