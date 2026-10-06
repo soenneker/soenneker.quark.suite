@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -43,13 +40,13 @@ public sealed class PaginationOptions : ComponentOptions
     /// </summary>
     public SpanOptions? Spans { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Contents, "[data-slot='pagination-content']", "[data-slot='pagination-content']", baseSelector);
-        AddChildCssRules(buffer, Ellipses, "[data-slot='pagination-ellipsis']", "[data-slot='pagination-ellipsis']", baseSelector);
-        AddChildCssRules(buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
-        AddChildCssRules(buffer, Items, "[data-slot='pagination-item']", "[data-slot='pagination-item']", baseSelector);
-        AddChildCssRules(buffer, Links, "[data-slot='pagination-link']", "[data-slot='pagination-link']", baseSelector);
-        AddChildCssRules(buffer, Spans, "[data-slot='span']", "[data-slot='span']", baseSelector);
+        AddChildCssRules(ref buffer, Contents, "[data-slot='pagination-content']", "[data-slot='pagination-content']", baseSelector);
+        AddChildCssRules(ref buffer, Ellipses, "[data-slot='pagination-ellipsis']", "[data-slot='pagination-ellipsis']", baseSelector);
+        AddChildCssRules(ref buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
+        AddChildCssRules(ref buffer, Items, "[data-slot='pagination-item']", "[data-slot='pagination-item']", baseSelector);
+        AddChildCssRules(ref buffer, Links, "[data-slot='pagination-link']", "[data-slot='pagination-link']", baseSelector);
+        AddChildCssRules(ref buffer, Spans, "[data-slot='span']", "[data-slot='span']", baseSelector);
     }
 }

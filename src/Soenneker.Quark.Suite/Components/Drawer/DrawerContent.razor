@@ -11,7 +11,7 @@
     }
 
     <BradixDialogContent Id="@Context?.ContentId" CloseOnEscapeKeyDown="@ShouldCloseOnEscape" CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction" CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction" OnPointerDownOutside="(_cachedHandleBackdropPointerDownOutsideDelegate ??= HandleBackdropPointerDownOutside)" OnElementReferenceCaptured="(_cachedHandleElementReferenceCapturedDelegate ??= HandleElementReferenceCaptured)" AdditionalAttributes="@ContentAttributes">
-        @if (ResolvedSide == Soenneker.Bradix.Side.Bottom)
+        @if (ResolvedSide == Side.Bottom)
         {
             <Div DataSlot="drawer-handle" Margin="_renderCss0" Height="_renderCss1" Width='_renderCss2' Shrink="_renderCss3" Rounded="_renderCss4" BackgroundColor="_renderCss5"></Div>
         }
@@ -33,8 +33,8 @@
     private static readonly CssValue<ShrinkBuilder> _renderCss3 = Quark.Shrink.Is0;
     private static readonly CssValue<RoundedBuilder> _renderCss4 = Quark.Rounded.Full;
     private static readonly CssValue<BackgroundColorBuilder> _renderCss5 = Quark.BackgroundColor.Muted;
-    private System.Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
-    private System.Func<ElementReference, Task>? _cachedHandleElementReferenceCapturedDelegate;
+    private Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
+    private Func<ElementReference, Task>? _cachedHandleElementReferenceCapturedDelegate;
 
     private string? _lastPrependedClass;
     private string? _lastBuiltClass;
@@ -49,7 +49,7 @@
     [Parameter]
     public Side? Side { get; set; }
 
-    private Side ResolvedSide => Side ?? ParentDrawer?.DirectionSide ?? Soenneker.Bradix.Side.Bottom;
+    private Side ResolvedSide => Side ?? ParentDrawer?.DirectionSide ?? Side.Bottom;
 
     private bool ShouldCloseOnOutsideInteraction =>
         ParentDrawer is not null && !ParentDrawer.Static && ParentDrawer.CloseOnBackdropClick;

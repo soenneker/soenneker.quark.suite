@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -33,11 +30,11 @@ public sealed class AlertOptions : ComponentOptions
     /// </summary>
     public AlertTitleOptions? Titles { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Actions, "[data-slot='alert-action']", "[data-slot='alert-action']", baseSelector);
-        AddChildCssRules(buffer, Descriptions, "[data-slot='alert-description']", "[data-slot='alert-description']", baseSelector);
-        AddChildCssRules(buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
-        AddChildCssRules(buffer, Titles, "[data-slot='alert-title']", "[data-slot='alert-title']", baseSelector);
+        AddChildCssRules(ref buffer, Actions, "[data-slot='alert-action']", "[data-slot='alert-action']", baseSelector);
+        AddChildCssRules(ref buffer, Descriptions, "[data-slot='alert-description']", "[data-slot='alert-description']", baseSelector);
+        AddChildCssRules(ref buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
+        AddChildCssRules(ref buffer, Titles, "[data-slot='alert-title']", "[data-slot='alert-title']", baseSelector);
     }
 }

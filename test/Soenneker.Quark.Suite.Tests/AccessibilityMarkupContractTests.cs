@@ -123,7 +123,7 @@ public sealed partial class RenderedShadcnParityTests
     private static RenderFragment BuildHeaderAndSidebar() => builder =>
     {
         builder.OpenComponent<Soenneker.Quark.Header.Header>(0);
-        builder.AddAttribute(1, nameof(Soenneker.Quark.Header.Header.ShowSidebarTrigger), true);
+        builder.AddAttribute(1, nameof(Header.Header.ShowSidebarTrigger), true);
         builder.CloseComponent();
 
         builder.OpenComponent<Sidebar>(2);

@@ -295,7 +295,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeScoreInterop : IScoreInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -303,34 +303,34 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeScrollspyInterop : IScrollspyInterop
     {
         public ValueTask Initialize(ElementReference element, ScrollspyInteropOptions options, DotNetObjectReference<Scrollspy> callbackReference,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 
     private sealed class FakeSortableInterop : ISortableInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector, string? handleSelector,
             string? filterSelector, string? group, bool notifyOnReorder, DotNetObjectReference<SortableList> callbackReference,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakeThreadsInterop : IThreadsInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask InitializeThread(ElementReference element, DotNetObjectReference<Thread> callbackReference, string initial, string resizeBehavior,
-            bool stickToBottom, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            bool stickToBottom, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask ScrollToBottom(ElementReference element, string behavior, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask ScrollToBottom(ElementReference element, string behavior, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -363,16 +363,16 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeOverlayInterop : IOverlayInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Activate(string overlayId, ElementReference container, bool trapFocus = true, bool lockScroll = true, string? initialFocusSelector = null,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask ActivateScrollLock(string overlayId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask ActivateScrollLock(string overlayId, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Deactivate(string overlayId, bool unlockScroll = true, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Deactivate(string overlayId, bool unlockScroll = true, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask ReleaseScrollLocks(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask ReleaseScrollLocks(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -380,40 +380,40 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeCarouselInterop : ICarouselInterop
     {
         public ValueTask Initialize(ElementReference element, DotNetObjectReference<Carousel> callbackReference, int currentIndex, bool isVertical, string? align,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask<double> MeasureOffset(ElementReference element, int currentIndex, bool isVertical, string? align,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(0d);
+            CancellationToken cancellationToken = default) => ValueTask.FromResult(0d);
 
-        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakePromptInputInterop : IPromptInputInterop
     {
-        public ValueTask RegisterTextarea(ElementReference textarea, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask RegisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask UnregisterTextarea(ElementReference textarea, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask OpenFileDialogById(string inputId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask OpenFileDialogById(string inputId, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask RegisterAttachmentsById(string inputId, DotNetObjectReference<PromptInputActionAddAttachments> callbackReference, bool globalDrop,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask UnregisterAttachmentsById(string inputId, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterAttachmentsById(string inputId, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakeInputInterop : IInputInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask<InputSelectionSnapshot?> GetSelection(ElementReference input, System.Threading.CancellationToken cancellationToken = default) =>
+        public ValueTask<InputSelectionSnapshot?> GetSelection(ElementReference input, CancellationToken cancellationToken = default) =>
             ValueTask.FromResult<InputSelectionSnapshot?>(null);
 
-        public ValueTask RestoreSelection(ElementReference input, int start, int end, string? value, System.Threading.CancellationToken cancellationToken = default) =>
+        public ValueTask RestoreSelection(ElementReference input, int start, int end, string? value, CancellationToken cancellationToken = default) =>
             ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -423,59 +423,59 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     {
         public int RegisterHandleCallCount { get; private set; }
 
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask RegisterHandle(ElementReference handle, ElementReference group, string orientation,
-            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, System.Threading.CancellationToken cancellationToken = default)
+            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, CancellationToken cancellationToken = default)
         {
             RegisterHandleCallCount++;
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask UnregisterHandle(ElementReference handle, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterHandle(ElementReference handle, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask StartDrag(ElementReference group, long pointerId, double clientX, double clientY, string orientation,
-            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask StopDrag(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask StopDrag(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakeCodeEditorInterop : ICodeEditorInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask CreateEditor(ElementReference container, string optionsJson, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask SetValue(ElementReference container, string value, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask<string?> GetValue(ElementReference container, System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(string.Empty);
+        public ValueTask<string?> GetValue(ElementReference container, CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(string.Empty);
 
-        public ValueTask SetLanguage(ElementReference container, string language, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask SetLanguage(ElementReference container, string language, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask SetTheme(string theme, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask SetTheme(string theme, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask DisposeEditor(ElementReference container, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Layout(ElementReference container, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Layout(ElementReference container, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
-            System.Threading.CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
 
         public ValueTask ConfigureFileDrop(ElementReference container, ElementReference dropZone, string inputId,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RemoveFileDrop(ElementReference container, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask RemoveFileDrop(ElementReference container, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask InsertTextAtDropPosition(ElementReference container, string text,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, System.Threading.CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
+        public ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
 
         public ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef) where T : class => ValueTask.CompletedTask;
 
@@ -484,30 +484,30 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeTablesInterop : ITablesInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask StopAdaptiveLayout(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask StopAdaptiveLayout(ElementReference element, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakeColorPickerInterop : IColorPickerInterop
     {
-        public ValueTask<string?> PickColor(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(null);
+        public ValueTask<string?> PickColor(CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(null);
 
         public ValueTask<bool> RegisterCanvas(ElementReference canvas, DotNetObjectReference<ColorPicker> callbackReference, bool disabled,
-            System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+            CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
-        public ValueTask UnregisterCanvas(ElementReference canvas, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterCanvas(ElementReference canvas, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     private sealed class FakeSpinnerInterop : ISpinnerInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -536,51 +536,51 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeClipboardUtil : IClipboardUtil
     {
-        public ValueTask<bool> HasClipboard(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+        public ValueTask<bool> HasClipboard(CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
-        public ValueTask<ClipboardPermissionState> GetReadPermissionState(System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask<ClipboardPermissionState> GetReadPermissionState(CancellationToken cancellationToken = default)
             => ValueTask.FromResult(ClipboardPermissionState.Granted);
 
-        public ValueTask<ClipboardPermissionState> GetWritePermissionState(System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask<ClipboardPermissionState> GetWritePermissionState(CancellationToken cancellationToken = default)
             => ValueTask.FromResult(ClipboardPermissionState.Granted);
 
-        public ValueTask<string> ReadText(System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(string.Empty);
+        public ValueTask<string> ReadText(CancellationToken cancellationToken = default) => ValueTask.FromResult(string.Empty);
 
-        public ValueTask<(bool Success, string? Text)> TryReadText(System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask<(bool Success, string? Text)> TryReadText(CancellationToken cancellationToken = default)
             => ValueTask.FromResult((true, (string?) string.Empty));
 
-        public ValueTask WriteText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask WriteText(string? text, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask<bool> TryWriteText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
+        public ValueTask<bool> TryWriteText(string? text, CancellationToken cancellationToken = default) => ValueTask.FromResult(true);
 
-        public ValueTask CopyText(string? text, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask CopyText(string? text, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask CopyPlainAndHtml(string plainText, string? html = null, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask CopyPlainAndHtml(string plainText, string? html = null, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask<IReadOnlyList<ClipboardItemDto>> Read(System.Threading.CancellationToken cancellationToken = default)
-            => ValueTask.FromResult<IReadOnlyList<ClipboardItemDto>>(System.Array.Empty<ClipboardItemDto>());
+        public ValueTask<IReadOnlyList<ClipboardItemDto>> Read(CancellationToken cancellationToken = default)
+            => ValueTask.FromResult<IReadOnlyList<ClipboardItemDto>>(Array.Empty<ClipboardItemDto>());
 
-        public ValueTask Write(IEnumerable<ClipboardItemDto> items, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Write(IEnumerable<ClipboardItemDto> items, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask Clear(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Clear(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 
     private sealed class FakeSonnerInterop : ISonnerInterop
     {
-        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RegisterHotkey(ElementReference section, IReadOnlyList<string>? hotkey, System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask RegisterHotkey(ElementReference section, IReadOnlyList<string>? hotkey, CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
 
-        public ValueTask UnregisterHotkey(ElementReference section, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterHotkey(ElementReference section, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask<bool> RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference,
-            System.Threading.CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
             => ValueTask.FromResult(true);
 
-        public ValueTask UnregisterSwipeHandlers(ElementReference section, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask UnregisterSwipeHandlers(ElementReference section, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask<Dictionary<string, double>> MeasureToastHeights(ElementReference section, System.Threading.CancellationToken cancellationToken = default)
+        public ValueTask<Dictionary<string, double>> MeasureToastHeights(ElementReference section, CancellationToken cancellationToken = default)
             => ValueTask.FromResult(new Dictionary<string, double>());
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

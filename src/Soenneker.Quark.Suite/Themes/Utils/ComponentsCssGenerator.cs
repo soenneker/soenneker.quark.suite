@@ -21,8 +21,7 @@ public static class ComponentsCssGenerator
         var css = new PooledStringBuilder(stackalloc char[128]);
         try
         {
-            foreach (var componentOptions in theme.GetAllComponentOptions())
-                ComponentCssGenerator.Append(ref css, componentOptions);
+            theme.AppendComponentCss(ref css);
             return css.ToString();
         }
         finally

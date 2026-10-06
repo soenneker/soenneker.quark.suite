@@ -582,23 +582,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     [MethodImpl(MethodImplOptions.NoInlining)]
     protected static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
     {
-        if (v is not { IsEmpty: false })
-            return;
-
-        if (v.Value.IsCssStyle)
-        {
-            var style = v.Value.StyleValue;
-
-            if (style.Length != 0)
-                AppendStyleDecl(ref styB, style);
-
-            return;
-        }
-
-        var classText = v.Value.ToString();
-
-        if (classText.Length != 0)
-            AppendClass(ref clsB, classText);
+        // A missing value is the empty CssValue. Read its representation once;
+        // no parsing, class conflict resolution, or declaration deduplication is needed.
+        var value = v.GetValueOrDefault();
+        var style = value.StyleValue;
+        if (style.Length != 0)
+            AppendStyleDecl(ref styB, style);
+        else
+            AppendClass(ref clsB, value.ToString());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -689,29 +680,31 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         attrs["class"] = AppendToClass(existing?.ToString(), className, ref previous);
     }
 
-    protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes)
+    protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes) =>
+        AppendClassAttribute(attrs, classes.AsSpan());
+
+    protected static void AppendClassAttribute(Dictionary<string, object> attrs, params ReadOnlySpan<string?> classes)
     {
         attrs.TryGetValue("class", out var existingObj);
-        var existing = existingObj?.ToString();
+        var existing = existingObj as string ?? existingObj?.ToString();
         var builder = new PooledStringBuilder(stackalloc char[64]);
 
         try
         {
-            if (classes is not null)
-            {
-                for (var i = 0; i < classes.Length; i++)
-                {
-                    var className = classes[i];
+            if (!string.IsNullOrEmpty(existing))
+                AppendClass(ref builder, existing);
 
-                    if (!string.IsNullOrWhiteSpace(className))
-                        AppendClass(ref builder, className);
-                }
+            var existingLength = builder.Length;
+            foreach (var className in classes)
+            {
+                if (!string.IsNullOrWhiteSpace(className))
+                    AppendClass(ref builder, className);
             }
 
-            var cls = AppendToClass(existing, builder.ToString());
-
-            if (cls.Length > 0)
-                attrs["class"] = cls;
+            if (builder.Length > existingLength)
+                attrs["class"] = builder.ToString();
+            else if (existingLength > 0)
+                attrs["class"] = existing!;
         }
         finally
         {

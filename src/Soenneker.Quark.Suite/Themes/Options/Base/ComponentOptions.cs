@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Extensions.String;
 
@@ -17,36 +16,23 @@ public class ComponentOptions
     /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
     public string Selector { get; set; } = ":root";
 
-    /// <summary>
-    /// Gets all CSS rules for this component based on the configured properties.
-    /// </summary>
-    internal virtual IEnumerable<ComponentCssRule> GetCssRules()
+    internal void CollectCssRules(ref ComponentCssRuleCollector buffer)
     {
-        return GetCssRules(Selector);
-    }
+        if (Selector.IsNullOrWhiteSpace())
+            return;
 
-    /// <summary>
-    /// Gets all CSS rules for this component under the provided selector.
-    /// </summary>
-    internal virtual IEnumerable<ComponentCssRule> GetCssRules(string baseSelector)
-    {
-        if (baseSelector.IsNullOrWhiteSpace())
-            return [];
-
-        var buffer = new List<ComponentCssRule>(32);
-        CollectCssRules(buffer, baseSelector);
-        CollectChildCssRules(buffer, baseSelector);
-        return buffer;
+        CollectCssRules(ref buffer, Selector);
+        CollectChildCssRules(ref buffer, Selector);
     }
 
     /// <summary>
     /// Allows component option groups to append scoped child component rules.
     /// </summary>
-    private protected virtual void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected virtual void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
     }
 
-    private protected static void AddChildCssRules<TOptions>(List<ComponentCssRule> buffer, TOptions? options, string scopedDefaultSelector,
+    private protected static void AddChildCssRules<TOptions>(ref ComponentCssRuleCollector buffer, TOptions? options, string scopedDefaultSelector,
         string optionDefaultSelector, string baseSelector)
         where TOptions : ComponentOptions
     {
@@ -58,8 +44,8 @@ public class ComponentOptions
         if (scopedSelector.IsNullOrWhiteSpace())
             return;
 
-        options.CollectCssRules(buffer, scopedSelector);
-        options.CollectChildCssRules(buffer, scopedSelector);
+        options.CollectCssRules(ref buffer, scopedSelector);
+        options.CollectChildCssRules(ref buffer, scopedSelector);
     }
 
     private static string? ResolveScopedChildSelector(string baseSelector, string? selector, string scopedDefaultSelector, string optionDefaultSelector)
@@ -68,10 +54,10 @@ public class ComponentOptions
             return null;
 
         var trimmed = selector.Trim();
-        var relativeSelector = string.Equals(trimmed, optionDefaultSelector, System.StringComparison.Ordinal) ? scopedDefaultSelector : trimmed;
+        var relativeSelector = string.Equals(trimmed, optionDefaultSelector, StringComparison.Ordinal) ? scopedDefaultSelector : trimmed;
 
-        if (relativeSelector.Contains('&', System.StringComparison.Ordinal))
-            return relativeSelector.Replace("&", baseSelector, System.StringComparison.Ordinal).Trim();
+        if (relativeSelector.Contains('&', StringComparison.Ordinal))
+            return relativeSelector.Replace("&", baseSelector, StringComparison.Ordinal).Trim();
 
         if (baseSelector.IsNullOrWhiteSpace())
             return relativeSelector;
@@ -299,6 +285,9 @@ public class ComponentOptions
     /// </summary>
     public CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
 
+    /// <summary>Gets or sets the distance between text and its underline, including responsive and state variants.</summary>
+    public CssValue<UnderlineOffsetBuilder>? UnderlineOffset { get; set; }
+
     /// <summary>
     /// Gets or sets letter-spacing utility classes (tracking-*).
     /// </summary>
@@ -524,158 +513,252 @@ public class ComponentOptions
     /// </summary>
     public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
 
-    private void CollectCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private void CollectCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddRules(buffer, baseSelector, Display, "display");
-        AddRules(buffer, baseSelector, Visibility, "visibility");
-        AddRules(buffer, baseSelector, Float, "float");
-        AddRules(buffer, baseSelector, VerticalAlign, "vertical-align");
-        AddRules(buffer, baseSelector, TextOverflow, "text-overflow");
-        AddRules(buffer, baseSelector, Shadow, "box-shadow");
-        AddRules(buffer, baseSelector, Margin, "margin");
-        AddRules(buffer, baseSelector, Padding, "padding");
-        AddRules(buffer, baseSelector, Inset, null);
-        AddRules(buffer, baseSelector, Top, null);
-        AddRules(buffer, baseSelector, Right, null);
-        AddRules(buffer, baseSelector, Bottom, null);
-        AddRules(buffer, baseSelector, Left, null);
-        AddRules(buffer, baseSelector, Position, "position");
-        AddRules(buffer, baseSelector, ScrollMargin, null);
-        AddRules(buffer, baseSelector, ScrollPadding, null);
-        AddRules(buffer, baseSelector, Size, null);
-        AddRules(buffer, baseSelector, TextSize, "font-size");
-        AddRules(buffer, baseSelector, Width, "width");
-        AddRules(buffer, baseSelector, MinWidth, "min-width");
-        AddRules(buffer, baseSelector, MaxWidth, "max-width");
-        AddRules(buffer, baseSelector, Height, "height");
-        AddRules(buffer, baseSelector, MinHeight, "min-height");
-        AddRules(buffer, baseSelector, MaxHeight, "max-height");
-        AddRules(buffer, baseSelector, Overflow, "overflow");
-        AddRules(buffer, baseSelector, OverflowX, "overflow-x");
-        AddRules(buffer, baseSelector, OverflowY, "overflow-y");
-        AddRules(buffer, baseSelector, Overscroll, null);
-        AddRules(buffer, baseSelector, ObjectFit, "object-fit");
-        AddRules(buffer, baseSelector, TextAlign, "text-align");
-        AddRules(buffer, baseSelector, TextColor, "color");
-        AddRules(buffer, baseSelector, Flex, "flex");
-        AddRules(buffer, baseSelector, FlexDirection, "flex-direction");
-        AddRules(buffer, baseSelector, FlexWrap, "flex-wrap");
-        AddRules(buffer, baseSelector, Grow, "flex-grow");
-        AddRules(buffer, baseSelector, Shrink, "flex-shrink");
-        AddRules(buffer, baseSelector, Gap, "gap");
-        AddRules(buffer, baseSelector, Space, null);
-        AddRules(buffer, baseSelector, Divide, null);
-        AddRules(buffer, baseSelector, RingOffset, null);
-        AddRules(buffer, baseSelector, Fill, null);
-        AddRules(buffer, baseSelector, Stroke, null);
-        AddRules(buffer, baseSelector, Gradient, null);
-        AddRules(buffer, baseSelector, DecorationLine, "text-decoration");
-        AddRules(buffer, baseSelector, Tracking, null);
-        AddRules(buffer, baseSelector, ContentAlign, null);
-        AddRules(buffer, baseSelector, ItemsAlign, "align-items");
-        AddRules(buffer, baseSelector, Justify, null);
-        AddRules(buffer, baseSelector, SelfAlign, null);
-        AddRules(buffer, baseSelector, JustifyItemsAlign, null);
-        AddRules(buffer, baseSelector, JustifySelfAlign, null);
-        AddRules(buffer, baseSelector, ColStart, null);
-        AddRules(buffer, baseSelector, RowSpan, null);
-        AddRules(buffer, baseSelector, RowStart, null);
-        AddRules(buffer, baseSelector, Border, "border");
-        AddRules(buffer, baseSelector, BorderStyle, "border-style");
-        AddRules(buffer, baseSelector, Opacity, "opacity");
-        AddRules(buffer, baseSelector, ZIndex, "z-index");
-        AddRules(buffer, baseSelector, PointerEvents, "pointer-events");
-        AddRules(buffer, baseSelector, UserSelect, "user-select");
-        AddRules(buffer, baseSelector, TextTransform, "text-transform");
-        AddRules(buffer, baseSelector, FontFamily, "font-family");
-        AddRules(buffer, baseSelector, FontWeight, "font-weight");
-        AddRules(buffer, baseSelector, FontStyle, "font-style");
-        AddRules(buffer, baseSelector, Leading, "line-height");
-        AddRules(buffer, baseSelector, Whitespace, "white-space");
-        AddRules(buffer, baseSelector, TextWrap, "text-wrap");
-        AddRules(buffer, baseSelector, TextBreak, "word-break");
-        AddRules(buffer, baseSelector, BorderColor, "border-color");
-        AddRules(buffer, baseSelector, BackgroundColor, "background-color");
-        AddRules(buffer, baseSelector, Animation, "animation");
-        AddRules(buffer, baseSelector, Duration, "transition-duration");
-        AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
-        AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
-        AddRules(buffer, baseSelector, Rounded, "border-radius");
-        AddRules(buffer, baseSelector, Ring, null);
-        AddRules(buffer, baseSelector, RingColor, null);
-        AddRules(buffer, baseSelector, ClipPath, "clip-path");
-        AddRules(buffer, baseSelector, Cursor, "cursor");
-        AddRules(buffer, baseSelector, Filter, "filter");
-        AddRules(buffer, baseSelector, ObjectPosition, "object-position");
-        AddRules(buffer, baseSelector, Resize, "resize");
-        AddRules(buffer, baseSelector, ScreenReader, null);
-        AddRules(buffer, baseSelector, ScrollBehavior, "scroll-behavior");
-        AddRules(buffer, baseSelector, Transform, "transform");
-        AddRules(buffer, baseSelector, Transition, "transition");
-        AddRules(buffer, baseSelector, Truncate, null);
-        AddRules(buffer, baseSelector, LineClamp, null);
-        AddRules(buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
+        if (Display.HasValue)
+            AddRules(ref buffer, baseSelector, Display, "display");
+        if (Visibility.HasValue)
+            AddRules(ref buffer, baseSelector, Visibility, "visibility");
+        if (Float.HasValue)
+            AddRules(ref buffer, baseSelector, Float, "float");
+        if (VerticalAlign.HasValue)
+            AddRules(ref buffer, baseSelector, VerticalAlign, "vertical-align");
+        if (TextOverflow.HasValue)
+            AddRules(ref buffer, baseSelector, TextOverflow, "text-overflow");
+        if (Shadow.HasValue)
+            AddRules(ref buffer, baseSelector, Shadow, "box-shadow");
+        if (Margin.HasValue)
+            AddRules(ref buffer, baseSelector, Margin, "margin");
+        if (Padding.HasValue)
+            AddRules(ref buffer, baseSelector, Padding, "padding");
+        if (Inset.HasValue)
+            AddRules(ref buffer, baseSelector, Inset, null);
+        if (Top.HasValue)
+            AddRules(ref buffer, baseSelector, Top, null);
+        if (Right.HasValue)
+            AddRules(ref buffer, baseSelector, Right, null);
+        if (Bottom.HasValue)
+            AddRules(ref buffer, baseSelector, Bottom, null);
+        if (Left.HasValue)
+            AddRules(ref buffer, baseSelector, Left, null);
+        if (Position.HasValue)
+            AddRules(ref buffer, baseSelector, Position, "position");
+        if (ScrollMargin.HasValue)
+            AddRules(ref buffer, baseSelector, ScrollMargin, null);
+        if (ScrollPadding.HasValue)
+            AddRules(ref buffer, baseSelector, ScrollPadding, null);
+        if (Size.HasValue)
+            AddRules(ref buffer, baseSelector, Size, null);
+        if (TextSize.HasValue)
+            AddRules(ref buffer, baseSelector, TextSize, "font-size");
+        if (Width.HasValue)
+            AddRules(ref buffer, baseSelector, Width, "width");
+        if (MinWidth.HasValue)
+            AddRules(ref buffer, baseSelector, MinWidth, "min-width");
+        if (MaxWidth.HasValue)
+            AddRules(ref buffer, baseSelector, MaxWidth, "max-width");
+        if (Height.HasValue)
+            AddRules(ref buffer, baseSelector, Height, "height");
+        if (MinHeight.HasValue)
+            AddRules(ref buffer, baseSelector, MinHeight, "min-height");
+        if (MaxHeight.HasValue)
+            AddRules(ref buffer, baseSelector, MaxHeight, "max-height");
+        if (Overflow.HasValue)
+            AddRules(ref buffer, baseSelector, Overflow, "overflow");
+        if (OverflowX.HasValue)
+            AddRules(ref buffer, baseSelector, OverflowX, "overflow-x");
+        if (OverflowY.HasValue)
+            AddRules(ref buffer, baseSelector, OverflowY, "overflow-y");
+        if (Overscroll.HasValue)
+            AddRules(ref buffer, baseSelector, Overscroll, null);
+        if (ObjectFit.HasValue)
+            AddRules(ref buffer, baseSelector, ObjectFit, "object-fit");
+        if (TextAlign.HasValue)
+            AddRules(ref buffer, baseSelector, TextAlign, "text-align");
+        if (TextColor.HasValue)
+            AddRules(ref buffer, baseSelector, TextColor, "color");
+        if (Flex.HasValue)
+            AddRules(ref buffer, baseSelector, Flex, "flex");
+        if (FlexDirection.HasValue)
+            AddRules(ref buffer, baseSelector, FlexDirection, "flex-direction");
+        if (FlexWrap.HasValue)
+            AddRules(ref buffer, baseSelector, FlexWrap, "flex-wrap");
+        if (Grow.HasValue)
+            AddRules(ref buffer, baseSelector, Grow, "flex-grow");
+        if (Shrink.HasValue)
+            AddRules(ref buffer, baseSelector, Shrink, "flex-shrink");
+        if (Gap.HasValue)
+            AddRules(ref buffer, baseSelector, Gap, "gap");
+        if (Space.HasValue)
+            AddRules(ref buffer, baseSelector, Space, null);
+        if (Divide.HasValue)
+            AddRules(ref buffer, baseSelector, Divide, null);
+        if (RingOffset.HasValue)
+            AddRules(ref buffer, baseSelector, RingOffset, null);
+        if (Fill.HasValue)
+            AddRules(ref buffer, baseSelector, Fill, null);
+        if (Stroke.HasValue)
+            AddRules(ref buffer, baseSelector, Stroke, null);
+        if (Gradient.HasValue)
+            AddRules(ref buffer, baseSelector, Gradient, null);
+        if (DecorationLine.HasValue)
+            AddRules(ref buffer, baseSelector, DecorationLine, "text-decoration");
+        if (UnderlineOffset.HasValue)
+            AddRules(ref buffer, baseSelector, UnderlineOffset, "text-underline-offset");
+        if (Tracking.HasValue)
+            AddRules(ref buffer, baseSelector, Tracking, null);
+        if (ContentAlign.HasValue)
+            AddRules(ref buffer, baseSelector, ContentAlign, null);
+        if (ItemsAlign.HasValue)
+            AddRules(ref buffer, baseSelector, ItemsAlign, "align-items");
+        if (Justify.HasValue)
+            AddRules(ref buffer, baseSelector, Justify, null);
+        if (SelfAlign.HasValue)
+            AddRules(ref buffer, baseSelector, SelfAlign, null);
+        if (JustifyItemsAlign.HasValue)
+            AddRules(ref buffer, baseSelector, JustifyItemsAlign, null);
+        if (JustifySelfAlign.HasValue)
+            AddRules(ref buffer, baseSelector, JustifySelfAlign, null);
+        if (ColStart.HasValue)
+            AddRules(ref buffer, baseSelector, ColStart, null);
+        if (RowSpan.HasValue)
+            AddRules(ref buffer, baseSelector, RowSpan, null);
+        if (RowStart.HasValue)
+            AddRules(ref buffer, baseSelector, RowStart, null);
+        if (Border.HasValue)
+            AddRules(ref buffer, baseSelector, Border, "border");
+        if (BorderStyle.HasValue)
+            AddRules(ref buffer, baseSelector, BorderStyle, "border-style");
+        if (Opacity.HasValue)
+            AddRules(ref buffer, baseSelector, Opacity, "opacity");
+        if (ZIndex.HasValue)
+            AddRules(ref buffer, baseSelector, ZIndex, "z-index");
+        if (PointerEvents.HasValue)
+            AddRules(ref buffer, baseSelector, PointerEvents, "pointer-events");
+        if (UserSelect.HasValue)
+            AddRules(ref buffer, baseSelector, UserSelect, "user-select");
+        if (TextTransform.HasValue)
+            AddRules(ref buffer, baseSelector, TextTransform, "text-transform");
+        if (FontFamily.HasValue)
+            AddRules(ref buffer, baseSelector, FontFamily, "font-family");
+        if (FontWeight.HasValue)
+            AddRules(ref buffer, baseSelector, FontWeight, "font-weight");
+        if (FontStyle.HasValue)
+            AddRules(ref buffer, baseSelector, FontStyle, "font-style");
+        if (Leading.HasValue)
+            AddRules(ref buffer, baseSelector, Leading, "line-height");
+        if (Whitespace.HasValue)
+            AddRules(ref buffer, baseSelector, Whitespace, "white-space");
+        if (TextWrap.HasValue)
+            AddRules(ref buffer, baseSelector, TextWrap, "text-wrap");
+        if (TextBreak.HasValue)
+            AddRules(ref buffer, baseSelector, TextBreak, "word-break");
+        if (BorderColor.HasValue)
+            AddRules(ref buffer, baseSelector, BorderColor, "border-color");
+        if (BackgroundColor.HasValue)
+            AddRules(ref buffer, baseSelector, BackgroundColor, "background-color");
+        if (Animation.HasValue)
+            AddRules(ref buffer, baseSelector, Animation, "animation");
+        if (Duration.HasValue)
+            AddRules(ref buffer, baseSelector, Duration, "transition-duration");
+        if (AspectRatio.HasValue)
+            AddRules(ref buffer, baseSelector, AspectRatio, "aspect-ratio");
+        if (BackdropFilter.HasValue)
+            AddRules(ref buffer, baseSelector, BackdropFilter, "backdrop-filter");
+        if (Rounded.HasValue)
+            AddRules(ref buffer, baseSelector, Rounded, "border-radius");
+        if (Ring.HasValue)
+            AddRules(ref buffer, baseSelector, Ring, null);
+        if (RingColor.HasValue)
+            AddRules(ref buffer, baseSelector, RingColor, null);
+        if (ClipPath.HasValue)
+            AddRules(ref buffer, baseSelector, ClipPath, "clip-path");
+        if (Cursor.HasValue)
+            AddRules(ref buffer, baseSelector, Cursor, "cursor");
+        if (Filter.HasValue)
+            AddRules(ref buffer, baseSelector, Filter, "filter");
+        if (ObjectPosition.HasValue)
+            AddRules(ref buffer, baseSelector, ObjectPosition, "object-position");
+        if (Resize.HasValue)
+            AddRules(ref buffer, baseSelector, Resize, "resize");
+        if (ScreenReader.HasValue)
+            AddRules(ref buffer, baseSelector, ScreenReader, null);
+        if (ScrollBehavior.HasValue)
+            AddRules(ref buffer, baseSelector, ScrollBehavior, "scroll-behavior");
+        if (Transform.HasValue)
+            AddRules(ref buffer, baseSelector, Transform, "transform");
+        if (Transition.HasValue)
+            AddRules(ref buffer, baseSelector, Transition, "transition");
+        if (Truncate.HasValue)
+            AddRules(ref buffer, baseSelector, Truncate, null);
+        if (LineClamp.HasValue)
+            AddRules(ref buffer, baseSelector, LineClamp, null);
+        if (FontVariantNumeric.HasValue)
+            AddRules(ref buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
     }
 
     // CollectCssRules calls this for every closed CssValue<TBuilder> used by Quark. Keep the
     // generic nullable-struct work out of that large caller for the same Mono AOT safety reason
     // as RenderComponent.AddCss.
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void AddRules<TBuilder>(List<ComponentCssRule> buffer, string baseSelector, CssValue<TBuilder>? value, string? fallbackProperty = null)
+    private static void AddRules<TBuilder>(ref ComponentCssRuleCollector buffer, string baseSelector, CssValue<TBuilder>? value, string? fallbackProperty = null)
         where TBuilder : class, ICssBuilder
     {
         if (value is not { IsEmpty: false })
             return;
 
-        var declarations = ConvertToDeclarations(value.Value, fallbackProperty);
-
-        if (declarations is null)
-            return;
-
-        var resolvedSelector = ResolveSelector(baseSelector, value.Value);
-
-        var batch = declarations.Value;
-        for (var i = 0; i < batch.Count; i++)
+        var style = value.Value.StyleValue;
+        if (style.HasContent())
         {
-            var declaration = batch[i];
-            if (!declaration.HasContent())
-                continue;
-
-            buffer.Add(new ComponentCssRule(resolvedSelector, declaration));
+            buffer.AddStyle(ResolveSelector(baseSelector, value.Value), style);
+            return;
         }
-    }
-
-    private static SmallBatch<string>? ConvertToDeclarations<TBuilder>(CssValue<TBuilder> value, string? fallbackProperty)
-        where TBuilder : class, ICssBuilder
-    {
-        var styleValue = value.StyleValue;
-
-        if (styleValue.HasContent())
-            return SplitDeclarations(styleValue);
 
         if (fallbackProperty.IsNullOrEmpty())
-            return null;
+            return;
 
-        var rawValue = value.ToString();
+        var rawValue = value.Value.ToString();
         if (!rawValue.HasContent())
-            return null;
+            return;
 
-        if (!value.IsCssStyle)
-        {
-            var declarations = TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
-            return declarations;
-        }
-
-        return new SmallBatch<string>($"{fallbackProperty}: {rawValue.Trim()}");
+        var selector = ResolveSelector(baseSelector, value.Value);
+        if (value.Value.IsCssStyle)
+            AddDeclaration(ref buffer, selector, fallbackProperty, rawValue.Trim());
+        else
+            CollectClassOnlyDeclarations<TBuilder>(ref buffer, selector, rawValue, fallbackProperty);
     }
 
-    private static SmallBatch<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
+    private static void AddDeclaration(ref ComponentCssRuleCollector buffer, string selector, string property, string? value)
+    {
+        if (value is not null)
+            buffer.Add(selector, new ComponentCssDeclaration(property, value));
+    }
+
+    private static void CollectClassOnlyDeclarations<TBuilder>(ref ComponentCssRuleCollector buffer, string selector, string rawValue, string fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
         var resolved = rawValue.Trim();
 
+        if (typeof(TBuilder) == typeof(UnderlineOffsetBuilder) &&
+            fallbackProperty.Equals("text-underline-offset", StringComparison.Ordinal))
+        {
+            var offset = resolved switch
+            {
+                "underline-offset-auto" => "auto",
+                "underline-offset-0" => "0px",
+                "underline-offset-1" => "1px",
+                "underline-offset-2" => "2px",
+                "underline-offset-4" => "4px",
+                "underline-offset-8" => "8px",
+                _ => null
+            };
+
+            AddDeclaration(ref buffer, selector, "text-underline-offset", offset);
+            return;
+        }
+
         if (typeof(TBuilder) == typeof(DecorationLineBuilder) &&
-            fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("text-decoration", StringComparison.Ordinal))
         {
             var decoration = resolved switch
             {
@@ -686,11 +769,12 @@ public class ComponentOptions
                 _ => null
             };
 
-            return decoration is null ? null : new SmallBatch<string>($"{fallbackProperty}: {decoration}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, decoration);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(DisplayBuilder) &&
-            fallbackProperty.Equals("display", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("display", StringComparison.Ordinal))
         {
             var display = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -717,60 +801,67 @@ public class ComponentOptions
                 _ => null
             });
 
-            return display is null ? null : new SmallBatch<string>($"{fallbackProperty}: {display}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, display);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(TextColorBuilder) &&
-            fallbackProperty.Equals("color", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("color", StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "text-");
-            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, color);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(BackgroundColorBuilder) &&
-            fallbackProperty.Equals("background-color", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("background-color", StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "bg-");
-            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, color);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(BorderColorBuilder) &&
-            fallbackProperty.Equals("border-color", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("border-color", StringComparison.Ordinal))
         {
             var color = ConvertColorUtility(resolved, "border-");
-            return color is null ? null : new SmallBatch<string>($"{fallbackProperty}: {color}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, color);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(PaddingBuilder) &&
-            fallbackProperty.Equals("padding", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("padding", StringComparison.Ordinal))
         {
-            return ConvertPaddingUtilities(resolved);
+            CollectPaddingUtilities(ref buffer, selector, resolved);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(WidthBuilder) &&
-            (fallbackProperty.Equals("width", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("min-width", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("max-width", System.StringComparison.Ordinal)))
+            (fallbackProperty.Equals("width", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("min-width", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("max-width", StringComparison.Ordinal)))
         {
             var width = ConvertWidthUtility(resolved);
-            return width is null ? null : new SmallBatch<string>($"{fallbackProperty}: {width}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, width);
+            return;
         }
 
         if ((typeof(TBuilder) == typeof(HeightBuilder) ||
              typeof(TBuilder) == typeof(MinHeightBuilder) ||
              typeof(TBuilder) == typeof(MaxHeightBuilder)) &&
-            (fallbackProperty.Equals("height", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("min-height", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("max-height", System.StringComparison.Ordinal)))
+            (fallbackProperty.Equals("height", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("min-height", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("max-height", StringComparison.Ordinal)))
         {
             var height = ConvertHeightUtility(resolved);
-            return height is null ? null : new SmallBatch<string>($"{fallbackProperty}: {height}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, height);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(OverflowBuilder) &&
-            (fallbackProperty.Equals("overflow", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("overflow-x", System.StringComparison.Ordinal) ||
-             fallbackProperty.Equals("overflow-y", System.StringComparison.Ordinal)))
+            (fallbackProperty.Equals("overflow", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("overflow-x", StringComparison.Ordinal) ||
+             fallbackProperty.Equals("overflow-y", StringComparison.Ordinal)))
         {
             var overflow = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -782,18 +873,20 @@ public class ComponentOptions
                 _ => null
             });
 
-            return overflow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {overflow}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, overflow);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(TextSizeBuilder) &&
-            fallbackProperty.Equals("font-size", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("font-size", StringComparison.Ordinal))
         {
             var textSize = ConvertTextSizeUtility(resolved);
-            return textSize is null ? null : new SmallBatch<string>($"{fallbackProperty}: {textSize}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, textSize);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(ItemsBuilder) &&
-            fallbackProperty.Equals("align-items", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("align-items", StringComparison.Ordinal))
         {
             var alignItems = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -805,24 +898,27 @@ public class ComponentOptions
                 _ => null
             });
 
-            return alignItems is null ? null : new SmallBatch<string>($"{fallbackProperty}: {alignItems}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, alignItems);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(GapBuilder) &&
-            fallbackProperty.Equals("gap", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("gap", StringComparison.Ordinal))
         {
             var gap = ConvertSpacingUtility(resolved, "gap-");
-            return gap is null ? null : new SmallBatch<string>($"{fallbackProperty}: {gap}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, gap);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(BorderBuilder) &&
-            fallbackProperty.Equals("border", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("border", StringComparison.Ordinal))
         {
-            return ConvertBorderUtilities(resolved);
+            CollectBorderUtilities(ref buffer, selector, resolved);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(VerticalAlignBuilder) &&
-            fallbackProperty.Equals("vertical-align", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("vertical-align", StringComparison.Ordinal))
         {
             var verticalAlign = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -837,11 +933,12 @@ public class ComponentOptions
                 _ => null
             });
 
-            return verticalAlign is null ? null : new SmallBatch<string>($"{fallbackProperty}: {verticalAlign}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, verticalAlign);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(TextOverflowBuilder) &&
-            fallbackProperty.Equals("text-overflow", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("text-overflow", StringComparison.Ordinal))
         {
             var textOverflow = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -850,25 +947,28 @@ public class ComponentOptions
                 _ => null
             });
 
-            return textOverflow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {textOverflow}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, textOverflow);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(RoundedBuilder) &&
-            fallbackProperty.Equals("border-radius", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("border-radius", StringComparison.Ordinal))
         {
             var radius = ConvertRoundedUtility(resolved);
-            return radius is null ? null : new SmallBatch<string>($"{fallbackProperty}: {radius}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, radius);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(ShadowBuilder) &&
-            fallbackProperty.Equals("box-shadow", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("box-shadow", StringComparison.Ordinal))
         {
             var shadow = ConvertShadowUtility(resolved);
-            return shadow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {shadow}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, shadow);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(FontWeightBuilder) &&
-            fallbackProperty.Equals("font-weight", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("font-weight", StringComparison.Ordinal))
         {
             var fontWeight = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -884,11 +984,12 @@ public class ComponentOptions
                 _ => null
             });
 
-            return fontWeight is null ? null : new SmallBatch<string>($"{fallbackProperty}: {fontWeight}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, fontWeight);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(WhitespaceBuilder) &&
-            fallbackProperty.Equals("white-space", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("white-space", StringComparison.Ordinal))
         {
             var whitespace = ConvertSingleTokenUtility(resolved, static token => token switch
             {
@@ -901,13 +1002,14 @@ public class ComponentOptions
                 _ => null
             });
 
-            return whitespace is null ? null : new SmallBatch<string>($"{fallbackProperty}: {whitespace}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, whitespace);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(FlexDirectionBuilder) &&
-            fallbackProperty.Equals("flex-direction", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("flex-direction", StringComparison.Ordinal))
         {
-            return TryConvertFlexComposite(resolved, fallbackProperty, static token => token switch
+            CollectFlexComposite(ref buffer, selector, resolved, fallbackProperty, static token => token switch
             {
                 "flex-row" => "row",
                 "flex-row-reverse" => "row-reverse",
@@ -915,22 +1017,24 @@ public class ComponentOptions
                 "flex-col-reverse" => "column-reverse",
                 _ => null
             });
+            return;
         }
 
         if (typeof(TBuilder) == typeof(FlexWrapBuilder) &&
-            fallbackProperty.Equals("flex-wrap", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("flex-wrap", StringComparison.Ordinal))
         {
-            return TryConvertFlexComposite(resolved, fallbackProperty, static token => token switch
+            CollectFlexComposite(ref buffer, selector, resolved, fallbackProperty, static token => token switch
             {
                 "flex-wrap" => "wrap",
                 "flex-wrap-reverse" => "wrap-reverse",
                 "flex-nowrap" => "nowrap",
                 _ => null
             });
+            return;
         }
 
         if (typeof(TBuilder) == typeof(GrowBuilder) &&
-            fallbackProperty.Equals("flex-grow", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("flex-grow", StringComparison.Ordinal))
         {
             var grow = resolved switch
             {
@@ -939,11 +1043,12 @@ public class ComponentOptions
                 _ => null
             };
 
-            return grow is null ? null : new SmallBatch<string>($"{fallbackProperty}: {grow}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, grow);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(ShrinkBuilder) &&
-            fallbackProperty.Equals("flex-shrink", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("flex-shrink", StringComparison.Ordinal))
         {
             var shrink = resolved switch
             {
@@ -952,20 +1057,21 @@ public class ComponentOptions
                 _ => null
             };
 
-            return shrink is null ? null : new SmallBatch<string>($"{fallbackProperty}: {shrink}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, shrink);
+            return;
         }
 
         if (typeof(TBuilder) == typeof(DurationBuilder) &&
-            fallbackProperty.Equals("transition-duration", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("transition-duration", StringComparison.Ordinal))
         {
             var duration = ConvertDurationUtility(resolved);
-            return duration is null ? null : new SmallBatch<string>($"{fallbackProperty}: {duration}");
+            AddDeclaration(ref buffer, selector, fallbackProperty, duration);
+            return;
         }
 
-        return null;
     }
 
-    private static string? ConvertSingleTokenUtility(string value, System.Func<string, string?> converter)
+    private static string? ConvertSingleTokenUtility(string value, Func<string, string?> converter)
     {
         if (value.Contains(':') || value.Contains(' '))
             return null;
@@ -975,7 +1081,7 @@ public class ComponentOptions
 
     private static string? ConvertColorUtility(ReadOnlySpan<char> value, string prefix)
     {
-        if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
+        if (!value.StartsWith(prefix, StringComparison.Ordinal) || value.Contains(':') || value.Contains('/'))
             return null;
 
         var token = value[prefix.Length..];
@@ -1019,11 +1125,11 @@ public class ComponentOptions
 
         var token = value;
 
-        if (token.StartsWith("min-w-", System.StringComparison.Ordinal))
+        if (token.StartsWith("min-w-", StringComparison.Ordinal))
             token = token["min-w-".Length..];
-        else if (token.StartsWith("max-w-", System.StringComparison.Ordinal))
+        else if (token.StartsWith("max-w-", StringComparison.Ordinal))
             token = token["max-w-".Length..];
-        else if (token.StartsWith("w-", System.StringComparison.Ordinal))
+        else if (token.StartsWith("w-", StringComparison.Ordinal))
             token = token["w-".Length..];
         else
             return null;
@@ -1062,11 +1168,11 @@ public class ComponentOptions
 
         var token = value;
 
-        if (token.StartsWith("min-h-", System.StringComparison.Ordinal))
+        if (token.StartsWith("min-h-", StringComparison.Ordinal))
             token = token["min-h-".Length..];
-        else if (token.StartsWith("max-h-", System.StringComparison.Ordinal))
+        else if (token.StartsWith("max-h-", StringComparison.Ordinal))
             token = token["max-h-".Length..];
-        else if (token.StartsWith("h-", System.StringComparison.Ordinal))
+        else if (token.StartsWith("h-", StringComparison.Ordinal))
             token = token["h-".Length..];
         else
             return null;
@@ -1101,7 +1207,7 @@ public class ComponentOptions
 
     private static string? ConvertTextSizeUtility(ReadOnlySpan<char> value)
     {
-        if (!value.StartsWith("text-", System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
+        if (!value.StartsWith("text-", StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
         var token = value["text-".Length..];
@@ -1131,17 +1237,17 @@ public class ComponentOptions
 
     private static string? ConvertSpacingUtility(ReadOnlySpan<char> value, string prefix)
     {
-        if (!value.StartsWith(prefix, System.StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
+        if (!value.StartsWith(prefix, StringComparison.Ordinal) || value.Contains(':') || value.Contains(' '))
             return null;
 
         var token = value[prefix.Length..];
         return ConvertArbitraryToken(token) ?? ConvertSpacingScaleToken(token);
     }
 
-    private static SmallBatch<string>? ConvertBorderUtilities(ReadOnlySpan<char> value)
+    private static void CollectBorderUtilities(ref ComponentCssRuleCollector buffer, string selector, ReadOnlySpan<char> value)
     {
         if (value.Contains(':') || value.Contains(' '))
-            return null;
+            return;
 
         var property = value switch
         {
@@ -1161,7 +1267,7 @@ public class ComponentOptions
 
         if (property is not null)
             token = "1";
-        else if (value.StartsWith("border-", System.StringComparison.Ordinal))
+        else if (value.StartsWith("border-", StringComparison.Ordinal))
         {
             var suffix = value["border-".Length..];
             var dash = suffix.IndexOf('-');
@@ -1190,13 +1296,28 @@ public class ComponentOptions
             }
         }
         else
-            return null;
+            return;
 
         if (property is null)
-            return null;
+            return;
 
         var width = ConvertBorderWidthToken(token);
-        return width is null ? null : new SmallBatch<string>($"{property}: {width}", property.Replace("-width", "-style") + ": solid");
+        if (width is null)
+            return;
+        AddDeclaration(ref buffer, selector, property, width);
+        var styleProperty = property switch
+        {
+            "border-inline-width" => "border-inline-style",
+            "border-block-width" => "border-block-style",
+            "border-inline-start-width" => "border-inline-start-style",
+            "border-inline-end-width" => "border-inline-end-style",
+            "border-top-width" => "border-top-style",
+            "border-right-width" => "border-right-style",
+            "border-bottom-width" => "border-bottom-style",
+            "border-left-width" => "border-left-style",
+            _ => "border-style"
+        };
+        AddDeclaration(ref buffer, selector, styleProperty, "solid");
     }
 
     private static string? ConvertBorderWidthToken(ReadOnlySpan<char> token)
@@ -1289,10 +1410,20 @@ public class ComponentOptions
         return shade is "50" or "100" or "200" or "300" or "400" or "500" or "600" or "700" or "800" or "900" or "950";
     }
 
-    private static SmallBatch<string>? ConvertPaddingUtilities(string value)
+    private static void CollectPaddingUtilities(ref ComponentCssRuleCollector buffer, string selector, string value)
     {
         ReadOnlySpan<char> tokens = value;
-        var declarations = new SmallBatch<string>();
+        // Validate the whole composite first: unsupported tokens must not leave partial CSS.
+        foreach (var range in tokens.Split(' '))
+        {
+            var token = tokens[range].Trim();
+            if (token.IsEmpty)
+                continue;
+            var dash = token.IndexOf('-');
+            if (token.Contains(':') || dash < 0 || ConvertSpacingToken(token) is null ||
+                token[..dash] is not ("p" or "px" or "py" or "pt" or "pr" or "pb" or "pl" or "ps" or "pe"))
+                return;
+        }
 
         foreach (var range in tokens.Split(' '))
         {
@@ -1300,42 +1431,35 @@ public class ComponentOptions
             if (token.Length == 0)
                 continue;
 
-            if (token.Contains(':'))
-                return null;
-
             var spacing = ConvertSpacingToken(token);
-            if (spacing is null)
-                return null;
 
-            if (token.StartsWith("px-", System.StringComparison.Ordinal))
+            if (token.StartsWith("px-", StringComparison.Ordinal))
             {
-                declarations.Add($"padding-left: {spacing}");
-                declarations.Add($"padding-right: {spacing}");
+                AddDeclaration(ref buffer, selector, "padding-left", spacing);
+                AddDeclaration(ref buffer, selector, "padding-right", spacing);
             }
-            else if (token.StartsWith("py-", System.StringComparison.Ordinal))
+            else if (token.StartsWith("py-", StringComparison.Ordinal))
             {
-                declarations.Add($"padding-top: {spacing}");
-                declarations.Add($"padding-bottom: {spacing}");
+                AddDeclaration(ref buffer, selector, "padding-top", spacing);
+                AddDeclaration(ref buffer, selector, "padding-bottom", spacing);
             }
-            else if (token.StartsWith("pt-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-top: {spacing}");
-            else if (token.StartsWith("pr-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-right: {spacing}");
-            else if (token.StartsWith("pb-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-bottom: {spacing}");
-            else if (token.StartsWith("pl-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-left: {spacing}");
-            else if (token.StartsWith("ps-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-inline-start: {spacing}");
-            else if (token.StartsWith("pe-", System.StringComparison.Ordinal))
-                declarations.Add($"padding-inline-end: {spacing}");
-            else if (token.StartsWith("p-", System.StringComparison.Ordinal))
-                declarations.Add($"padding: {spacing}");
+            else if (token.StartsWith("pt-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-top", spacing);
+            else if (token.StartsWith("pr-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-right", spacing);
+            else if (token.StartsWith("pb-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-bottom", spacing);
+            else if (token.StartsWith("pl-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-left", spacing);
+            else if (token.StartsWith("ps-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-inline-start", spacing);
+            else if (token.StartsWith("pe-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding-inline-end", spacing);
+            else if (token.StartsWith("p-", StringComparison.Ordinal))
+                AddDeclaration(ref buffer, selector, "padding", spacing);
             else
-                return null;
+                return;
         }
-
-        return declarations.Count == 0 ? null : declarations;
     }
 
     private static string? ConvertSpacingToken(ReadOnlySpan<char> utility)
@@ -1413,7 +1537,7 @@ public class ComponentOptions
 
     private static string? ConvertDurationUtility(ReadOnlySpan<char> value)
     {
-        if (!value.StartsWith("duration-", System.StringComparison.Ordinal) || value.Contains(':'))
+        if (!value.StartsWith("duration-", StringComparison.Ordinal) || value.Contains(':'))
             return null;
 
         var token = value["duration-".Length..];
@@ -1430,7 +1554,7 @@ public class ComponentOptions
         return token is "0" ? "0s" : string.Concat(token, "ms");
     }
 
-    private static SmallBatch<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, Func<ReadOnlySpan<char>, string?> converter)
+    private static void CollectFlexComposite(ref ComponentCssRuleCollector buffer, string selector, string rawValue, string fallbackProperty, Func<ReadOnlySpan<char>, string?> converter)
     {
         var hasFlexDisplay = false;
         string? resolvedValue = null;
@@ -1452,9 +1576,9 @@ public class ComponentOptions
             var token = rawValue.AsSpan(tokenStart, i - tokenStart);
 
             if (token.Contains(':'))
-                return null;
+                return;
 
-            if (token.Equals("flex", System.StringComparison.Ordinal))
+            if (token.Equals("flex", StringComparison.Ordinal))
             {
                 hasFlexDisplay = true;
                 tokenStart = -1;
@@ -1469,29 +1593,11 @@ public class ComponentOptions
         }
 
         if (resolvedValue is null)
-            return null;
+            return;
 
-        return hasFlexDisplay ? new SmallBatch<string>("display: flex", $"{fallbackProperty}: {resolvedValue}") : new SmallBatch<string>($"{fallbackProperty}: {resolvedValue}");
-    }
-
-    private static SmallBatch<string> SplitDeclarations(string value)
-    {
-        var declarations = new SmallBatch<string>();
-        var segmentStart = 0;
-
-        for (var i = 0; i <= value.Length; i++)
-        {
-            if (i < value.Length && value[i] != ';')
-                continue;
-
-            var segment = value.AsSpan(segmentStart, i - segmentStart).Trim().ToString();
-
-            if (segment.Length > 0)
-                declarations.Add(segment);
-
-            segmentStart = i + 1;
-        }
-        return declarations;
+        if (hasFlexDisplay)
+            AddDeclaration(ref buffer, selector, "display", "flex");
+        AddDeclaration(ref buffer, selector, fallbackProperty, resolvedValue);
     }
 
     private static string ResolveSelector<TBuilder>(string baseSelector, CssValue<TBuilder> value)

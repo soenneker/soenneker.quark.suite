@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -32,11 +30,11 @@ public sealed class TreeOptions : ComponentOptions
     /// </summary>
     public TreeItemOptions? Items { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, DragLines, "[data-slot='tree-drag-line']", "[data-slot='tree-drag-line']", baseSelector);
-        AddChildCssRules(buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
-        AddChildCssRules(buffer, ItemLabels, "[data-slot='tree-item-label']", "[data-slot='tree-item-label']", baseSelector);
-        AddChildCssRules(buffer, Items, "[data-slot='tree-item']", "[data-slot='tree-item']", baseSelector);
+        AddChildCssRules(ref buffer, DragLines, "[data-slot='tree-drag-line']", "[data-slot='tree-drag-line']", baseSelector);
+        AddChildCssRules(ref buffer, Icons, "[data-slot='icon']", "[data-slot='icon']", baseSelector);
+        AddChildCssRules(ref buffer, ItemLabels, "[data-slot='tree-item-label']", "[data-slot='tree-item-label']", baseSelector);
+        AddChildCssRules(ref buffer, Items, "[data-slot='tree-item']", "[data-slot='tree-item']", baseSelector);
     }
 }

@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -58,16 +55,16 @@ public sealed class FieldOptions : ComponentOptions
     /// </summary>
     public ValidationErrorsOptions? ValidationErrors { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Bodies, "[data-slot='field-content']", "[data-slot='field-content']", baseSelector);
-        AddChildCssRules(buffer, Errors, "[data-slot='field-error']", "[data-slot='field-error']", baseSelector);
-        AddChildCssRules(buffer, Helps, "[data-slot='field-description']", "[data-slot='field-description']", baseSelector);
-        AddChildCssRules(buffer, Inputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
-        AddChildCssRules(buffer, Labels, "[data-slot='field-label']", "[data-slot='field-label']", baseSelector);
-        AddChildCssRules(buffer, MemoInputs, "[data-slot='textarea']", "[data-slot='textarea']", baseSelector);
-        AddChildCssRules(buffer, Selects, "[data-slot='select-trigger']", "[data-slot='select']", baseSelector);
-        AddChildCssRules(buffer, TextInputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
-        AddChildCssRules(buffer, ValidationErrors, "[data-slot='validation-errors']", "[data-slot='validation-errors']", baseSelector);
+        AddChildCssRules(ref buffer, Bodies, "[data-slot='field-content']", "[data-slot='field-content']", baseSelector);
+        AddChildCssRules(ref buffer, Errors, "[data-slot='field-error']", "[data-slot='field-error']", baseSelector);
+        AddChildCssRules(ref buffer, Helps, "[data-slot='field-description']", "[data-slot='field-description']", baseSelector);
+        AddChildCssRules(ref buffer, Inputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
+        AddChildCssRules(ref buffer, Labels, "[data-slot='field-label']", "[data-slot='field-label']", baseSelector);
+        AddChildCssRules(ref buffer, MemoInputs, "[data-slot='textarea']", "[data-slot='textarea']", baseSelector);
+        AddChildCssRules(ref buffer, Selects, "[data-slot='select-trigger']", "[data-slot='select']", baseSelector);
+        AddChildCssRules(ref buffer, TextInputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
+        AddChildCssRules(ref buffer, ValidationErrors, "[data-slot='validation-errors']", "[data-slot='validation-errors']", baseSelector);
     }
 }

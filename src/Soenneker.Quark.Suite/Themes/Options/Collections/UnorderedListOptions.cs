@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -18,8 +15,8 @@ public sealed class UnorderedListOptions : ComponentOptions
     /// </summary>
     public UnorderedListItemOptions? Items { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Items, "[data-slot='unordered-list-item']", "[data-slot='unordered-list-item']", baseSelector);
+        AddChildCssRules(ref buffer, Items, "[data-slot='unordered-list-item']", "[data-slot='unordered-list-item']", baseSelector);
     }
 }

@@ -236,7 +236,7 @@ public sealed class LiteralClassProbe : RenderComponent
         if (literal)
             PrependClassAttribute(attrs, Classes);
         else
-            BuildClassAttribute(attrs, static (ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder cls) =>
+            BuildClassAttribute(attrs, static (ref Utils.PooledStringBuilders.PooledStringBuilder cls) =>
                 AppendClass(ref cls, Classes));
         return attrs["class"];
     }
@@ -382,8 +382,8 @@ public sealed class AttributeCacheProbe : RenderComponent
         _content = content;
         RequestContentRender();
     }
-    protected override void BuildOwnedClassAndStyle(ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder style,
-        ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder classes) => AppendClass(ref classes, VisualClass);
+    protected override void BuildOwnedClassAndStyle(ref Utils.PooledStringBuilders.PooledStringBuilder style,
+        ref Utils.PooledStringBuilders.PooledStringBuilder classes) => AppendClass(ref classes, VisualClass);
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         AttributeBuilds++;

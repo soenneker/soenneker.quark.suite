@@ -6,6 +6,63 @@ namespace Soenneker.Quark.Suite.Tests;
 public class ComponentsCssGeneratorTests
 {
     [Test]
+    [Arguments("p-2 md:p-4")]
+    [Arguments("p-2 w-4")]
+    [Arguments("p-2 unknown")]
+    public void Generate_WithUnsupportedPaddingComposite_DoesNotEmitPartialDeclarations(string padding)
+    {
+        ComponentCssGenerator.Generate(new ComponentOptions { Padding = padding }).Should().BeEmpty();
+    }
+
+    [Test]
+    [Arguments("border", "border")]
+    [Arguments("border-x", "border-inline")]
+    [Arguments("border-y", "border-block")]
+    [Arguments("border-s", "border-inline-start")]
+    [Arguments("border-e", "border-inline-end")]
+    [Arguments("border-t", "border-top")]
+    [Arguments("border-r", "border-right")]
+    [Arguments("border-b", "border-bottom")]
+    [Arguments("border-l", "border-left")]
+    public void Generate_WithBorderUtilities_PreservesWidthAndStyle(string border, string property)
+    {
+        ComponentCssGenerator.Generate(new ComponentOptions { Border = border })
+            .Should().Be($":root {{\n  {property}-width: 1px;\n  {property}-style: solid;\n}}");
+    }
+
+    [Test]
+    public void Generate_WithEmptyArbitraryValue_PreservesDeclarationFormatting()
+    {
+        ComponentCssGenerator.Generate(new ComponentOptions { Width = "w-[]" })
+            .Should().Be(":root {\n  width:;\n}");
+    }
+
+    [Test]
+    public void Generate_WithEmptyOptions_ReturnsEmptyString()
+    {
+        ComponentCssGenerator.Generate(new ComponentOptions()).Should().BeEmpty();
+    }
+
+    [Test]
+    public void Generate_WithRepeatedChildSelectors_PreservesBlockAndDeclarationOrder()
+    {
+        var options = new CardOptions
+        {
+            Selector = ".card",
+            Display = Display.Block,
+            Anchors = new AnchorOptions { Selector = "& .shared", Display = Display.Flex },
+            Bodies = new CardBodyOptions { Selector = "&", Display = Display.Grid },
+            Buttons = new ButtonOptions { Selector = "& .other", Display = Display.Inline },
+            Descriptions = new CardDescriptionOptions { Selector = "& .shared", Display = Display.Block }
+        };
+
+        ComponentCssGenerator.Generate(options).Should().Be(
+            ".card {\n  display: block;\n  display: grid;\n}\n" +
+            ".card .shared {\n  display: flex;\n  display: block;\n}\n" +
+            ".card .other {\n  display: inline;\n}");
+    }
+
+    [Test]
     public void Generate_WithNullTheme_ReturnsEmptyString()
     {
         // Act

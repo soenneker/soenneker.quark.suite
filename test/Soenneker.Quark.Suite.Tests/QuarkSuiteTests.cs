@@ -81,16 +81,16 @@ public sealed class QuarkSuiteTests : UnitTest
     [Test]
     public void SignaturePad_exposes_quark_parameters_and_drawing_operations()
     {
-        var component = typeof(Soenneker.Quark.SignaturePad);
+        var component = typeof(SignaturePad);
 
-        component.Should().BeAssignableTo<Soenneker.Quark.ISignaturePad>();
-        component.GetProperty(nameof(Soenneker.Quark.SignaturePad.PenColor)).Should().NotBeNull();
-        component.GetProperty(nameof(Soenneker.Quark.SignaturePad.CanvasBackgroundColor)).Should().NotBeNull();
-        component.GetProperty(nameof(Soenneker.Quark.SignaturePad.MinStrokeWidth)).Should().NotBeNull();
-        component.GetProperty(nameof(Soenneker.Quark.SignaturePad.MaxStrokeWidth)).Should().NotBeNull();
-        component.GetProperty(nameof(Soenneker.Quark.SignaturePad.ObserveResize)).Should().NotBeNull();
-        component.GetMethod(nameof(Soenneker.Quark.SignaturePad.Clear)).Should().NotBeNull();
-        component.GetMethod(nameof(Soenneker.Quark.SignaturePad.ToSvg)).Should().NotBeNull();
-        component.GetMethod(nameof(Soenneker.Quark.SignaturePad.ToDataUrl)).Should().NotBeNull();
+        component.Should().BeAssignableTo<ISignaturePad>();
+        component.GetProperty(nameof(SignaturePad.PenColor)).Should().NotBeNull();
+        component.GetProperty(nameof(SignaturePad.CanvasBackgroundColor)).Should().NotBeNull();
+        component.GetProperty(nameof(SignaturePad.MinStrokeWidth)).Should().NotBeNull();
+        component.GetProperty(nameof(SignaturePad.MaxStrokeWidth)).Should().NotBeNull();
+        component.GetProperty(nameof(SignaturePad.ObserveResize)).Should().NotBeNull();
+        component.GetMethod(nameof(SignaturePad.Clear)).Should().NotBeNull();
+        component.GetMethod(nameof(SignaturePad.ToSvg)).Should().NotBeNull();
+        component.GetMethod(nameof(SignaturePad.ToDataUrl)).Should().NotBeNull();
     }
 }

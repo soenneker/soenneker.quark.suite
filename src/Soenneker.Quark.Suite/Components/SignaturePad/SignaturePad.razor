@@ -25,11 +25,11 @@
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
-    private System.Func<Task>? _cachedHandleReadyDelegate;
+    private Func<Task>? _cachedHandleReadyDelegate;
 
     private string? _lastPrependedClass;
 
-    private Soenneker.Blazor.SignaturePads.SignaturePadCanvas? _canvas;
+    private Blazor.SignaturePads.SignaturePadCanvas? _canvas;
     private bool? _lastInteractionDisabled;
 
     [Parameter]
@@ -159,7 +159,7 @@
         hc.Add(OnReady);
     }
 
-    private Soenneker.Blazor.SignaturePads.SignaturePadCanvas EnsureReady() =>
+    private Blazor.SignaturePads.SignaturePadCanvas EnsureReady() =>
         _canvas ?? throw new InvalidOperationException("The signature pad is not ready yet. Wait until the component has rendered.");
 
     public ValueTask Clear(CancellationToken cancellationToken = default) => EnsureReady().Clear(cancellationToken);

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -37,12 +35,12 @@ public sealed class ButtonGroupOptions : ComponentOptions
     /// </summary>
     public ButtonGroupTextOptions? Texts { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Buttons, "[data-slot='button']", "[data-slot='button']", baseSelector);
-        AddChildCssRules(buffer, Inputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
-        AddChildCssRules(buffer, SelectTriggers, "[data-slot='select-trigger']", "[data-slot='select-trigger']", baseSelector);
-        AddChildCssRules(buffer, Separators, "[data-slot='button-group-separator']", "[data-slot='button-group-separator']", baseSelector);
-        AddChildCssRules(buffer, Texts, "[data-slot='button-group-text']", "[data-slot='button-group-text']", baseSelector);
+        AddChildCssRules(ref buffer, Buttons, "[data-slot='button']", "[data-slot='button']", baseSelector);
+        AddChildCssRules(ref buffer, Inputs, "[data-slot='input']", "[data-slot='input']", baseSelector);
+        AddChildCssRules(ref buffer, SelectTriggers, "[data-slot='select-trigger']", "[data-slot='select-trigger']", baseSelector);
+        AddChildCssRules(ref buffer, Separators, "[data-slot='button-group-separator']", "[data-slot='button-group-separator']", baseSelector);
+        AddChildCssRules(ref buffer, Texts, "[data-slot='button-group-text']", "[data-slot='button-group-text']", baseSelector);
     }
 }

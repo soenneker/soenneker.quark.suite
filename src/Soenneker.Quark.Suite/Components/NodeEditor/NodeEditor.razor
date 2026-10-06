@@ -230,9 +230,9 @@
     private static readonly CssValue<ScreenReaderBuilder> _renderCss6 = Quark.ScreenReader.Only;
     private string? _lastBuiltClass;
 
-    private System.Action<ChangeEventArgs>? _cachedUpdateEditingEdgeLabelDelegate;
-    private System.Func<KeyboardEventArgs, Task>? _cachedHandleEdgeLabelEditorKeyDownDelegate;
-    private System.Func<FocusEventArgs, Task>? _cachedHandleEdgeLabelEditorBlurDelegate;
+    private Action<ChangeEventArgs>? _cachedUpdateEditingEdgeLabelDelegate;
+    private Func<KeyboardEventArgs, Task>? _cachedHandleEdgeLabelEditorKeyDownDelegate;
+    private Func<FocusEventArgs, Task>? _cachedHandleEdgeLabelEditorBlurDelegate;
 
     [Parameter]
     public IReadOnlyList<NodeEditorNodeModel> Nodes { get; set; } = [];
@@ -1080,7 +1080,7 @@
             throw new InvalidOperationException($"{nameof(NodeEditor)} requires non-null {nameof(Options)}.");
 
         if (AutoSaveDelay < 0)
-            throw new InvalidOperationException($"{nameof(NodeEditor.AutoSaveDelay)} must be greater than or equal to zero.");
+            throw new InvalidOperationException($"{nameof(AutoSaveDelay)} must be greater than or equal to zero.");
 
         if (!double.IsFinite(Options.MinZoom) || Options.MinZoom <= 0)
             throw new InvalidOperationException($"{nameof(NodeEditorOptions.MinZoom)} must be a finite value greater than zero.");
@@ -1101,7 +1101,7 @@
         foreach (var node in Nodes)
         {
             if (node is null)
-                throw new InvalidOperationException($"{nameof(NodeEditor.Nodes)} cannot contain null entries.");
+                throw new InvalidOperationException($"{nameof(Nodes)} cannot contain null entries.");
 
             if (string.IsNullOrWhiteSpace(node.Id))
                 throw new InvalidOperationException("Every node must have a non-empty identifier.");
@@ -1119,7 +1119,7 @@
         foreach (var edge in Edges)
         {
             if (edge is null)
-                throw new InvalidOperationException($"{nameof(NodeEditor.Edges)} cannot contain null entries.");
+                throw new InvalidOperationException($"{nameof(Edges)} cannot contain null entries.");
 
             if (string.IsNullOrWhiteSpace(edge.Id))
                 throw new InvalidOperationException("Every edge must have a non-empty identifier.");
@@ -1144,7 +1144,7 @@
         foreach (var handle in AddHandles)
         {
             if (handle is null)
-                throw new InvalidOperationException($"{nameof(NodeEditor.AddHandles)} cannot contain null entries.");
+                throw new InvalidOperationException($"{nameof(AddHandles)} cannot contain null entries.");
 
             if (string.IsNullOrWhiteSpace(handle.Id))
                 throw new InvalidOperationException("Every add handle must have a non-empty identifier.");

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -183,36 +181,36 @@ public sealed class DataTableThemeOptions : ComponentOptions
     /// </summary>
     public TrOptions? Trs { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Anchors, "tbody td > [data-slot='anchor']", _anchorDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, AnchorDivs, "tbody td > [data-slot='anchor'] > [data-slot='div']", _divDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, AnchorLeadingSpans, "tbody td > [data-slot='anchor'] > [data-slot='span']:first-child", _spanDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, AnchorSmalls, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='small']", _smallDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, AnchorSpans, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='span']", _spanDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, BottomBars, "[data-slot='datatable-bottom-bar']", _bottomBarDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Buttons, "[data-slot='button']", _buttonDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Divs, "tbody td [data-slot='div']", _divDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Infos, "[data-slot='datatable-info']", _dataTableInfoDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Icons, "tbody td [data-slot='icon']", _iconDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Inputs, "[data-slot='datatable-search-input']", _inputDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Lefts, "[data-slot='datatable-left']", _leftDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Loaders, "[data-slot='datatable-loader']", _dataTableLoaderDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, NoDatas, "[data-slot='datatable-empty']", _dataTableNoDataDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, PageSizeSelectors, "[data-slot='datatable-page-size-selector']", _dataTablePageSizeSelectorDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Paginations, "[data-slot='datatable-pagination']", _dataTablePaginationDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, PaginationItems, "[data-slot='datatable-pagination'] [data-slot='pagination-item']", _paginationItemDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, PaginationLinks, "[data-slot='datatable-pagination'] [data-slot='pagination-link']", _paginationLinkDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Rights, "[data-slot='datatable-right']", _rightDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Searches, "[data-slot='datatable-search']", _dataTableSearchDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Selects, "[data-slot='datatable-page-size-select']", _selectDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Smalls, "tbody td [data-slot='small']", _smallDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Spans, "tbody td [data-slot='span']", _spanDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Tbodys, "[data-slot='table-body']", _tbodyDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Tds, "tbody [data-slot='table-cell']", _tdDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Theads, "[data-slot='table-header']", _theadDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Ths, "thead [data-slot='table-head']", _thDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, TopBars, "[data-slot='datatable-top-bar']", _topBarDefaultSelector, baseSelector);
-        AddChildCssRules(buffer, Trs, "tbody [data-slot='table-row']", _trDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Anchors, "tbody td > [data-slot='anchor']", _anchorDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, AnchorDivs, "tbody td > [data-slot='anchor'] > [data-slot='div']", _divDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, AnchorLeadingSpans, "tbody td > [data-slot='anchor'] > [data-slot='span']:first-child", _spanDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, AnchorSmalls, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='small']", _smallDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, AnchorSpans, "tbody td > [data-slot='anchor'] > [data-slot='div'] > [data-slot='span']", _spanDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, BottomBars, "[data-slot='datatable-bottom-bar']", _bottomBarDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Buttons, "[data-slot='button']", _buttonDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Divs, "tbody td [data-slot='div']", _divDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Infos, "[data-slot='datatable-info']", _dataTableInfoDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Icons, "tbody td [data-slot='icon']", _iconDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Inputs, "[data-slot='datatable-search-input']", _inputDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Lefts, "[data-slot='datatable-left']", _leftDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Loaders, "[data-slot='datatable-loader']", _dataTableLoaderDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, NoDatas, "[data-slot='datatable-empty']", _dataTableNoDataDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, PageSizeSelectors, "[data-slot='datatable-page-size-selector']", _dataTablePageSizeSelectorDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Paginations, "[data-slot='datatable-pagination']", _dataTablePaginationDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, PaginationItems, "[data-slot='datatable-pagination'] [data-slot='pagination-item']", _paginationItemDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, PaginationLinks, "[data-slot='datatable-pagination'] [data-slot='pagination-link']", _paginationLinkDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Rights, "[data-slot='datatable-right']", _rightDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Searches, "[data-slot='datatable-search']", _dataTableSearchDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Selects, "[data-slot='datatable-page-size-select']", _selectDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Smalls, "tbody td [data-slot='small']", _smallDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Spans, "tbody td [data-slot='span']", _spanDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Tbodys, "[data-slot='table-body']", _tbodyDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Tds, "tbody [data-slot='table-cell']", _tdDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Theads, "[data-slot='table-header']", _theadDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Ths, "thead [data-slot='table-head']", _thDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, TopBars, "[data-slot='datatable-top-bar']", _topBarDefaultSelector, baseSelector);
+        AddChildCssRules(ref buffer, Trs, "tbody [data-slot='table-row']", _trDefaultSelector, baseSelector);
     }
 }

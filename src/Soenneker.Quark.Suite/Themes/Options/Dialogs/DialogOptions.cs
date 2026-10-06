@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -48,16 +45,16 @@ public sealed class DialogOptions : ComponentOptions
     /// </summary>
     public DialogTitleOptions? Titles { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
         var dialogScope = baseSelector == "[data-slot='dialog']" ? string.Empty : baseSelector;
 
-        AddChildCssRules(buffer, Contents, "[data-slot='dialog-content']", "[data-slot='dialog-content']", dialogScope);
-        AddChildCssRules(buffer, Bodies, "[data-slot='dialog-body']", "[data-slot='dialog-body']", dialogScope);
-        AddChildCssRules(buffer, CloseButtons, "[data-slot='dialog-close']", "[data-slot='dialog-close']", dialogScope);
-        AddChildCssRules(buffer, Descriptions, "[data-slot='dialog-description']", "[data-slot='dialog-description']", dialogScope);
-        AddChildCssRules(buffer, Footers, "[data-slot='dialog-footer']", "[data-slot='dialog-footer']", dialogScope);
-        AddChildCssRules(buffer, Headers, "[data-slot='dialog-header']", "[data-slot='dialog-header']", dialogScope);
-        AddChildCssRules(buffer, Titles, "[data-slot='dialog-title']", "[data-slot='dialog-title']", dialogScope);
+        AddChildCssRules(ref buffer, Contents, "[data-slot='dialog-content']", "[data-slot='dialog-content']", dialogScope);
+        AddChildCssRules(ref buffer, Bodies, "[data-slot='dialog-body']", "[data-slot='dialog-body']", dialogScope);
+        AddChildCssRules(ref buffer, CloseButtons, "[data-slot='dialog-close']", "[data-slot='dialog-close']", dialogScope);
+        AddChildCssRules(ref buffer, Descriptions, "[data-slot='dialog-description']", "[data-slot='dialog-description']", dialogScope);
+        AddChildCssRules(ref buffer, Footers, "[data-slot='dialog-footer']", "[data-slot='dialog-footer']", dialogScope);
+        AddChildCssRules(ref buffer, Headers, "[data-slot='dialog-header']", "[data-slot='dialog-header']", dialogScope);
+        AddChildCssRules(ref buffer, Titles, "[data-slot='dialog-title']", "[data-slot='dialog-title']", dialogScope);
     }
 }

@@ -25,7 +25,7 @@
     private string? _lastBuiltClass;
     private string? _lastBuiltStyle;
 
-    private System.Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
 
     [CascadingParameter(Name = nameof(DataTable))]
     private IDataTable? DataTable { get; set; }
@@ -77,7 +77,7 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (DataTable is Soenneker.Quark.DataTable table)
+        if (DataTable is DataTable table)
             table.UnregisterColumn(this);
         await base.DisposeAsync();
     }

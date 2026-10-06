@@ -6,6 +6,31 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Anchor_underline_offset_updates_and_overrides_presets()
+    {
+        var preset = new QuarkPresetToken("link-offset", static context => context.UnderlineOffset = UnderlineOffset.Is2);
+        var cut = Render<Anchor>(parameters => parameters
+            .Add(p => p.Href, "/docs")
+            .Add(p => p.Preset, preset)
+            .Add(p => p.DecorationLine, DecorationLine.OnHover.Underline));
+
+        cut.Find("a").ClassList.Should().Contain("underline-offset-2");
+        cut.Find("a").ClassList.Should().Contain("hover:underline");
+
+        cut.Render(parameters => parameters.Add(p => p.UnderlineOffset, UnderlineOffset.Is4.OnMd.Is8));
+
+        cut.Find("a").ClassList.Should().Contain("underline-offset-4");
+        cut.Find("a").ClassList.Should().Contain("md:underline-offset-8");
+        cut.Find("a").ClassList.Should().NotContain("underline-offset-2");
+
+        cut.Render(parameters => parameters.Add(p => p.UnderlineOffset, (CssValue<UnderlineOffsetBuilder>?)null));
+
+        cut.Find("a").ClassList.Should().NotContain("underline-offset-2");
+        cut.Find("a").ClassList.Should().NotContain("underline-offset-4");
+        cut.Find("a").ClassList.Should().NotContain("md:underline-offset-8");
+    }
+
+    [Test]
     public void Badge_uses_default_variant_colors_when_typed_colors_are_not_set()
     {
         var cut = Render<Badge>(parameters => parameters

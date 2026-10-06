@@ -262,9 +262,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var spacingViewport = spacingSection.Locator("[data-slot='carousel-content']").First;
         var spacingTrack = spacingSection.Locator("[data-slot='carousel-content'] > div").First;
 
-        await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)overflow-hidden(\s|$)"));
-        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex(\s|$)"));
-        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-1(\s|$)"));
+        await Assertions.Expect(spacingViewport).ToHaveClassAsync(new Regex(@"(^|\s)overflow-hidden(\s|$)"));
+        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new Regex(@"(^|\s)flex(\s|$)"));
+        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new Regex(@"(^|\s)-ml-1(\s|$)"));
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use the orientation prop to set the orientation of the carousel." }).First;
         var verticalCarousel = verticalSection.Locator("[data-slot='carousel']").First;
@@ -272,7 +272,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
         var verticalNext = verticalSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
 
         (await verticalCarousel.GetAttributeAsync("data-orientation")).Should().BeNull();
-        await Assertions.Expect(verticalTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex-col(\s|$)"));
+        await Assertions.Expect(verticalTrack).ToHaveClassAsync(new Regex(@"(^|\s)flex-col(\s|$)"));
         await verticalNext.ClickAsync();
         await AssertVerticalCarouselTrackStyle(verticalTrack, shouldBeAtStart: false);
 

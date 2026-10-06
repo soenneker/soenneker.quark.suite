@@ -276,7 +276,7 @@ public sealed class ChartRenderTests : BunitContext
         cut.FindAll("linearGradient").Should().ContainSingle();
         cut.Find("[data-slot='chart-area']").GetAttribute("fill").Should().StartWith("url(#quark-chart-");
         var path = cut.Find("[data-slot='chart-line']").GetAttribute("d")!;
-        System.Linq.Enumerable.Count(path, static character => character == 'M').Should().Be(2);
+        Enumerable.Count(path, static character => character == 'M').Should().Be(2);
     }
 
     [Test]
@@ -497,7 +497,7 @@ public sealed class ChartRenderTests : BunitContext
 
         var path = cut.Find("[data-slot='chart-line']").GetAttribute("d")!;
         path.Should().NotContain("NaN");
-        System.Linq.Enumerable.Count(path, static character => character == 'M').Should().Be(2);
+        Enumerable.Count(path, static character => character == 'M').Should().Be(2);
 
         var smooth = Render<Chart>(parameters => parameters
             .Add(component => component.Labels, Labels)

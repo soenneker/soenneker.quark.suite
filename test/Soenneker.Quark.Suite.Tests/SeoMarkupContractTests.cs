@@ -54,7 +54,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<Heading>(parameters => parameters
             .Add(p => p.Level, HeadingLevel.H2)
-            .Add(p => p.Scale, Quark.Scale.Scale105)
+            .Add(p => p.Scale, Scale.Scale105)
             .Add(p => p.ChildContent, "Section title"));
 
         cut.Find("h2[data-slot='heading']").TextContent.Should().Be("Section title");

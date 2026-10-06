@@ -10,7 +10,7 @@ internal static class EventTimelinePresets
     private static readonly CssValue<BackgroundColorBuilder> _css5 = BackgroundColor.Transparent;
     private static readonly CssValue<PaddingBuilder> _css6 = Padding.Is8;
     private static readonly CssValue<DisplayBuilder> _css7 = Display.Flex;
-    private static readonly CssValue<ItemsBuilder> _css8 = global::Soenneker.Quark.Items.Center;
+    private static readonly CssValue<ItemsBuilder> _css8 = Items.Center;
     private static readonly CssValue<JustifyBuilder> _css9 = Justify.Between;
     private static readonly CssValue<GapBuilder> _css10 = Gap.Is3;
     private static readonly CssValue<PaddingBuilder> _css11 = Padding.OnX.Is3.OnY.Is2;

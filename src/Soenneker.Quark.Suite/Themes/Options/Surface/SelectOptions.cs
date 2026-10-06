@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -48,16 +45,16 @@ public sealed class SelectOptions : ComponentOptions
     /// </summary>
     public SelectValueOptions? Values { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
         var selectScope = baseSelector == "[data-slot='select']" ? string.Empty : baseSelector;
 
-        AddChildCssRules(buffer, Contents, "[data-slot='select-content']", "[data-slot='select-content']", selectScope);
-        AddChildCssRules(buffer, Groups, "[data-slot='select-group']", "[data-slot='select-group']", selectScope);
-        AddChildCssRules(buffer, Items, "[data-slot='select-item']", "[data-slot='select-item']", selectScope);
-        AddChildCssRules(buffer, Labels, "[data-slot='select-label']", "[data-slot='select-label']", selectScope);
-        AddChildCssRules(buffer, Separators, "[data-slot='select-separator']", "[data-slot='select-separator']", selectScope);
-        AddChildCssRules(buffer, Triggers, "[data-slot='select-trigger']", "[data-slot='select-trigger']", selectScope);
-        AddChildCssRules(buffer, Values, "[data-slot='select-value']", "[data-slot='select-value']", selectScope);
+        AddChildCssRules(ref buffer, Contents, "[data-slot='select-content']", "[data-slot='select-content']", selectScope);
+        AddChildCssRules(ref buffer, Groups, "[data-slot='select-group']", "[data-slot='select-group']", selectScope);
+        AddChildCssRules(ref buffer, Items, "[data-slot='select-item']", "[data-slot='select-item']", selectScope);
+        AddChildCssRules(ref buffer, Labels, "[data-slot='select-label']", "[data-slot='select-label']", selectScope);
+        AddChildCssRules(ref buffer, Separators, "[data-slot='select-separator']", "[data-slot='select-separator']", selectScope);
+        AddChildCssRules(ref buffer, Triggers, "[data-slot='select-trigger']", "[data-slot='select-trigger']", selectScope);
+        AddChildCssRules(ref buffer, Values, "[data-slot='select-value']", "[data-slot='select-value']", selectScope);
     }
 }

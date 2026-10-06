@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -18,8 +15,8 @@ public sealed class ProgressOptions : ComponentOptions
     /// </summary>
     public ProgressIndicatorOptions? Indicators { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Indicators, "[data-slot='progress-indicator']", "[data-slot='progress-indicator']", baseSelector);
+        AddChildCssRules(ref buffer, Indicators, "[data-slot='progress-indicator']", "[data-slot='progress-indicator']", baseSelector);
     }
 }

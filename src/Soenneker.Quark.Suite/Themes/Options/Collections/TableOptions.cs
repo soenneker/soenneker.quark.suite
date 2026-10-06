@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -53,17 +50,17 @@ public sealed class TableOptions : ComponentOptions
     /// </summary>
     public TrOptions? Trs { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
         var containerScope = baseSelector == "[data-slot='table']" ? string.Empty : baseSelector;
 
-        AddChildCssRules(buffer, Containers, "[data-slot='table-container']", "[data-slot='table-container']", containerScope);
-        AddChildCssRules(buffer, Captions, "[data-slot='table-caption']", "[data-slot='table-caption']", baseSelector);
-        AddChildCssRules(buffer, Footers, "[data-slot='table-footer']", "[data-slot='table-footer']", baseSelector);
-        AddChildCssRules(buffer, Tbodys, "[data-slot='table-body']", "[data-slot='table-body']", baseSelector);
-        AddChildCssRules(buffer, Tds, "[data-slot='table-cell']", "[data-slot='table-cell']", baseSelector);
-        AddChildCssRules(buffer, Theads, "[data-slot='table-header']", "[data-slot='table-header']", baseSelector);
-        AddChildCssRules(buffer, Ths, "[data-slot='table-head']", "[data-slot='table-head']", baseSelector);
-        AddChildCssRules(buffer, Trs, "[data-slot='table-row']", "[data-slot='table-row']", baseSelector);
+        AddChildCssRules(ref buffer, Containers, "[data-slot='table-container']", "[data-slot='table-container']", containerScope);
+        AddChildCssRules(ref buffer, Captions, "[data-slot='table-caption']", "[data-slot='table-caption']", baseSelector);
+        AddChildCssRules(ref buffer, Footers, "[data-slot='table-footer']", "[data-slot='table-footer']", baseSelector);
+        AddChildCssRules(ref buffer, Tbodys, "[data-slot='table-body']", "[data-slot='table-body']", baseSelector);
+        AddChildCssRules(ref buffer, Tds, "[data-slot='table-cell']", "[data-slot='table-cell']", baseSelector);
+        AddChildCssRules(ref buffer, Theads, "[data-slot='table-header']", "[data-slot='table-header']", baseSelector);
+        AddChildCssRules(ref buffer, Ths, "[data-slot='table-head']", "[data-slot='table-head']", baseSelector);
+        AddChildCssRules(ref buffer, Trs, "[data-slot='table-row']", "[data-slot='table-row']", baseSelector);
     }
 }

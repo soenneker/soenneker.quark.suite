@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -68,18 +65,18 @@ public sealed class CardOptions : ComponentOptions
     /// </summary>
     public CardTitleOptions? Titles { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Anchors, "[data-slot='anchor']", "[data-slot='anchor']", baseSelector);
-        AddChildCssRules(buffer, Actions, "[data-slot='card-action']", "[data-slot='card-action']", baseSelector);
-        AddChildCssRules(buffer, Bodies, "[data-slot='card-content']", "[data-slot='card-content']", baseSelector);
-        AddChildCssRules(buffer, Buttons, "[data-slot='button']", "[data-slot='button']", baseSelector);
-        AddChildCssRules(buffer, Descriptions, "[data-slot='card-description']", "[data-slot='card-description']", baseSelector);
-        AddChildCssRules(buffer, Footers, "[data-slot='card-footer']", "[data-slot='card-footer']", baseSelector);
-        AddChildCssRules(buffer, Headers, "[data-slot='card-header']", "[data-slot='card-header']", baseSelector);
-        AddChildCssRules(buffer, Images, "[data-slot='card-img']", "[data-slot='card-img']", baseSelector);
-        AddChildCssRules(buffer, Subtitles, "[data-slot='card-subtitle']", "[data-slot='card-subtitle']", baseSelector);
-        AddChildCssRules(buffer, Texts, "[data-slot='card-text']", "[data-slot='card-text']", baseSelector);
-        AddChildCssRules(buffer, Titles, "[data-slot='card-title']", "[data-slot='card-title']", baseSelector);
+        AddChildCssRules(ref buffer, Anchors, "[data-slot='anchor']", "[data-slot='anchor']", baseSelector);
+        AddChildCssRules(ref buffer, Actions, "[data-slot='card-action']", "[data-slot='card-action']", baseSelector);
+        AddChildCssRules(ref buffer, Bodies, "[data-slot='card-content']", "[data-slot='card-content']", baseSelector);
+        AddChildCssRules(ref buffer, Buttons, "[data-slot='button']", "[data-slot='button']", baseSelector);
+        AddChildCssRules(ref buffer, Descriptions, "[data-slot='card-description']", "[data-slot='card-description']", baseSelector);
+        AddChildCssRules(ref buffer, Footers, "[data-slot='card-footer']", "[data-slot='card-footer']", baseSelector);
+        AddChildCssRules(ref buffer, Headers, "[data-slot='card-header']", "[data-slot='card-header']", baseSelector);
+        AddChildCssRules(ref buffer, Images, "[data-slot='card-img']", "[data-slot='card-img']", baseSelector);
+        AddChildCssRules(ref buffer, Subtitles, "[data-slot='card-subtitle']", "[data-slot='card-subtitle']", baseSelector);
+        AddChildCssRules(ref buffer, Texts, "[data-slot='card-text']", "[data-slot='card-text']", baseSelector);
+        AddChildCssRules(ref buffer, Titles, "[data-slot='card-title']", "[data-slot='card-title']", baseSelector);
     }
 }

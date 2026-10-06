@@ -172,8 +172,8 @@ public abstract class QuarkBenchmarkLeaf : Element
         builder.CloseElement();
     }
 
-    protected override void BuildOwnedClassAndStyle(ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder sty,
-        ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder cls)
+    protected override void BuildOwnedClassAndStyle(ref Utils.PooledStringBuilders.PooledStringBuilder sty,
+        ref Utils.PooledStringBuilders.PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
         AppendClass(ref cls, "benchmark-leaf");

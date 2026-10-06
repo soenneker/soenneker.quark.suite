@@ -87,6 +87,9 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// Gets or sets decoration line.
     /// </summary>
     CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
+
+    /// <summary>Gets or sets the distance between text and its underline, including responsive and state variants.</summary>
+    CssValue<UnderlineOffsetBuilder>? UnderlineOffset { get; set; }
     /// <summary>
     /// Gets or sets text transform.
     /// </summary>

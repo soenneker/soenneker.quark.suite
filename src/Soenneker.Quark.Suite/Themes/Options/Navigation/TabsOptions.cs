@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -28,10 +25,10 @@ public sealed class TabsOptions : ComponentOptions
     /// </summary>
     public TabOptions? Triggers { get; set; }
 
-    private protected override void CollectChildCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    private protected override void CollectChildCssRules(ref ComponentCssRuleCollector buffer, string baseSelector)
     {
-        AddChildCssRules(buffer, Contents, "[data-slot='tabs-content']", "[data-slot='tabs-content']", baseSelector);
-        AddChildCssRules(buffer, Lists, "[data-slot='tabs-list']", "[data-slot='tabs-list']", baseSelector);
-        AddChildCssRules(buffer, Triggers, "[data-slot='tabs-trigger']", "[data-slot='tabs-trigger']", baseSelector);
+        AddChildCssRules(ref buffer, Contents, "[data-slot='tabs-content']", "[data-slot='tabs-content']", baseSelector);
+        AddChildCssRules(ref buffer, Lists, "[data-slot='tabs-list']", "[data-slot='tabs-list']", baseSelector);
+        AddChildCssRules(ref buffer, Triggers, "[data-slot='tabs-trigger']", "[data-slot='tabs-trigger']", baseSelector);
     }
 }
