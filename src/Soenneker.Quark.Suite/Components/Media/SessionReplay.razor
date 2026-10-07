@@ -1,0 +1,272 @@
+@using System.Globalization
+@using System.Text.Json
+@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Rrweb.Replay.Abstract
+@using Soenneker.Blazor.Rrweb.Replay.Configuration
+@namespace Soenneker.Quark
+@inherits Element
+@implements ISessionReplay
+@implements IAsyncDisposable
+@inject IRrwebReplayInterop ReplayInterop
+
+<div @attributes="BuildAttributes()">
+    <div class="session-replay-stage" data-slot="session-replay-viewport" data-ready="@(_ready ? "true" : "false")"
+         aria-busy="@(_loading ? "true" : "false")">
+        <div @ref="_host" class="session-replay-host" data-slot="session-replay-host"></div>
+        @if (_failed || Events.Length < 2 || _loading)
+        {
+            <div class="session-replay-status" role="@(_failed ? "alert" : "status")">
+                @if (_failed)
+                {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v5m0 3h.01" /></svg>
+                    <Span>Recording unavailable</Span>
+                    <Span Class="session-replay-hint">Try loading the recording again.</Span>
+                }
+                else if (_loading)
+                {
+                    <span class="session-replay-loader" aria-hidden="true"></span>
+                    <Span>Loading recording…</Span>
+                }
+                else if (EmptyContent is not null)
+                {
+                    @EmptyContent
+                }
+                else
+                {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8m-4-4v4m-2-13 5 3-5 3z" /></svg>
+                    <Span>No recording available</Span>
+                    <Span Class="session-replay-hint">Your session will appear here.</Span>
+                }
+            </div>
+        }
+    </div>
+    @if (ShowControls)
+    {
+        <div class="session-replay-controls" data-slot="session-replay-controls">
+            <Slider Class="session-replay-timeline" Min="0" Max="@Math.Max(RecordingDuration, 1)" Step="100" SliderValue="@CurrentTime"
+                    SliderValueChanged="Seek" Disabled="@(!_ready || RecordingDuration <= 0)" Label="Playback position" />
+            <div class="session-replay-toolbar">
+                <div class="session-replay-actions">
+                    <Button Class="session-replay-play" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
+                            Disabled="@(!_ready)" OnClick="TogglePlayback" title="@(IsPlaying ? "Pause" : "Play")"
+                            aria-label="@(IsPlaying ? "Pause recording" : "Play recording")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            @if (IsPlaying) { <path d="M6 5h4v14H6zM14 5h4v14h-4z" /> }
+                            else { <path d="m8 5 11 7-11 7z" /> }
+                        </svg>
+                    </Button>
+                    <Button Class="session-replay-restart" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
+                            Disabled="@(!_ready)" OnClick="Restart" title="Restart" aria-label="Restart recording">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2.6 8.4M3 4v6h6" /></svg>
+                    </Button>
+                    <span class="session-replay-time" aria-label="Playback time">
+                        <span>@FormatTime(CurrentTime)</span><span class="session-replay-time-divider">/</span><span class="session-replay-duration">@FormatTime(RecordingDuration)</span>
+                    </span>
+                </div>
+                <NativeSelect Class="session-replay-speed" Value="@_speed.ToString(CultureInfo.InvariantCulture)" ValueChanged="ChangeSpeed"
+                              Disabled="@(!_ready)" aria-label="Playback speed" title="Playback speed">
+                    @foreach (double speed in PlaybackSpeeds)
+                    {
+                        <NativeSelectOption Value="@speed.ToString(CultureInfo.InvariantCulture)">@speed.ToString(CultureInfo.InvariantCulture)×</NativeSelectOption>
+                    }
+                    @if (!PlaybackSpeeds.Contains(_speed))
+                    {
+                        <NativeSelectOption Value="@_speed.ToString(CultureInfo.InvariantCulture)">@_speed.ToString(CultureInfo.InvariantCulture)×</NativeSelectOption>
+                    }
+                </NativeSelect>
+            </div>
+        </div>
+    }
+</div>
+@code {
+    private static readonly double[] PlaybackSpeeds = [0.5, 1, 1.5, 2, 4];
+    private readonly string _replayId = Guid.NewGuid().ToString();
+    private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly CancellationTokenSource _lifetime = new();
+    private ElementReference _host;
+    private JsonElement[]? _loadedEvents;
+    private RrwebReplayOptions? _loadedOptions;
+    private bool _loadedUseCdn;
+    private bool _created, _ready, _loading, _failed, _disposed;
+    private double _speed = 1;
+    private Task? _polling;
+    private string? _lastPrependedClass;
+
+    [Parameter, EditorRequired] public JsonElement[] Events { get; set; } = [];
+    [Parameter] public RrwebReplayOptions Options { get; set; } = new();
+    [Parameter] public bool UseCdn { get; set; } = true;
+    [Parameter] public bool AutoPlay { get; set; }
+    [Parameter] public bool ShowControls { get; set; } = true;
+    [Parameter] public RenderFragment? EmptyContent { get; set; }
+    [Parameter] public EventCallback OnReady { get; set; }
+    [Parameter] public EventCallback<Exception> OnError { get; set; }
+    public bool IsPlaying { get; private set; }
+    public double CurrentTime { get; private set; }
+    public double RecordingDuration { get; private set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "session-replay";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        PrependClassAttribute(attributes, "session-replay overflow-hidden rounded-xl border bg-card text-card-foreground", ref _lastPrependedClass);
+    }
+
+    protected override bool ShouldRender() => !_disposed;
+
+    private bool NeedsLoad => !ReferenceEquals(Events, _loadedEvents) || !ReferenceEquals(Options, _loadedOptions) || UseCdn != _loadedUseCdn;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_disposed || !NeedsLoad) return;
+        Exception? failure = null;
+        bool notifyReady = false;
+        await _gate.WaitAsync();
+        try
+        {
+            if (_disposed || !NeedsLoad) return;
+            _loadedEvents = Events;
+            _loadedOptions = Options;
+            _loadedUseCdn = UseCdn;
+            _ready = IsPlaying = _failed = false;
+            CurrentTime = RecordingDuration = 0;
+            _loading = Events.Length >= 2;
+            StateHasChanged();
+            if (_created)
+            {
+                await ReplayInterop.Destroy(_replayId);
+                _created = false;
+            }
+            if (_loadedEvents.Length >= 2)
+            {
+                if (_loadedOptions.LiveMode)
+                    throw new ArgumentException("SessionReplay requires a complete recording; live mode is not supported.", nameof(Options));
+                await ReplayInterop.Create(_replayId, _host, _loadedEvents, _loadedOptions, _loadedUseCdn);
+                _created = true;
+                if (_disposed) return;
+                RecordingDuration = Math.Max(0, await ReplayInterop.GetDuration(_replayId));
+                await ReplayInterop.SetFitToContainer(_replayId, true);
+                _speed = _loadedOptions.Speed;
+                if (AutoPlay)
+                {
+                    await ReplayInterop.Play(_replayId);
+                    IsPlaying = true;
+                }
+                _ready = notifyReady = true;
+                _polling ??= PollPosition();
+            }
+        }
+        catch (Exception ex) { failure = ex; _failed = true; _ready = IsPlaying = false; }
+        finally { _loading = false; _gate.Release(); }
+        if (_disposed) return;
+        StateHasChanged();
+        if (failure is not null) await OnError.InvokeAsync(failure);
+        else if (notifyReady) await OnReady.InvokeAsync();
+    }
+
+    public Task Play() => RunCommand(async () =>
+    {
+        await ReplayInterop.Play(_replayId, CurrentTime >= RecordingDuration ? 0 : null);
+        if (CurrentTime >= RecordingDuration) CurrentTime = 0;
+        IsPlaying = true;
+    });
+
+    public Task Pause() => RunCommand(async () =>
+    {
+        await ReplayInterop.Pause(_replayId);
+        CurrentTime = Math.Clamp(await ReplayInterop.GetCurrentTime(_replayId), 0, RecordingDuration);
+        IsPlaying = false;
+    });
+
+    public Task Seek(double timeOffset)
+    {
+        if (!double.IsFinite(timeOffset)) throw new ArgumentOutOfRangeException(nameof(timeOffset));
+        return RunCommand(async () =>
+        {
+            double offset = Math.Clamp(timeOffset, 0, RecordingDuration);
+            if (IsPlaying && offset < RecordingDuration) await ReplayInterop.Play(_replayId, offset);
+            else { await ReplayInterop.Pause(_replayId, offset); IsPlaying = false; }
+            CurrentTime = offset;
+        });
+    }
+
+    public Task SetSpeed(double speed)
+    {
+        if (!double.IsFinite(speed) || speed <= 0) throw new ArgumentOutOfRangeException(nameof(speed));
+        return RunCommand(async () => { await ReplayInterop.SetSpeed(_replayId, speed); _speed = speed; });
+    }
+
+    private Task Restart() => Seek(0);
+    private Task TogglePlayback() => IsPlaying ? Pause() : Play();
+    private Task ChangeSpeed(string? value) => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double speed)
+        ? SetSpeed(speed) : Task.CompletedTask;
+
+    private async Task RunCommand(Func<Task> command)
+    {
+        Exception? failure = null;
+        await _gate.WaitAsync();
+        try
+        {
+            if (_disposed || !_ready || NeedsLoad) return;
+            await command();
+        }
+        catch (Exception ex) { failure = ex; _failed = true; _ready = IsPlaying = false; }
+        finally { _gate.Release(); }
+        if (_disposed) return;
+        StateHasChanged();
+        if (failure is not null) await OnError.InvokeAsync(failure);
+    }
+
+    private async Task PollPosition()
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(_lifetime.Token))
+            {
+                if (!IsPlaying) continue;
+                await InvokeAsync(() => RunCommand(async () =>
+                {
+                    CurrentTime = Math.Clamp(await ReplayInterop.GetCurrentTime(_replayId), 0, RecordingDuration);
+                    if (CurrentTime >= RecordingDuration)
+                    {
+                        await ReplayInterop.Pause(_replayId, RecordingDuration);
+                        IsPlaying = false;
+                    }
+                }));
+            }
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+    }
+
+    private static string FormatTime(double milliseconds)
+    {
+        var time = TimeSpan.FromMilliseconds(milliseconds);
+        return time.TotalHours >= 1 ? $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}" : $"{(int)time.TotalMinutes}:{time.Seconds:00}";
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        await _lifetime.CancelAsync();
+        if (_polling is not null) await _polling;
+        await _gate.WaitAsync();
+        try
+        {
+            if (_created)
+            {
+                await ReplayInterop.Destroy(_replayId);
+            }
+        }
+        catch (JSDisconnectedException) { }
+        catch (ObjectDisposedException) { }
+        finally { _created = false; _gate.Release(); _lifetime.Dispose(); await base.DisposeAsync(); }
+    }
+}

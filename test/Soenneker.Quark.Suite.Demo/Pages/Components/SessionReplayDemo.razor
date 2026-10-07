@@ -1,0 +1,28 @@
+@page "/components/session-replay"
+@using System.Text.Json
+
+<QuarkSeoHead Title="Blazor Session Replay | Quark Suite"
+              Description="A minimal session player with playback, seeking, and speed controls." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Paragraph>Replay a session at your own pace. Scrub the timeline, change the speed, or start again.</Paragraph>
+    <DemoSection Title="Session replay" Description="A sample recording, with the original page scaled to fit."
+                 Code="@Example" CodeLanguage="razor">
+        <SessionReplay Events="_events" UseCdn="false" />
+    </DemoSection>
+    <DemoSection Title="Empty state" Description="A quiet placeholder until a recording is available."
+                 Code="@EmptyExample" CodeLanguage="razor">
+        <SessionReplay Events="_empty" UseCdn="false" />
+    </DemoSection>
+</Div>
+
+@code {
+    private readonly JsonElement[] _events = SessionReplayDemoRecording.Create();
+    private readonly JsonElement[] _empty = [];
+    private const string Example = """
+        <SessionReplay Events="@events" UseCdn="false" />
+        """;
+    private const string EmptyExample = """
+        <SessionReplay Events="Array.Empty<JsonElement>()" />
+        """;
+}

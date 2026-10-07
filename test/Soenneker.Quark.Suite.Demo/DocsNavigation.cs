@@ -101,6 +101,7 @@ public static class DocsNavigation
         new("Select", ComponentRoute("select")),
         new("SEO Head", ComponentRoute("seo-head")),
         new("Separator", ComponentRoute("separator")),
+        new("Session Replay", ComponentRoute("session-replay"), IsNew: true),
         new("Sheet", ComponentRoute("sheet")),
         new("Sidebar", ComponentRoute("sidebar")),
         new("Signature Pad", ComponentRoute("signature-pad")),

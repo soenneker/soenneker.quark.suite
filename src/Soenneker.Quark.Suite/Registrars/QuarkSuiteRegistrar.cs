@@ -57,6 +57,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkDateTimesAsScoped()
                 .AddQuarkPaymentCardAsScoped()
                 .AddSignaturePadAsScoped()
+                .AddQuarkSessionReplayAsScoped()
                 .AddC15tAsScoped()
                 .AddClipboardAsScoped();
 
