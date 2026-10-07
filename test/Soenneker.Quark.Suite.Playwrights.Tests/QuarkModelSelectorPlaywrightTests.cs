@@ -19,6 +19,12 @@ public sealed class QuarkModelSelectorPlaywrightTests : QuarkPlaywrightTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        // Keep external analytics failures out of the component's console assertions.
+        await page.RouteAsync("https://static.cloudflareinsights.com/**", route => route.FulfillAsync(new RouteFulfillOptions
+        {
+            ContentType = "application/javascript",
+            Body = string.Empty
+        }));
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
         page.Console += (_, message) =>
@@ -35,7 +41,7 @@ public sealed class QuarkModelSelectorPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("GPT-4"));
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
 
-        await trigger.DispatchEventAsync("pointerdown", new { button = 0, ctrlKey = false });
+        await trigger.ClickAsync();
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(page.Locator("[data-slot='model-selector-label']")).ToHaveTextAsync("Select model");
@@ -47,6 +53,11 @@ public sealed class QuarkModelSelectorPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("Gemini 1.5 Flash"));
+
+        await trigger.ClickAsync();
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();
