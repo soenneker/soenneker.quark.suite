@@ -1,7 +1,9 @@
 @namespace Soenneker.Quark
 @using System.Globalization
 @using Microsoft.JSInterop
-@inject Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil LocalStorageUtil
+@using Soenneker.Librarian.Abstractions
+@using Soenneker.Librarian.Abstractions.Transactions
+@using Soenneker.Librarian.Browser
 @using Soenneker.Quark.Dtos
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
@@ -60,6 +62,9 @@ else
 }
 
 @code {
+    [Inject(Key = typeof(Sidebar))]
+    private Func<IBrowserLibrarianDatabase> CreateStorage { get; set; } = null!;
+
     private static readonly CssValue<WidthBuilder> _shellDividerWidth = Quark.Width.IsPx;
     private static readonly CssValue<DisplayBuilder> _shellDisplay0 = CssValue<DisplayBuilder>.For(Quark.Display.None, Quark.Display.OnLg.Block);
     private static readonly CssValue<DisplayBuilder> _shellDisplay1 = CssValue<DisplayBuilder>.For(Quark.Display.None, Quark.Display.OnLg.Flex);
@@ -150,7 +155,7 @@ else
     [Parameter]
     public EventCallback<double?> ExpandedWidthChanged { get; set; }
 
-    /// <summary>Optional localStorage key for the expanded width. A saved width is restored before the expanded desktop sidebar is displayed and takes precedence over the initial ExpandedWidth. With asynchronous interop, rendering is deferred until storage has been read. Use a unique key per sidebar; null disables persistence.</summary>
+    /// <summary>Optional case-sensitive Librarian container key for the expanded width in Quark sidebar local storage. A saved width is restored before the expanded desktop sidebar is displayed and takes precedence over the initial ExpandedWidth. With asynchronous interop, rendering is deferred until storage has been read. Use a unique key per sidebar; null disables persistence.</summary>
     [Parameter]
     public string? ResizeStorageKey { get; set; }
 
@@ -209,7 +214,16 @@ else
         var revision = _widthRevision;
         var initialWidth = ExpandedWidth;
         string? saved = null;
-        try { saved = await LocalStorageUtil.Get(key); }
+        try
+        {
+            var database = CreateStorage();
+            try
+            {
+                var container = await database.GetContainer(key);
+                saved = await container.GetItem("width");
+            }
+            finally { await database.DiscardAsync(); }
+        }
         catch (JSException) { }
         catch (OperationCanceledException) { }
         if (_restoringStorageKey == key)
@@ -232,7 +246,18 @@ else
         ExpandedWidth = Math.Clamp(width, MinResizeWidth, MaxResizeWidth);
         if (!string.IsNullOrWhiteSpace(ResizeStorageKey))
         {
-            try { await LocalStorageUtil.Set(ResizeStorageKey, ExpandedWidth.Value.ToString(CultureInfo.InvariantCulture)); }
+            try
+            {
+                var database = CreateStorage();
+                try
+                {
+                    await database.Execute(new LibrarianBatch([
+                        new LibrarianWrite(ResizeStorageKey, "width", ExpandedWidth.Value.ToString(CultureInfo.InvariantCulture))
+                    ]));
+                }
+                finally { await database.DiscardAsync(); }
+            }
+            catch (LibrarianConcurrencyException) { }
             catch (JSException) { }
             catch (OperationCanceledException) { }
         }

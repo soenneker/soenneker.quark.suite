@@ -244,7 +244,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddQuarkSidebarAsScoped();
         Services.AddQuarkChartScrollAsScoped();
         Services.AddScoped<Demo.Interops.Abstract.IDemoPageInterop, Demo.Interops.DemoPageInterop>();
-        Services.AddSingleton<Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil>(new FakeSidebarLocalStorageUtil());
+        Services.AddKeyedSingleton<Func<Soenneker.Librarian.Browser.IBrowserLibrarianDatabase>>(typeof(Sidebar), () => new FakeSidebarLibrarianDatabase());
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();

@@ -10,14 +10,14 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class SidebarResizeTests : BunitContext
 {
     private readonly FakeSidebarInterop _interop = new();
-    private readonly FakeSidebarLocalStorageUtil _storage = new();
+    private readonly FakeSidebarLibrarianDatabase _storage = new();
 
     public SidebarResizeTests()
     {
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddSingleton<ISidebarInterop>(_interop);
-        Services.AddSingleton<Soenneker.Blazor.Utils.LocalStorage.Abstract.ILocalStorageUtil>(_storage);
+        Services.AddKeyedSingleton<Func<Soenneker.Librarian.Browser.IBrowserLibrarianDatabase>>(typeof(Sidebar), () => _storage);
     }
 
     [Test]
@@ -129,7 +129,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Storage_restores_clamps_and_persists_through_the_utility()
+    public async ValueTask Storage_restores_clamps_and_persists_through_librarian()
     {
         _storage.Values["sidebar-a"] = "900";
         double? changed = null;
@@ -193,6 +193,22 @@ public sealed class SidebarResizeTests : BunitContext
         _storage.Writes.Should().Be(0);
     }
 
+    [Test]
+    public async ValueTask Librarian_conflicts_do_not_break_resizing_or_overwrite_saved_width()
+    {
+        _storage.Values["sidebar-a"] = "300";
+        double? changed = null;
+        var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true)
+            .Add(c => c.ResizeStorageKey, "sidebar-a").Add(c => c.ExpandedWidthChanged, value => changed = value));
+        cut.WaitForAssertion(() => changed.Should().Be(300));
+        _storage.Conflict = true;
+        await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(320));
+        changed.Should().Be(320);
+        _storage.Values["sidebar-a"].Should().Be("300");
+        _storage.Conflict = false;
+        await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(340));
+        _storage.Values["sidebar-a"].Should().Be("340");
+    }
     [Test]
     public void Invalid_limits_are_rejected()
     {
