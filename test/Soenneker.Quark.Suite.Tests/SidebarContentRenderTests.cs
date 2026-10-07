@@ -14,10 +14,12 @@ public sealed partial class RenderedShadcnParityTests
             .Add(component => component.ChildContent, (RenderFragment) (builder => builder.AddContent(0, "Navigation"))));
 
         var content = cut.Find("[data-sidebar='content']");
-        var cls = content.GetAttribute("class");
+        var style = content.GetAttribute("style");
 
         content.GetAttribute("data-fade").Should().Be("true");
-        cls.Should().Contain("[mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)]");
-        cls.Should().Contain("[-webkit-mask-image:linear-gradient(to_bottom,transparent,black_4rem,black_calc(100%_-_4rem),transparent)]");
+        style.Should().Contain("mask-image:linear-gradient(to bottom,transparent,black 4rem,black calc(100% - 4rem),transparent)");
+        style.Should().Contain("-webkit-mask-image:linear-gradient(to bottom,transparent,black 4rem,black calc(100% - 4rem),transparent)");
+        cut.Render(parameters => parameters.Add(component => component.ShowFade, false));
+        cut.Find("[data-sidebar='content']").GetAttribute("style").Should().BeNullOrEmpty();
     }
 }

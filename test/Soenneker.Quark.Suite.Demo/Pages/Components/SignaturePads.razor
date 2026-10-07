@@ -21,8 +21,8 @@
                 <FieldDescription>@_status</FieldDescription>
 
                 <Div Display="Display.Flex" Gap="Gap.Is2">
-                    <Button OnClick="ExportSvg">Export SVG</Button>
-                    <Button OnClick="Clear" Variant="ButtonVariant.Outline">Clear</Button>
+                    <Button OnClick="ExportSvg" Disabled="@(!_ready)">Export SVG</Button>
+                    <Button OnClick="Clear" Disabled="@(!_ready)" Variant="ButtonVariant.Outline">Clear</Button>
                 </Div>
             </Field>
         </DemoSection>
@@ -31,10 +31,12 @@
 
 @code {
     private SignaturePad? _signaturePad;
+    private bool _ready;
     private string _status = "Loading signature pad...";
 
     private Task OnReady()
     {
+        _ready = true;
         _status = "Ready for a signature.";
         return Task.CompletedTask;
     }

@@ -22,7 +22,6 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
             static p => p.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First);
 
         await Assertions.Expect(page.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First).ToBeVisibleAsync();
-        await Assertions.Expect(page.GetByText("CN", new PageGetByTextOptions { Exact = true }).First).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByText("+3", new PageGetByTextOptions { Exact = true }).First).ToBeVisibleAsync();
 
         var dropdownTrigger = page.GetByRole(AriaRole.Button).Filter(new LocatorFilterOptions { Has = page.GetByAltText("shadcn", new PageGetByAltTextOptions { Exact = true }) }).First;
@@ -32,5 +31,22 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(menu).ToBeVisibleAsync();
         await Assertions.Expect(menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profile", Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Log out", Exact = true })).ToBeVisibleAsync();
+    }
+
+    [Test]
+    public async ValueTask Avatar_shows_fallback_when_image_cannot_be_decoded()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        await page.RouteAsync("https://github.com/shadcn.png", route => route.FulfillAsync(new RouteFulfillOptions
+        {
+            ContentType = "image/png",
+            Body = "invalid image"
+        }));
+
+        await page.GotoAndWaitForReady($"{BaseUrl}components/avatar",
+            static p => p.GetByText("CN", new PageGetByTextOptions { Exact = true }).First);
+        await Assertions.Expect(page.GetByText("CN", new PageGetByTextOptions { Exact = true }).First).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByAltText("@shadcn", new PageGetByAltTextOptions { Exact = true }).First).Not.ToBeVisibleAsync();
     }
 }

@@ -27,7 +27,7 @@ public sealed class QuarkPlaywrightHost : PlaywrightHostedTestHost
             ProjectRelativePath = Path.Combine("test", "Soenneker.Quark.Suite.Demo", "Soenneker.Quark.Suite.Demo.csproj"),
             ApplicationName = "Quark demo",
             Restore = false,
-            BuildConfiguration = "DebugDemo",
+            BuildConfiguration = Environment.GetEnvironmentVariable("QUARK_TEST_CONFIGURATION") ?? "DebugDemo",
             ReuseBrowserContextAcrossSessions = false,
             ReusePageAcrossSessions = false
         };

@@ -41,7 +41,8 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "/");
         await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "/components");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
-        await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
+        (await currentPage.EvaluateAsync<string>("element => element.tagName")).Should().Be("SPAN");
+        (await currentPage.GetAttributeAsync("href")).Should().BeNull();
         (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("gap-1.5");
 
         var rtlSection = page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "RTL", Exact = true })

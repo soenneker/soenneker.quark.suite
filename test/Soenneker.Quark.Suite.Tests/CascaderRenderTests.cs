@@ -66,7 +66,10 @@ public sealed partial class RenderedShadcnParityTests
             }));
 
         await cut.Find("button").ClickAsync(new MouseEventArgs());
+        cut.Find("[data-value='usa']").TextContent.Trim().Should().Be("USA");
+        cut.Find("[data-value='france']").TextContent.Trim().Should().Be("France");
         await cut.Find("[data-value='usa']").ClickAsync(new MouseEventArgs());
+        cut.Find("[data-value='new_york']").TextContent.Trim().Should().Be("New York");
         await cut.Find("[data-value='new_york']").ClickAsync(new MouseEventArgs());
         await cut.Find("[data-value='statue_of_liberty']").ClickAsync(new MouseEventArgs());
 

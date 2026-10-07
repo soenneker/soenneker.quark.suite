@@ -1,8 +1,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<label @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @onclick:preventDefault @attributes="BuildAttributes()">
-    <input @ref="_input" checked="@IsChecked" @attributes="BuildInputAttributes()" />
+<label @attributes="BuildAttributes()">
+    <input @ref="_input" checked="@IsChecked" @onchange="(_cachedHandleChangeDelegate ??= HandleChange)" @attributes="BuildInputAttributes()" />
     <span aria-hidden="true" data-slot="questionnaire-choice-indicator" class="pointer-events-none relative flex size-4 shrink-0 translate-y-[0.45rem] items-center justify-center rounded-[4px] border border-input group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[type=radio]/questionnaire-choice:rounded-full group-data-checked/questionnaire-choice:border-primary group-data-checked/questionnaire-choice:bg-primary group-data-checked/questionnaire-choice:text-primary-foreground dark:bg-input/30 dark:group-data-checked/questionnaire-choice:bg-primary">
         @if (IsChecked && ParentItem?.Multiple == true)
         {
@@ -39,7 +39,7 @@
     private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3_5;
     private string? _lastPrependedClass;
 
-    private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
 
     private QuarkAttributeDictionary _inputAttributesBuffer;
     private ElementReference _input;
@@ -74,9 +74,9 @@
         base.OnParametersSet();
     }
 
-    private async Task HandleClick(MouseEventArgs args)
+    private async Task HandleChange(ChangeEventArgs args)
     {
-        var selected = ParentItem?.Multiple == true ? !IsChecked : true;
+        var selected = ParentItem?.Multiple != true || args.Value is true;
         await (ParentItem?.SetChoice(this, selected) ?? Task.CompletedTask);
         if (CheckedChanged.HasDelegate)
             await CheckedChanged.InvokeAsync(selected);

@@ -34,11 +34,11 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("[data-slot='questionnaire-error']").HasAttribute("hidden").Should().BeFalse();
         cut.Find("[data-slot='questionnaire-progress']").TextContent.Should().Be("Question 1 of 2");
 
-        cut.Find("input[value='alpha']").Click();
+        cut.Find("input[value='alpha']").Change("alpha");
         cut.Find("button[data-slot='questionnaire-next']").Click();
         cut.Find("[data-slot='questionnaire-progress']").TextContent.Should().Be("Question 2 of 2");
 
-        cut.Find("input[value='gamma']").Click();
+        cut.Find("input[value='gamma']").Change("gamma");
         cut.Find("form[data-slot='questionnaire']").Submit();
 
         submitted.Should().NotBeNull();

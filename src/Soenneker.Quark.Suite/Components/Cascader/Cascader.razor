@@ -87,7 +87,6 @@
     private IReadOnlyList<CascaderOption>? _columnsOptionsSource;
     private string[] _selectionPathSnapshot = [];
     private string[] _columnsPathSnapshot = [];
-    private static readonly object OptionLabelTruncate = (CssValue<TruncateBuilder>) Quark.Truncate.Default;
     private static readonly object OptionChevronSize = (CssValue<SizeBuilder>) Quark.Size.Is4;
     private static readonly object OptionChevronMargin = (CssValue<MarginBuilder>) Quark.Margin.FromLeft.Is2;
     private static readonly object OptionChevronShrink = (CssValue<ShrinkBuilder>) Quark.Shrink.Is0;
@@ -216,13 +215,13 @@
                 builder.AddAttribute(22, "onkeydown", handlers.KeyDown);
                 builder.AddAttribute(23, "onkeydown:preventDefault", _preventKeyDefault);
 
-                builder.OpenComponent<Span>(24);
-                builder.AddAttribute(25, nameof(Truncate), (object) OptionLabelTruncate);
+                builder.OpenElement(24, "span");
+                builder.AddAttribute(25, "class", "truncate");
                 if (OptionTemplate is not null)
                     builder.AddContent(26, OptionTemplate(option));
                 else
                     builder.AddContent(27, option.Label);
-                builder.CloseComponent();
+                builder.CloseElement();
 
                 if (option.HasChildren)
                 {

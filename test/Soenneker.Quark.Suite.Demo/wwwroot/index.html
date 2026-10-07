@@ -3,13 +3,24 @@
 
 <head>
     <meta charset="utf-8" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0X51EEE3QC"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-0X51EEE3QC');
+        if (location.hostname === "quark.soenneker.com") {
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-0X51EEE3QC');
+
+            const googleTag = document.createElement("script");
+            googleTag.async = true;
+            googleTag.src = "https://www.googletagmanager.com/gtag/js?id=G-0X51EEE3QC";
+            document.head.appendChild(googleTag);
+
+            const cloudflareBeacon = document.createElement("script");
+            cloudflareBeacon.defer = true;
+            cloudflareBeacon.src = "https://static.cloudflareinsights.com/beacon.min.js";
+            cloudflareBeacon.dataset.cfBeacon = JSON.stringify({ token: "5fedbff71c8249899aa9a9d87287306f" });
+            document.head.appendChild(cloudflareBeacon);
+        }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Quark Suite | Blazor UI Components Inspired by shadcn/ui</title>
@@ -55,8 +66,5 @@
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
-    <!-- Cloudflare Web Analytics -->
-    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "5fedbff71c8249899aa9a9d87287306f"}'></script>
-    <!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -9,6 +9,17 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void TagInput_assigns_its_id_and_label_reference_only_to_the_input()
+    {
+        var cut = Render<TagInput>(p => p.Add(c => c.Id, "topics")
+            .Add(c => c.AriaLabelledBy, "topics-label"));
+
+        cut.FindAll("#topics").Should().ContainSingle();
+        cut.Find("#topics").TagName.Should().Be("INPUT");
+        cut.Find("input").GetAttribute("aria-labelledby").Should().Be("topics-label");
+    }
+
+    [Test]
     public void TagInput_large_autocomplete_observes_mutated_values_and_case_insensitive_duplicates()
     {
         var values = new string[16];

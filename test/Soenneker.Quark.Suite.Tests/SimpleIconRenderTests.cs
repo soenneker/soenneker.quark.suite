@@ -22,5 +22,16 @@ public sealed partial class RenderedShadcnParityTests
         svg.GetAttribute("class").Should().Contain("text-primary");
         svg.GetAttribute("class").Should().Contain("size-4");
         svg.GetAttribute("aria-label").Should().Be("GitHub");
+        svg.GetAttribute("fill").Should().Be("currentColor");
+    }
+
+    [Test]
+    public void SimpleIcon_preserves_explicit_fill()
+    {
+        var cut = Render<QuarkSimpleIcon>(parameters => parameters
+            .Add(p => p.Name, SimpleIconEnum.Github)
+            .AddUnmatched("fill", "#ff0000"));
+
+        cut.Find("svg").GetAttribute("fill").Should().Be("#ff0000");
     }
 }

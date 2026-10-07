@@ -31,6 +31,7 @@
 
     private Blazor.SignaturePads.SignaturePadCanvas? _canvas;
     private bool? _lastInteractionDisabled;
+    private bool _ready;
 
     [Parameter]
     public double? DotSize { get; set; }
@@ -97,9 +98,13 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        await ApplyInteractionState();
+    }
 
+    private async Task ApplyInteractionState()
+    {
         var interactionDisabled = Disabled || ReadOnly;
-        if (_canvas is null || _lastInteractionDisabled == interactionDisabled)
+        if (!_ready || _canvas is null || _lastInteractionDisabled == interactionDisabled)
             return;
 
         _lastInteractionDisabled = interactionDisabled;
@@ -110,11 +115,13 @@
             await _canvas.Enable();
     }
 
-    private Task HandleReady()
+    private async Task HandleReady()
     {
+        _ready = true;
         _lastInteractionDisabled = null;
-
-        return OnReady.HasDelegate ? OnReady.InvokeAsync() : Task.CompletedTask;
+        await ApplyInteractionState();
+        if (OnReady.HasDelegate)
+            await OnReady.InvokeAsync();
     }
 
     private static bool SameNumber(double? left, double? right) =>

@@ -58,5 +58,6 @@ internal sealed class SvgTemplate
         key.Equals("class", StringComparison.OrdinalIgnoreCase) || key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
         key.Equals("hidden", StringComparison.OrdinalIgnoreCase) || key.Equals("id", StringComparison.OrdinalIgnoreCase) ||
         key.Equals("title", StringComparison.OrdinalIgnoreCase) || key.Equals("role", StringComparison.OrdinalIgnoreCase) ||
-        key.Equals("tabindex", StringComparison.OrdinalIgnoreCase) || key.Equals("focusable", StringComparison.OrdinalIgnoreCase);
+        key.Equals("tabindex", StringComparison.OrdinalIgnoreCase) || key.Equals("focusable", StringComparison.OrdinalIgnoreCase) ||
+        key.Equals("fill", StringComparison.OrdinalIgnoreCase);
 }

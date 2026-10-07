@@ -59,7 +59,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
             $"{BaseUrl}components/combobox",
             static p => p.GetByPlaceholder("Select a framework").First);
 
-        await page.GetByText("Popup", new PageGetByTextOptions { Exact = true }).ScrollIntoViewIfNeededAsync();
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Popup", Exact = true }).ScrollIntoViewIfNeededAsync();
         var popupTrigger = page.Locator("button[role='combobox']").Filter(new LocatorFilterOptions { HasText = "Select country" }).First;
         await popupTrigger.ScrollIntoViewIfNeededAsync();
 

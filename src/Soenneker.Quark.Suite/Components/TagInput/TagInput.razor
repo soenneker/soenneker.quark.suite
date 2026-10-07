@@ -318,7 +318,8 @@
         builder.AddAttribute(22, "aria-label", AriaLabel);
         builder.AddAttribute(23, "aria-describedby", AriaDescribedBy);
         builder.AddAttribute(24, "class", "min-w-24 flex-1 bg-transparent px-1 py-1 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed");
-        builder.AddElementReferenceCapture(25, _captureInput ??= CaptureInput);
+        builder.AddAttribute(25, "aria-labelledby", AriaLabelledBy);
+        builder.AddElementReferenceCapture(26, _captureInput ??= CaptureInput);
         builder.CloseElement();
 
         builder.CloseElement();
@@ -809,6 +810,8 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        // The label must resolve to the editable input, not its non-labelable wrapper.
+        attributes.Remove("id");
 
         attributes["data-disabled"] = Disabled ? "true" : "false";
         attributes["data-readonly"] = ReadOnly ? "true" : "false";

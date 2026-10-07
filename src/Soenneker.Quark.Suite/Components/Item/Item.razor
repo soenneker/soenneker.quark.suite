@@ -55,7 +55,6 @@ else
         RingColor ??= _defaultRingColor;
 
         ApplyVariantDefaults();
-        ApplySizeDefaults();
 
     }
 
@@ -78,12 +77,6 @@ else
         BackgroundColor ??= _defaultBackgroundColor;
     }
 
-    private void ApplySizeDefaults()
-    {
-        Gap = null;
-        Padding = null;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -91,9 +84,13 @@ else
         attributes["data-size"] = GetDataSize(ItemSize);
 
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
-        const string itemClass = "group/item duration-100 focus-visible:ring-[3px] [a]:transition-colors [a]:hover:bg-muted";
-        PrependClassAttribute(attributes, ReferenceEquals(ItemSize, ItemSize.ExtraSmall)
-            ? itemClass + " gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0" : itemClass + " gap-2.5 px-3 py-2.5", ref _lastBuiltClass);
+        var itemClass = "group/item duration-100 focus-visible:ring-[3px] [a]:transition-colors [a]:hover:bg-muted";
+        bool extraSmall = ReferenceEquals(ItemSize, ItemSize.ExtraSmall);
+        if (Gap is null)
+            itemClass += extraSmall ? " gap-2" : " gap-2.5";
+        if (Padding is null)
+            itemClass += extraSmall ? " px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0" : " px-3 py-2.5";
+        PrependClassAttribute(attributes, itemClass, ref _lastBuiltClass);
     }
 
     private static string GetDataVariant(ItemVariant? variant)
