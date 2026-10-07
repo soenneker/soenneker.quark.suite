@@ -17,4 +17,7 @@ public sealed class QuarkPresetAttribute : Attribute
     /// Gets name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>Gets or sets whether the generated token evaluates the preset once. Leave false for presets that read changing state.</summary>
+    public bool IsStatic { get; set; }
 }

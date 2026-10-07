@@ -8,6 +8,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class RequiredValidator : QuarkValidator
 {
+    public override bool IsSynchronous => true;
+
     private readonly ValidationResult _errorResult;
 
     public RequiredValidator()

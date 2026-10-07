@@ -17,6 +17,27 @@
 </CascadingValue>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "group/alert");
+        AppendClass(ref cls, "has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
+        AppendClass(ref cls, "has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2");
+        AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg:not([class*='size-'])]:size-4");
+        if (IsDestructiveVariant())
+        {
+            AppendClass(ref cls, "bg-card");
+            AppendClass(ref cls, "text-destructive");
+            AppendClass(ref cls, "*:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current");
+        }
+        else
+        {
+            AppendClass(ref cls, "bg-card");
+            AppendClass(ref cls, "text-card-foreground");
+            AppendClass(ref cls, "*:[svg]:text-current");
+        }
+    }
+
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
@@ -28,7 +49,6 @@
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
     private static readonly CssValue<ShrinkBuilder> _renderCss1 = Quark.Shrink.Is0;
-    private string? _lastBuiltClass;
 
     [Parameter]
     public AlertVariant Variant { get; set; } = AlertVariant.Default;
@@ -66,34 +86,7 @@
         attributes["role"] = "alert";
 
         // Build alert classes (and any alert-specific style) during attribute construction.
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/alert");
-                AppendClass(ref cls, "has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
-                AppendClass(ref cls, "has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2");
-                AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg:not([class*='size-'])]:size-4");
-                if (IsDestructiveVariant())
-                {
-                    AppendClass(ref cls, "bg-card");
-                    AppendClass(ref cls, "text-destructive");
-                    AppendClass(ref cls, "*:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current");
-                }
-                else
-                {
-                    AppendClass(ref cls, "bg-card");
-                    AppendClass(ref cls, "text-card-foreground");
-                    AppendClass(ref cls, "*:[svg]:text-current");
-                }
 
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
     }
 
     private LucideIcon GetDefaultIcon()

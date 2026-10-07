@@ -6,12 +6,17 @@
 </div>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "basis-full");
+    }
+
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
     private static readonly CssValue<GrowBuilder> _defaultGrow = Quark.Grow.Is0;
     private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.FromTop.Is4;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.FromLeft.Is4;
-    private string? _lastBuiltClass;
 
 
     [CascadingParameter(Name = "ParentCarousel")]
@@ -33,39 +38,16 @@
         Grow ??= _defaultGrow;
         if (ParentCarousel?.IsVertical == true)
         {
-            if (!HasClassToken("pt-"))
-                Padding ??= _defaultPadding2;
+            Padding ??= _defaultPadding2;
         }
-        else if (!HasClassToken("pl-"))
+        else
         {
             Padding ??= _defaultPadding;
         }
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
 
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                if (!HasClassToken("basis-"))
-                    AppendClass(ref cls, "basis-full");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-    }
-
-    private bool HasClassToken(string tokenPart)
-    {
-        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
-    }
 
     public override async ValueTask DisposeAsync()
     {

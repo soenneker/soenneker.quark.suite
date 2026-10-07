@@ -117,6 +117,16 @@
 </Div>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
+        AppendClass(ref cls, "p-2");
+        AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
+        AppendClass(ref cls, "[--cell-size:--spacing(7)]");
+        AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
+    }
+
     private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
     private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _renderCss2 = Quark.FlexDirection.Col.OnMd.Row;
@@ -154,7 +164,6 @@
     private Func<ChangeEventArgs, Task>? _cachedOnMonthChangedDelegate;
     private Func<ChangeEventArgs, Task>? _cachedOnYearChangedDelegate;
 
-    private string? _lastBuiltClass;
 
     protected override void ApplyDefaultParameters()
     {
@@ -1214,25 +1223,7 @@
 
         attributes["data-mode"] = ReferenceEquals(Mode, CalendarSelectionMode.Multiple) ? "multiple" : ReferenceEquals(Mode, CalendarSelectionMode.Range) ? "range" : "single";
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
-                if (!HasClassOverride("p-"))
-                    AppendClass(ref cls, "p-2");
-                if (!HasClassOverride("--cell-radius"))
-                    AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
-                if (!HasClassOverride("--cell-size"))
-                    AppendClass(ref cls, "[--cell-size:--spacing(7)]");
-                AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
 
         if (ShowWeekNumber)
             attributes["data-week-numbers"] = "true";
@@ -1242,10 +1233,6 @@
             attributes["dir"] = resolvedDir;
     }
 
-    private bool HasClassOverride(string value)
-    {
-        return Class?.Contains(value, StringComparison.Ordinal) == true;
-    }
 
     private static string? GetDataBoolean(bool value)
     {

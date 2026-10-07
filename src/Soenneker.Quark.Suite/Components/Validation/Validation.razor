@@ -309,8 +309,7 @@
         _cts?.Cancel();
         if (!_disposed.Read() && _input is not null && !_input.Disabled)
         {
-            var handler = GetValidationHandler();
-            handler?.Validate(this, newValidationValue);
+            GetValidationHandler()?.Validate(this, newValidationValue);
         }
 
         return Status;
@@ -328,6 +327,15 @@
             return Status;
 
         _explicitlyValidated = true;
+        var handler = GetValidationHandler();
+        // Arbitrary IValidator implementations may override async behavior. Only known
+        // synchronous handlers/actions or explicitly synchronous validators bypass cancellation infrastructure.
+        if (_cts is null && (handler is PatternValidationHandler or DataAnnotationValidationHandler ||
+                             handler is ValidatorHandler && (Validator?.IsSynchronous == true || Validator is null && AsyncFunc is null)))
+        {
+            handler.Validate(this, newValidationValue);
+            return Status;
+        }
         var source = new CancellationTokenSource();
         var token = source.Token;
         var previous = _cts;
@@ -338,7 +346,6 @@
                 await previous.CancelAsync();
 
             token.ThrowIfCancellationRequested();
-            var handler = GetValidationHandler();
             if (handler is not null)
                 await handler.Validate(this, newValidationValue, token);
         }
@@ -353,6 +360,14 @@
         }
 
         return Status;
+    }
+
+    private List<System.ComponentModel.DataAnnotations.ValidationResult>? _annotationResults;
+    internal List<System.ComponentModel.DataAnnotations.ValidationResult> GetAnnotationResults()
+    {
+        _annotationResults ??= [];
+        _annotationResults.Clear();
+        return _annotationResults;
     }
 
     internal ValidationMessageStore GetDataAnnotationMessageStore()

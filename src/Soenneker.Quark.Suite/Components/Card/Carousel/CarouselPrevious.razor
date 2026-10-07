@@ -7,6 +7,16 @@
 </Button>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var horizontal = ParentCarousel?.IsVertical != true;
+        if (horizontal)
+            AppendClass(ref cls, "touch-manipulation top-1/2 -left-12 -translate-y-1/2");
+        else
+            AppendClass(ref cls, "touch-manipulation -top-12 left-1/2 -translate-x-1/2 rotate-90");
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = ButtonSize.IconSm;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
@@ -17,7 +27,6 @@
     private static readonly CssValue<ScreenReaderBuilder> _renderCss4 = Quark.ScreenReader.Only;
     private Func<MouseEventArgs, Task>? _cachedHandlePreviousClickDelegate;
 
-    private string? _lastBuiltClass;
 
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
@@ -68,21 +77,7 @@
 
         var horizontal = ParentCarousel?.IsVertical != true;
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                if (horizontal)
-                    AppendClass(ref cls, "touch-manipulation top-1/2 -left-12 -translate-y-1/2");
-                else
-                    AppendClass(ref cls, "touch-manipulation -top-12 left-1/2 -translate-x-1/2 rotate-90");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
     }
 
     private void OnCarouselStateChanged()

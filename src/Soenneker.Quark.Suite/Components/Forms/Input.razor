@@ -36,8 +36,32 @@ else
 }
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
+        if (PlainText)
+        {
+            AppendClass(ref cls, "focus-visible:outline-none");
+        }
+        else
+        {
+            AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground");
+            AppendClass(ref cls, "disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80");
+            AppendClass(ref cls, "focus-visible:ring-3");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        }
+
+        if (sizeClass is not null)
+            AppendClass(ref cls, sizeClass);
+        if (UsesAutoSaveStatusSlot)
+            AppendClass(ref cls, "min-w-0 flex-1");
+        if (validationClass is not null)
+            AppendClass(ref cls, validationClass);
+    }
+
     private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
-    private (bool PlainText, bool AutoSaveSlot, string? Size, string? Validation, string? BaseClass) _builtInputClassKey;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
@@ -58,7 +82,6 @@ else
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
-    private string? _lastBuiltClass;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
 
@@ -472,45 +495,7 @@ else
 
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-        attributes.TryGetValue("class", out var existingClass);
-        var baseClass = existingClass as string ?? existingClass?.ToString();
-        if (existingClass is not null) attributes["class"] = baseClass!;
-        var classKey = (PlainText, UsesAutoSaveStatusSlot, sizeClass, validationClass, baseClass);
-        if (_lastBuiltClass is null || _builtInputClassKey != classKey)
-        {
-            _builtInputClassKey = classKey;
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                if (PlainText)
-                {
-                    AppendClass(ref cls, "focus-visible:outline-none");
-                }
-                else
-                {
-                    AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground");
-                    AppendClass(ref cls, "disabled:bg-input/50 dark:bg-input/30 dark:disabled:bg-input/80");
-                    AppendClass(ref cls, "focus-visible:ring-3");
-                    AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-                }
 
-                if (sizeClass is not null)
-                    AppendClass(ref cls, sizeClass);
-                if (UsesAutoSaveStatusSlot)
-                    AppendClass(ref cls, "min-w-0 flex-1");
-                if (validationClass is not null)
-                    AppendClass(ref cls, validationClass);
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-        else
-            attributes["class"] = _lastBuiltClass;
 
     }
 

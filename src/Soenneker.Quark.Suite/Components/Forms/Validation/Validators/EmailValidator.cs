@@ -9,8 +9,10 @@ namespace Soenneker.Quark;
 /// </summary>
 public class EmailValidator : QuarkValidator
 {
+    public override bool IsSynchronous => true;
+
     private static readonly Regex _emailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
-    
+
     private readonly ValidationResult _errorResult;
 
     public EmailValidator()

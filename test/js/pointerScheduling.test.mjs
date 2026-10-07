@@ -148,6 +148,7 @@ test('color picker batches thumb writes and keeps the last in-bounds color', t =
   env.flush();
   assert.equal(env.thumb.writes, 3);
   assert.equal(env.canvas.queries, 1);
+  assert.equal(env.canvas.reads, 1);
   assert.equal(env.thumb.style.background, 'hsl(30 100% 50% / 0.5)');
   env.canvas.emit('pointerup');
   assert.deepEqual(env.calls, [['SetCanvasColor', 100, 50]]);

@@ -13,7 +13,7 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
             var store = ctx.GetDataAnnotationMessageStore();
             var field = ctx.FieldIdentifier;
 
-            var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+            var results = ctx.GetAnnotationResults();
             GeneratedValidationRegistry.Validate(field.Model, field.FieldName, results);
 
             List<string>? messages = null;

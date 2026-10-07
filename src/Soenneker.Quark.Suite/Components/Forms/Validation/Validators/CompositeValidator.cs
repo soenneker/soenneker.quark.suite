@@ -13,6 +13,16 @@ namespace Soenneker.Quark;
 /// </summary>
 public class CompositeValidator : QuarkValidator
 {
+    public override bool IsSynchronous
+    {
+        get
+        {
+            foreach (var validator in _validators)
+                if (!validator.IsSynchronous) return false;
+            return true;
+        }
+    }
+
     private readonly List<IQuarkValidator> _validators;
 
     public CompositeValidator(params IQuarkValidator[] validators)

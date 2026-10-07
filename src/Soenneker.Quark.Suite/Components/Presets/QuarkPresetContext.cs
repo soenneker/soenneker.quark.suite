@@ -1,942 +1,766 @@
+using System.Numerics;
+
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Represents the quark preset context.
-/// </summary>
+/// <summary>Collects typed preset assignments without boxing. Each evaluation starts with an empty context.</summary>
 public sealed class QuarkPresetContext
 {
-    // Most presets set only a few properties. Box those values on assignment instead
-    // of reserving a nullable CssValue struct for every unused property.
-    private object? _inset;
-    private object? _top;
-    private object? _right;
-    private object? _bottom;
-    private object? _left;
-    private object? _display;
-    private object? _visibility;
-    private object? _float;
-    private object? _verticalAlign;
-    private object? _textAlign;
-    private object? _textColor;
-    private object? _textSize;
-    private object? _decorationLine;
-    private object? _underlineOffset;
-    private object? _textTransform;
-    private object? _fontFamily;
-    private object? _fontWeight;
-    private object? _fontStyle;
-    private object? _leading;
-    private object? _tracking;
-    private object? _whitespace;
-    private object? _textWrap;
-    private object? _textBreak;
-    private object? _textOverflow;
-    private object? _truncate;
-    private object? _lineClamp;
-    private object? _fontVariantNumeric;
-    private object? _margin;
-    private object? _padding;
-    private object? _position;
-    private object? _scrollMargin;
-    private object? _scrollPadding;
-    private object? _size;
-    private object? _width;
-    private object? _minWidth;
-    private object? _maxWidth;
-    private object? _height;
-    private object? _minHeight;
-    private object? _maxHeight;
-    private object? _overflow;
-    private object? _overflowX;
-    private object? _overflowY;
-    private object? _overscroll;
-    private object? _flex;
-    private object? _flexDirection;
-    private object? _flexWrap;
-    private object? _grow;
-    private object? _shrink;
-    private object? _gap;
-    private object? _space;
-    private object? _divide;
-    private object? _contentAlign;
-    private object? _itemsAlign;
-    private object? _justify;
-    private object? _selfAlign;
-    private object? _justifyItemsAlign;
-    private object? _justifySelfAlign;
-    private object? _colStart;
-    private object? _rowSpan;
-    private object? _rowStart;
-    private object? _opacity;
-    private object? _zIndex;
-    private object? _pointerEvents;
-    private object? _userSelect;
-    private object? _cursor;
-    private object? _screenReader;
-    private object? _backgroundColor;
-    private object? _borderColor;
-    private object? _border;
-    private object? _borderStyle;
-    private object? _rounded;
-    private object? _ringColor;
-    private object? _ring;
-    private object? _ringOffset;
-    private object? _shadow;
-    private object? _backdropFilter;
-    private object? _backdropBlur;
-    private object? _backdropBrightness;
-    private object? _backdropContrast;
-    private object? _backdropGrayscale;
-    private object? _backdropHueRotate;
-    private object? _backdropInvert;
-    private object? _backdropOpacity;
-    private object? _backdropSaturate;
-    private object? _backdropSepia;
-    private object? _filter;
-    private object? _blur;
-    private object? _brightness;
-    private object? _contrast;
-    private object? _dropShadow;
-    private object? _dropShadowColor;
-    private object? _grayscale;
-    private object? _hueRotate;
-    private object? _invert;
-    private object? _saturate;
-    private object? _sepia;
-    private object? _resize;
-    private object? _transform;
-    private object? _animation;
-    private object? _duration;
-    private object? _transition;
+    private readonly string?[] _values = new string?[102];
+    private ulong _assigned0;
+    private ulong _assigned1;
+    internal int Revision { get; private set; }
 
-    /// <summary>
-    /// Gets or sets class.
-    /// </summary>
-    public string? Class { get; set; }
-    /// <summary>
-    /// Gets or sets inset.
-    /// </summary>
+    internal bool HasValue(PresetProperty property) => _values[(int)property] is not null;
+
+    private void Set(int index, string? value)
+    {
+        _values[index] = value;
+        if (index < 64) _assigned0 |= 1UL << index;
+        else _assigned1 |= 1UL << (index - 64);
+        unchecked { Revision++; }
+    }
+
+    /// <summary>Gets or sets the classes appended after typed preset properties.</summary>
+    public string? Class { get => _values[101]; set => Set(101, value); }
+
+    /// <summary>Gets or sets the Inset preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<InsetBuilder>? Inset
     {
-        get => (CssValue<InsetBuilder>?) _inset;
-        set => _inset = value;
+        get => _values[0] is { } value ? CssValue<InsetBuilder>.Raw(value) : (CssValue<InsetBuilder>?)null;
+        set => Set(0, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets top.
-    /// </summary>
+
+    /// <summary>Gets or sets the Top preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TopBuilder>? Top
     {
-        get => (CssValue<TopBuilder>?) _top;
-        set => _top = value;
+        get => _values[1] is { } value ? CssValue<TopBuilder>.Raw(value) : (CssValue<TopBuilder>?)null;
+        set => Set(1, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets right.
-    /// </summary>
+
+    /// <summary>Gets or sets the Right preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RightBuilder>? Right
     {
-        get => (CssValue<RightBuilder>?) _right;
-        set => _right = value;
+        get => _values[2] is { } value ? CssValue<RightBuilder>.Raw(value) : (CssValue<RightBuilder>?)null;
+        set => Set(2, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets bottom.
-    /// </summary>
+
+    /// <summary>Gets or sets the Bottom preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BottomBuilder>? Bottom
     {
-        get => (CssValue<BottomBuilder>?) _bottom;
-        set => _bottom = value;
+        get => _values[3] is { } value ? CssValue<BottomBuilder>.Raw(value) : (CssValue<BottomBuilder>?)null;
+        set => Set(3, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets left.
-    /// </summary>
+
+    /// <summary>Gets or sets the Left preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<LeftBuilder>? Left
     {
-        get => (CssValue<LeftBuilder>?) _left;
-        set => _left = value;
+        get => _values[4] is { } value ? CssValue<LeftBuilder>.Raw(value) : (CssValue<LeftBuilder>?)null;
+        set => Set(4, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets display.
-    /// </summary>
+
+    /// <summary>Gets or sets the Display preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DisplayBuilder>? Display
     {
-        get => (CssValue<DisplayBuilder>?) _display;
-        set => _display = value;
+        get => _values[5] is { } value ? CssValue<DisplayBuilder>.Raw(value) : (CssValue<DisplayBuilder>?)null;
+        set => Set(5, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets visibility.
-    /// </summary>
+
+    /// <summary>Gets or sets the Visibility preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<VisibilityBuilder>? Visibility
     {
-        get => (CssValue<VisibilityBuilder>?) _visibility;
-        set => _visibility = value;
+        get => _values[6] is { } value ? CssValue<VisibilityBuilder>.Raw(value) : (CssValue<VisibilityBuilder>?)null;
+        set => Set(6, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets float.
-    /// </summary>
+
+    /// <summary>Gets or sets the Float preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FloatBuilder>? Float
     {
-        get => (CssValue<FloatBuilder>?) _float;
-        set => _float = value;
+        get => _values[7] is { } value ? CssValue<FloatBuilder>.Raw(value) : (CssValue<FloatBuilder>?)null;
+        set => Set(7, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets vertical align.
-    /// </summary>
+
+    /// <summary>Gets or sets the VerticalAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<VerticalAlignBuilder>? VerticalAlign
     {
-        get => (CssValue<VerticalAlignBuilder>?) _verticalAlign;
-        set => _verticalAlign = value;
+        get => _values[8] is { } value ? CssValue<VerticalAlignBuilder>.Raw(value) : (CssValue<VerticalAlignBuilder>?)null;
+        set => Set(8, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text align.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextAlignBuilder>? TextAlign
     {
-        get => (CssValue<TextAlignBuilder>?) _textAlign;
-        set => _textAlign = value;
+        get => _values[9] is { } value ? CssValue<TextAlignBuilder>.Raw(value) : (CssValue<TextAlignBuilder>?)null;
+        set => Set(9, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text color.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextColor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextColorBuilder>? TextColor
     {
-        get => (CssValue<TextColorBuilder>?) _textColor;
-        set => _textColor = value;
+        get => _values[10] is { } value ? CssValue<TextColorBuilder>.Raw(value) : (CssValue<TextColorBuilder>?)null;
+        set => Set(10, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text size.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextSize preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextSizeBuilder>? TextSize
     {
-        get => (CssValue<TextSizeBuilder>?) _textSize;
-        set => _textSize = value;
+        get => _values[11] is { } value ? CssValue<TextSizeBuilder>.Raw(value) : (CssValue<TextSizeBuilder>?)null;
+        set => Set(11, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets decoration line.
-    /// </summary>
+
+    /// <summary>Gets or sets the DecorationLine preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DecorationLineBuilder>? DecorationLine
     {
-        get => (CssValue<DecorationLineBuilder>?) _decorationLine;
-        set => _decorationLine = value;
+        get => _values[12] is { } value ? CssValue<DecorationLineBuilder>.Raw(value) : (CssValue<DecorationLineBuilder>?)null;
+        set => Set(12, value?.ToString());
     }
 
-    /// <summary>Gets or sets the distance between text and its underline, including responsive and state variants.</summary>
+    /// <summary>Gets or sets the UnderlineOffset preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<UnderlineOffsetBuilder>? UnderlineOffset
     {
-        get => (CssValue<UnderlineOffsetBuilder>?) _underlineOffset;
-        set => _underlineOffset = value;
+        get => _values[13] is { } value ? CssValue<UnderlineOffsetBuilder>.Raw(value) : (CssValue<UnderlineOffsetBuilder>?)null;
+        set => Set(13, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text transform.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextTransform preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextTransformBuilder>? TextTransform
     {
-        get => (CssValue<TextTransformBuilder>?) _textTransform;
-        set => _textTransform = value;
+        get => _values[14] is { } value ? CssValue<TextTransformBuilder>.Raw(value) : (CssValue<TextTransformBuilder>?)null;
+        set => Set(14, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets font family.
-    /// </summary>
+
+    /// <summary>Gets or sets the FontFamily preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FontFamilyBuilder>? FontFamily
     {
-        get => (CssValue<FontFamilyBuilder>?) _fontFamily;
-        set => _fontFamily = value;
+        get => _values[15] is { } value ? CssValue<FontFamilyBuilder>.Raw(value) : (CssValue<FontFamilyBuilder>?)null;
+        set => Set(15, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets font weight.
-    /// </summary>
+
+    /// <summary>Gets or sets the FontWeight preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FontWeightBuilder>? FontWeight
     {
-        get => (CssValue<FontWeightBuilder>?) _fontWeight;
-        set => _fontWeight = value;
+        get => _values[16] is { } value ? CssValue<FontWeightBuilder>.Raw(value) : (CssValue<FontWeightBuilder>?)null;
+        set => Set(16, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets font style.
-    /// </summary>
+
+    /// <summary>Gets or sets the FontStyle preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FontStyleBuilder>? FontStyle
     {
-        get => (CssValue<FontStyleBuilder>?) _fontStyle;
-        set => _fontStyle = value;
+        get => _values[17] is { } value ? CssValue<FontStyleBuilder>.Raw(value) : (CssValue<FontStyleBuilder>?)null;
+        set => Set(17, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets leading.
-    /// </summary>
+
+    /// <summary>Gets or sets the Leading preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<LeadingBuilder>? Leading
     {
-        get => (CssValue<LeadingBuilder>?) _leading;
-        set => _leading = value;
+        get => _values[18] is { } value ? CssValue<LeadingBuilder>.Raw(value) : (CssValue<LeadingBuilder>?)null;
+        set => Set(18, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets tracking.
-    /// </summary>
+
+    /// <summary>Gets or sets the Tracking preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TrackingBuilder>? Tracking
     {
-        get => (CssValue<TrackingBuilder>?) _tracking;
-        set => _tracking = value;
+        get => _values[19] is { } value ? CssValue<TrackingBuilder>.Raw(value) : (CssValue<TrackingBuilder>?)null;
+        set => Set(19, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets whitespace.
-    /// </summary>
+
+    /// <summary>Gets or sets the Whitespace preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<WhitespaceBuilder>? Whitespace
     {
-        get => (CssValue<WhitespaceBuilder>?) _whitespace;
-        set => _whitespace = value;
+        get => _values[20] is { } value ? CssValue<WhitespaceBuilder>.Raw(value) : (CssValue<WhitespaceBuilder>?)null;
+        set => Set(20, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text wrap.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextWrap preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextWrapBuilder>? TextWrap
     {
-        get => (CssValue<TextWrapBuilder>?) _textWrap;
-        set => _textWrap = value;
+        get => _values[21] is { } value ? CssValue<TextWrapBuilder>.Raw(value) : (CssValue<TextWrapBuilder>?)null;
+        set => Set(21, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text break.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextBreak preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextBreakBuilder>? TextBreak
     {
-        get => (CssValue<TextBreakBuilder>?) _textBreak;
-        set => _textBreak = value;
+        get => _values[22] is { } value ? CssValue<TextBreakBuilder>.Raw(value) : (CssValue<TextBreakBuilder>?)null;
+        set => Set(22, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets text overflow.
-    /// </summary>
+
+    /// <summary>Gets or sets the TextOverflow preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TextOverflowBuilder>? TextOverflow
     {
-        get => (CssValue<TextOverflowBuilder>?) _textOverflow;
-        set => _textOverflow = value;
+        get => _values[23] is { } value ? CssValue<TextOverflowBuilder>.Raw(value) : (CssValue<TextOverflowBuilder>?)null;
+        set => Set(23, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets truncate.
-    /// </summary>
+
+    /// <summary>Gets or sets the Truncate preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TruncateBuilder>? Truncate
     {
-        get => (CssValue<TruncateBuilder>?) _truncate;
-        set => _truncate = value;
+        get => _values[24] is { } value ? CssValue<TruncateBuilder>.Raw(value) : (CssValue<TruncateBuilder>?)null;
+        set => Set(24, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets line clamp.
-    /// </summary>
+
+    /// <summary>Gets or sets the LineClamp preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<LineClampBuilder>? LineClamp
     {
-        get => (CssValue<LineClampBuilder>?) _lineClamp;
-        set => _lineClamp = value;
+        get => _values[25] is { } value ? CssValue<LineClampBuilder>.Raw(value) : (CssValue<LineClampBuilder>?)null;
+        set => Set(25, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets font variant numeric.
-    /// </summary>
+
+    /// <summary>Gets or sets the FontVariantNumeric preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FontVariantNumericBuilder>? FontVariantNumeric
     {
-        get => (CssValue<FontVariantNumericBuilder>?) _fontVariantNumeric;
-        set => _fontVariantNumeric = value;
+        get => _values[26] is { } value ? CssValue<FontVariantNumericBuilder>.Raw(value) : (CssValue<FontVariantNumericBuilder>?)null;
+        set => Set(26, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets margin.
-    /// </summary>
+
+    /// <summary>Gets or sets the Margin preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<MarginBuilder>? Margin
     {
-        get => (CssValue<MarginBuilder>?) _margin;
-        set => _margin = value;
+        get => _values[27] is { } value ? CssValue<MarginBuilder>.Raw(value) : (CssValue<MarginBuilder>?)null;
+        set => Set(27, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets padding.
-    /// </summary>
+
+    /// <summary>Gets or sets the Padding preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<PaddingBuilder>? Padding
     {
-        get => (CssValue<PaddingBuilder>?) _padding;
-        set => _padding = value;
+        get => _values[28] is { } value ? CssValue<PaddingBuilder>.Raw(value) : (CssValue<PaddingBuilder>?)null;
+        set => Set(28, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets position.
-    /// </summary>
+
+    /// <summary>Gets or sets the Position preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<PositionBuilder>? Position
     {
-        get => (CssValue<PositionBuilder>?) _position;
-        set => _position = value;
+        get => _values[29] is { } value ? CssValue<PositionBuilder>.Raw(value) : (CssValue<PositionBuilder>?)null;
+        set => Set(29, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets scroll margin.
-    /// </summary>
+
+    /// <summary>Gets or sets the ScrollMargin preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ScrollMarginBuilder>? ScrollMargin
     {
-        get => (CssValue<ScrollMarginBuilder>?) _scrollMargin;
-        set => _scrollMargin = value;
+        get => _values[30] is { } value ? CssValue<ScrollMarginBuilder>.Raw(value) : (CssValue<ScrollMarginBuilder>?)null;
+        set => Set(30, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets scroll padding.
-    /// </summary>
+
+    /// <summary>Gets or sets the ScrollPadding preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ScrollPaddingBuilder>? ScrollPadding
     {
-        get => (CssValue<ScrollPaddingBuilder>?) _scrollPadding;
-        set => _scrollPadding = value;
+        get => _values[31] is { } value ? CssValue<ScrollPaddingBuilder>.Raw(value) : (CssValue<ScrollPaddingBuilder>?)null;
+        set => Set(31, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets size.
-    /// </summary>
+
+    /// <summary>Gets or sets the Size preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<SizeBuilder>? Size
     {
-        get => (CssValue<SizeBuilder>?) _size;
-        set => _size = value;
+        get => _values[32] is { } value ? CssValue<SizeBuilder>.Raw(value) : (CssValue<SizeBuilder>?)null;
+        set => Set(32, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets width.
-    /// </summary>
+
+    /// <summary>Gets or sets the Width preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<WidthBuilder>? Width
     {
-        get => (CssValue<WidthBuilder>?) _width;
-        set => _width = value;
+        get => _values[33] is { } value ? CssValue<WidthBuilder>.Raw(value) : (CssValue<WidthBuilder>?)null;
+        set => Set(33, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets min width.
-    /// </summary>
+
+    /// <summary>Gets or sets the MinWidth preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<MinWidthBuilder>? MinWidth
     {
-        get => (CssValue<MinWidthBuilder>?) _minWidth;
-        set => _minWidth = value;
+        get => _values[34] is { } value ? CssValue<MinWidthBuilder>.Raw(value) : (CssValue<MinWidthBuilder>?)null;
+        set => Set(34, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets max width.
-    /// </summary>
+
+    /// <summary>Gets or sets the MaxWidth preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<MaxWidthBuilder>? MaxWidth
     {
-        get => (CssValue<MaxWidthBuilder>?) _maxWidth;
-        set => _maxWidth = value;
+        get => _values[35] is { } value ? CssValue<MaxWidthBuilder>.Raw(value) : (CssValue<MaxWidthBuilder>?)null;
+        set => Set(35, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets height.
-    /// </summary>
+
+    /// <summary>Gets or sets the Height preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<HeightBuilder>? Height
     {
-        get => (CssValue<HeightBuilder>?) _height;
-        set => _height = value;
+        get => _values[36] is { } value ? CssValue<HeightBuilder>.Raw(value) : (CssValue<HeightBuilder>?)null;
+        set => Set(36, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets min height.
-    /// </summary>
+
+    /// <summary>Gets or sets the MinHeight preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<MinHeightBuilder>? MinHeight
     {
-        get => (CssValue<MinHeightBuilder>?) _minHeight;
-        set => _minHeight = value;
+        get => _values[37] is { } value ? CssValue<MinHeightBuilder>.Raw(value) : (CssValue<MinHeightBuilder>?)null;
+        set => Set(37, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets max height.
-    /// </summary>
+
+    /// <summary>Gets or sets the MaxHeight preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<MaxHeightBuilder>? MaxHeight
     {
-        get => (CssValue<MaxHeightBuilder>?) _maxHeight;
-        set => _maxHeight = value;
+        get => _values[38] is { } value ? CssValue<MaxHeightBuilder>.Raw(value) : (CssValue<MaxHeightBuilder>?)null;
+        set => Set(38, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets overflow.
-    /// </summary>
+
+    /// <summary>Gets or sets the Overflow preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<OverflowBuilder>? Overflow
     {
-        get => (CssValue<OverflowBuilder>?) _overflow;
-        set => _overflow = value;
+        get => _values[39] is { } value ? CssValue<OverflowBuilder>.Raw(value) : (CssValue<OverflowBuilder>?)null;
+        set => Set(39, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets overflow x.
-    /// </summary>
+
+    /// <summary>Gets or sets the OverflowX preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<OverflowBuilder>? OverflowX
     {
-        get => (CssValue<OverflowBuilder>?) _overflowX;
-        set => _overflowX = value;
+        get => _values[40] is { } value ? CssValue<OverflowBuilder>.Raw(value) : (CssValue<OverflowBuilder>?)null;
+        set => Set(40, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets overflow y.
-    /// </summary>
+
+    /// <summary>Gets or sets the OverflowY preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<OverflowBuilder>? OverflowY
     {
-        get => (CssValue<OverflowBuilder>?) _overflowY;
-        set => _overflowY = value;
+        get => _values[41] is { } value ? CssValue<OverflowBuilder>.Raw(value) : (CssValue<OverflowBuilder>?)null;
+        set => Set(41, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets overscroll.
-    /// </summary>
+
+    /// <summary>Gets or sets the Overscroll preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<OverscrollBuilder>? Overscroll
     {
-        get => (CssValue<OverscrollBuilder>?) _overscroll;
-        set => _overscroll = value;
+        get => _values[42] is { } value ? CssValue<OverscrollBuilder>.Raw(value) : (CssValue<OverscrollBuilder>?)null;
+        set => Set(42, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets flex.
-    /// </summary>
+
+    /// <summary>Gets or sets the Flex preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FlexBuilder>? Flex
     {
-        get => (CssValue<FlexBuilder>?) _flex;
-        set => _flex = value;
+        get => _values[43] is { } value ? CssValue<FlexBuilder>.Raw(value) : (CssValue<FlexBuilder>?)null;
+        set => Set(43, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets flex direction.
-    /// </summary>
+
+    /// <summary>Gets or sets the FlexDirection preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FlexDirectionBuilder>? FlexDirection
     {
-        get => (CssValue<FlexDirectionBuilder>?) _flexDirection;
-        set => _flexDirection = value;
+        get => _values[44] is { } value ? CssValue<FlexDirectionBuilder>.Raw(value) : (CssValue<FlexDirectionBuilder>?)null;
+        set => Set(44, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets flex wrap.
-    /// </summary>
+
+    /// <summary>Gets or sets the FlexWrap preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FlexWrapBuilder>? FlexWrap
     {
-        get => (CssValue<FlexWrapBuilder>?) _flexWrap;
-        set => _flexWrap = value;
+        get => _values[45] is { } value ? CssValue<FlexWrapBuilder>.Raw(value) : (CssValue<FlexWrapBuilder>?)null;
+        set => Set(45, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets grow.
-    /// </summary>
+
+    /// <summary>Gets or sets the Grow preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<GrowBuilder>? Grow
     {
-        get => (CssValue<GrowBuilder>?) _grow;
-        set => _grow = value;
+        get => _values[46] is { } value ? CssValue<GrowBuilder>.Raw(value) : (CssValue<GrowBuilder>?)null;
+        set => Set(46, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets shrink.
-    /// </summary>
+
+    /// <summary>Gets or sets the Shrink preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ShrinkBuilder>? Shrink
     {
-        get => (CssValue<ShrinkBuilder>?) _shrink;
-        set => _shrink = value;
+        get => _values[47] is { } value ? CssValue<ShrinkBuilder>.Raw(value) : (CssValue<ShrinkBuilder>?)null;
+        set => Set(47, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets gap.
-    /// </summary>
+
+    /// <summary>Gets or sets the Gap preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<GapBuilder>? Gap
     {
-        get => (CssValue<GapBuilder>?) _gap;
-        set => _gap = value;
+        get => _values[48] is { } value ? CssValue<GapBuilder>.Raw(value) : (CssValue<GapBuilder>?)null;
+        set => Set(48, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets space.
-    /// </summary>
+
+    /// <summary>Gets or sets the Space preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<SpaceBuilder>? Space
     {
-        get => (CssValue<SpaceBuilder>?) _space;
-        set => _space = value;
+        get => _values[49] is { } value ? CssValue<SpaceBuilder>.Raw(value) : (CssValue<SpaceBuilder>?)null;
+        set => Set(49, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets divide.
-    /// </summary>
+
+    /// <summary>Gets or sets the Divide preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DivideBuilder>? Divide
     {
-        get => (CssValue<DivideBuilder>?) _divide;
-        set => _divide = value;
+        get => _values[50] is { } value ? CssValue<DivideBuilder>.Raw(value) : (CssValue<DivideBuilder>?)null;
+        set => Set(50, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets content align.
-    /// </summary>
+
+    /// <summary>Gets or sets the ContentAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ContentAlignBuilder>? ContentAlign
     {
-        get => (CssValue<ContentAlignBuilder>?) _contentAlign;
-        set => _contentAlign = value;
+        get => _values[51] is { } value ? CssValue<ContentAlignBuilder>.Raw(value) : (CssValue<ContentAlignBuilder>?)null;
+        set => Set(51, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets items align.
-    /// </summary>
+
+    /// <summary>Gets or sets the ItemsAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ItemsBuilder>? ItemsAlign
     {
-        get => (CssValue<ItemsBuilder>?) _itemsAlign;
-        set => _itemsAlign = value;
+        get => _values[52] is { } value ? CssValue<ItemsBuilder>.Raw(value) : (CssValue<ItemsBuilder>?)null;
+        set => Set(52, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets justify.
-    /// </summary>
+
+    /// <summary>Gets or sets the Justify preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<JustifyBuilder>? Justify
     {
-        get => (CssValue<JustifyBuilder>?) _justify;
-        set => _justify = value;
+        get => _values[53] is { } value ? CssValue<JustifyBuilder>.Raw(value) : (CssValue<JustifyBuilder>?)null;
+        set => Set(53, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets self align.
-    /// </summary>
+
+    /// <summary>Gets or sets the SelfAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<SelfBuilder>? SelfAlign
     {
-        get => (CssValue<SelfBuilder>?) _selfAlign;
-        set => _selfAlign = value;
+        get => _values[54] is { } value ? CssValue<SelfBuilder>.Raw(value) : (CssValue<SelfBuilder>?)null;
+        set => Set(54, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets justify items align.
-    /// </summary>
+
+    /// <summary>Gets or sets the JustifyItemsAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign
     {
-        get => (CssValue<JustifyItemsAlignBuilder>?) _justifyItemsAlign;
-        set => _justifyItemsAlign = value;
+        get => _values[55] is { } value ? CssValue<JustifyItemsAlignBuilder>.Raw(value) : (CssValue<JustifyItemsAlignBuilder>?)null;
+        set => Set(55, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets justify self align.
-    /// </summary>
+
+    /// <summary>Gets or sets the JustifySelfAlign preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign
     {
-        get => (CssValue<JustifySelfAlignBuilder>?) _justifySelfAlign;
-        set => _justifySelfAlign = value;
+        get => _values[56] is { } value ? CssValue<JustifySelfAlignBuilder>.Raw(value) : (CssValue<JustifySelfAlignBuilder>?)null;
+        set => Set(56, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets col start.
-    /// </summary>
+
+    /// <summary>Gets or sets the ColStart preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ColStartBuilder>? ColStart
     {
-        get => (CssValue<ColStartBuilder>?) _colStart;
-        set => _colStart = value;
+        get => _values[57] is { } value ? CssValue<ColStartBuilder>.Raw(value) : (CssValue<ColStartBuilder>?)null;
+        set => Set(57, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets row span.
-    /// </summary>
+
+    /// <summary>Gets or sets the RowSpan preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RowSpanBuilder>? RowSpan
     {
-        get => (CssValue<RowSpanBuilder>?) _rowSpan;
-        set => _rowSpan = value;
+        get => _values[58] is { } value ? CssValue<RowSpanBuilder>.Raw(value) : (CssValue<RowSpanBuilder>?)null;
+        set => Set(58, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets row start.
-    /// </summary>
+
+    /// <summary>Gets or sets the RowStart preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RowStartBuilder>? RowStart
     {
-        get => (CssValue<RowStartBuilder>?) _rowStart;
-        set => _rowStart = value;
+        get => _values[59] is { } value ? CssValue<RowStartBuilder>.Raw(value) : (CssValue<RowStartBuilder>?)null;
+        set => Set(59, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets opacity.
-    /// </summary>
+
+    /// <summary>Gets or sets the Opacity preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<OpacityBuilder>? Opacity
     {
-        get => (CssValue<OpacityBuilder>?) _opacity;
-        set => _opacity = value;
+        get => _values[60] is { } value ? CssValue<OpacityBuilder>.Raw(value) : (CssValue<OpacityBuilder>?)null;
+        set => Set(60, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets z index.
-    /// </summary>
+
+    /// <summary>Gets or sets the ZIndex preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ZIndexBuilder>? ZIndex
     {
-        get => (CssValue<ZIndexBuilder>?) _zIndex;
-        set => _zIndex = value;
+        get => _values[61] is { } value ? CssValue<ZIndexBuilder>.Raw(value) : (CssValue<ZIndexBuilder>?)null;
+        set => Set(61, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets pointer events.
-    /// </summary>
+
+    /// <summary>Gets or sets the PointerEvents preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<PointerEventsBuilder>? PointerEvents
     {
-        get => (CssValue<PointerEventsBuilder>?) _pointerEvents;
-        set => _pointerEvents = value;
+        get => _values[62] is { } value ? CssValue<PointerEventsBuilder>.Raw(value) : (CssValue<PointerEventsBuilder>?)null;
+        set => Set(62, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets user select.
-    /// </summary>
+
+    /// <summary>Gets or sets the UserSelect preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<UserSelectBuilder>? UserSelect
     {
-        get => (CssValue<UserSelectBuilder>?) _userSelect;
-        set => _userSelect = value;
+        get => _values[63] is { } value ? CssValue<UserSelectBuilder>.Raw(value) : (CssValue<UserSelectBuilder>?)null;
+        set => Set(63, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets cursor.
-    /// </summary>
+
+    /// <summary>Gets or sets the Cursor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<CursorBuilder>? Cursor
     {
-        get => (CssValue<CursorBuilder>?) _cursor;
-        set => _cursor = value;
+        get => _values[64] is { } value ? CssValue<CursorBuilder>.Raw(value) : (CssValue<CursorBuilder>?)null;
+        set => Set(64, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets screen reader.
-    /// </summary>
+
+    /// <summary>Gets or sets the ScreenReader preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ScreenReaderBuilder>? ScreenReader
     {
-        get => (CssValue<ScreenReaderBuilder>?) _screenReader;
-        set => _screenReader = value;
+        get => _values[65] is { } value ? CssValue<ScreenReaderBuilder>.Raw(value) : (CssValue<ScreenReaderBuilder>?)null;
+        set => Set(65, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets background color.
-    /// </summary>
+
+    /// <summary>Gets or sets the BackgroundColor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackgroundColorBuilder>? BackgroundColor
     {
-        get => (CssValue<BackgroundColorBuilder>?) _backgroundColor;
-        set => _backgroundColor = value;
+        get => _values[66] is { } value ? CssValue<BackgroundColorBuilder>.Raw(value) : (CssValue<BackgroundColorBuilder>?)null;
+        set => Set(66, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets border color.
-    /// </summary>
+
+    /// <summary>Gets or sets the BorderColor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BorderColorBuilder>? BorderColor
     {
-        get => (CssValue<BorderColorBuilder>?) _borderColor;
-        set => _borderColor = value;
+        get => _values[67] is { } value ? CssValue<BorderColorBuilder>.Raw(value) : (CssValue<BorderColorBuilder>?)null;
+        set => Set(67, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets border.
-    /// </summary>
+
+    /// <summary>Gets or sets the Border preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BorderBuilder>? Border
     {
-        get => (CssValue<BorderBuilder>?) _border;
-        set => _border = value;
+        get => _values[68] is { } value ? CssValue<BorderBuilder>.Raw(value) : (CssValue<BorderBuilder>?)null;
+        set => Set(68, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets border style.
-    /// </summary>
+
+    /// <summary>Gets or sets the BorderStyle preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BorderStyleBuilder>? BorderStyle
     {
-        get => (CssValue<BorderStyleBuilder>?) _borderStyle;
-        set => _borderStyle = value;
+        get => _values[69] is { } value ? CssValue<BorderStyleBuilder>.Raw(value) : (CssValue<BorderStyleBuilder>?)null;
+        set => Set(69, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets rounded.
-    /// </summary>
+
+    /// <summary>Gets or sets the Rounded preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RoundedBuilder>? Rounded
     {
-        get => (CssValue<RoundedBuilder>?) _rounded;
-        set => _rounded = value;
+        get => _values[70] is { } value ? CssValue<RoundedBuilder>.Raw(value) : (CssValue<RoundedBuilder>?)null;
+        set => Set(70, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets ring color.
-    /// </summary>
+
+    /// <summary>Gets or sets the RingColor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RingColorBuilder>? RingColor
     {
-        get => (CssValue<RingColorBuilder>?) _ringColor;
-        set => _ringColor = value;
+        get => _values[71] is { } value ? CssValue<RingColorBuilder>.Raw(value) : (CssValue<RingColorBuilder>?)null;
+        set => Set(71, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets ring.
-    /// </summary>
+
+    /// <summary>Gets or sets the Ring preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RingBuilder>? Ring
     {
-        get => (CssValue<RingBuilder>?) _ring;
-        set => _ring = value;
+        get => _values[72] is { } value ? CssValue<RingBuilder>.Raw(value) : (CssValue<RingBuilder>?)null;
+        set => Set(72, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets ring offset.
-    /// </summary>
+
+    /// <summary>Gets or sets the RingOffset preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<RingOffsetBuilder>? RingOffset
     {
-        get => (CssValue<RingOffsetBuilder>?) _ringOffset;
-        set => _ringOffset = value;
+        get => _values[73] is { } value ? CssValue<RingOffsetBuilder>.Raw(value) : (CssValue<RingOffsetBuilder>?)null;
+        set => Set(73, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets shadow.
-    /// </summary>
+
+    /// <summary>Gets or sets the Shadow preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ShadowBuilder>? Shadow
     {
-        get => (CssValue<ShadowBuilder>?) _shadow;
-        set => _shadow = value;
+        get => _values[74] is { } value ? CssValue<ShadowBuilder>.Raw(value) : (CssValue<ShadowBuilder>?)null;
+        set => Set(74, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets backdrop filter.
-    /// </summary>
+
+    /// <summary>Gets or sets the BackdropFilter preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropFilterBuilder>? BackdropFilter
     {
-        get => (CssValue<BackdropFilterBuilder>?) _backdropFilter;
-        set => _backdropFilter = value;
+        get => _values[75] is { } value ? CssValue<BackdropFilterBuilder>.Raw(value) : (CssValue<BackdropFilterBuilder>?)null;
+        set => Set(75, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop blur utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropBlur preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropBlurBuilder>? BackdropBlur
     {
-        get => (CssValue<BackdropBlurBuilder>?) _backdropBlur;
-        set => _backdropBlur = value;
+        get => _values[76] is { } value ? CssValue<BackdropBlurBuilder>.Raw(value) : (CssValue<BackdropBlurBuilder>?)null;
+        set => Set(76, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop brightness utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropBrightness preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropBrightnessBuilder>? BackdropBrightness
     {
-        get => (CssValue<BackdropBrightnessBuilder>?) _backdropBrightness;
-        set => _backdropBrightness = value;
+        get => _values[77] is { } value ? CssValue<BackdropBrightnessBuilder>.Raw(value) : (CssValue<BackdropBrightnessBuilder>?)null;
+        set => Set(77, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop contrast utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropContrast preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropContrastBuilder>? BackdropContrast
     {
-        get => (CssValue<BackdropContrastBuilder>?) _backdropContrast;
-        set => _backdropContrast = value;
+        get => _values[78] is { } value ? CssValue<BackdropContrastBuilder>.Raw(value) : (CssValue<BackdropContrastBuilder>?)null;
+        set => Set(78, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop grayscale utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropGrayscale preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropGrayscaleBuilder>? BackdropGrayscale
     {
-        get => (CssValue<BackdropGrayscaleBuilder>?) _backdropGrayscale;
-        set => _backdropGrayscale = value;
+        get => _values[79] is { } value ? CssValue<BackdropGrayscaleBuilder>.Raw(value) : (CssValue<BackdropGrayscaleBuilder>?)null;
+        set => Set(79, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop hue rotate utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropHueRotate preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropHueRotateBuilder>? BackdropHueRotate
     {
-        get => (CssValue<BackdropHueRotateBuilder>?) _backdropHueRotate;
-        set => _backdropHueRotate = value;
+        get => _values[80] is { } value ? CssValue<BackdropHueRotateBuilder>.Raw(value) : (CssValue<BackdropHueRotateBuilder>?)null;
+        set => Set(80, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop invert utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropInvert preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropInvertBuilder>? BackdropInvert
     {
-        get => (CssValue<BackdropInvertBuilder>?) _backdropInvert;
-        set => _backdropInvert = value;
+        get => _values[81] is { } value ? CssValue<BackdropInvertBuilder>.Raw(value) : (CssValue<BackdropInvertBuilder>?)null;
+        set => Set(81, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop opacity utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropOpacity preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropOpacityBuilder>? BackdropOpacity
     {
-        get => (CssValue<BackdropOpacityBuilder>?) _backdropOpacity;
-        set => _backdropOpacity = value;
+        get => _values[82] is { } value ? CssValue<BackdropOpacityBuilder>.Raw(value) : (CssValue<BackdropOpacityBuilder>?)null;
+        set => Set(82, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop saturate utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropSaturate preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropSaturateBuilder>? BackdropSaturate
     {
-        get => (CssValue<BackdropSaturateBuilder>?) _backdropSaturate;
-        set => _backdropSaturate = value;
+        get => _values[83] is { } value ? CssValue<BackdropSaturateBuilder>.Raw(value) : (CssValue<BackdropSaturateBuilder>?)null;
+        set => Set(83, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets backdrop sepia utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the BackdropSepia preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BackdropSepiaBuilder>? BackdropSepia
     {
-        get => (CssValue<BackdropSepiaBuilder>?) _backdropSepia;
-        set => _backdropSepia = value;
+        get => _values[84] is { } value ? CssValue<BackdropSepiaBuilder>.Raw(value) : (CssValue<BackdropSepiaBuilder>?)null;
+        set => Set(84, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets filter.
-    /// </summary>
+
+    /// <summary>Gets or sets the Filter preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<FilterBuilder>? Filter
     {
-        get => (CssValue<FilterBuilder>?) _filter;
-        set => _filter = value;
+        get => _values[85] is { } value ? CssValue<FilterBuilder>.Raw(value) : (CssValue<FilterBuilder>?)null;
+        set => Set(85, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets blur utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Blur preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BlurBuilder>? Blur
     {
-        get => (CssValue<BlurBuilder>?) _blur;
-        set => _blur = value;
+        get => _values[86] is { } value ? CssValue<BlurBuilder>.Raw(value) : (CssValue<BlurBuilder>?)null;
+        set => Set(86, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets brightness utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Brightness preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<BrightnessBuilder>? Brightness
     {
-        get => (CssValue<BrightnessBuilder>?) _brightness;
-        set => _brightness = value;
+        get => _values[87] is { } value ? CssValue<BrightnessBuilder>.Raw(value) : (CssValue<BrightnessBuilder>?)null;
+        set => Set(87, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets contrast utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Contrast preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ContrastBuilder>? Contrast
     {
-        get => (CssValue<ContrastBuilder>?) _contrast;
-        set => _contrast = value;
+        get => _values[88] is { } value ? CssValue<ContrastBuilder>.Raw(value) : (CssValue<ContrastBuilder>?)null;
+        set => Set(88, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets drop shadow utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the DropShadow preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DropShadowBuilder>? DropShadow
     {
-        get => (CssValue<DropShadowBuilder>?) _dropShadow;
-        set => _dropShadow = value;
+        get => _values[89] is { } value ? CssValue<DropShadowBuilder>.Raw(value) : (CssValue<DropShadowBuilder>?)null;
+        set => Set(89, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets drop shadow color utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the DropShadowColor preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DropShadowColorBuilder>? DropShadowColor
     {
-        get => (CssValue<DropShadowColorBuilder>?) _dropShadowColor;
-        set => _dropShadowColor = value;
+        get => _values[90] is { } value ? CssValue<DropShadowColorBuilder>.Raw(value) : (CssValue<DropShadowColorBuilder>?)null;
+        set => Set(90, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets grayscale utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Grayscale preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<GrayscaleBuilder>? Grayscale
     {
-        get => (CssValue<GrayscaleBuilder>?) _grayscale;
-        set => _grayscale = value;
+        get => _values[91] is { } value ? CssValue<GrayscaleBuilder>.Raw(value) : (CssValue<GrayscaleBuilder>?)null;
+        set => Set(91, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets hue rotate utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the HueRotate preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<HueRotateBuilder>? HueRotate
     {
-        get => (CssValue<HueRotateBuilder>?) _hueRotate;
-        set => _hueRotate = value;
+        get => _values[92] is { } value ? CssValue<HueRotateBuilder>.Raw(value) : (CssValue<HueRotateBuilder>?)null;
+        set => Set(92, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets invert utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Invert preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<InvertBuilder>? Invert
     {
-        get => (CssValue<InvertBuilder>?) _invert;
-        set => _invert = value;
+        get => _values[93] is { } value ? CssValue<InvertBuilder>.Raw(value) : (CssValue<InvertBuilder>?)null;
+        set => Set(93, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets saturate utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Saturate preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<SaturateBuilder>? Saturate
     {
-        get => (CssValue<SaturateBuilder>?) _saturate;
-        set => _saturate = value;
+        get => _values[94] is { } value ? CssValue<SaturateBuilder>.Raw(value) : (CssValue<SaturateBuilder>?)null;
+        set => Set(94, value?.ToString());
     }
 
-    /// <summary>
-    /// Gets or sets sepia utility classes.
-    /// </summary>
+    /// <summary>Gets or sets the Sepia preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<SepiaBuilder>? Sepia
     {
-        get => (CssValue<SepiaBuilder>?) _sepia;
-        set => _sepia = value;
+        get => _values[95] is { } value ? CssValue<SepiaBuilder>.Raw(value) : (CssValue<SepiaBuilder>?)null;
+        set => Set(95, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets resize.
-    /// </summary>
+
+    /// <summary>Gets or sets the Resize preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<ResizeBuilder>? Resize
     {
-        get => (CssValue<ResizeBuilder>?) _resize;
-        set => _resize = value;
+        get => _values[96] is { } value ? CssValue<ResizeBuilder>.Raw(value) : (CssValue<ResizeBuilder>?)null;
+        set => Set(96, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets transform.
-    /// </summary>
+
+    /// <summary>Gets or sets the Transform preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TransformBuilder>? Transform
     {
-        get => (CssValue<TransformBuilder>?) _transform;
-        set => _transform = value;
+        get => _values[97] is { } value ? CssValue<TransformBuilder>.Raw(value) : (CssValue<TransformBuilder>?)null;
+        set => Set(97, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets animation.
-    /// </summary>
+
+    /// <summary>Gets or sets the Animation preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<AnimationBuilder>? Animation
     {
-        get => (CssValue<AnimationBuilder>?) _animation;
-        set => _animation = value;
+        get => _values[98] is { } value ? CssValue<AnimationBuilder>.Raw(value) : (CssValue<AnimationBuilder>?)null;
+        set => Set(98, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets duration.
-    /// </summary>
+
+    /// <summary>Gets or sets the Duration preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<DurationBuilder>? Duration
     {
-        get => (CssValue<DurationBuilder>?) _duration;
-        set => _duration = value;
+        get => _values[99] is { } value ? CssValue<DurationBuilder>.Raw(value) : (CssValue<DurationBuilder>?)null;
+        set => Set(99, value?.ToString());
     }
-    /// <summary>
-    /// Gets or sets transition.
-    /// </summary>
+
+    /// <summary>Gets or sets the Transition preset value. Null clears the assignment; an empty value remains explicit.</summary>
     public CssValue<TransitionBuilder>? Transition
     {
-        get => (CssValue<TransitionBuilder>?) _transition;
-        set => _transition = value;
+        get => _values[100] is { } value ? CssValue<TransitionBuilder>.Raw(value) : (CssValue<TransitionBuilder>?)null;
+        set => Set(100, value?.ToString());
+    }
+
+    internal void Clear()
+    {
+        ClearSlots(_assigned0, 0);
+        ClearSlots(_assigned1, 64);
+        _assigned0 = _assigned1 = 0;
+        unchecked { Revision++; }
+    }
+
+    private void ClearSlots(ulong assigned, int offset)
+    {
+        while (assigned != 0)
+        {
+            int index = BitOperations.TrailingZeroCount(assigned) + offset;
+            _values[index] = null;
+            assigned &= assigned - 1;
+        }
+    }
+
+    internal void CopyTo(QuarkPresetContext target)
+    {
+        CopySlots(target, _assigned0, 0);
+        CopySlots(target, _assigned1, 64);
+    }
+
+    private void CopySlots(QuarkPresetContext target, ulong assigned, int offset)
+    {
+        while (assigned != 0)
+        {
+            int index = BitOperations.TrailingZeroCount(assigned) + offset;
+            target.Set(index, _values[index]);
+            assigned &= assigned - 1;
+        }
     }
 }

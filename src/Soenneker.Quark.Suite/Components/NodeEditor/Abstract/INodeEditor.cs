@@ -11,6 +11,10 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface INodeEditor : IElement
 {
+    /// <summary>Gets or sets the graph revision. Increment after changing nodes, edges, handles, or state captured by NodeTemplate.</summary>
+    /// <remarks>When supplied, unchanged graph references and revisions skip graph validation and retain render frames. Leave null to observe unversioned mutable data. NotifyChanged forces validation after local edits.</remarks>
+    long? DataVersion { get; set; }
+
     /// <summary>
     /// Gets or sets the positioned nodes rendered by the editor. Node identifiers must be unique.
     /// </summary>

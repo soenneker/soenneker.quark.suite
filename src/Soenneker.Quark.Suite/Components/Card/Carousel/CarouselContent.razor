@@ -8,8 +8,22 @@
 </div>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var horizontal = ParentCarousel?.IsVertical != true;
+        if (horizontal)
+        {
+            AppendClass(ref cls, "-ml-4");
+        }
+        else
+        {
+            AppendClass(ref cls, "-mt-4");
+            AppendClass(ref cls, "flex-col");
+        }
+    }
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
-    private string? _lastBuiltClass;
     private string? _lastBuiltStyle;
     private string? _transformStyle;
     private double _transformOffset;
@@ -91,30 +105,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                var horizontal = ParentCarousel?.IsVertical != true;
-                if (horizontal)
-                {
-                    if (!HasClassToken("-ml-"))
-                        AppendClass(ref cls, "-ml-4");
-                }
-                else
-                {
-                    if (!HasClassToken("-mt-"))
-                        AppendClass(ref cls, "-mt-4");
-                    AppendClass(ref cls, "flex-col");
-                }
 
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
 
         {
             var sty = new PooledStringBuilder(stackalloc char[64]);
@@ -144,10 +135,6 @@
         }
     }
 
-    private bool HasClassToken(string tokenPart)
-    {
-        return Class?.Contains(tokenPart, StringComparison.Ordinal) == true;
-    }
 
     private void OnCarouselStateChanged()
     {

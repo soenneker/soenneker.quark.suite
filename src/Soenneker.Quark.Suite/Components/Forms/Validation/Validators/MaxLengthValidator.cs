@@ -7,6 +7,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class MaxLengthValidator : QuarkValidator
 {
+    public override bool IsSynchronous => true;
+
     private readonly int _maxLength;
     private readonly ValidationResult _errorResult;
 

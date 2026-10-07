@@ -14,8 +14,20 @@ else
 }
 
 @code {
-    private (string Variant, int? Tone, bool Background, bool Text, bool Border, string? BaseClass)? _classKey;
-    private string? _lastBuiltClass;
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var preset = AppliedPresetContext;
+        var hasBackgroundColor = BackgroundColor is not null || preset?.BackgroundColor is not null;
+        var hasTextColor = TextColor is not null || preset?.TextColor is not null;
+        var hasBorderColor = BorderColor is not null || preset?.BorderColor is not null;
+        AppendClass(ref cls, _shadcnBadgeBase);
+        if (Tone is null)
+            AppendBadgeVariantClasses(ref cls, Variant, hasBackgroundColor, hasTextColor, hasBorderColor);
+        else
+            AppendToneClasses(ref cls, Tone, hasBackgroundColor, hasTextColor, hasBorderColor);
+    }
+
 
     private const string _shadcnBadgeBase =
         "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!";
@@ -45,35 +57,7 @@ else
                 _ => "neutral"
             };
 
-        var preset = AppliedPresetContext;
-        var hasBackgroundColor = BackgroundColor is not null || preset?.BackgroundColor is not null;
-        var hasTextColor = TextColor is not null || preset?.TextColor is not null;
-        var hasBorderColor = BorderColor is not null || preset?.BorderColor is not null;
 
-        attributes.TryGetValue("class", out var baseClass);
-        var key = (GetDataVariant(Variant), Tone?.Value, hasBackgroundColor, hasTextColor, hasBorderColor, baseClass?.ToString());
-        if (_classKey == key && _lastBuiltClass is not null)
-        {
-            attributes["class"] = _lastBuiltClass;
-            return;
-        }
-        _classKey = key;
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, _shadcnBadgeBase);
-                if (Tone is null)
-                    AppendBadgeVariantClasses(ref cls, Variant, hasBackgroundColor, hasTextColor, hasBorderColor);
-                else
-                    AppendToneClasses(ref cls, Tone, hasBackgroundColor, hasTextColor, hasBorderColor);
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
     }
 
     protected override void ApplyDefaultParameters()

@@ -9,12 +9,23 @@
 </CascadingValue>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (IsHorizontal)
+        {
+            AppendClass(ref cls, "min-w-0");
+            var columnClassAdded = AddColumnCss(ref cls, Columns);
+            if (!columnClassAdded)
+                AppendClass(ref cls, "col-span-12");
+        }
+    }
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is0_5;
     private static readonly CssValue<LeadingBuilder> _defaultLeading = Quark.Leading.Snug;
-    private string? _lastBuiltClass;
 
     [Parameter]
     public CssValue<GridColsBuilder>? Columns { get; set; }
@@ -38,31 +49,7 @@
         Class = EnsureClass(Class, "group/field-content");
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
 
-        // shadcn FieldContent - new-york-v4 ui/field.tsx
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                if (IsHorizontal)
-                {
-                    AppendClass(ref cls, "min-w-0");
-                    var columnClassAdded = AddColumnCss(ref cls, Columns);
-                    if (!columnClassAdded)
-                        AppendClass(ref cls, "col-span-12");
-                }
-
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-    }
 
     /// <returns>True if a class was added.</returns>
     private static bool AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder

@@ -5,6 +5,31 @@ namespace Soenneker.Quark.Suite.Tests;
 public class QuarkPresetContextTests
 {
     [Test]
+    public void Frozen_preset_runs_once_preserves_nulls_and_cannot_be_mutated_through_the_callback()
+    {
+        int calls = 0;
+        QuarkPresetContext? retained = null;
+        var frozen = QuarkPresetToken.Freeze("frozen", c =>
+        {
+            calls++;
+            retained = c;
+            c.Width = Width.IsFull;
+            c.Height = null;
+            c.Padding = default(CssValue<PaddingBuilder>);
+        });
+        retained!.Width = Width.Is0;
+        var context = new QuarkPresetContext { Height = Height.IsFull, Margin = Margin.Is2 };
+        frozen.Apply(context);
+        frozen.Apply(context);
+        calls.Should().Be(1);
+        context.Width.Should().Be((CssValue<WidthBuilder>)Width.IsFull);
+        context.Height.Should().BeNull();
+        context.Padding.HasValue.Should().BeTrue();
+        context.Padding.GetValueOrDefault().IsEmpty.Should().BeTrue();
+        context.Margin.Should().Be((CssValue<MarginBuilder>)Margin.Is2);
+    }
+
+    [Test]
     public void ComposedPresets_CanOverwriteAndClearValues()
     {
         var context = new QuarkPresetContext();

@@ -13,6 +13,7 @@
 <div @ref="ElementRef" @attributes="BuildAttributes()">
     <NodeEditorBackground />
 
+    <ContentRenderBoundary Version="@((DataVersion, _localContentVersion, _graphRenderKey, _localGeometryVersion, _nodeSelectionVersion, SelectedEdgeId, _editingEdgeId, _editingEdgeLabel, NodeTemplate))" AlwaysRender="@(DataVersion is null)">
     <Div DataSlot="node-editor-viewport"
          Position="_renderCss0"
          Left="_renderCss1"
@@ -162,9 +163,11 @@
             @foreach (var node in Nodes)
             {
                 <CascadingValue @key="node.Id" Value="@GetNodeContext(node.Id)" IsFixed="true">
-                    <NodeEditorNode Node="node" Selected="@IsNodeSelected(node.Id)">
-                        @NodeTemplate(node)
-                    </NodeEditorNode>
+                    <ContentRenderBoundary Version="@((DataVersion, _localContentVersion, node.Id, node.X, node.Y, node.Disabled, node.Selectable, node.RenderKey, IsNodeSelected(node.Id), NodeTemplate))" AlwaysRender="@(DataVersion is null)">
+                        <NodeEditorNode Node="node" Selected="@IsNodeSelected(node.Id)">
+                            @NodeTemplate(node)
+                        </NodeEditorNode>
+                    </ContentRenderBoundary>
                 </CascadingValue>
             }
 
@@ -190,6 +193,7 @@
         </Div>
     </Div>
 
+    </ContentRenderBoundary>
     <div data-slot="node-editor-selection-rectangle"
          aria-hidden="true"
          class="pointer-events-none absolute left-0 top-0 z-30 hidden rounded-sm border border-primary/80 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.08)]"></div>
@@ -207,6 +211,15 @@
 </div>
 
 @code {
+    [Parameter] public long? DataVersion { get; set; }
+    private long? _validatedDataVersion;
+    private IReadOnlyList<NodeEditorNodeModel>? _validatedNodes;
+    private IReadOnlyList<NodeEditorEdgeModel>? _validatedEdges;
+    private IReadOnlyList<NodeEditorAddHandleModel>? _validatedHandles;
+    private int _nodeSelectionVersion;
+    private long _localGeometryVersion;
+    private long _localContentVersion;
+
     private Func<int, CancellationToken, ValueTask>? _autoSaveCallback;
     private Func<Task>? _autoSaveRefreshCallback;
     private EdgeLabelCache[]? _edgeLabelCache;
@@ -424,11 +437,6 @@
         _interopSynchronized = true;
     }
 
-    /// <summary>
-    /// Applies a node selection received from the browser interaction layer.
-    /// </summary>
-    /// <param name="nodeId">The selected node identifier, or <c>null</c> to clear the selection.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task InitializeEditor()
     {
         _dotNetReference = DotNetObjectReference.Create(this);
@@ -455,6 +463,7 @@
     public async Task InvokeNodeSelectionChanged(string[] nodeIds)
     {
         _selectedNodeIdsSet.Clear();
+        unchecked { _nodeSelectionVersion++; }
         _selectionScratch.Clear();
         for (var index = 0; index < nodeIds.Length; index++)
         {
@@ -544,13 +553,14 @@
 
         if (node is not null)
         {
+            ValidatePosition(args);
             node.X = args.X;
             node.Y = args.Y;
         }
 
         _announcement = $"Node {args.NodeId} moved";
         await OnNodePositionChanged.InvokeAsync(args);
-        await NotifyChanged();
+        await NotifyGeometryChanged();
     }
 
     [JSInvokable(nameof(InvokeNodesMoved))]
@@ -568,6 +578,7 @@
         {
             if (_nodesById.TryGetValue(args.NodeId, out var node))
             {
+                ValidatePosition(args);
                 node.X = args.X;
                 node.Y = args.Y;
             }
@@ -576,7 +587,7 @@
         }
 
         _announcement = changes.Length == 1 ? $"Node {changes[0].NodeId} moved" : $"{changes.Length} nodes moved";
-        await NotifyChanged();
+        await NotifyGeometryChanged();
     }
 
     [JSInvokable(nameof(InvokeConnectionRequested))]
@@ -768,11 +779,35 @@
     public Task InvokeViewportChanged(NodeEditorViewportChangedEventArgs args) =>
         OnViewportChanged.InvokeAsync(args);
 
+    private static void ValidatePosition(NodeEditorNodePositionChangedEventArgs args)
+    {
+        if (!double.IsFinite(args.X) || !double.IsFinite(args.Y))
+            throw new InvalidOperationException("Node positions must be finite.");
+    }
+
+    private Task NotifyGeometryChanged()
+    {
+        // Versioned consumers explicitly identify topology changes; a move only changes geometry.
+        if (DataVersion.HasValue && DataVersion == _validatedDataVersion &&
+            ReferenceEquals(Nodes, _validatedNodes) && ReferenceEquals(Edges, _validatedEdges) && ReferenceEquals(AddHandles, _validatedHandles))
+        {
+            unchecked { _localGeometryVersion++; }
+            return NotifyAutoSaveChanged();
+        }
+        return NotifyChanged();
+    }
+
     public Task NotifyChanged()
     {
         if (_disposed.Read())
             return Task.CompletedTask;
         RefreshGraphKeys();
+        unchecked { _localContentVersion++; }
+        return NotifyAutoSaveChanged();
+    }
+
+    private Task NotifyAutoSaveChanged()
+    {
         unchecked
         {
             _changeVersion++;
@@ -966,6 +1001,7 @@
         hashCode.Add(_editingEdgeLabel);
 
         hashCode.Add(_graphRenderKey);
+        hashCode.Add(_localGeometryVersion);
     }
 
     private string EdgeAccessibleLabel(int index, NodeEditorEdgeModel edge)
@@ -1029,6 +1065,8 @@
 
     private void RebuildSelectionIndex()
     {
+        if (_selectedNodeIdsSet.SetEquals(SelectedNodeIds)) return;
+        unchecked { _nodeSelectionVersion++; }
         _selectedNodeIdsSet.Clear();
         for (var index = 0; index < SelectedNodeIds.Count; index++)
             _selectedNodeIdsSet.Add(SelectedNodeIds[index]);
@@ -1037,6 +1075,7 @@
     private int ComputeInteropRefreshKey()
     {
         var hashCode = new HashCode();
+        hashCode.Add(_localGeometryVersion);
         hashCode.Add(NodeTemplate);
         hashCode.Add(SelectedNodeId);
         foreach (var nodeId in SelectedNodeIds)
@@ -1065,7 +1104,7 @@
         return hashCode.ToHashCode();
     }
 
-    private void ValidateParameters()
+    private void ValidateParameters(bool force = false)
     {
         if (Nodes is null)
             throw new InvalidOperationException($"{nameof(NodeEditor)} requires a non-null {nameof(Nodes)} collection.");
@@ -1093,6 +1132,10 @@
 
         if (!double.IsFinite(Options.GridSize) || Options.GridSize <= 0)
             throw new InvalidOperationException($"{nameof(NodeEditorOptions.GridSize)} must be a finite value greater than zero.");
+
+        if (!force && DataVersion.HasValue && DataVersion == _validatedDataVersion &&
+            ReferenceEquals(Nodes, _validatedNodes) && ReferenceEquals(Edges, _validatedEdges) && ReferenceEquals(AddHandles, _validatedHandles))
+            return;
 
         var renderHash = new HashCode();
         var interopHash = new HashCode();
@@ -1164,23 +1207,15 @@
             AddHandleToGraphKeys(ref renderHash, ref interopHash, handle);
         }
 
+        _validatedDataVersion = DataVersion;
+        _validatedNodes = Nodes;
+        _validatedEdges = Edges;
+        _validatedHandles = AddHandles;
         _graphRenderKey = renderHash.ToHashCode();
         _graphInteropKey = interopHash.ToHashCode();
     }
 
-    private void RefreshGraphKeys()
-    {
-        var renderHash = new HashCode();
-        var interopHash = new HashCode();
-        foreach (var node in Nodes)
-            AddNodeToGraphKeys(ref renderHash, ref interopHash, node);
-        foreach (var edge in Edges)
-            AddEdgeToGraphKeys(ref renderHash, ref interopHash, edge);
-        foreach (var handle in AddHandles)
-            AddHandleToGraphKeys(ref renderHash, ref interopHash, handle);
-        _graphRenderKey = renderHash.ToHashCode();
-        _graphInteropKey = interopHash.ToHashCode();
-    }
+    private void RefreshGraphKeys() => ValidateParameters(force: true);
 
     private static void AddNodeToGraphKeys(ref HashCode renderHash, ref HashCode interopHash, NodeEditorNodeModel node)
     {

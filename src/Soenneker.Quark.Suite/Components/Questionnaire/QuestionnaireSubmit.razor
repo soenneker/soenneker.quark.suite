@@ -13,7 +13,18 @@
 </button>
 
 @code {
-    private (string Size, string Focus, string Variant, string? BaseClass)? _buttonClassKey;
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var focusClass = Button.GetButtonFocusClass(Variant);
+        var sizeClass = Button.GetButtonSizeClass(ButtonSize);
+        AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+        AppendClass(ref cls, focusClass);
+        AppendClass(ref cls, Variant.Class);
+        AppendClass(ref cls, sizeClass);
+        AppendClass(ref cls, "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0");
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Quark.ButtonSize.Default;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
     private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Items.Center;
@@ -30,7 +41,6 @@
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
-    private string? _lastBuiltClass;
 
     [CascadingParameter]
     internal Questionnaire? ParentQuestionnaire { get; set; }
@@ -75,30 +85,7 @@
         attributes["data-variant"] = Variant.Value;
         attributes["data-size"] = ButtonSize?.ToString() ?? "default";
         if (Disabled) attributes["disabled"] = QuarkAttributeValues.True;
-        var focusClass = Button.GetButtonFocusClass(Variant);
-        var sizeClass = Button.GetButtonSizeClass(ButtonSize);
-        attributes.TryGetValue("class", out var baseClass);
-        var key = (sizeClass, focusClass, Variant.Class, baseClass?.ToString());
-        if (_buttonClassKey == key && _lastBuiltClass is not null)
-            attributes["class"] = _lastBuiltClass;
-        else
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-                AppendClass(ref cls, focusClass);
-                AppendClass(ref cls, Variant.Class);
-                AppendClass(ref cls, sizeClass);
-                AppendClass(ref cls, "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-        _buttonClassKey = key;
+
         if (!Visible)
         {
             attributes["hidden"] = QuarkAttributeValues.True;

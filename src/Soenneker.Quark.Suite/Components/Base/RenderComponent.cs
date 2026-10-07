@@ -46,6 +46,9 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     /// </summary>
     protected virtual bool AlwaysRender => true;
 
+    /// <summary>Whether changes inside ChildContent cannot affect this component's attributes.</summary>
+    protected virtual bool IndependentChildContent => false;
+
     public override Task SetParametersAsync(ParameterView parameters)
     {
         _defaultsApplied = false;
@@ -60,13 +63,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             return base.SetParametersAsync(parameters);
         }
 
-        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment, out _requiresDetailedRenderKey);
+        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment, out _requiresDetailedRenderKey, IndependentChildContent);
 
         // A render fragment can keep the same delegate identity while reading mutated state from its owner.
         // Re-render fragment-bearing components so they do not freeze otherwise valid descendant updates.
         _incomingParametersChanged = hasRenderFragment || !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
 
-        if (_incomingParametersChanged)
+        if (_incomingParametersChanged && !(IndependentChildContent && hasRenderFragment && _hasIncomingParametersKey &&
+            _incomingParametersKey == _lastIncomingParametersKey && !_requiresDetailedRenderKey && !_renderKeyDirty))
         {
             _cachedAttrs = null;
             _cachedAttrsKey = 0;
@@ -327,7 +331,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         return hc.ToHashCode();
     }
 
-    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment, out bool requiresDetailedRenderKey)
+    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment, out bool requiresDetailedRenderKey, bool independentChildContent)
     {
         var hashCode = new HashCode();
         hasRenderFragment = false;
@@ -335,6 +339,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         foreach (var parameter in parameters)
         {
+            if (independentChildContent && parameter.Name == nameof(ChildContent))
+            {
+                hasRenderFragment = true;
+                continue;
+            }
             hashCode.Add(parameter.Name, StringComparer.Ordinal);
             AddIncomingParameterValue(ref hashCode, parameter.Value);
 

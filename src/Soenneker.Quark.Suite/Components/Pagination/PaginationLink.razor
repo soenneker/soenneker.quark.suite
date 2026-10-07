@@ -17,7 +17,25 @@ else
 }
 
 @code {
-    private (bool Active, bool Disabled, string Size, string Focus, string Variant, string? BaseClass)? _classKey;
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var variant = Active ? ButtonVariant.Outline : ButtonVariant.Ghost;
+        var focusClass = Button.GetButtonFocusClass(variant);
+        var sizeClass = Button.GetButtonSizeClass(ButtonSize);
+        AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+        if (!Active)
+            AppendClass(ref cls, "border-transparent");
+        AppendClass(ref cls, "rounded-lg");
+        AppendClass(ref cls, focusClass);
+        AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        AppendClass(ref cls, variant.Class);
+        AppendClass(ref cls, sizeClass);
+        if (Disabled)
+            AppendClass(ref cls, "opacity-50 pointer-events-none");
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSizeType.Icon;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
@@ -34,7 +52,6 @@ else
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
     private Func<MouseEventArgs, Task>? _clickHandler;
-    private string? _lastBuiltClass;
 
     /// <summary>
     /// Gets or sets whether the pagination link is active.
@@ -84,38 +101,7 @@ else
             attributes["aria-current"] = "page";
         }
 
-        var variant = Active ? ButtonVariant.Outline : ButtonVariant.Ghost;
-        var focusClass = Button.GetButtonFocusClass(variant);
-        var sizeClass = Button.GetButtonSizeClass(ButtonSize);
-        attributes.TryGetValue("class", out var baseClass);
-        var key = (Active, Disabled, sizeClass, focusClass, variant.Class, baseClass?.ToString());
-        if (_classKey == key && _lastBuiltClass is not null)
-            attributes["class"] = _lastBuiltClass;
-        else
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-                if (!Active)
-                    AppendClass(ref cls, "border-transparent");
-                AppendClass(ref cls, "rounded-lg");
-                AppendClass(ref cls, focusClass);
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-                AppendClass(ref cls, variant.Class);
-                AppendClass(ref cls, sizeClass);
-                if (Disabled)
-                    AppendClass(ref cls, "opacity-50 pointer-events-none");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
 
-        _classKey = key;
 
         if (Disabled)
         {

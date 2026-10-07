@@ -51,8 +51,18 @@
 </Popover>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var sizeClass = GetSizeClass();
+        AppendClass(ref cls, "selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50");
+        AppendClass(ref cls, "focus-visible:ring-[3px]");
+        AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
+        if (sizeClass != null)
+            AppendClass(ref cls, sizeClass);
+    }
+
     private static readonly CssValue<InputSizeBuilder> _staticCss5 = InputSizes.Default;
-    private (bool PlainText, bool AutoSaveSlot, string? Size, string? Validation, string? BaseClass) _builtInputClassKey;
     private DateOnly _captionMonth;
     private CultureInfo? _captionCulture;
     private string? _monthCaption;
@@ -116,7 +126,6 @@
     private Func<ChangeEventArgs, Task>? _cachedOnHourInputDelegate;
     private Func<ChangeEventArgs, Task>? _cachedOnMinuteInputDelegate;
 
-    private string? _lastBuiltClass;
 
     private Func<Task>? _cachedPrevMonthDelegate;
     private Func<Task>? _cachedNextMonthDelegate;
@@ -353,32 +362,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        var sizeClass = GetSizeClass();
-        var validationClass = (string?)null;
-        attributes.TryGetValue("class", out var existingClass);
-        var baseClass = existingClass as string ?? existingClass?.ToString();
-        if (existingClass is not null) attributes["class"] = baseClass!;
-        var classKey = (false, false, sizeClass, validationClass, baseClass);
-        if (_lastBuiltClass is null || _builtInputClassKey != classKey)
-        {
-            _builtInputClassKey = classKey;
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50");
-                AppendClass(ref cls, "focus-visible:ring-[3px]");
-                AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
-                if (sizeClass != null)
-                    AppendClass(ref cls, sizeClass);
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-        else
-            attributes["class"] = _lastBuiltClass;
+
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder!;

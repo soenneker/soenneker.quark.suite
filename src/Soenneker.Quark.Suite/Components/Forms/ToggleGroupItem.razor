@@ -9,7 +9,24 @@
 </BradixToggleGroupItem>
 
 @code {
-    private (bool Rtl, string Variant, string Size, string? BaseClass) _toggleClassKey;
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
+        var size = ToggleSize ?? ParentToggleGroup?.ToggleSize ?? "default";
+        var isRtl = string.Equals(ParentToggleGroup?.ResolvedDirection, "rtl", StringComparison.OrdinalIgnoreCase);
+        var variantClass = Toggle.GetToggleVariantClass(variant);
+        var sizeClass = Toggle.ResolveToggleSizeClass(size, includeShrink: true, isRtl);
+        var horizontalEdgeClasses = isRtl ? "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s" : "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-l-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-r-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l";
+        AppendClass(ref cls, "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10");
+        AppendClass(ref cls, horizontalEdgeClasses);
+        AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t group/toggle");
+        AppendClass(ref cls, "hover:text-foreground focus-visible:ring-[3px] aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
+        AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
+        AppendClass(ref cls, variantClass);
+        AppendClass(ref cls, sizeClass);
+    }
+
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
@@ -26,7 +43,6 @@
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
-    private string? _lastBuiltClass;
 
     [CascadingParameter(Name = "ParentToggleGroup")]
     private ToggleGroup? ParentToggleGroup { get; set; }
@@ -71,36 +87,7 @@
             attributes["data-size"] = GetToggleSizeDataAttribute(size);
             attributes["data-spacing"] = ParentToggleGroup?.SpacingText ?? "0";
 
-            var isRtl = string.Equals(ParentToggleGroup?.ResolvedDirection, "rtl", StringComparison.OrdinalIgnoreCase);
-            var variantClass = Toggle.GetToggleVariantClass(variant);
-            var sizeClass = Toggle.ResolveToggleSizeClass(size, includeShrink: true, isRtl);
-            attributes.TryGetValue("class", out var existingClass);
-            var baseClass = existingClass as string ?? existingClass?.ToString();
-            if (existingClass is not null) attributes["class"] = baseClass!;
-            var classKey = (isRtl, variantClass, sizeClass, baseClass);
-            if (_lastBuiltClass is null || _toggleClassKey != classKey)
-            {
-                _toggleClassKey = classKey;
-                var cls = new PooledStringBuilder(stackalloc char[64]);
-                try
-                {
-                    var horizontalEdgeClasses = isRtl ? "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s" : "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-l-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-r-lg group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l";
-                    AppendClass(ref cls, "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10");
-                    AppendClass(ref cls, horizontalEdgeClasses);
-                    AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t group/toggle");
-                    AppendClass(ref cls, "hover:text-foreground focus-visible:ring-[3px] aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40");
-                    AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
-                    AppendClass(ref cls, variantClass);
-                    AppendClass(ref cls, sizeClass);
-                    BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-                }
-                finally
-                {
-                    cls.Dispose();
-                }
-            }
-            else
-                attributes["class"] = _lastBuiltClass;
+
 
             return attributes;
         }

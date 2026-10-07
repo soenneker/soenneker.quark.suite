@@ -11,12 +11,29 @@
 </CascadingValue>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "group/button-group *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
+        AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
+        AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
+        if (Vertical)
+        {
+            AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
+            AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
+        }
+        else
+        {
+            AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
+            AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
+        }
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Soenneker.Quark.ButtonSize.Default;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Stretch;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
-    private string? _lastBuiltClass;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -60,31 +77,7 @@
         if (AriaLabel.HasContent())
             attributes["aria-label"] = AriaLabel;
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/button-group *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
-                AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
-                AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
-                if (Vertical)
-                {
-                    AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
-                    AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
-                }
-                else
-                {
-                    AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
-                    AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
-                }
 
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
     }
 
     private string? EffectiveDirection => GetOwnDirection() ?? DirectionProviderDir;

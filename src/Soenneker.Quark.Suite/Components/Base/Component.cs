@@ -14,7 +14,8 @@ namespace Soenneker.Quark;
 /// <remarks>Do not use the <c>new</c> keyword to Shadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
 public abstract class Component : RenderComponent, IComponent
 {
-    private HashSet<string>? _explicitParameters;
+    private ulong _explicitParameters0;
+    private ulong _explicitParameters1;
 
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
@@ -373,33 +374,148 @@ public abstract class Component : RenderComponent, IComponent
         // ParameterView enumeration and HashSet work for the overwhelmingly common no-preset path.
         if (resolvedPreset is null && (resolvedPresets is null || resolvedPresets.Count == 0))
         {
-            _explicitParameters?.Clear();
+            _explicitParameters0 = _explicitParameters1 = 0;
             return base.SetParametersAsync(parameters);
         }
 
-        _explicitParameters ??= new HashSet<string>(StringComparer.Ordinal);
-        _explicitParameters.Clear();
+        _explicitParameters0 = _explicitParameters1 = 0;
 
         foreach (var parameter in parameters)
         {
-            _explicitParameters.Add(parameter.Name);
+            int slot = GetPresetParameterSlot(parameter.Name);
+            if (slot >= 0)
+            {
+                if (slot < 64) _explicitParameters0 |= 1UL << slot;
+                else _explicitParameters1 |= 1UL << (slot - 64);
+            }
         }
 
         return base.SetParametersAsync(parameters);
     }
 
-    protected bool HasExplicitParameter(string parameterName) => _explicitParameters?.Contains(parameterName) == true;
-
-    protected CssValue<T>? ResolvePresetValue<T>(CssValue<T>? value, CssValue<T>? presetValue, string parameterName) where T : class, ICssBuilder
+    protected bool HasExplicitParameter(string parameterName)
     {
-        if (presetValue is null)
-            return value;
-
-        if (HasExplicitParameter(parameterName))
-            return value;
-
-        return presetValue;
+        int slot = GetPresetParameterSlot(parameterName);
+        return HasExplicitPresetSlot(slot);
     }
+
+    private bool HasExplicitPresetSlot(int slot) => slot >= 0 && (slot < 64
+        ? (_explicitParameters0 & (1UL << slot)) != 0
+        : (_explicitParameters1 & (1UL << (slot - 64))) != 0);
+
+    private static int GetPresetParameterSlot(string name) => name switch
+    {
+        nameof(Inset) => (int)PresetProperty.Inset,
+        nameof(Top) => (int)PresetProperty.Top,
+        nameof(Right) => (int)PresetProperty.Right,
+        nameof(Bottom) => (int)PresetProperty.Bottom,
+        nameof(Left) => (int)PresetProperty.Left,
+        nameof(Display) => (int)PresetProperty.Display,
+        nameof(Visibility) => (int)PresetProperty.Visibility,
+        nameof(Float) => (int)PresetProperty.Float,
+        nameof(VerticalAlign) => (int)PresetProperty.VerticalAlign,
+        nameof(TextAlign) => (int)PresetProperty.TextAlign,
+        nameof(TextColor) => (int)PresetProperty.TextColor,
+        nameof(TextSize) => (int)PresetProperty.TextSize,
+        nameof(DecorationLine) => (int)PresetProperty.DecorationLine,
+        nameof(UnderlineOffset) => (int)PresetProperty.UnderlineOffset,
+        nameof(TextTransform) => (int)PresetProperty.TextTransform,
+        nameof(FontFamily) => (int)PresetProperty.FontFamily,
+        nameof(FontWeight) => (int)PresetProperty.FontWeight,
+        nameof(FontStyle) => (int)PresetProperty.FontStyle,
+        nameof(Leading) => (int)PresetProperty.Leading,
+        nameof(Tracking) => (int)PresetProperty.Tracking,
+        nameof(Whitespace) => (int)PresetProperty.Whitespace,
+        nameof(TextWrap) => (int)PresetProperty.TextWrap,
+        nameof(TextBreak) => (int)PresetProperty.TextBreak,
+        nameof(TextOverflow) => (int)PresetProperty.TextOverflow,
+        nameof(Truncate) => (int)PresetProperty.Truncate,
+        nameof(LineClamp) => (int)PresetProperty.LineClamp,
+        nameof(FontVariantNumeric) => (int)PresetProperty.FontVariantNumeric,
+        nameof(Margin) => (int)PresetProperty.Margin,
+        nameof(Padding) => (int)PresetProperty.Padding,
+        nameof(Position) => (int)PresetProperty.Position,
+        nameof(ScrollMargin) => (int)PresetProperty.ScrollMargin,
+        nameof(ScrollPadding) => (int)PresetProperty.ScrollPadding,
+        nameof(Size) => (int)PresetProperty.Size,
+        nameof(Width) => (int)PresetProperty.Width,
+        nameof(MinWidth) => (int)PresetProperty.MinWidth,
+        nameof(MaxWidth) => (int)PresetProperty.MaxWidth,
+        nameof(Height) => (int)PresetProperty.Height,
+        nameof(MinHeight) => (int)PresetProperty.MinHeight,
+        nameof(MaxHeight) => (int)PresetProperty.MaxHeight,
+        nameof(Overflow) => (int)PresetProperty.Overflow,
+        nameof(OverflowX) => (int)PresetProperty.OverflowX,
+        nameof(OverflowY) => (int)PresetProperty.OverflowY,
+        nameof(Overscroll) => (int)PresetProperty.Overscroll,
+        nameof(Flex) => (int)PresetProperty.Flex,
+        nameof(FlexDirection) => (int)PresetProperty.FlexDirection,
+        nameof(FlexWrap) => (int)PresetProperty.FlexWrap,
+        nameof(Grow) => (int)PresetProperty.Grow,
+        nameof(Shrink) => (int)PresetProperty.Shrink,
+        nameof(Gap) => (int)PresetProperty.Gap,
+        nameof(Space) => (int)PresetProperty.Space,
+        nameof(Divide) => (int)PresetProperty.Divide,
+        nameof(ContentAlign) => (int)PresetProperty.ContentAlign,
+        nameof(ItemsAlign) => (int)PresetProperty.ItemsAlign,
+        nameof(Justify) => (int)PresetProperty.Justify,
+        nameof(SelfAlign) => (int)PresetProperty.SelfAlign,
+        nameof(JustifyItemsAlign) => (int)PresetProperty.JustifyItemsAlign,
+        nameof(JustifySelfAlign) => (int)PresetProperty.JustifySelfAlign,
+        nameof(ColStart) => (int)PresetProperty.ColStart,
+        nameof(RowSpan) => (int)PresetProperty.RowSpan,
+        nameof(RowStart) => (int)PresetProperty.RowStart,
+        nameof(Opacity) => (int)PresetProperty.Opacity,
+        nameof(ZIndex) => (int)PresetProperty.ZIndex,
+        nameof(PointerEvents) => (int)PresetProperty.PointerEvents,
+        nameof(UserSelect) => (int)PresetProperty.UserSelect,
+        nameof(Cursor) => (int)PresetProperty.Cursor,
+        nameof(ScreenReader) => (int)PresetProperty.ScreenReader,
+        nameof(BackgroundColor) => (int)PresetProperty.BackgroundColor,
+        nameof(BorderColor) => (int)PresetProperty.BorderColor,
+        nameof(Border) => (int)PresetProperty.Border,
+        nameof(BorderStyle) => (int)PresetProperty.BorderStyle,
+        nameof(Rounded) => (int)PresetProperty.Rounded,
+        nameof(RingColor) => (int)PresetProperty.RingColor,
+        nameof(Ring) => (int)PresetProperty.Ring,
+        nameof(RingOffset) => (int)PresetProperty.RingOffset,
+        nameof(Shadow) => (int)PresetProperty.Shadow,
+        nameof(BackdropFilter) => (int)PresetProperty.BackdropFilter,
+        nameof(BackdropBlur) => (int)PresetProperty.BackdropBlur,
+        nameof(BackdropBrightness) => (int)PresetProperty.BackdropBrightness,
+        nameof(BackdropContrast) => (int)PresetProperty.BackdropContrast,
+        nameof(BackdropGrayscale) => (int)PresetProperty.BackdropGrayscale,
+        nameof(BackdropHueRotate) => (int)PresetProperty.BackdropHueRotate,
+        nameof(BackdropInvert) => (int)PresetProperty.BackdropInvert,
+        nameof(BackdropOpacity) => (int)PresetProperty.BackdropOpacity,
+        nameof(BackdropSaturate) => (int)PresetProperty.BackdropSaturate,
+        nameof(BackdropSepia) => (int)PresetProperty.BackdropSepia,
+        nameof(Filter) => (int)PresetProperty.Filter,
+        nameof(Blur) => (int)PresetProperty.Blur,
+        nameof(Brightness) => (int)PresetProperty.Brightness,
+        nameof(Contrast) => (int)PresetProperty.Contrast,
+        nameof(DropShadow) => (int)PresetProperty.DropShadow,
+        nameof(DropShadowColor) => (int)PresetProperty.DropShadowColor,
+        nameof(Grayscale) => (int)PresetProperty.Grayscale,
+        nameof(HueRotate) => (int)PresetProperty.HueRotate,
+        nameof(Invert) => (int)PresetProperty.Invert,
+        nameof(Saturate) => (int)PresetProperty.Saturate,
+        nameof(Sepia) => (int)PresetProperty.Sepia,
+        nameof(Resize) => (int)PresetProperty.Resize,
+        nameof(Transform) => (int)PresetProperty.Transform,
+        nameof(Animation) => (int)PresetProperty.Animation,
+        nameof(Duration) => (int)PresetProperty.Duration,
+        nameof(Transition) => (int)PresetProperty.Transition,
+        nameof(Class) => (int)PresetProperty.Class,
+        nameof(Style) => (int)PresetProperty.Style,
+        _ => -1
+    };
+
+    protected CssValue<T>? ResolvePresetValue<T>(CssValue<T>? value, CssValue<T>? presetValue, string parameterName) where T : class, ICssBuilder =>
+        ResolvePresetSlot(value, presetValue, GetPresetParameterSlot(parameterName));
+
+    private CssValue<T>? ResolvePresetSlot<T>(CssValue<T>? value, CssValue<T>? presetValue, int slot) where T : class, ICssBuilder =>
+        presetValue is null || HasExplicitPresetSlot(slot) ? value : presetValue;
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
@@ -425,11 +541,14 @@ public abstract class Component : RenderComponent, IComponent
 
     }
 
+    protected virtual void BuildDefaultClasses(ref PooledStringBuilder cls) { }
+
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
         var preset = BuildPresetContext();
         AppliedPresetContext = preset;
+        BuildDefaultClasses(ref cls);
 
         BuildTypographyClassAndStyle(ref sty, ref cls, preset);
         BuildLayoutClassAndStyle(ref sty, ref cls, preset);
@@ -456,221 +575,221 @@ public abstract class Component : RenderComponent, IComponent
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildTypographyClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Display.HasValue || preset?.Display is not null)
-            AddCss(ref cls, ResolvePresetValue(Display, preset?.Display, nameof(Display)));
-        if (Visibility.HasValue || preset?.Visibility is not null)
-            AddCss(ref cls, ResolvePresetValue(Visibility, preset?.Visibility, nameof(Visibility)));
-        if (Float.HasValue || preset?.Float is not null)
-            AddCss(ref cls, ResolvePresetValue(Float, preset?.Float, nameof(Float)));
-        if (VerticalAlign.HasValue || preset?.VerticalAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(VerticalAlign, preset?.VerticalAlign, nameof(VerticalAlign)));
-        if (TextAlign.HasValue || preset?.TextAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(TextAlign, preset?.TextAlign, nameof(TextAlign)));
+        if (Display.HasValue || preset is not null && preset.HasValue(PresetProperty.Display))
+            AddCss(ref cls, ResolvePresetSlot(Display, preset?.Display, (int)PresetProperty.Display));
+        if (Visibility.HasValue || preset is not null && preset.HasValue(PresetProperty.Visibility))
+            AddCss(ref cls, ResolvePresetSlot(Visibility, preset?.Visibility, (int)PresetProperty.Visibility));
+        if (Float.HasValue || preset is not null && preset.HasValue(PresetProperty.Float))
+            AddCss(ref cls, ResolvePresetSlot(Float, preset?.Float, (int)PresetProperty.Float));
+        if (VerticalAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.VerticalAlign))
+            AddCss(ref cls, ResolvePresetSlot(VerticalAlign, preset?.VerticalAlign, (int)PresetProperty.VerticalAlign));
+        if (TextAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.TextAlign))
+            AddCss(ref cls, ResolvePresetSlot(TextAlign, preset?.TextAlign, (int)PresetProperty.TextAlign));
         ApplyTextColor(ref sty, ref cls, preset?.TextColor);
-        if (TextSize.HasValue || preset?.TextSize is not null)
-            AddCss(ref cls, ResolvePresetValue(TextSize, preset?.TextSize, nameof(TextSize)));
-        if (DecorationLine.HasValue || preset?.DecorationLine is not null)
-            AddCss(ref cls, ResolvePresetValue(DecorationLine, preset?.DecorationLine, nameof(DecorationLine)));
-        if (UnderlineOffset.HasValue || preset?.UnderlineOffset is not null)
-            AddCss(ref cls, ResolvePresetValue(UnderlineOffset, preset?.UnderlineOffset, nameof(UnderlineOffset)));
-        if (TextTransform.HasValue || preset?.TextTransform is not null)
-            AddCss(ref cls, ResolvePresetValue(TextTransform, preset?.TextTransform, nameof(TextTransform)));
-        if (FontFamily.HasValue || preset?.FontFamily is not null)
-            AddCss(ref cls, ResolvePresetValue(FontFamily, preset?.FontFamily, nameof(FontFamily)));
-        if (FontWeight.HasValue || preset?.FontWeight is not null)
-            AddCss(ref cls, ResolvePresetValue(FontWeight, preset?.FontWeight, nameof(FontWeight)));
-        if (FontStyle.HasValue || preset?.FontStyle is not null)
-            AddCss(ref cls, ResolvePresetValue(FontStyle, preset?.FontStyle, nameof(FontStyle)));
-        if (Leading.HasValue || preset?.Leading is not null)
-            AddCss(ref cls, ResolvePresetValue(Leading, preset?.Leading, nameof(Leading)));
-        if (Tracking.HasValue || preset?.Tracking is not null)
-            AddCss(ref cls, ResolvePresetValue(Tracking, preset?.Tracking, nameof(Tracking)));
-        if (Whitespace.HasValue || preset?.Whitespace is not null)
-            AddCss(ref cls, ResolvePresetValue(Whitespace, preset?.Whitespace, nameof(Whitespace)));
-        if (TextWrap.HasValue || preset?.TextWrap is not null)
-            AddCss(ref cls, ResolvePresetValue(TextWrap, preset?.TextWrap, nameof(TextWrap)));
-        if (TextBreak.HasValue || preset?.TextBreak is not null)
-            AddCss(ref cls, ResolvePresetValue(TextBreak, preset?.TextBreak, nameof(TextBreak)));
-        if (TextOverflow.HasValue || preset?.TextOverflow is not null)
-            AddCss(ref cls, ResolvePresetValue(TextOverflow, preset?.TextOverflow, nameof(TextOverflow)));
-        if (Truncate.HasValue || preset?.Truncate is not null)
-            AddCss(ref cls, ResolvePresetValue(Truncate, preset?.Truncate, nameof(Truncate)));
-        if (LineClamp.HasValue || preset?.LineClamp is not null)
-            AddCss(ref cls, ResolvePresetValue(LineClamp, preset?.LineClamp, nameof(LineClamp)));
-        if (FontVariantNumeric.HasValue || preset?.FontVariantNumeric is not null)
-            AddCss(ref cls, ResolvePresetValue(FontVariantNumeric, preset?.FontVariantNumeric, nameof(FontVariantNumeric)));
+        if (TextSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TextSize))
+            AddCss(ref cls, ResolvePresetSlot(TextSize, preset?.TextSize, (int)PresetProperty.TextSize));
+        if (DecorationLine.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationLine))
+            AddCss(ref cls, ResolvePresetSlot(DecorationLine, preset?.DecorationLine, (int)PresetProperty.DecorationLine));
+        if (UnderlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.UnderlineOffset))
+            AddCss(ref cls, ResolvePresetSlot(UnderlineOffset, preset?.UnderlineOffset, (int)PresetProperty.UnderlineOffset));
+        if (TextTransform.HasValue || preset is not null && preset.HasValue(PresetProperty.TextTransform))
+            AddCss(ref cls, ResolvePresetSlot(TextTransform, preset?.TextTransform, (int)PresetProperty.TextTransform));
+        if (FontFamily.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFamily))
+            AddCss(ref cls, ResolvePresetSlot(FontFamily, preset?.FontFamily, (int)PresetProperty.FontFamily));
+        if (FontWeight.HasValue || preset is not null && preset.HasValue(PresetProperty.FontWeight))
+            AddCss(ref cls, ResolvePresetSlot(FontWeight, preset?.FontWeight, (int)PresetProperty.FontWeight));
+        if (FontStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStyle))
+            AddCss(ref cls, ResolvePresetSlot(FontStyle, preset?.FontStyle, (int)PresetProperty.FontStyle));
+        if (Leading.HasValue || preset is not null && preset.HasValue(PresetProperty.Leading))
+            AddCss(ref cls, ResolvePresetSlot(Leading, preset?.Leading, (int)PresetProperty.Leading));
+        if (Tracking.HasValue || preset is not null && preset.HasValue(PresetProperty.Tracking))
+            AddCss(ref cls, ResolvePresetSlot(Tracking, preset?.Tracking, (int)PresetProperty.Tracking));
+        if (Whitespace.HasValue || preset is not null && preset.HasValue(PresetProperty.Whitespace))
+            AddCss(ref cls, ResolvePresetSlot(Whitespace, preset?.Whitespace, (int)PresetProperty.Whitespace));
+        if (TextWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.TextWrap))
+            AddCss(ref cls, ResolvePresetSlot(TextWrap, preset?.TextWrap, (int)PresetProperty.TextWrap));
+        if (TextBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.TextBreak))
+            AddCss(ref cls, ResolvePresetSlot(TextBreak, preset?.TextBreak, (int)PresetProperty.TextBreak));
+        if (TextOverflow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextOverflow))
+            AddCss(ref cls, ResolvePresetSlot(TextOverflow, preset?.TextOverflow, (int)PresetProperty.TextOverflow));
+        if (Truncate.HasValue || preset is not null && preset.HasValue(PresetProperty.Truncate))
+            AddCss(ref cls, ResolvePresetSlot(Truncate, preset?.Truncate, (int)PresetProperty.Truncate));
+        if (LineClamp.HasValue || preset is not null && preset.HasValue(PresetProperty.LineClamp))
+            AddCss(ref cls, ResolvePresetSlot(LineClamp, preset?.LineClamp, (int)PresetProperty.LineClamp));
+        if (FontVariantNumeric.HasValue || preset is not null && preset.HasValue(PresetProperty.FontVariantNumeric))
+            AddCss(ref cls, ResolvePresetSlot(FontVariantNumeric, preset?.FontVariantNumeric, (int)PresetProperty.FontVariantNumeric));
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildLayoutClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Margin.HasValue || preset?.Margin is not null)
-            AddCss(ref cls, ResolvePresetValue(Margin, preset?.Margin, nameof(Margin)));
-        if (Padding.HasValue || preset?.Padding is not null)
-            AddCss(ref cls, ResolvePresetValue(Padding, preset?.Padding, nameof(Padding)));
-        if (Inset.HasValue || preset?.Inset is not null)
-            AddCss(ref cls, ResolvePresetValue(Inset, preset?.Inset, nameof(Inset)));
-        if (Top.HasValue || preset?.Top is not null)
-            AddCss(ref cls, ResolvePresetValue(Top, preset?.Top, nameof(Top)));
-        if (Right.HasValue || preset?.Right is not null)
-            AddCss(ref cls, ResolvePresetValue(Right, preset?.Right, nameof(Right)));
-        if (Bottom.HasValue || preset?.Bottom is not null)
-            AddCss(ref cls, ResolvePresetValue(Bottom, preset?.Bottom, nameof(Bottom)));
-        if (Left.HasValue || preset?.Left is not null)
-            AddCss(ref cls, ResolvePresetValue(Left, preset?.Left, nameof(Left)));
-        if (Position.HasValue || preset?.Position is not null)
-            AddCss(ref cls, ResolvePresetValue(Position, preset?.Position, nameof(Position)));
-        if (ScrollMargin.HasValue || preset?.ScrollMargin is not null)
-            AddCss(ref cls, ResolvePresetValue(ScrollMargin, preset?.ScrollMargin, nameof(ScrollMargin)));
-        if (ScrollPadding.HasValue || preset?.ScrollPadding is not null)
-            AddCss(ref cls, ResolvePresetValue(ScrollPadding, preset?.ScrollPadding, nameof(ScrollPadding)));
-        if (Size.HasValue || preset?.Size is not null)
-            AddCss(ref cls, ResolvePresetValue(Size, preset?.Size, nameof(Size)));
-        if (Width.HasValue || preset?.Width is not null)
-            AddCss(ref cls, ResolvePresetValue(Width, preset?.Width, nameof(Width)));
-        if (MinWidth.HasValue || preset?.MinWidth is not null)
-            AddCss(ref cls, ResolvePresetValue(MinWidth, preset?.MinWidth, nameof(MinWidth)));
-        if (MaxWidth.HasValue || preset?.MaxWidth is not null)
-            AddCss(ref cls, ResolvePresetValue(MaxWidth, preset?.MaxWidth, nameof(MaxWidth)));
-        if (Height.HasValue || preset?.Height is not null)
-            AddCss(ref cls, ResolvePresetValue(Height, preset?.Height, nameof(Height)));
-        if (MinHeight.HasValue || preset?.MinHeight is not null)
-            AddCss(ref cls, ResolvePresetValue(MinHeight, preset?.MinHeight, nameof(MinHeight)));
-        if (MaxHeight.HasValue || preset?.MaxHeight is not null)
-            AddCss(ref cls, ResolvePresetValue(MaxHeight, preset?.MaxHeight, nameof(MaxHeight)));
-        if (Overflow.HasValue || preset?.Overflow is not null)
-            AddCss(ref cls, ResolvePresetValue(Overflow, preset?.Overflow, nameof(Overflow)));
-        if (OverflowX.HasValue || preset?.OverflowX is not null)
-            AddCss(ref cls, ResolvePresetValue(OverflowX, preset?.OverflowX, nameof(OverflowX)));
-        if (OverflowY.HasValue || preset?.OverflowY is not null)
-            AddCss(ref cls, ResolvePresetValue(OverflowY, preset?.OverflowY, nameof(OverflowY)));
-        if (Overscroll.HasValue || preset?.Overscroll is not null)
-            AddCss(ref cls, ResolvePresetValue(Overscroll, preset?.Overscroll, nameof(Overscroll)));
-        if (Flex.HasValue || preset?.Flex is not null)
-            AddCss(ref cls, ResolvePresetValue(Flex, preset?.Flex, nameof(Flex)));
-        if (FlexDirection.HasValue || preset?.FlexDirection is not null)
-            AddCss(ref cls, ResolvePresetValue(FlexDirection, preset?.FlexDirection, nameof(FlexDirection)));
-        if (FlexWrap.HasValue || preset?.FlexWrap is not null)
-            AddCss(ref cls, ResolvePresetValue(FlexWrap, preset?.FlexWrap, nameof(FlexWrap)));
-        if (Grow.HasValue || preset?.Grow is not null)
-            AddCss(ref cls, ResolvePresetValue(Grow, preset?.Grow, nameof(Grow)));
-        if (Shrink.HasValue || preset?.Shrink is not null)
-            AddCss(ref cls, ResolvePresetValue(Shrink, preset?.Shrink, nameof(Shrink)));
-        if (Gap.HasValue || preset?.Gap is not null)
-            AddCss(ref cls, ResolvePresetValue(Gap, preset?.Gap, nameof(Gap)));
-        if (Space.HasValue || preset?.Space is not null)
-            AddCss(ref cls, ResolvePresetValue(Space, preset?.Space, nameof(Space)));
-        if (Divide.HasValue || preset?.Divide is not null)
-            AddCss(ref cls, ResolvePresetValue(Divide, preset?.Divide, nameof(Divide)));
-        if (ContentAlign.HasValue || preset?.ContentAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(ContentAlign, preset?.ContentAlign, nameof(ContentAlign)));
-        if (ItemsAlign.HasValue || preset?.ItemsAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(ItemsAlign, preset?.ItemsAlign, nameof(ItemsAlign)));
-        if (Justify.HasValue || preset?.Justify is not null)
-            AddCss(ref cls, ResolvePresetValue(Justify, preset?.Justify, nameof(Justify)));
-        if (SelfAlign.HasValue || preset?.SelfAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(SelfAlign, preset?.SelfAlign, nameof(SelfAlign)));
-        if (JustifyItemsAlign.HasValue || preset?.JustifyItemsAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(JustifyItemsAlign, preset?.JustifyItemsAlign, nameof(JustifyItemsAlign)));
-        if (JustifySelfAlign.HasValue || preset?.JustifySelfAlign is not null)
-            AddCss(ref cls, ResolvePresetValue(JustifySelfAlign, preset?.JustifySelfAlign, nameof(JustifySelfAlign)));
-        if (ColStart.HasValue || preset?.ColStart is not null)
-            AddCss(ref cls, ResolvePresetValue(ColStart, preset?.ColStart, nameof(ColStart)));
-        if (RowSpan.HasValue || preset?.RowSpan is not null)
-            AddCss(ref cls, ResolvePresetValue(RowSpan, preset?.RowSpan, nameof(RowSpan)));
-        if (RowStart.HasValue || preset?.RowStart is not null)
-            AddCss(ref cls, ResolvePresetValue(RowStart, preset?.RowStart, nameof(RowStart)));
+        if (Margin.HasValue || preset is not null && preset.HasValue(PresetProperty.Margin))
+            AddCss(ref cls, ResolvePresetSlot(Margin, preset?.Margin, (int)PresetProperty.Margin));
+        if (Padding.HasValue || preset is not null && preset.HasValue(PresetProperty.Padding))
+            AddCss(ref cls, ResolvePresetSlot(Padding, preset?.Padding, (int)PresetProperty.Padding));
+        if (Inset.HasValue || preset is not null && preset.HasValue(PresetProperty.Inset))
+            AddCss(ref cls, ResolvePresetSlot(Inset, preset?.Inset, (int)PresetProperty.Inset));
+        if (Top.HasValue || preset is not null && preset.HasValue(PresetProperty.Top))
+            AddCss(ref cls, ResolvePresetSlot(Top, preset?.Top, (int)PresetProperty.Top));
+        if (Right.HasValue || preset is not null && preset.HasValue(PresetProperty.Right))
+            AddCss(ref cls, ResolvePresetSlot(Right, preset?.Right, (int)PresetProperty.Right));
+        if (Bottom.HasValue || preset is not null && preset.HasValue(PresetProperty.Bottom))
+            AddCss(ref cls, ResolvePresetSlot(Bottom, preset?.Bottom, (int)PresetProperty.Bottom));
+        if (Left.HasValue || preset is not null && preset.HasValue(PresetProperty.Left))
+            AddCss(ref cls, ResolvePresetSlot(Left, preset?.Left, (int)PresetProperty.Left));
+        if (Position.HasValue || preset is not null && preset.HasValue(PresetProperty.Position))
+            AddCss(ref cls, ResolvePresetSlot(Position, preset?.Position, (int)PresetProperty.Position));
+        if (ScrollMargin.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollMargin))
+            AddCss(ref cls, ResolvePresetSlot(ScrollMargin, preset?.ScrollMargin, (int)PresetProperty.ScrollMargin));
+        if (ScrollPadding.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollPadding))
+            AddCss(ref cls, ResolvePresetSlot(ScrollPadding, preset?.ScrollPadding, (int)PresetProperty.ScrollPadding));
+        if (Size.HasValue || preset is not null && preset.HasValue(PresetProperty.Size))
+            AddCss(ref cls, ResolvePresetSlot(Size, preset?.Size, (int)PresetProperty.Size));
+        if (Width.HasValue || preset is not null && preset.HasValue(PresetProperty.Width))
+            AddCss(ref cls, ResolvePresetSlot(Width, preset?.Width, (int)PresetProperty.Width));
+        if (MinWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MinWidth))
+            AddCss(ref cls, ResolvePresetSlot(MinWidth, preset?.MinWidth, (int)PresetProperty.MinWidth));
+        if (MaxWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxWidth))
+            AddCss(ref cls, ResolvePresetSlot(MaxWidth, preset?.MaxWidth, (int)PresetProperty.MaxWidth));
+        if (Height.HasValue || preset is not null && preset.HasValue(PresetProperty.Height))
+            AddCss(ref cls, ResolvePresetSlot(Height, preset?.Height, (int)PresetProperty.Height));
+        if (MinHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MinHeight))
+            AddCss(ref cls, ResolvePresetSlot(MinHeight, preset?.MinHeight, (int)PresetProperty.MinHeight));
+        if (MaxHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxHeight))
+            AddCss(ref cls, ResolvePresetSlot(MaxHeight, preset?.MaxHeight, (int)PresetProperty.MaxHeight));
+        if (Overflow.HasValue || preset is not null && preset.HasValue(PresetProperty.Overflow))
+            AddCss(ref cls, ResolvePresetSlot(Overflow, preset?.Overflow, (int)PresetProperty.Overflow));
+        if (OverflowX.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowX))
+            AddCss(ref cls, ResolvePresetSlot(OverflowX, preset?.OverflowX, (int)PresetProperty.OverflowX));
+        if (OverflowY.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowY))
+            AddCss(ref cls, ResolvePresetSlot(OverflowY, preset?.OverflowY, (int)PresetProperty.OverflowY));
+        if (Overscroll.HasValue || preset is not null && preset.HasValue(PresetProperty.Overscroll))
+            AddCss(ref cls, ResolvePresetSlot(Overscroll, preset?.Overscroll, (int)PresetProperty.Overscroll));
+        if (Flex.HasValue || preset is not null && preset.HasValue(PresetProperty.Flex))
+            AddCss(ref cls, ResolvePresetSlot(Flex, preset?.Flex, (int)PresetProperty.Flex));
+        if (FlexDirection.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexDirection))
+            AddCss(ref cls, ResolvePresetSlot(FlexDirection, preset?.FlexDirection, (int)PresetProperty.FlexDirection));
+        if (FlexWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexWrap))
+            AddCss(ref cls, ResolvePresetSlot(FlexWrap, preset?.FlexWrap, (int)PresetProperty.FlexWrap));
+        if (Grow.HasValue || preset is not null && preset.HasValue(PresetProperty.Grow))
+            AddCss(ref cls, ResolvePresetSlot(Grow, preset?.Grow, (int)PresetProperty.Grow));
+        if (Shrink.HasValue || preset is not null && preset.HasValue(PresetProperty.Shrink))
+            AddCss(ref cls, ResolvePresetSlot(Shrink, preset?.Shrink, (int)PresetProperty.Shrink));
+        if (Gap.HasValue || preset is not null && preset.HasValue(PresetProperty.Gap))
+            AddCss(ref cls, ResolvePresetSlot(Gap, preset?.Gap, (int)PresetProperty.Gap));
+        if (Space.HasValue || preset is not null && preset.HasValue(PresetProperty.Space))
+            AddCss(ref cls, ResolvePresetSlot(Space, preset?.Space, (int)PresetProperty.Space));
+        if (Divide.HasValue || preset is not null && preset.HasValue(PresetProperty.Divide))
+            AddCss(ref cls, ResolvePresetSlot(Divide, preset?.Divide, (int)PresetProperty.Divide));
+        if (ContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ContentAlign))
+            AddCss(ref cls, ResolvePresetSlot(ContentAlign, preset?.ContentAlign, (int)PresetProperty.ContentAlign));
+        if (ItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ItemsAlign))
+            AddCss(ref cls, ResolvePresetSlot(ItemsAlign, preset?.ItemsAlign, (int)PresetProperty.ItemsAlign));
+        if (Justify.HasValue || preset is not null && preset.HasValue(PresetProperty.Justify))
+            AddCss(ref cls, ResolvePresetSlot(Justify, preset?.Justify, (int)PresetProperty.Justify));
+        if (SelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.SelfAlign))
+            AddCss(ref cls, ResolvePresetSlot(SelfAlign, preset?.SelfAlign, (int)PresetProperty.SelfAlign));
+        if (JustifyItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifyItemsAlign))
+            AddCss(ref cls, ResolvePresetSlot(JustifyItemsAlign, preset?.JustifyItemsAlign, (int)PresetProperty.JustifyItemsAlign));
+        if (JustifySelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifySelfAlign))
+            AddCss(ref cls, ResolvePresetSlot(JustifySelfAlign, preset?.JustifySelfAlign, (int)PresetProperty.JustifySelfAlign));
+        if (ColStart.HasValue || preset is not null && preset.HasValue(PresetProperty.ColStart))
+            AddCss(ref cls, ResolvePresetSlot(ColStart, preset?.ColStart, (int)PresetProperty.ColStart));
+        if (RowSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.RowSpan))
+            AddCss(ref cls, ResolvePresetSlot(RowSpan, preset?.RowSpan, (int)PresetProperty.RowSpan));
+        if (RowStart.HasValue || preset is not null && preset.HasValue(PresetProperty.RowStart))
+            AddCss(ref cls, ResolvePresetSlot(RowStart, preset?.RowStart, (int)PresetProperty.RowStart));
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildInteractionClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Opacity.HasValue || preset?.Opacity is not null)
-            AddCss(ref cls, ResolvePresetValue(Opacity, preset?.Opacity, nameof(Opacity)));
-        if (ZIndex.HasValue || preset?.ZIndex is not null)
-            AddCss(ref cls, ResolvePresetValue(ZIndex, preset?.ZIndex, nameof(ZIndex)));
-        if (PointerEvents.HasValue || preset?.PointerEvents is not null)
-            AddCss(ref cls, ResolvePresetValue(PointerEvents, preset?.PointerEvents, nameof(PointerEvents)));
-        if (UserSelect.HasValue || preset?.UserSelect is not null)
-            AddCss(ref cls, ResolvePresetValue(UserSelect, preset?.UserSelect, nameof(UserSelect)));
-        if (Cursor.HasValue || preset?.Cursor is not null)
-            AddCss(ref cls, ResolvePresetValue(Cursor, preset?.Cursor, nameof(Cursor)));
-        if (ScreenReader.HasValue || preset?.ScreenReader is not null)
-            AddCss(ref cls, ResolvePresetValue(ScreenReader, preset?.ScreenReader, nameof(ScreenReader)));
+        if (Opacity.HasValue || preset is not null && preset.HasValue(PresetProperty.Opacity))
+            AddCss(ref cls, ResolvePresetSlot(Opacity, preset?.Opacity, (int)PresetProperty.Opacity));
+        if (ZIndex.HasValue || preset is not null && preset.HasValue(PresetProperty.ZIndex))
+            AddCss(ref cls, ResolvePresetSlot(ZIndex, preset?.ZIndex, (int)PresetProperty.ZIndex));
+        if (PointerEvents.HasValue || preset is not null && preset.HasValue(PresetProperty.PointerEvents))
+            AddCss(ref cls, ResolvePresetSlot(PointerEvents, preset?.PointerEvents, (int)PresetProperty.PointerEvents));
+        if (UserSelect.HasValue || preset is not null && preset.HasValue(PresetProperty.UserSelect))
+            AddCss(ref cls, ResolvePresetSlot(UserSelect, preset?.UserSelect, (int)PresetProperty.UserSelect));
+        if (Cursor.HasValue || preset is not null && preset.HasValue(PresetProperty.Cursor))
+            AddCss(ref cls, ResolvePresetSlot(Cursor, preset?.Cursor, (int)PresetProperty.Cursor));
+        if (ScreenReader.HasValue || preset is not null && preset.HasValue(PresetProperty.ScreenReader))
+            AddCss(ref cls, ResolvePresetSlot(ScreenReader, preset?.ScreenReader, (int)PresetProperty.ScreenReader));
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildVisualClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Border.HasValue || preset?.Border is not null)
-            AddCss(ref cls, ResolvePresetValue(Border, preset?.Border, nameof(Border)));
-        if (BorderStyle.HasValue || preset?.BorderStyle is not null)
-            AddCss(ref cls, ResolvePresetValue(BorderStyle, preset?.BorderStyle, nameof(BorderStyle)));
+        if (Border.HasValue || preset is not null && preset.HasValue(PresetProperty.Border))
+            AddCss(ref cls, ResolvePresetSlot(Border, preset?.Border, (int)PresetProperty.Border));
+        if (BorderStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.BorderStyle))
+            AddCss(ref cls, ResolvePresetSlot(BorderStyle, preset?.BorderStyle, (int)PresetProperty.BorderStyle));
         ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
         ApplyBackgroundColor(ref sty, ref cls, preset?.BackgroundColor);
-        if (Rounded.HasValue || preset?.Rounded is not null)
-            AddCss(ref cls, ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)));
-        if (RingColor.HasValue || preset?.RingColor is not null)
-            AddCss(ref cls, ResolvePresetValue(RingColor, preset?.RingColor, nameof(RingColor)));
-        if (Ring.HasValue || preset?.Ring is not null)
-            AddCss(ref cls, ResolvePresetValue(Ring, preset?.Ring, nameof(Ring)));
-        if (RingOffset.HasValue || preset?.RingOffset is not null)
-            AddCss(ref cls, ResolvePresetValue(RingOffset, preset?.RingOffset, nameof(RingOffset)));
+        if (Rounded.HasValue || preset is not null && preset.HasValue(PresetProperty.Rounded))
+            AddCss(ref cls, ResolvePresetSlot(Rounded, preset?.Rounded, (int)PresetProperty.Rounded));
+        if (RingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.RingColor))
+            AddCss(ref cls, ResolvePresetSlot(RingColor, preset?.RingColor, (int)PresetProperty.RingColor));
+        if (Ring.HasValue || preset is not null && preset.HasValue(PresetProperty.Ring))
+            AddCss(ref cls, ResolvePresetSlot(Ring, preset?.Ring, (int)PresetProperty.Ring));
+        if (RingOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.RingOffset))
+            AddCss(ref cls, ResolvePresetSlot(RingOffset, preset?.RingOffset, (int)PresetProperty.RingOffset));
         AddCss(ref cls, OutlineStyle);
-        if (Shadow.HasValue || preset?.Shadow is not null)
-            AddCss(ref cls, ResolvePresetValue(Shadow, preset?.Shadow, nameof(Shadow)));
-        if (BackdropFilter.HasValue || preset?.BackdropFilter is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropFilter, preset?.BackdropFilter, nameof(BackdropFilter)));
-        if (BackdropBlur.HasValue || preset?.BackdropBlur is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropBlur, preset?.BackdropBlur, nameof(BackdropBlur)));
-        if (BackdropBrightness.HasValue || preset?.BackdropBrightness is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropBrightness, preset?.BackdropBrightness, nameof(BackdropBrightness)));
-        if (BackdropContrast.HasValue || preset?.BackdropContrast is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropContrast, preset?.BackdropContrast, nameof(BackdropContrast)));
-        if (BackdropGrayscale.HasValue || preset?.BackdropGrayscale is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropGrayscale, preset?.BackdropGrayscale, nameof(BackdropGrayscale)));
-        if (BackdropHueRotate.HasValue || preset?.BackdropHueRotate is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropHueRotate, preset?.BackdropHueRotate, nameof(BackdropHueRotate)));
-        if (BackdropInvert.HasValue || preset?.BackdropInvert is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropInvert, preset?.BackdropInvert, nameof(BackdropInvert)));
-        if (BackdropOpacity.HasValue || preset?.BackdropOpacity is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropOpacity, preset?.BackdropOpacity, nameof(BackdropOpacity)));
-        if (BackdropSaturate.HasValue || preset?.BackdropSaturate is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropSaturate, preset?.BackdropSaturate, nameof(BackdropSaturate)));
-        if (BackdropSepia.HasValue || preset?.BackdropSepia is not null)
-            AddCss(ref cls, ResolvePresetValue(BackdropSepia, preset?.BackdropSepia, nameof(BackdropSepia)));
-        if (Filter.HasValue || preset?.Filter is not null)
-            AddCss(ref cls, ResolvePresetValue(Filter, preset?.Filter, nameof(Filter)));
-        if (Blur.HasValue || preset?.Blur is not null)
-            AddCss(ref cls, ResolvePresetValue(Blur, preset?.Blur, nameof(Blur)));
-        if (Brightness.HasValue || preset?.Brightness is not null)
-            AddCss(ref cls, ResolvePresetValue(Brightness, preset?.Brightness, nameof(Brightness)));
-        if (Contrast.HasValue || preset?.Contrast is not null)
-            AddCss(ref cls, ResolvePresetValue(Contrast, preset?.Contrast, nameof(Contrast)));
-        if (DropShadow.HasValue || preset?.DropShadow is not null)
-            AddCss(ref cls, ResolvePresetValue(DropShadow, preset?.DropShadow, nameof(DropShadow)));
-        if (DropShadowColor.HasValue || preset?.DropShadowColor is not null)
-            AddCss(ref cls, ResolvePresetValue(DropShadowColor, preset?.DropShadowColor, nameof(DropShadowColor)));
-        if (Grayscale.HasValue || preset?.Grayscale is not null)
-            AddCss(ref cls, ResolvePresetValue(Grayscale, preset?.Grayscale, nameof(Grayscale)));
-        if (HueRotate.HasValue || preset?.HueRotate is not null)
-            AddCss(ref cls, ResolvePresetValue(HueRotate, preset?.HueRotate, nameof(HueRotate)));
-        if (Invert.HasValue || preset?.Invert is not null)
-            AddCss(ref cls, ResolvePresetValue(Invert, preset?.Invert, nameof(Invert)));
-        if (Saturate.HasValue || preset?.Saturate is not null)
-            AddCss(ref cls, ResolvePresetValue(Saturate, preset?.Saturate, nameof(Saturate)));
-        if (Sepia.HasValue || preset?.Sepia is not null)
-            AddCss(ref cls, ResolvePresetValue(Sepia, preset?.Sepia, nameof(Sepia)));
-        if (Resize.HasValue || preset?.Resize is not null)
-            AddCss(ref cls, ResolvePresetValue(Resize, preset?.Resize, nameof(Resize)));
-        if (Transform.HasValue || preset?.Transform is not null)
-            AddCss(ref cls, ResolvePresetValue(Transform, preset?.Transform, nameof(Transform)));
-        if (Animation.HasValue || preset?.Animation is not null)
-            AddCss(ref cls, ResolvePresetValue(Animation, preset?.Animation, nameof(Animation)));
-        if (Duration.HasValue || preset?.Duration is not null)
-            AddCss(ref cls, ResolvePresetValue(Duration, preset?.Duration, nameof(Duration)));
-        if (Transition.HasValue || preset?.Transition is not null)
-            AddCss(ref cls, ResolvePresetValue(Transition, preset?.Transition, nameof(Transition)));
+        if (Shadow.HasValue || preset is not null && preset.HasValue(PresetProperty.Shadow))
+            AddCss(ref cls, ResolvePresetSlot(Shadow, preset?.Shadow, (int)PresetProperty.Shadow));
+        if (BackdropFilter.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropFilter))
+            AddCss(ref cls, ResolvePresetSlot(BackdropFilter, preset?.BackdropFilter, (int)PresetProperty.BackdropFilter));
+        if (BackdropBlur.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBlur))
+            AddCss(ref cls, ResolvePresetSlot(BackdropBlur, preset?.BackdropBlur, (int)PresetProperty.BackdropBlur));
+        if (BackdropBrightness.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBrightness))
+            AddCss(ref cls, ResolvePresetSlot(BackdropBrightness, preset?.BackdropBrightness, (int)PresetProperty.BackdropBrightness));
+        if (BackdropContrast.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropContrast))
+            AddCss(ref cls, ResolvePresetSlot(BackdropContrast, preset?.BackdropContrast, (int)PresetProperty.BackdropContrast));
+        if (BackdropGrayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropGrayscale))
+            AddCss(ref cls, ResolvePresetSlot(BackdropGrayscale, preset?.BackdropGrayscale, (int)PresetProperty.BackdropGrayscale));
+        if (BackdropHueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropHueRotate))
+            AddCss(ref cls, ResolvePresetSlot(BackdropHueRotate, preset?.BackdropHueRotate, (int)PresetProperty.BackdropHueRotate));
+        if (BackdropInvert.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropInvert))
+            AddCss(ref cls, ResolvePresetSlot(BackdropInvert, preset?.BackdropInvert, (int)PresetProperty.BackdropInvert));
+        if (BackdropOpacity.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropOpacity))
+            AddCss(ref cls, ResolvePresetSlot(BackdropOpacity, preset?.BackdropOpacity, (int)PresetProperty.BackdropOpacity));
+        if (BackdropSaturate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSaturate))
+            AddCss(ref cls, ResolvePresetSlot(BackdropSaturate, preset?.BackdropSaturate, (int)PresetProperty.BackdropSaturate));
+        if (BackdropSepia.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSepia))
+            AddCss(ref cls, ResolvePresetSlot(BackdropSepia, preset?.BackdropSepia, (int)PresetProperty.BackdropSepia));
+        if (Filter.HasValue || preset is not null && preset.HasValue(PresetProperty.Filter))
+            AddCss(ref cls, ResolvePresetSlot(Filter, preset?.Filter, (int)PresetProperty.Filter));
+        if (Blur.HasValue || preset is not null && preset.HasValue(PresetProperty.Blur))
+            AddCss(ref cls, ResolvePresetSlot(Blur, preset?.Blur, (int)PresetProperty.Blur));
+        if (Brightness.HasValue || preset is not null && preset.HasValue(PresetProperty.Brightness))
+            AddCss(ref cls, ResolvePresetSlot(Brightness, preset?.Brightness, (int)PresetProperty.Brightness));
+        if (Contrast.HasValue || preset is not null && preset.HasValue(PresetProperty.Contrast))
+            AddCss(ref cls, ResolvePresetSlot(Contrast, preset?.Contrast, (int)PresetProperty.Contrast));
+        if (DropShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadow))
+            AddCss(ref cls, ResolvePresetSlot(DropShadow, preset?.DropShadow, (int)PresetProperty.DropShadow));
+        if (DropShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadowColor))
+            AddCss(ref cls, ResolvePresetSlot(DropShadowColor, preset?.DropShadowColor, (int)PresetProperty.DropShadowColor));
+        if (Grayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.Grayscale))
+            AddCss(ref cls, ResolvePresetSlot(Grayscale, preset?.Grayscale, (int)PresetProperty.Grayscale));
+        if (HueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.HueRotate))
+            AddCss(ref cls, ResolvePresetSlot(HueRotate, preset?.HueRotate, (int)PresetProperty.HueRotate));
+        if (Invert.HasValue || preset is not null && preset.HasValue(PresetProperty.Invert))
+            AddCss(ref cls, ResolvePresetSlot(Invert, preset?.Invert, (int)PresetProperty.Invert));
+        if (Saturate.HasValue || preset is not null && preset.HasValue(PresetProperty.Saturate))
+            AddCss(ref cls, ResolvePresetSlot(Saturate, preset?.Saturate, (int)PresetProperty.Saturate));
+        if (Sepia.HasValue || preset is not null && preset.HasValue(PresetProperty.Sepia))
+            AddCss(ref cls, ResolvePresetSlot(Sepia, preset?.Sepia, (int)PresetProperty.Sepia));
+        if (Resize.HasValue || preset is not null && preset.HasValue(PresetProperty.Resize))
+            AddCss(ref cls, ResolvePresetSlot(Resize, preset?.Resize, (int)PresetProperty.Resize));
+        if (Transform.HasValue || preset is not null && preset.HasValue(PresetProperty.Transform))
+            AddCss(ref cls, ResolvePresetSlot(Transform, preset?.Transform, (int)PresetProperty.Transform));
+        if (Animation.HasValue || preset is not null && preset.HasValue(PresetProperty.Animation))
+            AddCss(ref cls, ResolvePresetSlot(Animation, preset?.Animation, (int)PresetProperty.Animation));
+        if (Duration.HasValue || preset is not null && preset.HasValue(PresetProperty.Duration))
+            AddCss(ref cls, ResolvePresetSlot(Duration, preset?.Duration, (int)PresetProperty.Duration));
+        if (Transition.HasValue || preset is not null && preset.HasValue(PresetProperty.Transition))
+            AddCss(ref cls, ResolvePresetSlot(Transition, preset?.Transition, (int)PresetProperty.Transition));
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -681,6 +800,8 @@ public abstract class Component : RenderComponent, IComponent
         return Task.CompletedTask;
     }
 
+    private PresetEvaluationState? _presetState;
+
     protected QuarkPresetContext? BuildPresetContext()
     {
         var preset = Preset;
@@ -689,19 +810,7 @@ public abstract class Component : RenderComponent, IComponent
         if (preset is null && (presets is null || presets.Count == 0))
             return null;
 
-        var context = new QuarkPresetContext();
-
-        preset?.Apply(context);
-
-        if (presets is null)
-            return context;
-
-        for (var i = 0; i < presets.Count; i++)
-        {
-            presets[i].Apply(context);
-        }
-
-        return context;
+        return (_presetState ??= new PresetEvaluationState()).Evaluate(preset, presets);
     }
 
     private bool HasExplicitDataSlotAttribute()
@@ -739,17 +848,17 @@ public abstract class Component : RenderComponent, IComponent
 
     protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        base.ApplyBorderColor(ref sty, ref cls, ResolvePresetValue(BorderColor, value, nameof(BorderColor)));
+        base.ApplyBorderColor(ref sty, ref cls, ResolvePresetSlot(BorderColor, value, (int)PresetProperty.BorderColor));
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
     {
-        base.ApplyBackgroundColor(ref sty, ref cls, ResolvePresetValue(BackgroundColor, value, nameof(BackgroundColor)));
+        base.ApplyBackgroundColor(ref sty, ref cls, ResolvePresetSlot(BackgroundColor, value, (int)PresetProperty.BackgroundColor));
     }
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        base.ApplyTextColor(ref sty, ref cls, ResolvePresetValue(TextColor, value, nameof(TextColor)));
+        base.ApplyTextColor(ref sty, ref cls, ResolvePresetSlot(TextColor, value, (int)PresetProperty.TextColor));
     }
 
     protected new void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)

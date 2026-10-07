@@ -76,9 +76,19 @@ function wireCanvas(canvas, dotNetRef) {
   let lightness = 0;
   let frame = 0;
   let suppressClick = false;
+  const pendingPointers = [];
+  let pendingPointerCount = 0;
 
   const renderThumb = () => {
     frame = 0;
+    if (pendingPointerCount) {
+      const rect = canvas.getBoundingClientRect();
+      // Keep the latest in-bounds sample, including when a later event leaves the canvas.
+      for (let i = pendingPointerCount - 3; i >= 0; i -= 3) {
+        if (applyPointer(pendingPointers[i], pendingPointers[i + 1], pendingPointers[i + 2], rect)) break;
+      }
+      pendingPointerCount = 0;
+    }
     const hue = Number.parseFloat(canvas.getAttribute("data-hue") || "0");
     const alpha = Number.parseFloat(canvas.getAttribute("data-alpha") || "1");
     const thumb = canvas.querySelector("[data-slot='color-picker-thumb']");
@@ -89,26 +99,32 @@ function wireCanvas(canvas, dotNetRef) {
     }
   };
 
-  const updateFromEvent = (event, requireInside = false) => {
-    const rect = canvas.getBoundingClientRect();
+  const applyPointer = (clientX, clientY, requireInside, rect) => {
 
     if (!rect.width || !rect.height) {
       return;
     }
 
     const inside =
-      event.clientX >= rect.left &&
-      event.clientX <= rect.right &&
-      event.clientY >= rect.top &&
-      event.clientY <= rect.bottom;
+      clientX >= rect.left &&
+      clientX <= rect.right &&
+      clientY >= rect.top &&
+      clientY <= rect.bottom;
 
     if (requireInside && !inside) {
       return;
     }
 
-    saturation = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
-    lightness = clamp(100 - (((event.clientY - rect.top) / rect.height) * 100), 0, 100);
+    saturation = clamp(((clientX - rect.left) / rect.width) * 100, 0, 100);
+    lightness = clamp(100 - (((clientY - rect.top) / rect.height) * 100), 0, 100);
     hasValue = true;
+    return true;
+  };
+
+  const updateFromEvent = (event, requireInside = false) => {
+    pendingPointers[pendingPointerCount++] = event.clientX;
+    pendingPointers[pendingPointerCount++] = event.clientY;
+    pendingPointers[pendingPointerCount++] = requireInside;
     if (!frame) {
       frame = requestAnimationFrame(renderThumb);
     }

@@ -47,6 +47,24 @@ else
 }
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize;
+        var isLink = RenderAsLink;
+        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true ||
+            Attributes?.ContainsKey("disabled") == true || AdditionalAttributes?.ContainsKey("disabled") == true;
+        AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+        AppendClass(ref cls, GetButtonFocusClass(Variant));
+        AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
+        if (!InputGroupButton && effectiveSize is not null)
+            AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
+        if (isLink && isDisabled)
+            AppendClass(ref cls, "pointer-events-none opacity-50");
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = Quark.ButtonSize.Default;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
@@ -65,7 +83,6 @@ else
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
     private static readonly CssValue<MarginBuilder> _renderCss2 = Quark.Margin.FromRight.Is2;
-    private string? _lastBuiltClass;
 
     private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
 
@@ -250,26 +267,7 @@ else
         if (isLink && isDisabled)
             attributes.TryAdd("tabindex", QuarkAttributeValues.MinusOne);
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-                AppendClass(ref cls, GetButtonFocusClass(Variant));
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-                AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
-                if (!InputGroupButton && effectiveSize is not null)
-                    AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
-                if (isLink && isDisabled)
-                    AppendClass(ref cls, "pointer-events-none opacity-50");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
 
         if (Loading)
             attributes["aria-busy"] = "true";

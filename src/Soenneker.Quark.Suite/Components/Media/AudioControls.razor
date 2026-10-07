@@ -3,14 +3,14 @@
 @implements IAudioControls
 
 <div @attributes="BuildAttributes()">
-    <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2.OnSm.Is3" Rounded="Quark.Rounded.Full"
-         BackgroundColor="Quark.BackgroundColor.Secondary"
+    <Div Display="_staticDisplay0" ItemsAlign="_staticItemsAlign1" Gap="_staticGap2" Rounded="_staticRounded3"
+         BackgroundColor="_staticBackgroundColor4"
          Width="@(Compact ? _compactWidth : _fullWidth)" MinHeight="@BarMinHeight"
-         Padding="@(Compact ? _compactPadding : _fullPadding)" TextColor="Quark.TextColor.Foreground"
-         Class="data-[disabled=true]:opacity-50" data-disabled="@Disabled.ToString().ToLowerInvariant()">
-        <Button Shrink="Quark.Shrink.Is0" TextColor="Quark.TextColor.Foreground" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="Quark.Rounded.Full"
+         Padding="@(Compact ? _compactPadding : _fullPadding)" TextColor="_staticTextColor5"
+         Class="data-[disabled=true]:opacity-50" data-disabled="@(Disabled ? "true" : "false")">
+        <Button Shrink="_staticShrink6" TextColor="_staticTextColor5" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="_staticRounded3"
                 Disabled="@Disabled" title="@PlaybackLabel" aria-label="@PlaybackLabel"
-                OnClick="() => OnTogglePlayback.InvokeAsync()">
+                OnClick="OnTogglePlayback">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
                 @if (!IsPlaying)
                 {
@@ -28,15 +28,16 @@
         </Button>
         @if (!Compact)
         {
-            <Span Shrink="Quark.Shrink.Is0" Whitespace="Quark.Whitespace.Nowrap" TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Normal" FontVariantNumeric="Quark.FontVariantNumeric.TabularNums">@FormatTime(CurrentTime) / @FormatTime(MediaDuration)</Span>
-            <Div Class="group/seek" MinWidth='Quark.MinWidth.Token("8")' Flex="Quark.Flex.Is1">
-                <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20 [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 group-focus-within/seek:[&_[data-slot=slider-thumb]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none" MinHeight='Quark.MinHeight.Token("7")' Min="0" Max="@Math.Max(SafeDuration, 1)" Step="1"
+            <Span Shrink="_staticShrink6" Whitespace="_staticWhitespace7" TextSize="_staticTextSize8" FontWeight="_staticFontWeight9" FontVariantNumeric="_staticFontVariantNumeric10">@CurrentTimeText / @DurationText</Span>
+            <Div Class="group/seek" MinWidth="_seekMinWidth" Flex="_staticFlex11">
+                <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20 [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 group-focus-within/seek:[&_[data-slot=slider-thumb]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none" MinHeight="_sliderMinHeight" Min="0" Max="@Math.Max(SafeDuration, 1)" Step="1"
                         SliderValue="@Math.Clamp(SafeSeconds(CurrentTime), 0, SafeDuration)"
                         SliderValueChanged="CurrentTimeChanged" Disabled="@(Disabled || !CanSeek || SafeDuration <= 0)"
                         Label="Playback position" />
             </Div>
-            <Div Display="Quark.Display.Flex" ItemsAlign="Items.Center" Class="group/volume" Shrink="Quark.Shrink.Is0">
-                <Button Shrink="Quark.Shrink.Is0" TextColor="Quark.TextColor.Foreground" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="Quark.Rounded.Full"
+            <ContentRenderBoundary Version="@((SafeVolume, Disabled, VolumeChanged))">
+            <Div Display="_staticDisplay0" ItemsAlign="_staticItemsAlign1" Class="group/volume" Shrink="_staticShrink6">
+                <Button Shrink="_staticShrink6" TextColor="_staticTextColor5" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm" Rounded="_staticRounded3"
                         Disabled="@Disabled" title="@(SafeVolume > 0 ? "Mute" : "Unmute")" aria-label="@(SafeVolume > 0 ? "Mute" : "Unmute")"
                         OnClick="ToggleMute">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -51,18 +52,55 @@
                         }
                     </svg>
                 </Button>
-                <Div Class="order-first transition-[width,opacity] ease-out group-hover/volume:visible group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:visible group-focus-within/volume:w-20 group-focus-within/volume:opacity-100 motion-reduce:transition-none" Visibility="Quark.Visibility.Invisible" Width="Quark.Width.Is0" Overflow="Quark.Overflow.Hidden" Opacity="Quark.Opacity.Is0" Duration="Quark.Duration.Is200">
-                    <Div Width="Quark.Width.Is20" Padding="Quark.Padding.OnX.Is2">
-                        <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20" MinHeight='Quark.MinHeight.Token("7")' Min="0" Max="1" Step="0.01" SliderValue="@SafeVolume"
+                <Div Class="order-first transition-[width,opacity] ease-out group-hover/volume:visible group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:visible group-focus-within/volume:w-20 group-focus-within/volume:opacity-100 motion-reduce:transition-none" Visibility="_staticVisibility12" Width="_staticWidth13" Overflow="_staticOverflow14" Opacity="_staticOpacity15" Duration="_staticDuration16">
+                    <Div Width="_staticWidth17" Padding="_staticPadding18">
+                        <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20" MinHeight="_sliderMinHeight" Min="0" Max="1" Step="0.01" SliderValue="@SafeVolume"
                                 SliderValueChanged="VolumeChanged" Disabled="@Disabled" Label="Volume" />
                     </Div>
                 </Div>
             </Div>
+            </ContentRenderBoundary>
         }
     </Div>
     @ChildContent
 </div>
 @code {
+    private static readonly CssValue<MinWidthBuilder> _seekMinWidth = Quark.MinWidth.Token("8");
+    private static readonly CssValue<MinHeightBuilder> _sliderMinHeight = Quark.MinHeight.Token("7");
+    private static readonly CssValue<DisplayBuilder> _staticDisplay0 = Quark.Display.Flex;
+    private static readonly CssValue<ItemsBuilder> _staticItemsAlign1 = Items.Center;
+    private static readonly CssValue<GapBuilder> _staticGap2 = Quark.Gap.Is2.OnSm.Is3;
+    private static readonly CssValue<RoundedBuilder> _staticRounded3 = Quark.Rounded.Full;
+    private static readonly CssValue<BackgroundColorBuilder> _staticBackgroundColor4 = Quark.BackgroundColor.Secondary;
+    private static readonly CssValue<TextColorBuilder> _staticTextColor5 = Quark.TextColor.Foreground;
+    private static readonly CssValue<ShrinkBuilder> _staticShrink6 = Quark.Shrink.Is0;
+    private static readonly CssValue<WhitespaceBuilder> _staticWhitespace7 = Quark.Whitespace.Nowrap;
+    private static readonly CssValue<TextSizeBuilder> _staticTextSize8 = Quark.TextSize.Sm;
+    private static readonly CssValue<FontWeightBuilder> _staticFontWeight9 = Quark.FontWeight.Normal;
+    private static readonly CssValue<FontVariantNumericBuilder> _staticFontVariantNumeric10 = Quark.FontVariantNumeric.TabularNums;
+    private static readonly CssValue<FlexBuilder> _staticFlex11 = Quark.Flex.Is1;
+    private static readonly CssValue<VisibilityBuilder> _staticVisibility12 = Quark.Visibility.Invisible;
+    private static readonly CssValue<WidthBuilder> _staticWidth13 = Quark.Width.Is0;
+    private static readonly CssValue<OverflowBuilder> _staticOverflow14 = Quark.Overflow.Hidden;
+    private static readonly CssValue<OpacityBuilder> _staticOpacity15 = Quark.Opacity.Is0;
+    private static readonly CssValue<DurationBuilder> _staticDuration16 = Quark.Duration.Is200;
+    private static readonly CssValue<WidthBuilder> _staticWidth17 = Quark.Width.Is20;
+    private static readonly CssValue<PaddingBuilder> _staticPadding18 = Quark.Padding.OnX.Is2;
+    private long _currentSecond = -1, _durationSecond = -1;
+    private string _currentTimeText = "0:00", _durationText = "0:00";
+    private string CurrentTimeText => CachedTime(CurrentTime, ref _currentSecond, ref _currentTimeText);
+    private string DurationText => CachedTime(MediaDuration, ref _durationSecond, ref _durationText);
+    private static string CachedTime(double value, ref long previous, ref string text)
+    {
+        long second = (long)SafeSeconds(value);
+        if (second != previous)
+        {
+            previous = second;
+            text = FormatTime(second);
+        }
+        return text;
+    }
+
     [Parameter] public bool IsPlaying { get; set; }
     [Parameter] public double MediaDuration { get; set; }
     [Parameter] public double CurrentTime { get; set; }
@@ -103,7 +141,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "audio-controls";
-        Width ??= Quark.Width.IsFull;
+        Width ??= _fullWidth;
     }
 
     private static double SafeSeconds(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, TimeSpan.MaxValue.TotalSeconds - 1) : 0;

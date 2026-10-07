@@ -40,7 +40,16 @@ else
 }
 
 @code {
-    private (string Size, string Variant, string? BaseClass)? _buttonClassKey;
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var sizeClass = GetSizeClass(ButtonSize);
+        var variantClass = GetVariantClass(Variant);
+        AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
+        AppendClass(ref cls, sizeClass);
+        AppendClass(ref cls, variantClass);
+    }
+
     private string? _navigationHref;
     private bool _relativeNavigationHref;
 
@@ -73,7 +82,6 @@ else
     private static readonly CssValue<HeightBuilder> _defaultHeight2 = Quark.Height.Is12;
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
-    private string? _lastBuiltClass;
 
     private Func<MouseEventArgs, Task>? _cachedHandleActivateDelegate;
     private Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
@@ -276,28 +284,7 @@ else
         if (!AsChild && !Href.HasContent())
             attributes["type"] = "button";
 
-        var sizeClass = GetSizeClass(ButtonSize);
-        var variantClass = GetVariantClass(Variant);
-        attributes.TryGetValue("class", out var baseClass);
-        var key = (sizeClass, variantClass, baseClass?.ToString());
-        if (_buttonClassKey == key && _lastBuiltClass is not null)
-            attributes["class"] = _lastBuiltClass;
-        else
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
-                AppendClass(ref cls, sizeClass);
-                AppendClass(ref cls, variantClass);
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-        _buttonClassKey = key;
+
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()

@@ -24,9 +24,20 @@
 </BradixDropdownMenu>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, IsGroup ? "inline-flex relative" : "relative");
+        if (Visible)
+            AppendClass(ref cls, "show z-50");
+        if (RightAligned)
+            AppendClass(ref cls, "dropend");
+        if (Disabled)
+            AppendClass(ref cls, "disabled");
+    }
+
     private Func<bool, Task>? _cachedHandleOpenChangedDelegate;
 
-    private string? _lastBuiltClass;
 
     public Dropdown()
     {
@@ -106,24 +117,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-state"] = Visible ? "open" : "closed";
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, IsGroup ? "inline-flex relative" : "relative");
-                if (Visible)
-                    AppendClass(ref cls, "show z-50");
-                if (RightAligned)
-                    AppendClass(ref cls, "dropend");
-                if (Disabled)
-                    AppendClass(ref cls, "disabled");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

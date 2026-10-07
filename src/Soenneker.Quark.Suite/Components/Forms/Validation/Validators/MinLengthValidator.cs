@@ -7,6 +7,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class MinLengthValidator : QuarkValidator
 {
+    public override bool IsSynchronous => true;
+
     private readonly int _minLength;
     private readonly ValidationResult _errorResult;
 

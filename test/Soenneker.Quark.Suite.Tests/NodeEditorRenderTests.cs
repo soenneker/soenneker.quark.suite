@@ -13,6 +13,28 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Versioned_graph_retains_node_templates_until_data_or_selection_changes()
+    {
+        int renders = 0;
+        NodeEditorNodeModel[] nodes = [new() { Id = "first" }];
+        RenderFragment<NodeEditorNodeModel> template = node => builder => { renders++; builder.AddContent(0, node.X); };
+        var cut = Render<NodeEditor>(p => p.Add(c => c.Nodes, nodes).Add(c => c.DataVersion, 0L).Add(c => c.NodeTemplate, template));
+        int before = renders;
+        cut.Render(p => p.Add(c => c.ShowControls, true));
+        renders.Should().Be(before);
+        // Captured template state is also covered by the explicit version contract.
+        cut.Render(p => p.Add(c => c.DataVersion, 1L));
+        renders.Should().BeGreaterThan(before);
+        before = renders;
+        nodes[0].X = 42;
+        cut.Render(p => p.Add(c => c.DataVersion, 2L));
+        renders.Should().BeGreaterThan(before);
+        cut.Find("[data-slot='node-editor-node']").GetAttribute("data-node-x").Should().Be("42");
+        cut.Render(p => p.Add(c => c.SelectedNodeId, "first"));
+        cut.Find("[data-slot='node-editor-node']").GetAttribute("data-selected").Should().Be("true");
+    }
+
+    [Test]
     public void Node_editor_exposes_a_configured_element_reference_for_focus()
     {
         ElementReference captured = default;

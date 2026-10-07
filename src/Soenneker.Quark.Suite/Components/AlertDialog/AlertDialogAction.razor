@@ -13,6 +13,16 @@
 </BradixAlertDialogAction>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
+        AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+        AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
+        AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
+    }
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSizeType.Default;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
@@ -32,7 +42,6 @@
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
     private Func<MouseEventArgs, Task>? _cachedHandleActionClickDelegate;
 
-    private string? _lastBuiltClass;
 
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
@@ -69,22 +78,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-                AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-                AppendClass(ref cls, Button.GetButtonSizeClass(ButtonSize));
-                AppendClass(ref cls, Variant?.Class ?? ButtonVariant.Default.Class);
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
     }
 
     private async Task HandleActionClick(MouseEventArgs _)

@@ -21,6 +21,14 @@ else
 }
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "group/announcement");
+        AppendClass(ref cls, "hover:shadow-md focus-visible:border-ring focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0");
+        AppendClass(ref cls, Themed ? "shadow-primary/5 hover:bg-primary/10 dark:bg-primary/10 dark:hover:bg-primary/15" : "hover:bg-muted/50");
+    }
+
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<MaxWidthBuilder> _staticCss1 = Quark.MaxWidth.IsFull;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1;
@@ -42,7 +50,6 @@ else
     private static readonly CssValue<TruncateBuilder> _renderCss7 = Quark.Truncate.Default;
     private static readonly CssValue<SizeBuilder> _renderCss8 = Quark.Size.Is3_5;
     private static readonly CssValue<TransitionBuilder> _renderCss9 = Quark.Transition.Transform;
-    private string? _lastBuiltClass;
 
     private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
 
@@ -112,25 +119,7 @@ else
         RingColor ??= _defaultRingColor;
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "group/announcement");
-                AppendClass(ref cls, "hover:shadow-md focus-visible:border-ring focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0");
-                AppendClass(ref cls, Themed ? "shadow-primary/5 hover:bg-primary/10 dark:bg-primary/10 dark:hover:bg-primary/15" : "hover:bg-muted/50");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-    }
 
     protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {

@@ -4,6 +4,19 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "[scrollbar-color:var(--scrollbar-thumb)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-track]:bg-transparent");
+        AppendClass(ref cls, _variantClass0);
+        AppendClass(ref cls, _variantClass1);
+        AppendClass(ref cls, _variantClass2);
+        AppendClass(ref cls, _variantClass3);
+        AppendClass(ref cls, _variantClass4);
+        AppendClass(ref cls, _variantClass5);
+        AppendClass(ref cls, "data-[variant=grid]:grid data-[variant=grid]:grid-cols-2 data-[variant=grid]:gap-2");
+    }
+
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.End;
     private static readonly CssValue<MinWidthBuilder> _staticCss1 = Quark.MinWidth.Is0;
     private static readonly CssValue<MaxWidthBuilder> _staticCss2 = Quark.MaxWidth.IsFull;
@@ -21,7 +34,6 @@
     private static readonly string _variantClass3 = Quark.Display.Flex.Data("variant", "inline").ToClass();
     private static readonly string _variantClass4 = Quark.FlexWrap.Wrap.Data("variant", "inline").ToClass();
     private static readonly string _variantClass5 = Quark.Gap.Is2.Data("variant", "inline").ToClass();
-    private string? _lastBuiltClass;
 
     [Parameter]
     public string Variant { get; set; } = "list";
@@ -49,25 +61,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-variant"] = Variant;
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "[scrollbar-color:var(--scrollbar-thumb)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-track]:bg-transparent");
-                AppendClass(ref cls, _variantClass0);
-                AppendClass(ref cls, _variantClass1);
-                AppendClass(ref cls, _variantClass2);
-                AppendClass(ref cls, _variantClass3);
-                AppendClass(ref cls, _variantClass4);
-                AppendClass(ref cls, _variantClass5);
-                AppendClass(ref cls, "data-[variant=grid]:grid data-[variant=grid]:grid-cols-2 data-[variant=grid]:gap-2");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
+
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

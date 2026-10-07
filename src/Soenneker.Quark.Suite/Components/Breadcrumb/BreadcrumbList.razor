@@ -6,13 +6,22 @@
 </ol>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "wrap-break-word");
+        if (ParentBreadcrumb?.Large == true)
+            AppendClass(ref cls, "text-base");
+        if (ParentBreadcrumb?.Small == true)
+            AppendClass(ref cls, "text-xs");
+    }
+
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexWrapBuilder> _defaultFlexWrap = Quark.FlexWrap.Wrap;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is1_5;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
-    private string? _lastBuiltClass;
 
     [CascadingParameter(Name = "ParentBreadcrumb")]
     private Breadcrumb? ParentBreadcrumb { get; set; }
@@ -30,26 +39,5 @@
         TextColor ??= _defaultTextColor;
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
 
-
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "wrap-break-word");
-                if (ParentBreadcrumb?.Large == true)
-                    AppendClass(ref cls, "text-base");
-                if (ParentBreadcrumb?.Small == true)
-                    AppendClass(ref cls, "text-xs");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-    }
 }

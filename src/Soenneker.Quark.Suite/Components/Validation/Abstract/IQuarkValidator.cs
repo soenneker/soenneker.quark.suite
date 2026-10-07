@@ -8,6 +8,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IQuarkValidator
 {
+    /// <summary>Gets whether synchronous validation fully represents this validator. Async implementations must leave this false.</summary>
+    bool IsSynchronous => false;
+
     /// <summary>
     /// Validates the given value synchronously.
     /// </summary>

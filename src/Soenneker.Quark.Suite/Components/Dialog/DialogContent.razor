@@ -26,6 +26,24 @@
 </BradixDialogPortal>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        AppendClass(ref cls, "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 sm:max-w-sm");
+        if (ParentDialog?.Scrollable == true)
+            AppendClass(ref cls, "max-h-[90vh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
+        if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
+        {
+            var size = ParentDialog.DialogSize.Value;
+            if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "sm:max-w-sm");
+            else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "sm:max-w-2xl");
+            else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "sm:max-w-4xl");
+        }
+    }
+
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Grid;
     private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
@@ -37,7 +55,6 @@
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
 
-    private string? _lastBuiltClass;
     private string? _lastBuiltClass2;
 
     private QuarkAttributeDictionary _overlayAttributesBuffer;
@@ -88,31 +105,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-        {
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 sm:max-w-sm");
-                if (ParentDialog?.Scrollable == true)
-                    AppendClass(ref cls, "max-h-[90vh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
-                if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
-                {
-                    var size = ParentDialog.DialogSize.Value;
-                    if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
-                        AppendClass(ref cls, "sm:max-w-sm");
-                    else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
-                        AppendClass(ref cls, "sm:max-w-2xl");
-                    else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
-                        AppendClass(ref cls, "sm:max-w-4xl");
-                }
 
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
 
     }
 

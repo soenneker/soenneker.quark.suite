@@ -5,9 +5,9 @@
 @using Soenneker.Quark.Gen.SimpleIcons.Abstractions
 @using Soenneker.Quark.Gen.SimpleIcons.Generated
 
-@if (_svgWithAttributes is { } svgMarkup)
+@if (_svg is not null)
 {
-    @((MarkupString)svgMarkup)
+    @(_renderSvg ??= RenderSvg)
 }
 @ChildContent
 
@@ -23,13 +23,10 @@
     [Inject]
     private ISimpleIconsSvgProvider? SvgProvider { get; set; }
 
-    private string? _svgWithAttributes;
-    private IReadOnlyDictionary<string, object>? _svgAttributes;
-    private SimpleIconEnum _svgName;
-    private bool _svgResolved;
-
+    private SvgTemplate? _svg;
+    private RenderFragment? _renderSvg;
     private SimpleIconEnum _lastName;
-    private string? _iconNameCache;
+    private bool _svgResolved;
 
     protected override void ApplyDefaultParameters()
     {
@@ -68,42 +65,21 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!EqualityComparer<SimpleIconEnum>.Default.Equals(_lastName, Name) || _iconNameCache is null)
-        {
-            _lastName = Name;
-            _iconNameCache = Name.ToString();
-        }
-
-        var attributes = BuildAttributes();
-
-        if (_svgResolved && EqualityComparer<SimpleIconEnum>.Default.Equals(_svgName, Name) && ReferenceEquals(_svgAttributes, attributes))
+        if (_svgResolved && EqualityComparer<SimpleIconEnum>.Default.Equals(_lastName, Name))
             return;
-
-        _svgName = Name;
-        _svgAttributes = attributes;
-        _svgWithAttributes = GetSvgWithAttributes(attributes);
+        _lastName = Name;
+        var raw = GetSvg(Name.ToString());
+        _svg = string.IsNullOrEmpty(raw) ? null : SvgTemplate.Get(raw);
         _svgResolved = true;
     }
+
+    private void RenderSvg(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder) =>
+        _svg?.Render(builder, BuildAttributes());
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Name);
-    }
-
-    private string? GetSvgWithAttributes(IReadOnlyDictionary<string, object> attributes)
-    {
-        var iconName = _iconNameCache;
-        if (iconName is null)
-            return null;
-
-        var raw = GetSvg(iconName);
-
-        if (raw.IsNullOrEmpty())
-            return null;
-
-        return SvgAttributeWriter.InjectAttributesIntoSvg(raw, attributes);
     }
 
     private string? GetSvg(string iconName)

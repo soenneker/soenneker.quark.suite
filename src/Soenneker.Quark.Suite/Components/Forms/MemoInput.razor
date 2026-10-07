@@ -26,11 +26,24 @@ else
 }
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
+        AppendClass(ref cls, "field-sizing-content placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:bg-input/30 focus-visible:ring-[3px]");
+        if (sizeClass != null)
+            AppendClass(ref cls, sizeClass);
+        if (validationClass != null)
+            AppendClass(ref cls, validationClass);
+        if (UsesAutoSaveStatusSlot)
+            AppendClass(ref cls, "min-w-0 flex-1");
+    }
+
     private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private QuarkInt32Attribute _minlengthAttribute;
     private QuarkInt32Attribute _maxlengthAttribute;
     private QuarkInt32Attribute _rowsAttribute;
-    private (bool PlainText, bool AutoSaveSlot, string? Size, string? Validation, string? BaseClass) _builtInputClassKey;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
@@ -50,7 +63,6 @@ else
     private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
     private static readonly CssValue<ItemsBuilder> _renderCss2 = Items.Start;
     private static readonly CssValue<GapBuilder> _renderCss3 = Quark.Gap.Is2;
-    private string? _lastBuiltClass;
     private string? _lastBuiltStyle;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
@@ -249,34 +261,7 @@ else
         attributes.Remove("value");
         ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-        attributes.TryGetValue("class", out var existingClass);
-        var baseClass = existingClass as string ?? existingClass?.ToString();
-        if (existingClass is not null) attributes["class"] = baseClass!;
-        var classKey = (false, UsesAutoSaveStatusSlot, sizeClass, validationClass, baseClass);
-        if (_lastBuiltClass is null || _builtInputClassKey != classKey)
-        {
-            _builtInputClassKey = classKey;
-            var cls = new PooledStringBuilder(stackalloc char[64]);
-            try
-            {
-                AppendClass(ref cls, "field-sizing-content placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:bg-input/30 focus-visible:ring-[3px]");
-                if (sizeClass != null)
-                    AppendClass(ref cls, sizeClass);
-                if (validationClass != null)
-                    AppendClass(ref cls, validationClass);
-                if (UsesAutoSaveStatusSlot)
-                    AppendClass(ref cls, "min-w-0 flex-1");
-                BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-            }
-            finally
-            {
-                cls.Dispose();
-            }
-        }
-        else
-            attributes["class"] = _lastBuiltClass;
+
 
 		if (Placeholder.HasContent())
 			attributes["placeholder"] = Placeholder;

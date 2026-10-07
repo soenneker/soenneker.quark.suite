@@ -7,6 +7,8 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IQuarkValidator"/>
 public class SimpleValidator : IQuarkValidator
 {
+    public virtual bool IsSynchronous => true;
+
     private readonly ValidationResult _errorResult;
     private readonly Func<object?, bool> _validate;
 
@@ -30,12 +32,12 @@ public class SimpleValidator : IQuarkValidator
     public ValidationResult Validate(ValidatorEventArgs args)
     {
         var result = Validate(args.Value);
-        
+
         // Sync the result with ValidatorEventArgs for backwards compatibility
         args.Status = result.Status;
         args.ErrorText = result.ErrorText;
         args.MemberNames = result.MemberNames;
-        
+
         return result;
     }
 

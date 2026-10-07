@@ -10,9 +10,16 @@
 </BradixAccordionContent>
 
 @code {
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+
+        if (ParentAccordion?.AnimationsEnabled == true)
+            AppendClass(ref cls, "data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up");
+    }
+
     private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
-    private string? _lastBuiltClass;
 
     private QuarkAttributeDictionary _attributesBuffer;
 
@@ -48,19 +55,7 @@
             Dictionary<string, object> attributes = _attributesBuffer.Create(BuildAttributes(), 1);
             attributes["data-slot"] = "accordion-content";
 
-            {
-                var cls = new PooledStringBuilder(stackalloc char[64]);
-                try
-                {
-                    if (ParentAccordion?.AnimationsEnabled == true)
-                        AppendClass(ref cls, "data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up");
-                    BuildClassAttribute(attributes, ref cls, ref _lastBuiltClass);
-                }
-                finally
-                {
-                    cls.Dispose();
-                }
-            }
+
 
             return attributes;
         }
