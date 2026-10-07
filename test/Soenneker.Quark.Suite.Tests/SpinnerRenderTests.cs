@@ -32,6 +32,7 @@ public sealed partial class RenderedShadcnParityTests
         cut.FindAll("link").Should().BeEmpty();
         cut.FindAll(".quark-spinner-circle").Should().HaveCount(3);
         cut.FindAll(".quark-spinner-clipper").Should().HaveCount(2);
+        cut.FindAll(".quark-spinner-clipper > span.quark-spinner-circle-rotator > svg.quark-spinner-circle-graphic").Should().HaveCount(2);
         cut.FindAll(".quark-spinner-gap-patch").Should().HaveCount(1);
     }
 

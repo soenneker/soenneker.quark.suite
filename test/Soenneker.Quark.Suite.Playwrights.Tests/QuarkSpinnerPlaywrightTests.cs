@@ -81,6 +81,13 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
                     if (spinner.querySelectorAll('.quark-spinner-circle-graphic').length !== 3)
                         return `size ${size}: expected Material's three circle graphics`;
 
+                    const rotators = spinner.querySelectorAll('.quark-spinner-circle-rotator');
+                    if (rotators.length !== 2 || [...rotators].some(rotator => !(rotator instanceof HTMLSpanElement)))
+                        return `size ${size}: arc rotations must target HTML wrappers`;
+
+                    if ([...spinner.querySelectorAll('.quark-spinner-circle-graphic')].some(svg => getComputedStyle(svg).animationName !== 'none'))
+                        return `size ${size}: SVG geometry must remain static for Android WebView compositing`;
+
                     if (spinner.querySelectorAll('.quark-spinner-clipper').length !== 2 ||
                         spinner.querySelectorAll('.quark-spinner-gap-patch').length !== 1)
                         return `size ${size}: clipped-circle structure is incomplete`;
@@ -117,9 +124,9 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
 
         await Assertions.Expect(spinner.Locator(".quark-spinner-layer"))
             .ToHaveCSSAsync("animation-name", "quark-spinner-layer-rotate");
-        await Assertions.Expect(spinner.Locator(".quark-spinner-left .quark-spinner-circle-graphic"))
+        await Assertions.Expect(spinner.Locator(".quark-spinner-left .quark-spinner-circle-rotator"))
             .ToHaveCSSAsync("animation-name", "quark-spinner-left-spin");
-        await Assertions.Expect(spinner.Locator(".quark-spinner-right .quark-spinner-circle-graphic"))
+        await Assertions.Expect(spinner.Locator(".quark-spinner-right .quark-spinner-circle-rotator"))
             .ToHaveCSSAsync("animation-name", "quark-spinner-right-spin");
         await Assertions.Expect(page.Locator(".quark-spinner-multicolor .quark-spinner-circle").First)
             .ToHaveCSSAsync("animation-name", "quark-spinner-four-color");
@@ -142,8 +149,8 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
             spinner => {
                 const container = getComputedStyle(spinner.querySelector('.quark-spinner-indeterminate'));
                 const layer = getComputedStyle(spinner.querySelector('.quark-spinner-layer'));
-                const left = getComputedStyle(spinner.querySelector('.quark-spinner-left .quark-spinner-circle-graphic'));
-                const right = getComputedStyle(spinner.querySelector('.quark-spinner-right .quark-spinner-circle-graphic'));
+                const left = getComputedStyle(spinner.querySelector('.quark-spinner-left .quark-spinner-circle-rotator'));
+                const right = getComputedStyle(spinner.querySelector('.quark-spinner-right .quark-spinner-circle-rotator'));
 
                 if (container.animationName !== 'quark-spinner-container-rotate' || container.animationDuration !== '1.568s' || container.animationTimingFunction !== 'linear')
                     return `container: ${container.animationName} ${container.animationDuration} ${container.animationTimingFunction}`;
