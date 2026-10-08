@@ -46,7 +46,8 @@ public sealed class LeafLifecycleTests : BunitContext
         interop.Registered.Should().BeTrue();
         await cut.Instance.DisposeAsync();
         interop.Completion.SetResult();
-        cut.WaitForAssertion(() => interop.Removals.Should().Be(1));
+        await interop.Removed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        interop.Removals.Should().Be(1);
         await cut.Instance.DisposeAsync();
         interop.Removals.Should().Be(1);
     }
@@ -61,7 +62,8 @@ public sealed class LeafLifecycleTests : BunitContext
         await cut.Instance.DisposeAsync();
         interop.Removals.Should().Be(1);
         interop.Completion.SetResult();
-        cut.WaitForAssertion(() => interop.Removals.Should().Be(2));
+        await interop.RemovedAfterRegistration.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        interop.Removals.Should().Be(2);
         Action access = () => _ = interop.Reference!.Value;
         access.Should().Throw<ObjectDisposedException>();
         await cut.Instance.DisposeAsync();
@@ -71,6 +73,7 @@ public sealed class LeafLifecycleTests : BunitContext
     private sealed class PendingPromptInterop : IPromptInputInterop
     {
         public TaskCompletionSource Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Removed { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public bool Registered { get; private set; }
         public int Removals { get; private set; }
         public ValueTask RegisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default)
@@ -81,6 +84,7 @@ public sealed class LeafLifecycleTests : BunitContext
         public ValueTask UnregisterTextarea(ElementReference textarea, CancellationToken cancellationToken = default)
         {
             Removals++;
+            Removed.TrySetResult();
             return ValueTask.CompletedTask;
         }
         public ValueTask OpenFileDialogById(string inputId, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -92,6 +96,7 @@ public sealed class LeafLifecycleTests : BunitContext
     private sealed class PendingThreadInterop : IThreadsInterop
     {
         public TaskCompletionSource Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource RemovedAfterRegistration { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public DotNetObjectReference<QuarkThread>? Reference { get; private set; }
         public int Removals { get; private set; }
         public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -104,6 +109,8 @@ public sealed class LeafLifecycleTests : BunitContext
         public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default)
         {
             Removals++;
+            if (Removals == 2)
+                RemovedAfterRegistration.TrySetResult();
             return ValueTask.CompletedTask;
         }
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

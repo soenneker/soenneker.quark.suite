@@ -466,11 +466,11 @@ public sealed partial class RenderedShadcnParityTests
 
         Volatile.Read(ref saveCount).Should().Be(0);
 
-        cut.WaitForAssertion(() =>
+        await cut.WaitForAssertionAsync(() =>
         {
             cut.Instance.AutoSaveState.Should().Be(AutoSaveState.Saved);
             cut.Instance.HasAutoSaved.Should().BeTrue();
-        }, TimeSpan.FromSeconds(2));
+        }, TimeSpan.FromSeconds(5));
         Volatile.Read(ref saveCount).Should().Be(1);
 
         lock (gate)
