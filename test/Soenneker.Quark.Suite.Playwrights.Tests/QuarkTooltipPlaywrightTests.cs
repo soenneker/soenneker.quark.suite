@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -17,9 +18,9 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_hides_basic_content_after_pointer_leaves_trigger_and_content()
+    public async ValueTask Tooltip_demo_hides_basic_content_after_pointer_leaves_trigger_and_content(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
@@ -39,9 +40,9 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_reveals_basic_content_on_hover()
+    public async ValueTask Tooltip_demo_reveals_basic_content_on_hover(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip",
@@ -58,9 +59,9 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_transfers_open_state_between_sibling_triggers()
+    public async ValueTask Tooltip_demo_transfers_open_state_between_sibling_triggers(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tooltip", static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "top", Exact = true }));
@@ -95,9 +96,9 @@ public sealed class QuarkTooltipPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tooltip_demo_portals_above_page_and_has_no_console_errors()
+    public async ValueTask Tooltip_demo_portals_above_page_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

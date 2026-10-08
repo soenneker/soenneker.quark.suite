@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Breadcrumb_page_and_rtl_examples_expose_current_page_and_navigation_semantics()
+    public async ValueTask Breadcrumb_page_and_rtl_examples_expose_current_page_and_navigation_semantics(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var sawPageError = false;
@@ -58,9 +59,9 @@ public sealed class QuarkBreadcrumbPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Breadcrumb_demo_overflow_menu_opens_from_collapsed_item_and_closes_after_selection()
+    public async ValueTask Breadcrumb_demo_overflow_menu_opens_from_collapsed_item_and_closes_after_selection(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var sawPageError = false;

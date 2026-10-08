@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Context_menu_demo_opens_from_right_click_and_reveals_submenu()
+    public async ValueTask Context_menu_demo_opens_from_right_click_and_reveals_submenu(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -43,9 +44,9 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Context_menu_basic_demo_disables_forward_item()
+    public async ValueTask Context_menu_basic_demo_disables_forward_item(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -66,9 +67,9 @@ public sealed class QuarkContextMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Context_menu_escape_portal_layer_and_console_behavior_match_radix()
+    public async ValueTask Context_menu_escape_portal_layer_and_console_behavior_match_radix(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

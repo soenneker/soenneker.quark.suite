@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -11,9 +12,9 @@ public sealed class QuarkResizablePointerPlaywrightTests(QuarkPlaywrightHost hos
     [Arguments("resizable-basic-demo", false, false)]
     [Arguments("resizable-vertical-demo", true, false)]
     [Arguments("resizable-rtl-demo", false, true)]
-    public async ValueTask Drag_updates_panel_geometry_and_keyboard_resizing_still_works(string demoId, bool vertical, bool rtl)
+    public async ValueTask Drag_updates_panel_geometry_and_keyboard_resizing_still_works(string demoId, bool vertical, bool rtl, CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/resizable",
             static p => p.Locator("[data-resizable-ready='true']").First);

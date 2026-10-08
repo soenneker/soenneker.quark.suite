@@ -4,6 +4,7 @@ using Soenneker.Playwrights.Extensions.TestPages;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -15,9 +16,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask NavigationLinks_demo_shell_exposes_active_page_and_focusable_links()
+    public async ValueTask NavigationLinks_demo_shell_exposes_active_page_and_focusable_links(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -64,9 +65,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Docs_layout_defaults_to_expanded_shell_and_can_collapse_without_hiding_or_coloring_sidebar()
+    public async ValueTask Docs_layout_defaults_to_expanded_shell_and_can_collapse_without_hiding_or_coloring_sidebar(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(2048, 960);
 
@@ -97,9 +98,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Docs_sidebar_scrolls_independently_and_keeps_position_between_component_pages()
+    public async ValueTask Docs_sidebar_scrolls_independently_and_keeps_position_between_component_pages(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(2048, 960);
 
@@ -151,9 +152,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Components_index_title_aligns_with_component_grid_and_uses_docs_heading_weight()
+    public async ValueTask Components_index_title_aligns_with_component_grid_and_uses_docs_heading_weight(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(2048, 960);
 
@@ -177,9 +178,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Landing_mobile_header_menu_trigger_opens_header_navigation_sidebar()
+    public async ValueTask Landing_mobile_header_menu_trigger_opens_header_navigation_sidebar(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(390, 844);
 
@@ -200,9 +201,9 @@ public sealed class QuarkNavigationLinksPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Landing_desktop_uses_header_navigation_without_docs_sidebar()
+    public async ValueTask Landing_desktop_uses_header_navigation_without_docs_sidebar(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(2048, 960);
 

@@ -3,13 +3,14 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Accordion_does_not_animate_default_content_on_initial_render()
+    public async ValueTask Accordion_does_not_animate_default_content_on_initial_render(CancellationToken cancellationToken)
     {
         var cut = Render(CreateAccordion());
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -605,7 +606,7 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
-    public async System.Threading.Tasks.ValueTask Range_selection_pauses_on_press_keeps_points_and_expands_selected_domain()
+    public async System.Threading.Tasks.ValueTask Range_selection_pauses_on_press_keeps_points_and_expands_selected_domain(CancellationToken cancellationToken)
     {
         bool paused = false;
         ChartRangeSelection? selected = null;

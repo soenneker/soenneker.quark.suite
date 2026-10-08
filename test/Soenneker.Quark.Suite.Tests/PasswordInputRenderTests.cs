@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -34,7 +35,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask PasswordInput_toggles_between_password_and_text()
+    public async ValueTask PasswordInput_toggles_between_password_and_text(CancellationToken cancellationToken)
     {
         var cut = Render<PasswordInput>(parameters => parameters
             .Add(p => p.Value, "secret"));

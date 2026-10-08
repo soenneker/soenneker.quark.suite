@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,9 +14,9 @@ public sealed class QuarkAspectRatioPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Aspect_ratio_examples_preserve_landscape_square_and_portrait_frames()
+    public async ValueTask Aspect_ratio_examples_preserve_landscape_square_and_portrait_frames(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/aspect-ratio",

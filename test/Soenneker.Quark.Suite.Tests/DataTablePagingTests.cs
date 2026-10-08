@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask DataTable_continuation_paging_survives_parent_renders_without_an_exact_total()
+    public async ValueTask DataTable_continuation_paging_survives_parent_renders_without_an_exact_total(CancellationToken cancellationToken)
     {
         DataTableServerSideRequest? requested = null;
         var cut = Render<DataTable>(p => p

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class AttributeStringReuseTests
 {
     [Test]
-    public async ValueTask Event_boxes_are_reused_and_replaced_handlers_take_effect()
+    public async ValueTask Event_boxes_are_reused_and_replaced_handlers_take_effect(CancellationToken cancellationToken)
     {
         var calls = new List<string>();
         var probe = new AttributeStringReuseProbe();

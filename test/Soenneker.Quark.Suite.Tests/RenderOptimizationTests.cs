@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -68,7 +69,7 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Content_refresh_preserves_attributes_but_parameter_changes_still_invalidate_them()
+    public async ValueTask Content_refresh_preserves_attributes_but_parameter_changes_still_invalidate_them(CancellationToken cancellationToken)
     {
         var attrs = new Dictionary<string, object> { ["data-test"] = "before" };
         var cut = Render<AttributeCacheProbe>(p => p.Add(c => c.Attributes, attrs));
@@ -143,7 +144,7 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Default_rendering_observes_internal_event_state_after_parent_rerender()
+    public async ValueTask Default_rendering_observes_internal_event_state_after_parent_rerender(CancellationToken cancellationToken)
     {
         var cut = Render<InteractiveRenderProbe>(parameters => parameters.Add(component => component.Label, "Count"));
 

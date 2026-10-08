@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_between_edge_links_inside_open_content()
+    public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_between_edge_links_inside_open_content(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -49,9 +50,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_closes_from_single_outside_click()
+    public async ValueTask Navigation_menu_demo_closes_from_single_outside_click(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -74,9 +75,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_uses_shared_viewport_by_default()
+    public async ValueTask Navigation_menu_demo_uses_shared_viewport_by_default(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(1400, 1000);
 
@@ -104,9 +105,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_to_first_and_last_items()
+    public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_to_first_and_last_items(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -132,9 +133,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_marks_active_link_and_direct_docs_link_does_not_open_viewport()
+    public async ValueTask Navigation_menu_demo_marks_active_link_and_direct_docs_link_does_not_open_viewport(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -158,9 +159,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Navigation_menu_demo_switches_visible_content_between_triggers()
+    public async ValueTask Navigation_menu_demo_switches_visible_content_between_triggers(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -181,9 +182,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Navigation_menu_demo_layers_viewport_and_has_no_console_errors()
+    public async ValueTask Navigation_menu_demo_layers_viewport_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

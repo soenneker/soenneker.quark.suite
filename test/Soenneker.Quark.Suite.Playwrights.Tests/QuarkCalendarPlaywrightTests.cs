@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Calendar_demo_matches_shadcn_daypicker_surface_and_selects_dates_without_errors()
+    public async ValueTask Calendar_demo_matches_shadcn_daypicker_surface_and_selects_dates_without_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;
@@ -73,9 +74,9 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Date_picker_time_input_accepts_24_hour_keyboard_entry()
+    public async ValueTask Date_picker_time_input_accepts_24_hour_keyboard_entry(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -93,9 +94,9 @@ public sealed class QuarkCalendarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Date_picker_triggers_open_calendar_on_pointer_down()
+    public async ValueTask Date_picker_triggers_open_calendar_on_pointer_down(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

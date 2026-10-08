@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,9 +14,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click()
+    public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -55,9 +56,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_home_and_end_keys_move_focus_to_first_and_last_enabled_options()
+    public async ValueTask Select_demo_home_and_end_keys_move_focus_to_first_and_last_enabled_options(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -85,9 +86,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_updates_selection_and_closes_listbox()
+    public async ValueTask Select_demo_updates_selection_and_closes_listbox(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -113,9 +114,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_reopen_marks_selected_option_as_checked()
+    public async ValueTask Select_demo_reopen_marks_selected_option_as_checked(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -134,9 +135,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_typeahead_moves_focus_to_matching_enabled_option()
+    public async ValueTask Select_demo_typeahead_moves_focus_to_matching_enabled_option(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -160,9 +161,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Select_demo_typeahead_skips_disabled_matching_option()
+    public async ValueTask Select_demo_typeahead_skips_disabled_matching_option(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

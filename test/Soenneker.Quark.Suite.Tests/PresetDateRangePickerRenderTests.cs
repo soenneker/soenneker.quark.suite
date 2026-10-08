@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -27,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Preset_date_range_picker_emits_normalized_preset_range()
+    public async ValueTask Preset_date_range_picker_emits_normalized_preset_range(CancellationToken cancellationToken)
     {
         CalendarDateRange? changed = null;
 

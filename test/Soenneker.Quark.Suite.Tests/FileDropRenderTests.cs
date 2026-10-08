@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask FileDrop_forwards_files_and_updates_disabled_and_picker_parameters()
+    public async ValueTask FileDrop_forwards_files_and_updates_disabled_and_picker_parameters(CancellationToken cancellationToken)
     {
         Services.AddQuarkFileDropAsScoped();
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropinterop.js");

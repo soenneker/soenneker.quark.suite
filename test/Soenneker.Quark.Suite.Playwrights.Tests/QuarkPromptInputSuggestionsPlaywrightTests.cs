@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
     }
 
     [Test]
-    public async ValueTask PromptInput_submits_with_enter_and_button_without_console_errors()
+    public async ValueTask PromptInput_submits_with_enter_and_button_without_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -60,9 +61,9 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : QuarkPlaywright
     }
 
     [Test]
-    public async ValueTask Suggestions_render_chips_and_click_updates_demo_state()
+    public async ValueTask Suggestions_render_chips_and_click_updates_demo_state(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

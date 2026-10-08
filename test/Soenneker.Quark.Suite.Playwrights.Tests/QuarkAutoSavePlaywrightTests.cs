@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkAutoSavePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask AutoSave_input_tabs_to_next_input_with_one_tab()
+    public async ValueTask AutoSave_input_tabs_to_next_input_with_one_tab(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Bunit;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -25,11 +26,11 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask PaymentCard_set_last_four_uses_supplied_card_metadata()
+    public async ValueTask PaymentCard_set_last_four_uses_supplied_card_metadata(CancellationToken cancellationToken)
     {
         var cut = Render<PaymentCard>();
 
-        await cut.InvokeAsync(() => cut.Instance.SetLast4("4242", "visa", "visa", "standard").AsTask());
+        await cut.InvokeAsync(() => cut.Instance.SetLast4("4242", "visa", "visa", "standard", cancellationToken: cancellationToken).AsTask());
 
         var card = cut.Find(".credit-card");
 

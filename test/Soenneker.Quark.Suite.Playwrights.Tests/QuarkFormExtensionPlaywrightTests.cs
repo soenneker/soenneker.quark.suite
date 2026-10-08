@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask CurrencyInput_formats_on_blur_and_keeps_accessible_field_association()
+    public async ValueTask CurrencyInput_formats_on_blur_and_keeps_accessible_field_association(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -47,9 +48,9 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask DemoSection_centers_direct_field_previews()
+    public async ValueTask DemoSection_centers_direct_field_previews(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -75,9 +76,9 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask DateInput_uses_native_modes_constraints_and_updates_bound_text()
+    public async ValueTask DateInput_uses_native_modes_constraints_and_updates_bound_text(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -115,9 +116,9 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask MemoInput_preserves_textarea_semantics_validation_attrs_and_input_events()
+    public async ValueTask MemoInput_preserves_textarea_semantics_validation_attrs_and_input_events(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

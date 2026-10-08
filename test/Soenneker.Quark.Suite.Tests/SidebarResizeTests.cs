@@ -4,6 +4,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Quark.Dtos;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -43,7 +44,7 @@ public sealed class SidebarResizeTests : BunitContext
     [Arguments("320", "320px")]
     [Arguments(null, null)]
     [Arguments("bad", null)]
-    public async ValueTask Async_storage_does_not_render_a_temporary_sidebar(string? saved, string? expectedWidth)
+    public async ValueTask Async_storage_does_not_render_a_temporary_sidebar(string? saved, string? expectedWidth, CancellationToken cancellationToken)
     {
         _storage.PendingRead = new TaskCompletionSource<string?>();
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
@@ -58,7 +59,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Failed_async_storage_reveals_the_default_sidebar()
+    public async ValueTask Failed_async_storage_reveals_the_default_sidebar(CancellationToken cancellationToken)
     {
         _storage.PendingRead = new TaskCompletionSource<string?>();
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
@@ -76,7 +77,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Width_callback_updates_local_width_and_clamps_to_limits()
+    public async ValueTask Width_callback_updates_local_width_and_clamps_to_limits(CancellationToken cancellationToken)
     {
         double? changed = null;
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true)
@@ -129,7 +130,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Storage_restores_clamps_and_persists_through_librarian()
+    public async ValueTask Storage_restores_clamps_and_persists_through_librarian(CancellationToken cancellationToken)
     {
         _storage.Values["sidebar-a"] = "900";
         double? changed = null;
@@ -173,7 +174,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Storage_failures_do_not_break_resizing_or_callbacks()
+    public async ValueTask Storage_failures_do_not_break_resizing_or_callbacks(CancellationToken cancellationToken)
     {
         _storage.Unavailable = true;
         double? changed = null;
@@ -185,7 +186,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask No_key_does_not_access_storage()
+    public async ValueTask No_key_does_not_access_storage(CancellationToken cancellationToken)
     {
         var cut = Render<Sidebar>(p => p.Add(c => c.Resizable, true));
         await cut.InvokeAsync(() => cut.FindComponent<SidebarResizeHandle>().Instance.OnWidthChanged(320));
@@ -194,7 +195,7 @@ public sealed class SidebarResizeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Librarian_conflicts_do_not_break_resizing_or_overwrite_saved_width()
+    public async ValueTask Librarian_conflicts_do_not_break_resizing_or_overwrite_saved_width(CancellationToken cancellationToken)
     {
         _storage.Values["sidebar-a"] = "300";
         double? changed = null;

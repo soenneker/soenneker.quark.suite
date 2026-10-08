@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class QuarkDateTimeSchedulerTests
 {
     [Test]
-    public async ValueTask Rescheduling_an_inactive_registration_starts_the_runner()
+    public async ValueTask Rescheduling_an_inactive_registration_starts_the_runner(CancellationToken cancellationToken)
     {
         await using var scheduler = Create();
         var tick = Signal();
@@ -21,11 +21,11 @@ public sealed class QuarkDateTimeSchedulerTests
         });
         enabled = true;
         registration.Reschedule();
-        await tick.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await tick.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
     }
 
     [Test]
-    public async ValueTask Registration_bursts_wake_once_without_allocating_a_source_per_reschedule()
+    public async ValueTask Registration_bursts_wake_once_without_allocating_a_source_per_reschedule(CancellationToken cancellationToken)
     {
         await using var scheduler = Create();
         var entered = Signal();
@@ -35,7 +35,7 @@ public sealed class QuarkDateTimeSchedulerTests
             entered.TrySetResult();
             await release.Task;
         });
-        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         try
         {
             using var waiting = scheduler.Register(static _ => TimeSpan.FromHours(1), static _ => ValueTask.CompletedTask);
@@ -54,7 +54,7 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async ValueTask Callbacks_can_reschedule_and_unregister_without_overlapping()
+    public async ValueTask Callbacks_can_reschedule_and_unregister_without_overlapping(CancellationToken cancellationToken)
     {
         await using var scheduler = Create();
         var completed = Signal();
@@ -79,13 +79,13 @@ public sealed class QuarkDateTimeSchedulerTests
         });
         registered.TrySetResult();
         using (registration)
-            await completed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await completed.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         await Assert.That(overlapped).IsFalse();
         await Assert.That(callbackCount).IsEqualTo(3);
     }
 
     [Test]
-    public async ValueTask Disposed_registration_is_skipped_while_another_callback_is_awaiting()
+    public async ValueTask Disposed_registration_is_skipped_while_another_callback_is_awaiting(CancellationToken cancellationToken)
     {
         await using var scheduler = Create();
         var entered = Signal();
@@ -97,7 +97,7 @@ public sealed class QuarkDateTimeSchedulerTests
             entered.TrySetResult();
             await release.Task;
         });
-        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         try
         {
             var second = scheduler.Register(static _ => TimeSpan.FromMilliseconds(1), _ =>
@@ -113,7 +113,7 @@ public sealed class QuarkDateTimeSchedulerTests
             });
             first.Dispose();
             release.TrySetResult();
-            await finished.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await finished.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
             await Assert.That(unwantedCalls).IsEqualTo(0);
         }
         finally
@@ -124,11 +124,11 @@ public sealed class QuarkDateTimeSchedulerTests
     }
 
     [Test]
-    public async ValueTask Disposal_interrupts_a_long_delay()
+    public async ValueTask Disposal_interrupts_a_long_delay(CancellationToken cancellationToken)
     {
         var scheduler = Create();
         using var registration = scheduler.Register(static _ => TimeSpan.FromHours(1), static _ => ValueTask.CompletedTask);
-        await scheduler.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5));
+        await scheduler.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         registration.Reschedule();
         await scheduler.DisposeAsync();
     }

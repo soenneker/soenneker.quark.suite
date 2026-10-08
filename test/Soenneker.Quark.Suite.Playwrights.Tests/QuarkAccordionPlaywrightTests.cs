@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Accordion_demo_supports_vertical_keyboard_navigation_and_skips_disabled_items()
+    public async ValueTask Accordion_demo_supports_vertical_keyboard_navigation_and_skips_disabled_items(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -52,9 +53,9 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Accordion_multiple_demo_keeps_multiple_items_open()
+    public async ValueTask Accordion_multiple_demo_keeps_multiple_items_open(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -73,9 +74,9 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Accordion_basic_demo_only_keeps_one_item_open_and_allows_collapse()
+    public async ValueTask Accordion_basic_demo_only_keeps_one_item_open_and_allows_collapse(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -117,9 +118,9 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Accordion_demo_preserves_container_width_when_switching_open_items()
+    public async ValueTask Accordion_demo_preserves_container_width_when_switching_open_items(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(1400, 1000);
 
@@ -166,9 +167,9 @@ public sealed class QuarkAccordionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Accordion_rtl_demo_preserves_single_open_state_and_rtl_keyboard_navigation()
+    public async ValueTask Accordion_rtl_demo_preserves_single_open_state_and_rtl_keyboard_navigation(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

@@ -54,7 +54,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask AutoSave_debounces_initial_value_change_before_saving()
+    public async ValueTask AutoSave_debounces_initial_value_change_before_saving(CancellationToken cancellationToken)
     {
         const int debounceDelay = 250;
         var stopwatch = new Stopwatch();
@@ -95,7 +95,7 @@ public sealed partial class RenderedShadcnParityTests
 
         // A busy runner can resume this wait after the debounce has already expired.
         // Check the actual save timestamps instead of assuming the wait resumes on time.
-        await Task.Delay(100);
+        await Task.Delay(100, cancellationToken: cancellationToken);
         var secondInputTime = stopwatch.ElapsedMilliseconds;
         await cut.InvokeAsync(() => cut.Find("input").Input("fi"));
 
@@ -119,7 +119,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask AutoSave_input_does_not_wait_for_pending_state_notification()
+    public async ValueTask AutoSave_input_does_not_wait_for_pending_state_notification(CancellationToken cancellationToken)
     {
         var pendingStateGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -135,14 +135,14 @@ public sealed partial class RenderedShadcnParityTests
                 : Task.CompletedTask));
 
         var inputTask = cut.Find("input").InputAsync(new ChangeEventArgs { Value = "f" });
-        var completed = await Task.WhenAny(inputTask, Task.Delay(250));
+        var completed = await Task.WhenAny(inputTask, Task.Delay(250, cancellationToken: cancellationToken));
 
         completed.Should().Be(inputTask);
         pendingStateGate.SetResult();
     }
 
     [Test]
-    public async ValueTask AutoSave_keeps_saving_state_visible_for_minimum_duration()
+    public async ValueTask AutoSave_keeps_saving_state_visible_for_minimum_duration(CancellationToken cancellationToken)
     {
         var stopwatch = new Stopwatch();
         var states = new List<(AutoSaveState State, long Milliseconds)>();

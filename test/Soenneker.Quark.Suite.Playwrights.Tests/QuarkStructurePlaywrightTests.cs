@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkStructurePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Structure_demos_preserve_native_semantics_and_no_runtime_errors()
+    public async ValueTask Structure_demos_preserve_native_semantics_and_no_runtime_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

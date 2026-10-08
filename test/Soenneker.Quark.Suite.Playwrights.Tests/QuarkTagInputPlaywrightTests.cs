@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkTagInputPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask TagInput_label_focus_and_keyboard_add_remove_work()
+    public async ValueTask TagInput_label_focus_and_keyboard_add_remove_work(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/tag-input",
             static p => p.GetByRole(AriaRole.Textbox, new() { Name = "Topics", Exact = true }));

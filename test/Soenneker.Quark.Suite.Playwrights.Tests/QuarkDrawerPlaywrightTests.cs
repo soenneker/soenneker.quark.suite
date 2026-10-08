@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Drawer_demo_updates_goal_state_and_cancel_restores_trigger_focus()
+    public async ValueTask Drawer_demo_updates_goal_state_and_cancel_restores_trigger_focus(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -58,9 +59,9 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Drawer_demo_layers_above_page_escapes_and_has_no_console_errors()
+    public async ValueTask Drawer_demo_layers_above_page_escapes_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;
@@ -98,9 +99,9 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Drawer_right_slides_full_width_and_stays_closed_after_backdrop_dismissal()
+    public async ValueTask Drawer_right_slides_full_width_and_stays_closed_after_backdrop_dismissal(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/drawer",
@@ -152,9 +153,9 @@ public sealed class QuarkDrawerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Drawer_scrollable_demo_opens_from_right_with_full_lorem_content()
+    public async ValueTask Drawer_scrollable_demo_opens_from_right_with_full_lorem_content(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

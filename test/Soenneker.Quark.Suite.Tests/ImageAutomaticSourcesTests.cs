@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -35,7 +36,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Image_automatic_sources_follow_theme_and_preserve_url_suffixes()
+    public async ValueTask Image_automatic_sources_follow_theme_and_preserve_url_suffixes(CancellationToken cancellationToken)
     {
         var cut = Render<Image>(p => p.Add(c => c.Source, "/img/photo.png?v=2#preview")
             .Add(c => c.Extension, "avif").Add(c => c.AutoSrcSet, true).Add(c => c.AutoDark, true)
@@ -43,13 +44,13 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("img").GetAttribute("srcset").Should().Be("/img/photo-480.avif?v=2#preview 480w, /img/photo-960.avif?v=2#preview 960w");
         cut.Find("img").GetAttribute("sizes").Should().Be("600px");
         IThemeInterop theme = Services.GetRequiredService<IThemeInterop>();
-        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Dark));
+        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Dark, cancellationToken: cancellationToken));
         cut.Find("img").GetAttribute("src").Should().Be("/img/photo-dark.avif?v=2#preview");
         cut.Find("img").GetAttribute("srcset").Should().Be("/img/photo-dark-480.avif?v=2#preview 480w, /img/photo-dark-960.avif?v=2#preview 960w");
-        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Light));
+        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Light, cancellationToken: cancellationToken));
         cut.Find("img").GetAttribute("src").Should().Be("/img/photo.avif?v=2#preview");
         cut.Render(p => p.Add(c => c.Source, "other.jpg").Add(c => c.AutoDark, false));
-        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Dark));
+        await cut.InvokeAsync(async () => await theme.SetMode(ThemeMode.Dark, cancellationToken: cancellationToken));
         cut.Find("img").GetAttribute("src").Should().Be("other.avif");
         cut.Find("img").GetAttribute("srcset").Should().Be("other-480.avif 480w, other-960.avif 960w");
     }

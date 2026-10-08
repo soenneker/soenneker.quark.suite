@@ -4,6 +4,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Bradix;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -18,7 +19,7 @@ public sealed class CommandOrderTests : BunitContext
     }
 
     [Test]
-    public async Task Search_order_is_stable_and_invalidates_for_mutable_keywords_and_groups()
+    public async Task Search_order_is_stable_and_invalidates_for_mutable_keywords_and_groups(CancellationToken cancellationToken)
     {
         var command = Render<Command>();
         string[] keywords = ["find"];

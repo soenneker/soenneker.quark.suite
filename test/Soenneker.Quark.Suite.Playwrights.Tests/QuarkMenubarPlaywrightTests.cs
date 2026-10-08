@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_end_key_moves_focus_to_last_top_level_trigger()
+    public async ValueTask Menubar_demo_end_key_moves_focus_to_last_top_level_trigger(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -38,9 +39,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_closes_from_single_outside_click()
+    public async ValueTask Menubar_demo_closes_from_single_outside_click(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -60,9 +61,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_rtl_demo_exposes_arabic_menu_content()
+    public async ValueTask Menubar_rtl_demo_exposes_arabic_menu_content(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -79,9 +80,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_escape_from_submenu_closes_root_menu()
+    public async ValueTask Menubar_demo_escape_from_submenu_closes_root_menu(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -118,9 +119,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_roves_focus_across_top_level_triggers_and_opens_adjacent_menu_with_arrow_keys()
+    public async ValueTask Menubar_demo_roves_focus_across_top_level_triggers_and_opens_adjacent_menu_with_arrow_keys(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -154,9 +155,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_persists_radio_and_checkbox_item_state_across_reopen()
+    public async ValueTask Menubar_demo_persists_radio_and_checkbox_item_state_across_reopen(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -233,9 +234,9 @@ public sealed class QuarkMenubarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Menubar_demo_portals_above_page_and_has_no_console_errors()
+    public async ValueTask Menubar_demo_portals_above_page_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

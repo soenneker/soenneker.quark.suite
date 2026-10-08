@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkValidationPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Validation_demo_wires_errors_aria_pattern_and_success_feedback()
+    public async ValueTask Validation_demo_wires_errors_aria_pattern_and_success_feedback(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

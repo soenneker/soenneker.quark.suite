@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkCascaderPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Cascader_renders_named_options_and_selects_a_nested_location()
+    public async ValueTask Cascader_renders_named_options_and_selects_a_nested_location(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/cascader",
             static p => p.GetByRole(AriaRole.Button, new() { Name = "Please select", Exact = true }).First);

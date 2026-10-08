@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkSliderPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Slider_vertical_demo_and_rtl_demo_follow_radix_orientation_and_direction_behavior()
+    public async ValueTask Slider_vertical_demo_and_rtl_demo_follow_radix_orientation_and_direction_behavior(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

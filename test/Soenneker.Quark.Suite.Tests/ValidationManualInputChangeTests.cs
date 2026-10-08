@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Bradix;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Manual_validation_revalidates_input_after_explicit_validation()
+    public async ValueTask Manual_validation_revalidates_input_after_explicit_validation(CancellationToken cancellationToken)
     {
         Services.AddScoped<IValidationInterop, FakeValidationInterop>();
 

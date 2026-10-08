@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -53,7 +54,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Cascader_selects_leaf_option()
+    public async ValueTask Cascader_selects_leaf_option(CancellationToken cancellationToken)
     {
         string[]? selected = null;
 
@@ -77,7 +78,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Cascader_callbacks_follow_replaced_options_after_rerender()
+    public async ValueTask Cascader_callbacks_follow_replaced_options_after_rerender(CancellationToken cancellationToken)
     {
         CascaderOption[] options = [new() { Value = "old", Label = "Old" }];
         string[]? selected = null;
@@ -96,7 +97,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Cascader_clear_button_clears_selection()
+    public async ValueTask Cascader_clear_button_clears_selection(CancellationToken cancellationToken)
     {
         string[]? selected = ["usa", "new_york", "statue_of_liberty"];
 

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Radio_group_demo_home_and_end_keys_move_selection_to_edge_options()
+    public async ValueTask Radio_group_demo_home_and_end_keys_move_selection_to_edge_options(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -65,9 +66,9 @@ public sealed class QuarkRadioGroupPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Radio_group_demo_disabled_item_stays_unchecked_while_enabled_option_changes()
+    public async ValueTask Radio_group_demo_disabled_item_stays_unchecked_while_enabled_option_changes(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

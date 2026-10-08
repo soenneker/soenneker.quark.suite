@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkCollapsePlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Collapse_examples_toggle_targets_and_programmatic_controls()
+    public async ValueTask Collapse_examples_toggle_targets_and_programmatic_controls(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

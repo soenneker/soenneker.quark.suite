@@ -4,13 +4,14 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask DataTable_continues_after_one_hundred_interactions()
+    public async ValueTask DataTable_continues_after_one_hundred_interactions(CancellationToken cancellationToken)
     {
         var count = 0;
         var cut = Render<DataTable>(p => p.Add(x => x.OnInteraction, _ => count++));
@@ -23,7 +24,7 @@ public sealed partial class RenderedShadcnParityTests
     [Arguments(false)]
     [Arguments(true)]
     [Test]
-    public async ValueTask DataTable_coalesces_pending_search_to_latest_request(bool failFirst)
+    public async ValueTask DataTable_coalesces_pending_search_to_latest_request(bool failFirst, CancellationToken cancellationToken)
     {
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -49,7 +50,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask DataTable_reset_preserves_registered_columns_and_reindexes_removals()
+    public async ValueTask DataTable_reset_preserves_registered_columns_and_reindexes_removals(CancellationToken cancellationToken)
     {
         DataTableServerSideRequest? last = null;
         var showFirst = true;

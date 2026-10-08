@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -51,7 +52,7 @@ public sealed class InteropJsonTests
     }
 
     [Test]
-    public async ValueTask Connection_validation_callback_uses_generated_metadata_in_both_directions()
+    public async ValueTask Connection_validation_callback_uses_generated_metadata_in_both_directions(CancellationToken cancellationToken)
     {
         NodeEditorConnectionValidationRequest? received = null;
         var editor = new NodeEditor

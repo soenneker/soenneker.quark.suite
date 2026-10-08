@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -8,9 +9,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkOverlayLifecyclePlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async ValueTask Overlay_focus_wraps_current_boundaries_and_releases_owned_scroll_lock()
+    public async ValueTask Overlay_focus_wraps_current_boundaries_and_releases_owned_scroll_lock(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/dropdown-menu",
             static p => p.GetByRole(AriaRole.Button, new() { Name = "Open", Exact = true }).First);

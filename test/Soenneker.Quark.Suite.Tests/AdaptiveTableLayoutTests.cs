@@ -19,7 +19,7 @@ public sealed class AdaptiveTableLayoutTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Table_attaches_once_reconfigures_and_cleans_up()
+    public async ValueTask Table_attaches_once_reconfigures_and_cleans_up(CancellationToken cancellationToken)
     {
         var cut = Render<Table>(p => p.Add(c => c.AdaptiveLayout, true).AddChildContent("<tbody><tr><td>Job</td></tr></tbody>"));
         cut.FindAll("colgroup").Should().ContainSingle();
@@ -61,7 +61,7 @@ public sealed class AdaptiveTableLayoutTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Disposal_waits_for_pending_attachment_and_then_removes_it()
+    public async ValueTask Disposal_waits_for_pending_attachment_and_then_removes_it(CancellationToken cancellationToken)
     {
         _interop.Pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<Table>(p => p.Add(c => c.AdaptiveLayout, true));

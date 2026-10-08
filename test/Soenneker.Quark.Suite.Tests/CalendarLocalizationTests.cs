@@ -2,13 +2,14 @@ using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Calendar_invariant_globalization_renders_and_selects_a_date()
+    public async ValueTask Calendar_invariant_globalization_renders_and_selects_a_date(CancellationToken cancellationToken)
     {
         DateOnly? selected = null;
         var cut = Render<Calendar>(parameters => parameters

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkTimelinePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Timeline_demo_exposes_reui_slots_orientation_and_active_step_semantics()
+    public async ValueTask Timeline_demo_exposes_reui_slots_orientation_and_active_step_semantics(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

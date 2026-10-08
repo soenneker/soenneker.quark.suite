@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Hover_card_demo_shows_profile_details_on_hover()
+    public async ValueTask Hover_card_demo_shows_profile_details_on_hover(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -30,9 +31,9 @@ public sealed class QuarkHoverCardPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Hover_card_demo_portals_above_page_and_has_no_console_errors()
+    public async ValueTask Hover_card_demo_portals_above_page_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

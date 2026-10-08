@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tree_demo_exposes_reui_slots_and_treeitem_state()
+    public async ValueTask Tree_demo_exposes_reui_slots_and_treeitem_state(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -48,9 +49,9 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tree_basic_demo_toggles_and_selects_items()
+    public async ValueTask Tree_basic_demo_toggles_and_selects_items(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByRole(AriaRole.Tree).First);
@@ -69,9 +70,9 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tree_file_explorer_renders_composed_labels()
+    public async ValueTask Tree_file_explorer_renders_composed_labels(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("File Explorer", new PageGetByTextOptions { Exact = true }));
@@ -90,9 +91,9 @@ public sealed class QuarkTreePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tree_permissions_demo_updates_checkbox_state()
+    public async ValueTask Tree_permissions_demo_updates_checkbox_state(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tree", static p => p.GetByText("Permissions", new PageGetByTextOptions { Exact = true }));

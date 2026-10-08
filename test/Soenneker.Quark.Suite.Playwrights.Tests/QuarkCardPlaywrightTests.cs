@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkCardPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Card_demo_matches_shadcn_shell_and_form_content_is_usable()
+    public async ValueTask Card_demo_matches_shadcn_shell_and_form_content_is_usable(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

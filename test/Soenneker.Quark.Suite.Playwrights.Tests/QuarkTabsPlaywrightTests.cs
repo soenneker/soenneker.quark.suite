@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tabs_demo_switches_selected_trigger_and_visible_panel()
+    public async ValueTask Tabs_demo_switches_selected_trigger_and_visible_panel(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Overview", Exact = true }).First);
@@ -36,9 +37,9 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tabs_vertical_and_rtl_examples_follow_orientation_and_direction_keyboard_rules()
+    public async ValueTask Tabs_vertical_and_rtl_examples_follow_orientation_and_direction_keyboard_rules(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
@@ -73,9 +74,9 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tabs_disabled_and_controlled_examples_respect_selection_rules()
+    public async ValueTask Tabs_disabled_and_controlled_examples_respect_selection_rules(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs", static p => p.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Home", Exact = true }));
@@ -97,9 +98,9 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tabs_home_and_end_keys_move_to_edge_tabs()
+    public async ValueTask Tabs_home_and_end_keys_move_to_edge_tabs(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/tabs",
@@ -122,9 +123,9 @@ public sealed class QuarkTabsPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Tabs_demo_has_no_console_or_page_errors()
+    public async ValueTask Tabs_demo_has_no_console_or_page_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;

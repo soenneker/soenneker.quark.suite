@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -8,9 +9,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkNodeEditorGeometryPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async ValueTask Dragged_node_keeps_connected_edge_endpoints_aligned()
+    public async ValueTask Dragged_node_keeps_connected_edge_endpoints_aligned(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/node-editor",
             static p => p.Locator("[data-slot='node-editor-node']").First);

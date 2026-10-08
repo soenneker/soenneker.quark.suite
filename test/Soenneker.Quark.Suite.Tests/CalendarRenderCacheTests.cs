@@ -4,13 +4,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Calendar_cached_context_observes_mutated_modifiers_and_preserves_previous_snapshot()
+    public async ValueTask Calendar_cached_context_observes_mutated_modifiers_and_preserves_previous_snapshot(CancellationToken cancellationToken)
     {
         var date = new DateOnly(2026, 9, 15);
         bool highlighted = true;

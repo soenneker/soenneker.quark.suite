@@ -9,9 +9,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async ValueTask Batched_measurement_preserves_natural_toast_heights_and_inline_styles()
+    public async ValueTask Batched_measurement_preserves_natural_toast_heights_and_inline_styles(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var stylesheetRequests = 0;
         page.Request += (_, request) =>
@@ -50,9 +50,9 @@ public sealed class QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : Quark
     }
 
     [Test]
-    public async ValueTask Toast_swipe_tracks_pointer_and_dismisses_after_release()
+    public async ValueTask Toast_swipe_tracks_pointer_and_dismisses_after_release(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/sonner",
             static p => p.GetByRole(AriaRole.Button, new() { Name = "Default", Exact = true }));

@@ -38,7 +38,7 @@ public sealed class LeafLifecycleTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Textarea_registration_finishing_after_disposal_is_removed()
+    public async ValueTask Textarea_registration_finishing_after_disposal_is_removed(CancellationToken cancellationToken)
     {
         var interop = new PendingPromptInterop();
         Services.AddSingleton<IPromptInputInterop>(interop);
@@ -46,14 +46,14 @@ public sealed class LeafLifecycleTests : BunitContext
         interop.Registered.Should().BeTrue();
         await cut.Instance.DisposeAsync();
         interop.Completion.SetResult();
-        await interop.Removed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await interop.Removed.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         interop.Removals.Should().Be(1);
         await cut.Instance.DisposeAsync();
         interop.Removals.Should().Be(1);
     }
 
     [Test]
-    public async ValueTask Thread_initialization_finishing_after_disposal_is_destroyed_again()
+    public async ValueTask Thread_initialization_finishing_after_disposal_is_destroyed_again(CancellationToken cancellationToken)
     {
         var interop = new PendingThreadInterop();
         Services.AddSingleton<IThreadsInterop>(interop);
@@ -62,7 +62,7 @@ public sealed class LeafLifecycleTests : BunitContext
         await cut.Instance.DisposeAsync();
         interop.Removals.Should().Be(1);
         interop.Completion.SetResult();
-        await interop.RemovedAfterRegistration.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await interop.RemovedAfterRegistration.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
         interop.Removals.Should().Be(2);
         Action access = () => _ = interop.Reference!.Value;
         access.Should().Throw<ObjectDisposedException>();

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Docs_layout_metadata_tracks_navigation_and_history()
+    public async ValueTask Docs_layout_metadata_tracks_navigation_and_history(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/headers?audit=1#overview",
             static p => p.Locator("[data-docs-content]"));
@@ -39,9 +40,9 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout()
+    public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -85,9 +86,9 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
     [Test]
     [Arguments(0)]
     [Arguments(100)]
-    public async ValueTask ThemeToggleButton_matches_shadcn_mode_switcher_shell_and_toggles_theme(int callbackDelay)
+    public async ValueTask ThemeToggleButton_matches_shadcn_mode_switcher_shell_and_toggles_theme(int callbackDelay, CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();
@@ -183,9 +184,9 @@ public sealed class QuarkHeaderPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Quark_suite_follows_system_theme_when_no_preference_exists()
+    public async ValueTask Quark_suite_follows_system_theme_when_no_preference_exists(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.EmulateMediaAsync(new PageEmulateMediaOptions { ColorScheme = ColorScheme.Dark });

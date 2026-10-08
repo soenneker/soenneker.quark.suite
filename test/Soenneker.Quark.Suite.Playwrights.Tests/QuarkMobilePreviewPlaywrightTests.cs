@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -18,9 +19,9 @@ public sealed class QuarkMobilePreviewPlaywrightTests : QuarkPlaywrightTest
     [Arguments("payment-card", "[data-slot=payment-card]", 390)]
     [Arguments("payment-card", "[data-slot=payment-card] .card-container", 375)]
     [Arguments("payment-card", "[data-slot=payment-card] .card-container", 320)]
-    public async ValueTask Mobile_preview_keeps_component_inside_its_container(string route, string selector, int width)
+    public async ValueTask Mobile_preview_keeps_component_inside_its_container(string route, string selector, int width, CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.SetViewportSizeAsync(width, 844);
         await page.GotoAndWaitForReady($"{BaseUrl}components/{route}", p => p.Locator(selector).First);

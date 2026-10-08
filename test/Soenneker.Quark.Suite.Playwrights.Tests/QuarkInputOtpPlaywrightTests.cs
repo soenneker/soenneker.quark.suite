@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_demo_matches_shadcn_slot_accessibility_focus_and_has_no_console_errors()
+    public async ValueTask Input_otp_demo_matches_shadcn_slot_accessibility_focus_and_has_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;
@@ -60,9 +61,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_digits_only_demo_distributes_pasted_digits_and_filters_non_numeric_characters()
+    public async ValueTask Input_otp_digits_only_demo_distributes_pasted_digits_and_filters_non_numeric_characters(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -86,9 +87,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_seeded_examples_render_initial_bound_values()
+    public async ValueTask Input_otp_seeded_examples_render_initial_bound_values(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -114,9 +115,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_disabled_demo_preserves_existing_value_and_blocks_edits()
+    public async ValueTask Input_otp_disabled_demo_preserves_existing_value_and_blocks_edits(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -149,9 +150,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_controlled_demo_keeps_slots_in_sync_with_typed_value()
+    public async ValueTask Input_otp_controlled_demo_keeps_slots_in_sync_with_typed_value(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -175,9 +176,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_seeded_demo_marks_last_filled_slot_active_when_focused()
+    public async ValueTask Input_otp_seeded_demo_marks_last_filled_slot_active_when_focused(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -195,9 +196,9 @@ public sealed class QuarkInputOtpPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Input_otp_rtl_demo_renders_seeded_value_in_rtl_preview()
+    public async ValueTask Input_otp_rtl_demo_renders_seeded_value_in_rtl_preview(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

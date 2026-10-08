@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkAlertPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Alert_demo_renders_roles_variants_action_and_no_console_errors()
+    public async ValueTask Alert_demo_renders_roles_variants_action_and_no_console_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var sawPageError = false;

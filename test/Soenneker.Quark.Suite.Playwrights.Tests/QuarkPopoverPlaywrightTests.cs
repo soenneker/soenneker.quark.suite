@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkPopoverPlaywrightTests : QuarkPlaywrightTest
     }
 
 [Test]
-    public async ValueTask Popover_smoke_aschild_trigger_closes_default_open_popover_without_runtime_error()
+    public async ValueTask Popover_smoke_aschild_trigger_closes_default_open_popover_without_runtime_error(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var sawRuntimeError = false;
 

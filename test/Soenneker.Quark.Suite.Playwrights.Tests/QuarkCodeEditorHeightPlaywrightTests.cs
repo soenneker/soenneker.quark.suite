@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -8,9 +9,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkCodeEditorHeightPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async ValueTask Typing_updates_content_and_auto_height_only_when_the_line_count_requires_it()
+    public async ValueTask Typing_updates_content_and_auto_height_only_when_the_line_count_requires_it(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/codeeditors",
             static p => p.Locator("[data-slot='code-editor'] .monaco-editor").First);

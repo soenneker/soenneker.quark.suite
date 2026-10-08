@@ -4,6 +4,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -45,7 +46,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask DataTable_selection_updates_checkboxes_toolbar_and_preserves_other_pages()
+    public async ValueTask DataTable_selection_updates_checkboxes_toolbar_and_preserves_other_pages(CancellationToken cancellationToken)
     {
         IReadOnlyCollection<string> original = new[] { "other-page" };
         IReadOnlyCollection<string>? changed = null;
@@ -79,7 +80,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask DataTable_selection_is_opt_in_and_reacts_to_page_and_loading_changes()
+    public async ValueTask DataTable_selection_is_opt_in_and_reacts_to_page_and_loading_changes(CancellationToken cancellationToken)
     {
         var cut = Render<DataTable>(p => p.Add(c => c.TableContent, SelectionTableContent));
         cut.FindAll("[role='checkbox']").Should().BeEmpty();

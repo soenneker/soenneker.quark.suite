@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class CancellableLayoutContractTests
 {
     [Test]
-    public async ValueTask Cancel_cancels_current_layout_token_and_reset_creates_fresh_token()
+    public async ValueTask Cancel_cancels_current_layout_token_and_reset_creates_fresh_token(CancellationToken cancellationToken)
     {
         await using var layout = new TestCancellableLayout();
 
@@ -24,7 +25,7 @@ public sealed class CancellableLayoutContractTests
     }
 
     [Test]
-    public async ValueTask Cancel_before_token_creation_is_noop()
+    public async ValueTask Cancel_before_token_creation_is_noop(CancellationToken cancellationToken)
     {
         await using var layout = new TestCancellableLayout();
 

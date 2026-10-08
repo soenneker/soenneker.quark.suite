@@ -5,6 +5,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Rrweb.Replay.Abstract;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -33,7 +34,7 @@ public sealed class SessionReplayTests : BunitContext
     }
 
     [Test]
-    public async Task Controls_seek_preserve_playback_clamp_offsets_and_restart_at_end()
+    public async Task Controls_seek_preserve_playback_clamp_offsets_and_restart_at_end(CancellationToken cancellationToken)
     {
         var cut = Render<SessionReplay>(p => p.Add(c => c.Events, Recording()));
         cut.WaitForAssertion(() => cut.Instance.RecordingDuration.Should().Be(10000));
@@ -58,7 +59,7 @@ public sealed class SessionReplayTests : BunitContext
     }
 
     [Test]
-    public async Task Replacing_recording_destroys_old_player_and_empty_recording_resets_state()
+    public async Task Replacing_recording_destroys_old_player_and_empty_recording_resets_state(CancellationToken cancellationToken)
     {
         var events = Recording();
         var cut = Render<SessionReplay>(p => p.Add(c => c.Events, events));
@@ -88,7 +89,7 @@ public sealed class SessionReplayTests : BunitContext
     }
 
     [Test]
-    public async Task Disposal_during_creation_destroys_the_player_after_creation_completes()
+    public async Task Disposal_during_creation_destroys_the_player_after_creation_completes(CancellationToken cancellationToken)
     {
         _interop.PendingCreate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<SessionReplay>(p => p.Add(c => c.Events, Recording()));

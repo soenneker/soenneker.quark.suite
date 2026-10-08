@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -9,7 +10,7 @@ public sealed class SonnerServiceTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async Task Promise_preserves_configuration_precedence_for_success_and_error(bool fail)
+    public async Task Promise_preserves_configuration_precedence_for_success_and_error(bool fail, CancellationToken cancellationToken)
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
         var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -21,14 +22,14 @@ public sealed class SonnerServiceTests
             ConfigureLoading = options => { options.Id = "promise"; options.Description = "loading override"; },
             ConfigureSuccess = options => { successCalls++; options.Description = "success override"; },
             ConfigureError = options => { errorCalls++; options.Description = "error override"; }
-        }, default);
+        }, cancellationToken);
         id.Should().Be("promise");
-        (await service.GetToasts())[0].Description.Should().Be("loading override");
+        (await service.GetToasts(cancellationToken: cancellationToken))[0].Description.Should().Be("loading override");
         if (fail) gate.SetException(new InvalidOperationException("failure")); else gate.SetResult();
         var timeout = DateTime.UtcNow.AddSeconds(5);
-        while ((await service.GetToasts())[0].Type == SonnerToastType.Loading && DateTime.UtcNow < timeout)
-            await Task.Delay(10);
-        var toast = (await service.GetToasts()).Should().ContainSingle().Subject;
+        while ((await service.GetToasts(cancellationToken: cancellationToken))[0].Type == SonnerToastType.Loading && DateTime.UtcNow < timeout)
+            await Task.Delay(10, cancellationToken: cancellationToken);
+        var toast = (await service.GetToasts(cancellationToken: cancellationToken)).Should().ContainSingle().Subject;
         toast.Id.Should().Be(id);
         toast.Title.Should().Be(fail ? "Failed" : "Saved");
         toast.Description.Should().Be(fail ? "error override" : "success override");
@@ -39,30 +40,30 @@ public sealed class SonnerServiceTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async ValueTask Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation)
+    public async ValueTask Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation, CancellationToken cancellationToken)
     {
         await using var service = new SonnerService { DefaultDuration = 100 };
         var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         if (pauseBeforeCreation)
-            await service.Pause(null, SonnerPosition.TopCenter);
+            await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
         await service.Toast("Timed", options => options.OnAutoClose = () =>
         {
             closed.TrySetResult();
             return ValueTask.CompletedTask;
-        });
+        }, cancellationToken: cancellationToken);
         if (!pauseBeforeCreation)
-            await service.Pause(null, SonnerPosition.TopCenter);
-        await service.Pause(null, SonnerPosition.TopCenter);
-        await Task.Delay(150);
-        (await service.GetToasts())[0].Removed.Should().BeFalse();
-        await service.Resume(null, SonnerPosition.TopCenter);
-        await service.Resume(null, SonnerPosition.TopCenter);
-        await closed.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        (await service.GetToasts()).Should().BeEmpty();
+            await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
+        await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
+        await Task.Delay(150, cancellationToken: cancellationToken);
+        (await service.GetToasts(cancellationToken: cancellationToken))[0].Removed.Should().BeFalse();
+        await service.Resume(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
+        await service.Resume(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
+        await closed.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
+        (await service.GetToasts(cancellationToken: cancellationToken)).Should().BeEmpty();
     }
 
     [Test]
-    public async ValueTask Dismissing_old_toast_cannot_remove_replacement_with_the_same_id()
+    public async ValueTask Dismissing_old_toast_cannot_remove_replacement_with_the_same_id(CancellationToken cancellationToken)
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
         var dismissed = 0;
@@ -70,13 +71,13 @@ public sealed class SonnerServiceTests
         {
             options.Id = "reused";
             options.OnDismiss = () => { dismissed++; return ValueTask.CompletedTask; };
-        });
-        var removal = service.Dismiss("reused");
-        (await service.GetToasts())[0].Removed.Should().BeTrue();
-        await service.Toast("Replacement", static options => options.Id = "reused");
+        }, cancellationToken: cancellationToken);
+        var removal = service.Dismiss("reused", cancellationToken: cancellationToken);
+        (await service.GetToasts(cancellationToken: cancellationToken))[0].Removed.Should().BeTrue();
+        await service.Toast("Replacement", static options => options.Id = "reused", cancellationToken: cancellationToken);
         await removal;
 
-        var remaining = await service.GetToasts();
+        var remaining = await service.GetToasts(cancellationToken: cancellationToken);
         remaining.Count.Should().Be(1);
         remaining[0].Title.Should().Be("Replacement");
         remaining[0].Removed.Should().BeFalse();
@@ -84,34 +85,34 @@ public sealed class SonnerServiceTests
     }
 
     [Test]
-    public async ValueTask Snapshots_remain_independent_and_respect_mutable_creation_dates()
+    public async ValueTask Snapshots_remain_independent_and_respect_mutable_creation_dates(CancellationToken cancellationToken)
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
-        await service.Toast("First");
-        var first = await service.GetToasts();
-        await service.Toast("Second");
-        var both = await service.GetToasts();
+        await service.Toast("First", cancellationToken: cancellationToken);
+        var first = await service.GetToasts(cancellationToken: cancellationToken);
+        await service.Toast("Second", cancellationToken: cancellationToken);
+        var both = await service.GetToasts(cancellationToken: cancellationToken);
         first.Count.Should().Be(1);
         both.Count.Should().Be(2);
         first[0].CreatedAt = DateTimeOffset.MaxValue;
-        var reordered = await service.GetToasts();
+        var reordered = await service.GetToasts(cancellationToken: cancellationToken);
         reordered[0].Title.Should().Be("Second");
         both[0].Title.Should().Be("First");
     }
 
     [Test]
-    public async ValueTask Loading_defaults_can_be_overridden_without_changing_other_toast_defaults()
+    public async ValueTask Loading_defaults_can_be_overridden_without_changing_other_toast_defaults(CancellationToken cancellationToken)
     {
         await using var service = new SonnerService { DefaultDuration = 0 };
-        await service.Loading("Default");
+        await service.Loading("Default", cancellationToken: cancellationToken);
         bool? observedDefault = null;
         await service.Loading("Overridden", options =>
         {
             observedDefault = options.Dismissible;
             options.Dismissible = true;
-        });
-        await service.Toast("Plain");
-        var toasts = await service.GetToasts();
+        }, cancellationToken: cancellationToken);
+        await service.Toast("Plain", cancellationToken: cancellationToken);
+        var toasts = await service.GetToasts(cancellationToken: cancellationToken);
         observedDefault.Should().BeFalse();
         toasts[0].Dismissible.Should().BeFalse();
         toasts[1].Dismissible.Should().BeTrue();
@@ -132,9 +133,10 @@ public sealed class SonnerServiceTests
     #if !DEBUG
     // Debug async state machines allocate independently of the production hot path.
     [Test]
-    public async ValueTask Empty_snapshots_and_idle_pause_resume_do_not_allocate_per_call()
+    public async ValueTask Empty_snapshots_and_idle_pause_resume_do_not_allocate_per_call(CancellationToken cancellationToken)
     {
         await using var service = new SonnerService();
+        // Keep the default-token path here to isolate the service's allocation baseline.
         for (var i = 0; i < 100; i++)
         {
             _ = await service.GetToasts();

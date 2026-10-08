@@ -2,13 +2,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async Task Audio_controls_mute_and_restore_the_previous_volume()
+    public async Task Audio_controls_mute_and_restore_the_previous_volume(CancellationToken cancellationToken)
     {
         double? requestedVolume = null;
         var cut = Render<AudioControls>(p => p.Add(c => c.Volume, 0.7)
@@ -23,7 +24,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Audio_controls_delegate_playback_and_follow_external_state()
+    public async Task Audio_controls_delegate_playback_and_follow_external_state(CancellationToken cancellationToken)
     {
         var requests = 0;
         var cut = Render<AudioControls>(p => p.Add(c => c.Compact, true)
@@ -41,7 +42,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Audio_controls_forward_seek_and_normalized_volume_and_handle_unknown_duration()
+    public async Task Audio_controls_forward_seek_and_normalized_volume_and_handle_unknown_duration(CancellationToken cancellationToken)
     {
         double? seek = null;
         double? volume = null;

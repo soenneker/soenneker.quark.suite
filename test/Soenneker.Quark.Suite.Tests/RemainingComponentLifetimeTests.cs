@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Tree_removing_the_current_item_makes_the_remaining_item_tabbable()
+    public async ValueTask Tree_removing_the_current_item_makes_the_remaining_item_tabbable(CancellationToken cancellationToken)
     {
         var showFirst = true;
         RenderFragment items = builder =>

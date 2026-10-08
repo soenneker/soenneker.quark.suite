@@ -10,9 +10,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
 {
     [Test]
-    public async ValueTask Spinner_stylesheet_is_shared_across_instances_and_navigation()
+    public async ValueTask Spinner_stylesheet_is_shared_across_instances_and_navigation(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var stylesheetRequests = 0;
         page.Request += (_, request) =>
@@ -42,9 +42,9 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Spinner_uses_material_clipped_circle_structure_without_permanent_compositor_hints()
+    public async ValueTask Spinner_uses_material_clipped_circle_structure_without_permanent_compositor_hints(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAsync($"{BaseUrl}components/spinner", new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
@@ -107,9 +107,9 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Spinner_keeps_full_animation_when_reduced_motion_is_requested()
+    public async ValueTask Spinner_keeps_full_animation_when_reduced_motion_is_requested(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.EmulateMediaAsync(new PageEmulateMediaOptions { ReducedMotion = ReducedMotion.Reduce });
@@ -133,9 +133,9 @@ public sealed class QuarkSpinnerPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Spinner_uses_material_animation_names_durations_and_easing()
+    public async ValueTask Spinner_uses_material_animation_names_durations_and_easing(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAsync($"{BaseUrl}components/spinner", new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });

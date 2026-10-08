@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -47,7 +48,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask TagInput_adds_tag_from_enter_key()
+    public async ValueTask TagInput_adds_tag_from_enter_key(CancellationToken cancellationToken)
     {
         string[] values = ["Sports"];
 
@@ -68,7 +69,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask TagInput_removes_tag_from_button()
+    public async ValueTask TagInput_removes_tag_from_button(CancellationToken cancellationToken)
     {
         string[] values = ["Sports", "Programming"];
 
@@ -86,7 +87,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask TagInput_removes_the_selected_duplicate_tag()
+    public async ValueTask TagInput_removes_the_selected_duplicate_tag(CancellationToken cancellationToken)
     {
         string[] values = ["Same", "Other", "Same"];
 

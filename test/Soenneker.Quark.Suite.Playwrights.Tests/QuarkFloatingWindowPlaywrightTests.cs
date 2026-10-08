@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,7 +14,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Visibility_focus_and_callbacks_follow_the_open_state()
+    public async ValueTask Visibility_focus_and_callbacks_follow_the_open_state(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -46,7 +47,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Touch_pointer_drag_and_resize_update_geometry_and_callbacks()
+    public async ValueTask Touch_pointer_drag_and_resize_update_geometry_and_callbacks(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -85,7 +86,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Stacking_and_runtime_option_updates_take_effect_without_recreation()
+    public async ValueTask Stacking_and_runtime_option_updates_take_effect_without_recreation(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -121,7 +122,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Viewport_resize_keeps_a_constrained_window_fully_visible()
+    public async ValueTask Viewport_resize_keeps_a_constrained_window_fully_visible(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -143,7 +144,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Rapid_centered_show_then_hide_cancels_the_pending_open_frame()
+    public async ValueTask Rapid_centered_show_then_hide_cancels_the_pending_open_frame(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -159,7 +160,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Runtime_enable_and_draggable_changes_rebind_behavior()
+    public async ValueTask Runtime_enable_and_draggable_changes_rebind_behavior(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;
@@ -208,7 +209,7 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask North_and_west_resize_handles_enforce_minimum_and_maximum_dimensions()
+    public async ValueTask North_and_west_resize_handles_enforce_minimum_and_maximum_dimensions(CancellationToken cancellationToken)
     {
         await using var session = await CreateHarnessSession();
         var page = session.Page;

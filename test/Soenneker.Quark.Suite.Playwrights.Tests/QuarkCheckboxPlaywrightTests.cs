@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkCheckboxPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Checkbox_keyboard_disabled_and_console_behavior_match_radix()
+    public async ValueTask Checkbox_keyboard_disabled_and_console_behavior_match_radix(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         page.Console += (_, message) =>

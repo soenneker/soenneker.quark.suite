@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -15,9 +16,9 @@ public sealed class QuarkModelSelectorPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask ModelSelector_uses_popover_radio_list_and_updates_value()
+    public async ValueTask ModelSelector_uses_popover_radio_list_and_updates_value(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         // Keep external analytics failures out of the component's console assertions.
         await page.RouteAsync("https://static.cloudflareinsights.com/**", route => route.FulfillAsync(new RouteFulfillOptions

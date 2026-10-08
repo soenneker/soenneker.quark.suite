@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,9 +14,9 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Collapsible_file_tree_matches_shadcn_tabs_composition()
+    public async ValueTask Collapsible_file_tree_matches_shadcn_tabs_composition(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -39,9 +40,9 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Collapsible_basic_expands_down_without_shifting_up()
+    public async ValueTask Collapsible_basic_expands_down_without_shifting_up(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -64,9 +65,9 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Collapsible_order_demo_expands_down_without_shifting_up()
+    public async ValueTask Collapsible_order_demo_expands_down_without_shifting_up(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -90,9 +91,9 @@ public sealed class QuarkCollapsiblePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Collapsible_settings_panel_matches_shadcn_defaults()
+    public async ValueTask Collapsible_settings_panel_matches_shadcn_defaults(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

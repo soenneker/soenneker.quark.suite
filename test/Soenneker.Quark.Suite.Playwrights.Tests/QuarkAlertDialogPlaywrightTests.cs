@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,9 +14,9 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Alert_dialog_demo_stays_open_on_outside_click_and_escape()
+    public async ValueTask Alert_dialog_demo_stays_open_on_outside_click_and_escape(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
@@ -33,9 +34,9 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Alert_dialog_demo_cancel_closes()
+    public async ValueTask Alert_dialog_demo_cancel_closes(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
@@ -63,9 +64,9 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Alert_dialog_destructive_demo_closes_from_action()
+    public async ValueTask Alert_dialog_destructive_demo_closes_from_action(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",
@@ -83,9 +84,9 @@ public sealed class QuarkAlertDialogPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Alert_dialog_demo_action_closes_and_restores_trigger_focus()
+    public async ValueTask Alert_dialog_demo_action_closes_and_restores_trigger_focus(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}components/alert-dialog",

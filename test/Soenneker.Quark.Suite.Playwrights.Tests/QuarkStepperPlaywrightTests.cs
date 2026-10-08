@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -15,9 +16,9 @@ public sealed class QuarkStepperPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Stepper_demo_exposes_reui_slots_and_active_state()
+    public async ValueTask Stepper_demo_exposes_reui_slots_and_active_state(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

@@ -7,7 +7,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class CancellableComponentTests
 {
     [Test]
-    public async ValueTask Work_token_is_cancelled_and_reset_without_resurrection_after_disposal()
+    public async ValueTask Work_token_is_cancelled_and_reset_without_resurrection_after_disposal(CancellationToken cancellationToken)
     {
         var component = new Probe();
         await component.Cancel();
@@ -27,7 +27,7 @@ public sealed class CancellableComponentTests
     }
 
     [Test]
-    public async ValueTask Linked_token_cancels_component_work()
+    public async ValueTask Linked_token_cancels_component_work(CancellationToken cancellationToken)
     {
         using var parent = new CancellationTokenSource();
         await using var component = new Probe(parent.Token);

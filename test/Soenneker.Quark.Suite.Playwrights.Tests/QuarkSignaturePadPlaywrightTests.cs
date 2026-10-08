@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,16 +15,16 @@ public sealed class QuarkSignaturePadPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask SignaturePad_waits_for_initialization_then_draws_exports_and_clears()
+    public async ValueTask SignaturePad_waits_for_initialization_then_draws_exports_and_clears(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var errors = new List<string>();
         page.Console += (_, message) => { if (message.Type == "error") errors.Add(message.Text); };
         page.PageError += (_, message) => errors.Add(message);
         await page.RouteAsync("**/_content/Soenneker.Blazor.SignaturePads/**", async route =>
         {
-            await Task.Delay(200);
+            await Task.Delay(200, cancellationToken: cancellationToken);
             await route.ContinueAsync();
         });
         await page.GotoAndWaitForReady($"{BaseUrl}components/signature-pad",

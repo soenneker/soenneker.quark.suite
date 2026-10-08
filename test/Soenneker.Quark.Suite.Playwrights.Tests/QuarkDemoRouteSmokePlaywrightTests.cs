@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -21,9 +22,9 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
     }
 
     [Test]
-    public async ValueTask Demo_routes_render_without_browser_or_blazor_errors()
+    public async ValueTask Demo_routes_render_without_browser_or_blazor_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var runtimeErrors = new List<string>();
 
@@ -47,7 +48,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (var route in await DiscoverDemoRoutes())
+        foreach (var route in await DiscoverDemoRoutes(cancellationToken: cancellationToken))
         {
             runtimeErrors.Clear();
 
@@ -91,9 +92,9 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
     }
 
     [Test]
-    public async ValueTask Demo_routes_render_at_mobile_viewport_without_browser_or_layout_errors()
+    public async ValueTask Demo_routes_render_at_mobile_viewport_without_browser_or_layout_errors(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var runtimeErrors = new List<string>();
 
@@ -109,7 +110,7 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
 
         var failures = new List<string>();
 
-        foreach (var route in await DiscoverDemoRoutes())
+        foreach (var route in await DiscoverDemoRoutes(cancellationToken: cancellationToken))
         {
             runtimeErrors.Clear();
 
@@ -158,16 +159,16 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
         failures.Should().BeEmpty();
     }
 
-    private async Task<IReadOnlyList<string>> DiscoverDemoRoutes()
+    private async Task<IReadOnlyList<string>> DiscoverDemoRoutes(CancellationToken cancellationToken = default)
     {
-        var root = await FindRepositoryRoot();
+        var root = await FindRepositoryRoot(cancellationToken: cancellationToken);
         var pagesRoot = Path.Combine(root, "test", "Soenneker.Quark.Suite.Demo", "Pages");
 
         var routes = new List<string>();
         IFileUtil fileUtil = Resolve<IFileUtil>(true);
         foreach (string file in Directory.EnumerateFiles(pagesRoot, "*.razor", SearchOption.AllDirectories))
         {
-            string content = await fileUtil.Read(file);
+            string content = await fileUtil.Read(file, cancellationToken: cancellationToken);
             routes.AddRange(DemoPageRouteRegex().Matches(content).Select(match => match.Groups[1].Value));
         }
 
@@ -178,13 +179,13 @@ public sealed partial class QuarkDemoRouteSmokePlaywrightTests : QuarkPlaywright
             .ToArray();
     }
 
-    private async Task<string> FindRepositoryRoot()
+    private async Task<string> FindRepositoryRoot(CancellationToken cancellationToken = default)
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
 
         while (directory is not null)
         {
-            if (await Resolve<IFileUtil>(true).Exists(Path.Combine(directory.FullName, "Soenneker.Quark.Suite.slnx")))
+            if (await Resolve<IFileUtil>(true).Exists(Path.Combine(directory.FullName, "Soenneker.Quark.Suite.slnx"), cancellationToken: cancellationToken))
                 return directory.FullName;
 
             directory = directory.Parent;

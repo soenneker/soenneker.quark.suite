@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -8,9 +9,9 @@ namespace Soenneker.Quark.Suite.Playwrights.Tests;
 public sealed class QuarkColorPickerPointerPlaywrightTests(QuarkPlaywrightHost host) : QuarkPlaywrightTest(host)
 {
     [Test]
-    public async ValueTask Drag_commits_the_final_color_and_keeps_the_thumb_aligned()
+    public async ValueTask Drag_commits_the_final_color_and_keeps_the_thumb_aligned(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/color-picker",
             static p => p.Locator("[data-slot='color-picker-canvas']").First);

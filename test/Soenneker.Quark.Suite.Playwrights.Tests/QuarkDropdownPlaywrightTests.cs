@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,9 +14,9 @@ public sealed class QuarkDropdownPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Dropdown_menu_exposes_exit_motion_and_unmounts_after_close()
+    public async ValueTask Dropdown_menu_exposes_exit_motion_and_unmounts_after_close(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

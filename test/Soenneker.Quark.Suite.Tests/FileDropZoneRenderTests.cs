@@ -42,7 +42,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_reordering_preserves_file_state_and_publishes_order()
+    public async ValueTask FileDropZone_reordering_preserves_file_state_and_publishes_order(CancellationToken cancellationToken)
     {
         var first = new FileDropZoneFile { Id = "a", Name = "a.pdf", State = FileDropZoneState.Uploading, Progress = 42 };
         var second = new FileDropZoneFile { Id = "b", Name = "b.pdf", ServerId = "saved" };
@@ -65,7 +65,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_external_drop_inserts_new_files_at_the_requested_position()
+    public async ValueTask FileDropZone_external_drop_inserts_new_files_at_the_requested_position(CancellationToken cancellationToken)
     {
         var cut = Render<FileDropZone>(p => p.Add(c => c.Files, [new() { Id = "existing", Name = "existing.txt" }])
             .Add(c => c.Upload, (_, _) => ValueTask.FromResult(new FileDropZoneUploadResult { ServerId = "new" })));
@@ -77,7 +77,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_failure_collapses_preview_and_labeled_retry_restores_it()
+    public async ValueTask FileDropZone_failure_collapses_preview_and_labeled_retry_restores_it(CancellationToken cancellationToken)
     {
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
         module.Setup<string>("createPreview", _ => true).SetResult("blob:retry-image");
@@ -98,7 +98,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_local_preview_survives_upload_and_is_released_after_deletion()
+    public async ValueTask FileDropZone_local_preview_survives_upload_and_is_released_after_deletion(CancellationToken cancellationToken)
     {
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/filedropzoneinterop.js");
         module.Setup<string>("createPreview", _ => true).SetResult("blob:local-image");
@@ -156,7 +156,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_delete_waits_for_server_and_keeps_failed_deletions_retryable()
+    public async ValueTask FileDropZone_delete_waits_for_server_and_keeps_failed_deletions_retryable(CancellationToken cancellationToken)
     {
         var completion = new TaskCompletionSource();
         var file = new FileDropZoneFile { Name = "saved.pdf", ServerId = "server-1" };
@@ -214,7 +214,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_failed_upload_can_retry_after_another_selection()
+    public async ValueTask FileDropZone_failed_upload_can_retry_after_another_selection(CancellationToken cancellationToken)
     {
         var fail = true;
         var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, (request, ct) =>
@@ -240,7 +240,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask FileDropZone_cancellation_reaches_transport_and_preserves_retry()
+    public async ValueTask FileDropZone_cancellation_reaches_transport_and_preserves_retry(CancellationToken cancellationToken)
     {
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, async (_, ct) =>
@@ -250,11 +250,11 @@ public sealed partial class RenderedShadcnParityTests
             return new FileDropZoneUploadResult { ServerId = "never" };
         }));
         var input = cut.FindComponent<InputFile>();
-        var upload = Task.Run(() => input.UploadFiles(InputFileContent.CreateFromText("abc", "cancel.pdf")));
-        await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var upload = Task.Run(() => input.UploadFiles(InputFileContent.CreateFromText("abc", "cancel.pdf")), cancellationToken: cancellationToken);
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken: cancellationToken);
         cut.WaitForAssertion(() => cut.Find("button[aria-label='Cancel upload of cancel.pdf']").Should().NotBeNull(), TimeSpan.FromSeconds(10));
         await cut.Find("button[aria-label='Cancel upload of cancel.pdf']").ClickAsync();
-        await upload.WaitAsync(TimeSpan.FromSeconds(10));
+        await upload.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken: cancellationToken);
         cut.WaitForAssertion(() => cut.Instance.Files.Single().State.Should().Be(FileDropZoneState.Canceled));
         cut.Find("button[aria-label='Retry upload of cancel.pdf']").Should().NotBeNull();
     }

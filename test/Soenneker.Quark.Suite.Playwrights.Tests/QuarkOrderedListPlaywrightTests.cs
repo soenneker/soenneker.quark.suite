@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkOrderedListPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask OrderedList_demo_uses_semantic_list_styles_and_interactive_content()
+    public async ValueTask OrderedList_demo_uses_semantic_list_styles_and_interactive_content(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var consoleErrors = new List<string>();
         var pageErrors = new List<string>();

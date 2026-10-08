@@ -88,7 +88,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_applies_a_marquee_selection_as_one_controlled_change()
+    public async ValueTask Node_editor_applies_a_marquee_selection_as_one_controlled_change(CancellationToken cancellationToken)
     {
         NodeEditorNodeModel[] nodes =
         [
@@ -346,7 +346,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_exposes_controlled_history_commands()
+    public async ValueTask Node_editor_exposes_controlled_history_commands(CancellationToken cancellationToken)
     {
         var undoCount = 0;
         var redoCount = 0;
@@ -365,7 +365,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_duplicate_request_includes_a_snapped_suggested_position()
+    public async ValueTask Node_editor_duplicate_request_includes_a_snapped_suggested_position(CancellationToken cancellationToken)
     {
         var node = new NodeEditorNodeModel { Id = "message", X = 40, Y = 80 };
         NodeEditorDuplicateRequest? request = null;
@@ -398,7 +398,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_commits_inline_edge_label_edits()
+    public async ValueTask Node_editor_commits_inline_edge_label_edits(CancellationToken cancellationToken)
     {
         NodeEditorNodeModel[] nodes =
         [
@@ -435,7 +435,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_autosave_debounces_graph_changes()
+    public async ValueTask Node_editor_autosave_debounces_graph_changes(CancellationToken cancellationToken)
     {
         var saveCount = 0;
         var states = new List<AutoSaveState>();
@@ -480,7 +480,7 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask Node_editor_can_flush_a_pending_autosave()
+    public async ValueTask Node_editor_can_flush_a_pending_autosave(CancellationToken cancellationToken)
     {
         var saveCount = 0;
 

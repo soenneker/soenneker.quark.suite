@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Avatar_demo_exposes_images_fallbacks_group_count_and_dropdown_menu()
+    public async ValueTask Avatar_demo_exposes_images_fallbacks_group_count_and_dropdown_menu(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -34,9 +35,9 @@ public sealed class QuarkAvatarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Avatar_shows_fallback_when_image_cannot_be_decoded()
+    public async ValueTask Avatar_shows_fallback_when_image_cannot_be_decoded(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.RouteAsync("https://github.com/shadcn.png", route => route.FulfillAsync(new RouteFulfillOptions
         {

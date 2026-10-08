@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -12,9 +13,9 @@ public sealed class QuarkQuestionnairePlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Questionnaire_keeps_native_selection_in_sync_with_answers()
+    public async ValueTask Questionnaire_keeps_native_selection_in_sync_with_answers(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         await page.GotoAndWaitForReady($"{BaseUrl}components/questionnaire",
             static p => p.GetByRole(AriaRole.Radio, new() { Name = "Both together", Exact = true }));

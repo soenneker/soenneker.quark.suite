@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using AwesomeAssertions;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -15,9 +16,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Combobox_demo_renders_without_open_disabled_results()
+    public async ValueTask Combobox_demo_renders_without_open_disabled_results(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -28,9 +29,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Combobox_demo_selects_clicked_option()
+    public async ValueTask Combobox_demo_selects_clicked_option(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -50,9 +51,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Combobox_demo_matches_shadcn_popup_input_group_and_custom_item_examples()
+    public async ValueTask Combobox_demo_matches_shadcn_popup_input_group_and_custom_item_examples(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -112,9 +113,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Combobox_invalid_demo_matches_shadcn_simple_example_and_ring()
+    public async ValueTask Combobox_invalid_demo_matches_shadcn_simple_example_and_ring(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -156,9 +157,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     ];
 
     [Test]
-    public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds()
+    public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;
@@ -198,9 +199,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Carousel_navigation_buttons_update_track_on_every_enabled_click()
+    public async ValueTask Carousel_navigation_buttons_update_track_on_every_enabled_click(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -224,9 +225,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Carousel_demo_matches_shadcn_markup_and_keyboard_axis_behavior()
+    public async ValueTask Carousel_demo_matches_shadcn_markup_and_keyboard_axis_behavior(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         List<string> consoleErrors = [];
         var sawPageError = false;
@@ -281,9 +282,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Carousel_api_demo_reports_selected_slide()
+    public async ValueTask Carousel_api_demo_reports_selected_slide(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(
@@ -298,9 +299,9 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Carousel_viewport_drag_advances_horizontal_and_vertical_slides()
+    public async ValueTask Carousel_viewport_drag_advances_horizontal_and_vertical_slides(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
 
         await page.GotoAndWaitForReady(

@@ -27,7 +27,7 @@ public sealed class AutoSaveControllerTests
     }
 
     [Test]
-    public async Task Enabling_saves_and_disabling_cancels_pending_value()
+    public async Task Enabling_saves_and_disabling_cancels_pending_value(CancellationToken cancellationToken)
     {
         var controller = new AutoSaveController<int>();
         int saved = 0;
@@ -49,7 +49,7 @@ public sealed class AutoSaveControllerTests
     }
 
     [Test]
-    public async Task Disposing_before_first_use_prevents_later_save()
+    public async Task Disposing_before_first_use_prevents_later_save(CancellationToken cancellationToken)
     {
         var controller = new AutoSaveController<int>();
         int saves = 0;

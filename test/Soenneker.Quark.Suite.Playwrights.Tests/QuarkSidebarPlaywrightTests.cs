@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -14,9 +15,9 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Sidebar_visible_rail_trigger_toggles_desktop_sidebar()
+    public async ValueTask Sidebar_visible_rail_trigger_toggles_desktop_sidebar(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var runtimeErrors = CaptureRuntimeErrors(page);
 
@@ -48,9 +49,9 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Sidebar_mobile_demo_opens_full_screen_sheet_and_closes_from_internal_trigger()
+    public async ValueTask Sidebar_mobile_demo_opens_full_screen_sheet_and_closes_from_internal_trigger(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var runtimeErrors = CaptureRuntimeErrors(page);
 
@@ -95,9 +96,9 @@ public sealed class QuarkSidebarPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
-    public async ValueTask Sidebar_controlled_demo_tracks_parent_buttons_and_trigger_state()
+    public async ValueTask Sidebar_controlled_demo_tracks_parent_buttons_and_trigger_state(CancellationToken cancellationToken)
     {
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
         var page = session.Page;
         var runtimeErrors = CaptureRuntimeErrors(page);
 

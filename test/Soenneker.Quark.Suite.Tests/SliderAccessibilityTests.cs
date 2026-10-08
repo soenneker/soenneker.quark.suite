@@ -4,13 +4,14 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Soenneker.Bradix;
+using System.Threading;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public async ValueTask Slider_readonly_preserves_value_for_keyboard_and_pointer_input()
+    public async ValueTask Slider_readonly_preserves_value_for_keyboard_and_pointer_input(CancellationToken cancellationToken)
     {
         var changes = 0;
         var cut = Render<Slider>(p => p.Add(c => c.ReadOnly, true)
