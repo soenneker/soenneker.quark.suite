@@ -8,6 +8,20 @@
 </li>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Value.HasValue)
+            attributes["value"] = QuarkAttributeValues.FromInt32(Value.Value);
+
+    }
+
+
+    [Parameter]
+    public int? Value { get; set; }
+
+
     private string? _appendedClass0;
     protected override void ApplyDefaultParameters()
     {
@@ -39,6 +53,8 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+
         AddIf(ref hc, ListVariant);
     }
 }

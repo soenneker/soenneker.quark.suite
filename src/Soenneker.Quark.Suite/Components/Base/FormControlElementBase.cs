@@ -12,6 +12,13 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class FormControlElementBase : InteractiveElement
 {
+    /// <summary>
+    /// Gets or sets the validation state: false, true, grammar, or spelling.
+    /// </summary>
+    [Parameter]
+    public string? AriaInvalid { get; set; }
+
+
     [CascadingParameter]
     private protected FieldContext? CurrentFieldContext { get; set; }
 
@@ -50,35 +57,20 @@ public abstract class FormControlElementBase : InteractiveElement
     [Parameter]
     public bool Required { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether auto focus.
-    /// </summary>
-    [Parameter]
-    public bool AutoFocus { get; set; }
 
-    /// <summary>
-    /// Gets or sets accent color.
-    /// </summary>
-    [Parameter]
-    public CssValue<AccentColorBuilder>? AccentColor { get; set; }
-
-    /// <summary>
-    /// Gets or sets caret color.
-    /// </summary>
-    [Parameter]
-    public CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
 
-        AddCss(ref cls, AccentColor);
-        AddCss(ref cls, CaretColor);
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
         base.BuildOwnedAttributes(attrs);
+        if (AriaInvalid is not null)
+            attrs["aria-invalid"] = AriaInvalid;
+
 
         if (Disabled)
             attrs["disabled"] = QuarkAttributeValues.True;
@@ -95,8 +87,6 @@ public abstract class FormControlElementBase : InteractiveElement
         if (Required)
             attrs["required"] = QuarkAttributeValues.True;
 
-        if (AutoFocus)
-            attrs["autofocus"] = QuarkAttributeValues.True;
     }
 
     protected override void ApplyDefaultParameters()
@@ -157,15 +147,14 @@ public abstract class FormControlElementBase : InteractiveElement
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AriaInvalid);
+
 
         hc.Add(Disabled);
         hc.Add(Name);
         hc.Add(ReadOnly);
         hc.Add(Placeholder);
         hc.Add(Required);
-        hc.Add(AutoFocus);
-        AddIf(ref hc, AccentColor);
-        AddIf(ref hc, CaretColor);
         hc.Add(CurrentFieldContext?.ControlId);
         hc.Add(CurrentFieldContext?.DescriptionId);
         hc.Add(CurrentFieldContext?.ErrorId);

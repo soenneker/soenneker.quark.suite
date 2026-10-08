@@ -6,6 +6,35 @@
 </td>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Colspan.HasValue)
+            attributes["colspan"] = QuarkAttributeValues.FromInt32(Colspan.Value);
+
+        if (HtmlRowSpan.HasValue)
+            attributes["rowspan"] = QuarkAttributeValues.FromInt32(HtmlRowSpan.Value);
+
+        if (Headers is not null)
+            attributes["headers"] = Headers;
+
+    }
+
+
+    /// <summary>
+    /// Gets or sets the HTML rowspan attribute.
+    /// </summary>
+    [Parameter]
+    public int? HtmlRowSpan { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML headers attribute.
+    /// </summary>
+    [Parameter]
+    public string? Headers { get; set; }
+
+
     private QuarkInt32Attribute _colspanAttribute;
     protected override void ApplyDefaultParameters()
     {
@@ -27,6 +56,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HtmlRowSpan);
+        hc.Add(Headers);
+
         hc.Add(Colspan);
     }
 }

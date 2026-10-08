@@ -14,6 +14,18 @@ internal static class ThemeUtilityConverter
         selector = configured.ResolveSelector(selector);
         if (!configured.IsUtility)
         {
+            if (typeof(TBuilder) == typeof(SizeBuilder))
+            {
+                AddDeclaration(ref buffer, selector, "width", configured.Value);
+                AddDeclaration(ref buffer, selector, "height", configured.Value);
+                return;
+            }
+            if (typeof(TBuilder) == typeof(SpaceBuilder) || typeof(TBuilder) == typeof(DivideBuilder))
+            {
+                AddDeclaration(ref buffer, selector + " > :not(:last-child)",
+                    typeof(TBuilder) == typeof(SpaceBuilder) ? "margin-inline-end" : "border-bottom-width", configured.Value);
+                return;
+            }
             AddDeclaration(ref buffer, selector, property, configured.Value);
             return;
         }
@@ -55,6 +67,21 @@ internal static class ThemeUtilityConverter
         where TBuilder : class, ICssBuilder
     {
         var resolved = rawValue.Trim();
+
+        if (typeof(TBuilder) == typeof(SizeBuilder))
+        {
+            string? size = ConvertWidthUtility(resolved.Replace("size-", "w-", StringComparison.Ordinal));
+            AddDeclaration(ref buffer, selector, "width", size);
+            AddDeclaration(ref buffer, selector, "height", size);
+            return;
+        }
+        if (typeof(TBuilder) == typeof(TruncateBuilder) && resolved == "truncate")
+        {
+            AddDeclaration(ref buffer, selector, "overflow", "hidden");
+            AddDeclaration(ref buffer, selector, "text-overflow", "ellipsis");
+            AddDeclaration(ref buffer, selector, "white-space", "nowrap");
+            return;
+        }
 
         if (typeof(TBuilder) == typeof(RingBuilder))
         {
@@ -204,7 +231,7 @@ internal static class ThemeUtilityConverter
             return;
         }
 
-        if (typeof(TBuilder) == typeof(WidthBuilder) &&
+        if ((typeof(TBuilder) == typeof(WidthBuilder) || typeof(TBuilder) == typeof(MinWidthBuilder) || typeof(TBuilder) == typeof(MaxWidthBuilder)) &&
             (fallbackProperty.Equals("width", StringComparison.Ordinal) ||
              fallbackProperty.Equals("min-width", StringComparison.Ordinal) ||
              fallbackProperty.Equals("max-width", StringComparison.Ordinal)))
@@ -439,8 +466,94 @@ internal static class ThemeUtilityConverter
             return;
         }
 
+        string? additional = ConvertAdditionalUtility(resolved, fallbackProperty);
+        if (additional is not null)
+        {
+            AddDeclaration(ref buffer, selector, fallbackProperty, additional);
+            return;
+        }
         throw new NotSupportedException($"Theme utility '{resolved}' for {typeof(TBuilder).Name} is not supported. Supply literal CSS or explicit declarations instead.");
     }
+
+    private static string? ConvertAdditionalUtility(string utility, string property)
+    {
+        string? prefix = property switch
+        {
+            "word-break" => "break-", "overflow-wrap" => "wrap-", "flex-basis" => "basis-", "order" => "order-",
+            "aspect-ratio" => "aspect-", "appearance" => "appearance-", "clear" => "clear-",
+            "object-fit" or "object-position" => "object-", "touch-action" => "touch-", "scroll-behavior" => "scroll-",
+            "outline-style" or "outline-width" or "outline-color" => "outline-", "outline-offset" => "outline-offset-",
+            "accent-color" => "accent-", "caret-color" => "caret-", "fill" => "fill-", "stroke" or "stroke-width" => "stroke-",
+            "background-size" or "background-position" or "background-repeat" or "background-attachment" or "background-image" => "bg-",
+            "background-clip" => "bg-clip-", "background-origin" => "bg-origin-", "background-blend-mode" => "bg-blend-",
+            "mix-blend-mode" => "mix-blend-", "box-sizing" => "box-", "box-decoration-break" => "box-decoration-",
+            "break-after" => "break-after-", "break-before" => "break-before-", "break-inside" => "break-inside-",
+            "hyphens" => "hyphens-", "font-stretch" => "font-stretch-", "font-feature-settings" => "font-features-",
+            "text-indent" => "indent-", "tab-size" => "tab-", "text-decoration-color" or "text-decoration-style" or "text-decoration-thickness" => "decoration-",
+            "list-style-type" or "list-style-position" => "list-", "list-style-image" => "list-image-",
+            "grid-template-columns" => "grid-cols-", "grid-template-rows" => "grid-rows-", "grid-auto-flow" => "grid-flow-",
+            "grid-auto-columns" => "auto-cols-", "grid-auto-rows" => "auto-rows-", "grid-column" => "col-", "grid-row" => "row-",
+            "grid-column-end" => "col-end-", "grid-row-end" => "row-end-", "columns" => "columns-",
+            "place-content" => "place-content-", "place-items" => "place-items-", "place-self" => "place-self-",
+            "border-collapse" => "border-", "border-spacing" => "border-spacing-", "caption-side" => "caption-", "table-layout" => "table-",
+            "transition-delay" => "delay-", "transition-timing-function" => "ease-", "transition-behavior" => "transition-",
+            "rotate" => "rotate-", "scale" => "scale-", "translate" => "translate-", "transform-origin" => "origin-",
+            "perspective" => "perspective-", "perspective-origin" => "perspective-origin-", "transform-style" or "backface-visibility" => "",
+            "scrollbar-width" => "scrollbar-", "scrollbar-gutter" => "scrollbar-gutter-", "scroll-snap-align" or "scroll-snap-stop" => "snap-",
+            "color-scheme" => "scheme-", "field-sizing" => "field-sizing-", "will-change" => "will-change-", "forced-color-adjust" => "forced-color-adjust-",
+            "mask-clip" => "mask-clip-", "mask-origin" => "mask-origin-", "mask-position" => "mask-", "mask-repeat" => "mask-",
+            "mask-size" => "mask-", "mask-type" => "mask-type-", "mask-mode" or "mask-composite" => "mask-",
+            "content" => "content-", "zoom" => "zoom-", "contain" => "contain-",
+            _ => null
+        };
+        if (prefix is null) return null;
+        bool negative = utility.StartsWith('-');
+        if (negative) utility = utility[1..];
+        if (!utility.StartsWith(prefix, StringComparison.Ordinal)) return null;
+        string token = utility[prefix.Length..];
+        string? value = ConvertArbitraryToken(token);
+        if (value is null)
+        {
+            value = property switch
+            {
+                "word-break" => token switch { "normal" => "normal", "all" => "break-all", "keep" => "keep-all", _ => null },
+                "overflow-wrap" => token is "normal" or "anywhere" or "break-word" ? token : null,
+                "aspect-ratio" => token switch { "square" => "1 / 1", "video" => "16 / 9", "auto" => "auto", _ => token.Contains('/') ? token.Replace("/", " / ") : null },
+                "flex-basis" or "text-indent" or "border-spacing" or "translate" => token switch { "full" => "100%", "auto" => "auto", _ => ConvertFractionToken(token) ?? ConvertSpacingScaleToken(token) },
+                "order" => token switch { "first" => "-9999", "last" => "9999", "none" => "0", _ => Numeric(token) },
+                "outline-width" or "outline-offset" or "text-decoration-thickness" => Numeric(token) is not null ? token + "px" : null,
+                "transition-delay" => Numeric(token) is not null ? token + "ms" : null,
+                "transition-timing-function" => token switch { "linear" => "linear", "in" => "cubic-bezier(0.4, 0, 1, 1)", "out" => "cubic-bezier(0, 0, 0.2, 1)", "in-out" => "cubic-bezier(0.4, 0, 0.2, 1)", _ => null },
+                "rotate" => Numeric(token) is not null ? token + "deg" : null,
+                "scale" or "zoom" => Numeric(token) is not null ? token + "%" : null,
+                "tab-size" or "stroke-width" or "grid-column-end" or "grid-row-end" => token == "auto" ? token : Numeric(token),
+                "grid-template-columns" or "grid-template-rows" => token is "none" or "subgrid" ? token : Numeric(token) is not null ? $"repeat({token}, minmax(0, 1fr))" : null,
+                "grid-auto-columns" or "grid-auto-rows" => token switch { "auto" => "auto", "min" => "min-content", "max" => "max-content", "fr" => "minmax(0, 1fr)", _ => null },
+                "grid-column" or "grid-row" => token == "span-full" ? "1 / -1" : token.StartsWith("span-", StringComparison.Ordinal) && Numeric(token[5..]) is not null ? $"span {token[5..]} / span {token[5..]}" : null,
+                "grid-auto-flow" => token.Replace("col", "column").Replace('-', ' '),
+                "place-content" => token switch { "between" => "space-between", "around" => "space-around", "evenly" => "space-evenly", _ => token.Replace('-', ' ') },
+                "place-items" or "place-self" or "object-position" or "background-position" or "transform-origin" or "perspective-origin" => token.Replace('-', ' '),
+                "box-sizing" => token is "border" or "content" ? token + "-box" : null,
+                "background-clip" or "background-origin" or "mask-clip" or "mask-origin" => token is "border" or "padding" or "content" or "fill" or "stroke" or "view" ? token + "-box" : token == "text" ? "text" : null,
+                "background-repeat" or "mask-repeat" => token switch { "no-repeat" => "no-repeat", "repeat" => "repeat", "repeat-x" => "repeat-x", "repeat-y" => "repeat-y", "repeat-space" => "space", "repeat-round" => "round", _ => null },
+                "background-image" or "list-style-image" => token == "none" ? "none" : null,
+                "accent-color" or "caret-color" or "outline-color" or "text-decoration-color" or "fill" or "stroke" => ConvertColorUtility(utility, prefix),
+                "transform-style" => token switch { "transform-3d" => "preserve-3d", "transform-flat" => "flat", _ => null },
+                "backface-visibility" => token.StartsWith("backface-", StringComparison.Ordinal) ? token[9..] : null,
+                "mask-composite" => token switch { "add" => "add", "subtract" => "subtract", "intersect" => "intersect", "exclude" => "exclude", _ => null },
+                "mask-mode" => token switch { "alpha" => "alpha", "luminance" => "luminance", "match" => "match-source", _ => null },
+                "scrollbar-gutter" => token switch { "stable" => "stable", "both" => "stable both-edges", "auto" => "auto", _ => null },
+                "touch-action" => token,
+                "background-size" or "mask-size" => token is "auto" or "cover" or "contain" ? token : null,
+                "appearance" or "clear" or "object-fit" or "scroll-behavior" or "outline-style" or "background-attachment" or "background-blend-mode" or "mix-blend-mode" or "box-decoration-break" or "break-after" or "break-before" or "break-inside" or "hyphens" or "list-style-type" or "list-style-position" or "border-collapse" or "caption-side" or "table-layout" or "transition-behavior" or "scrollbar-width" or "scroll-snap-align" or "scroll-snap-stop" or "color-scheme" or "field-sizing" or "will-change" or "forced-color-adjust" or "mask-type" or "contain" => token,
+                _ => null
+            };
+        }
+        return negative && value is not null ? $"calc({value} * -1)" : value;
+    }
+
+    private static string? Numeric(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _) ? value : null;
+
 
     private static void CollectSpacingUtility(ref ComponentCssRuleCollector buffer, string selector, string utility, string prefix, string property)
     {

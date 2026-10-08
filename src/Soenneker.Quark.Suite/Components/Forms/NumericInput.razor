@@ -23,6 +23,10 @@
            Required="@Required"
            Class="@ResolvedInputClass"
            Style="@Style"
+           AriaInvalid="@AriaInvalid"
+           AriaDisabled="@AriaDisabled"
+           AriaExpanded="@AriaExpanded"
+           AriaHasPopup="@AriaHasPopup"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
@@ -41,6 +45,13 @@
 </div>
 
 @code {
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private DecimalTextCache _valueText, _minText, _maxText, _stepText;
     private string? _resolvedInputClass;
@@ -273,7 +284,7 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = _inputAttributes.Create(3);
+        var attributes = _inputAttributes.Create(AdditionalAttributes, 8);
 
         // Add NumericInput-specific attributes
         if (Min.HasValue)
@@ -284,6 +295,13 @@
 
         if (Step.HasValue)
             attributes["step"] = _stepText.Get(Step.Value);
+
+        BuildGlobalHtmlAttributes(attributes);
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
 
         return attributes;
     }
@@ -310,6 +328,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+
         hc.Add(Value);
         hc.Add(Min);
         hc.Add(Max);

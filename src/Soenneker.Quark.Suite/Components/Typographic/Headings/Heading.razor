@@ -47,8 +47,6 @@ else
     private string? _lastBuiltStyle;
 
 
-    [Parameter]
-    public CssValue<ScaleBuilder>? Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic HTML heading level independently of visual sizing.
@@ -72,7 +70,6 @@ else
             var sty = new PooledStringBuilder(stackalloc char[64]);
             try
             {
-                AddCss(ref cls, Scale);
                 BuildClassAndStyleAttributes(attributes, ref cls, ref sty, ref _lastBuiltClass, ref _lastBuiltStyle);
             }
             finally
@@ -138,7 +135,6 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        AddIf(ref hc, Scale);
         hc.Add(Level);
     }
 }

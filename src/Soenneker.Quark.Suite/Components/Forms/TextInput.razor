@@ -23,6 +23,10 @@
            Required="@Required"
            Class="@Class"
            Style="@Style"
+           AriaInvalid="@AriaInvalid"
+           AriaDisabled="@AriaDisabled"
+           AriaExpanded="@AriaExpanded"
+           AriaHasPopup="@AriaHasPopup"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
@@ -43,6 +47,31 @@
 </div>
 
 @code {
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+    [Parameter]
+    public int? MinLength { get; set; }
+
+    [Parameter]
+    public string? DirName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ID of the datalist supplying input suggestions.
+    /// </summary>
+    [Parameter]
+    public string? List { get; set; }
+
+    /// <summary>
+    /// Gets or sets the visible input width in characters.
+    /// </summary>
+    [Parameter]
+    public int? HtmlSize { get; set; }
+
+
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private QuarkInt32Attribute _maxLengthAttribute;
     private Func<object?>? _validationValueSelector;
@@ -267,12 +296,38 @@
         if (InputMode is not null) attributes["inputmode"] = InputMode.Value;
         if (EditMask.HasContent()) attributes["pattern"] = EditMask;
 
+        BuildGlobalHtmlAttributes(attributes);
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
+        if (MinLength.HasValue)
+            attributes["minlength"] = QuarkAttributeValues.FromInt32(MinLength.Value);
+
+        if (DirName is not null)
+            attributes["dirname"] = DirName;
+
+        if (List is not null)
+            attributes["list"] = List;
+
+        if (HtmlSize.HasValue)
+            attributes["size"] = QuarkAttributeValues.FromInt32(HtmlSize.Value);
+
         return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+        hc.Add(MinLength);
+        hc.Add(DirName);
+        hc.Add(List);
+        hc.Add(HtmlSize);
+
         hc.Add(Value);
         hc.Add(MaxLength);
         hc.Add(Type);

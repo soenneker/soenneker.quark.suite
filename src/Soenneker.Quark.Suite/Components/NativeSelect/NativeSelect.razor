@@ -32,6 +32,32 @@
 </Div>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
+        if (HtmlSize.HasValue)
+            attributes["size"] = QuarkAttributeValues.FromInt32(HtmlSize.Value);
+
+    }
+
+
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+    [Parameter]
+    public int? HtmlSize { get; set; }
+
+
     private string? _autoSaveStatusClass;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
@@ -54,11 +80,11 @@
     private static readonly CssValue<SizeBuilder> _renderCss4 = Quark.Size.Is4;
     private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.MutedForeground;
     private static readonly CssValue<UserSelectBuilder> _renderCss6 = Quark.UserSelect.None;
-    private static readonly CssValue<FillBuilder> _renderCss7 = Fill.None;
-    private static readonly CssValue<StrokeBuilder> _renderCss8 = Stroke.Current;
-    private static readonly CssValue<StrokeWidthBuilder> _renderCss9 = StrokeWidth.Is2;
-    private static readonly CssValue<StrokeLineCapBuilder> _renderCss10 = StrokeLineCap.Round;
-    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss11 = StrokeLineJoin.Round;
+    private static readonly CssValue<FillBuilder> _renderCss7 = Quark.Fill.None;
+    private static readonly CssValue<StrokeBuilder> _renderCss8 = Quark.Stroke.Current;
+    private static readonly CssValue<StrokeWidthBuilder> _renderCss9 = Quark.StrokeWidth.Is2;
+    private static readonly CssValue<StrokeLineCapBuilder> _renderCss10 = Quark.StrokeLineCap.Round;
+    private static readonly CssValue<StrokeLineJoinBuilder> _renderCss11 = Quark.StrokeLineJoin.Round;
     private string? _lastPrependedClass;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
@@ -196,6 +222,10 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+        hc.Add(HtmlSize);
+
         hc.Add(Value);
         hc.Add(NativeSelectSize);
         hc.Add(DirectionProviderDir);

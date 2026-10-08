@@ -10,6 +10,17 @@ namespace Soenneker.Quark;
 public interface IAudio : IElement
 {
     /// <summary>
+    /// Gets or sets the HTML controlslist attribute.
+    /// </summary>
+    string? ControlsList { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML disableremoteplayback attribute.
+    /// </summary>
+    bool? DisableRemotePlayback { get; set; }
+
+
+    /// <summary>
     /// Gets or sets the URL of the audio file.
     /// </summary>
     string? Source { get; set; }

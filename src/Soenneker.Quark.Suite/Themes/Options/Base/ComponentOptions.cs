@@ -10,6 +10,423 @@ namespace Soenneker.Quark;
 /// </summary>
 public class ComponentOptions
 {
+    /// <summary>Gets or sets text-overflow using utilities or a literal CSS value.</summary>
+    public ThemeValue<TruncateBuilder>? Truncate { get; set; }
+
+    /// <summary>Gets or sets size using utilities or a literal CSS value.</summary>
+    public ThemeValue<SizeBuilder>? Size { get; set; }
+
+    /// <summary>Gets or sets gap using utilities or a literal CSS value.</summary>
+    public ThemeValue<SpaceBuilder>? Space { get; set; }
+
+    /// <summary>Gets or sets border-width using utilities or a literal CSS value.</summary>
+    public ThemeValue<DivideBuilder>? Divide { get; set; }
+
+    /// <summary>Gets or sets visibility using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScreenReaderBuilder>? ScreenReader { get; set; }
+
+    /// <summary>Gets or sets --tw-ring-offset-width using utilities or a literal CSS value.</summary>
+    public ThemeValue<RingOffsetBuilder>? RingOffset { get; set; }
+
+    /// <summary>Gets or sets --tw-ring-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<RingColorBuilder>? RingColor { get; set; }
+
+    /// <summary>Gets or sets outline-style using utilities or a literal CSS value.</summary>
+    public ThemeValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropBlurBuilder>? BackdropBlur { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropBrightnessBuilder>? BackdropBrightness { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropContrastBuilder>? BackdropContrast { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropGrayscaleBuilder>? BackdropGrayscale { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropHueRotateBuilder>? BackdropHueRotate { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropInvertBuilder>? BackdropInvert { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropOpacityBuilder>? BackdropOpacity { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropSaturateBuilder>? BackdropSaturate { get; set; }
+
+    /// <summary>Gets or sets backdrop-filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackdropSepiaBuilder>? BackdropSepia { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BlurBuilder>? Blur { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<BrightnessBuilder>? Brightness { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<ContrastBuilder>? Contrast { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<DropShadowBuilder>? DropShadow { get; set; }
+
+    /// <summary>Gets or sets --tw-drop-shadow-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<DropShadowColorBuilder>? DropShadowColor { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<GrayscaleBuilder>? Grayscale { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<HueRotateBuilder>? HueRotate { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<InvertBuilder>? Invert { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<SaturateBuilder>? Saturate { get; set; }
+
+    /// <summary>Gets or sets filter using utilities or a literal CSS value.</summary>
+    public ThemeValue<SepiaBuilder>? Sepia { get; set; }
+
+    /// <summary>Gets or sets accent-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<AccentColorBuilder>? AccentColor { get; set; }
+
+    /// <summary>Gets or sets appearance using utilities or a literal CSS value.</summary>
+    public ThemeValue<AppearanceBuilder>? NativeAppearance { get; set; }
+
+    /// <summary>Gets or sets grid-auto-columns using utilities or a literal CSS value.</summary>
+    public ThemeValue<AutoColsBuilder>? AutoCols { get; set; }
+
+    /// <summary>Gets or sets grid-auto-rows using utilities or a literal CSS value.</summary>
+    public ThemeValue<AutoRowsBuilder>? AutoRows { get; set; }
+
+    /// <summary>Gets or sets backface-visibility using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackfaceVisibilityBuilder>? BackfaceVisibility { get; set; }
+
+    /// <summary>Gets or sets background-attachment using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundAttachmentBuilder>? BackgroundAttachment { get; set; }
+
+    /// <summary>Gets or sets background-blend-mode using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundBlendModeBuilder>? BackgroundBlendMode { get; set; }
+
+    /// <summary>Gets or sets background-clip using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundClipBuilder>? BackgroundClip { get; set; }
+
+    /// <summary>Gets or sets background-image using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundImageBuilder>? BackgroundImage { get; set; }
+
+    /// <summary>Gets or sets background-origin using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundOriginBuilder>? BackgroundOrigin { get; set; }
+
+    /// <summary>Gets or sets background-position using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundPositionBuilder>? BackgroundPosition { get; set; }
+
+    /// <summary>Gets or sets background-repeat using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundRepeatBuilder>? BackgroundRepeat { get; set; }
+
+    /// <summary>Gets or sets background-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<BackgroundSizeBuilder>? BackgroundSize { get; set; }
+
+    /// <summary>Gets or sets block-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<BlockSizeBuilder>? BlockSize { get; set; }
+
+    /// <summary>Gets or sets border-collapse using utilities or a literal CSS value.</summary>
+    public ThemeValue<BorderCollapseBuilder>? BorderCollapse { get; set; }
+
+    /// <summary>Gets or sets border-spacing using utilities or a literal CSS value.</summary>
+    public ThemeValue<BorderSpacingBuilder>? BorderSpacing { get; set; }
+
+    /// <summary>Gets or sets box-decoration-break using utilities or a literal CSS value.</summary>
+    public ThemeValue<BoxDecorationBreakBuilder>? BoxDecorationBreak { get; set; }
+
+    /// <summary>Gets or sets box-sizing using utilities or a literal CSS value.</summary>
+    public ThemeValue<BoxSizingBuilder>? BoxSizing { get; set; }
+
+    /// <summary>Gets or sets break-after using utilities or a literal CSS value.</summary>
+    public ThemeValue<BreakAfterBuilder>? BreakAfter { get; set; }
+
+    /// <summary>Gets or sets break-before using utilities or a literal CSS value.</summary>
+    public ThemeValue<BreakBeforeBuilder>? BreakBefore { get; set; }
+
+    /// <summary>Gets or sets break-inside using utilities or a literal CSS value.</summary>
+    public ThemeValue<BreakInsideBuilder>? BreakInside { get; set; }
+
+    /// <summary>Gets or sets caption-side using utilities or a literal CSS value.</summary>
+    public ThemeValue<CaptionSideBuilder>? CaptionSide { get; set; }
+
+    /// <summary>Gets or sets caret-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    /// <summary>Gets or sets clear using utilities or a literal CSS value.</summary>
+    public ThemeValue<ClearBuilder>? FloatClear { get; set; }
+
+    /// <summary>Gets or sets grid-column-end using utilities or a literal CSS value.</summary>
+    public ThemeValue<ColEndBuilder>? ColEnd { get; set; }
+
+    /// <summary>Gets or sets color-scheme using utilities or a literal CSS value.</summary>
+    public ThemeValue<ColorSchemeBuilder>? ColorScheme { get; set; }
+
+    /// <summary>Gets or sets columns using utilities or a literal CSS value.</summary>
+    public ThemeValue<ColumnsBuilder>? ColumnCount { get; set; }
+
+    /// <summary>Gets or sets container-type using utilities or a literal CSS value.</summary>
+    public ThemeValue<ContainerTypeBuilder>? ContainerQuery { get; set; }
+
+    /// <summary>Gets or sets contain using utilities or a literal CSS value.</summary>
+    public ThemeValue<ContainBuilder>? Contain { get; set; }
+
+    /// <summary>Gets or sets content using utilities or a literal CSS value.</summary>
+    public ThemeValue<ContentBuilder>? GeneratedContent { get; set; }
+
+    /// <summary>Gets or sets text-decoration-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<DecorationColorBuilder>? DecorationColor { get; set; }
+
+    /// <summary>Gets or sets text-decoration-style using utilities or a literal CSS value.</summary>
+    public ThemeValue<DecorationStyleBuilder>? DecorationStyle { get; set; }
+
+    /// <summary>Gets or sets text-decoration-thickness using utilities or a literal CSS value.</summary>
+    public ThemeValue<DecorationThicknessBuilder>? DecorationThickness { get; set; }
+
+    /// <summary>Gets or sets transition-delay using utilities or a literal CSS value.</summary>
+    public ThemeValue<DelayBuilder>? TransitionDelay { get; set; }
+
+    /// <summary>Gets or sets transition-timing-function using utilities or a literal CSS value.</summary>
+    public ThemeValue<EaseBuilder>? Ease { get; set; }
+
+    /// <summary>Gets or sets field-sizing using utilities or a literal CSS value.</summary>
+    public ThemeValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
+    /// <summary>Gets or sets fill-rule using utilities or a literal CSS value.</summary>
+    public ThemeValue<FillRuleBuilder>? FillRule { get; set; }
+
+    /// <summary>Gets or sets flex-basis using utilities or a literal CSS value.</summary>
+    public ThemeValue<FlexBasisBuilder>? FlexBasis { get; set; }
+
+    /// <summary>Gets or sets font-feature-settings using utilities or a literal CSS value.</summary>
+    public ThemeValue<FontFeatureSettingsBuilder>? FontFeatureSettings { get; set; }
+
+    /// <summary>Gets or sets -webkit-font-smoothing using utilities or a literal CSS value.</summary>
+    public ThemeValue<FontSmoothingBuilder>? FontSmoothing { get; set; }
+
+    /// <summary>Gets or sets font-stretch using utilities or a literal CSS value.</summary>
+    public ThemeValue<FontStretchBuilder>? FontStretch { get; set; }
+
+    /// <summary>Gets or sets forced-color-adjust using utilities or a literal CSS value.</summary>
+    public ThemeValue<ForcedColorAdjustBuilder>? ForcedColorAdjust { get; set; }
+
+    /// <summary>Gets or sets background-image using utilities or a literal CSS value.</summary>
+    public ThemeValue<GradientBuilder>? BackgroundGradient { get; set; }
+
+    /// <summary>Gets or sets grid-auto-flow using utilities or a literal CSS value.</summary>
+    public ThemeValue<GridAutoFlowBuilder>? GridAutoFlow { get; set; }
+
+    /// <summary>Gets or sets grid-template-columns using utilities or a literal CSS value.</summary>
+    public ThemeValue<GridColsBuilder>? GridColumns { get; set; }
+
+    /// <summary>Gets or sets grid-template-rows using utilities or a literal CSS value.</summary>
+    public ThemeValue<GridRowsBuilder>? GridRows { get; set; }
+
+    /// <summary>Gets or sets grid-column using utilities or a literal CSS value.</summary>
+    public ThemeValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
+
+    /// <summary>Gets or sets hyphens using utilities or a literal CSS value.</summary>
+    public ThemeValue<HyphenBuilder>? Hyphen { get; set; }
+
+    /// <summary>Gets or sets inline-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<InlineSizeBuilder>? InlineSize { get; set; }
+
+    /// <summary>Gets or sets inset-block-end using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetBlockEndBuilder>? InsetBlockEnd { get; set; }
+
+    /// <summary>Gets or sets inset-block-start using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetBlockStartBuilder>? InsetBlockStart { get; set; }
+
+    /// <summary>Gets or sets inset-inline-end using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetEndBuilder>? InsetEnd { get; set; }
+
+    /// <summary>Gets or sets --tw-inset-ring-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetRingColorBuilder>? InsetRingColor { get; set; }
+
+    /// <summary>Gets or sets --tw-inset-ring-shadow using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetRingBuilder>? InsetRing { get; set; }
+
+    /// <summary>Gets or sets --tw-inset-shadow-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetShadowColorBuilder>? InsetShadowColor { get; set; }
+
+    /// <summary>Gets or sets --tw-inset-shadow using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetShadowBuilder>? InsetShadow { get; set; }
+
+    /// <summary>Gets or sets inset-inline-start using utilities or a literal CSS value.</summary>
+    public ThemeValue<InsetStartBuilder>? InsetStart { get; set; }
+
+    /// <summary>Gets or sets isolation using utilities or a literal CSS value.</summary>
+    public ThemeValue<IsolationBuilder>? Isolation { get; set; }
+
+    /// <summary>Gets or sets list-style-image using utilities or a literal CSS value.</summary>
+    public ThemeValue<ListStyleImageBuilder>? ListStyleImage { get; set; }
+
+    /// <summary>Gets or sets list-style-position using utilities or a literal CSS value.</summary>
+    public ThemeValue<ListStylePositionBuilder>? ListStylePosition { get; set; }
+
+    /// <summary>Gets or sets list-style-type using utilities or a literal CSS value.</summary>
+    public ThemeValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
+
+    /// <summary>Gets or sets mask-clip using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskClipBuilder>? MaskClip { get; set; }
+
+    /// <summary>Gets or sets mask-composite using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskCompositeBuilder>? MaskComposite { get; set; }
+
+    /// <summary>Gets or sets mask-image using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskImageBuilder>? MaskImage { get; set; }
+
+    /// <summary>Gets or sets mask-mode using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskModeBuilder>? MaskMode { get; set; }
+
+    /// <summary>Gets or sets mask-origin using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskOriginBuilder>? MaskOrigin { get; set; }
+
+    /// <summary>Gets or sets mask-position using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskPositionBuilder>? MaskPosition { get; set; }
+
+    /// <summary>Gets or sets mask-repeat using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskRepeatBuilder>? MaskRepeat { get; set; }
+
+    /// <summary>Gets or sets mask-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskSizeBuilder>? MaskSize { get; set; }
+
+    /// <summary>Gets or sets mask-type using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaskTypeBuilder>? MaskType { get; set; }
+
+    /// <summary>Gets or sets max-block-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaxBlockSizeBuilder>? MaxBlockSize { get; set; }
+
+    /// <summary>Gets or sets max-inline-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<MaxInlineSizeBuilder>? MaxInlineSize { get; set; }
+
+    /// <summary>Gets or sets min-block-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<MinBlockSizeBuilder>? MinBlockSize { get; set; }
+
+    /// <summary>Gets or sets min-inline-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<MinInlineSizeBuilder>? MinInlineSize { get; set; }
+
+    /// <summary>Gets or sets mix-blend-mode using utilities or a literal CSS value.</summary>
+    public ThemeValue<MixBlendModeBuilder>? MixBlendMode { get; set; }
+
+    /// <summary>Gets or sets order using utilities or a literal CSS value.</summary>
+    public ThemeValue<OrderBuilder>? Order { get; set; }
+
+    /// <summary>Gets or sets transform-origin using utilities or a literal CSS value.</summary>
+    public ThemeValue<OriginBuilder>? Origin { get; set; }
+
+    /// <summary>Gets or sets outline-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<OutlineColorBuilder>? OutlineColor { get; set; }
+
+    /// <summary>Gets or sets outline-offset using utilities or a literal CSS value.</summary>
+    public ThemeValue<OutlineOffsetBuilder>? OutlineOffset { get; set; }
+
+    /// <summary>Gets or sets outline-width using utilities or a literal CSS value.</summary>
+    public ThemeValue<OutlineWidthBuilder>? OutlineWidth { get; set; }
+
+    /// <summary>Gets or sets overflow-wrap using utilities or a literal CSS value.</summary>
+    public ThemeValue<OverflowWrapBuilder>? OverflowWrap { get; set; }
+
+    /// <summary>Gets or sets perspective-origin using utilities or a literal CSS value.</summary>
+    public ThemeValue<PerspectiveOriginBuilder>? PerspectiveOrigin { get; set; }
+
+    /// <summary>Gets or sets perspective using utilities or a literal CSS value.</summary>
+    public ThemeValue<PerspectiveBuilder>? Perspective { get; set; }
+
+    /// <summary>Gets or sets place-content using utilities or a literal CSS value.</summary>
+    public ThemeValue<PlaceContentAlignBuilder>? PlaceContentAlign { get; set; }
+
+    /// <summary>Gets or sets place-items using utilities or a literal CSS value.</summary>
+    public ThemeValue<PlaceItemsAlignBuilder>? PlaceItemsAlign { get; set; }
+
+    /// <summary>Gets or sets place-self using utilities or a literal CSS value.</summary>
+    public ThemeValue<PlaceSelfAlignBuilder>? PlaceSelfAlign { get; set; }
+
+    /// <summary>Gets or sets rotate using utilities or a literal CSS value.</summary>
+    public ThemeValue<RotateBuilder>? Rotate { get; set; }
+
+    /// <summary>Gets or sets grid-row-end using utilities or a literal CSS value.</summary>
+    public ThemeValue<RowEndBuilder>? RowEnd { get; set; }
+
+    /// <summary>Gets or sets scale using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScaleBuilder>? Scale { get; set; }
+
+    /// <summary>Gets or sets scrollbar-gutter using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollbarGutterBuilder>? ScrollbarGutter { get; set; }
+
+    /// <summary>Gets or sets --tw-scrollbar-thumb using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollbarThumbColorBuilder>? ScrollbarThumbColor { get; set; }
+
+    /// <summary>Gets or sets --tw-scrollbar-track using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollbarTrackColorBuilder>? ScrollbarTrackColor { get; set; }
+
+    /// <summary>Gets or sets scrollbar-width using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollbarWidthBuilder>? ScrollbarWidth { get; set; }
+
+    /// <summary>Gets or sets scroll-snap-align using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollSnapAlignBuilder>? ScrollSnapAlign { get; set; }
+
+    /// <summary>Gets or sets scroll-snap-type using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollSnapBuilder>? ScrollSnap { get; set; }
+
+    /// <summary>Gets or sets scroll-snap-stop using utilities or a literal CSS value.</summary>
+    public ThemeValue<ScrollSnapStopBuilder>? ScrollSnapStop { get; set; }
+
+    /// <summary>Gets or sets --tw-shadow-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<ShadowColorBuilder>? ShadowColor { get; set; }
+
+    /// <summary>Gets or sets transform using utilities or a literal CSS value.</summary>
+    public ThemeValue<SkewBuilder>? Skew { get; set; }
+
+    /// <summary>Gets or sets stroke-linecap using utilities or a literal CSS value.</summary>
+    public ThemeValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
+
+    /// <summary>Gets or sets stroke-linejoin using utilities or a literal CSS value.</summary>
+    public ThemeValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
+
+    /// <summary>Gets or sets stroke-width using utilities or a literal CSS value.</summary>
+    public ThemeValue<StrokeWidthBuilder>? SvgStrokeWidth { get; set; }
+
+    /// <summary>Gets or sets table-layout using utilities or a literal CSS value.</summary>
+    public ThemeValue<TableLayoutBuilder>? TableLayout { get; set; }
+
+    /// <summary>Gets or sets tab-size using utilities or a literal CSS value.</summary>
+    public ThemeValue<TabSizeBuilder>? TabSize { get; set; }
+
+    /// <summary>Gets or sets text-indent using utilities or a literal CSS value.</summary>
+    public ThemeValue<TextIndentBuilder>? TextIndent { get; set; }
+
+    /// <summary>Gets or sets --tw-text-shadow-color using utilities or a literal CSS value.</summary>
+    public ThemeValue<TextShadowColorBuilder>? TextShadowColor { get; set; }
+
+    /// <summary>Gets or sets text-shadow using utilities or a literal CSS value.</summary>
+    public ThemeValue<TextShadowBuilder>? TextShadow { get; set; }
+
+    /// <summary>Gets or sets touch-action using utilities or a literal CSS value.</summary>
+    public ThemeValue<TouchActionBuilder>? TouchAction { get; set; }
+
+    /// <summary>Gets or sets transform-style using utilities or a literal CSS value.</summary>
+    public ThemeValue<TransformStyleBuilder>? TransformStyle { get; set; }
+
+    /// <summary>Gets or sets transition-behavior using utilities or a literal CSS value.</summary>
+    public ThemeValue<TransitionBehaviorBuilder>? TransitionBehavior { get; set; }
+
+    /// <summary>Gets or sets translate using utilities or a literal CSS value.</summary>
+    public ThemeValue<TranslateBuilder>? Translate { get; set; }
+
+    /// <summary>Gets or sets will-change using utilities or a literal CSS value.</summary>
+    public ThemeValue<WillChangeBuilder>? WillChange { get; set; }
+
+    /// <summary>Gets or sets zoom using utilities or a literal CSS value.</summary>
+    public ThemeValue<ZoomBuilder>? Zoom { get; set; }
+
     /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
     public string Selector { get; set; } = ":root";
 
@@ -115,10 +532,10 @@ public class ComponentOptions
     public ThemeValue<WidthBuilder>? Width { get; set; }
 
     /// <summary>Gets or sets the builder or literal CSS <c>min-width</c> value, including any required units.</summary>
-    public ThemeValue<WidthBuilder>? MinWidth { get; set; }
+    public ThemeValue<MinWidthBuilder>? MinWidth { get; set; }
 
     /// <summary>Gets or sets the builder or literal CSS <c>max-width</c> value, including any required units.</summary>
-    public ThemeValue<WidthBuilder>? MaxWidth { get; set; }
+    public ThemeValue<MaxWidthBuilder>? MaxWidth { get; set; }
 
     /// <summary>Gets or sets the builder or literal CSS <c>height</c> value, including any required units.</summary>
     public ThemeValue<HeightBuilder>? Height { get; set; }
@@ -250,7 +667,7 @@ public class ComponentOptions
     public ThemeValue<TextWrapBuilder>? TextWrap { get; set; }
 
     /// <summary>Gets or sets the builder or literal CSS <c>word-break</c> value, including any required units.</summary>
-    public ThemeValue<TextBreakBuilder>? TextBreak { get; set; }
+    public ThemeValue<WordBreakBuilder>? WordBreak { get; set; }
 
     /// <summary>Gets or sets the builder or literal CSS <c>border-color</c> value, including any required units.</summary>
     public ThemeValue<BorderColorBuilder>? BorderColor { get; set; }
@@ -377,7 +794,7 @@ public class ComponentOptions
         ThemeUtilityConverter.AddRules(ref buffer, selector, "line-height", Leading);
         ThemeUtilityConverter.AddRules(ref buffer, selector, "white-space", Whitespace);
         ThemeUtilityConverter.AddRules(ref buffer, selector, "text-wrap", TextWrap);
-        ThemeUtilityConverter.AddRules(ref buffer, selector, "word-break", TextBreak);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "word-break", WordBreak);
         ThemeUtilityConverter.AddRules(ref buffer, selector, "border-color", BorderColor);
         ThemeUtilityConverter.AddRules(ref buffer, selector, "background-color", BackgroundColor);
         ThemeUtilityConverter.AddRules(ref buffer, selector, "animation", Animation);
@@ -397,6 +814,146 @@ public class ComponentOptions
         ThemeUtilityConverter.AddRules(ref buffer, selector, "font-variant-numeric", FontVariantNumeric);
 
         ThemeUtilityConverter.AddRules(ref buffer, selector, "box-shadow", Ring);
+
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-overflow", Truncate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "size", Size);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "gap", Space);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "border-width", Divide);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "visibility", ScreenReader);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-ring-offset-width", RingOffset);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-ring-color", RingColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "outline-style", OutlineStyle);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropBlur);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropBrightness);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropContrast);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropGrayscale);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropHueRotate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropInvert);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropOpacity);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropSaturate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backdrop-filter", BackdropSepia);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Blur);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Brightness);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Contrast);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", DropShadow);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-drop-shadow-color", DropShadowColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Grayscale);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", HueRotate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Invert);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Saturate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "filter", Sepia);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "accent-color", AccentColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "appearance", NativeAppearance);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-auto-columns", AutoCols);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-auto-rows", AutoRows);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "backface-visibility", BackfaceVisibility);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-attachment", BackgroundAttachment);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-blend-mode", BackgroundBlendMode);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-clip", BackgroundClip);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-image", BackgroundImage);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-origin", BackgroundOrigin);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-position", BackgroundPosition);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-repeat", BackgroundRepeat);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-size", BackgroundSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "block-size", BlockSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "border-collapse", BorderCollapse);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "border-spacing", BorderSpacing);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "box-decoration-break", BoxDecorationBreak);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "box-sizing", BoxSizing);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "break-after", BreakAfter);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "break-before", BreakBefore);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "break-inside", BreakInside);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "caption-side", CaptionSide);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "caret-color", CaretColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "clear", FloatClear);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-column-end", ColEnd);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "color-scheme", ColorScheme);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "columns", ColumnCount);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "container-type", ContainerQuery);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "contain", Contain);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "content", GeneratedContent);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-decoration-color", DecorationColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-decoration-style", DecorationStyle);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-decoration-thickness", DecorationThickness);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transition-delay", TransitionDelay);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transition-timing-function", Ease);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "field-sizing", FieldSizing);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "fill-rule", FillRule);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "flex-basis", FlexBasis);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "font-feature-settings", FontFeatureSettings);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "-webkit-font-smoothing", FontSmoothing);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "font-stretch", FontStretch);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "forced-color-adjust", ForcedColorAdjust);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "background-image", BackgroundGradient);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-auto-flow", GridAutoFlow);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-template-columns", GridColumns);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-template-rows", GridRows);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-column", ColumnSpan);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "hyphens", Hyphen);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "inline-size", InlineSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "inset-block-end", InsetBlockEnd);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "inset-block-start", InsetBlockStart);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "inset-inline-end", InsetEnd);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-inset-ring-color", InsetRingColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-inset-ring-shadow", InsetRing);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-inset-shadow-color", InsetShadowColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-inset-shadow", InsetShadow);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "inset-inline-start", InsetStart);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "isolation", Isolation);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "list-style-image", ListStyleImage);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "list-style-position", ListStylePosition);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "list-style-type", ListStyleType);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-clip", MaskClip);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-composite", MaskComposite);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-image", MaskImage);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-mode", MaskMode);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-origin", MaskOrigin);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-position", MaskPosition);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-repeat", MaskRepeat);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-size", MaskSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mask-type", MaskType);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "max-block-size", MaxBlockSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "max-inline-size", MaxInlineSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "min-block-size", MinBlockSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "min-inline-size", MinInlineSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "mix-blend-mode", MixBlendMode);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "order", Order);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transform-origin", Origin);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "outline-color", OutlineColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "outline-offset", OutlineOffset);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "outline-width", OutlineWidth);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "overflow-wrap", OverflowWrap);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "perspective-origin", PerspectiveOrigin);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "perspective", Perspective);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "place-content", PlaceContentAlign);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "place-items", PlaceItemsAlign);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "place-self", PlaceSelfAlign);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "rotate", Rotate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "grid-row-end", RowEnd);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scale", Scale);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scrollbar-gutter", ScrollbarGutter);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-scrollbar-thumb", ScrollbarThumbColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-scrollbar-track", ScrollbarTrackColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scrollbar-width", ScrollbarWidth);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scroll-snap-align", ScrollSnapAlign);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scroll-snap-type", ScrollSnap);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "scroll-snap-stop", ScrollSnapStop);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-shadow-color", ShadowColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transform", Skew);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "stroke-linecap", StrokeLineCap);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "stroke-linejoin", StrokeLineJoin);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "stroke-width", SvgStrokeWidth);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "table-layout", TableLayout);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "tab-size", TabSize);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-indent", TextIndent);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "--tw-text-shadow-color", TextShadowColor);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "text-shadow", TextShadow);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "touch-action", TouchAction);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transform-style", TransformStyle);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "transition-behavior", TransitionBehavior);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "translate", Translate);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "will-change", WillChange);
+        ThemeUtilityConverter.AddRules(ref buffer, selector, "zoom", Zoom);
 
         if (Declarations is not null)
         {

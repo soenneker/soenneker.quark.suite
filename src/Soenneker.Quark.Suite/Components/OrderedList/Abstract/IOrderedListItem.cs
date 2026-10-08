@@ -5,5 +5,11 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IOrderedListItem : IElement
 {
+    /// <summary>
+    /// Gets or sets the HTML value attribute.
+    /// </summary>
+    int? Value { get; set; }
+
+
 }
 

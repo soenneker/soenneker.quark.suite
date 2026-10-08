@@ -22,9 +22,13 @@
            Required="@Required"
            Class="@ResolvedInputClass"
            Style="@Style"
+           AriaInvalid="@AriaInvalid"
+           AriaDisabled="@AriaDisabled"
+           AriaExpanded="@AriaExpanded"
+           AriaHasPopup="@AriaHasPopup"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
-           @attributes="BuildInputAttributes()"
+           AdditionalAttributes="BuildInputAttributes()"
            OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
            OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
            OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)"
@@ -40,6 +44,13 @@
 </div>
 
 @code {
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private QuarkInt32Attribute _stepAttribute;
     private DateInputValueCache _currentValueCache, _minValueCache, _maxValueCache;
@@ -428,6 +439,13 @@
         if (Step > 1)
             attributes["step"] = _stepAttribute.Get(Step);
 
+        BuildGlobalHtmlAttributes(attributes);
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
         return attributes;
     }
 
@@ -444,6 +462,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+
         hc.Add(Date);
         hc.Add(DateOnly);
         hc.Add(Min);

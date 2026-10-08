@@ -36,6 +36,50 @@ else
 }
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
+        if (Cols.HasValue)
+            attributes["cols"] = QuarkAttributeValues.FromInt32(Cols.Value);
+
+        if (Wrap is not null)
+            attributes["wrap"] = Wrap;
+
+        if (DirName is not null)
+            attributes["dirname"] = DirName;
+
+        if (InputMode is not null)
+            attributes["inputmode"] = InputMode;
+
+    }
+
+
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+    [Parameter]
+    public int? Cols { get; set; }
+
+    [Parameter]
+    public string? Wrap { get; set; }
+
+    [Parameter]
+    public string? DirName { get; set; }
+
+    [Parameter]
+    public string? InputMode { get; set; }
+
+
     private QuarkInt32Attribute _maxlengthAttribute;
     private QuarkInt32Attribute _minlengthAttribute;
     private QuarkInt32Attribute _rowsAttribute;
@@ -152,12 +196,6 @@ else
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
-
-    /// <summary>
-    /// Gets or sets the textarea text direction.
-    /// </summary>
-    [Parameter]
-    public string? Dir { get; set; }
 
     public object? ValidationValue => Value;
     private string? ResolvedDir => !string.IsNullOrWhiteSpace(Dir) ? Dir : DirectionProviderDir;
@@ -344,6 +382,13 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+        hc.Add(Cols);
+        hc.Add(Wrap);
+        hc.Add(DirName);
+        hc.Add(InputMode);
+
         hc.Add(Value);
         hc.Add(Placeholder);
         hc.Add(Disabled);

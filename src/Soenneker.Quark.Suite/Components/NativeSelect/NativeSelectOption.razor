@@ -5,6 +5,26 @@
 <option @attributes="BuildAttributes()">@ChildContent</option>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Label is not null)
+            attributes["label"] = Label;
+
+        if (Selected.HasValue)
+            attributes["selected"] = Selected.Value ? QuarkAttributeValues.True : false;
+
+    }
+
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public bool? Selected { get; set; }
+
+
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Token("[Canvas]");
     private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.Token("[CanvasText]");
     /// <summary>
@@ -26,6 +46,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+        hc.Add(Selected);
+
         hc.Add(Value);
         hc.Add(Disabled);
     }

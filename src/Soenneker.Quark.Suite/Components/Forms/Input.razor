@@ -5,7 +5,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements Soenneker.Quark.IValidationInput
-@implements IInput
+@implements INativeInput
 @inject IInputInterop InputInterop
 
 @if (UsesAutoSaveStatusSlot)
@@ -36,6 +36,138 @@ else
 }
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+        var inputType = (GetInputType() ?? "text").ToLowerInvariant();
+        var isText = inputType is "text" or "search" or "tel" or "url" or "email" or "password";
+        var isRange = inputType is "date" or "month" or "week" or "time" or "datetime-local" or "number" or "range";
+        var isSubmit = inputType is "submit" or "image";
+
+        if (Form is not null)
+            attributes["form"] = Form;
+
+        if ((inputType is not ("checkbox" or "radio" or "file" or "submit" or "image" or "reset" or "button")) && AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
+        if ((isText) && MinLength.HasValue)
+            attributes["minlength"] = QuarkAttributeValues.FromInt32(MinLength.Value);
+
+        if ((isText) && MaxLength.HasValue)
+            attributes["maxlength"] = QuarkAttributeValues.FromInt32(MaxLength.Value);
+
+        if ((isText) && Pattern is not null)
+            attributes["pattern"] = Pattern;
+
+        if ((isRange) && Min is not null)
+            attributes["min"] = Min;
+
+        if ((isRange) && Max is not null)
+            attributes["max"] = Max;
+
+        if ((isRange) && Step is not null)
+            attributes["step"] = Step;
+
+        if ((inputType is not ("hidden" or "password" or "checkbox" or "radio" or "file" or "submit" or "image" or "reset" or "button")) && List is not null)
+            attributes["list"] = List;
+
+        if ((inputType is "email" or "file") && Multiple.HasValue)
+            attributes["multiple"] = Multiple.Value ? QuarkAttributeValues.True : false;
+
+        if ((inputType == "file") && Accept is not null)
+            attributes["accept"] = Accept;
+
+        if ((inputType == "file") && Capture is not null)
+            attributes["capture"] = Capture;
+
+        if ((isText || inputType is "hidden" or "submit") && DirName is not null)
+            attributes["dirname"] = DirName;
+
+        if ((isText) && HtmlSize.HasValue)
+            attributes["size"] = QuarkAttributeValues.FromInt32(HtmlSize.Value);
+
+        if (InputMode is not null)
+            attributes["inputmode"] = InputMode;
+
+        if ((isSubmit) && FormAction is not null)
+            attributes["formaction"] = FormAction;
+
+        if ((isSubmit) && FormEncType is not null)
+            attributes["formenctype"] = FormEncType;
+
+        if ((isSubmit) && FormMethod is not null)
+            attributes["formmethod"] = FormMethod;
+
+        if ((isSubmit) && FormNoValidate.HasValue)
+            attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : false;
+
+        if ((isSubmit) && FormTarget is not null)
+            attributes["formtarget"] = FormTarget;
+
+    }
+
+
+    [Parameter]
+    public string? Form { get; set; }
+
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+    [Parameter]
+    public int? MinLength { get; set; }
+
+    [Parameter]
+    public int? MaxLength { get; set; }
+
+    [Parameter]
+    public string? Pattern { get; set; }
+
+    [Parameter]
+    public string? Min { get; set; }
+
+    [Parameter]
+    public string? Max { get; set; }
+
+    [Parameter]
+    public string? Step { get; set; }
+
+    [Parameter]
+    public string? List { get; set; }
+
+    [Parameter]
+    public bool? Multiple { get; set; }
+
+    [Parameter]
+    public string? Accept { get; set; }
+
+    [Parameter]
+    public string? Capture { get; set; }
+
+    [Parameter]
+    public string? DirName { get; set; }
+
+    [Parameter]
+    public int? HtmlSize { get; set; }
+
+    [Parameter]
+    public string? InputMode { get; set; }
+
+    [Parameter]
+    public string? FormAction { get; set; }
+
+    [Parameter]
+    public string? FormEncType { get; set; }
+
+    [Parameter]
+    public string? FormMethod { get; set; }
+
+    [Parameter]
+    public bool? FormNoValidate { get; set; }
+
+    [Parameter]
+    public string? FormTarget { get; set; }
+
+
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
@@ -511,6 +643,27 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Form);
+        hc.Add(AutoComplete);
+        hc.Add(MinLength);
+        hc.Add(MaxLength);
+        hc.Add(Pattern);
+        hc.Add(Min);
+        hc.Add(Max);
+        hc.Add(Step);
+        hc.Add(List);
+        hc.Add(Multiple);
+        hc.Add(Accept);
+        hc.Add(Capture);
+        hc.Add(DirName);
+        hc.Add(HtmlSize);
+        hc.Add(InputMode);
+        hc.Add(FormAction);
+        hc.Add(FormEncType);
+        hc.Add(FormMethod);
+        hc.Add(FormNoValidate);
+        hc.Add(FormTarget);
+
         hc.Add(Value);
         hc.Add(Type);
         hc.Add(Placeholder);

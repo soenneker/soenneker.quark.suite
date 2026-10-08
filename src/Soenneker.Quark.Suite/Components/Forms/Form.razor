@@ -8,6 +8,95 @@
 </EditForm>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (AutoComplete is not null)
+            attributes["autocomplete"] = AutoComplete;
+
+        if (Action is not null)
+            attributes["action"] = Action;
+
+        if (Method is not null)
+            attributes["method"] = Method;
+
+        if (EncType is not null)
+            attributes["enctype"] = EncType;
+
+        if (Name is not null)
+            attributes["name"] = Name;
+
+        if (Target is not null)
+            attributes["target"] = Target;
+
+        if (Rel is not null)
+            attributes["rel"] = Rel;
+
+        if (AcceptCharset is not null)
+            attributes["accept-charset"] = AcceptCharset;
+
+        if (NoValidate.HasValue)
+            attributes["novalidate"] = NoValidate.Value ? QuarkAttributeValues.True : false;
+
+    }
+
+
+    /// <summary>
+    /// Gets or sets browser autofill tokens, such as off, email, or section-shipping shipping street-address.
+    /// </summary>
+    [Parameter]
+    public string? AutoComplete { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML action attribute.
+    /// </summary>
+    [Parameter]
+    public string? Action { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML method attribute.
+    /// </summary>
+    [Parameter]
+    public string? Method { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML enctype attribute.
+    /// </summary>
+    [Parameter]
+    public string? EncType { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML name attribute.
+    /// </summary>
+    [Parameter]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML target attribute.
+    /// </summary>
+    [Parameter]
+    public string? Target { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML rel attribute.
+    /// </summary>
+    [Parameter]
+    public string? Rel { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML accept-charset attribute.
+    /// </summary>
+    [Parameter]
+    public string? AcceptCharset { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML novalidate attribute.
+    /// </summary>
+    [Parameter]
+    public bool? NoValidate { get; set; }
+
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is6;
@@ -54,6 +143,16 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoComplete);
+        hc.Add(Action);
+        hc.Add(Method);
+        hc.Add(EncType);
+        hc.Add(Name);
+        hc.Add(Target);
+        hc.Add(Rel);
+        hc.Add(AcceptCharset);
+        hc.Add(NoValidate);
+
         hc.Add(Model);
     }
 }

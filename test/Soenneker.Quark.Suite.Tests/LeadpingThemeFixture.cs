@@ -162,14 +162,14 @@ internal static class LeadpingThemeFixture
         DataTables = new DataTableThemeOptions
         {
             Width = Width.IsFull,
-            MinWidth = Width.Token("[42rem]"),
+            MinWidth = MinWidth.Token("[42rem]"),
             Border = Border.Is0,
             BackgroundColor = BackgroundColor.Transparent,
             Anchors = new AnchorOptions
             {
                 Display = Display.InlineFlex,
-                MaxWidth = Width.IsFull,
-                MinWidth = Width.Is0,
+                MaxWidth = MaxWidth.IsFull,
+                MinWidth = MinWidth.Is0,
                 ItemsAlign = Items.Center,
                 Gap = Gap.Is2,
                 Overflow = Overflow.Hidden,
@@ -190,7 +190,7 @@ internal static class LeadpingThemeFixture
             },
             AnchorDivs = new DivOptions
             {
-                MinWidth = Width.Is0,
+                MinWidth = MinWidth.Is0,
                 Overflow = Overflow.Hidden
             },
             AnchorLeadingSpans = new SpanOptions
@@ -311,7 +311,7 @@ internal static class LeadpingThemeFixture
         {
             Lists = new TabsListOptions
             {
-                MaxWidth = Width.IsFull,
+                MaxWidth = MaxWidth.IsFull,
                 Gap = Gap.Is1,
                 BackgroundColor = BackgroundColor.Token("[var(--surface-muted)]"),
                 Rounded = Rounded.Xl

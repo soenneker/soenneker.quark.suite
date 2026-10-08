@@ -24,6 +24,53 @@ else
 }
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Href.HasContent())
+        {
+            if (Download is not null)
+                attributes["download"] = Download;
+
+            if (Rel is not null)
+                attributes["rel"] = Rel;
+
+            if (HrefLang is not null)
+                attributes["hreflang"] = HrefLang;
+
+            if (Ping is not null)
+                attributes["ping"] = Ping;
+
+            if (ReferrerPolicy is not null)
+                attributes["referrerpolicy"] = ReferrerPolicy;
+
+            if (MediaType is not null)
+                attributes["type"] = MediaType;
+
+        }
+    }
+
+
+    [Parameter]
+    public string? Download { get; set; }
+
+    [Parameter]
+    public string? Rel { get; set; }
+
+    [Parameter]
+    public string? HrefLang { get; set; }
+
+    [Parameter]
+    public string? Ping { get; set; }
+
+    [Parameter]
+    public string? ReferrerPolicy { get; set; }
+
+    [Parameter]
+    public string? MediaType { get; set; }
+
+
     private string? _slotClass;
     private string? _slotStyle;
     private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
@@ -87,6 +134,13 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Download);
+        hc.Add(Rel);
+        hc.Add(HrefLang);
+        hc.Add(Ping);
+        hc.Add(ReferrerPolicy);
+        hc.Add(MediaType);
+
         hc.Add(Href);
         hc.Add(Target);
         hc.Add(PreventDefault);

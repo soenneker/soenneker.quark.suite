@@ -8,6 +8,27 @@ namespace Soenneker.Quark;
 public interface ITextInput : IInput
 {
     /// <summary>
+    /// Gets or sets the ID of the owning form, including a form outside the control ancestry.
+    /// </summary>
+    string? Form { get; set; }
+
+    /// <summary>
+    /// Gets or sets browser autofill tokens, such as off, email, or section-shipping shipping street-address.
+    /// </summary>
+    string? AutoComplete { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML minlength attribute.
+    /// </summary>
+    int? MinLength { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML dirname attribute.
+    /// </summary>
+    string? DirName { get; set; }
+
+
+    /// <summary>
     /// Gets or sets the value.
     /// </summary>
     string? Value { get; set; }

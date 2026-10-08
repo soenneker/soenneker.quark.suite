@@ -47,6 +47,44 @@ else
 }
 
 @code {
+    [Parameter]
+    public Target? Target { get; set; }
+
+    [Parameter]
+    public string? Rel { get; set; }
+
+    [Parameter]
+    public string? Download { get; set; }
+
+    [Parameter]
+    public string? HrefLang { get; set; }
+
+    [Parameter]
+    public string? ReferrerPolicy { get; set; }
+
+
+    [Parameter]
+    public string? FormAction { get; set; }
+
+    [Parameter]
+    public string? FormEncType { get; set; }
+
+    [Parameter]
+    public string? FormMethod { get; set; }
+
+    [Parameter]
+    public bool? FormNoValidate { get; set; }
+
+    [Parameter]
+    public string? FormTarget { get; set; }
+
+    [Parameter]
+    public string? PopoverTarget { get; set; }
+
+    [Parameter]
+    public string? PopoverTargetAction { get; set; }
+
+
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
@@ -322,12 +360,15 @@ else
                 attributes["disabled"] = QuarkAttributeValues.True;
         }
 
-        if (Value.HasContent())
-            attributes["value"] = Value!;
-        if (Name.HasContent())
-            attributes["name"] = Name!;
-        if (Form.HasContent())
-            attributes["form"] = Form!;
+        if (!isLink)
+        {
+            if (Value.HasContent())
+                attributes["value"] = Value!;
+            if (Name.HasContent())
+                attributes["name"] = Name!;
+            if (Form.HasContent())
+                attributes["form"] = Form!;
+        }
     }
 
     private string? ResolveDataSlot()
@@ -338,6 +379,45 @@ else
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
     {
         base.BuildOwnedAttributes(attributes);
+        if (RenderAsLink)
+        {
+            if (Target is not null)
+                attributes["target"] = Target.Value;
+            if (Rel is not null)
+                attributes["rel"] = Rel;
+            if (Download is not null)
+                attributes["download"] = Download;
+            if (HrefLang is not null)
+                attributes["hreflang"] = HrefLang;
+            if (ReferrerPolicy is not null)
+                attributes["referrerpolicy"] = ReferrerPolicy;
+        }
+
+        if (!RenderAsLink)
+        {
+            if (FormAction is not null)
+                attributes["formaction"] = FormAction;
+
+            if (FormEncType is not null)
+                attributes["formenctype"] = FormEncType;
+
+            if (FormMethod is not null)
+                attributes["formmethod"] = FormMethod;
+
+            if (FormNoValidate.HasValue)
+                attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : false;
+
+            if (FormTarget is not null)
+                attributes["formtarget"] = FormTarget;
+
+            if (PopoverTarget is not null)
+                attributes["popovertarget"] = PopoverTarget;
+
+            if (PopoverTargetAction is not null)
+                attributes["popovertargetaction"] = PopoverTargetAction;
+
+        }
+
 
         if (TriggerContext?.OnMouseEnter is not null)
             attributes["onmouseenter"] = TriggerEvents.MouseEnterCallback;
@@ -562,6 +642,20 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Target);
+        hc.Add(Rel);
+        hc.Add(Download);
+        hc.Add(HrefLang);
+        hc.Add(ReferrerPolicy);
+
+        hc.Add(FormAction);
+        hc.Add(FormEncType);
+        hc.Add(FormMethod);
+        hc.Add(FormNoValidate);
+        hc.Add(FormTarget);
+        hc.Add(PopoverTarget);
+        hc.Add(PopoverTargetAction);
+
         hc.Add(ButtonSize);
         hc.Add(Disabled);
         hc.Add(Block);

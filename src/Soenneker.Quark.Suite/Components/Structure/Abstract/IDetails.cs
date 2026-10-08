@@ -9,6 +9,12 @@ namespace Soenneker.Quark;
 public interface IDetails : IElement
 {
     /// <summary>
+    /// Gets or sets the exclusive disclosure group name; opening one group member closes the others.
+    /// </summary>
+    string? Name { get; set; }
+
+
+    /// <summary>
     /// Gets or sets whether the details element is open (expanded).
     /// </summary>
     bool Open { get; set; }

@@ -26,21 +26,17 @@
     [Parameter]
     public CssValue<ListVariantBuilder>? ListVariant { get; set; }
 
-    /// <summary>
-    /// Gets or sets the list style type.
-    /// </summary>
-    [Parameter]
-    public CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
 
     // shadcn-style list - new-york-v4
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         base.BuildAttributesCore(attrs);
+        var listStyleType = ResolvePresetValue(ListStyleType, AppliedPresetContext?.ListStyleType, nameof(ListStyleType));
 
         if (ListVariant is null or { IsEmpty: true })
             AppendClassAttribute(attrs, "my-6 ml-6 [&>li]:mt-2", ref _appendedClass0);
 
-        if ((ListVariant is null or { IsEmpty: true }) && (ListStyleType is null or { IsEmpty: true }))
+        if ((ListVariant is null or { IsEmpty: true }) && (listStyleType is null or { IsEmpty: true }))
             AppendClassAttribute(attrs, "list-disc", ref _appendedClass1);
 
         if (ListVariant is { IsEmpty: false })
@@ -52,9 +48,9 @@
             }
         }
         
-        if (ListStyleType is { IsEmpty: false })
+        if (listStyleType is { IsEmpty: false })
         {
-            var cls = ListStyleType.Value.ToString();
+            var cls = listStyleType.Value.ToString();
             if (cls.Length > 0)
             {
                 AppendListStyleType(attrs, cls);
@@ -84,6 +80,5 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, ListVariant);
-        AddIf(ref hc, ListStyleType);
     }
 }

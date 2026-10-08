@@ -14,6 +14,25 @@ namespace Soenneker.Quark;
 public abstract class InteractiveElement : Element
 {
     /// <summary>
+    /// Gets or sets whether the interactive element is unavailable.
+    /// </summary>
+    [Parameter]
+    public bool? AriaDisabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the controlled content is expanded.
+    /// </summary>
+    [Parameter]
+    public bool? AriaExpanded { get; set; }
+
+    /// <summary>
+    /// Gets or sets the popup type: false, true, menu, listbox, tree, grid, or dialog.
+    /// </summary>
+    [Parameter]
+    public string? AriaHasPopup { get; set; }
+
+
+    /// <summary>
     /// Gets or sets on click.
     /// </summary>
     [Parameter]
@@ -63,6 +82,15 @@ public abstract class InteractiveElement : Element
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
         base.BuildOwnedAttributes(attrs);
+        if (AriaDisabled.HasValue)
+            attrs["aria-disabled"] = AriaDisabled.Value ? "true" : "false";
+
+        if (AriaExpanded.HasValue)
+            attrs["aria-expanded"] = AriaExpanded.Value ? "true" : "false";
+
+        if (AriaHasPopup is not null)
+            attrs["aria-haspopup"] = AriaHasPopup;
+
 
         if (OnDoubleClick.HasDelegate)
             SetEventAttribute(attrs, "ondblclick", OnDoubleClick);
@@ -94,6 +122,10 @@ public abstract class InteractiveElement : Element
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AriaDisabled);
+        hc.Add(AriaExpanded);
+        hc.Add(AriaHasPopup);
+
 
         hc.Add(OnClick.HasDelegate);
         hc.Add(OnDoubleClick.HasDelegate);

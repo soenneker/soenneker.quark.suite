@@ -15,6 +15,68 @@
 </th>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (Colspan.HasValue)
+            attributes["colspan"] = QuarkAttributeValues.FromInt32(Colspan.Value);
+
+        if (HtmlRowSpan.HasValue)
+            attributes["rowspan"] = QuarkAttributeValues.FromInt32(HtmlRowSpan.Value);
+
+        if (Headers is not null)
+            attributes["headers"] = Headers;
+
+        if (Scope is not null)
+            attributes["scope"] = Scope;
+
+        if (Abbr is not null)
+            attributes["abbr"] = Abbr;
+
+        if (AriaSort is not null)
+            attributes["aria-sort"] = AriaSort;
+
+    }
+
+
+    /// <summary>
+    /// Gets or sets the HTML colspan attribute.
+    /// </summary>
+    [Parameter]
+    public int? Colspan { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML rowspan attribute.
+    /// </summary>
+    [Parameter]
+    public int? HtmlRowSpan { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML headers attribute.
+    /// </summary>
+    [Parameter]
+    public string? Headers { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML scope attribute.
+    /// </summary>
+    [Parameter]
+    public string? Scope { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML abbr attribute.
+    /// </summary>
+    [Parameter]
+    public string? Abbr { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML aria-sort attribute.
+    /// </summary>
+    [Parameter]
+    public string? AriaSort { get; set; }
+
+
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is10;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2;
     private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Start;
@@ -101,7 +163,7 @@
     private string GetSortIndicator()
     {
         if (DataTable == null)
-            return " ↕";
+            return " â†•";
 
         return DataTable.GetSortIndicatorByIndex(_columnIndex);
     }
@@ -170,6 +232,13 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Colspan);
+        hc.Add(HtmlRowSpan);
+        hc.Add(Headers);
+        hc.Add(Scope);
+        hc.Add(Abbr);
+        hc.Add(AriaSort);
+
         hc.Add(Sortable);
         hc.Add(Searchable);
         hc.Add(HeaderAlign);

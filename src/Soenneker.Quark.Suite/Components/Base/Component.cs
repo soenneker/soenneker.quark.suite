@@ -14,14 +14,370 @@ namespace Soenneker.Quark;
 /// <remarks>Do not use the <c>new</c> keyword to Shadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
 public abstract class Component : RenderComponent, IComponent
 {
-    private ulong _explicitParameters0;
-    private ulong _explicitParameters1;
+    private readonly ulong[] _explicitParameters = new ulong[((int)PresetProperty.Count + 63) / 64];
 
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
 
     [Inject]
     protected QuarkOptions QuarkOptions { get; set; } = null!;
+
+    [Parameter]
+    public CssValue<AccentColorBuilder>? AccentColor { get; set; }
+
+    [Parameter]
+    public CssValue<AppearanceBuilder>? NativeAppearance { get; set; }
+
+    [Parameter]
+    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
+
+    [Parameter]
+    public CssValue<AutoColsBuilder>? AutoCols { get; set; }
+
+    [Parameter]
+    public CssValue<AutoRowsBuilder>? AutoRows { get; set; }
+
+    [Parameter]
+    public CssValue<BackfaceVisibilityBuilder>? BackfaceVisibility { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundAttachmentBuilder>? BackgroundAttachment { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundBlendModeBuilder>? BackgroundBlendMode { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundClipBuilder>? BackgroundClip { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundImageBuilder>? BackgroundImage { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundOriginBuilder>? BackgroundOrigin { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundPositionBuilder>? BackgroundPosition { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundRepeatBuilder>? BackgroundRepeat { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundSizeBuilder>? BackgroundSize { get; set; }
+
+    [Parameter]
+    public CssValue<BlockSizeBuilder>? BlockSize { get; set; }
+
+    [Parameter]
+    public CssValue<BorderCollapseBuilder>? BorderCollapse { get; set; }
+
+    [Parameter]
+    public CssValue<BorderSpacingBuilder>? BorderSpacing { get; set; }
+
+    [Parameter]
+    public CssValue<BoxDecorationBreakBuilder>? BoxDecorationBreak { get; set; }
+
+    [Parameter]
+    public CssValue<BoxSizingBuilder>? BoxSizing { get; set; }
+
+    [Parameter]
+    public CssValue<BreakAfterBuilder>? BreakAfter { get; set; }
+
+    [Parameter]
+    public CssValue<BreakBeforeBuilder>? BreakBefore { get; set; }
+
+    [Parameter]
+    public CssValue<BreakInsideBuilder>? BreakInside { get; set; }
+
+    [Parameter]
+    public CssValue<CaptionSideBuilder>? CaptionSide { get; set; }
+
+    [Parameter]
+    public CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    [Parameter]
+    public CssValue<ClearBuilder>? FloatClear { get; set; }
+
+    [Parameter]
+    public CssValue<ClipPathBuilder>? ClipPath { get; set; }
+
+    [Parameter]
+    public CssValue<ColEndBuilder>? ColEnd { get; set; }
+
+    [Parameter]
+    public CssValue<ColorSchemeBuilder>? ColorScheme { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnsBuilder>? ColumnCount { get; set; }
+
+    [Parameter]
+    public CssValue<ContainerTypeBuilder>? ContainerQuery { get; set; }
+
+    [Parameter]
+    public CssValue<ContainBuilder>? Contain { get; set; }
+
+    [Parameter]
+    public CssValue<ContentBuilder>? GeneratedContent { get; set; }
+
+    [Parameter]
+    public CssValue<DecorationColorBuilder>? DecorationColor { get; set; }
+
+    [Parameter]
+    public CssValue<DecorationStyleBuilder>? DecorationStyle { get; set; }
+
+    [Parameter]
+    public CssValue<DecorationThicknessBuilder>? DecorationThickness { get; set; }
+
+    [Parameter]
+    public CssValue<DelayBuilder>? TransitionDelay { get; set; }
+
+    [Parameter]
+    public CssValue<EaseBuilder>? Ease { get; set; }
+
+    [Parameter]
+    public CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
+    [Parameter]
+    public CssValue<FillRuleBuilder>? FillRule { get; set; }
+
+    [Parameter]
+    public CssValue<FillBuilder>? Fill { get; set; }
+
+    [Parameter]
+    public CssValue<FlexBasisBuilder>? FlexBasis { get; set; }
+
+    [Parameter]
+    public CssValue<FontFeatureSettingsBuilder>? FontFeatureSettings { get; set; }
+
+    [Parameter]
+    public CssValue<FontSmoothingBuilder>? FontSmoothing { get; set; }
+
+    [Parameter]
+    public CssValue<FontStretchBuilder>? FontStretch { get; set; }
+
+    [Parameter]
+    public CssValue<ForcedColorAdjustBuilder>? ForcedColorAdjust { get; set; }
+
+    [Parameter]
+    public CssValue<GradientBuilder>? BackgroundGradient { get; set; }
+
+    [Parameter]
+    public CssValue<GridAutoFlowBuilder>? GridAutoFlow { get; set; }
+
+    [Parameter]
+    public CssValue<GridColsBuilder>? GridColumns { get; set; }
+
+    [Parameter]
+    public CssValue<GridRowsBuilder>? GridRows { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
+
+    [Parameter]
+    public CssValue<HyphenBuilder>? Hyphen { get; set; }
+
+    [Parameter]
+    public CssValue<InlineSizeBuilder>? InlineSize { get; set; }
+
+    [Parameter]
+    public CssValue<InsetBlockEndBuilder>? InsetBlockEnd { get; set; }
+
+    [Parameter]
+    public CssValue<InsetBlockStartBuilder>? InsetBlockStart { get; set; }
+
+    [Parameter]
+    public CssValue<InsetEndBuilder>? InsetEnd { get; set; }
+
+    [Parameter]
+    public CssValue<InsetRingColorBuilder>? InsetRingColor { get; set; }
+
+    [Parameter]
+    public CssValue<InsetRingBuilder>? InsetRing { get; set; }
+
+    [Parameter]
+    public CssValue<InsetShadowColorBuilder>? InsetShadowColor { get; set; }
+
+    [Parameter]
+    public CssValue<InsetShadowBuilder>? InsetShadow { get; set; }
+
+    [Parameter]
+    public CssValue<InsetStartBuilder>? InsetStart { get; set; }
+
+    [Parameter]
+    public CssValue<IsolationBuilder>? Isolation { get; set; }
+
+    [Parameter]
+    public CssValue<ListStyleImageBuilder>? ListStyleImage { get; set; }
+
+    [Parameter]
+    public CssValue<ListStylePositionBuilder>? ListStylePosition { get; set; }
+
+    [Parameter]
+    public CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
+
+    [Parameter]
+    public CssValue<MaskClipBuilder>? MaskClip { get; set; }
+
+    [Parameter]
+    public CssValue<MaskCompositeBuilder>? MaskComposite { get; set; }
+
+    [Parameter]
+    public CssValue<MaskImageBuilder>? MaskImage { get; set; }
+
+    [Parameter]
+    public CssValue<MaskModeBuilder>? MaskMode { get; set; }
+
+    [Parameter]
+    public CssValue<MaskOriginBuilder>? MaskOrigin { get; set; }
+
+    [Parameter]
+    public CssValue<MaskPositionBuilder>? MaskPosition { get; set; }
+
+    [Parameter]
+    public CssValue<MaskRepeatBuilder>? MaskRepeat { get; set; }
+
+    [Parameter]
+    public CssValue<MaskSizeBuilder>? MaskSize { get; set; }
+
+    [Parameter]
+    public CssValue<MaskTypeBuilder>? MaskType { get; set; }
+
+    [Parameter]
+    public CssValue<MaxBlockSizeBuilder>? MaxBlockSize { get; set; }
+
+    [Parameter]
+    public CssValue<MaxInlineSizeBuilder>? MaxInlineSize { get; set; }
+
+    [Parameter]
+    public CssValue<MinBlockSizeBuilder>? MinBlockSize { get; set; }
+
+    [Parameter]
+    public CssValue<MinInlineSizeBuilder>? MinInlineSize { get; set; }
+
+    [Parameter]
+    public CssValue<MixBlendModeBuilder>? MixBlendMode { get; set; }
+
+    [Parameter]
+    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    [Parameter]
+    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
+    [Parameter]
+    public CssValue<OrderBuilder>? Order { get; set; }
+
+    [Parameter]
+    public CssValue<OriginBuilder>? Origin { get; set; }
+
+    [Parameter]
+    public CssValue<OutlineColorBuilder>? OutlineColor { get; set; }
+
+    [Parameter]
+    public CssValue<OutlineOffsetBuilder>? OutlineOffset { get; set; }
+
+    [Parameter]
+    public CssValue<OutlineWidthBuilder>? OutlineWidth { get; set; }
+
+    [Parameter]
+    public CssValue<OverflowWrapBuilder>? OverflowWrap { get; set; }
+
+    [Parameter]
+    public CssValue<PerspectiveOriginBuilder>? PerspectiveOrigin { get; set; }
+
+    [Parameter]
+    public CssValue<PerspectiveBuilder>? Perspective { get; set; }
+
+    [Parameter]
+    public CssValue<PlaceContentAlignBuilder>? PlaceContentAlign { get; set; }
+
+    [Parameter]
+    public CssValue<PlaceItemsAlignBuilder>? PlaceItemsAlign { get; set; }
+
+    [Parameter]
+    public CssValue<PlaceSelfAlignBuilder>? PlaceSelfAlign { get; set; }
+
+    [Parameter]
+    public CssValue<RotateBuilder>? Rotate { get; set; }
+
+    [Parameter]
+    public CssValue<RowEndBuilder>? RowEnd { get; set; }
+
+    [Parameter]
+    public CssValue<ScaleBuilder>? Scale { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollbarGutterBuilder>? ScrollbarGutter { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollbarThumbColorBuilder>? ScrollbarThumbColor { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollbarTrackColorBuilder>? ScrollbarTrackColor { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollbarWidthBuilder>? ScrollbarWidth { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollSnapAlignBuilder>? ScrollSnapAlign { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollSnapBuilder>? ScrollSnap { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollSnapStopBuilder>? ScrollSnapStop { get; set; }
+
+    [Parameter]
+    public CssValue<ShadowColorBuilder>? ShadowColor { get; set; }
+
+    [Parameter]
+    public CssValue<SkewBuilder>? Skew { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeWidthBuilder>? SvgStrokeWidth { get; set; }
+
+    [Parameter]
+    public CssValue<TableLayoutBuilder>? TableLayout { get; set; }
+
+    [Parameter]
+    public CssValue<TabSizeBuilder>? TabSize { get; set; }
+
+    [Parameter]
+    public CssValue<TextIndentBuilder>? TextIndent { get; set; }
+
+    [Parameter]
+    public CssValue<TextShadowColorBuilder>? TextShadowColor { get; set; }
+
+    [Parameter]
+    public CssValue<TextShadowBuilder>? TextShadow { get; set; }
+
+    [Parameter]
+    public CssValue<TouchActionBuilder>? TouchAction { get; set; }
+
+    [Parameter]
+    public CssValue<TransformStyleBuilder>? TransformStyle { get; set; }
+
+    [Parameter]
+    public CssValue<TransitionBehaviorBuilder>? TransitionBehavior { get; set; }
+
+    [Parameter]
+    public CssValue<TranslateBuilder>? Translate { get; set; }
+
+    [Parameter]
+    public CssValue<WillChangeBuilder>? WillChange { get; set; }
+
+    [Parameter]
+    public CssValue<ZoomBuilder>? Zoom { get; set; }
 
     [Parameter]
     public bool Container { get; set; }
@@ -108,7 +464,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<TextWrapBuilder>? TextWrap { get; set; }
 
     [Parameter]
-    public CssValue<TextBreakBuilder>? TextBreak { get; set; }
+    public CssValue<WordBreakBuilder>? WordBreak { get; set; }
 
     [Parameter]
     public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
@@ -374,19 +730,18 @@ public abstract class Component : RenderComponent, IComponent
         // ParameterView enumeration and HashSet work for the overwhelmingly common no-preset path.
         if (resolvedPreset is null && (resolvedPresets is null || resolvedPresets.Count == 0))
         {
-            _explicitParameters0 = _explicitParameters1 = 0;
+            Array.Clear(_explicitParameters);
             return base.SetParametersAsync(parameters);
         }
 
-        _explicitParameters0 = _explicitParameters1 = 0;
+        Array.Clear(_explicitParameters);
 
         foreach (var parameter in parameters)
         {
             int slot = GetPresetParameterSlot(parameter.Name);
             if (slot >= 0)
             {
-                if (slot < 64) _explicitParameters0 |= 1UL << slot;
-                else _explicitParameters1 |= 1UL << (slot - 64);
+                _explicitParameters[slot / 64] |= 1UL << (slot % 64);
             }
         }
 
@@ -399,12 +754,130 @@ public abstract class Component : RenderComponent, IComponent
         return HasExplicitPresetSlot(slot);
     }
 
-    private bool HasExplicitPresetSlot(int slot) => slot >= 0 && (slot < 64
-        ? (_explicitParameters0 & (1UL << slot)) != 0
-        : (_explicitParameters1 & (1UL << (slot - 64))) != 0);
+    private bool HasExplicitPresetSlot(int slot) => slot >= 0 && (_explicitParameters[slot / 64] & (1UL << (slot % 64))) != 0;
 
     private static int GetPresetParameterSlot(string name) => name switch
     {
+        nameof(OutlineStyle) => (int)PresetProperty.OutlineStyle,
+        nameof(AccentColor) => (int)PresetProperty.AccentColor,
+        nameof(NativeAppearance) => (int)PresetProperty.NativeAppearance,
+        nameof(AspectRatio) => (int)PresetProperty.AspectRatio,
+        nameof(AutoCols) => (int)PresetProperty.AutoCols,
+        nameof(AutoRows) => (int)PresetProperty.AutoRows,
+        nameof(BackfaceVisibility) => (int)PresetProperty.BackfaceVisibility,
+        nameof(BackgroundAttachment) => (int)PresetProperty.BackgroundAttachment,
+        nameof(BackgroundBlendMode) => (int)PresetProperty.BackgroundBlendMode,
+        nameof(BackgroundClip) => (int)PresetProperty.BackgroundClip,
+        nameof(BackgroundImage) => (int)PresetProperty.BackgroundImage,
+        nameof(BackgroundOrigin) => (int)PresetProperty.BackgroundOrigin,
+        nameof(BackgroundPosition) => (int)PresetProperty.BackgroundPosition,
+        nameof(BackgroundRepeat) => (int)PresetProperty.BackgroundRepeat,
+        nameof(BackgroundSize) => (int)PresetProperty.BackgroundSize,
+        nameof(BlockSize) => (int)PresetProperty.BlockSize,
+        nameof(BorderCollapse) => (int)PresetProperty.BorderCollapse,
+        nameof(BorderSpacing) => (int)PresetProperty.BorderSpacing,
+        nameof(BoxDecorationBreak) => (int)PresetProperty.BoxDecorationBreak,
+        nameof(BoxSizing) => (int)PresetProperty.BoxSizing,
+        nameof(BreakAfter) => (int)PresetProperty.BreakAfter,
+        nameof(BreakBefore) => (int)PresetProperty.BreakBefore,
+        nameof(BreakInside) => (int)PresetProperty.BreakInside,
+        nameof(CaptionSide) => (int)PresetProperty.CaptionSide,
+        nameof(CaretColor) => (int)PresetProperty.CaretColor,
+        nameof(FloatClear) => (int)PresetProperty.FloatClear,
+        nameof(ClipPath) => (int)PresetProperty.ClipPath,
+        nameof(ColEnd) => (int)PresetProperty.ColEnd,
+        nameof(ColorScheme) => (int)PresetProperty.ColorScheme,
+        nameof(ColumnCount) => (int)PresetProperty.ColumnCount,
+        nameof(ContainerQuery) => (int)PresetProperty.ContainerQuery,
+        nameof(Contain) => (int)PresetProperty.Contain,
+        nameof(GeneratedContent) => (int)PresetProperty.GeneratedContent,
+        nameof(DecorationColor) => (int)PresetProperty.DecorationColor,
+        nameof(DecorationStyle) => (int)PresetProperty.DecorationStyle,
+        nameof(DecorationThickness) => (int)PresetProperty.DecorationThickness,
+        nameof(TransitionDelay) => (int)PresetProperty.TransitionDelay,
+        nameof(Ease) => (int)PresetProperty.Ease,
+        nameof(FieldSizing) => (int)PresetProperty.FieldSizing,
+        nameof(FillRule) => (int)PresetProperty.FillRule,
+        nameof(Fill) => (int)PresetProperty.Fill,
+        nameof(FlexBasis) => (int)PresetProperty.FlexBasis,
+        nameof(FontFeatureSettings) => (int)PresetProperty.FontFeatureSettings,
+        nameof(FontSmoothing) => (int)PresetProperty.FontSmoothing,
+        nameof(FontStretch) => (int)PresetProperty.FontStretch,
+        nameof(ForcedColorAdjust) => (int)PresetProperty.ForcedColorAdjust,
+        nameof(BackgroundGradient) => (int)PresetProperty.BackgroundGradient,
+        nameof(GridAutoFlow) => (int)PresetProperty.GridAutoFlow,
+        nameof(GridColumns) => (int)PresetProperty.GridColumns,
+        nameof(GridRows) => (int)PresetProperty.GridRows,
+        nameof(ColumnSpan) => (int)PresetProperty.ColumnSpan,
+        nameof(Hyphen) => (int)PresetProperty.Hyphen,
+        nameof(InlineSize) => (int)PresetProperty.InlineSize,
+        nameof(InsetBlockEnd) => (int)PresetProperty.InsetBlockEnd,
+        nameof(InsetBlockStart) => (int)PresetProperty.InsetBlockStart,
+        nameof(InsetEnd) => (int)PresetProperty.InsetEnd,
+        nameof(InsetRingColor) => (int)PresetProperty.InsetRingColor,
+        nameof(InsetRing) => (int)PresetProperty.InsetRing,
+        nameof(InsetShadowColor) => (int)PresetProperty.InsetShadowColor,
+        nameof(InsetShadow) => (int)PresetProperty.InsetShadow,
+        nameof(InsetStart) => (int)PresetProperty.InsetStart,
+        nameof(Isolation) => (int)PresetProperty.Isolation,
+        nameof(ListStyleImage) => (int)PresetProperty.ListStyleImage,
+        nameof(ListStylePosition) => (int)PresetProperty.ListStylePosition,
+        nameof(ListStyleType) => (int)PresetProperty.ListStyleType,
+        nameof(MaskClip) => (int)PresetProperty.MaskClip,
+        nameof(MaskComposite) => (int)PresetProperty.MaskComposite,
+        nameof(MaskImage) => (int)PresetProperty.MaskImage,
+        nameof(MaskMode) => (int)PresetProperty.MaskMode,
+        nameof(MaskOrigin) => (int)PresetProperty.MaskOrigin,
+        nameof(MaskPosition) => (int)PresetProperty.MaskPosition,
+        nameof(MaskRepeat) => (int)PresetProperty.MaskRepeat,
+        nameof(MaskSize) => (int)PresetProperty.MaskSize,
+        nameof(MaskType) => (int)PresetProperty.MaskType,
+        nameof(MaxBlockSize) => (int)PresetProperty.MaxBlockSize,
+        nameof(MaxInlineSize) => (int)PresetProperty.MaxInlineSize,
+        nameof(MinBlockSize) => (int)PresetProperty.MinBlockSize,
+        nameof(MinInlineSize) => (int)PresetProperty.MinInlineSize,
+        nameof(MixBlendMode) => (int)PresetProperty.MixBlendMode,
+        nameof(ObjectFit) => (int)PresetProperty.ObjectFit,
+        nameof(ObjectPosition) => (int)PresetProperty.ObjectPosition,
+        nameof(Order) => (int)PresetProperty.Order,
+        nameof(Origin) => (int)PresetProperty.Origin,
+        nameof(OutlineColor) => (int)PresetProperty.OutlineColor,
+        nameof(OutlineOffset) => (int)PresetProperty.OutlineOffset,
+        nameof(OutlineWidth) => (int)PresetProperty.OutlineWidth,
+        nameof(OverflowWrap) => (int)PresetProperty.OverflowWrap,
+        nameof(PerspectiveOrigin) => (int)PresetProperty.PerspectiveOrigin,
+        nameof(Perspective) => (int)PresetProperty.Perspective,
+        nameof(PlaceContentAlign) => (int)PresetProperty.PlaceContentAlign,
+        nameof(PlaceItemsAlign) => (int)PresetProperty.PlaceItemsAlign,
+        nameof(PlaceSelfAlign) => (int)PresetProperty.PlaceSelfAlign,
+        nameof(Rotate) => (int)PresetProperty.Rotate,
+        nameof(RowEnd) => (int)PresetProperty.RowEnd,
+        nameof(Scale) => (int)PresetProperty.Scale,
+        nameof(ScrollbarGutter) => (int)PresetProperty.ScrollbarGutter,
+        nameof(ScrollbarThumbColor) => (int)PresetProperty.ScrollbarThumbColor,
+        nameof(ScrollbarTrackColor) => (int)PresetProperty.ScrollbarTrackColor,
+        nameof(ScrollbarWidth) => (int)PresetProperty.ScrollbarWidth,
+        nameof(ScrollBehavior) => (int)PresetProperty.ScrollBehavior,
+        nameof(ScrollSnapAlign) => (int)PresetProperty.ScrollSnapAlign,
+        nameof(ScrollSnap) => (int)PresetProperty.ScrollSnap,
+        nameof(ScrollSnapStop) => (int)PresetProperty.ScrollSnapStop,
+        nameof(ShadowColor) => (int)PresetProperty.ShadowColor,
+        nameof(Skew) => (int)PresetProperty.Skew,
+        nameof(StrokeLineCap) => (int)PresetProperty.StrokeLineCap,
+        nameof(StrokeLineJoin) => (int)PresetProperty.StrokeLineJoin,
+        nameof(Stroke) => (int)PresetProperty.Stroke,
+        nameof(SvgStrokeWidth) => (int)PresetProperty.SvgStrokeWidth,
+        nameof(TableLayout) => (int)PresetProperty.TableLayout,
+        nameof(TabSize) => (int)PresetProperty.TabSize,
+        nameof(TextIndent) => (int)PresetProperty.TextIndent,
+        nameof(TextShadowColor) => (int)PresetProperty.TextShadowColor,
+        nameof(TextShadow) => (int)PresetProperty.TextShadow,
+        nameof(TouchAction) => (int)PresetProperty.TouchAction,
+        nameof(TransformStyle) => (int)PresetProperty.TransformStyle,
+        nameof(TransitionBehavior) => (int)PresetProperty.TransitionBehavior,
+        nameof(Translate) => (int)PresetProperty.Translate,
+        nameof(WillChange) => (int)PresetProperty.WillChange,
+        nameof(Zoom) => (int)PresetProperty.Zoom,
         nameof(Inset) => (int)PresetProperty.Inset,
         nameof(Top) => (int)PresetProperty.Top,
         nameof(Right) => (int)PresetProperty.Right,
@@ -427,7 +900,7 @@ public abstract class Component : RenderComponent, IComponent
         nameof(Tracking) => (int)PresetProperty.Tracking,
         nameof(Whitespace) => (int)PresetProperty.Whitespace,
         nameof(TextWrap) => (int)PresetProperty.TextWrap,
-        nameof(TextBreak) => (int)PresetProperty.TextBreak,
+        nameof(WordBreak) => (int)PresetProperty.WordBreak,
         nameof(TextOverflow) => (int)PresetProperty.TextOverflow,
         nameof(Truncate) => (int)PresetProperty.Truncate,
         nameof(LineClamp) => (int)PresetProperty.LineClamp,
@@ -554,6 +1027,13 @@ public abstract class Component : RenderComponent, IComponent
         BuildLayoutClassAndStyle(ref sty, ref cls, preset);
         BuildInteractionClassAndStyle(ref sty, ref cls, preset);
         BuildVisualClassAndStyle(ref sty, ref cls, preset);
+        BuildAdditionalUtilities1(ref cls, preset);
+        BuildAdditionalUtilities2(ref cls, preset);
+        BuildAdditionalUtilities3(ref cls, preset);
+        BuildAdditionalUtilities4(ref cls, preset);
+        BuildAdditionalUtilities5(ref cls, preset);
+        BuildAdditionalUtilities6(ref cls, preset);
+
 
         // Explicit inline CSS follows builder-provided styles; the browser resolves precedence.
         if (Style.HasContent())
@@ -567,6 +1047,274 @@ public abstract class Component : RenderComponent, IComponent
 
         if (Class.HasContent())
             AppendClass(ref cls, Class!);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities1(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (AccentColor.HasValue || preset is not null && preset.HasValue(PresetProperty.AccentColor))
+            AddCss(ref cls, ResolvePresetSlot(AccentColor, preset?.AccentColor, (int)PresetProperty.AccentColor));
+        if (NativeAppearance.HasValue || preset is not null && preset.HasValue(PresetProperty.NativeAppearance))
+            AddCss(ref cls, ResolvePresetSlot(NativeAppearance, preset?.NativeAppearance, (int)PresetProperty.NativeAppearance));
+        if (AspectRatio.HasValue || preset is not null && preset.HasValue(PresetProperty.AspectRatio))
+            AddCss(ref cls, ResolvePresetSlot(AspectRatio, preset?.AspectRatio, (int)PresetProperty.AspectRatio));
+        if (AutoCols.HasValue || preset is not null && preset.HasValue(PresetProperty.AutoCols))
+            AddCss(ref cls, ResolvePresetSlot(AutoCols, preset?.AutoCols, (int)PresetProperty.AutoCols));
+        if (AutoRows.HasValue || preset is not null && preset.HasValue(PresetProperty.AutoRows))
+            AddCss(ref cls, ResolvePresetSlot(AutoRows, preset?.AutoRows, (int)PresetProperty.AutoRows));
+        if (BackfaceVisibility.HasValue || preset is not null && preset.HasValue(PresetProperty.BackfaceVisibility))
+            AddCss(ref cls, ResolvePresetSlot(BackfaceVisibility, preset?.BackfaceVisibility, (int)PresetProperty.BackfaceVisibility));
+        if (BackgroundAttachment.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundAttachment))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundAttachment, preset?.BackgroundAttachment, (int)PresetProperty.BackgroundAttachment));
+        if (BackgroundBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundBlendMode))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundBlendMode, preset?.BackgroundBlendMode, (int)PresetProperty.BackgroundBlendMode));
+        if (BackgroundClip.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundClip))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundClip, preset?.BackgroundClip, (int)PresetProperty.BackgroundClip));
+        if (BackgroundImage.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundImage))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundImage, preset?.BackgroundImage, (int)PresetProperty.BackgroundImage));
+        if (BackgroundOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundOrigin))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundOrigin, preset?.BackgroundOrigin, (int)PresetProperty.BackgroundOrigin));
+        if (BackgroundPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundPosition))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundPosition, preset?.BackgroundPosition, (int)PresetProperty.BackgroundPosition));
+        if (BackgroundRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundRepeat))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundRepeat, preset?.BackgroundRepeat, (int)PresetProperty.BackgroundRepeat));
+        if (BackgroundSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundSize))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundSize, preset?.BackgroundSize, (int)PresetProperty.BackgroundSize));
+        if (BlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BlockSize))
+            AddCss(ref cls, ResolvePresetSlot(BlockSize, preset?.BlockSize, (int)PresetProperty.BlockSize));
+        if (BorderCollapse.HasValue || preset is not null && preset.HasValue(PresetProperty.BorderCollapse))
+            AddCss(ref cls, ResolvePresetSlot(BorderCollapse, preset?.BorderCollapse, (int)PresetProperty.BorderCollapse));
+        if (BorderSpacing.HasValue || preset is not null && preset.HasValue(PresetProperty.BorderSpacing))
+            AddCss(ref cls, ResolvePresetSlot(BorderSpacing, preset?.BorderSpacing, (int)PresetProperty.BorderSpacing));
+        if (BoxDecorationBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxDecorationBreak))
+            AddCss(ref cls, ResolvePresetSlot(BoxDecorationBreak, preset?.BoxDecorationBreak, (int)PresetProperty.BoxDecorationBreak));
+        if (BoxSizing.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxSizing))
+            AddCss(ref cls, ResolvePresetSlot(BoxSizing, preset?.BoxSizing, (int)PresetProperty.BoxSizing));
+        if (BreakAfter.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakAfter))
+            AddCss(ref cls, ResolvePresetSlot(BreakAfter, preset?.BreakAfter, (int)PresetProperty.BreakAfter));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities2(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (BreakBefore.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakBefore))
+            AddCss(ref cls, ResolvePresetSlot(BreakBefore, preset?.BreakBefore, (int)PresetProperty.BreakBefore));
+        if (BreakInside.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakInside))
+            AddCss(ref cls, ResolvePresetSlot(BreakInside, preset?.BreakInside, (int)PresetProperty.BreakInside));
+        if (CaptionSide.HasValue || preset is not null && preset.HasValue(PresetProperty.CaptionSide))
+            AddCss(ref cls, ResolvePresetSlot(CaptionSide, preset?.CaptionSide, (int)PresetProperty.CaptionSide));
+        if (CaretColor.HasValue || preset is not null && preset.HasValue(PresetProperty.CaretColor))
+            AddCss(ref cls, ResolvePresetSlot(CaretColor, preset?.CaretColor, (int)PresetProperty.CaretColor));
+        if (FloatClear.HasValue || preset is not null && preset.HasValue(PresetProperty.FloatClear))
+            AddCss(ref cls, ResolvePresetSlot(FloatClear, preset?.FloatClear, (int)PresetProperty.FloatClear));
+        if (ClipPath.HasValue || preset is not null && preset.HasValue(PresetProperty.ClipPath))
+            AddCss(ref cls, ResolvePresetSlot(ClipPath, preset?.ClipPath, (int)PresetProperty.ClipPath));
+        if (ColEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.ColEnd))
+            AddCss(ref cls, ResolvePresetSlot(ColEnd, preset?.ColEnd, (int)PresetProperty.ColEnd));
+        if (ColorScheme.HasValue || preset is not null && preset.HasValue(PresetProperty.ColorScheme))
+            AddCss(ref cls, ResolvePresetSlot(ColorScheme, preset?.ColorScheme, (int)PresetProperty.ColorScheme));
+        if (ColumnCount.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnCount))
+            AddCss(ref cls, ResolvePresetSlot(ColumnCount, preset?.ColumnCount, (int)PresetProperty.ColumnCount));
+        if (ContainerQuery.HasValue || preset is not null && preset.HasValue(PresetProperty.ContainerQuery))
+            AddCss(ref cls, ResolvePresetSlot(ContainerQuery, preset?.ContainerQuery, (int)PresetProperty.ContainerQuery));
+        if (Contain.HasValue || preset is not null && preset.HasValue(PresetProperty.Contain))
+            AddCss(ref cls, ResolvePresetSlot(Contain, preset?.Contain, (int)PresetProperty.Contain));
+        if (GeneratedContent.HasValue || preset is not null && preset.HasValue(PresetProperty.GeneratedContent))
+            AddCss(ref cls, ResolvePresetSlot(GeneratedContent, preset?.GeneratedContent, (int)PresetProperty.GeneratedContent));
+        if (DecorationColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationColor))
+            AddCss(ref cls, ResolvePresetSlot(DecorationColor, preset?.DecorationColor, (int)PresetProperty.DecorationColor));
+        if (DecorationStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationStyle))
+            AddCss(ref cls, ResolvePresetSlot(DecorationStyle, preset?.DecorationStyle, (int)PresetProperty.DecorationStyle));
+        if (DecorationThickness.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationThickness))
+            AddCss(ref cls, ResolvePresetSlot(DecorationThickness, preset?.DecorationThickness, (int)PresetProperty.DecorationThickness));
+        if (TransitionDelay.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionDelay))
+            AddCss(ref cls, ResolvePresetSlot(TransitionDelay, preset?.TransitionDelay, (int)PresetProperty.TransitionDelay));
+        if (Ease.HasValue || preset is not null && preset.HasValue(PresetProperty.Ease))
+            AddCss(ref cls, ResolvePresetSlot(Ease, preset?.Ease, (int)PresetProperty.Ease));
+        if (FieldSizing.HasValue || preset is not null && preset.HasValue(PresetProperty.FieldSizing))
+            AddCss(ref cls, ResolvePresetSlot(FieldSizing, preset?.FieldSizing, (int)PresetProperty.FieldSizing));
+        if (FillRule.HasValue || preset is not null && preset.HasValue(PresetProperty.FillRule))
+            AddCss(ref cls, ResolvePresetSlot(FillRule, preset?.FillRule, (int)PresetProperty.FillRule));
+        if (Fill.HasValue || preset is not null && preset.HasValue(PresetProperty.Fill))
+            AddCss(ref cls, ResolvePresetSlot(Fill, preset?.Fill, (int)PresetProperty.Fill));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities3(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (FlexBasis.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexBasis))
+            AddCss(ref cls, ResolvePresetSlot(FlexBasis, preset?.FlexBasis, (int)PresetProperty.FlexBasis));
+        if (FontFeatureSettings.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFeatureSettings))
+            AddCss(ref cls, ResolvePresetSlot(FontFeatureSettings, preset?.FontFeatureSettings, (int)PresetProperty.FontFeatureSettings));
+        if (FontSmoothing.HasValue || preset is not null && preset.HasValue(PresetProperty.FontSmoothing))
+            AddCss(ref cls, ResolvePresetSlot(FontSmoothing, preset?.FontSmoothing, (int)PresetProperty.FontSmoothing));
+        if (FontStretch.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStretch))
+            AddCss(ref cls, ResolvePresetSlot(FontStretch, preset?.FontStretch, (int)PresetProperty.FontStretch));
+        if (ForcedColorAdjust.HasValue || preset is not null && preset.HasValue(PresetProperty.ForcedColorAdjust))
+            AddCss(ref cls, ResolvePresetSlot(ForcedColorAdjust, preset?.ForcedColorAdjust, (int)PresetProperty.ForcedColorAdjust));
+        if (BackgroundGradient.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundGradient))
+            AddCss(ref cls, ResolvePresetSlot(BackgroundGradient, preset?.BackgroundGradient, (int)PresetProperty.BackgroundGradient));
+        if (GridAutoFlow.HasValue || preset is not null && preset.HasValue(PresetProperty.GridAutoFlow))
+            AddCss(ref cls, ResolvePresetSlot(GridAutoFlow, preset?.GridAutoFlow, (int)PresetProperty.GridAutoFlow));
+        if (GridColumns.HasValue || preset is not null && preset.HasValue(PresetProperty.GridColumns))
+            AddCss(ref cls, ResolvePresetSlot(GridColumns, preset?.GridColumns, (int)PresetProperty.GridColumns));
+        if (GridRows.HasValue || preset is not null && preset.HasValue(PresetProperty.GridRows))
+            AddCss(ref cls, ResolvePresetSlot(GridRows, preset?.GridRows, (int)PresetProperty.GridRows));
+        if (ColumnSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnSpan))
+            AddCss(ref cls, ResolvePresetSlot(ColumnSpan, preset?.ColumnSpan, (int)PresetProperty.ColumnSpan));
+        if (Hyphen.HasValue || preset is not null && preset.HasValue(PresetProperty.Hyphen))
+            AddCss(ref cls, ResolvePresetSlot(Hyphen, preset?.Hyphen, (int)PresetProperty.Hyphen));
+        if (InlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.InlineSize))
+            AddCss(ref cls, ResolvePresetSlot(InlineSize, preset?.InlineSize, (int)PresetProperty.InlineSize));
+        if (InsetBlockEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockEnd))
+            AddCss(ref cls, ResolvePresetSlot(InsetBlockEnd, preset?.InsetBlockEnd, (int)PresetProperty.InsetBlockEnd));
+        if (InsetBlockStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockStart))
+            AddCss(ref cls, ResolvePresetSlot(InsetBlockStart, preset?.InsetBlockStart, (int)PresetProperty.InsetBlockStart));
+        if (InsetEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetEnd))
+            AddCss(ref cls, ResolvePresetSlot(InsetEnd, preset?.InsetEnd, (int)PresetProperty.InsetEnd));
+        if (InsetRingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRingColor))
+            AddCss(ref cls, ResolvePresetSlot(InsetRingColor, preset?.InsetRingColor, (int)PresetProperty.InsetRingColor));
+        if (InsetRing.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRing))
+            AddCss(ref cls, ResolvePresetSlot(InsetRing, preset?.InsetRing, (int)PresetProperty.InsetRing));
+        if (InsetShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadowColor))
+            AddCss(ref cls, ResolvePresetSlot(InsetShadowColor, preset?.InsetShadowColor, (int)PresetProperty.InsetShadowColor));
+        if (InsetShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadow))
+            AddCss(ref cls, ResolvePresetSlot(InsetShadow, preset?.InsetShadow, (int)PresetProperty.InsetShadow));
+        if (InsetStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetStart))
+            AddCss(ref cls, ResolvePresetSlot(InsetStart, preset?.InsetStart, (int)PresetProperty.InsetStart));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities4(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (Isolation.HasValue || preset is not null && preset.HasValue(PresetProperty.Isolation))
+            AddCss(ref cls, ResolvePresetSlot(Isolation, preset?.Isolation, (int)PresetProperty.Isolation));
+        if (ListStyleImage.HasValue || preset is not null && preset.HasValue(PresetProperty.ListStyleImage))
+            AddCss(ref cls, ResolvePresetSlot(ListStyleImage, preset?.ListStyleImage, (int)PresetProperty.ListStyleImage));
+        if (ListStylePosition.HasValue || preset is not null && preset.HasValue(PresetProperty.ListStylePosition))
+            AddCss(ref cls, ResolvePresetSlot(ListStylePosition, preset?.ListStylePosition, (int)PresetProperty.ListStylePosition));
+        if (ListStyleType.HasValue || preset is not null && preset.HasValue(PresetProperty.ListStyleType))
+            AddCss(ref cls, ResolvePresetSlot(ListStyleType, preset?.ListStyleType, (int)PresetProperty.ListStyleType));
+        if (MaskClip.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskClip))
+            AddCss(ref cls, ResolvePresetSlot(MaskClip, preset?.MaskClip, (int)PresetProperty.MaskClip));
+        if (MaskComposite.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskComposite))
+            AddCss(ref cls, ResolvePresetSlot(MaskComposite, preset?.MaskComposite, (int)PresetProperty.MaskComposite));
+        if (MaskImage.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskImage))
+            AddCss(ref cls, ResolvePresetSlot(MaskImage, preset?.MaskImage, (int)PresetProperty.MaskImage));
+        if (MaskMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskMode))
+            AddCss(ref cls, ResolvePresetSlot(MaskMode, preset?.MaskMode, (int)PresetProperty.MaskMode));
+        if (MaskOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskOrigin))
+            AddCss(ref cls, ResolvePresetSlot(MaskOrigin, preset?.MaskOrigin, (int)PresetProperty.MaskOrigin));
+        if (MaskPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskPosition))
+            AddCss(ref cls, ResolvePresetSlot(MaskPosition, preset?.MaskPosition, (int)PresetProperty.MaskPosition));
+        if (MaskRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskRepeat))
+            AddCss(ref cls, ResolvePresetSlot(MaskRepeat, preset?.MaskRepeat, (int)PresetProperty.MaskRepeat));
+        if (MaskSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskSize))
+            AddCss(ref cls, ResolvePresetSlot(MaskSize, preset?.MaskSize, (int)PresetProperty.MaskSize));
+        if (MaskType.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskType))
+            AddCss(ref cls, ResolvePresetSlot(MaskType, preset?.MaskType, (int)PresetProperty.MaskType));
+        if (MaxBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxBlockSize))
+            AddCss(ref cls, ResolvePresetSlot(MaxBlockSize, preset?.MaxBlockSize, (int)PresetProperty.MaxBlockSize));
+        if (MaxInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxInlineSize))
+            AddCss(ref cls, ResolvePresetSlot(MaxInlineSize, preset?.MaxInlineSize, (int)PresetProperty.MaxInlineSize));
+        if (MinBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinBlockSize))
+            AddCss(ref cls, ResolvePresetSlot(MinBlockSize, preset?.MinBlockSize, (int)PresetProperty.MinBlockSize));
+        if (MinInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinInlineSize))
+            AddCss(ref cls, ResolvePresetSlot(MinInlineSize, preset?.MinInlineSize, (int)PresetProperty.MinInlineSize));
+        if (MixBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MixBlendMode))
+            AddCss(ref cls, ResolvePresetSlot(MixBlendMode, preset?.MixBlendMode, (int)PresetProperty.MixBlendMode));
+        if (ObjectFit.HasValue || preset is not null && preset.HasValue(PresetProperty.ObjectFit))
+            AddCss(ref cls, ResolvePresetSlot(ObjectFit, preset?.ObjectFit, (int)PresetProperty.ObjectFit));
+        if (ObjectPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.ObjectPosition))
+            AddCss(ref cls, ResolvePresetSlot(ObjectPosition, preset?.ObjectPosition, (int)PresetProperty.ObjectPosition));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities5(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (Order.HasValue || preset is not null && preset.HasValue(PresetProperty.Order))
+            AddCss(ref cls, ResolvePresetSlot(Order, preset?.Order, (int)PresetProperty.Order));
+        if (Origin.HasValue || preset is not null && preset.HasValue(PresetProperty.Origin))
+            AddCss(ref cls, ResolvePresetSlot(Origin, preset?.Origin, (int)PresetProperty.Origin));
+        if (OutlineColor.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineColor))
+            AddCss(ref cls, ResolvePresetSlot(OutlineColor, preset?.OutlineColor, (int)PresetProperty.OutlineColor));
+        if (OutlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineOffset))
+            AddCss(ref cls, ResolvePresetSlot(OutlineOffset, preset?.OutlineOffset, (int)PresetProperty.OutlineOffset));
+        if (OutlineWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineWidth))
+            AddCss(ref cls, ResolvePresetSlot(OutlineWidth, preset?.OutlineWidth, (int)PresetProperty.OutlineWidth));
+        if (OverflowWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowWrap))
+            AddCss(ref cls, ResolvePresetSlot(OverflowWrap, preset?.OverflowWrap, (int)PresetProperty.OverflowWrap));
+        if (PerspectiveOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.PerspectiveOrigin))
+            AddCss(ref cls, ResolvePresetSlot(PerspectiveOrigin, preset?.PerspectiveOrigin, (int)PresetProperty.PerspectiveOrigin));
+        if (Perspective.HasValue || preset is not null && preset.HasValue(PresetProperty.Perspective))
+            AddCss(ref cls, ResolvePresetSlot(Perspective, preset?.Perspective, (int)PresetProperty.Perspective));
+        if (PlaceContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceContentAlign))
+            AddCss(ref cls, ResolvePresetSlot(PlaceContentAlign, preset?.PlaceContentAlign, (int)PresetProperty.PlaceContentAlign));
+        if (PlaceItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceItemsAlign))
+            AddCss(ref cls, ResolvePresetSlot(PlaceItemsAlign, preset?.PlaceItemsAlign, (int)PresetProperty.PlaceItemsAlign));
+        if (PlaceSelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceSelfAlign))
+            AddCss(ref cls, ResolvePresetSlot(PlaceSelfAlign, preset?.PlaceSelfAlign, (int)PresetProperty.PlaceSelfAlign));
+        if (Rotate.HasValue || preset is not null && preset.HasValue(PresetProperty.Rotate))
+            AddCss(ref cls, ResolvePresetSlot(Rotate, preset?.Rotate, (int)PresetProperty.Rotate));
+        if (RowEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.RowEnd))
+            AddCss(ref cls, ResolvePresetSlot(RowEnd, preset?.RowEnd, (int)PresetProperty.RowEnd));
+        if (Scale.HasValue || preset is not null && preset.HasValue(PresetProperty.Scale))
+            AddCss(ref cls, ResolvePresetSlot(Scale, preset?.Scale, (int)PresetProperty.Scale));
+        if (ScrollbarGutter.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarGutter))
+            AddCss(ref cls, ResolvePresetSlot(ScrollbarGutter, preset?.ScrollbarGutter, (int)PresetProperty.ScrollbarGutter));
+        if (ScrollbarThumbColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarThumbColor))
+            AddCss(ref cls, ResolvePresetSlot(ScrollbarThumbColor, preset?.ScrollbarThumbColor, (int)PresetProperty.ScrollbarThumbColor));
+        if (ScrollbarTrackColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarTrackColor))
+            AddCss(ref cls, ResolvePresetSlot(ScrollbarTrackColor, preset?.ScrollbarTrackColor, (int)PresetProperty.ScrollbarTrackColor));
+        if (ScrollbarWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarWidth))
+            AddCss(ref cls, ResolvePresetSlot(ScrollbarWidth, preset?.ScrollbarWidth, (int)PresetProperty.ScrollbarWidth));
+        if (ScrollBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollBehavior))
+            AddCss(ref cls, ResolvePresetSlot(ScrollBehavior, preset?.ScrollBehavior, (int)PresetProperty.ScrollBehavior));
+        if (ScrollSnapAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapAlign))
+            AddCss(ref cls, ResolvePresetSlot(ScrollSnapAlign, preset?.ScrollSnapAlign, (int)PresetProperty.ScrollSnapAlign));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void BuildAdditionalUtilities6(ref PooledStringBuilder cls, QuarkPresetContext? preset)
+    {
+        if (ScrollSnap.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnap))
+            AddCss(ref cls, ResolvePresetSlot(ScrollSnap, preset?.ScrollSnap, (int)PresetProperty.ScrollSnap));
+        if (ScrollSnapStop.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapStop))
+            AddCss(ref cls, ResolvePresetSlot(ScrollSnapStop, preset?.ScrollSnapStop, (int)PresetProperty.ScrollSnapStop));
+        if (ShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ShadowColor))
+            AddCss(ref cls, ResolvePresetSlot(ShadowColor, preset?.ShadowColor, (int)PresetProperty.ShadowColor));
+        if (Skew.HasValue || preset is not null && preset.HasValue(PresetProperty.Skew))
+            AddCss(ref cls, ResolvePresetSlot(Skew, preset?.Skew, (int)PresetProperty.Skew));
+        if (StrokeLineCap.HasValue || preset is not null && preset.HasValue(PresetProperty.StrokeLineCap))
+            AddCss(ref cls, ResolvePresetSlot(StrokeLineCap, preset?.StrokeLineCap, (int)PresetProperty.StrokeLineCap));
+        if (StrokeLineJoin.HasValue || preset is not null && preset.HasValue(PresetProperty.StrokeLineJoin))
+            AddCss(ref cls, ResolvePresetSlot(StrokeLineJoin, preset?.StrokeLineJoin, (int)PresetProperty.StrokeLineJoin));
+        if (Stroke.HasValue || preset is not null && preset.HasValue(PresetProperty.Stroke))
+            AddCss(ref cls, ResolvePresetSlot(Stroke, preset?.Stroke, (int)PresetProperty.Stroke));
+        if (SvgStrokeWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.SvgStrokeWidth))
+            AddCss(ref cls, ResolvePresetSlot(SvgStrokeWidth, preset?.SvgStrokeWidth, (int)PresetProperty.SvgStrokeWidth));
+        if (TableLayout.HasValue || preset is not null && preset.HasValue(PresetProperty.TableLayout))
+            AddCss(ref cls, ResolvePresetSlot(TableLayout, preset?.TableLayout, (int)PresetProperty.TableLayout));
+        if (TabSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TabSize))
+            AddCss(ref cls, ResolvePresetSlot(TabSize, preset?.TabSize, (int)PresetProperty.TabSize));
+        if (TextIndent.HasValue || preset is not null && preset.HasValue(PresetProperty.TextIndent))
+            AddCss(ref cls, ResolvePresetSlot(TextIndent, preset?.TextIndent, (int)PresetProperty.TextIndent));
+        if (TextShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadowColor))
+            AddCss(ref cls, ResolvePresetSlot(TextShadowColor, preset?.TextShadowColor, (int)PresetProperty.TextShadowColor));
+        if (TextShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadow))
+            AddCss(ref cls, ResolvePresetSlot(TextShadow, preset?.TextShadow, (int)PresetProperty.TextShadow));
+        if (TouchAction.HasValue || preset is not null && preset.HasValue(PresetProperty.TouchAction))
+            AddCss(ref cls, ResolvePresetSlot(TouchAction, preset?.TouchAction, (int)PresetProperty.TouchAction));
+        if (TransformStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.TransformStyle))
+            AddCss(ref cls, ResolvePresetSlot(TransformStyle, preset?.TransformStyle, (int)PresetProperty.TransformStyle));
+        if (TransitionBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionBehavior))
+            AddCss(ref cls, ResolvePresetSlot(TransitionBehavior, preset?.TransitionBehavior, (int)PresetProperty.TransitionBehavior));
+        if (Translate.HasValue || preset is not null && preset.HasValue(PresetProperty.Translate))
+            AddCss(ref cls, ResolvePresetSlot(Translate, preset?.Translate, (int)PresetProperty.Translate));
+        if (WillChange.HasValue || preset is not null && preset.HasValue(PresetProperty.WillChange))
+            AddCss(ref cls, ResolvePresetSlot(WillChange, preset?.WillChange, (int)PresetProperty.WillChange));
+        if (Zoom.HasValue || preset is not null && preset.HasValue(PresetProperty.Zoom))
+            AddCss(ref cls, ResolvePresetSlot(Zoom, preset?.Zoom, (int)PresetProperty.Zoom));
     }
 
     // Keep each group as a separate native frame. In particular, do not combine these methods
@@ -608,8 +1356,8 @@ public abstract class Component : RenderComponent, IComponent
             AddCss(ref cls, ResolvePresetSlot(Whitespace, preset?.Whitespace, (int)PresetProperty.Whitespace));
         if (TextWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.TextWrap))
             AddCss(ref cls, ResolvePresetSlot(TextWrap, preset?.TextWrap, (int)PresetProperty.TextWrap));
-        if (TextBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.TextBreak))
-            AddCss(ref cls, ResolvePresetSlot(TextBreak, preset?.TextBreak, (int)PresetProperty.TextBreak));
+        if (WordBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.WordBreak))
+            AddCss(ref cls, ResolvePresetSlot(WordBreak, preset?.WordBreak, (int)PresetProperty.WordBreak));
         if (TextOverflow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextOverflow))
             AddCss(ref cls, ResolvePresetSlot(TextOverflow, preset?.TextOverflow, (int)PresetProperty.TextOverflow));
         if (Truncate.HasValue || preset is not null && preset.HasValue(PresetProperty.Truncate))
@@ -735,7 +1483,8 @@ public abstract class Component : RenderComponent, IComponent
             AddCss(ref cls, ResolvePresetSlot(Ring, preset?.Ring, (int)PresetProperty.Ring));
         if (RingOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.RingOffset))
             AddCss(ref cls, ResolvePresetSlot(RingOffset, preset?.RingOffset, (int)PresetProperty.RingOffset));
-        AddCss(ref cls, OutlineStyle);
+        if (OutlineStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineStyle))
+            AddCss(ref cls, ResolvePresetSlot(OutlineStyle, preset?.OutlineStyle, (int)PresetProperty.OutlineStyle));
         if (Shadow.HasValue || preset is not null && preset.HasValue(PresetProperty.Shadow))
             AddCss(ref cls, ResolvePresetSlot(Shadow, preset?.Shadow, (int)PresetProperty.Shadow));
         if (BackdropFilter.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropFilter))
@@ -923,13 +1672,132 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Tracking);
         AddIf(ref hc, Whitespace);
         AddIf(ref hc, TextWrap);
-        AddIf(ref hc, TextBreak);
+        AddIf(ref hc, WordBreak);
         AddIf(ref hc, TextOverflow);
         AddIf(ref hc, Truncate);
         AddIf(ref hc, LineClamp);
         AddIf(ref hc, FontVariantNumeric);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
+        AddIf(ref hc, AccentColor);
+        AddIf(ref hc, NativeAppearance);
+        AddIf(ref hc, AspectRatio);
+        AddIf(ref hc, AutoCols);
+        AddIf(ref hc, AutoRows);
+        AddIf(ref hc, BackfaceVisibility);
+        AddIf(ref hc, BackgroundAttachment);
+        AddIf(ref hc, BackgroundBlendMode);
+        AddIf(ref hc, BackgroundClip);
+        AddIf(ref hc, BackgroundImage);
+        AddIf(ref hc, BackgroundOrigin);
+        AddIf(ref hc, BackgroundPosition);
+        AddIf(ref hc, BackgroundRepeat);
+        AddIf(ref hc, BackgroundSize);
+        AddIf(ref hc, BlockSize);
+        AddIf(ref hc, BorderCollapse);
+        AddIf(ref hc, BorderSpacing);
+        AddIf(ref hc, BoxDecorationBreak);
+        AddIf(ref hc, BoxSizing);
+        AddIf(ref hc, BreakAfter);
+        AddIf(ref hc, BreakBefore);
+        AddIf(ref hc, BreakInside);
+        AddIf(ref hc, CaptionSide);
+        AddIf(ref hc, CaretColor);
+        AddIf(ref hc, FloatClear);
+        AddIf(ref hc, ClipPath);
+        AddIf(ref hc, ColEnd);
+        AddIf(ref hc, ColorScheme);
+        AddIf(ref hc, ColumnCount);
+        AddIf(ref hc, ContainerQuery);
+        AddIf(ref hc, Contain);
+        AddIf(ref hc, GeneratedContent);
+        AddIf(ref hc, DecorationColor);
+        AddIf(ref hc, DecorationStyle);
+        AddIf(ref hc, DecorationThickness);
+        AddIf(ref hc, TransitionDelay);
+        AddIf(ref hc, Ease);
+        AddIf(ref hc, FieldSizing);
+        AddIf(ref hc, FillRule);
+        AddIf(ref hc, Fill);
+        AddIf(ref hc, FlexBasis);
+        AddIf(ref hc, FontFeatureSettings);
+        AddIf(ref hc, FontSmoothing);
+        AddIf(ref hc, FontStretch);
+        AddIf(ref hc, ForcedColorAdjust);
+        AddIf(ref hc, BackgroundGradient);
+        AddIf(ref hc, GridAutoFlow);
+        AddIf(ref hc, GridColumns);
+        AddIf(ref hc, GridRows);
+        AddIf(ref hc, ColumnSpan);
+        AddIf(ref hc, Hyphen);
+        AddIf(ref hc, InlineSize);
+        AddIf(ref hc, InsetBlockEnd);
+        AddIf(ref hc, InsetBlockStart);
+        AddIf(ref hc, InsetEnd);
+        AddIf(ref hc, InsetRingColor);
+        AddIf(ref hc, InsetRing);
+        AddIf(ref hc, InsetShadowColor);
+        AddIf(ref hc, InsetShadow);
+        AddIf(ref hc, InsetStart);
+        AddIf(ref hc, Isolation);
+        AddIf(ref hc, ListStyleImage);
+        AddIf(ref hc, ListStylePosition);
+        AddIf(ref hc, ListStyleType);
+        AddIf(ref hc, MaskClip);
+        AddIf(ref hc, MaskComposite);
+        AddIf(ref hc, MaskImage);
+        AddIf(ref hc, MaskMode);
+        AddIf(ref hc, MaskOrigin);
+        AddIf(ref hc, MaskPosition);
+        AddIf(ref hc, MaskRepeat);
+        AddIf(ref hc, MaskSize);
+        AddIf(ref hc, MaskType);
+        AddIf(ref hc, MaxBlockSize);
+        AddIf(ref hc, MaxInlineSize);
+        AddIf(ref hc, MinBlockSize);
+        AddIf(ref hc, MinInlineSize);
+        AddIf(ref hc, MixBlendMode);
+        AddIf(ref hc, ObjectFit);
+        AddIf(ref hc, ObjectPosition);
+        AddIf(ref hc, Order);
+        AddIf(ref hc, Origin);
+        AddIf(ref hc, OutlineColor);
+        AddIf(ref hc, OutlineOffset);
+        AddIf(ref hc, OutlineWidth);
+        AddIf(ref hc, OverflowWrap);
+        AddIf(ref hc, PerspectiveOrigin);
+        AddIf(ref hc, Perspective);
+        AddIf(ref hc, PlaceContentAlign);
+        AddIf(ref hc, PlaceItemsAlign);
+        AddIf(ref hc, PlaceSelfAlign);
+        AddIf(ref hc, Rotate);
+        AddIf(ref hc, RowEnd);
+        AddIf(ref hc, Scale);
+        AddIf(ref hc, ScrollbarGutter);
+        AddIf(ref hc, ScrollbarThumbColor);
+        AddIf(ref hc, ScrollbarTrackColor);
+        AddIf(ref hc, ScrollbarWidth);
+        AddIf(ref hc, ScrollBehavior);
+        AddIf(ref hc, ScrollSnapAlign);
+        AddIf(ref hc, ScrollSnap);
+        AddIf(ref hc, ScrollSnapStop);
+        AddIf(ref hc, ShadowColor);
+        AddIf(ref hc, Skew);
+        AddIf(ref hc, StrokeLineCap);
+        AddIf(ref hc, StrokeLineJoin);
+        AddIf(ref hc, Stroke);
+        AddIf(ref hc, SvgStrokeWidth);
+        AddIf(ref hc, TableLayout);
+        AddIf(ref hc, TabSize);
+        AddIf(ref hc, TextIndent);
+        AddIf(ref hc, TextShadowColor);
+        AddIf(ref hc, TextShadow);
+        AddIf(ref hc, TouchAction);
+        AddIf(ref hc, TransformStyle);
+        AddIf(ref hc, TransitionBehavior);
+        AddIf(ref hc, Translate);
+        AddIf(ref hc, WillChange);
+        AddIf(ref hc, Zoom);
         AddIf(ref hc, Inset);
         AddIf(ref hc, Top);
         AddIf(ref hc, Right);

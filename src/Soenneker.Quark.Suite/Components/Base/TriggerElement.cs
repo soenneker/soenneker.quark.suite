@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -15,25 +14,10 @@ public abstract class TriggerElement : InteractiveElement
     [Parameter]
     public bool Disabled { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether auto focus.
-    /// </summary>
-    [Parameter]
-    public bool AutoFocus { get; set; }
-
-    protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
-    {
-        base.BuildOwnedAttributes(attrs);
-
-        if (AutoFocus)
-            attrs["autofocus"] = QuarkAttributeValues.True;
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Disabled);
-        hc.Add(AutoFocus);
     }
 }

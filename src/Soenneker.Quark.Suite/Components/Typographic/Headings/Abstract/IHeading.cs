@@ -5,10 +5,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IHeading : IElement
 {
-    /// <summary>
-    /// Gets or sets the scale/level of the heading (1-6), determining which HTML heading tag to render.
-    /// </summary>
-    CssValue<ScaleBuilder>? Scale { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic HTML heading level independently of visual scale.

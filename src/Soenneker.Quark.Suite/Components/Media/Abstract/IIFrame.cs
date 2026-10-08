@@ -9,6 +9,17 @@ namespace Soenneker.Quark;
 public interface IIFrame : IComponent
 {
     /// <summary>
+    /// Gets or sets the HTML width in CSS pixels, independently of CSS sizing.
+    /// </summary>
+    int? IntrinsicWidth { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML height in CSS pixels, independently of CSS sizing.
+    /// </summary>
+    int? IntrinsicHeight { get; set; }
+
+
+    /// <summary>
     /// Gets or sets the URL of the page to embed.
     /// </summary>
     string? Source { get; set; }

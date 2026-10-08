@@ -10,6 +10,17 @@ namespace Soenneker.Quark;
 public interface IDateInput : IInput
 {
     /// <summary>
+    /// Gets or sets the ID of the owning form, including a form outside the control ancestry.
+    /// </summary>
+    string? Form { get; set; }
+
+    /// <summary>
+    /// Gets or sets browser autofill tokens, such as off, email, or section-shipping shipping street-address.
+    /// </summary>
+    string? AutoComplete { get; set; }
+
+
+    /// <summary>
     /// Gets or sets the DateTime value.
     /// </summary>
     DateTime? Date { get; set; }

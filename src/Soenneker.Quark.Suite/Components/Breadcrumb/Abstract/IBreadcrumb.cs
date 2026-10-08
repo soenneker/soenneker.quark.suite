@@ -25,8 +25,4 @@ public interface IBreadcrumb : IElement
     /// </summary>
     string? DividerText { get; set; }
 
-    /// <summary>
-    /// Gets or sets the text direction on the navigation root (<c>dir</c> attribute).
-    /// </summary>
-    string? Dir { get; set; }
 }

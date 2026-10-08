@@ -10,6 +10,22 @@ namespace Soenneker.Quark;
 public interface IVideo : IElement
 {
     /// <summary>
+    /// Gets or sets the HTML controlslist attribute.
+    /// </summary>
+    string? ControlsList { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML width attribute.
+    /// </summary>
+    int? IntrinsicWidth { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML height attribute.
+    /// </summary>
+    int? IntrinsicHeight { get; set; }
+
+
+    /// <summary>
     /// Gets or sets the URL of the video file.
     /// </summary>
     string? Source { get; set; }

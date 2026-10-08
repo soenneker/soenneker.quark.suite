@@ -21,23 +21,8 @@ public abstract class MediaElement : Element
     [Parameter]
     public string? Alt { get; set; }
 
-    /// <summary>
-    /// Gets or sets aspect ratio.
-    /// </summary>
-    [Parameter]
-    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
 
-    /// <summary>
-    /// Gets or sets object fit.
-    /// </summary>
-    [Parameter]
-    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
 
-    /// <summary>
-    /// Gets or sets object position.
-    /// </summary>
-    [Parameter]
-    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether lazy.
@@ -45,17 +30,7 @@ public abstract class MediaElement : Element
     [Parameter]
     public bool Lazy { get; set; }
 
-    /// <summary>
-    /// Gets or sets fill.
-    /// </summary>
-    [Parameter]
-    public CssValue<FillBuilder>? Fill { get; set; }
 
-    /// <summary>
-    /// Gets or sets stroke.
-    /// </summary>
-    [Parameter]
-    public CssValue<StrokeBuilder>? Stroke { get; set; }
 
     /// <summary>
     /// Gets or sets stroke width.
@@ -63,37 +38,14 @@ public abstract class MediaElement : Element
     [Parameter]
     public CssValue<StrokeWidthBuilder>? StrokeWidth { get; set; }
 
-    /// <summary>
-    /// Gets or sets stroke line cap.
-    /// </summary>
-    [Parameter]
-    public CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
 
-    /// <summary>
-    /// Gets or sets stroke line join.
-    /// </summary>
-    [Parameter]
-    public CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
 
-    /// <summary>
-    /// Gets or sets fill rule.
-    /// </summary>
-    [Parameter]
-    public CssValue<FillRuleBuilder>? FillRule { get; set; }
 
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
 
-        AddCss(ref cls, AspectRatio);
-        AddCss(ref cls, ObjectFit);
-        AddCss(ref cls, ObjectPosition);
-        AddCss(ref cls, Fill);
-        AddCss(ref cls, Stroke);
         AddCss(ref cls, StrokeWidth);
-        AddCss(ref cls, StrokeLineCap);
-        AddCss(ref cls, StrokeLineJoin);
-        AddCss(ref cls, FillRule);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -103,14 +55,6 @@ public abstract class MediaElement : Element
         hc.Add(Source);
         hc.Add(Alt);
         hc.Add(Lazy);
-        AddIf(ref hc, AspectRatio);
-        AddIf(ref hc, ObjectFit);
-        AddIf(ref hc, ObjectPosition);
-        AddIf(ref hc, Fill);
-        AddIf(ref hc, Stroke);
         AddIf(ref hc, StrokeWidth);
-        AddIf(ref hc, StrokeLineCap);
-        AddIf(ref hc, StrokeLineJoin);
-        AddIf(ref hc, FillRule);
     }
 }

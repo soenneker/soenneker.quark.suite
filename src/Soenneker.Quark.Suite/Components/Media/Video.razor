@@ -7,6 +7,32 @@
 </video>
 
 @code {
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (ControlsList is not null)
+            attributes["controlslist"] = ControlsList;
+
+        if (IntrinsicWidth.HasValue)
+            attributes["width"] = QuarkAttributeValues.FromInt32(IntrinsicWidth.Value);
+
+        if (IntrinsicHeight.HasValue)
+            attributes["height"] = QuarkAttributeValues.FromInt32(IntrinsicHeight.Value);
+
+    }
+
+
+    [Parameter]
+    public string? ControlsList { get; set; }
+
+    [Parameter]
+    public int? IntrinsicWidth { get; set; }
+
+    [Parameter]
+    public int? IntrinsicHeight { get; set; }
+
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -188,6 +214,10 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ControlsList);
+        hc.Add(IntrinsicWidth);
+        hc.Add(IntrinsicHeight);
+
         hc.Add(Poster);
         hc.Add(Autoplay);
         hc.Add(Loop);
