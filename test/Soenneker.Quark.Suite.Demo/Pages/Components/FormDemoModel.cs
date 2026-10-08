@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Soenneker.Quark.Suite.Demo.Pages.Components;
 
-public sealed class FormDemoModel
+public sealed partial class FormDemoModel
 {
     [Required(ErrorMessage = "Enter your name.")]
     public string Name { get; set; } = "";
