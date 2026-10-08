@@ -1,0 +1,82 @@
+@page "/components/forms"
+@using Microsoft.AspNetCore.Components.Forms
+
+<QuarkSeoHead Title="Blazor Form: Model Binding &amp; Validation | Quark Suite" Description="Use Quark Form with model binding, data annotations, fieldsets, and valid and invalid submit callbacks." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Title="Validated Form"
+                 Description="Submit an empty form to see validation errors, then enter a name and valid email address to see the success callback. Form wraps Blazor EditForm; add DataAnnotationsValidator to validate model annotations."
+                 Code="@FormCode" CodeLanguage="razor">
+        <Form Model="_model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" novalidate>
+            <DataAnnotationsValidator />
+            <Fieldset>
+                <Legend FontWeight="FontWeight.Bold">Contact information</Legend>
+                <Field>
+                    <FieldLabel For="demo-form-name">Name</FieldLabel>
+                    <Input Id="demo-form-name" @bind-Value="_model.Name" />
+                    <ValidationMessage For="@(() => _model.Name)" />
+                </Field>
+                <Field>
+                    <FieldLabel For="demo-form-email">Email</FieldLabel>
+                    <Input Id="demo-form-email" Type="email" @bind-Value="_model.Email" />
+                    <ValidationMessage For="@(() => _model.Email)" />
+                </Field>
+            </Fieldset>
+            <Button Type="@ButtonType.Submit">Save contact</Button>
+            <Paragraph role="status">@_status</Paragraph>
+        </Form>
+    </DemoSection>
+
+    <DemoSection Title="Model" Description="Keep the model in its own file. Required and EmailAddress annotations are evaluated when the form is submitted." Code="@ModelCode" CodeLanguage="csharp" />
+</Div>
+
+@code {
+    private readonly FormDemoModel _model = new();
+    private string _status = "No submission yet.";
+
+    private void HandleValidSubmit() => _status = $"Contact saved for {_model.Name}. This demo does not send data to a server.";
+    private void HandleInvalidSubmit() => _status = "Please correct the validation errors and submit again.";
+
+    private const string FormCode = """
+<Form Model="_model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" novalidate>
+    <DataAnnotationsValidator />
+    <Fieldset>
+        <Legend FontWeight="FontWeight.Bold">Contact information</Legend>
+        <Field>
+            <FieldLabel For="demo-form-name">Name</FieldLabel>
+            <Input Id="demo-form-name" @bind-Value="_model.Name" />
+            <ValidationMessage For="@(() => _model.Name)" />
+        </Field>
+        <Field>
+            <FieldLabel For="demo-form-email">Email</FieldLabel>
+            <Input Id="demo-form-email" Type="email" @bind-Value="_model.Email" />
+            <ValidationMessage For="@(() => _model.Email)" />
+        </Field>
+    </Fieldset>
+    <Button Type="@ButtonType.Submit">Save contact</Button>
+    <Paragraph role="status">@_status</Paragraph>
+</Form>
+
+@code {
+    private readonly FormDemoModel _model = new();
+    private string _status = "No submission yet.";
+
+    private void HandleValidSubmit() => _status = $"Contact saved for {_model.Name}. This demo does not send data to a server.";
+    private void HandleInvalidSubmit() => _status = "Please correct the validation errors and submit again.";
+}
+""";
+
+    private const string ModelCode = """
+using System.ComponentModel.DataAnnotations;
+
+public sealed class FormDemoModel
+{
+    [Required(ErrorMessage = "Enter your name.")]
+    public string Name { get; set; } = "";
+
+    [Required(ErrorMessage = "Enter your email address.")]
+    [EmailAddress(ErrorMessage = "Enter a valid email address.")]
+    public string Email { get; set; } = "";
+}
+""";
+}
