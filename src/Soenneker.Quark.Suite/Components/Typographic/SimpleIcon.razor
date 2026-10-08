@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using System.Globalization
@@ -12,6 +13,30 @@
 @ChildContent
 
 @code {
+    /// <summary>Gets or sets the Fill utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<FillBuilder>? Fill { get; set; }
+
+    /// <summary>Gets or sets the FillRule utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<FillRuleBuilder>? FillRule { get; set; }
+
+    /// <summary>Gets or sets the Stroke utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    /// <summary>Gets or sets the StrokeLineCap utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
+
+    /// <summary>Gets or sets the StrokeLineJoin utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
+
+    /// <summary>Gets or sets the SvgStrokeWidth utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<StrokeWidthBuilder>? SvgStrokeWidth { get; set; }
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineBlock;
     private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is4;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
@@ -80,6 +105,13 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, Fill);
+        AddIf(ref hc, FillRule);
+        AddIf(ref hc, Stroke);
+        AddIf(ref hc, StrokeLineCap);
+        AddIf(ref hc, StrokeLineJoin);
+        AddIf(ref hc, SvgStrokeWidth);
+
         hc.Add(Name);
     }
 
@@ -93,4 +125,15 @@
         return SvgProvider?.GetSvg(iconName);
     }
 
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(Fill, preset?.Fill, nameof(Fill)));
+        AddCss(ref cls, ResolvePresetValue(FillRule, preset?.FillRule, nameof(FillRule)));
+        AddCss(ref cls, ResolvePresetValue(Stroke, preset?.Stroke, nameof(Stroke)));
+        AddCss(ref cls, ResolvePresetValue(StrokeLineCap, preset?.StrokeLineCap, nameof(StrokeLineCap)));
+        AddCss(ref cls, ResolvePresetValue(StrokeLineJoin, preset?.StrokeLineJoin, nameof(StrokeLineJoin)));
+        AddCss(ref cls, ResolvePresetValue(SvgStrokeWidth, preset?.SvgStrokeWidth, nameof(SvgStrokeWidth)));
+    }
 }

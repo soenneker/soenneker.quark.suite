@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
@@ -8,6 +9,15 @@
                    AdditionalAttributes="@ImageAttributes" />
 
 @code {
+    /// <summary>Gets or sets the ObjectFit utilities.</summary>
+    [Parameter]
+    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    /// <summary>Gets or sets the ObjectPosition utilities.</summary>
+    [Parameter]
+    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
+
     private static readonly CssValue<AspectRatioBuilder> _defaultAspectRatio = Quark.AspectRatio.R1X1;
     private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.IsFull;
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
@@ -44,6 +54,17 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, ObjectFit);
+        AddIf(ref hc, ObjectPosition);
+
         hc.Add(Src);
+    }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(ObjectFit, preset?.ObjectFit, nameof(ObjectFit)));
+        AddCss(ref cls, ResolvePresetValue(ObjectPosition, preset?.ObjectPosition, nameof(ObjectPosition)));
     }
 }

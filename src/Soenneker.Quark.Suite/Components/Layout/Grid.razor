@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements IGrid
@@ -7,6 +8,21 @@
 </div>
 
 @code {
+    [Parameter]
+    public CssValue<GridColsBuilder>? GridColumns { get; set; }
+
+    [Parameter]
+    public CssValue<GridRowsBuilder>? GridRows { get; set; }
+
+    [Parameter]
+    public CssValue<AutoColsBuilder>? AutoCols { get; set; }
+
+    [Parameter]
+    public CssValue<AutoRowsBuilder>? AutoRows { get; set; }
+
+    [Parameter]
+    public CssValue<GridAutoFlowBuilder>? GridAutoFlow { get; set; }
+
     private string? _gridPrefix;
     private static readonly CssValue<DisplayBuilder> _inlineGridDisplay = Quark.Display.InlineGrid;
     private static readonly CssValue<DisplayBuilder> _gridDisplay = Quark.Display.Grid;
@@ -49,9 +65,25 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, GridColumns);
+        AddIf(ref hc, GridRows);
+        AddIf(ref hc, AutoCols);
+        AddIf(ref hc, AutoRows);
+        AddIf(ref hc, GridAutoFlow);
 
         AddIf(ref hc, Columns);
         AddIf(ref hc, Rows);
         hc.Add(Inline);
+    }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(GridColumns, preset?.GridColumns, nameof(GridColumns)));
+        AddCss(ref cls, ResolvePresetValue(GridRows, preset?.GridRows, nameof(GridRows)));
+        AddCss(ref cls, ResolvePresetValue(AutoCols, preset?.AutoCols, nameof(AutoCols)));
+        AddCss(ref cls, ResolvePresetValue(AutoRows, preset?.AutoRows, nameof(AutoRows)));
+        AddCss(ref cls, ResolvePresetValue(GridAutoFlow, preset?.GridAutoFlow, nameof(GridAutoFlow)));
     }
 }

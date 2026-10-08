@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @using System.Linq.Expressions
 @using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -36,6 +37,12 @@ else
 }
 
 @code {
+    [Parameter]
+    public CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    [Parameter]
+    public CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
     {
         base.BuildOwnedAttributes(attributes);
@@ -60,7 +67,6 @@ else
 
     }
 
-
     [Parameter]
     public string? Form { get; set; }
 
@@ -78,7 +84,6 @@ else
 
     [Parameter]
     public string? InputMode { get; set; }
-
 
     private QuarkInt32Attribute _maxlengthAttribute;
     private QuarkInt32Attribute _minlengthAttribute;
@@ -382,6 +387,9 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, CaretColor);
+        AddIf(ref hc, FieldSizing);
+
         hc.Add(Form);
         hc.Add(AutoComplete);
         hc.Add(Cols);
@@ -419,5 +427,13 @@ else
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
+    }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(CaretColor, preset?.CaretColor, nameof(CaretColor)));
+        AddCss(ref cls, ResolvePresetValue(FieldSizing, preset?.FieldSizing, nameof(FieldSizing)));
     }
 }

@@ -12,12 +12,19 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class FormControlElementBase : InteractiveElement
 {
+    /// <summary>Gets or sets the AccentColor utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<AccentColorBuilder>? AccentColor { get; set; }
+
+    /// <summary>Gets or sets the NativeAppearance utilities, including responsive and state variants.</summary>
+    [Parameter]
+    public CssValue<AppearanceBuilder>? NativeAppearance { get; set; }
+
     /// <summary>
     /// Gets or sets the validation state: false, true, grammar, or spelling.
     /// </summary>
     [Parameter]
     public string? AriaInvalid { get; set; }
-
 
     [CascadingParameter]
     private protected FieldContext? CurrentFieldContext { get; set; }
@@ -57,11 +64,12 @@ public abstract class FormControlElementBase : InteractiveElement
     [Parameter]
     public bool Required { get; set; }
 
-
-
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(AccentColor, preset?.AccentColor, nameof(AccentColor)));
+        AddCss(ref cls, ResolvePresetValue(NativeAppearance, preset?.NativeAppearance, nameof(NativeAppearance)));
 
     }
 
@@ -70,7 +78,6 @@ public abstract class FormControlElementBase : InteractiveElement
         base.BuildOwnedAttributes(attrs);
         if (AriaInvalid is not null)
             attrs["aria-invalid"] = AriaInvalid;
-
 
         if (Disabled)
             attrs["disabled"] = QuarkAttributeValues.True;
@@ -147,8 +154,10 @@ public abstract class FormControlElementBase : InteractiveElement
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(AriaInvalid);
+        AddIf(ref hc, AccentColor);
+        AddIf(ref hc, NativeAppearance);
 
+        hc.Add(AriaInvalid);
 
         hc.Add(Disabled);
         hc.Add(Name);

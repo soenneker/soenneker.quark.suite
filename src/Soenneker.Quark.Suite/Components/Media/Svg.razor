@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.MediaElement
 @implements ISvg
@@ -7,6 +8,27 @@
 </svg>
 
 @code {
+    [Parameter]
+    public CssValue<StrokeWidthBuilder>? StrokeWidth { get; set; }
+
+    [Parameter]
+    public CssValue<FillBuilder>? Fill { get; set; }
+
+    [Parameter]
+    public CssValue<FillRuleBuilder>? FillRule { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
+
+    [Parameter]
+    public CssValue<StrokeWidthBuilder>? SvgStrokeWidth { get; set; }
+
     /// <summary>
     /// Gets or sets the SVG namespace attribute.
     /// </summary>
@@ -75,11 +97,32 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, StrokeWidth);
+        AddIf(ref hc, Fill);
+        AddIf(ref hc, FillRule);
+        AddIf(ref hc, Stroke);
+        AddIf(ref hc, StrokeLineCap);
+        AddIf(ref hc, StrokeLineJoin);
+        AddIf(ref hc, SvgStrokeWidth);
+
         hc.Add(Xmlns);
         hc.Add(ViewBox);
         hc.Add(NativeWidth);
         hc.Add(NativeHeight);
         hc.Add(PreserveAspectRatio);
         hc.Add(Focusable);
+    }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, StrokeWidth);
+        AddCss(ref cls, ResolvePresetValue(Fill, preset?.Fill, nameof(Fill)));
+        AddCss(ref cls, ResolvePresetValue(FillRule, preset?.FillRule, nameof(FillRule)));
+        AddCss(ref cls, ResolvePresetValue(Stroke, preset?.Stroke, nameof(Stroke)));
+        AddCss(ref cls, ResolvePresetValue(StrokeLineCap, preset?.StrokeLineCap, nameof(StrokeLineCap)));
+        AddCss(ref cls, ResolvePresetValue(StrokeLineJoin, preset?.StrokeLineJoin, nameof(StrokeLineJoin)));
+        AddCss(ref cls, ResolvePresetValue(SvgStrokeWidth, preset?.SvgStrokeWidth, nameof(SvgStrokeWidth)));
     }
 }

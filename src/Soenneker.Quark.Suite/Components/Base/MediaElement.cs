@@ -1,6 +1,5 @@
 using System;
 using Microsoft.AspNetCore.Components;
-using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -21,32 +20,11 @@ public abstract class MediaElement : Element
     [Parameter]
     public string? Alt { get; set; }
 
-
-
-
     /// <summary>
     /// Gets or sets a value indicating whether lazy.
     /// </summary>
     [Parameter]
     public bool Lazy { get; set; }
-
-
-
-    /// <summary>
-    /// Gets or sets stroke width.
-    /// </summary>
-    [Parameter]
-    public CssValue<StrokeWidthBuilder>? StrokeWidth { get; set; }
-
-
-
-
-    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        base.BuildOwnedClassAndStyle(ref sty, ref cls);
-
-        AddCss(ref cls, StrokeWidth);
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
@@ -55,6 +33,5 @@ public abstract class MediaElement : Element
         hc.Add(Source);
         hc.Add(Alt);
         hc.Add(Lazy);
-        AddIf(ref hc, StrokeWidth);
     }
 }

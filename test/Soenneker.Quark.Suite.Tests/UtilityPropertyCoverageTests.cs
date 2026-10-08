@@ -20,17 +20,9 @@ public sealed class UtilityPropertyCoverageTests : BunitContext
         .Where(p => Nullable.GetUnderlyingType(p.PropertyType) is { IsGenericType: true } type && type.GetGenericTypeDefinition() == typeof(CssValue<>)).ToArray();
 
     [Test]
-    public void Every_general_builder_has_component_interface_preset_and_theme_support()
+    public void Base_utilities_have_interface_preset_and_theme_support()
     {
-        // These are composition infrastructure, legacy text breaking, or component-specific sizes/variants.
-        string[] excluded = ["TextBreakBuilder", "ColorPaletteBuilder", "VariantBuilder", "ButtonSizeBuilder", "CheckSizeBuilder",
-            "InputSizeBuilder", "ListVariantBuilder", "PaginationSizeBuilder", "RadioSizeBuilder", "SelectSizeBuilder",
-            "SliderSizeBuilder", "SwitchSizeBuilder", "ToggleSizeBuilder"];
         var properties = Properties;
-        var builders = typeof(ICssBuilder).Assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract && !t.ContainsGenericParameters &&
-            typeof(ICssBuilder).IsAssignableFrom(t) && !excluded.Contains(t.Name));
-        foreach (Type builder in builders)
-            properties.Should().Contain(p => Nullable.GetUnderlyingType(p.PropertyType)!.GenericTypeArguments[0] == builder, builder.Name);
         foreach (PropertyInfo property in properties)
         {
             typeof(IComponent).GetProperty(property.Name)!.PropertyType.Should().Be(property.PropertyType, property.Name);
@@ -57,7 +49,12 @@ public sealed class UtilityPropertyCoverageTests : BunitContext
         var cut = Render<Div>(p => p.Add(c => c.Preset, token));
         string[] classes = cut.Find("div").GetAttribute("class")!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         foreach (PropertyInfo property in properties)
-            classes.Should().Contain("probe-" + property.Name);
+        {
+            if (typeof(Component).GetProperty(property.Name) is not null)
+                classes.Should().Contain("probe-" + property.Name);
+            else
+                classes.Should().NotContain("probe-" + property.Name);
+        }
         cut.Render(p => p.Add(c => c.Preset, QuarkPresetToken.Freeze("empty", _ => { })));
         cut.Find("div").GetAttribute("class").Should().BeNullOrEmpty();
     }
@@ -78,6 +75,76 @@ public sealed class UtilityPropertyCoverageTests : BunitContext
         classes.Should().Contain("wrap-normal").And.NotContain("wrap-anywhere").And.NotContain("zoom-125").And.Contain("outline-solid");
         cut.Render(p => p.Add(c => c.Preset, token).Add(c => c.OverflowWrap, Quark.OverflowWrap.BreakWord).Add(c => c.Zoom, Quark.Zoom.Is125));
         cut.Find("div").GetAttribute("class").Should().Contain("wrap-break-word").And.Contain("zoom-125");
+    }
+
+    [Test]
+    public void Specialized_utilities_are_owned_by_their_consumers()
+    {
+        (Type Owner, string[] Names)[] groups =
+        [
+            (typeof(Image), ["ObjectFit", "ObjectPosition"]),
+            (typeof(Video), ["ObjectFit", "ObjectPosition"]),
+            (typeof(Svg), ["Fill", "FillRule", "Stroke", "StrokeLineCap", "StrokeLineJoin", "SvgStrokeWidth"]),
+            (typeof(Table), ["BorderCollapse", "BorderSpacing", "TableLayout"]),
+            (typeof(TableCaption), ["CaptionSide"]),
+            (typeof(OrderedList), ["ListStyleImage", "ListStylePosition", "ListStyleType"]),
+            (typeof(UnorderedList), ["ListStyleImage", "ListStylePosition", "ListStyleType"]),
+            (typeof(Grid), ["GridColumns", "GridRows", "AutoCols", "AutoRows", "GridAutoFlow"]),
+            (typeof(FormControlElementBase), ["AccentColor", "NativeAppearance"]),
+            (typeof(Input), ["CaretColor", "FieldSizing"]),
+            (typeof(MemoInput), ["CaretColor", "FieldSizing"]),
+            (typeof(TextArea), ["CaretColor", "FieldSizing"])
+        ];
+        foreach (var (owner, names) in groups)
+        foreach (string name in names)
+        {
+            typeof(Component).GetProperty(name).Should().BeNull(name);
+            typeof(IComponent).GetProperty(name).Should().BeNull(name);
+            owner.GetProperty(name).Should().NotBeNull(owner.Name + "." + name);
+        }
+    }
+
+    [Test]
+    public void Specialized_presets_render_override_and_clear_on_their_owner()
+    {
+        var preset = QuarkPresetToken.Freeze("specialized", c =>
+        {
+            c.GridAutoFlow = CssValue<GridAutoFlowBuilder>.Raw("grid-flow-col");
+            c.Fill = CssValue<FillBuilder>.Raw("fill-current");
+            c.ListStyleType = CssValue<ListStyleTypeBuilder>.Raw("list-square");
+        });
+        var grid = Render<Grid>(p => p.Add(c => c.Preset, preset));
+        grid.Find("div").GetAttribute("class").Should().Contain("grid-flow-col").And.NotContain("fill-current");
+        grid.Render(p => p.Add(c => c.Preset, preset).Add(c => c.GridAutoFlow, CssValue<GridAutoFlowBuilder>.Raw("grid-flow-row")));
+        grid.Find("div").GetAttribute("class").Should().Contain("grid-flow-row").And.NotContain("grid-flow-col");
+        grid.Render(p => p.Add(c => c.Preset, preset).Add(c => c.GridAutoFlow, (CssValue<GridAutoFlowBuilder>?)null));
+        grid.Find("div").GetAttribute("class").Should().NotContain("grid-flow-col").And.NotContain("grid-flow-row");
+        var svg = Render<Svg>(p => p.Add(c => c.Preset, preset));
+        svg.Find("svg").GetAttribute("class").Should().Contain("fill-current").And.NotContain("grid-flow-col");
+        var list = Render<UnorderedList>(p => p.Add(c => c.Preset, preset));
+        list.Find("ul").GetAttribute("class")!.Split(' ').Count(c => c == "list-square").Should().Be(1);
+        var orderedList = Render<OrderedList>(p => p.Add(c => c.Preset, preset));
+        orderedList.Find("ol").GetAttribute("class")!.Split(' ').Count(c => c == "list-square").Should().Be(1);
+        list.Render(p => p.Add(c => c.Preset, QuarkPresetToken.Freeze("empty", _ => { })));
+        (list.Find("ul").GetAttribute("class") ?? "").Should().NotContain("list-square");
+    }
+
+    [Test]
+    public void Optional_utilities_allocate_only_when_set_and_clear_without_stale_classes()
+    {
+        var cut = Render<Div>(p => p.Add(c => c.MaskImage, (CssValue<MaskImageBuilder>?)null));
+        string[] fields = ["_maskUtilities", "_transform3DUtilities", "_advancedTypographyUtilities"];
+        foreach (string name in fields)
+            typeof(Component).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(cut.Instance).Should().BeNull();
+
+        cut.Render(p => p.Add(c => c.MaskImage, CssValue<MaskImageBuilder>.Raw("mask-none"))
+            .Add(c => c.Perspective, CssValue<PerspectiveBuilder>.Raw("perspective-none"))
+            .Add(c => c.FontSmoothing, CssValue<FontSmoothingBuilder>.Raw("antialiased")));
+        cut.Find("div").GetAttribute("class").Should().Contain("mask-none").And.Contain("perspective-none").And.Contain("antialiased");
+        cut.Render(p => p.Add(c => c.MaskImage, (CssValue<MaskImageBuilder>?)null)
+            .Add(c => c.Perspective, (CssValue<PerspectiveBuilder>?)null)
+            .Add(c => c.FontSmoothing, (CssValue<FontSmoothingBuilder>?)null));
+        cut.Find("div").GetAttribute("class").Should().BeNullOrEmpty();
     }
 
     [Test]

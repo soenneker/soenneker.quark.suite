@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.MediaElement
 @implements IVideo
@@ -7,6 +8,12 @@
 </video>
 
 @code {
+    [Parameter]
+    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    [Parameter]
+    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
     {
         base.BuildOwnedAttributes(attributes);
@@ -22,7 +29,6 @@
 
     }
 
-
     [Parameter]
     public string? ControlsList { get; set; }
 
@@ -31,7 +37,6 @@
 
     [Parameter]
     public int? IntrinsicHeight { get; set; }
-
 
     protected override void ApplyDefaultParameters()
     {
@@ -214,6 +219,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, ObjectFit);
+        AddIf(ref hc, ObjectPosition);
+
         hc.Add(ControlsList);
         hc.Add(IntrinsicWidth);
         hc.Add(IntrinsicHeight);
@@ -237,4 +245,13 @@
         hc.Add(OnTimeUpdate);
         hc.Add(OnVolumeChange);
     }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(ObjectFit, preset?.ObjectFit, nameof(ObjectFit)));
+        AddCss(ref cls, ResolvePresetValue(ObjectPosition, preset?.ObjectPosition, nameof(ObjectPosition)));
+    }
+
 }

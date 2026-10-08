@@ -9,6 +9,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IImage : IComponent
 {
+    /// <summary>Gets or sets the ObjectFit utilities, including responsive and state variants.</summary>
+    CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    /// <summary>Gets or sets the ObjectPosition utilities, including responsive and state variants.</summary>
+    CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
     /// <summary>
     /// Gets or sets the URL of the image.
     /// </summary>

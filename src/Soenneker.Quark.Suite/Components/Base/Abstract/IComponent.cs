@@ -476,20 +476,9 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// </summary>
     /// <returns>A task that completes when the refresh off thread operation is complete.</returns>
     Task RefreshOffThread();
-    /// <summary>Gets or sets the AccentColor utilities, including responsive and state variants.</summary>
-    CssValue<AccentColorBuilder>? AccentColor { get; set; }
-
-    /// <summary>Gets or sets the NativeAppearance utilities, including responsive and state variants.</summary>
-    CssValue<AppearanceBuilder>? NativeAppearance { get; set; }
 
     /// <summary>Gets or sets the AspectRatio utilities, including responsive and state variants.</summary>
     CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
-
-    /// <summary>Gets or sets the AutoCols utilities, including responsive and state variants.</summary>
-    CssValue<AutoColsBuilder>? AutoCols { get; set; }
-
-    /// <summary>Gets or sets the AutoRows utilities, including responsive and state variants.</summary>
-    CssValue<AutoRowsBuilder>? AutoRows { get; set; }
 
     /// <summary>Gets or sets the BackfaceVisibility utilities, including responsive and state variants.</summary>
     CssValue<BackfaceVisibilityBuilder>? BackfaceVisibility { get; set; }
@@ -521,12 +510,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// <summary>Gets or sets the BlockSize utilities, including responsive and state variants.</summary>
     CssValue<BlockSizeBuilder>? BlockSize { get; set; }
 
-    /// <summary>Gets or sets the BorderCollapse utilities, including responsive and state variants.</summary>
-    CssValue<BorderCollapseBuilder>? BorderCollapse { get; set; }
-
-    /// <summary>Gets or sets the BorderSpacing utilities, including responsive and state variants.</summary>
-    CssValue<BorderSpacingBuilder>? BorderSpacing { get; set; }
-
     /// <summary>Gets or sets the BoxDecorationBreak utilities, including responsive and state variants.</summary>
     CssValue<BoxDecorationBreakBuilder>? BoxDecorationBreak { get; set; }
 
@@ -541,12 +524,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
 
     /// <summary>Gets or sets the BreakInside utilities, including responsive and state variants.</summary>
     CssValue<BreakInsideBuilder>? BreakInside { get; set; }
-
-    /// <summary>Gets or sets the CaptionSide utilities, including responsive and state variants.</summary>
-    CssValue<CaptionSideBuilder>? CaptionSide { get; set; }
-
-    /// <summary>Gets or sets the CaretColor utilities, including responsive and state variants.</summary>
-    CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
     /// <summary>Gets or sets the FloatClear utilities, including responsive and state variants.</summary>
     CssValue<ClearBuilder>? FloatClear { get; set; }
@@ -587,15 +564,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
     /// <summary>Gets or sets the Ease utilities, including responsive and state variants.</summary>
     CssValue<EaseBuilder>? Ease { get; set; }
 
-    /// <summary>Gets or sets the FieldSizing utilities, including responsive and state variants.</summary>
-    CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
-
-    /// <summary>Gets or sets the FillRule utilities, including responsive and state variants.</summary>
-    CssValue<FillRuleBuilder>? FillRule { get; set; }
-
-    /// <summary>Gets or sets the Fill utilities, including responsive and state variants.</summary>
-    CssValue<FillBuilder>? Fill { get; set; }
-
     /// <summary>Gets or sets the FlexBasis utilities, including responsive and state variants.</summary>
     CssValue<FlexBasisBuilder>? FlexBasis { get; set; }
 
@@ -613,15 +581,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
 
     /// <summary>Gets or sets the BackgroundGradient utilities, including responsive and state variants.</summary>
     CssValue<GradientBuilder>? BackgroundGradient { get; set; }
-
-    /// <summary>Gets or sets the GridAutoFlow utilities, including responsive and state variants.</summary>
-    CssValue<GridAutoFlowBuilder>? GridAutoFlow { get; set; }
-
-    /// <summary>Gets or sets the GridColumns utilities, including responsive and state variants.</summary>
-    CssValue<GridColsBuilder>? GridColumns { get; set; }
-
-    /// <summary>Gets or sets the GridRows utilities, including responsive and state variants.</summary>
-    CssValue<GridRowsBuilder>? GridRows { get; set; }
 
     /// <summary>Gets or sets the ColumnSpan utilities, including responsive and state variants.</summary>
     CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
@@ -658,15 +617,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
 
     /// <summary>Gets or sets the Isolation utilities, including responsive and state variants.</summary>
     CssValue<IsolationBuilder>? Isolation { get; set; }
-
-    /// <summary>Gets or sets the ListStyleImage utilities, including responsive and state variants.</summary>
-    CssValue<ListStyleImageBuilder>? ListStyleImage { get; set; }
-
-    /// <summary>Gets or sets the ListStylePosition utilities, including responsive and state variants.</summary>
-    CssValue<ListStylePositionBuilder>? ListStylePosition { get; set; }
-
-    /// <summary>Gets or sets the ListStyleType utilities, including responsive and state variants.</summary>
-    CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
 
     /// <summary>Gets or sets the MaskClip utilities, including responsive and state variants.</summary>
     CssValue<MaskClipBuilder>? MaskClip { get; set; }
@@ -709,12 +659,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
 
     /// <summary>Gets or sets the MixBlendMode utilities, including responsive and state variants.</summary>
     CssValue<MixBlendModeBuilder>? MixBlendMode { get; set; }
-
-    /// <summary>Gets or sets the ObjectFit utilities, including responsive and state variants.</summary>
-    CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-
-    /// <summary>Gets or sets the ObjectPosition utilities, including responsive and state variants.</summary>
-    CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
     /// <summary>Gets or sets the Order utilities, including responsive and state variants.</summary>
     CssValue<OrderBuilder>? Order { get; set; }
@@ -787,21 +731,6 @@ public interface IComponent : ILeptonDisposableIdentifiableContentElement
 
     /// <summary>Gets or sets the Skew utilities, including responsive and state variants.</summary>
     CssValue<SkewBuilder>? Skew { get; set; }
-
-    /// <summary>Gets or sets the StrokeLineCap utilities, including responsive and state variants.</summary>
-    CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
-
-    /// <summary>Gets or sets the StrokeLineJoin utilities, including responsive and state variants.</summary>
-    CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
-
-    /// <summary>Gets or sets the Stroke utilities, including responsive and state variants.</summary>
-    CssValue<StrokeBuilder>? Stroke { get; set; }
-
-    /// <summary>Gets or sets the SvgStrokeWidth utilities, including responsive and state variants.</summary>
-    CssValue<StrokeWidthBuilder>? SvgStrokeWidth { get; set; }
-
-    /// <summary>Gets or sets the TableLayout utilities, including responsive and state variants.</summary>
-    CssValue<TableLayoutBuilder>? TableLayout { get; set; }
 
     /// <summary>Gets or sets the TabSize utilities, including responsive and state variants.</summary>
     CssValue<TabSizeBuilder>? TabSize { get; set; }

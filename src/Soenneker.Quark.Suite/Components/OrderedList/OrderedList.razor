@@ -1,3 +1,4 @@
+@using Soenneker.Utils.PooledStringBuilders
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -8,6 +9,15 @@
 </ol>
 
 @code {
+    [Parameter]
+    public CssValue<ListStyleImageBuilder>? ListStyleImage { get; set; }
+
+    [Parameter]
+    public CssValue<ListStylePositionBuilder>? ListStylePosition { get; set; }
+
+    [Parameter]
+    public CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
+
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
     {
         base.BuildOwnedAttributes(attributes);
@@ -23,7 +33,6 @@
 
     }
 
-
     [Parameter]
     public int? Start { get; set; }
 
@@ -32,7 +41,6 @@
 
     [Parameter]
     public string? Type { get; set; }
-
 
     private string? _appendedClass0;
     private string? _appendedClass1;
@@ -52,7 +60,6 @@
     /// </summary>
     [Parameter]
     public CssValue<ListVariantBuilder>? ListVariant { get; set; }
-
 
     // shadcn-style list - new-york-v4
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
@@ -106,10 +113,23 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, ListStyleImage);
+        AddIf(ref hc, ListStylePosition);
+        AddIf(ref hc, ListStyleType);
+
         hc.Add(Start);
         hc.Add(Reversed);
         hc.Add(Type);
 
         AddIf(ref hc, ListVariant);
     }
+
+    protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        var preset = AppliedPresetContext;
+        AddCss(ref cls, ResolvePresetValue(ListStyleImage, preset?.ListStyleImage, nameof(ListStyleImage)));
+        AddCss(ref cls, ResolvePresetValue(ListStylePosition, preset?.ListStylePosition, nameof(ListStylePosition)));
+    }
+
 }

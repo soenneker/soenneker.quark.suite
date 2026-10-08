@@ -7,6 +7,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IMemoInput : IComponent
 {
+    /// <summary>Gets or sets the CaretColor utilities, including responsive and state variants.</summary>
+    CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    /// <summary>Gets or sets the FieldSizing utilities, including responsive and state variants.</summary>
+    CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
     /// <summary>
     /// Gets or sets the ID of the owning form, including a form outside the control ancestry.
     /// </summary>
@@ -36,7 +42,6 @@ public interface IMemoInput : IComponent
     /// Gets or sets the HTML inputmode attribute.
     /// </summary>
     string? InputMode { get; set; }
-
 
     /// <summary>
     /// Gets or sets the text value of the textarea.
@@ -87,7 +92,6 @@ public interface IMemoInput : IComponent
     /// Gets or sets whether the textarea should automatically resize based on content.
     /// </summary>
     bool AutoResize { get; set; }
-
 
     /// <summary>
     /// Gets or sets the size of the textarea.

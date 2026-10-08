@@ -9,6 +9,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IVideo : IElement
 {
+    /// <summary>Gets or sets the ObjectFit utilities, including responsive and state variants.</summary>
+    CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    /// <summary>Gets or sets the ObjectPosition utilities, including responsive and state variants.</summary>
+    CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
     /// <summary>
     /// Gets or sets the HTML controlslist attribute.
     /// </summary>
@@ -23,7 +29,6 @@ public interface IVideo : IElement
     /// Gets or sets the HTML height attribute.
     /// </summary>
     int? IntrinsicHeight { get; set; }
-
 
     /// <summary>
     /// Gets or sets the URL of the video file.

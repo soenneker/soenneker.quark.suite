@@ -7,6 +7,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ITextInput : IInput
 {
+    /// <summary>Gets or sets the CaretColor utilities, including responsive and state variants.</summary>
+    CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    /// <summary>Gets or sets the FieldSizing utilities, including responsive and state variants.</summary>
+    CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
     /// <summary>
     /// Gets or sets the ID of the owning form, including a form outside the control ancestry.
     /// </summary>
@@ -26,7 +32,6 @@ public interface ITextInput : IInput
     /// Gets or sets the HTML dirname attribute.
     /// </summary>
     string? DirName { get; set; }
-
 
     /// <summary>
     /// Gets or sets the value.

@@ -21,6 +21,8 @@
            Disabled="@Disabled"
            ReadOnly="@ReadOnly"
            Required="@Required"
+           CaretColor="ResolvePresetValue(CaretColor, BuildPresetContext()?.CaretColor, nameof(CaretColor))"
+           FieldSizing="ResolvePresetValue(FieldSizing, BuildPresetContext()?.FieldSizing, nameof(FieldSizing))"
            Class="@Class"
            Style="@Style"
            AriaInvalid="@AriaInvalid"
@@ -48,6 +50,12 @@
 
 @code {
     [Parameter]
+    public CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    [Parameter]
+    public CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
+    [Parameter]
     public string? Form { get; set; }
 
     [Parameter]
@@ -70,7 +78,6 @@
     /// </summary>
     [Parameter]
     public int? HtmlSize { get; set; }
-
 
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private QuarkInt32Attribute _maxLengthAttribute;
@@ -321,6 +328,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, CaretColor);
+        AddIf(ref hc, FieldSizing);
+
         hc.Add(Form);
         hc.Add(AutoComplete);
         hc.Add(MinLength);
