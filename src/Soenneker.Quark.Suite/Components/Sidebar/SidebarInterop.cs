@@ -20,7 +20,7 @@ public sealed class SidebarInterop : ISidebarInterop
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask InitializeSidebar<T>(DotNetObjectReference<T> componentRef, string shortcutKey, CancellationToken cancellationToken = default) where T : class
+    public async ValueTask InitializeSidebar(DotNetObjectReference<SidebarProvider> componentRef, string shortcutKey, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -53,7 +53,7 @@ public sealed class SidebarInterop : ISidebarInterop
         }
     }
 
-    public async ValueTask RegisterResizeHandle<T>(ElementReference handle, DotNetObjectReference<T> componentRef, double minWidth, double maxWidth, bool rightSide, CancellationToken cancellationToken = default) where T : class
+    public async ValueTask RegisterResizeHandle(ElementReference handle, DotNetObjectReference<SidebarResizeHandle> componentRef, double minWidth, double maxWidth, bool rightSide, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
         using (source)

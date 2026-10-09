@@ -100,13 +100,12 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <summary>
     /// Registers the .NET callback used to propagate Monaco content changes.
     /// </summary>
-    /// <typeparam name="T">Type of value handled by the Code Editor.</typeparam>
     /// <param name="container">Element that will contain the rendered component.</param>
     /// <param name="dotNetRef">JavaScript-invokable reference to the .NET component instance.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the content changed callback registration is complete.</returns>
-    ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
-        CancellationToken cancellationToken = default) where T : class;
+    ValueTask RegisterContentChangedCallback(ElementReference container, DotNetObjectReference<CodeEditor> dotNetRef,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Enables file dropping for an editor.
@@ -139,19 +138,15 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <summary>
     /// Registers a .NET callback invoked when the app theme changes (light/dark).
     /// </summary>
-    /// <typeparam name="T">Type of value handled by the Code Editor.</typeparam>
     /// <param name="dotNetRef">JavaScript-invokable reference to the .NET component instance.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes when the theme changed callback registration is complete.</returns>
-    ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
-        where T : class;
+    ValueTask RegisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Unregisters the theme-changed callback. Swallows errors if JS is no longer available.
     /// </summary>
-    /// <typeparam name="T">Type of value handled by the Code Editor.</typeparam>
     /// <param name="dotNetRef">JavaScript-invokable reference to the .NET component instance.</param>
     /// <returns>A task that completes when the theme changed callback registration has been removed.</returns>
-    ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef)
-        where T : class;
+    ValueTask UnregisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef);
 }

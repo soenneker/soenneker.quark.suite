@@ -464,8 +464,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
-            CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
+        public ValueTask RegisterContentChangedCallback(ElementReference container, DotNetObjectReference<CodeEditor> dotNetRef,
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask ConfigureFileDrop(ElementReference container, ElementReference dropZone, string inputId,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -475,9 +475,9 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask InsertTextAtDropPosition(ElementReference container, string text,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default) where T : class => ValueTask.CompletedTask;
+        public ValueTask RegisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef) where T : class => ValueTask.CompletedTask;
+        public ValueTask UnregisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

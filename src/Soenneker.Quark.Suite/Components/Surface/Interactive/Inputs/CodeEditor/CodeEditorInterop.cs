@@ -183,8 +183,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    public async ValueTask RegisterContentChangedCallback<T>(ElementReference container, DotNetObjectReference<T> dotNetRef,
-        CancellationToken cancellationToken = default) where T : class
+    public async ValueTask RegisterContentChangedCallback(ElementReference container, DotNetObjectReference<CodeEditor> dotNetRef,
+        CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -232,8 +232,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    public async ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
-        where T : class
+    public async ValueTask RegisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -244,8 +243,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    public async ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef)
-        where T : class
+    public async ValueTask UnregisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef)
     {
         try
         {
