@@ -1,0 +1,153 @@
+@namespace Soenneker.Quark
+@inherits Element
+@implements IComparisonChart
+
+<div @attributes="BuildAttributes()">
+    <div class="comparison" data-mirrored="@(MirrorFirstMetric ? "true" : "false")" data-single="@(Metrics.Count == 1 ? "true" : "false")" data-animated="@(Animate ? "true" : "false")" style="@ColumnStyle">
+        @if (Rows.Count == 0 || Metrics.Count == 0)
+        {
+            <Div Padding="Soenneker.Quark.Padding.Is8" TextAlign="Soenneker.Quark.TextAlign.Center" TextColor="Soenneker.Quark.TextColor.MutedForeground" Role="status">@EmptyText</Div>
+        }
+        else
+        {
+            <Div Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" ItemsAlign="Items.Center" Justify="Soenneker.Quark.Justify.Between" Gap='Soenneker.Quark.Gap.Token("[16px_24px]")' Margin="Soenneker.Quark.Margin.FromBottom.Is5">
+                @if (ShowLegend)
+                {
+                    <Div Class="comparison-legend" Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" Gap='Soenneker.Quark.Gap.Token("[6px_16px]")' Role="group" AriaLabel="Emphasize entries">
+                        @foreach (var group in LegendGroups())
+                        {
+                            <button type="button" aria-pressed="@(_activeGroup == group ? "true" : "false")" @onclick="() => ToggleGroup(group)">
+                                <span class="comparison-swatch" data-group="@group" aria-hidden="true"></span>@LegendLabel(group)
+                            </button>
+                        }
+                    </Div>
+                }
+                @if (Sortable)
+                {
+                    <Div Class="comparison-sort" Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is1" Role="group" AriaLabel="Sort rows">
+                        <span>Sort by</span>
+                        @for (var index = 0; index < Metrics.Count; index++)
+                        {
+                            var sortIndex = index;
+                            <button type="button" aria-pressed="@(_sortIndex == index ? "true" : "false")" @onclick="() => Sort(sortIndex)">@Metrics[index].Name</button>
+                        }
+                    </Div>
+                }
+            </Div>
+            <table class="comparison-chart" aria-label="@(AriaLabel ?? "Comparison chart")">
+                <thead>
+                    <tr>
+                        @foreach (var column in Columns())
+                        {
+                            if (column < 0)
+                            {
+                                <th scope="col" class="comparison-name">@EntryLabel</th>
+                            }
+                            else
+                            {
+                                var metric = Metrics[column];
+                                <th scope="col" aria-sort="@SortLabel(column)" class="comparison-heading" data-mirrored="@(MirrorFirstMetric && column == 0 ? "true" : "false")" data-marker="@(metric.ShowMarker ? "true" : "false")">
+                                    @metric.Name
+                                    <small>@(metric.Description ?? (metric.LowerIsBetter ? "Lower is better" : "Higher is better"))</small>
+                                </th>
+                            }
+                        }
+                    </tr>
+                </thead>
+                <tbody @key="_sortVersion">
+                    @{ var rowIndex = 0; }
+                    @foreach (var row in OrderedRows())
+                    {
+                        var tooltipId = $"{_tooltipPrefix}-{rowIndex}";
+                        <tr @key="row" @ref="_rowElements[row]" style="@($"--comparison-order:{rowIndex++}")" data-highlighted="@(row.Highlighted ? "true" : "false")" data-reference="@(row.Reference ? "true" : "false")" data-dimmed="@(_activeGroup is not null && Group(row) != _activeGroup ? "true" : "false")" data-selected="@(ReferenceEquals(row, _selected) ? "true" : "false")" @onclick="() => Select(row)">
+                            @foreach (var column in Columns())
+                            {
+                                if (column < 0)
+                                {
+                                    <th scope="row" class="comparison-name">
+                                        <button type="button" aria-describedby="@tooltipId" aria-pressed="@(ReferenceEquals(row, _selected) ? "true" : "false")">@row.Name @if (row.Description is not null) { <small>@row.Description</small> }</button>
+                                        <span class="comparison-tooltip" id="@tooltipId" role="tooltip">
+                                            <strong>@row.Name</strong>
+                                            @for (var metricIndex = 0; metricIndex < Metrics.Count; metricIndex++)
+                                            {
+                                                var metric = Metrics[metricIndex];
+                                                <span><span>@metric.Name</span><b>@(Value(row, metricIndex) is { } number ? Format(metric, number) : metric.MissingText)</b></span>
+                                            }
+                                        </span>
+                                    </th>
+                                }
+                                else
+                                {
+                                    var metric = Metrics[column];
+                                    var value = Value(row, column);
+                                    <td class="comparison-cell" data-mirrored="@(MirrorFirstMetric && column == 0 ? "true" : "false")" data-marker="@(metric.ShowMarker ? "true" : "false")" data-label="@metric.Name">
+                                        <span class="comparison-grid" aria-hidden="true">
+                                            @foreach (var tick in Ticks(metric))
+                                            {
+                                                <i style="@($"--tick:{Percent(metric, tick)}%")" data-baseline="@(tick == metric.Minimum ? "true" : "false")"></i>
+                                            }
+                                        </span>
+                                        @if (value is { } number)
+                                        {
+                                            var upper = UpperValue(row, column);
+                                            <div class="comparison-value" style="@MarkStyle(row, metric, number, upper)" data-inside="@((MirrorFirstMetric || Metrics.Count > 1) && Fraction(metric, upper ?? number) > .86 ? "true" : "false")" data-compact-inside="@((MirrorFirstMetric || Metrics.Count > 1) && Fraction(metric, upper ?? number) > .6 ? "true" : "false")">
+                                                @if (metric.ShowMarker)
+                                                {
+                                                    <span class="comparison-stem" aria-hidden="true"></span>
+                                                    <span class="comparison-marker" aria-hidden="true"></span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="comparison-bar" aria-hidden="true"></span>
+                                                    @if (upper is not null)
+                                                    {
+                                                        <span class="comparison-range" aria-hidden="true"></span>
+                                                    }
+                                                }
+                                                <span class="comparison-number">@Format(metric, number)@if (upper is { } upperNumber) { <span class="comparison-upper"> / @Format(metric, upperNumber)</span> }</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="comparison-missing">@metric.MissingText</span>
+                                        }
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot aria-hidden="true">
+                    <tr>
+                        @foreach (var column in Columns())
+                        {
+                            <td class="@(column < 0 ? "comparison-name" : "comparison-axis-cell")" data-marker="@(column >= 0 && Metrics[column].ShowMarker ? "true" : "false")">
+                                @if (column >= 0)
+                                {
+                                    var metric = Metrics[column];
+                                    <div class="comparison-axis" data-mirrored="@(MirrorFirstMetric && column == 0 ? "true" : "false")">
+                                        @foreach (var tick in Ticks(metric))
+                                        {
+                                            <span style="@($"--tick:{Percent(metric, tick)}%")" data-edge="@(tick == metric.Minimum ? "start" : tick == metric.Maximum ? "end" : null)">@Format(metric, tick)</span>
+                                        }
+                                    </div>
+                                }
+                            </td>
+                        }
+                    </tr>
+                </tfoot>
+            </table>
+            <Div Display="@(_selected is null ? Soenneker.Quark.Display.None : Soenneker.Quark.Display.Flex)" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" Gap='Soenneker.Quark.Gap.Token("[6px_20px]")' TextSize="Soenneker.Quark.TextSize.Xs" Padding='Soenneker.Quark.Padding.FromTop.Token("[14px]")' Class="comparison-detail" aria-live="polite" aria-atomic="true">
+                @if (_selected is not null)
+                {
+                    <strong>@_selected.Name</strong>
+                    @for (var index = 0; index < Metrics.Count; index++)
+                    {
+                        var metric = Metrics[index];
+                        <span>@metric.Name: <strong>@(Value(_selected, index) is { } number ? Format(metric, number) : metric.MissingText)</strong></span>
+                    }
+                }
+            </Div>
+        }
+    </div>
+</div>

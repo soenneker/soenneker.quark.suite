@@ -1,0 +1,119 @@
+<Div Space="Space.Y.Is8" Width="Width.IsFull">
+    <DemoSection PreviewBordered="false" PreviewChromeless="true" Code="@ExampleCode" CodeLanguage="razor">
+        <Div Width="Width.IsFull" MinWidth="MinWidth.Is0" Padding="Padding.OnY.Is6">
+            <H2 Style="border-bottom:0" TextAlign="TextAlign.Center" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Normal" Tracking="Tracking.Tight" Margin="Margin.FromBottom.Is8">Delivery performance, route by route</H2>
+            <ComparisonChart @key="_replay" Rows="Rows" Metrics="Metrics" EntryLabel="Route" AriaLabel="On-time delivery, transit time, and satisfaction by route" />
+            <Paragraph TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground" Margin="Margin.FromTop.Is4">Select a metric to sort. Hover, focus, or tap a route for details. Illustrative data for a fictional delivery network.</Paragraph>
+            <Div Display="Display.Flex" Justify="Justify.Between" Gap="Gap.Is4" Margin="Margin.FromTop.Is4">
+                <Paragraph TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">Sample reporting period: September</Paragraph>
+                <Button Variant="ButtonVariant.Outline" Rounded="Rounded.None" OnClick="Replay">Replay animation</Button>
+            </Div>
+        </Div>
+    </DemoSection>
+    <DemoSection PreviewBordered="false" PreviewChromeless="true" Code="@LatencyCode" CodeLanguage="razor">
+        <Div Width="Width.IsFull" MinWidth="MinWidth.Is0" Padding="Padding.OnY.Is6">
+            <H2 Style="border-bottom:0" TextAlign="TextAlign.Center" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Normal" Tracking="Tracking.Tight" Margin="Margin.FromBottom.Is2">Transit time</H2>
+            <Paragraph TextAlign="TextAlign.Center" TextColor="TextColor.MutedForeground" Margin="Margin.FromBottom.Is8">From dispatch to doorstep. Lower is better.</Paragraph>
+            <Div Display="Display.Flex" Justify="Justify.End" Gap="Gap.Is1" Margin="Margin.FromBottom.Is4" Role="group" AriaLabel="Transit time scale">
+                <Button Variant="@(_logarithmic ? ButtonVariant.Outline : ButtonVariant.Default)" Rounded="Rounded.None" aria-pressed="@(!_logarithmic)" OnClick="() => _logarithmic = false">Linear</Button>
+                <Button Variant="@(_logarithmic ? ButtonVariant.Default : ButtonVariant.Outline)" Rounded="Rounded.None" aria-pressed="@_logarithmic" OnClick="() => _logarithmic = true">Log</Button>
+            </Div>
+            <ComparisonChart Rows="LatencyRows" Metrics="@(_logarithmic ? LogLatencyMetrics : LinearLatencyMetrics)" MirrorFirstMetric="false" Sortable="false" ShowLegend="false" EntryLabel="Route" AriaLabel="Median delivery transit time by route" />
+            <Paragraph TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground" Margin="Margin.FromTop.Is4">Solid bars show median transit time. Striped extensions show the 95th percentile. Switch scales to compare local and long-distance routes. Illustrative data.</Paragraph>
+        </Div>
+    </DemoSection>
+</Div>
+
+@code {
+    private int _replay;
+    private bool _logarithmic;
+    private void Replay() => _replay++;
+    private static string Hours(double value) => $"{value:0.#} h";
+
+    private static readonly ComparisonChartMetric[] Metrics =
+    [
+        new() { Name = "On time", Description = "Delivered within promised window", Ticks = [0, 25, 50, 75, 100], ValueFormatter = value => $"{value:0.#}%", MissingText = "Not measured" },
+        new() { Name = "Transit time", Description = "Lower is better · median hours", Maximum = 96, Ticks = [0, 24, 48, 72, 96], LowerIsBetter = true, ValueFormatter = Hours },
+        new() { Name = "Satisfaction", Description = "Customer score out of 5", Minimum = 3, Maximum = 5, Ticks = [3, 4, 5], ShowMarker = true, MissingText = "Not scored" }
+    ];
+
+    private static readonly ComparisonChartRow[] Rows =
+    [
+        new() { Name = "City express", Description = "Same-day service", Values = [98.4, 3, 4.9], UpperValues = [null, 5, null], Highlighted = true },
+        new() { Name = "Metro loop", Description = "Urban neighborhoods", Values = [96.2, 8, 4.7], UpperValues = [null, 12, null] },
+        new() { Name = "Coastal run", Description = "Seaside communities", Values = [94.8, 18, 4.6], UpperValues = [null, 26, null] },
+        new() { Name = "Valley link", Description = "Regional next-day", Values = [93.1, 22, 4.5], UpperValues = [null, 32, null] },
+        new() { Name = "Mountain pass", Description = "Remote destinations", Values = [87.6, 42, 4.1], UpperValues = [null, 64, null] },
+        new() { Name = "Airport shuttle", Description = "Priority transfers", Values = [97.3, 6, 4.8], UpperValues = [null, 9, null] },
+        new() { Name = "Island connector", Description = "Pilot · limited reporting", Values = [89.2, null, null] },
+        new() { Name = "North corridor", Description = "New route", Values = [null, 30, null], UpperValues = [null, 44, null] },
+        new() { Name = "National standard", Description = "Economy service", Values = [91.5, 68, 4.3], UpperValues = [null, 90, null], Reference = true }
+    ];
+
+    private static readonly ComparisonChartMetric[] LinearLatencyMetrics =
+    [new() { Name = "Median transit time", Maximum = 96, Ticks = [0, 24, 48, 72, 96], LowerIsBetter = true, ValueFormatter = Hours }];
+    private static readonly ComparisonChartMetric[] LogLatencyMetrics =
+    [new() { Name = "Median transit time", Minimum = 1, Maximum = 96, Ticks = [1, 3, 6, 12, 24, 48, 96], Logarithmic = true, LowerIsBetter = true, ValueFormatter = Hours }];
+
+    private static readonly ComparisonChartRow[] LatencyRows =
+    [
+        new() { Name = "City express", Values = [3], UpperValues = [5], Highlighted = true },
+        new() { Name = "Airport shuttle", Values = [6], UpperValues = [9] },
+        new() { Name = "Metro loop", Values = [8], UpperValues = [12] },
+        new() { Name = "Coastal run", Values = [18], UpperValues = [26] },
+        new() { Name = "Valley link", Values = [22], UpperValues = [32] },
+        new() { Name = "North corridor", Values = [30], UpperValues = [44] },
+        new() { Name = "Mountain pass", Values = [42], UpperValues = [64] },
+        new() { Name = "National standard", Values = [68], UpperValues = [90], Reference = true }
+    ];
+
+    public const string ExampleCode = """
+<ComparisonChart Rows="rows" Metrics="metrics" EntryLabel="Route" />
+
+@code {
+    ComparisonChartMetric[] metrics =
+    [
+        new() { Name = "On time", Description = "Delivered within promised window", Ticks = [0, 25, 50, 75, 100], ValueFormatter = v => $"{v:0.#}%", MissingText = "Not measured" },
+        new() { Name = "Transit time", Description = "Lower is better · median hours", Maximum = 96, Ticks = [0, 24, 48, 72, 96], LowerIsBetter = true, ValueFormatter = Hours },
+        new() { Name = "Satisfaction", Description = "Customer score out of 5", Minimum = 3, Maximum = 5, Ticks = [3, 4, 5], ShowMarker = true, MissingText = "Not scored" }
+    ];
+    ComparisonChartRow[] rows =
+    [
+        new() { Name = "City express", Description = "Same-day service", Values = [98.4, 3, 4.9], UpperValues = [null, 5, null], Highlighted = true },
+        new() { Name = "Metro loop", Description = "Urban neighborhoods", Values = [96.2, 8, 4.7], UpperValues = [null, 12, null] },
+        new() { Name = "Coastal run", Description = "Seaside communities", Values = [94.8, 18, 4.6], UpperValues = [null, 26, null] },
+        new() { Name = "Valley link", Description = "Regional next-day", Values = [93.1, 22, 4.5], UpperValues = [null, 32, null] },
+        new() { Name = "Mountain pass", Description = "Remote destinations", Values = [87.6, 42, 4.1], UpperValues = [null, 64, null] },
+        new() { Name = "Airport shuttle", Description = "Priority transfers", Values = [97.3, 6, 4.8], UpperValues = [null, 9, null] },
+        new() { Name = "Island connector", Description = "Pilot · limited reporting", Values = [89.2, null, null] },
+        new() { Name = "North corridor", Description = "New route", Values = [null, 30, null], UpperValues = [null, 44, null] },
+        new() { Name = "National standard", Description = "Economy service", Values = [91.5, 68, 4.3], UpperValues = [null, 90, null], Reference = true }
+    ];
+    static string Hours(double value) => $"{value:0.#} h";
+}
+""";
+
+    private const string LatencyCode = """
+<Button OnClick="() => logarithmic = false">Linear</Button>
+<Button OnClick="() => logarithmic = true">Log</Button>
+<ComparisonChart Rows="rows" Metrics="@(logarithmic ? log : linear)" MirrorFirstMetric="false" Sortable="false" ShowLegend="false" EntryLabel="Route" />
+
+@code {
+    bool logarithmic;
+    ComparisonChartMetric[] linear = [new() { Name = "Median transit time", Maximum = 96, Ticks = [0, 24, 48, 72, 96], LowerIsBetter = true, ValueFormatter = Hours }];
+    ComparisonChartMetric[] log = [new() { Name = "Median transit time", Minimum = 1, Maximum = 96, Ticks = [1, 3, 6, 12, 24, 48, 96], Logarithmic = true, LowerIsBetter = true, ValueFormatter = Hours }];
+    ComparisonChartRow[] rows =
+    [
+        new() { Name = "City express", Values = [3], UpperValues = [5], Highlighted = true },
+        new() { Name = "Airport shuttle", Values = [6], UpperValues = [9] },
+        new() { Name = "Metro loop", Values = [8], UpperValues = [12] },
+        new() { Name = "Coastal run", Values = [18], UpperValues = [26] },
+        new() { Name = "Valley link", Values = [22], UpperValues = [32] },
+        new() { Name = "North corridor", Values = [30], UpperValues = [44] },
+        new() { Name = "Mountain pass", Values = [42], UpperValues = [64] },
+        new() { Name = "National standard", Values = [68], UpperValues = [90], Reference = true }
+    ];
+    static string Hours(double value) => $"{value:0.#} h";
+}
+""";
+}

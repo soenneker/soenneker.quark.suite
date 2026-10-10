@@ -5,6 +5,7 @@
 @page "/charts/pie"
 @page "/charts/radar"
 @page "/charts/radial"
+@page "/charts/comparison"
 @inject NavigationManager Navigation
 @inject Soenneker.Blazor.Utils.Clipboard.Abstract.IClipboardUtil ClipboardUtil
 @implements IDisposable
@@ -53,6 +54,10 @@
                         </Div>
                     </Card>
                 }
+                @if (Category == "Comparison")
+                {
+                    <ComparisonChartExamples />
+                }
                 <Div Class="chart-gallery-grid" @key="Category">
                     @for (var index = 0; index < Variants.Length; index++)
                     {
@@ -92,6 +97,7 @@
         ? "Browse Quark's Blazor chart gallery for area, bar, line, pie, radar, and radial graphs. Compare visual styles and review chart configuration in Razor."
         : Category switch
         {
+            "Comparison" => "Compare independently scaled metrics with animated bars, markers, sorting, and selectable entries in Blazor.",
             "Area" => "Build Blazor area charts with Quark. Compare linear, stepped, stacked, and gradient fills, legends, and an interactive date-range example with Razor code.",
             "Bar" => "Explore Blazor bar charts with Quark. Compare single, multiple-series, and stacked bars, plus an interactive visitor chart with selectable date ranges.",
             "Line" => "Create Blazor line charts with Quark. Compare linear and stepped lines, multiple series, point markers, legends, and interactive date-range examples.",
@@ -135,7 +141,7 @@
     private int rangeDays = 90;
     private bool showCode;
     private string RangeDescription => rangeDays == 90 ? "3 months" : $"{rangeDays} days";
-    private string ExampleCode => $"<Chart Type=\"ChartType.{(Category is "Radar" or "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
+    private string ExampleCode => Category == "Comparison" ? ComparisonChartExamples.ExampleCode : $"<Chart Type=\"ChartType.{(Category is "Radar" or "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
     private string[] DailyLabels => Enumerable.Range(90 - rangeDays, rangeDays).Select(day => new DateTime(2026, 4, 1).AddDays(day).ToString("MMM d", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
     private ChartSeries[] DailySeries => [
         new("Desktop", Enumerable.Range(90 - rangeDays, rangeDays).Select(day => (double)(70 + (day * 137 + day * day * 31) % 390)).ToArray())
@@ -144,11 +150,12 @@
         { Color = "#2563eb", StrokeWidth = 1, Gradient = new ChartGradient("#2563eb", "#2563eb") { StartOpacity = .35, EndOpacity = .04 } }
     ];
     private static readonly ChartOptions InteractiveOptions = new() { Width = 1500, Height = 300, PaddingTop = 32, PaddingLeft = 4, PaddingRight = 4, ShowYAxis = false, ShowPoints = false, ShowEndPoints = false, MaximumXAxisLabels = 12, Curve = ChartCurve.Monotone, Legend = ChartLegendPosition.None, Stacked = true };
-    private static readonly string[] Categories = ["Area", "Bar", "Line", "Pie", "Radar", "Radial"];
+    private static readonly string[] Categories = ["Area", "Bar", "Line", "Pie", "Radar", "Radial", "Comparison"];
     private static readonly string[] Labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     private static readonly string[] Palette = ["#60a5fa", "#2563eb", "#93c5fd", "#1d4ed8", "#bfdbfe", "#2563eb"];
     private string Category => Categories.FirstOrDefault(value => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].TrimEnd('/').EndsWith("/" + value.ToLowerInvariant(), StringComparison.Ordinal)) ?? "Area";
     private string[] Variants => Category switch {
+        "Comparison" => [],
         "Area" => ["Default", "Linear", "Step", "Stacked", "Gradient", "Legend"],
         "Bar" => ["Default", "Multiple", "Stacked"],
         "Line" => ["Default", "Linear", "Step", "Multiple", "Dots", "Legend"],
