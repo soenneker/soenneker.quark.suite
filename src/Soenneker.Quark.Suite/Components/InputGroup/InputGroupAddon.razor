@@ -16,10 +16,10 @@
     private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
     private static readonly CssValue<PaddingBuilder> _defaultPadding4 = Quark.Padding.OnY.Is1_5.FromRight.Is2;
-    private static readonly CssValue<PaddingBuilder> _defaultPadding3 = Quark.Padding.OnX.Is2_5.FromTop.Is2;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding3 = Quark.Padding.OnX.Is3.FromTop.Is3;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Start;
-    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnX.Is2_5.FromBottom.Is2;
+    private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnX.Is3.FromBottom.Is3;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is1_5.FromLeft.Is2;
     private string? _lastBuiltClass;
 
@@ -40,7 +40,9 @@
         Height ??= _defaultHeight;
         Cursor ??= _defaultCursor;
         ItemsAlign ??= _staticCss0;
-        Justify ??= _defaultJustify2;
+        Justify ??= ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockStart) || ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockEnd)
+            ? _defaultJustify
+            : _defaultJustify2;
         Gap ??= _defaultGap;
         TextSize ??= _defaultTextSize;
         FontWeight ??= _defaultFontWeight;
@@ -56,7 +58,6 @@
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockStart))
         {
             Width ??= _defaultWidth;
-            Justify ??= _defaultJustify;
             Padding ??= _defaultPadding3;
             return;
         }
@@ -64,7 +65,6 @@
         if (ReferenceEquals(AddonAlign, InputGroupAddonAlign.BlockEnd))
         {
             Width ??= _defaultWidth;
-            Justify ??= _defaultJustify;
             Padding ??= _defaultPadding2;
             return;
         }
@@ -93,10 +93,10 @@
             return prefix + "order-last pr-2 has-[>button]:mr-[-0.3rem] has-[>kbd]:mr-[-0.15rem]";
 
         if (ReferenceEquals(align, InputGroupAddonAlign.BlockStart))
-            return prefix + "order-first w-full justify-start px-2.5 pt-2 pb-1.5 group-has-[>input]/input-group:pt-2 [.border-b]:pb-2";
+            return prefix + "order-first group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3";
 
         if (ReferenceEquals(align, InputGroupAddonAlign.BlockEnd))
-            return prefix + "order-last w-full justify-start px-2.5 pt-1.5 pb-2 group-has-[>input]/input-group:pb-2 [.border-t]:pt-2";
+            return prefix + "order-last group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3";
 
         return prefix + "order-first pl-2 has-[>button]:ml-[-0.3rem] has-[>kbd]:ml-[-0.15rem]";
     }
