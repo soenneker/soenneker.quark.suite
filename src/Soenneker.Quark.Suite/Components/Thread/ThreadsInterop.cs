@@ -14,10 +14,11 @@ public sealed class ThreadsInterop : IThreadsInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/threadinterop.js";
+    private readonly string _modulePath;
 
-    public ThreadsInterop(IModuleImportUtil moduleImportUtil)
+    public ThreadsInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/threadinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

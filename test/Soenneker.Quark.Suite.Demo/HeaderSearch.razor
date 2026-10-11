@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @if (_searchConfiguration is not null)
@@ -8,6 +9,13 @@
 }
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle("css/headersearch.css");
+    }
+
     private CloudflareAiSearchBarConfiguration? _searchConfiguration;
 
     protected override void OnInitialized()

@@ -14,10 +14,11 @@ public sealed class ResizableInterop : IResizableInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/resizableinterop.js";
+    private readonly string _modulePath;
 
-    public ResizableInterop(IModuleImportUtil moduleImportUtil)
+    public ResizableInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/resizableinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

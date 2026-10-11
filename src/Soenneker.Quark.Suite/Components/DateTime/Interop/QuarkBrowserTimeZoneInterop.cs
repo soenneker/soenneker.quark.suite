@@ -10,13 +10,14 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IQuarkBrowserTimeZoneInterop"/>
 public sealed class QuarkBrowserTimeZoneInterop : IQuarkBrowserTimeZoneInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/datetimeinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public QuarkBrowserTimeZoneInterop(IModuleImportUtil moduleImportUtil)
+    public QuarkBrowserTimeZoneInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/datetimeinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

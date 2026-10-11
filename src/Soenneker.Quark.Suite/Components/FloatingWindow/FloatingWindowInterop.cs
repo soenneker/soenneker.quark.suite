@@ -12,14 +12,15 @@ namespace Soenneker.Quark;
 
 public sealed class FloatingWindowInterop : IFloatingWindowInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/floatingwindowinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer<bool> _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    public FloatingWindowInterop(IModuleImportUtil moduleImportUtil)
+    public FloatingWindowInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/floatingwindowinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
         _initializer = new AsyncInitializer<bool>(InitializeResources);
     }

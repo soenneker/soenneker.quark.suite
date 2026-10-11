@@ -11,13 +11,14 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IColorPickerInterop"/>
 public sealed class ColorPickerInterop : IColorPickerInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/colorpickerinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ColorPickerInterop(IModuleImportUtil moduleImportUtil)
+    public ColorPickerInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/colorpickerinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

@@ -4,9 +4,9 @@ using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 
 namespace Soenneker.Quark;
 
-public sealed class SpinnerInterop(IResourceLoader resourceLoader) : ISpinnerInterop
+public sealed class SpinnerInterop(IResourceLoader resourceLoader, QuarkOptions? quarkOptions = null) : ISpinnerInterop
 {
-    private const string StylePath = "_content/Soenneker.Quark.Suite/css/spinner.css";
+    private readonly string StylePath = QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/spinner.css", quarkOptions);
 
     public ValueTask Initialize(CancellationToken cancellationToken = default) =>
         resourceLoader.LoadStyle(StylePath, cancellationToken: cancellationToken);

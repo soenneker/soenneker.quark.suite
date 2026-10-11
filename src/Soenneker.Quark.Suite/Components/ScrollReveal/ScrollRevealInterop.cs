@@ -12,13 +12,14 @@ namespace Soenneker.Quark;
 
 public sealed class ScrollRevealInterop : IScrollRevealInterop, IAsyncDisposable
 {
-    private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/scrollrevealinterop.js";
+    private readonly string ModulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ScrollRevealInterop(IModuleImportUtil moduleImportUtil)
+    public ScrollRevealInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        ModulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/scrollrevealinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

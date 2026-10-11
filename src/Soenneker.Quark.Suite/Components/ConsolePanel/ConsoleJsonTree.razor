@@ -1,3 +1,5 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
+@inject QuarkOptions QuarkOptions
 @namespace Soenneker.Quark
 @using System.Text.Json
 @implements IDisposable
@@ -7,6 +9,13 @@
 </div>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/consolejsontree.css", QuarkOptions));
+    }
+
     [Parameter] public string Json { get; set; } = "{}";
     [Parameter] public bool WrapLines { get; set; } = true;
     [Parameter] public RenderFragment? Tools { get; set; }

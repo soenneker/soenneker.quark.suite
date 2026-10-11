@@ -10,13 +10,14 @@ namespace Soenneker.Quark;
 
 public sealed class SidebarInterop : ISidebarInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public SidebarInterop(IModuleImportUtil moduleImportUtil)
+    public SidebarInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/sidebarinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

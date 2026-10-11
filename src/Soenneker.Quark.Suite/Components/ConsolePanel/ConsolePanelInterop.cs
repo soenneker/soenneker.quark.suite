@@ -11,12 +11,13 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IConsolePanelInterop"/>
 public sealed class ConsolePanelInterop : IConsolePanelInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/consolepanelinterop.js";
+    private readonly string _modulePath;
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ConsolePanelInterop(IModuleImportUtil moduleImportUtil)
+    public ConsolePanelInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/consolepanelinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

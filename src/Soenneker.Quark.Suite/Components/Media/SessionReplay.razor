@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @using System.Globalization
 @using System.Text.Json
 @using System.Threading
@@ -27,7 +28,7 @@
                 else if (_loading)
                 {
                     <span class="session-replay-loader" aria-hidden="true"></span>
-                    <Span>Loading recording…</Span>
+                    <Span>Loading recordingÃ¢â‚¬Â¦</Span>
                 }
                 else if (EmptyContent is not null)
                 {
@@ -69,11 +70,11 @@
                               Disabled="@(!_ready)" aria-label="Playback speed" title="Playback speed">
                     @foreach (double speed in PlaybackSpeeds)
                     {
-                        <NativeSelectOption Value="@speed.ToString(CultureInfo.InvariantCulture)">@speed.ToString(CultureInfo.InvariantCulture)×</NativeSelectOption>
+                        <NativeSelectOption Value="@speed.ToString(CultureInfo.InvariantCulture)">@speed.ToString(CultureInfo.InvariantCulture)Ãƒâ€”</NativeSelectOption>
                     }
                     @if (!PlaybackSpeeds.Contains(_speed))
                     {
-                        <NativeSelectOption Value="@_speed.ToString(CultureInfo.InvariantCulture)">@_speed.ToString(CultureInfo.InvariantCulture)×</NativeSelectOption>
+                        <NativeSelectOption Value="@_speed.ToString(CultureInfo.InvariantCulture)">@_speed.ToString(CultureInfo.InvariantCulture)Ãƒâ€”</NativeSelectOption>
                     }
                 </NativeSelect>
             </div>
@@ -125,6 +126,9 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/sessionreplay.css", QuarkOptions));
+
         if (_disposed || !NeedsLoad) return;
         Exception? failure = null;
         bool notifyReady = false;

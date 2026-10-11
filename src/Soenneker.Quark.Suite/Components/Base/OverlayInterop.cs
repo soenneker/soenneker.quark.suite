@@ -14,10 +14,11 @@ public sealed class OverlayInterop : IOverlayInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/overlayinterop.js";
+    private readonly string _modulePath;
 
-    public OverlayInterop(IModuleImportUtil moduleImportUtil)
+    public OverlayInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/overlayinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

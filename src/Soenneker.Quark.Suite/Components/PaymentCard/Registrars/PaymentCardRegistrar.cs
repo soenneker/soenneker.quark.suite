@@ -1,3 +1,4 @@
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.CreditCards.Registrars;
 using Soenneker.Blazor.Utils.ModuleImport.Registrars;
@@ -16,6 +17,8 @@ public static class PaymentCardRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkPaymentCardAsScoped(this IServiceCollection services)
     {
+        services.AddResourceLoaderAsScoped();
+
         services.AddModuleImportUtilAsScoped()
                 .AddCreditCardsInteropAsScoped();
 

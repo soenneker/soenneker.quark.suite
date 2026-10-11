@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
-public sealed class FileDropInterop(IModuleImportUtil moduleImportUtil) : IFileDropInterop
+public sealed class FileDropInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null) : IFileDropInterop
 {
-    private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/filedropinterop.js";
+    private readonly string ModulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/filedropinterop.js", quarkOptions);
 
     public async ValueTask Register(ElementReference target, string inputId, CancellationToken cancellationToken = default)
     {

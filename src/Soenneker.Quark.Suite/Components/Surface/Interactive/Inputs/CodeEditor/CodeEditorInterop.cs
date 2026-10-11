@@ -20,8 +20,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/monacointerop.js";
-    private const string _themeModulePath = "./_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private readonly string _modulePath;
+    private readonly string _themeModulePath;
     
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
@@ -45,6 +45,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
     public CodeEditorInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/monacointerop.js", quarkOptions);
+        _themeModulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/themeinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
         _resourceLoader = resourceLoader;
         _quarkOptions = quarkOptions;
@@ -268,4 +270,3 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         await _moduleImportUtil.DisposeContentModule(_themeModulePath);
     }
 }
-

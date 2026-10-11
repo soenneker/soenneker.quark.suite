@@ -1,3 +1,13 @@
+@using Soenneker.Atomics.ValueBools
+@using Soenneker.Utils.PooledStringBuilders
+@using System
+@using System.Collections.Generic
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Utils.Ids
+@using Soenneker.Quark.Dtos
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
@@ -11,3 +21,401 @@
         </CascadingValue>
     </CascadingValue>
 </TooltipProvider>
+
+@code {
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
+    private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
+    private SidebarContextState? _state;
+    private string? _mobileContentId;
+    private Func<Task>? _closeMobileAfterNavigation;
+    private (string Width, string Icon, string Mobile)? _widthStyleKey;
+    private string? _widthStyle;
+
+    private string? _lastBuiltClass;
+    private string? _lastBuiltStyle;
+
+    private const string _defaultCookieKey = "sidebar_state";
+    private const string _defaultShortcutKey = "b";
+
+    private ValueAtomicBool _disposed;
+    private bool _interopInitialized;
+    private DotNetObjectReference<SidebarProvider>? _dotNetRef;
+    private bool _openInternal = true;
+    private bool _openMobileInternal;
+    private bool _isMobileDetected;
+
+    internal string MobileContentId => _mobileContentId ??= BlazorIdGenerator.New("quark-sidebar-mobile");
+
+    [Inject]
+    private ISidebarInterop SidebarInterop { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    private IOverlayInterop OverlayInterop { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether default open.
+    /// </summary>
+    [Parameter]
+    public bool DefaultOpen { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether open.
+    /// </summary>
+    [Parameter]
+    public bool? Open { get; set; }
+
+    /// <summary>
+    /// Gets or sets open changed.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether open mobile.
+    /// </summary>
+    [Parameter]
+    public bool? OpenMobile { get; set; }
+
+    /// <summary>
+    /// Gets or sets open mobile changed.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OpenMobileChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the instance is mobile.
+    /// </summary>
+    [Parameter]
+    public bool? IsMobile { get; set; }
+
+    /// <summary>
+    /// Gets or sets cookie key.
+    /// </summary>
+    [Parameter]
+    public string CookieKey { get; set; } = _defaultCookieKey;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether persist state.
+    /// </summary>
+    [Parameter]
+    public bool PersistState { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets keyboard shortcut key.
+    /// </summary>
+    [Parameter]
+    public string KeyboardShortcutKey { get; set; } = _defaultShortcutKey;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether close mobile on navigation.
+    /// </summary>
+    [Parameter]
+    public bool CloseMobileOnNavigation { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets sidebar width.
+    /// </summary>
+    [Parameter]
+    public string SidebarWidth { get; set; } = "16rem";
+
+    /// <summary>
+    /// Gets or sets sidebar width icon.
+    /// </summary>
+    [Parameter]
+    public string SidebarWidthIcon { get; set; } = "3rem";
+
+    /// <summary>
+    /// Gets or sets sidebar width mobile.
+    /// </summary>
+    [Parameter]
+    public string SidebarWidthMobile { get; set; } = "18rem";
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "sidebar-wrapper";
+
+        Display ??= _defaultDisplay;
+        Width ??= _defaultWidth;
+    }
+
+    protected override void OnInitialized()
+    {
+        _openInternal = DefaultOpen;
+        NavigationManager.LocationChanged += OnLocationChanged;
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Gets open.
+    /// </summary>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
+    public bool GetOpen() => Open ?? _openInternal;
+
+    /// <summary>
+    /// Gets open mobile.
+    /// </summary>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
+    public bool GetOpenMobile() => OpenMobile ?? _openMobileInternal;
+
+    /// <summary>
+    /// Gets is mobile.
+    /// </summary>
+    /// <returns>true when the described sidebar state is active; otherwise, false.</returns>
+    public bool GetIsMobile() => IsMobile ?? _isMobileDetected;
+
+    /// <summary>
+    /// Gets state.
+    /// </summary>
+    /// <returns>The requested sidebar Context State.</returns>
+    public SidebarContextState GetState()
+    {
+        var open = GetOpen();
+        var mobileOpen = GetOpenMobile();
+        var mobile = GetIsMobile();
+        if (_state is null || _state.Open != open || _state.OpenMobile != mobileOpen || _state.IsMobile != mobile)
+            _state = new SidebarContextState { Open = open, OpenMobile = mobileOpen, IsMobile = mobile };
+        return _state;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (_disposed.Read() || !firstRender)
+            return;
+
+        try
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+
+            bool? savedOpen = null;
+
+            if (PersistState && !string.IsNullOrWhiteSpace(CookieKey))
+            {
+                savedOpen = await SidebarInterop.GetSidebarState(CookieKey);
+            }
+
+            if (_disposed.Read())
+                return;
+
+            if (Open is null)
+                _openInternal = savedOpen ?? DefaultOpen;
+
+            await SidebarInterop.InitializeSidebar(_dotNetRef, KeyboardShortcutKey);
+            _interopInitialized = true;
+            if (_disposed.Read())
+            {
+                await SidebarInterop.Cleanup();
+                return;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+            if (_disposed.Read())
+                return;
+
+            if (Open is null)
+                _openInternal = DefaultOpen;
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Sets open.
+    /// </summary>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>A task that completes when the open has been stored.</returns>
+    public async Task SetOpen(bool value)
+    {
+        if (_disposed.Read())
+            return;
+
+        if (Open is null)
+            _openInternal = value;
+
+        if (OpenChanged.HasDelegate)
+            await OpenChanged.InvokeAsync(value);
+
+        await PersistOpen(value);
+        await RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Sets open mobile.
+    /// </summary>
+    /// <param name="value">CSS value used to construct the utility class.</param>
+    /// <returns>A task that completes when the open mobile has been stored.</returns>
+    public async Task SetOpenMobile(bool value)
+    {
+        if (_disposed.Read())
+            return;
+
+        if (OpenMobile is null)
+            _openMobileInternal = value;
+
+        if (OpenMobileChanged.HasDelegate)
+            await OpenMobileChanged.InvokeAsync(value);
+
+        await RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Toggles sidebar for the Sidebar Provider.
+    /// </summary>
+    /// <returns>A task that completes when the toggle sidebar operation is complete.</returns>
+    public Task ToggleSidebar()
+    {
+        return GetIsMobile() ? SetOpenMobile(!GetOpenMobile()) : SetOpen(!GetOpen());
+    }
+
+    /// <summary>
+    /// Responds when mobile change occurs.
+    /// </summary>
+    /// <param name="isMobile">Whether mobile.</param>
+    /// <returns>A task that completes when the on mobile change operation is complete.</returns>
+    [JSInvokable]
+    public async Task OnMobileChange(bool isMobile)
+    {
+        if (_disposed.Read())
+            return;
+
+        _isMobileDetected = isMobile;
+
+        if (!isMobile && GetOpenMobile())
+            await SetOpenMobile(false);
+        else
+            await RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Responds when toggle shortcut occurs.
+    /// </summary>
+    /// <returns>A task that completes when the on toggle shortcut operation is complete.</returns>
+    [JSInvokable]
+    public Task OnToggleShortcut()
+    {
+        return ToggleSidebar();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (_disposed.Read() || !CloseMobileOnNavigation || !GetOpenMobile())
+            return;
+
+        _ = InvokeAsync(_closeMobileAfterNavigation ??= CloseMobileAfterNavigation);
+    }
+
+    private async Task CloseMobileAfterNavigation()
+    {
+        await SetOpenMobile(false);
+
+        try
+        {
+            await OverlayInterop.ReleaseScrollLocks();
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+    }
+
+    private async Task PersistOpen(bool value)
+    {
+        if (!PersistState || !_interopInitialized || string.IsNullOrWhiteSpace(CookieKey))
+            return;
+
+        try
+        {
+            await SidebarInterop.SaveSidebarState(CookieKey, value);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+
+        const string prefix = "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar";
+        PrependClassAttribute(attributes, HasExplicitHeight() ? prefix : prefix + " min-h-svh", ref _lastBuiltClass);
+        var key = (SidebarWidth, SidebarWidthIcon, SidebarWidthMobile);
+        if (_widthStyle is null || _widthStyleKey != key)
+        {
+            _widthStyle = $"--sidebar-width: {SidebarWidth}; --sidebar-width-icon: {SidebarWidthIcon}; --sidebar-width-mobile: {SidebarWidthMobile}";
+            _widthStyleKey = key;
+        }
+        PrependStyleAttribute(attributes, _widthStyle, ref _lastBuiltStyle);
+    }
+
+    private bool HasExplicitHeight()
+    {
+        if (Height is not null || MinHeight is not null)
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(Class) &&
+            (Class.Contains("h-", StringComparison.Ordinal) || Class.Contains("min-h-", StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(Style) &&
+               (Style.Contains("height", StringComparison.OrdinalIgnoreCase) || Style.Contains("min-height", StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DefaultOpen);
+        hc.Add(Open);
+        hc.Add(OpenMobile);
+        hc.Add(IsMobile);
+        hc.Add(CookieKey);
+        hc.Add(PersistState);
+        hc.Add(KeyboardShortcutKey);
+        hc.Add(CloseMobileOnNavigation);
+        hc.Add(SidebarWidth);
+        hc.Add(SidebarWidthIcon);
+        hc.Add(SidebarWidthMobile);
+        hc.Add(_isMobileDetected);
+        hc.Add(_openInternal);
+        hc.Add(_openMobileInternal);
+    }
+
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        try
+        {
+            if (_interopInitialized)
+            {
+                try
+                {
+                    await SidebarInterop.Cleanup();
+                }
+                catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+                {
+                }
+            }
+        }
+        finally
+        {
+            _dotNetRef?.Dispose();
+            _dotNetRef = null;
+            await base.DisposeAsync();
+            GC.SuppressFinalize(this);
+        }
+    }
+}

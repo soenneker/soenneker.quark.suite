@@ -9,13 +9,14 @@ namespace Soenneker.Quark;
 
 public sealed class StepsInterop : IStepsInterop
 {
-    private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/stepsinterop.js";
+    private readonly string ModulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public StepsInterop(IModuleImportUtil moduleImportUtil)
+    public StepsInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        ModulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/stepsinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

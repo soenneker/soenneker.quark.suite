@@ -18,11 +18,12 @@ public sealed class SortableInterop : ISortableInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sortableinterop.js";
+    private readonly string _modulePath;
     private const string _sortableScriptPath = "./_content/Soenneker.Quark.Suite/js/vendor/sortable.min.js";
 
-    public SortableInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
+    public SortableInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/sortableinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
         _resourceLoader = resourceLoader;
         _initializer = new AsyncInitializer(InitializeResources);

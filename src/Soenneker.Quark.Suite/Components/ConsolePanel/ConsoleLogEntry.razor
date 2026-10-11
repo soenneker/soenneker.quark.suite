@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IConsoleLogEntry
@@ -7,8 +8,8 @@
     {
         <div class="console-exception">
             @(_summaryMessage ??= RenderMessage(_displaySummary))
-            <details class="@(ResolvedShowWrapToggle ? "console-has-wrap" : null)">
-                <summary><span class="console-show">Show stack trace</span><span class="console-hide">Hide stack trace</span></summary>
+            <details class="console-details @(ResolvedShowWrapToggle ? "console-has-wrap" : null)">
+                <summary class="console-summary"><span class="console-show">Show stack trace</span><span class="console-hide">Hide stack trace</span></summary>
                 @RenderWrapToggle()
                 <div class="console-trace @(_wrap ? "console-wrap" : null)">
                     @foreach (var frame in _trace)
@@ -39,6 +40,13 @@
 </div>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/consolelogentry.css", QuarkOptions));
+    }
+
     [Parameter] public string Text { get; set; } = "";
     [Parameter] public bool? FormatExceptions { get; set; }
     [CascadingParameter(Name = "ConsoleFormatExceptions")] public bool PanelFormatExceptions { get; set; }

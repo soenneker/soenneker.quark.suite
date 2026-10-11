@@ -14,10 +14,11 @@ public sealed class PromptInputInterop : IPromptInputInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/promptinputinterop.js";
+    private readonly string _modulePath;
 
-    public PromptInputInterop(IModuleImportUtil moduleImportUtil)
+    public PromptInputInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/promptinputinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

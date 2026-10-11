@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @namespace Soenneker.Quark
 @using System.Globalization
 @using Microsoft.JSInterop
@@ -7,27 +8,7 @@
 @implements IAsyncDisposable
 @inject IScrollRevealInterop ScrollRevealInterop
 
-<style>
-[data-slot="scroll-reveal"] {
-    transition:
-        opacity var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay),
-        transform var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay),
-        filter var(--scroll-reveal-duration) var(--scroll-reveal-easing) var(--scroll-reveal-delay);
-}
 
-[data-slot="scroll-reveal"][data-scroll-reveal-state="hidden"] {
-    opacity: 0;
-    transform: var(--scroll-reveal-transform);
-    filter: blur(var(--scroll-reveal-blur));
-    will-change: opacity, transform, filter;
-}
-
-[data-slot="scroll-reveal"][data-scroll-reveal-state="visible"] {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
-}
-</style>
 
 <div @ref="_element" @attributes="BuildAttributes()">
     @ChildContent
@@ -107,6 +88,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/scrollreveal.css", QuarkOptions));
         var configurationHash = GetConfigurationHash();
 
         if (firstRender || configurationHash != _configurationHash)

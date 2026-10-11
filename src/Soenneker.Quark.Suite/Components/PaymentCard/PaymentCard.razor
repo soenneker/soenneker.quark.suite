@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @using System.Threading
 @using Soenneker.Blazor.CreditCards
 @using Soenneker.Blazor.Utils.Ids
@@ -19,6 +20,13 @@
 </div>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/paymentcard.css", QuarkOptions));
+    }
+
     private string? _appendedClass0;
     private CreditCard? _creditCard;
 

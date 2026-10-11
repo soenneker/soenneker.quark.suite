@@ -1,4 +1,4 @@
-import { initialize as observe, destroy as stopObserving } from "./scrollrevealinterop.js";
+const { initialize: observe, destroy: stopObserving } = await import(new URL(import.meta.url).pathname.endsWith(".min.js") ? "./scrollrevealinterop.min.js" : "./scrollrevealinterop.js");
 
 // Chart rows reveal once; CSS sequences the bars, markers, and values.
 export function initialize(element) {

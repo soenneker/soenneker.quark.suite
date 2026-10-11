@@ -11,6 +11,18 @@ public sealed class QuarkOptions
     public bool Debug { get; set; }
 
     /// <summary>
+    /// Loads minified Quark-owned JavaScript modules. Defaults to false.
+    /// Configure before resolving interop services. Third-party bundles retain their supplied format.
+    /// </summary>
+    public bool UseMinifiedJavaScript { get; set; }
+
+    /// <summary>
+    /// Loads minified Quark-owned stylesheets. Defaults to false.
+    /// Configure before rendering components. Third-party stylesheets retain their supplied format.
+    /// </summary>
+    public bool UseMinifiedCss { get; set; }
+
+    /// <summary>
     /// Gets or sets whether to automatically load framework resources
     /// </summary>
     public bool AutomaticFrameworkResourceLoading { get; set; } = true;

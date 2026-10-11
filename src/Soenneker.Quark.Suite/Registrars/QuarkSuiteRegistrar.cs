@@ -1,3 +1,4 @@
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using System;
 using System.Threading.Tasks;
 using Soenneker.Blazor.C15t.Registrars;
@@ -21,6 +22,8 @@ public static class QuarkSuiteRegistrar
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkSuiteAsScoped(this IServiceCollection services)
     {
+        services.AddResourceLoaderAsScoped();
+
         // Auto-register QuarkOptions if not already registered
         if (!HasQuarkOptionsRegistration(services))
             services.AddDefaultQuarkOptionsAsScoped();

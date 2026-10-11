@@ -1,4 +1,4 @@
-import { configure as configureFileDrop } from './filedropinterop.js';
+const { configure: configureFileDrop } = await import(new URL(import.meta.url).pathname.endsWith(".min.js") ? "./filedropinterop.min.js" : "./filedropinterop.js");
 
 const owners = new Map();
 const registrations = new Map();

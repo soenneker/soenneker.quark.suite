@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IDisposable
@@ -13,6 +14,13 @@
 </CascadingValue>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/treeitem.css", QuarkOptions));
+    }
+
     private QuarkInt32Attribute _sizeAttribute;
     private QuarkInt32Attribute _positionAttribute;
     private QuarkInt32Attribute _levelAttribute;

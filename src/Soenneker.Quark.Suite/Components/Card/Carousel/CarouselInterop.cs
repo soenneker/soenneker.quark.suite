@@ -14,10 +14,11 @@ public sealed class CarouselInterop : ICarouselInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/carouselinterop.js";
+    private readonly string _modulePath;
 
-    public CarouselInterop(IModuleImportUtil moduleImportUtil)
+    public CarouselInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/carouselinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

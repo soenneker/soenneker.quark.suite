@@ -11,13 +11,14 @@ namespace Soenneker.Quark;
 
 public sealed class ComparisonChartInterop : IComparisonChartInterop, IAsyncDisposable
 {
-    private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/comparisonchartinterop.js";
+    private readonly string ModulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ComparisonChartInterop(IModuleImportUtil moduleImportUtil)
+    public ComparisonChartInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        ModulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/comparisonchartinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

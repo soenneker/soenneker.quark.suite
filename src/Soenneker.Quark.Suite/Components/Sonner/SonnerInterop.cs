@@ -19,11 +19,13 @@ public sealed class SonnerInterop : ISonnerInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _stylePath = "_content/Soenneker.Quark.Suite/css/sonner.css";
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
+    private readonly string _stylePath;
+    private readonly string _modulePath;
 
-    public SonnerInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
+    public SonnerInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader, QuarkOptions? quarkOptions = null)
     {
+        _stylePath = QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/sonner.css", quarkOptions);
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/sonnerinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
         _resourceLoader = resourceLoader;
         _initializer = new AsyncInitializer(InitializeResources);

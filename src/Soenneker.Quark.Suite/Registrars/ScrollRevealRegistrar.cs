@@ -1,3 +1,4 @@
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ModuleImport.Registrars;
@@ -16,6 +17,8 @@ public static class ScrollRevealRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkScrollRevealAsScoped(this IServiceCollection services)
     {
+        services.AddResourceLoaderAsScoped();
+
         services.AddModuleImportUtilAsScoped().TryAddScoped<IScrollRevealInterop, ScrollRevealInterop>();
         return services;
     }

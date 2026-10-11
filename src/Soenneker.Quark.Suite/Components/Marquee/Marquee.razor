@@ -1,20 +1,8 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<style>
-@@keyframes quark-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(calc(-100% - var(--marquee-gap))); }
-}
 
-[data-slot="marquee"][data-pause-on-hover="true"]:hover [data-slot="marquee-track"] {
-    animation-play-state: paused !important;
-}
-
-[data-slot="marquee"]:focus-within [data-slot="marquee-track"] {
-    animation-play-state: paused !important;
-}
-</style>
 
 <div @attributes="BuildAttributes()">
     <div data-slot="marquee-track"
@@ -32,6 +20,13 @@
 </div>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle(QuarkAssetPath.Css("_content/Soenneker.Quark.Suite/css/marquee.css", QuarkOptions));
+    }
+
     private (double Duration, string Gap, bool Fade, string Width, string? BaseStyle) _marqueeStyleKey;
     private string? _lastBuiltClass;
     private string? _lastBuiltStyle;

@@ -13,18 +13,15 @@ namespace Soenneker.Quark;
 
 public sealed class NodeEditorInterop : INodeEditorInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/nodeeditorinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NodeEditorInterop"/> class.
-    /// </summary>
-    /// <param name="moduleImportUtil">The utility used to import the node editor JavaScript module.</param>
-    public NodeEditorInterop(IModuleImportUtil moduleImportUtil)
+    public NodeEditorInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/nodeeditorinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
         _initializer = new AsyncInitializer(InitializeModule);
     }

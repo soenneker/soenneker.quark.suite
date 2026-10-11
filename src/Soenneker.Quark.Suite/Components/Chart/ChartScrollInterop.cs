@@ -10,13 +10,14 @@ namespace Soenneker.Quark;
 
 public sealed class ChartScrollInterop : IChartScrollInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public ChartScrollInterop(IModuleImportUtil moduleImportUtil)
+    public ChartScrollInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/chartscrollinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

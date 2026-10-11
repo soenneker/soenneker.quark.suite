@@ -1,4 +1,4 @@
-import "./picture.js";
+await import(new URL(import.meta.url).pathname.endsWith(".min.js") ? "./picture.min.js" : "./picture.js");
 
 const storageKey = "quark-theme";
 const root = document.documentElement;

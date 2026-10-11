@@ -1,4 +1,4 @@
-import { register as registerFileDrop, unregister as unregisterFileDrop } from './filedropinterop.js';
+const { register: registerFileDrop, unregister: unregisterFileDrop } = await import(new URL(import.meta.url).pathname.endsWith(".min.js") ? "./filedropinterop.min.js" : "./filedropinterop.js");
 const editors = new WeakMap();
 const pendingEditors = new WeakMap();
 const activeEditors = new Set();
@@ -449,5 +449,3 @@ export function insertTextAtDropPosition(container, text) {
     editor.focus();
     state.pendingDropPosition = null;
 }
-
-

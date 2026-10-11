@@ -1,3 +1,4 @@
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Rrweb.Replay.Registrars;
 
@@ -9,6 +10,8 @@ public static class SessionReplayRegistrar
     /// <summary>Adds the rrweb replay interop and its resource dependencies as scoped services.</summary>
     public static IServiceCollection AddQuarkSessionReplayAsScoped(this IServiceCollection services)
     {
+        services.AddResourceLoaderAsScoped();
+
         return services.AddRrwebReplayInteropAsScoped();
     }
 }

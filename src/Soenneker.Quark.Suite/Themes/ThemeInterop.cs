@@ -18,10 +18,11 @@ public sealed class ThemeInterop : IThemeInterop
     public bool IsDark { get; private set; }
     public event Action<bool>? ThemeChanged;
 
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private readonly string _modulePath;
 
-    public ThemeInterop(IModuleImportUtil moduleImportUtil)
+    public ThemeInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/themeinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

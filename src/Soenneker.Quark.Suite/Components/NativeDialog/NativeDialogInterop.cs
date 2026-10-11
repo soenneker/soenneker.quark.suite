@@ -11,13 +11,14 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="INativeDialogInterop" />
 public sealed class NativeDialogInterop : INativeDialogInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/nativedialoginterop.js";
+    private readonly string _modulePath;
 
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    public NativeDialogInterop(IModuleImportUtil moduleImportUtil)
+    public NativeDialogInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/nativedialoginterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 

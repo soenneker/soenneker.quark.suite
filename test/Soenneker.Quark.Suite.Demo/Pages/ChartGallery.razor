@@ -1,3 +1,4 @@
+@inject Soenneker.Blazor.Utils.ResourceLoader.Abstract.IResourceLoader ResourceLoader
 @page "/charts"
 @page "/charts/area"
 @page "/charts/bar"
@@ -63,7 +64,7 @@
                     {
                         var variant = index;
                         <Card Class="chart-gallery-card">
-                            <CardHeader><H3>@Category Chart - @Variants[variant]</H3><Paragraph>January – June 2026</Paragraph></CardHeader>
+                            <CardHeader><H3>@Category Chart - @Variants[variant]</H3><Paragraph>January â€“ June 2026</Paragraph></CardHeader>
                             <Div Class="chart-gallery-plot">
                                 @if (Category is "Radar" or "Radial")
                                 {
@@ -76,7 +77,7 @@
                                     </Chart>
                                 }
                             </Div>
-                            <CardFooter Display="Display.Block"><Strong>Trending up by 5.2% this month <Span aria-hidden="true">↗</Span></Strong><Paragraph>Showing visitors for the last 6 months</Paragraph></CardFooter>
+                            <CardFooter Display="Display.Block"><Strong>Trending up by 5.2% this month <Span aria-hidden="true">â†—</Span></Strong><Paragraph>Showing visitors for the last 6 months</Paragraph></CardFooter>
                         </Card>
                     }
                 </Div>
@@ -87,6 +88,13 @@
 </div>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await ResourceLoader.LoadStyle("css/chartgallery.css");
+    }
+
     private bool IsGalleryRoot => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].Trim('/') == "charts";
 
     private string SeoTitle => IsGalleryRoot

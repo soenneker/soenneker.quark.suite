@@ -9,11 +9,12 @@ namespace Soenneker.Quark;
 
 public sealed class TablesInterop : ITablesInterop
 {
-    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/tablesinterop.js";
+    private readonly string _modulePath;
     private readonly IModuleImportUtil _moduleImportUtil;
 
-    public TablesInterop(IModuleImportUtil moduleImportUtil)
+    public TablesInterop(IModuleImportUtil moduleImportUtil, QuarkOptions? quarkOptions = null)
     {
+        _modulePath = QuarkAssetPath.JavaScript("./_content/Soenneker.Quark.Suite/js/tablesinterop.js", quarkOptions);
         _moduleImportUtil = moduleImportUtil;
     }
 
