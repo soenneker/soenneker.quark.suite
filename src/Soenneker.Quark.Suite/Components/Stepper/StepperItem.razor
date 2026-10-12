@@ -21,6 +21,8 @@
     private static readonly CssValue<FlexBuilder> _defaultFlex2 = Quark.Flex.Is1;
     private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.None.OnMd.Custom("not-last").Is1;
     private StepperItemContext? _itemContext;
+    private Stepper? _registeredParent;
+    private int _registeredStep;
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
 
@@ -73,21 +75,21 @@
         }
     }
 
-    protected override void OnInitialized()
-    {
-        ParentStepper?.RegisterStep(Step, Disabled, Value);
-        base.OnInitialized();
-    }
-
     protected override void OnParametersSet()
     {
+        if (_registeredParent != ParentStepper || _registeredStep != Step)
+            _registeredParent?.UnregisterStep(_registeredStep);
+
         ParentStepper?.RegisterStep(Step, Disabled, Value);
+        _registeredParent = ParentStepper;
+        _registeredStep = Step;
         base.OnParametersSet();
     }
 
     public override async ValueTask DisposeAsync()
     {
-        ParentStepper?.UnregisterStep(Step);
+        _registeredParent?.UnregisterStep(_registeredStep);
+        _registeredParent = null;
         await base.DisposeAsync();
     }
 

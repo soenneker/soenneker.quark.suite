@@ -56,7 +56,7 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find(".console-message").TextContent.Should().Be(text);
         cut.Render(p => p.Add(c => c.FormatJson, true));
         string formatted = cut.Find(".console-message").TextContent;
-        formatted.Should().Be("[Debug] Request: { � } LeadId: \"abc\"");
+        formatted.Should().Be("[Debug] Request: { \u2026 } LeadId: \"abc\"");
         cut.Find("details").HasAttribute("open").Should().BeFalse();
         cut.Find(".console-json-payload").TextContent.Should().Contain("\"items\": [");
         cut.FindAll(".json-node").Should().HaveCount(2);
@@ -71,7 +71,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         const string text = """[Information] {invalid} {"nested":{"value":"a } [ b"}} then [1,2]""";
         var cut = Render<ConsoleLogEntry>(p => p.Add(c => c.Text, text).Add(c => c.FormatJson, true));
-        cut.Find(".console-message").TextContent.Should().Be("[Information] {invalid} { � } then [ � ]");
+        cut.Find(".console-message").TextContent.Should().Be("[Information] {invalid} { \u2026 } then [ \u2026 ]");
         cut.FindAll(".console-json-payload").Should().HaveCount(2);
         cut.FindAll(".console-json-payload")[0].TextContent.Should().Contain("a } [ b");
         cut.FindAll(".console-json-payload")[1].QuerySelectorAll(".json-leaf").Should().HaveCount(2);
@@ -87,7 +87,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ConsolePanel>(p => p.Add(c => c.ShowCopy, false).Add(c => c.ShowDownload, false)
             .Add(c => c.AutoScroll, false).Add(c => c.FormatJson, true)
             .AddChildContent<ConsoleLogEntry>(entry => entry.Add(c => c.Text, "{\"id\":1}")));
-        cut.Find(".console-message").TextContent.Should().Be("{ � }");
+        cut.Find(".console-message").TextContent.Should().Be("{ \u2026 }");
         cut.Find("details").HasAttribute("open").Should().BeFalse();
         cut.Render(p => p.Add(c => c.FormatJson, false));
         cut.Find(".console-message").TextContent.Should().Be("{\"id\":1}");

@@ -14,13 +14,13 @@
               DataSlot="@DataSlot"
               Role="@Role"
               FlexDirection="_renderCss0"
-              Class="@GetClass()"
+              Attributes="@BuildAttributes()"
               OnReorder="@OnReorder">
     @ChildContent
 </SortableList>
 
 @code {
-    private string? _sourceClass, _composedClass;
+    private string? _composedClass;
     private static readonly CssValue<FlexDirectionBuilder> _renderCss0 = Quark.FlexDirection.Row;
     private const string _baseClass = "flex h-full w-full items-start gap-3 overflow-x-auto overflow-y-hidden p-1";
 
@@ -72,14 +72,9 @@
         hc.Add(OnReorder.HasDelegate);
     }
 
-    private string GetClass()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        if (string.IsNullOrWhiteSpace(Class)) return _baseClass;
-        if (_composedClass is null || _sourceClass != Class)
-        {
-            _sourceClass = Class;
-            _composedClass = string.Concat(_baseClass.AsSpan(), " ".AsSpan(), Class.AsSpan().TrimEnd());
-        }
-        return _composedClass;
+        base.BuildAttributesCore(attributes);
+        PrependClassAttribute(attributes, _baseClass, ref _composedClass);
     }
 }

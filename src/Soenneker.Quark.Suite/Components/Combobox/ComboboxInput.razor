@@ -1,5 +1,7 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@inject IInputInterop InputInterop
 
 @if (Anchor)
 {
@@ -9,12 +11,11 @@
         {
             @ChildContent
         }
-        <input value="@GetDisplayValue()"
+        <input @ref="_inputElement" value="@GetDisplayValue()"
                @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
                @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)"
                @onclick="(_cachedHandleClickOpenDelegate ??= HandleClickOpen)"
                @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
-               @onkeydown:preventDefault="_preventDefaultKeys"
                @attributes="BuildAttributes()" />
         @if (ParentCombobox?.ShowClear == true && ParentCombobox.HasClearValue)
         {
@@ -38,12 +39,11 @@ else
         {
             @ChildContent
         }
-        <input value="@GetDisplayValue()"
+        <input @ref="_inputElement" value="@GetDisplayValue()"
                @oninput="(_cachedHandleInputDelegate ??= HandleInput)"
                @onfocus="(_cachedHandleFocusDelegate ??= HandleFocus)"
                @onclick="(_cachedHandleClickOpenDelegate ??= HandleClickOpen)"
                @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
-               @onkeydown:preventDefault="_preventDefaultKeys"
                @attributes="BuildAttributes()" />
         @if (ParentCombobox?.ShowClear == true && ParentCombobox.HasClearValue)
         {
@@ -76,12 +76,12 @@ else
     private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
     private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
-    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground.Modifier("placeholder");
-    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium.Modifier("file");
-    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex.Modifier("file");
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Soenneker.Quark.Variant.Of(Quark.TextColor.MutedForeground).Custom("placeholder");
+    private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Soenneker.Quark.Variant.Of(Quark.FontWeight.Medium).Custom("file");
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Soenneker.Quark.Variant.Of(Quark.Display.InlineFlex).Custom("file");
     private static readonly CssValue<PointerEventsBuilder> _renderCss0 = Quark.PointerEvents.None;
     private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
     private static readonly CssValue<FillBuilder> _renderCss2 = Quark.Fill.None;
@@ -112,15 +112,52 @@ else
     [Parameter]
     public bool ShowTrigger { get; set; } = true;
 
-    private bool _preventDefaultKeys;
+    private ElementReference _inputElement;
+    private ElementReference _registeredInputElement;
+    private ValueAtomicBool _keysRegistered;
+    private ValueAtomicBool _disposed;
+
+    private async Task RegisterInputKeys()
+    {
+        if (_disposed.Value || (_keysRegistered.Value && _registeredInputElement.Equals(_inputElement)))
+            return;
+        if (_keysRegistered.Value)
+            await InputInterop.UnregisterComboboxKeys(_registeredInputElement);
+
+        var element = _inputElement;
+        await InputInterop.RegisterComboboxKeys(element);
+        if (_disposed.Value)
+        {
+            await InputInterop.UnregisterComboboxKeys(element);
+            return;
+        }
+        _registeredInputElement = element;
+        _keysRegistered.Value = true;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_keysRegistered.Value)
+                await InputInterop.UnregisterComboboxKeys(_registeredInputElement);
+        }
+        finally
+        {
+            await base.DisposeAsync();
+        }
+    }
     private ElementReference _wrapperRef;
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Anchor)
             ParentCombobox?.SetTriggerElement(_wrapperRef, ShowTrigger);
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
+        await RegisterInputKeys();
     }
 
     /// <summary>Optional label displayed when the combobox is closed; selection still uses its logical value.</summary>
@@ -175,9 +212,9 @@ else
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
         var preventBackspace = e.Key == "Backspace" && ParentCombobox?.Multiple == true && (ParentCombobox.Search.IsNullOrEmpty());
-        _preventDefaultKeys = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter" or "Escape" || preventBackspace;
+        var navigationKey = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter" or "Escape" || preventBackspace;
 
-        if (ParentCombobox != null && _preventDefaultKeys)
+        if (!Disabled && !ReadOnly && !e.AltKey && !e.CtrlKey && !e.MetaKey && ParentCombobox != null && navigationKey)
             await ParentCombobox.HandleInputKeyDown(e.Key);
 
         await base.HandleKeyDown(e);
@@ -219,6 +256,7 @@ else
         attributes["role"] = "combobox";
         attributes["autocomplete"] = "off";
         attributes["aria-autocomplete"] = "list";
+        attributes["data-combobox-multiple"] = ParentCombobox?.Multiple == true ? "true" : "false";
         attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
         attributes["aria-activedescendant"] = ParentCombobox?.ActiveItemId ?? string.Empty;
 
@@ -287,6 +325,8 @@ else
         hc.Add(ParentCombobox?.Open);
         hc.Add(ParentCombobox?.ActiveItemId);
         hc.Add(ParentCombobox?.Search);
+        hc.Add(ParentCombobox?.Disabled);
+        hc.Add(ParentCombobox?.Multiple);
         hc.Add(ParentCombobox?.Value);
         hc.Add(ParentCombobox?.ShowClear);
         hc.Add(ParentCombobox?.HasClearValue);

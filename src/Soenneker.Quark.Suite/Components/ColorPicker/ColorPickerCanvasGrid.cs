@@ -1,14 +1,24 @@
+using Soenneker.Atomics.ValueBools;
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Rendering;
 
 namespace Soenneker.Quark;
 
 // The accessible hit targets do not change as the hue, alpha or selected color changes.
-internal sealed partial class ColorPickerCanvasGrid : ComponentBase
+internal sealed partial class ColorPickerCanvasGrid : ComponentBase, IAsyncDisposable
 {
     private static readonly Cell[] _cells = CreateCells();
     private bool _renderedDisabled;
     private CellEvents[]? _events;
+    private ElementReference _cellElement;
+    private bool? _registeredDisabled;
+    private ValueAtomicBool _disposed;
+    private Action<ElementReference>? _captureElement;
+
+    [Inject] private IColorPickerInterop Interop { get; set; } = null!;
 
     public ColorPickerCanvasGrid()
     {
@@ -38,8 +48,30 @@ internal sealed partial class ColorPickerCanvasGrid : ComponentBase
             builder.AddAttribute(5, "style", cell.Style);
             builder.AddAttribute(6, "disabled", Disabled);
             builder.AddAttribute(7, "onclick", (_events[i] ??= new CellEvents(this, i)).Click);
+            if (i == 0)
+                builder.AddElementReferenceCapture(8, _captureElement ??= element => _cellElement = element);
             builder.CloseElement();
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_disposed.Value || _registeredDisabled == Disabled) return;
+        try
+        {
+            if (await Interop.RegisterCanvas(_cellElement, Owner.GetCanvasReference(), Disabled))
+                _registeredDisabled = Disabled;
+            if (_disposed.Value) await Interop.UnregisterCanvas(_cellElement);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or OperationCanceledException or ObjectDisposedException) { }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try { await Interop.UnregisterCanvas(_cellElement); }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or OperationCanceledException or ObjectDisposedException) { }
     }
 
     private static Cell[] CreateCells()

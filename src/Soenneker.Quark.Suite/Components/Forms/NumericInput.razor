@@ -22,7 +22,6 @@
            ReadOnly="@ReadOnly"
            Required="@Required"
            Class="@ResolvedInputClass"
-           Style="@Style"
            AriaInvalid="@AriaInvalid"
            AriaDisabled="@AriaDisabled"
            AriaExpanded="@AriaExpanded"
@@ -30,6 +29,7 @@
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
+           OnClick="@OnClick"
            OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
            OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
            OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)"
@@ -54,7 +54,6 @@
 
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private DecimalTextCache _valueText, _minText, _maxText, _stepText;
-    private string? _resolvedInputClass;
     private Func<Task>? _autoSaveRefreshCallback;
     private Func<string?, Task>? _cachedHandleValueChangedDelegate;
     private Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
@@ -178,12 +177,12 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
+    private Validation? _subscribedValidation;
+    private LambdaExpression? _registeredExpression;
     public object? ValidationValue => Value;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
-    private string ResolvedInputClass => UsesAutoSaveStatusSlot
-        ? AppendToClass(Class, "min-w-0 flex-1", ref _resolvedInputClass)
-        : Class ?? string.Empty;
+    private string? ResolvedInputClass => UsesAutoSaveStatusSlot ? "min-w-0 flex-1" : null;
 
     public string? GetValidationClass()
     {
@@ -233,11 +232,7 @@
     private async Task HandleInput(ChangeEventArgs e)
     {
         await OnInput.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private async Task HandleInputBlur(FocusEventArgs e)
@@ -259,22 +254,26 @@
     private async Task HandleChange(ChangeEventArgs e)
     {
         await OnChange.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender && ParentValidation is not null && ValueExpression is not null)
+        await base.OnParametersSetAsync();
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
-            await ParentValidation.InitializeInputExpression(ValueExpression);
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation = ParentValidation;
+            _registeredExpression = null;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
-
-        await base.OnAfterRenderAsync(firstRender);
+        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, ValueExpression))
+        {
+            _registeredExpression = ValueExpression;
+            await ParentValidation.InitializeInputExpression(ValueExpression!);
+        }
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
@@ -284,7 +283,7 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = _inputAttributes.Create(AdditionalAttributes, 8);
+        var attributes = _inputAttributes.Create(BuildAttributes(), 8);
 
         // Add NumericInput-specific attributes
         if (Min.HasValue)
@@ -318,12 +317,11 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
-
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
-        }
+        if (_subscribedValidation is not null)
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
+    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

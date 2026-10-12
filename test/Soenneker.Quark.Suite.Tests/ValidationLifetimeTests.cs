@@ -13,6 +13,35 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     public ValidationLifetimeTests() => Services.AddSingleton<IValidationInterop, FakeInterop>();
 
     [Test]
+    public async Task Audit_removing_validation_expression_clears_previous_field_messages()
+    {
+        var model = new Model();
+        var context = new EditContext(model);
+        var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
+        context.GetValidationMessages().Should().ContainSingle();
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression<string>(null!));
+        context.GetValidationMessages().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Audit_validation_expression_switches_fields_on_the_same_model()
+    {
+        var model = new Model();
+        var context = new EditContext(model);
+        var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
+        context.GetValidationMessages(new FieldIdentifier(model, nameof(model.Name))).Should().ContainSingle();
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.OtherName));
+        cut.Instance.FieldIdentifier.FieldName.Should().Be(nameof(model.OtherName));
+        context.GetValidationMessages().Should().BeEmpty();
+    }
+
+    [Test]
     public async ValueTask Data_annotations_replace_messages_and_clear_them_on_disposal(CancellationToken cancellationToken)
     {
         var model = new Model();
@@ -113,6 +142,8 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     {
         [Required]
         public string Name { get; set; } = "";
+
+        public string OtherName { get; set; } = "";
     }
 
     private sealed class Input : IValidationInput

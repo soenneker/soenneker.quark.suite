@@ -237,7 +237,7 @@ export function fitView(id) {
     const availableWidth = Math.max(1, state.root.clientWidth - padding * 2);
     const availableHeight = Math.max(1, state.root.clientHeight - padding * 2);
 
-    state.zoom = clamp(Math.min(availableWidth / width, availableHeight / height), state.options.minZoom, Math.min(1.15, state.options.maxZoom));
+    state.zoom = clamp(Math.min(availableWidth / width, availableHeight / height), state.options.minZoom, Math.max(state.options.minZoom, Math.min(1.15, state.options.maxZoom)));
     state.panX = (state.root.clientWidth - width * state.zoom) / 2 - minX * state.zoom;
     state.panY = (state.root.clientHeight - height * state.zoom) / 2 - minY * state.zoom;
     applyViewport(state, true);
@@ -642,7 +642,7 @@ function handleDoubleClick(state, event) {
 }
 
 function handleKeyDown(state, event) {
-    const isEditing = event.target.matches("input,textarea,select,[contenteditable='true']");
+    const isEditing = event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable='false'])");
     if (isEditing) {
         return;
     }
@@ -713,18 +713,18 @@ function handleKeyDown(state, event) {
     }
 
     const node = event.target.closest("[data-slot='node-editor-node']");
-    if (node && event.target === node && node.dataset.selectable === "true" && (event.key === "Enter" || event.key === " ")) {
+    if (node && event.target === node && node.dataset.disabled !== "true" && node.dataset.selectable === "true" && (event.key === "Enter" || event.key === " ")) {
         event.preventDefault();
         selectNode(state, node.dataset.nodeId);
         return;
     }
 
-    if (!node || !state.options.draggableNodes || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+    if (!node || event.target !== node || node.dataset.disabled === "true" || !state.options.draggableNodes || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
         return;
     }
 
     event.preventDefault();
-    const amount = event.shiftKey ? 10 : 1;
+    const amount = (event.shiftKey ? 10 : 1) * (state.options.snapToGrid ? state.options.gridSize : 1);
     let x = number(node.dataset.nodeX);
     let y = number(node.dataset.nodeY);
     const previousX = x;

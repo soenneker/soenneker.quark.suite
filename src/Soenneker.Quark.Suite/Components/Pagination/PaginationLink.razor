@@ -5,7 +5,7 @@
 
 @if (Href.HasContent())
 {
-    <a href="@Href" @onclick="(_clickHandler ??= HandleClick)" @attributes="BuildAttributes()">
+    <a href="@Href" @onclick="(_clickHandler ??= HandleClick)" @onclick:preventDefault="@Disabled" @attributes="BuildAttributes()">
         @ChildContent
     </a>
 }
@@ -49,9 +49,11 @@ else
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private Func<MouseEventArgs, Task>? _clickHandler;
+
+    protected override Task HandleClick(MouseEventArgs args) => Disabled ? Task.CompletedTask : base.HandleClick(args);
 
     /// <summary>
     /// Gets or sets whether the pagination link is active.

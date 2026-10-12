@@ -29,12 +29,13 @@
         Justify ??= _defaultJustify;
         Gap ??= _defaultGap;
 
-        ApplyVariantDefaults();
 
     }
 
-    private void ApplyVariantDefaults()
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
+        base.BuildDefaultClasses(ref cls);
+        var preset = AppliedPresetContext;
         if (ReferenceEquals(Variant, ItemMediaVariant.Icon))
         {
             return;
@@ -42,13 +43,17 @@
 
         if (ReferenceEquals(Variant, ItemMediaVariant.Image))
         {
-            Size ??= _defaultSize;
-            Rounded ??= _defaultRounded;
-            Overflow ??= _defaultOverflow;
+            if (ResolvePresetValue(Size, preset?.Size, nameof(Size)) is null)
+                AddCss<SizeBuilder>(ref cls, _defaultSize);
+            if (ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)) is null)
+                AddCss<RoundedBuilder>(ref cls, _defaultRounded);
+            if (ResolvePresetValue(Overflow, preset?.Overflow, nameof(Overflow)) is null)
+                AddCss<OverflowBuilder>(ref cls, _defaultOverflow);
             return;
         }
 
-        BackgroundColor ??= _defaultBackgroundColor;
+        if (ResolvePresetValue(BackgroundColor, preset?.BackgroundColor, nameof(BackgroundColor)) is null)
+            AddCss<BackgroundColorBuilder>(ref cls, _defaultBackgroundColor);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

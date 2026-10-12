@@ -1,4 +1,6 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
+@inject IInputInterop InputInterop
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
@@ -14,8 +16,8 @@
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is4;
     private static readonly CssValue<ShrinkBuilder> _renderCss1 = Quark.Shrink.Is0;
     private static readonly CssValue<OpacityBuilder> _renderCss2 = Quark.Opacity.Is50;
@@ -27,7 +29,9 @@
     private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private ElementReference _inputElement;
     private Func<Task>? _focusInputCallback;
-    private bool _focusAfterSelect;
+    private ValueAtomicBool _focusAfterSelect;
+    private ValueAtomicBool _keysRegistered;
+    private ValueAtomicBool _disposed;
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -37,6 +41,7 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return;
         Value = e.Value?.ToString() ?? "";
 
         if (ParentCommand is not null)
@@ -52,12 +57,13 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        if (Disabled || ReadOnly || e.CtrlKey || e.AltKey || e.MetaKey) return;
         if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
             await ParentCommand.HandleInputNavigation(e.Key);
         else if (ParentCommand is not null && e.Key == "Enter")
         {
             await ParentCommand.SelectActiveItem();
-            _focusAfterSelect = true;
+            _focusAfterSelect.Value = true;
             await InvokeAsync(StateHasChanged);
         }
 
@@ -68,10 +74,18 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!_focusAfterSelect)
+        if (_disposed.Value) return;
+        if (!_keysRegistered.Value)
+        {
+            await InputInterop.RegisterComboboxKeys(_inputElement);
+            if (_disposed.Value) { await InputInterop.UnregisterComboboxKeys(_inputElement); return; }
+            _keysRegistered.Value = true;
+        }
+
+        if (!_focusAfterSelect.Value)
             return;
 
-        _focusAfterSelect = false;
+        _focusAfterSelect.Value = false;
         await _inputElement.FocusAsync();
     }
 
@@ -115,4 +129,12 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ParentCommand?.ActiveItemId);
     }
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try { if (_keysRegistered.Value) await InputInterop.UnregisterComboboxKeys(_inputElement); }
+        finally { await base.DisposeAsync(); }
+    }
+
 }

@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Element
@@ -40,7 +41,7 @@
     private string? _generatedContentId;
     private QuarkInt32Attribute _colspanAttribute;
     private bool _expanded;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
 
     /// <summary>
     /// Gets or sets the key used to preserve the row during rendering.
@@ -110,10 +111,10 @@
 
     protected override void OnParametersSet()
     {
-        if (!_initialized)
+        if (!_initialized.Value)
         {
             _expanded = DefaultExpanded;
-            _initialized = true;
+            _initialized.Value = true;
         }
 
         base.OnParametersSet();

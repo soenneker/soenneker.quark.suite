@@ -6,7 +6,9 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
+        <CascadingValue Name="@SlotAttributes.Name" Value="TriggerAttributes" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 }
 else
@@ -29,6 +31,11 @@ else
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? ParentTriggerContext { get; set; }
 
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+    private string? _slotClass;
+    private string? _slotStyle;
+
     [Parameter]
     public bool AsChild { get; set; }
 
@@ -37,6 +44,7 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
 
 
         if (ParentTriggerContext?.TriggerId is not null)
@@ -82,18 +90,44 @@ else
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
+            ParentDisabled = ParentTriggerContext?.ParentDisabled == true,
+            PreventPointerDownDefault = ParentTriggerContext?.PreventPointerDownDefault == true,
+            OnClick = ParentTriggerContext?.OnClick,
+            OnKeyDown = ParentTriggerContext?.OnKeyDown,
+            OnPointerMove = ParentTriggerContext?.OnPointerMove,
+            OnPointerLeave = ParentTriggerContext?.OnPointerLeave,
+            OnPointerUp = ParentTriggerContext?.OnPointerUp,
+            OnMouseMove = ParentTriggerContext?.OnMouseMove,
             SuppressClickAfterPointerDown = ParentTriggerContext?.SuppressClickAfterPointerDown == true,
             OnPointerDown = ParentTriggerContext?.OnPointerDown,
             OnPointerDownEvent = ParentTriggerContext?.OnPointerDownEvent,
             Open = HoverCard is null ? null : (_contextOpenCallback ??= () => HoverCard.HandleTriggerEnter()),
             Close = HoverCard is null ? null : (_contextCloseCallback ??= () => HoverCard.Dismiss()),
-            OnMouseEnter = HoverCard is null ? null : (_contextOnMouseEnterCallback ??= () => HoverCard.HandleTriggerEnter()),
-            OnMouseLeave = HoverCard is null ? null : (_contextOnMouseLeaveCallback ??= () => HoverCard.HandleTriggerLeave()),
-            OnFocusIn = HoverCard is null ? null : (_contextOnFocusInCallback ??= () => HoverCard.HandleTriggerFocus()),
-            OnFocusOut = HoverCard is null ? null : (_contextOnFocusOutCallback ??= () => HoverCard.HandleTriggerBlur()),
-            RegisterElement = HoverCard is null
-                ? null
-                : (_contextRegisterElementCallback ??= elementReference => HoverCard.RegisterAnchor(elementReference))
+            OnMouseEnter = _contextOnMouseEnterCallback ??= async () =>
+            {
+                if (ParentTriggerContext?.OnMouseEnter is not null) await ParentTriggerContext.OnMouseEnter();
+                if (HoverCard is not null) await HoverCard.HandleTriggerEnter();
+            },
+            OnMouseLeave = _contextOnMouseLeaveCallback ??= async () =>
+            {
+                if (ParentTriggerContext?.OnMouseLeave is not null) await ParentTriggerContext.OnMouseLeave();
+                if (HoverCard is not null) await HoverCard.HandleTriggerLeave();
+            },
+            OnFocusIn = _contextOnFocusInCallback ??= async () =>
+            {
+                if (ParentTriggerContext?.OnFocusIn is not null) await ParentTriggerContext.OnFocusIn();
+                if (HoverCard is not null) await HoverCard.HandleTriggerFocus();
+            },
+            OnFocusOut = _contextOnFocusOutCallback ??= async () =>
+            {
+                if (ParentTriggerContext?.OnFocusOut is not null) await ParentTriggerContext.OnFocusOut();
+                if (HoverCard is not null) await HoverCard.HandleTriggerBlur();
+            },
+            RegisterElement = _contextRegisterElementCallback ??= elementReference =>
+            {
+                ParentTriggerContext?.RegisterElement?.Invoke(elementReference);
+                HoverCard?.RegisterAnchor(elementReference);
+            }
         };
     }
 
@@ -118,6 +152,9 @@ else
         hc.Add(HoverCard?.CurrentOpen);
         hc.Add(HoverCard?.ContentId);
         hc.Add(AsChild);
+        hc.Add(SlotAttributeOverrides);
+        hc.Add(ParentTriggerContext?.ParentDisabled);
+        hc.Add(ParentTriggerContext?.PreventPointerDownDefault);
         hc.Add(ParentTriggerContext?.TriggerId);
         hc.Add(ParentTriggerContext?.AriaHasPopup);
         hc.Add(ParentTriggerContext?.AriaControls);

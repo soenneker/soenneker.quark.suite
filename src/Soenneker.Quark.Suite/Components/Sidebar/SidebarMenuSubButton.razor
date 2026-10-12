@@ -41,8 +41,8 @@ else
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-sidebar-ring");
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private string? _lastPrependedClass;
 
     private Func<MouseEventArgs, Task>? _cachedHandleActivateDelegate;
@@ -124,7 +124,9 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        return BuildAttributes();
+        var attributes = BuildAttributes();
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleActivate);
+        return attributes;
     }
 
     private async Task HandleActivate(MouseEventArgs args)

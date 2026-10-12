@@ -22,6 +22,19 @@ public sealed class DropdownOverlayTests : BunitContext
     }
 
     [Test]
+    public void Visible_overlay_updates_scroll_lock_without_reactivating_on_unchanged_parameters()
+    {
+        var cut = Render<OverlayLifecycleProbe>(p => p.Add(c => c.Visible, true));
+        _overlayInterop.ScrollLockActivations.Should().Be(1);
+        cut.Render(p => p.Add(c => c.Visible, true));
+        _overlayInterop.ScrollLockActivations.Should().Be(1);
+        cut.Render(p => p.Add(c => c.LockScroll, false));
+        _overlayInterop.Deactivations.Should().Be(1);
+        cut.Render(p => p.Add(c => c.LockScroll, true));
+        _overlayInterop.ScrollLockActivations.Should().Be(2);
+    }
+
+    [Test]
     public void Closing_overlay_releases_its_original_lock_after_parameter_change()
     {
         var cut = Render<OverlayLifecycleProbe>(p => p.Add(c => c.Visible, true));

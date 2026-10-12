@@ -28,11 +28,13 @@ function isFocusable(element) {
         return false;
     }
 
-    if (element.hasAttribute('disabled')) {
+    if (element.hasAttribute('disabled') || element.matches?.(':disabled')) {
         return false;
     }
 
-    if (element.getAttribute('aria-hidden') === 'true') {
+    if (element.getAttribute('aria-hidden') === 'true' ||
+        element.closest?.('[hidden], [inert], [aria-hidden="true"]') ||
+        (element.getClientRects && element.getClientRects().length === 0)) {
         return false;
     }
 
@@ -44,7 +46,7 @@ function findFocusableElement(elements, fromEnd = false) {
     for (let index = fromEnd ? elements.length - 1 : 0;
         fromEnd ? index >= 0 : index < elements.length;
         index += fromEnd ? -1 : 1) {
-        if (isFocusable(elements[index])) {
+        if (!(elements[index].tabIndex < 0) && isFocusable(elements[index])) {
             return elements[index];
         }
     }
@@ -170,8 +172,8 @@ export function activate(overlayId, container, trapFocus, lockScroll, initialFoc
         return;
     }
 
-    removeOverlay(overlayId);
-    overlayStack.push(overlayId);
+    const alreadyActive = overlayStack.includes(overlayId);
+    if (!alreadyActive) overlayStack.push(overlayId);
 
     if (lockScroll) {
         lockBodyScroll(overlayId);
@@ -189,7 +191,9 @@ export function activate(overlayId, container, trapFocus, lockScroll, initialFoc
         createFocusTrap(overlayId, container);
     }
 
-    focusInitial(container, initialFocusSelector);
+    if (!alreadyActive || (overlayStack[overlayStack.length - 1] === overlayId && !container.contains(document.activeElement))) {
+        focusInitial(container, initialFocusSelector);
+    }
 }
 
 export function activateScrollLock(overlayId) {
@@ -197,8 +201,7 @@ export function activateScrollLock(overlayId) {
         return;
     }
 
-    removeOverlay(overlayId);
-    overlayStack.push(overlayId);
+    if (!overlayStack.includes(overlayId)) overlayStack.push(overlayId);
 
     lockBodyScroll(overlayId);
 }

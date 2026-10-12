@@ -102,6 +102,17 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    public async ValueTask UpdateOptions(ElementReference container, bool readOnly, bool wordWrap, bool minimap, bool autoHeight,
+        int? minLines, int? maxLines, string? ariaLabel, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("updateEditorOptions", linked, container, readOnly, wordWrap, minimap, autoHeight, minLines, maxLines, ariaLabel);
+        }
+    }
+
     public async ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

@@ -16,7 +16,10 @@ class ElementStub {
 function fixture(t, hash = '') {
   const frames = new Map(), timers = new Map(), scrolls = [], updates = [];
   let next = 1;
-  const anchor = new ElementStub(), element = new ElementStub(), section = { offsetTop: 500 };
+  const anchor = new ElementStub(), element = new ElementStub(), section = {
+    offsetTop: 25,
+    getBoundingClientRect: () => ({ top: 500 - window.scrollY })
+  };
   anchor.setAttribute('data-scrollspy-anchor', 'section');
   element.querySelectorAll = () => [anchor];
   element.querySelector = () => anchor;
@@ -35,7 +38,7 @@ function fixture(t, hash = '') {
   });
   initialize(element, {}, { invokeMethodAsync(...args) { updates.push(args); return Promise.resolve(); } });
   t.after(() => destroy(element));
-  return { element, anchor, frames, timers, scrolls, updates,
+  return { element, anchor, section, frames, timers, scrolls, updates,
     scroll() { window.listeners.get('scroll')(); const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback()); },
     initialize() { const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(callback => callback()); }
   };
@@ -73,4 +76,26 @@ test('destroy removes listeners and cancels both pending scroll and initializati
   assert.equal(env.timers.size, 0);
   assert.equal(window.listeners.size, 0);
   assert.equal(env.element.listeners.size, 0);
+});
+
+test('nested scroll containers use their own content coordinates and border', t => {
+  const env = fixture(t);
+  const viewport = Object.assign(new ElementStub(), {
+    scrollTop: 300, scrollHeight: 2000, clientHeight: 500, clientTop: 2,
+    getBoundingClientRect: () => ({ top: 200 }),
+    scrollTo: options => env.scrolls.push(options)
+  });
+  document.querySelector = () => viewport;
+  env.section.getBoundingClientRect = () => ({ top: 450 });
+  initialize(env.element, { targetSelector: '#scroll', offset: 20 }, null);
+  env.element.listeners.get('click')({ target: { closest: () => env.anchor }, preventDefault() {} });
+  assert.deepEqual(env.scrolls, [{ top: 528, left: 0, behavior: 'smooth' }]);
+});
+
+test('modified anchor clicks retain native navigation', t => {
+  const env = fixture(t);
+  let prevented = false;
+  env.element.listeners.get('click')({ ctrlKey: true, target: { closest: () => env.anchor }, preventDefault() { prevented = true; } });
+  assert.equal(prevented, false);
+  assert.equal(env.scrolls.length, 0);
 });

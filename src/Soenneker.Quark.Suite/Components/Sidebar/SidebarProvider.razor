@@ -38,7 +38,8 @@
     private const string _defaultShortcutKey = "b";
 
     private ValueAtomicBool _disposed;
-    private bool _interopInitialized;
+    private ValueAtomicBool _interopInitialized;
+    private readonly string _interopId = BlazorIdGenerator.New("quark-sidebar-provider");
     private DotNetObjectReference<SidebarProvider>? _dotNetRef;
     private bool _openInternal = true;
     private bool _openMobileInternal;
@@ -51,9 +52,6 @@
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
-
-    [Inject]
-    private IOverlayInterop OverlayInterop { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets a value indicating whether default open.
@@ -205,11 +203,11 @@
             if (Open is null)
                 _openInternal = savedOpen ?? DefaultOpen;
 
-            await SidebarInterop.InitializeSidebar(_dotNetRef, KeyboardShortcutKey);
-            _interopInitialized = true;
+            await SidebarInterop.InitializeSidebar(_dotNetRef, KeyboardShortcutKey, _interopId);
+            _interopInitialized.Value = true;
             if (_disposed.Read())
             {
-                await SidebarInterop.Cleanup();
+                await SidebarInterop.Cleanup(_interopId);
                 return;
             }
             await InvokeAsync(StateHasChanged);
@@ -315,18 +313,12 @@
     {
         await SetOpenMobile(false);
 
-        try
-        {
-            await OverlayInterop.ReleaseScrollLocks();
-        }
-        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
-        {
-        }
+
     }
 
     private async Task PersistOpen(bool value)
     {
-        if (!PersistState || !_interopInitialized || string.IsNullOrWhiteSpace(CookieKey))
+        if (!PersistState || !_interopInitialized.Value || string.IsNullOrWhiteSpace(CookieKey))
             return;
 
         try
@@ -399,11 +391,11 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         try
         {
-            if (_interopInitialized)
+            if (_interopInitialized.Value)
             {
                 try
                 {
-                    await SidebarInterop.Cleanup();
+                    await SidebarInterop.Cleanup(_interopId);
                 }
                 catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
                 {

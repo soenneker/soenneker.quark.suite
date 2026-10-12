@@ -10,6 +10,8 @@
     {
         base.BuildDefaultClasses(ref cls);
         AppendClass(ref cls, "basis-full");
+        if (ResolvePresetValue(Padding, AppliedPresetContext?.Padding, nameof(Padding)) is null)
+            AddCss<PaddingBuilder>(ref cls, ParentCarousel?.IsVertical == true ? _defaultPadding2 : _defaultPadding);
     }
 
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
@@ -22,10 +24,17 @@
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
 
-    protected override void OnInitialized()
+    private Carousel? _registeredCarousel;
+
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
-        ParentCarousel?.RegisterItem();
+        base.OnParametersSet();
+        if (ReferenceEquals(_registeredCarousel, ParentCarousel))
+            return;
+
+        _registeredCarousel?.UnregisterItem();
+        _registeredCarousel = ParentCarousel;
+        _registeredCarousel?.RegisterItem();
     }
 
     protected override void ApplyDefaultParameters()
@@ -36,14 +45,6 @@
         MinWidth ??= _staticCss0;
         Shrink ??= _defaultShrink;
         Grow ??= _defaultGrow;
-        if (ParentCarousel?.IsVertical == true)
-        {
-            Padding ??= _defaultPadding2;
-        }
-        else
-        {
-            Padding ??= _defaultPadding;
-        }
     }
 
 
@@ -51,8 +52,16 @@
 
     public override async ValueTask DisposeAsync()
     {
-        ParentCarousel?.UnregisterItem();
+        var parent = _registeredCarousel;
+        _registeredCarousel = null;
+        parent?.UnregisterItem();
         await base.DisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCarousel?.IsVertical);
     }
 
 }

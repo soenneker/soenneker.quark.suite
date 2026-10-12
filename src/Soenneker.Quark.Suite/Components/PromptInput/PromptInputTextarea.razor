@@ -20,7 +20,7 @@
     private Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
 
     private ElementReference _element;
-    private bool _registered;
+    private ValueAtomicBool _registered;
     private ValueAtomicBool _disposed;
     private QuarkAttributeDictionary _attributesBuffer;
 
@@ -51,7 +51,7 @@
         {
             var attributes = _attributesBuffer.Create(BuildAttributes(), 2);
             attributes.TryGetValue("class", out var existingClass);
-            attributes["aria-label"] = "Message input";
+            attributes.TryAdd("aria-label", "Message input");
             const string baseClass =
                 "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent";
             var existingClassString = existingClass?.ToString();
@@ -62,9 +62,15 @@
     }
 
     private Task HandleKeyDown(KeyboardEventArgs args) =>
-        args.Key == "Enter" && !args.ShiftKey && PromptInput is not null
+        args.Key == "Enter" && !args.ShiftKey && !args.AltKey && !args.CtrlKey && !args.MetaKey && PromptInput is not null
             ? PromptInput.Submit(Value)
             : Task.CompletedTask;
+
+    protected override void OnParametersSet()
+    {
+        PromptInput?.SetValue(Value);
+        base.OnParametersSet();
+    }
 
     private Task HandleInput(ChangeEventArgs args)
     {
@@ -88,7 +94,7 @@
             return;
         }
 
-        _registered = true;
+        _registered.Value = true;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -116,9 +122,9 @@
             return;
         try
         {
-            if (_registered)
+            if (_registered.Value)
             {
-                _registered = false;
+                _registered.Value = false;
                 await UnregisterTextarea();
             }
         }

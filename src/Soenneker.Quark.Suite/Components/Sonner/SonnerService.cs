@@ -182,7 +182,6 @@ public sealed class SonnerService : ISonnerService
         for (var index = 0; index < timersToCancel.Count; index++)
         {
             var timer = timersToCancel[index];
-            cancellationToken.ThrowIfCancellationRequested();
             await timer.CancelAsync();
             timer.Dispose();
         }
@@ -193,8 +192,8 @@ public sealed class SonnerService : ISonnerService
         if (_disposed.Value)
             return;
 
-        SmallBatch<(string Id, int RemainingMs, CancellationTokenSource TokenSource)> timersToStart = default;
-        SmallBatch<string> toastsToDismiss = default;
+        SmallBatch<(SonnerToast Toast, int RemainingMs, CancellationToken Token)> timersToStart = default;
+        SmallBatch<SonnerToast> toastsToDismiss = default;
         var normalizedToasterId = NormalizeToasterId(toasterId);
         var pausedKey = (normalizedToasterId, position);
 
@@ -214,7 +213,7 @@ public sealed class SonnerService : ISonnerService
                 if (timerState.RemainingMs <= 0)
                 {
                     _timers.Remove(toast.Id);
-                    toastsToDismiss.Add(toast.Id);
+                    toastsToDismiss.Add(toast);
                     continue;
                 }
 
@@ -222,7 +221,7 @@ public sealed class SonnerService : ISonnerService
                 timerState.CancellationTokenSource = tokenSource;
                 timerState.StartedAt = DateTimeOffset.UtcNow;
                 timerState.Paused = false;
-                timersToStart.Add((toast.Id, timerState.RemainingMs, tokenSource));
+                timersToStart.Add((toast, timerState.RemainingMs, tokenSource.Token));
             }
         }
 
@@ -230,9 +229,8 @@ public sealed class SonnerService : ISonnerService
         {
             for (var index = 0; index < timersToStart.Count; index++)
             {
-                var (id, remainingMs, tokenSource) = timersToStart[index];
-                cancellationToken.ThrowIfCancellationRequested();
-                _ = AutoDismiss(id, remainingMs, tokenSource.Token);
+                var (toast, remainingMs, token) = timersToStart[index];
+                _ = AutoDismiss(toast, remainingMs, token);
             }
         }
 
@@ -240,9 +238,8 @@ public sealed class SonnerService : ISonnerService
         {
             for (var index = 0; index < toastsToDismiss.Count; index++)
             {
-                var id = toastsToDismiss[index];
-                cancellationToken.ThrowIfCancellationRequested();
-                _ = DismissCore(id, invokeAutoClose: true, cancellationToken);
+                var toast = toastsToDismiss[index];
+                _ = DismissCore(toast.Id, invokeAutoClose: true, expectedToast: toast);
             }
         }
     }
@@ -335,6 +332,8 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
+            if (_disposed.Value)
+                return string.Empty;
             var existingIndex = FindToastIndex(id);
 
             if (existingIndex >= 0)
@@ -343,7 +342,7 @@ public sealed class SonnerService : ISonnerService
                 _toasts.Add(toast);
         }
 
-        await RestartTimer(toast, cancellationToken);
+        await RestartTimer(toast);
         NotifyStateChanged();
 
         if (!isExistingToast)
@@ -385,38 +384,46 @@ public sealed class SonnerService : ISonnerService
         }
     }
 
-    private async ValueTask RestartTimer(SonnerToast toast, CancellationToken cancellationToken)
+    private async ValueTask RestartTimer(SonnerToast toast)
     {
-        await CancelTimer(toast.Id, cancellationToken);
-
-        if (toast.Duration <= 0 || toast.Type == SonnerToastType.Loading)
-            return;
-
-        CancellationTokenSource? tokenSource = null;
-
-        using (await _sync.Lock(cancellationToken))
+        CancellationTokenSource? previousSource = null;
+        CancellationToken? token = null;
+        using (await _sync.Lock())
         {
-            var timerState = new SonnerTimerState
-            {
-                RemainingMs = toast.Duration,
-                Paused = _pausedToasters.Contains((toast.ToasterId, toast.Position))
-            };
-
-            _timers[toast.Id] = timerState;
-
-            if (timerState.Paused)
+            if (_disposed.Value || !ReferenceEquals(FindToast(toast.Id), toast) || toast.Removed)
                 return;
 
-            tokenSource = new CancellationTokenSource();
-            timerState.CancellationTokenSource = tokenSource;
-            timerState.StartedAt = DateTimeOffset.UtcNow;
+            if (_timers.Remove(toast.Id, out var previous))
+                previousSource = previous.CancellationTokenSource;
+
+            if (toast.Duration > 0 && toast.Type != SonnerToastType.Loading)
+            {
+                var timerState = new SonnerTimerState
+                {
+                    RemainingMs = toast.Duration,
+                    Paused = _pausedToasters.Contains((toast.ToasterId, toast.Position))
+                };
+                _timers[toast.Id] = timerState;
+                if (!timerState.Paused)
+                {
+                    var source = new CancellationTokenSource();
+                    timerState.CancellationTokenSource = source;
+                    timerState.StartedAt = DateTimeOffset.UtcNow;
+                    token = source.Token;
+                }
+            }
         }
 
-        if (tokenSource is not null)
-            _ = AutoDismiss(toast.Id, toast.Duration, tokenSource.Token);
+        if (previousSource is not null)
+        {
+            await previousSource.CancelAsync();
+            previousSource.Dispose();
+        }
+        if (token is { } timerToken)
+            _ = AutoDismiss(toast, toast.Duration, timerToken);
     }
 
-    private async ValueTask AutoDismiss(string id, int duration, CancellationToken cancellationToken)
+    private async ValueTask AutoDismiss(SonnerToast toast, int duration, CancellationToken cancellationToken)
     {
         try
         {
@@ -425,36 +432,50 @@ public sealed class SonnerService : ISonnerService
             if (cancellationToken.IsCancellationRequested || _disposed.Value)
                 return;
 
-            await DismissCore(id, invokeAutoClose: true);
+            await DismissCore(toast.Id, invokeAutoClose: true, timerToken: cancellationToken, expectedToast: toast);
         }
         catch (TaskCanceledException)
         {
         }
     }
 
-    private async ValueTask DismissCore(string id, bool invokeAutoClose, CancellationToken cancellationToken = default)
+    private async ValueTask DismissCore(string id, bool invokeAutoClose, CancellationToken cancellationToken = default, CancellationToken? timerToken = null, SonnerToast? expectedToast = null)
     {
         SonnerToast? toast;
+        CancellationTokenSource? timerToCancel = null;
 
         using (await _sync.Lock(cancellationToken))
         {
             if (_disposed.Value)
                 return;
 
+            if (timerToken is { } expectedToken &&
+                (expectedToken.IsCancellationRequested || !_timers.TryGetValue(id, out var currentTimer) || currentTimer.Paused ||
+                 currentTimer.CancellationTokenSource is not { } currentSource || currentSource.Token != expectedToken))
+                return;
+
             toast = FindToast(id);
-            if (toast is null || toast.Removed)
+            if (toast is null || toast.Removed || (expectedToast is not null && !ReferenceEquals(toast, expectedToast)))
                 return;
 
             toast.Removed = true;
+            if (_timers.Remove(id, out var timer))
+                timerToCancel = timer.CancellationTokenSource;
         }
 
-        await CancelTimer(id, cancellationToken);
+        // Once removed, finish the exit animation even if the caller cancels.
+        // Abandoning cleanup here would leave an invisible toast retained forever.
+        if (timerToCancel is not null)
+        {
+            await timerToCancel.CancelAsync();
+            timerToCancel.Dispose();
+        }
         NotifyStateChanged();
 
-        await Task.Delay(_removeDelayMs, cancellationToken);
+        await Task.Delay(_removeDelayMs);
 
         bool removed;
-        using (await _sync.Lock(cancellationToken))
+        using (await _sync.Lock())
         {
             // An update may replace this toast during its exit animation.
             removed = _toasts.Remove(toast);

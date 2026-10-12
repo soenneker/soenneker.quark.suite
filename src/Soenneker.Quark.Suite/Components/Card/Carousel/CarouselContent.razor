@@ -117,8 +117,7 @@
                 {
                     _transformOffset = offset;
                     _transformHorizontal = horizontal;
-                    var formattedOffset = offset < 0.5 ? "0" : offset.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-                    var coordinate = offset < 0.5 ? "0" : string.Concat("-", formattedOffset);
+                    var coordinate = Math.Abs(offset) < 0.5 ? "0" : (-offset).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
                     _transformStyle = horizontal
                         ? $"transform: translate3d({coordinate}px, 0px, 0px)"
                         : $"transform: translate3d(0px, {coordinate}px, 0px)";
@@ -139,6 +138,13 @@
     private void OnCarouselStateChanged()
     {
         _ = RefreshOffThread();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCarousel?.IsVertical);
+        hc.Add(ParentCarousel?.ScrollOffsetPixels);
     }
 
     public override async ValueTask DisposeAsync()

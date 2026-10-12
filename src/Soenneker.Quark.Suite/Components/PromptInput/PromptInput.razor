@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
@@ -32,6 +33,7 @@
     private HashSet<string>? _attachmentIds;
     private HashSet<(string Name, long Size, string? Type)>? _attachmentMetadata;
     private int _attachmentsVersion;
+    private ValueAtomicBool _submitting;
 
     [Parameter]
     public EventCallback<string?> OnSubmit { get; set; }
@@ -68,15 +70,24 @@
 
     internal async Task Submit(string? value)
     {
-        if (OnSubmit.HasDelegate)
-            await OnSubmit.InvokeAsync(value);
+        if (!_submitting.TrySetTrue())
+            return;
 
-        if (OnSubmitMessage.HasDelegate)
-            await OnSubmitMessage.InvokeAsync(new PromptInputMessage
-            {
-                Text = value,
-                Files = CopyAttachments()
-            });
+        try
+        {
+            var message = OnSubmitMessage.HasDelegate
+                ? new PromptInputMessage { Text = value, Files = CopyAttachments() }
+                : null;
+            if (OnSubmit.HasDelegate)
+                await OnSubmit.InvokeAsync(value);
+
+            if (message is not null)
+                await OnSubmitMessage.InvokeAsync(message);
+        }
+        finally
+        {
+            _submitting.Value = false;
+        }
     }
 
     internal Task AddAttachments(IReadOnlyList<PromptInputAttachmentInfo> attachments)
@@ -85,7 +96,16 @@
             return Task.CompletedTask;
 
         if (!Multiple)
+        {
+            if (_attachments.Count == 1 && IsSameAttachment(_attachments[0], attachments[0]))
+                return Task.CompletedTask;
+
             _attachments.Clear();
+            _attachments.Add(attachments[0]);
+            return NotifyAttachmentsChanged();
+        }
+
+        var previousCount = _attachments.Count;
 
         if (_attachments.Count + attachments.Count < 8)
         {
@@ -125,7 +145,7 @@
             }
         }
 
-        return NotifyAttachmentsChanged();
+        return previousCount == _attachments.Count ? Task.CompletedTask : NotifyAttachmentsChanged();
     }
 
     internal Task RemoveAttachment(string id)

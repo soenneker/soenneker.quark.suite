@@ -116,14 +116,11 @@
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
     /// </summary>
-    public string EffectiveName => _name ??= Name ?? BlazorIdGenerator.New("quark-radiogroup");
+    public string EffectiveName => Name.HasContent() ? Name! : _name ??= BlazorIdGenerator.New("quark-radiogroup");
 
     protected override void OnInitialized()
     {
-        if (Name.HasContent())
-            _name = Name;
-        else
-            _name = BlazorIdGenerator.New("quark-radiogroup");
+        base.OnInitialized();
     }
 
     protected override void ApplyDefaultParameters()
@@ -141,7 +138,7 @@
     /// </summary>
     public async Task SetValue(string? value)
     {
-        if (Value == value) return;
+        if (Disabled || Value == value) return;
         Value = value;
         await ValueChanged.InvokeAsync(Value);
         await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));

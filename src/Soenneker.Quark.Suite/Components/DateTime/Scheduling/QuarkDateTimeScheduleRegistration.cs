@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace Soenneker.Quark;
 internal sealed class QuarkDateTimeScheduleRegistration : IQuarkDateTimeScheduleRegistration
 {
     private readonly QuarkDateTimeScheduler _owner;
+    private ValueAtomicBool _disposed;
 
     internal QuarkDateTimeScheduleRegistration(QuarkDateTimeScheduler owner, Func<DateTimeOffset, TimeSpan?> getNextInterval,
         Func<DateTimeOffset, ValueTask> callback)
@@ -24,7 +26,11 @@ internal sealed class QuarkDateTimeScheduleRegistration : IQuarkDateTimeSchedule
 
     internal int Version { get; set; }
 
-    internal bool Disposed { get; set; }
+    internal bool Disposed
+    {
+        get => _disposed.Read();
+        set => _disposed.Write(value);
+    }
 
     public void Reschedule() => _owner.Reschedule(this);
 

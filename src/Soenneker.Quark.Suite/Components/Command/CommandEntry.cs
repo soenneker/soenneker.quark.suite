@@ -15,6 +15,8 @@ internal sealed class CommandEntry
 
     public int SearchOrder { get; set; }
 
+    public int NavigationGroupOrder { get; set; }
+
     public bool IsVisible => Item.IsVisibleResolved;
 
     public bool IsDisabled => Item.Disabled;

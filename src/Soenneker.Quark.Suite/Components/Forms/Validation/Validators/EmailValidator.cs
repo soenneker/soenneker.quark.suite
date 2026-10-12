@@ -11,7 +11,8 @@ public class EmailValidator : QuarkValidator
 {
     public override bool IsSynchronous => true;
 
-    private static readonly Regex _emailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
+    private static readonly Regex _emailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,63}$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking);
 
     private readonly ValidationResult _errorResult;
 

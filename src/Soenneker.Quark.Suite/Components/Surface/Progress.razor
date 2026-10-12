@@ -47,7 +47,7 @@
 
     private int EffectiveMax => Max > 0 ? Max : 100;
 
-    private double? ResolvedBradixValue => null;
+    private double? ResolvedBradixValue => Indeterminate ? null : GetClampedValue();
     private const string IndicatorClass = "size-full flex-1 bg-primary transition-transform duration-700 ease-in-out";
 
     private IReadOnlyDictionary<string, object> IndicatorAttributes => BuildIndicatorAttributes();
@@ -63,7 +63,6 @@
     private string? _indicatorStyle;
     private int _indicatorValue;
     private int _indicatorMax;
-    private CultureInfo? _indicatorCulture;
 
     private string GetIndicatorStyle()
     {
@@ -72,16 +71,13 @@
 
         var value = GetClampedValue();
         var max = EffectiveMax;
-        var culture = CultureInfo.CurrentCulture;
-        if (_indicatorStyle is not null && value == _indicatorValue && max == _indicatorMax &&
-            culture.IsReadOnly && ReferenceEquals(culture, _indicatorCulture))
+        if (_indicatorStyle is not null && value == _indicatorValue && max == _indicatorMax)
             return _indicatorStyle;
 
         var pct = value * 100.0 / max;
-        _indicatorStyle = $"transform: translateX(-{100 - pct:F0}%);";
+        _indicatorStyle = string.Create(CultureInfo.InvariantCulture, $"transform: translateX(-{100 - pct:0.####}%);");
         _indicatorValue = value;
         _indicatorMax = max;
-        _indicatorCulture = culture;
         return _indicatorStyle;
     }
 

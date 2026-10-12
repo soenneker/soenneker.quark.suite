@@ -31,6 +31,7 @@
     [Parameter]
     public string? SuccessText { get; set; }
 
+    private Validations? _subscribedValidations;
     private bool _visible;
     private ValidationStatus _status = ValidationStatus.None;
     private Validation? _subscribedValidation;
@@ -48,18 +49,28 @@
         TextSize ??= _defaultTextSize;
     }
 
-    protected override void OnInitialized()
+    private void UpdateParentSubscription()
     {
-        if (ParentValidations is not null)
+        if (ReferenceEquals(_subscribedValidations, ParentValidations)) return;
+        if (_subscribedValidations is not null)
         {
-            ParentValidations._statusChanged += OnStatusChanged;
-            ParentValidations.ClearingAll += OnClearingAll;
+            _subscribedValidations._statusChanged -= OnStatusChanged;
+            _subscribedValidations.ClearingAll -= OnClearingAll;
+        }
+        _subscribedValidations = ParentValidations;
+        _visible = false;
+        _status = ValidationStatus.None;
+        if (_subscribedValidations is not null)
+        {
+            _subscribedValidations._statusChanged += OnStatusChanged;
+            _subscribedValidations.ClearingAll += OnClearingAll;
         }
     }
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        UpdateParentSubscription();
 
         if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
@@ -99,10 +110,10 @@
         if (_subscribedValidation is not null)
             _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
 
-        if (ParentValidations is not null)
+        if (_subscribedValidations is not null)
         {
-            ParentValidations._statusChanged -= OnStatusChanged;
-            ParentValidations.ClearingAll -= OnClearingAll;
+            _subscribedValidations._statusChanged -= OnStatusChanged;
+            _subscribedValidations.ClearingAll -= OnClearingAll;
         }
         await base.DisposeAsync();
     }

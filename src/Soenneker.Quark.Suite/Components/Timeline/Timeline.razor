@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Value="this" IsFixed="true">
+<CascadingValue Value="this" IsFixed="false">
     <div @attributes="BuildAttributes()">
         @if (ChildContent != null)
         {
@@ -11,6 +11,7 @@
 </CascadingValue>
 
 @code {
+    private int _activeStep;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private string? _lastPrependedClass;
 
@@ -26,14 +27,24 @@
     [Parameter]
     public string Orientation { get; set; } = "vertical";
 
-    internal int ActiveStep => Value ?? DefaultValue;
+    internal int ActiveStep => Value ?? _activeStep;
 
-    internal Task SetActiveStep(int step)
+    protected override void OnInitialized()
     {
-        if (Value is null)
-            DefaultValue = step;
+        _activeStep = DefaultValue;
+        base.OnInitialized();
+    }
 
-        return ValueChanged.HasDelegate ? ValueChanged.InvokeAsync(step) : Task.CompletedTask;
+    internal async Task SetActiveStep(int step)
+    {
+        if (ActiveStep == step)
+            return;
+
+        if (Value is null)
+            _activeStep = step;
+
+        await ValueChanged.InvokeAsync(step);
+        Refresh();
     }
 
     protected override void ApplyDefaultParameters()
@@ -59,6 +70,7 @@
         hc.Add(DefaultValue);
         hc.Add(Value);
         hc.Add(Orientation);
+        hc.Add(_activeStep);
     }
 
     private string NormalizeOrientation()

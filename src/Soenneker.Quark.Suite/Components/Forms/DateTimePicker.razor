@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Globalization
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -16,36 +17,31 @@
         </PopoverAnchor>
 
         <PopoverContent Id="@_panelId" Side="Side.Bottom" Align="Alignment.Start" OnOpenAutoFocusDetailed="PreventPanelAutoFocus" Width="_renderCss0" MinWidth='_staticCss4' Rounded="_renderCss1" Border="_renderCss2" BackgroundColor="_renderCss3" Padding="_renderCss4" TextColor="_renderCss5" Shadow="_renderCss6" @attributes="PanelAttributes">
-            <Div Margin="_renderCss7" Display="_renderCss8" ItemsAlign="_renderCss9" Justify="_renderCss10">
-                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Previous month" @onclick="(_cachedPrevMonthDelegate ??= PrevMonth)">â€¹</Button>
-                <Div TextSize="_renderCss11" FontWeight="_renderCss12">@GetMonthCaption()</Div>
-                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Next month" @onclick="(_cachedNextMonthDelegate ??= NextMonth)">â€º</Button>
-            </Div>
-            <Grid Columns="_renderCss13" Gap="_renderCss14">
-                @foreach (var dow in _dayNames)
-                {
-                    <Div Display="_renderCss8" Height="_renderCss15" ItemsAlign="_renderCss9" Justify="_renderCss16" TextSize="_renderCss17" FontWeight="_renderCss18" TextColor="_renderCss19">@dow</Div>
-                }
-                @foreach (var day in BuildMonthCells())
-                {
-                    <Button @key="day.Date" Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="_staticCss3" Class="@GetDayClass(day)" Disabled="@day.Disabled" @onclick="day.Click">@day.Date.Day</Button>
-                }
-            </Grid>
+            <CascadingValue TValue="Validation" Name="ParentValidation" Value="@((Validation?)null)" IsFixed="true">
+            <Calendar SelectedDate="_pendingDate"
+                      SelectedDateChanged="(_calendarDateChanged ??= HandleCalendarDateChanged)"
+                      DisplayMonth="_displayMonth"
+                      DisplayMonthChanged="(_calendarMonthChanged ??= HandleCalendarMonthChanged)"
+                      Min="@(Min.HasValue ? DateOnly.FromDateTime(Min.Value) : (DateOnly?)null)"
+                      Max="@(Max.HasValue ? DateOnly.FromDateTime(Max.Value) : (DateOnly?)null)"
+                      Disabled="Disabled" ReadOnly="ReadOnly"
+                      Border="Quark.Border.Is0" Padding="Quark.Padding.Is0" />
 
             <Div Flex="Quark.Flex.Wrap" Justify="Quark.Justify.Center" Margin="_renderCss20" Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss21" Border="_renderCss22" Padding="_renderCss23">
                 <Div Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss14">
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" @onclick="(_cachedDecrementHourDelegate ??= DecrementHour)">-</Button>
-                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="(_cachedOnHourInputDelegate ??= OnHourInput)" @onwheel="(_cachedOnHourWheelDelegate ??= OnHourWheel)" @onkeydown="(_cachedOnHourKeyDownDelegate ??= OnHourKeyDown)"/>
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" @onclick="(_cachedIncrementHourDelegate ??= IncrementHour)">+</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Decrease hour" @onclick="(_cachedDecrementHourDelegate ??= DecrementHour)">-</Button>
+                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="(_cachedOnHourInputDelegate ??= OnHourInput)"/>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Increase hour" @onclick="(_cachedIncrementHourDelegate ??= IncrementHour)">+</Button>
                 </Div>
                 <Span TextSize="_renderCss11" TextColor="_renderCss19">:</Span>
                 <Div Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss14">
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" @onclick="(_cachedDecrementMinuteDelegate ??= DecrementMinute)">-</Button>
-                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Minute" Step="@_minuteStep.ToString(CultureInfo.InvariantCulture)" min="0" max="59" OnInput="(_cachedOnMinuteInputDelegate ??= OnMinuteInput)" @onwheel="(_cachedOnMinuteWheelDelegate ??= OnMinuteWheel)" @onkeydown="(_cachedOnMinuteKeyDownDelegate ??= OnMinuteKeyDown)"/>
-                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" @onclick="(_cachedIncrementMinuteDelegate ??= IncrementMinute)">+</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Decrease minute" @onclick="(_cachedDecrementMinuteDelegate ??= DecrementMinute)">-</Button>
+                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Minute" Step="@_minuteStep.ToString(CultureInfo.InvariantCulture)" min="0" max="59" OnInput="(_cachedOnMinuteInputDelegate ??= OnMinuteInput)"/>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Increase minute" @onclick="(_cachedIncrementMinuteDelegate ??= IncrementMinute)">+</Button>
                 </Div>
                 <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss1" Title="Click to toggle" @onclick="(_cachedToggleAmPmDelegate ??= ToggleAmPm)">@(_isAm ? "AM" : "PM")</Button>
             </Div>
+            </CascadingValue>
         </PopoverContent>
     </Div>
 </Popover>
@@ -63,27 +59,9 @@
     }
 
     private static readonly CssValue<InputSizeBuilder> _staticCss5 = InputSizes.Default;
-    private DateOnly _captionMonth;
-    private CultureInfo? _captionCulture;
-    private string? _monthCaption;
-
-    private string GetMonthCaption()
-    {
-        var month = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentUICulture;
-        if (_monthCaption is null || _captionMonth != month || !ReferenceEquals(_captionCulture, culture) || !culture.IsReadOnly)
-        {
-            _captionMonth = month;
-            _captionCulture = culture;
-            _monthCaption = month.ToString("MMMM yyyy", culture);
-        }
-        return _monthCaption;
-    }
-
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSize.Sm;
     private static readonly CssValue<ButtonSizeBuilder> _staticCss2 = ButtonSize.IconSm;
-    private static readonly CssValue<ButtonSizeBuilder> _staticCss3 = ButtonSize.Icon;
     private static readonly CssValue<MinWidthBuilder> _staticCss4 = Quark.MinWidth.Token("[18rem]");
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
@@ -91,11 +69,11 @@
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
-    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground.Modifier("placeholder");
+    private static readonly CssValue<TextColorBuilder> _defaultTextColor = Soenneker.Quark.Variant.Of(Quark.TextColor.MutedForeground).Custom("placeholder");
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Auto;
     private static readonly CssValue<RoundedBuilder> _renderCss1 = Quark.Rounded.Lg;
     private static readonly CssValue<BorderBuilder> _renderCss2 = Quark.Border.Default;
@@ -103,18 +81,11 @@
     private static readonly CssValue<PaddingBuilder> _renderCss4 = Quark.Padding.Is3;
     private static readonly CssValue<TextColorBuilder> _renderCss5 = Quark.TextColor.PopoverForeground;
     private static readonly CssValue<ShadowBuilder> _renderCss6 = Quark.Shadow.Md;
-    private static readonly CssValue<MarginBuilder> _renderCss7 = Quark.Margin.FromBottom.Is2;
     private static readonly CssValue<DisplayBuilder> _renderCss8 = Quark.Display.Flex;
     private static readonly CssValue<ItemsBuilder> _renderCss9 = Items.Center;
-    private static readonly CssValue<JustifyBuilder> _renderCss10 = Quark.Justify.Between;
     private static readonly CssValue<TextSizeBuilder> _renderCss11 = Quark.TextSize.Sm;
-    private static readonly CssValue<FontWeightBuilder> _renderCss12 = Quark.FontWeight.Medium;
-    private static readonly CssValue<GridColsBuilder> _renderCss13 = Quark.GridCols.Is7;
     private static readonly CssValue<GapBuilder> _renderCss14 = Quark.Gap.Is1;
     private static readonly CssValue<HeightBuilder> _renderCss15 = Quark.Height.Is8;
-    private static readonly CssValue<JustifyBuilder> _renderCss16 = Quark.Justify.Center;
-    private static readonly CssValue<TextSizeBuilder> _renderCss17 = Quark.TextSize.Xs;
-    private static readonly CssValue<FontWeightBuilder> _renderCss18 = Quark.FontWeight.Normal;
     private static readonly CssValue<TextColorBuilder> _renderCss19 = Quark.TextColor.MutedForeground;
     private static readonly CssValue<MarginBuilder> _renderCss20 = Quark.Margin.FromTop.Is3;
     private static readonly CssValue<GapBuilder> _renderCss21 = Quark.Gap.Is2;
@@ -127,15 +98,9 @@
     private Func<ChangeEventArgs, Task>? _cachedOnMinuteInputDelegate;
 
 
-    private Func<Task>? _cachedPrevMonthDelegate;
-    private Func<Task>? _cachedNextMonthDelegate;
     private Func<Task>? _cachedDecrementHourDelegate;
-    private Func<WheelEventArgs, Task>? _cachedOnHourWheelDelegate;
-    private Func<KeyboardEventArgs, Task>? _cachedOnHourKeyDownDelegate;
     private Func<Task>? _cachedIncrementHourDelegate;
     private Func<Task>? _cachedDecrementMinuteDelegate;
-    private Func<WheelEventArgs, Task>? _cachedOnMinuteWheelDelegate;
-    private Func<KeyboardEventArgs, Task>? _cachedOnMinuteKeyDownDelegate;
     private Func<Task>? _cachedIncrementMinuteDelegate;
     private Func<Task>? _cachedToggleAmPmDelegate;
 
@@ -168,73 +133,40 @@
     }
 
 
-    /// <summary>
-    /// Gets or sets the selected date-time value.
-    /// </summary>
     [Parameter]
     public DateTime? SelectedDateTime { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value.
-    /// </summary>
     [Parameter]
     public Expression<Func<DateTime?>>? SelectedDateTimeExpression { get; set; }
 
-    /// <summary>
-    /// Gets or sets the minimum date-time value.
-    /// </summary>
     [Parameter]
     public DateTime? Min { get; set; }
 
-    /// <summary>
-    /// Gets or sets the maximum date-time value.
-    /// </summary>
     [Parameter]
     public DateTime? Max { get; set; }
 
-    /// <summary>
-    /// Gets or sets the size of the date-time picker.
-    /// </summary>
     [Parameter]
     public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss5;
 
-    /// <summary>
-    /// Gets or sets the callback invoked When the value changes.
-    /// </summary>
     [Parameter]
     public EventCallback<DateTime?> SelectedDateTimeChanged { get; set; }
 
-    /// <summary>
-    /// Gets or sets the callback invoked When the input changes.
-    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-    /// <summary>
-    /// Gets or sets the callback invoked When the input value changes.
-    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    /// <summary>
-    /// Gets the value used for validation.
-    /// </summary>
     public object? ValidationValue => SelectedDateTime;
 
     private bool _open;
     private string _inputText = string.Empty;
     private DateTime? _lastSyncedValue;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
-    private string[] _dayNames = [];
-    private CultureInfo _currentCulture = CultureInfo.CurrentCulture;
-    private CultureInfo? _dayNamesCulture;
-    private DayOfWeek _dayNamesFirstDay;
-    private Cell[]? _monthCells;
-    private MonthCellState _monthCellState;
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _pendingDate;
     private int _hour; // 0-23
@@ -242,6 +174,10 @@
     private bool _isAm;
     private const int _minuteStep = 1;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datetimepicker-panel");
+    private Func<DateOnly?, Task>? _calendarDateChanged;
+    private Func<DateOnly?, Task>? _calendarMonthChanged;
+    private Validation? _subscribedValidation;
+    private LambdaExpression? _registeredExpression;
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
@@ -264,14 +200,13 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        _currentCulture = CultureInfo.CurrentCulture;
         _today = DateOnly.FromDateTime(DateTime.Today);
-        InitializeDayNames();
+        if (Disabled || ReadOnly) _open = false;
 
-        if (!_initialized || SelectedDateTime != _lastSyncedValue)
+        if (!_initialized.Value || SelectedDateTime != _lastSyncedValue)
         {
             SyncSelection();
-            _initialized = true;
+            _initialized.Value = true;
         }
     }
 
@@ -294,6 +229,7 @@
 
     private async Task ApplyInput(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return;
         _inputText = e.Value?.ToString() ?? string.Empty;
         DateTime? next = null;
         if (!string.IsNullOrWhiteSpace(_inputText))
@@ -305,6 +241,11 @@
                 return;
             }
 
+            if ((Min.HasValue && parsed < Min.Value) || (Max.HasValue && parsed > Max.Value))
+            {
+                Refresh();
+                return;
+            }
             next = parsed;
         }
 
@@ -323,12 +264,14 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return;
         await ApplyInput(e);
         await OnInput.InvokeIfHasDelegate(e);
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return;
         await ApplyInput(e);
         await OnChange.InvokeIfHasDelegate(e);
     }
@@ -341,19 +284,44 @@
         return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender && ParentValidation is not null)
+        await base.OnParametersSetAsync();
+        var validation = ParentValidation;
+        var ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
         {
-            await ParentValidation.InitializeInput(this);
-
-            if (SelectedDateTimeExpression is not null)
+            if (_subscribedValidation is not null)
             {
-                await ParentValidation.InitializeInputExpression(SelectedDateTimeExpression);
+                _subscribedValidation.ValidationStatusChanged -= OnValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
             }
+            _subscribedValidation = validation;
+            _registeredExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnValidationStatusChanged;
         }
+        if (validation is null) return;
+        if (!ReferenceEquals(_registeredExpression, SelectedDateTimeExpression))
+        {
+            _registeredExpression = SelectedDateTimeExpression;
+            await validation.InitializeInputExpression(SelectedDateTimeExpression!);
+        }
+        if (ownerChanged && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
 
-        await base.OnAfterRenderAsync(firstRender);
+    private void OnValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs args) => _ = RefreshOffThread();
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
+        await base.DisposeAsync();
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd hh:mm tt", CultureInfo.InvariantCulture);
@@ -384,8 +352,8 @@
 
         // min/max intentionally omitted for text input (handled in panel)
 
-        attributes["onclick"] = (_cachedOpenPanelMouseEventArgsCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel));
-        attributes["onfocus"] = (_cachedOpenPanelFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, OpenPanel));
+        attributes["onclick"] = (_cachedOpenPanelMouseEventArgsCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick));
+        attributes["onfocus"] = (_cachedOpenPanelFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleFocus));
 
         attributes["autocomplete"] = "off";
         attributes["oninput"] = (_cachedHandleInputChangeEventArgsCallback ??= EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput));
@@ -393,88 +361,6 @@
     }
 
     private static IReadOnlyDictionary<string, object> GetContainerAttributes() => ContainerAttributes;
-
-    private void InitializeDayNames()
-    {
-        var culture = _currentCulture;
-        var first = culture.DateTimeFormat.FirstDayOfWeek;
-
-        if (culture.IsReadOnly && ReferenceEquals(_dayNamesCulture, culture) && _dayNamesFirstDay == first && _dayNames.Length != 0)
-            return;
-
-        var names = culture.DateTimeFormat.AbbreviatedDayNames;
-        var dayNames = new string[7];
-
-        for (var i = 0; i < dayNames.Length; i++)
-        {
-            dayNames[i] = names[((int)first + i) % 7];
-        }
-
-        _dayNames = dayNames;
-        _dayNamesCulture = culture;
-        _dayNamesFirstDay = first;
-    }
-
-
-    private static readonly string[] DayClasses = CreateDayClasses();
-
-    private static string[] CreateDayClasses()
-    {
-        var classes = new string[8];
-        for (var i = 0; i < classes.Length; i++)
-            classes[i] = CreateDayClass(i);
-        return classes;
-    }
-
-    private string GetDayClass(Cell day) => DayClasses[
-        (day.InMonth ? 0 : 1) | (day.Date == _today ? 2 : 0) |
-        (SelectedDateTime.HasValue && day.Date == DateOnly.FromDateTime(SelectedDateTime.Value) ? 4 : 0)];
-
-    private static string CreateDayClass(int state)
-    {
-        var css = "relative flex aspect-square h-8 w-8 items-center justify-center rounded-lg text-sm outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
-
-        if ((state & 1) != 0)
-            css += " text-muted-foreground opacity-50";
-
-        if ((state & 2) != 0)
-            css += " bg-accent text-accent-foreground";
-
-        if ((state & 4) != 0)
-            css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
-        else
-            css += " hover:bg-muted hover:text-foreground";
-
-        return css;
-    }
-
-    private Cell[] BuildMonthCells()
-    {
-        var culture = _currentCulture;
-        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var state = new MonthCellState(firstOfMonth, culture.Name, culture.DateTimeFormat.FirstDayOfWeek,
-            Min.HasValue ? DateOnly.FromDateTime(Min.Value) : null, Max.HasValue ? DateOnly.FromDateTime(Max.Value) : null);
-
-        if (_monthCells is not null && _monthCellState.Equals(state))
-            return _monthCells;
-
-        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        var gridStart = firstOfMonth.AddDays(-offset);
-        var cells = new Cell[42];
-
-        for (var i = 0; i < 42; i++)
-        {
-            var d = gridStart.AddDays(i);
-            var inMonth = d.Month == _displayMonth.Month;
-            var disabled = (state.Min.HasValue && d < state.Min.Value) || (state.Max.HasValue && d > state.Max.Value);
-            cells[i] = new Cell(this, d, inMonth, disabled);
-        }
-
-        _monthCellState = state;
-        _monthCells = cells;
-        return cells;
-    }
 
     private Task OpenPanel()
     {
@@ -487,9 +373,22 @@
         return Task.CompletedTask;
     }
 
+    protected override async Task HandleClick(MouseEventArgs args)
+    {
+        if (Disabled) return;
+        await OpenPanel();
+        await OnClick.InvokeIfHasDelegate(args);
+    }
+
+    protected override async Task HandleFocus(FocusEventArgs args)
+    {
+        await OpenPanel();
+        await OnFocus.InvokeIfHasDelegate(args);
+    }
+
     private Task HandleOpenChanged(bool open)
     {
-        _open = open;
+        _open = open && !Disabled && !ReadOnly;
         Refresh();
         return Task.CompletedTask;
     }
@@ -504,8 +403,12 @@
 
     private async Task Commit()
     {
+        if (Disabled || ReadOnly) return;
         var date = _pendingDate ?? (SelectedDateTime.HasValue ? DateOnly.FromDateTime(SelectedDateTime.Value) : _today);
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
+        if (Min.HasValue && Max.HasValue && Min.Value > Max.Value) return;
+        if (Min.HasValue && dt < Min.Value) dt = Min.Value;
+        if (Max.HasValue && dt > Max.Value) dt = Max.Value;
 
         if (SelectedDateTime != dt)
         {
@@ -571,27 +474,6 @@
     }
 
     private Task ToggleAmPm() => SetAmPm(!_isAm);
-    private Task OnHourWheel(WheelEventArgs e) => e.DeltaY < 0 ? IncrementHour() : DecrementHour();
-    private Task OnMinuteWheel(WheelEventArgs e) => e.DeltaY < 0 ? IncrementMinute() : DecrementMinute();
-
-    private Task OnHourKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "ArrowUp")
-            return IncrementHour();
-        if (e.Key == "ArrowDown")
-            return DecrementHour();
-        return Task.CompletedTask;
-    }
-
-    private Task OnMinuteKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "ArrowUp")
-            return IncrementMinute();
-        if (e.Key == "ArrowDown")
-            return DecrementMinute();
-        return Task.CompletedTask;
-    }
-
     private Task OnHourInput(ChangeEventArgs e)
     {
         if (e?.Value is null)
@@ -622,16 +504,11 @@
         return Task.CompletedTask;
     }
 
-    private Task PrevMonth()
-    {
-        _displayMonth = _displayMonth.AddMonths(-1);
-        Refresh();
-        return Task.CompletedTask;
-    }
+    private Task HandleCalendarDateChanged(DateOnly? date) => date.HasValue ? SelectDate(date.Value) : Task.CompletedTask;
 
-    private Task NextMonth()
+    private Task HandleCalendarMonthChanged(DateOnly? month)
     {
-        _displayMonth = _displayMonth.AddMonths(1);
+        if (month.HasValue) _displayMonth = month.Value;
         Refresh();
         return Task.CompletedTask;
     }

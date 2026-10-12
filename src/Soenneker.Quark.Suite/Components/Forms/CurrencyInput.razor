@@ -17,7 +17,7 @@
             </Span>
         }
 
-        <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="(_cachedHandleInputKeyDownDelegate ??= HandleInputKeyDown)" OnInput="(_cachedHandleInputDelegate ??= HandleInput)" OnChange="(_cachedHandleChangeDelegate ??= HandleChange)" OnFocus="(_cachedHandleInputFocusDelegate ??= HandleInputFocus)" OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)" @attributes="BuildInputAttributes()" ValidationValueSelector="@(_validationValueSelector ??= () => (object?)Value)"/>
+        <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="(_cachedHandleInputKeyDownDelegate ??= HandleInputKeyDown)" OnInput="(_cachedHandleInputDelegate ??= HandleInput)" OnChange="(_cachedHandleChangeDelegate ??= HandleChange)" OnFocus="(_cachedHandleInputFocusDelegate ??= HandleInputFocus)" OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)" AdditionalAttributes="BuildInputAttributes()" ValidationValueSelector="@(_validationValueSelector ??= () => (object?)Value)"/>
 
         @if (ShowSymbol && SymbolAtEnd)
         {
@@ -39,7 +39,6 @@
 @code {
     private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private static readonly CssValue<MaxWidthBuilder> _currencyMaxWidth = CssValue<MaxWidthBuilder>.For(Quark.MaxWidth.Is48, "sm:max-w-56");
-    private string? _inputStyle;
     private (decimal? Value, int Places, bool Thousands, CultureInfo Culture) _displayKey;
     private (decimal? Value, int Places, CultureInfo Culture) _editingKey;
     private string? _displayFormattedValue, _editingFormattedValue;
@@ -166,6 +165,8 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
+    private Validation? _subscribedValidation;
+    private LambdaExpression? _registeredExpression;
     public object? ValidationValue => Value;
 
     private string? _cultureNameSnapshot;
@@ -187,26 +188,9 @@
 
     private string DisplayValue => _isFocused ? _editingValue : FormatDisplayValue(Value);
 
-    private string InputClass
-    {
-        get => "text-right tabular-nums";
-    }
+    private const string InputClass = "text-right tabular-nums";
 
-    private string? InputStyle
-    {
-        get
-        {
-            var symbolPadding = GetSymbolPaddingStyle();
-
-            if (string.IsNullOrWhiteSpace(symbolPadding))
-                return Style;
-
-            if (string.IsNullOrWhiteSpace(Style))
-                return symbolPadding;
-
-            return QuarkStringCache.Concat(symbolPadding, " ", Style!, ref _inputStyle);
-        }
-    }
+    private string? InputStyle => GetSymbolPaddingStyle();
 
     public string? GetValidationClass()
     {
@@ -238,15 +222,23 @@
             _editingValue = FormatEditingValue(Value);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender && ParentValidation is not null && ValueExpression is not null)
+        await base.OnParametersSetAsync();
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-            await ParentValidation.InitializeInputExpression(ValueExpression);
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation = ParentValidation;
+            _registeredExpression = null;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
-
-        await base.OnAfterRenderAsync(firstRender);
+        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, ValueExpression))
+        {
+            _registeredExpression = ValueExpression;
+            await ParentValidation.InitializeInputExpression(ValueExpression!);
+        }
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
@@ -275,22 +267,14 @@
     {
         await OnInput.InvokeIfHasDelegate(e);
 
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
         await OnChange.InvokeIfHasDelegate(e);
 
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private async Task HandleInputFocus(FocusEventArgs e)
@@ -324,20 +308,12 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = _inputAttributesBuffer.Create(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
-
-        if (Attributes is not null)
-        {
-            foreach (var pair in Attributes)
-            {
-                if (pair.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("onblur", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) || pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[pair.Key] = pair.Value;
-            }
-        }
+        var attributes = _inputAttributesBuffer.Create(BuildAttributes(), 1);
+        attributes.Remove("onfocus");
+        attributes.Remove("onblur");
+        attributes.Remove("onkeydown");
+        attributes.Remove("oninput");
+        attributes.Remove("onchange");
 
         attributes["inputmode"] = DecimalPlaces > 0 ? "decimal" : "numeric";
 
@@ -419,7 +395,7 @@
 
     private decimal Clamp(decimal value)
     {
-        var rounded = Math.Round(value, Math.Max(0, DecimalPlaces), MidpointRounding.AwayFromZero);
+        var rounded = Math.Round(value, Math.Clamp(DecimalPlaces, 0, 28), MidpointRounding.AwayFromZero);
 
         if (!AllowNegative && rounded < 0)
             rounded = 0;
@@ -435,7 +411,7 @@
 
     private void UpdateFormats()
     {
-        var key = (Math.Max(0, DecimalPlaces), UseThousandsSeparator);
+        var key = (Math.Clamp(DecimalPlaces, 0, 28), UseThousandsSeparator);
         if (_displayFormat is not null && _formatKey == key) return;
         _formatKey = key;
         _editingFormat = $"F{key.Item1}";
@@ -505,8 +481,8 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (_subscribedValidation is not null)
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
     }

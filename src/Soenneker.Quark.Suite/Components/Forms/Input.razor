@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Utils.PooledStringBuilders
 @using System.Linq.Expressions
 @using System.Threading
@@ -46,6 +47,8 @@ else
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
     {
         base.BuildOwnedAttributes(attributes);
+        if (OnClick.HasDelegate)
+            attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick);
         var inputType = (GetInputType() ?? "text").ToLowerInvariant();
         var isText = inputType is "text" or "search" or "tel" or "url" or "email" or "password";
         var isRange = inputType is "date" or "month" or "week" or "time" or "datetime-local" or "number" or "range";
@@ -207,7 +210,7 @@ else
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<BorderBuilder> _defaultBorder2 = Quark.Border.Is0;
     private static readonly CssValue<PaddingBuilder> _defaultPadding2 = Quark.Padding.OnY.Is2;
-    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None.OnFocusVisible;
+    private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.OnFocusVisible.None;
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Lg;
     private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
@@ -216,9 +219,9 @@ else
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
 
@@ -226,9 +229,9 @@ else
     private object? _cachedHandleInputKeyDownKeyboardEventArgsCallback;
 
     private ElementReference _elementRef;
-    private bool _hasPendingNativeTimeValue;
+    private ValueAtomicBool _hasPendingNativeTimeValue;
     private string? _pendingNativeTimeValue;
-    private bool _suppressNextRender;
+    private ValueAtomicBool _suppressNextRender;
     private AutoSaveController<string?> _autoSave;
     private InputSelectionSnapshot? _pendingSelectionRestore;
 
@@ -295,6 +298,40 @@ else
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
+    private Validation? _subscribedValidation;
+    private Expression<Func<string?>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
+        {
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
+            }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        if (validation is null)
+            return;
+        if (!ReferenceEquals(_registeredValidationExpression, ValueExpression))
+        {
+            _registeredValidationExpression = ValueExpression;
+            await validation.InitializeInputExpression(ValueExpression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
+
     /// <summary>
     /// Gets or sets the function that selects the value used for validation.
     /// </summary>
@@ -337,7 +374,7 @@ else
     /// <summary>
     /// Gets the value used for validation purposes.
     /// </summary>
-    public virtual object? ValidationValue => ValidationValueSelector?.Invoke() ?? Value;
+    public virtual object? ValidationValue => ValidationValueSelector is null ? Value : ValidationValueSelector();
 
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
@@ -353,24 +390,14 @@ else
         if (firstRender && CanRestoreSelection())
             await InputInterop.Initialize();
 
-        if (firstRender && ParentValidation is not null)
-        {
-            await ParentValidation.InitializeInput(this);
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-
-            if (ValueExpression is not null)
-                await ParentValidation.InitializeInputExpression(ValueExpression);
-        }
-
         await RestorePendingSelection();
         await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override bool ShouldRender()
     {
-        if (_suppressNextRender)
+        if (_suppressNextRender.Exchange(false))
         {
-            _suppressNextRender = false;
             return false;
         }
 
@@ -388,6 +415,8 @@ else
     /// <param name="newValue">The input value from the native input event.</param>
     protected virtual async Task HandleInputValueChanged(string? newValue)
     {
+        if (Disabled || ReadOnly)
+            return;
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(newValue);
@@ -422,6 +451,8 @@ else
     /// <param name="e">The change event arguments.</param>
     protected virtual async Task HandleChange(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly)
+            return;
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(e.Value?.ToString());
@@ -448,6 +479,11 @@ else
 
         if (valueChanged)
             await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
+    }
+
+    protected override Task HandleClick(MouseEventArgs args)
+    {
+        return Disabled ? Task.CompletedTask : base.HandleClick(args);
     }
 
     private async Task CapturePendingSelection(string? value)
@@ -494,17 +530,17 @@ else
         {
             Value = newValue;
             _pendingNativeTimeValue = newValue;
-            _hasPendingNativeTimeValue = true;
+            _hasPendingNativeTimeValue.Value = true;
         }
 
-        _suppressNextRender = true;
+        _suppressNextRender.Value = true;
     }
 
     private async Task HandleInputBlur(FocusEventArgs e)
     {
-        if (IsNativeTimeInput() && _hasPendingNativeTimeValue)
+        if (IsNativeTimeInput() && _hasPendingNativeTimeValue.Value)
         {
-            _hasPendingNativeTimeValue = false;
+            _hasPendingNativeTimeValue.Value = false;
             var value = _pendingNativeTimeValue;
             _pendingNativeTimeValue = null;
 
@@ -636,11 +672,16 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-        await _autoSave.DisposeAsync();
-
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
+        try { await _autoSave.DisposeAsync(); }
+        finally { await base.DisposeAsync(); }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

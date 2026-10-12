@@ -1,3 +1,5 @@
+@using Soenneker.Atomics.ValueBools
+@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -13,24 +15,7 @@
 {
     <div @attributes="BuildWrapperAttributes()">
         <label @attributes="BuildLabelAttributes()">
-            <BradixCheckbox Checked="@CurrentCheckedState"
-                            Required="@Required"
-                            Disabled="@Disabled"
-                            Name="@Name"
-                            Value="@ResolvedCheckboxValue"
-                            CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)"
-                            AdditionalAttributes="@BuildControlAttributes()">
-                <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
-                    @if (Indeterminate)
-                    {
-                        <Icon Name="LucideIcon.Minus" Size='_renderCss0' aria-hidden="true" />
-                    }
-                    else
-                    {
-                        <Icon Name="LucideIcon.Check" Size='_renderCss0' aria-hidden="true" />
-                    }
-                </BradixCheckboxIndicator>
-            </BradixCheckbox>
+            @ControlContent
             @if (ChildContent is not null)
             {
                 @ChildContent
@@ -52,24 +37,7 @@
 else if (UsesAutoSaveStatusSlot)
 {
     <Span Display="_renderCss1" ItemsAlign="_renderCss2" Gap="_renderCss3">
-        <BradixCheckbox Checked="@CurrentCheckedState"
-                        Required="@Required"
-                        Disabled="@Disabled"
-                        Name="@Name"
-                        Value="@ResolvedCheckboxValue"
-                        CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)"
-                        AdditionalAttributes="@BuildControlAttributes()">
-            <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
-                @if (Indeterminate)
-                {
-                    <Icon Name="LucideIcon.Minus" Size='_renderCss0' aria-hidden="true" />
-                }
-                else
-                {
-                    <Icon Name="LucideIcon.Check" Size='_renderCss0' aria-hidden="true" />
-                }
-            </BradixCheckboxIndicator>
-        </BradixCheckbox>
+        @ControlContent
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Visible="@UsesAutoSaveStatusSlot"
@@ -81,27 +49,52 @@ else if (UsesAutoSaveStatusSlot)
 }
 else
 {
-    <BradixCheckbox Checked="@CurrentCheckedState"
-                    Required="@Required"
-                    Disabled="@Disabled"
-                    Name="@Name"
-                    Value="@ResolvedCheckboxValue"
-                    CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)"
-                    AdditionalAttributes="@BuildControlAttributes()">
-        <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
-            @if (Indeterminate)
-            {
-                <Icon Name="LucideIcon.Minus" Size='_renderCss0' aria-hidden="true" />
-            }
-            else
-            {
-                <Icon Name="LucideIcon.Check" Size='_renderCss0' aria-hidden="true" />
-            }
-        </BradixCheckboxIndicator>
-    </BradixCheckbox>
+    @ControlContent
 }
 
 @code {
+    private RenderFragment? _controlContent;
+    private RenderFragment ControlContent => _controlContent ??= @<text>
+        @if (Switch)
+        {
+            <BradixSwitch Checked="@Checked" Required="@Required" Disabled="@Disabled" Name="@Name"
+                          Value="@ResolvedCheckboxValue" CheckedChanged="HandleSwitchChanged" OnClick="@OnClick"
+                          AdditionalAttributes="@BuildControlAttributes()">
+                <BradixSwitchThumb AdditionalAttributes="SwitchThumbAttributes" />
+            </BradixSwitch>
+        }
+        else
+        {
+            <BradixCheckbox Checked="@CurrentCheckedState"
+                            Required="@Required"
+                            Disabled="@Disabled"
+                            Name="@Name"
+                            Value="@ResolvedCheckboxValue"
+                            CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)" OnClick="@OnClick"
+                            AdditionalAttributes="@BuildControlAttributes()">
+                <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
+                    @if (Indeterminate)
+                    {
+                        <Icon Name="LucideIcon.Minus" Size='_renderCss0' aria-hidden="true" />
+                    }
+                    else
+                    {
+                        <Icon Name="LucideIcon.Check" Size='_renderCss0' aria-hidden="true" />
+                    }
+                </BradixCheckboxIndicator>
+            </BradixCheckbox>
+        }
+    </text>;
+
+    private Task HandleSwitchChanged(bool value) => HandleCheckedStateChanged(value ? BradixCheckboxCheckedState.Checked : BradixCheckboxCheckedState.Unchecked);
+
+    private static readonly IReadOnlyDictionary<string, object> SwitchThumbAttributes = new Dictionary<string, object>
+    {
+        ["data-slot"] = "switch-thumb",
+        ["class"] = "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0"
+    };
+    private string? _switchClass;
+
     private static readonly CssValue<CheckSizeBuilder> _staticCss0 = CheckSizes.Default;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3_5;
@@ -112,7 +105,8 @@ else
 
     private string? _lastBuiltClass;
     private string? _lastBuiltClass3;
-    private (string? Validation, string? Indicator) _controlClassKey;
+    private (string? Validation, string? Indicator, string? BaseClass, string? Size) _controlClassKey;
+    private string? _lastControlStyle;
 
     private object? _cachedHandleControlBlurFocusEventArgsCallback;
     private object? _cachedHandleControlKeyDownKeyboardEventArgsCallback;
@@ -212,19 +206,43 @@ else
         base.OnInitialized();
     }
 
+    private Validation? _subscribedValidation;
+    private Expression<Func<bool>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
+        {
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
+            }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        if (validation is null)
+            return;
+        if (!ReferenceEquals(_registeredValidationExpression, CheckedExpression))
+        {
+            _registeredValidationExpression = CheckedExpression;
+            await validation.InitializeInputExpression(CheckedExpression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-
-        if (firstRender && ParentValidation is not null)
-        {
-            if (CheckedExpression is not null)
-                await ParentValidation.InitializeInputExpression(CheckedExpression);
-
-            await ParentValidation.InitializeInput(this);
-        }
-
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -241,9 +259,6 @@ else
             const string variant = @class + " " + "inline-flex";
             PrependClassAttribute(attributes, Inline ? variant : @class, ref _lastBuiltClass);
         }
-
-        if (Style.HasContent())
-            attributes["style"] = Style;
 
         return attributes;
     }
@@ -265,6 +280,16 @@ else
     public virtual Dictionary<string, object> BuildControlAttributes()
     {
         var attributes = _controlAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
+        foreach (var attribute in base.BuildAttributes())
+            attributes[attribute.Key] = attribute.Value;
+        attributes.Remove("type");
+        attributes.Remove("role");
+        attributes.Remove("aria-checked");
+        attributes.Remove("data-state");
+        attributes.Remove("disabled");
+        attributes.Remove("name");
+        attributes.Remove("value");
+        attributes.Remove("onclick");
         attributes["id"] = ControlId;
         attributes["data-slot"] = "checkbox";
 
@@ -280,45 +305,36 @@ else
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
             attributes["onkeydown"] = (_cachedHandleControlKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown));
 
-        if (Attributes is not null)
-        {
-            foreach (var attribute in Attributes)
-            {
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("role", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("aria-checked", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("data-state", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
-
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
+        if (Switch)
+        {
+            attributes["data-slot"] = "switch";
+            attributes["data-size"] = CheckSize?.ToString() is "h-3 w-3" or "h-3.5 w-3.5" ? "sm" : "default";
+            PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input disabled:cursor-not-allowed disabled:opacity-50", ref _switchClass);
+            if (IndicatorStyle.HasContent())
+                PrependStyleAttribute(attributes, IndicatorStyle!, ref _lastControlStyle);
+            return attributes;
+        }
+
         var validationClass = GetValidationClass();
-        var controlClassKey = (validationClass, IndicatorClass);
+        var size = CheckSize?.ToString();
+        attributes["data-size"] = size ?? "default";
+        var controlClassKey = (validationClass, IndicatorClass, attributes.GetValueOrDefault("class")?.ToString(), size);
         if (_lastBuiltClass3 is null || _controlClassKey != controlClassKey)
         {
             _controlClassKey = controlClassKey;
             var cls = new PooledStringBuilder(stackalloc char[64]);
             try
             {
-                AppendClass(ref cls, "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none");
+                AppendClass(ref cls, "peer relative flex shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none");
                 AppendClass(ref cls, "group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2");
                 AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
                 AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50");
                 AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary");
                 AppendClass(ref cls, "dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary");
+                AppendClass(ref cls, string.IsNullOrWhiteSpace(size) ? "size-4" : size);
                 if (validationClass is not null)
                     AppendClass(ref cls, validationClass);
                 if (IndicatorClass.HasContent())
@@ -334,7 +350,7 @@ else
             attributes["class"] = _lastBuiltClass3;
 
         if (IndicatorStyle.HasContent())
-            attributes["style"] = IndicatorStyle!;
+            PrependStyleAttribute(attributes, IndicatorStyle!, ref _lastControlStyle);
 
         return attributes;
     }
@@ -365,8 +381,6 @@ else
 
         if (OnChange.HasDelegate)
             await OnChange.InvokeAsync(new ChangeEventArgs { Value = next });
-        if (OnClick.HasDelegate)
-            await base.HandleClick(new MouseEventArgs());
     }
 
     private async Task HandleControlBlur(FocusEventArgs e)
@@ -387,8 +401,14 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
     }

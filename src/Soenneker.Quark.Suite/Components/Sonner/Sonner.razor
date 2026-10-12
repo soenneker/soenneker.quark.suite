@@ -185,13 +185,13 @@
     private byte _focusedPositions;
     private readonly HashSet<string> _swipeDismissedToastIds = new(StringComparer.Ordinal);
     private readonly List<GroupView> _groups = [];
-    private bool _shouldMeasureHeights = true;
+    private ValueAtomicBool _shouldMeasureHeights = new(true);
     private string _registeredToasterId = DefaultToasterId;
     private string[]? _registeredHotkey;
     private DotNetObjectReference<Sonner>? _dotNetReference;
-    private bool _hotkeyRegistered;
-    private bool _swipeHandlersRegistered;
-    private bool _toasterRegistered;
+    private ValueAtomicBool _hotkeyRegistered;
+    private ValueAtomicBool _swipeHandlersRegistered;
+    private ValueAtomicBool _toasterRegistered;
     private ValueAtomicBool _disposed = new(false);
 
     protected override Task OnInitializedAsync()
@@ -225,12 +225,12 @@
         await SyncHotkeyRegistration();
         await SyncSwipeHandlers();
 
-        if (!_shouldMeasureHeights || _groups.Count == 0)
+        if (!_shouldMeasureHeights.Value || _groups.Count == 0)
             return;
 
         try
         {
-            _shouldMeasureHeights = false;
+            _shouldMeasureHeights.Value = false;
             var heights = await SonnerInterop.MeasureToastHeights(_sectionRef, CancellationToken);
 
             if (HaveHeightsChanged(heights))
@@ -458,23 +458,23 @@
             return;
         }
 
-        if (_hotkeyRegistered && ReferenceEquals(_registeredHotkey, hotkeyKey))
+        if (_hotkeyRegistered.Value && ReferenceEquals(_registeredHotkey, hotkeyKey))
             return;
 
         await UnregisterHotkey();
         await SonnerInterop.RegisterHotkey(_sectionRef, hotkeyKey, CancellationToken);
         _registeredHotkey = hotkeyKey;
-        _hotkeyRegistered = true;
+        _hotkeyRegistered.Value = true;
     }
 
     private async Task UnregisterHotkey()
     {
-        if (!_hotkeyRegistered)
+        if (!_hotkeyRegistered.Value)
             return;
 
         await SonnerInterop.UnregisterHotkey(_sectionRef, CancellationToken);
         _registeredHotkey = null;
-        _hotkeyRegistered = false;
+        _hotkeyRegistered.Value = false;
     }
 
     private async Task SyncSwipeHandlers()
@@ -485,20 +485,20 @@
             return;
         }
 
-        if (_swipeHandlersRegistered)
+        if (_swipeHandlersRegistered.Value)
             return;
 
         _dotNetReference ??= DotNetObjectReference.Create(this);
-        _swipeHandlersRegistered = await SonnerInterop.RegisterSwipeHandlers(_sectionRef, _dotNetReference, CancellationToken);
+        _swipeHandlersRegistered.Value = await SonnerInterop.RegisterSwipeHandlers(_sectionRef, _dotNetReference, CancellationToken);
     }
 
     private async Task UnregisterSwipeHandlers()
     {
-        if (!_swipeHandlersRegistered)
+        if (!_swipeHandlersRegistered.Value)
             return;
 
         await SonnerInterop.UnregisterSwipeHandlers(_sectionRef, CancellationToken);
-        _swipeHandlersRegistered = false;
+        _swipeHandlersRegistered.Value = false;
     }
 
     [JSInvokable]
@@ -539,7 +539,7 @@
         if (_disposed.Value)
             return;
 
-        _shouldMeasureHeights = true;
+        _shouldMeasureHeights.Value = true;
         await RefreshToastGroups();
         InvalidateRender();
         StateHasChanged();
@@ -626,27 +626,38 @@
         if (!_disposed.TrySetTrue())
             return;
 
-        await UnregisterSwipeHandlers();
-        await UnregisterHotkey();
-
-        foreach (var position in GetActivePositions())
-        {
-            await SonnerService.Resume(ToasterId, position, CancellationToken);
-        }
-
-        if (_toasterRegistered)
-            await SonnerService.UnregisterToaster(_registeredToasterId, CancellationToken);
-
         SonnerService.StateChanged -= OnStateChanged;
-        _dotNetReference?.Dispose();
-        await base.DisposeAsync();
+        try
+        {
+            try
+            {
+                await UnregisterSwipeHandlers();
+                await UnregisterHotkey();
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException)
+            {
+            }
+
+            foreach (var position in GetActivePositions())
+            {
+                await SonnerService.Resume(_registeredToasterId, position);
+            }
+
+            if (_toasterRegistered.Value)
+                await SonnerService.UnregisterToaster(_registeredToasterId);
+        }
+        finally
+        {
+            _dotNetReference?.Dispose();
+            await base.DisposeAsync();
+        }
     }
 
     private async Task RegisterToaster()
     {
         var normalizedToasterId = NormalizeToasterId(ToasterId);
 
-        if (_toasterRegistered && !string.Equals(_registeredToasterId, normalizedToasterId, StringComparison.Ordinal))
+        if (_toasterRegistered.Value && !string.Equals(_registeredToasterId, normalizedToasterId, StringComparison.Ordinal))
         {
             foreach (var position in GetActivePositions())
             {
@@ -658,7 +669,7 @@
 
         await SonnerService.RegisterToaster(ToasterId, ToastPosition, ToastDuration, CloseButton, CancellationToken);
         _registeredToasterId = normalizedToasterId;
-        _toasterRegistered = true;
+        _toasterRegistered.Value = true;
     }
 
     private static string NormalizeToasterId(string? toasterId)

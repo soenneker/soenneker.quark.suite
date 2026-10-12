@@ -8,7 +8,9 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
+        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 }
 else
@@ -21,9 +23,25 @@ else
 }
 
 @code {
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+
+    private QuarkAttributeDictionary _slotAttributesBuffer;
+    private string? _slotClass;
+    private string? _slotStyle;
+
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        var attributes = _slotAttributesBuffer.Create(BuildAttributes());
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
+        if (OnClick.HasDelegate)
+            attributes["onclick"] = OnClick;
+        return attributes;
+    }
+
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private QuarkAttributeDictionary _triggerAttributes;
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }

@@ -373,7 +373,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private ElementReference _scrollElement;
     private Task _scrollWork = Task.CompletedTask;
-    private bool _scrollAttached;
+    private ValueAtomicBool _scrollAttached;
     private ValueAtomicBool _scrollDisposed;
     private ScrollSnapshot? _scrollSnapshot;
     private ScrollSnapshot? _scrollHistory;
@@ -428,16 +428,16 @@ data requires proportional horizontal spacing instead of categorical spacing.
             return;
         if (!IsLoading && (RealtimeScrollingEnabled || IsRadial && Options.Animate))
         {
-            if (!_scrollDisposed.Read() && !_scrollAttached)
+            if (!_scrollDisposed.Read() && !_scrollAttached.Value)
             {
                 await ChartScrollInterop.Initialize(_scrollElement);
-                _scrollAttached = true;
+                _scrollAttached.Value = true;
             }
         }
-        else if (_scrollAttached)
+        else if (_scrollAttached.Value)
         {
             await ChartScrollInterop.Destroy(_scrollElement);
-            _scrollAttached = false;
+            _scrollAttached.Value = false;
         }
     }
 
@@ -448,7 +448,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
         try
         {
             await _scrollWork;
-            if (_scrollAttached)
+            if (_scrollAttached.Value)
                 await ChartScrollInterop.Destroy(_scrollElement);
         }
         catch (JSDisconnectedException)
@@ -471,7 +471,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private int? _hoveredSeries;
     private int? _rangeAnchorIndex;
     private int? _rangeCurrentIndex;
-    private bool _isRangeSelecting;
+    private ValueAtomicBool _isRangeSelecting;
     private double _minimum;
     private double _maximum = 1;
     private double _xMinimum;
@@ -1659,7 +1659,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private async Task BeginRangeSelection(int index)
     {
-        _isRangeSelecting = true;
+        _isRangeSelecting.Value = true;
         _rangeAnchorIndex = index;
         _rangeCurrentIndex = index;
         RequestContentRender();
@@ -1677,7 +1677,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private void ContinueRangeSelection(int index)
     {
-        if (_isRangeSelecting && _rangeCurrentIndex != index)
+        if (_isRangeSelecting.Value && _rangeCurrentIndex != index)
         {
             _rangeCurrentIndex = index;
             RequestContentRender();
@@ -1686,10 +1686,10 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private Task CompleteRangeSelection(int index)
     {
-        if (!_isRangeSelecting || _rangeAnchorIndex is not { } anchor)
+        if (!_isRangeSelecting.Value || _rangeAnchorIndex is not { } anchor)
             return Task.CompletedTask;
 
-        _isRangeSelecting = false;
+        _isRangeSelecting.Value = false;
         _rangeCurrentIndex = index;
         RequestContentRender();
         var start = Math.Min(anchor, index);
@@ -1717,7 +1717,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private void ClearRangeSelection()
     {
-        _isRangeSelecting = false;
+        _isRangeSelecting.Value = false;
         _rangeAnchorIndex = null;
         _rangeCurrentIndex = null;
     }

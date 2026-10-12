@@ -76,8 +76,6 @@ else
     private string? _overlayStyle;
     private string? _mobileContainerClass;
     private string? _offsetTopDeclaration;
-    private string? _rootClass;
-    private string? _rootStyle;
     private (bool Close, bool Full, bool Navigation, string? Offset, string? Class, string? Style, string? BaseClass, string? BaseStyle)? _mobileStyleKey;
 
     private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
@@ -418,6 +416,8 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        if (ShouldRenderMobileSidebar || IsNoneCollapsible(Collapsible))
+            return;
 
         ApplyResizeAttributes(attributes);
         attributes["data-side"] = ToDataSide(Side);
@@ -616,53 +616,10 @@ else
 
     private Dictionary<string, object> BuildRootAttributes(int capacity)
     {
-        var attributes = _rootAttributeDictionaries.Create(capacity + (Attributes?.Count ?? 0));
-        base.BuildOwnedAttributes(attributes);
-
-        var cls = new PooledStringBuilder(stackalloc char[64]);
-        var sty = new PooledStringBuilder(stackalloc char[128]);
-
-        try
-        {
-            base.BuildOwnedClassAndStyle(ref sty, ref cls);
-
-            if (Attributes is not null)
-            {
-                foreach (var kv in Attributes)
-                {
-                    if (kv.Key.Equals("class", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (kv.Value is not null)
-                            AppendClass(ref cls, kv.Value.ToString()!);
-
-                        continue;
-                    }
-
-                    if (kv.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (kv.Value is not null)
-                            AppendStyleDecl(ref sty, kv.Value.ToString()!);
-
-                        continue;
-                    }
-
-                    attributes[kv.Key] = kv.Value!;
-                }
-            }
-
-            if (cls.Length > 0)
-                attributes["class"] = _rootClass is not null && cls.AsSpan().SequenceEqual(_rootClass.AsSpan()) ? _rootClass : _rootClass = cls.ToString();
-
-            if (sty.Length > 0)
-                attributes["style"] = _rootStyle is not null && sty.AsSpan().SequenceEqual(_rootStyle.AsSpan()) ? _rootStyle : _rootStyle = sty.ToString();
-
-            return attributes;
-        }
-        finally
-        {
-            cls.Dispose();
-            sty.Dispose();
-        }
+        var attributes = _rootAttributeDictionaries.Create(capacity + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
+        foreach (var attribute in base.BuildAttributes())
+            attributes[attribute.Key] = attribute.Value;
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

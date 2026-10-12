@@ -3,7 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixHoverCard Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+<BradixHoverCard Open="@(_hasControlledOpen ? Open : (bool?)null)"
                  DefaultOpen="@DefaultOpen"
                  OpenChanged="@OpenChanged"
                  OpenDelay="@OpenDelay"
@@ -12,6 +12,15 @@
 </BradixHoverCard>
 
 @code {
+    private bool _hasControlledOpen;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<bool>(nameof(Open), out _))
+            _hasControlledOpen = true;
+
+        return base.SetParametersAsync(parameters);
+    }
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -37,6 +46,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
+        hc.Add(_hasControlledOpen);
+        hc.Add(DefaultOpen);
         hc.Add(OpenDelay);
         hc.Add(CloseDelay);
     }

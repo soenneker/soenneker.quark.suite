@@ -54,6 +54,7 @@
     private string? _lastPrependedClass;
 
     private string? _registeredValue;
+    private Select<TValue>? _registeredParent;
 
     /// <summary>
     /// Gets or sets the value of the select item.
@@ -99,8 +100,10 @@
         base.OnParametersSet();
 
         var resolvedValue = ResolvedValue;
-        if (_registeredValue.HasContent() && !string.Equals(_registeredValue, resolvedValue, StringComparison.Ordinal))
-            ParentSelect?.UnregisterItemValue(_registeredValue!);
+        if (_registeredValue.HasContent() && (!ReferenceEquals(_registeredParent, ParentSelect) || !string.Equals(_registeredValue, resolvedValue, StringComparison.Ordinal)))
+            _registeredParent?.UnregisterItemValue(_registeredValue!);
+        _registeredParent = ParentSelect;
+        _registeredValue = resolvedValue;
 
         if (resolvedValue.HasContent())
         {
@@ -133,7 +136,7 @@
     public override async ValueTask DisposeAsync()
     {
         if (_registeredValue.HasContent())
-            ParentSelect?.UnregisterItemValue(_registeredValue!);
+            _registeredParent?.UnregisterItemValue(_registeredValue!);
 
         await base.DisposeAsync();
     }

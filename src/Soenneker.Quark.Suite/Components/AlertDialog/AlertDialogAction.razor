@@ -6,11 +6,20 @@
 @inherits Soenneker.Quark.Element
 @implements IAlertDialogAction
 
+@if (AutoClose)
+{
 <BradixAlertDialogAction Disabled="@Disabled"
                          OnClick="(_cachedHandleActionClickDelegate ??= HandleActionClick)"
                          AdditionalAttributes="@BuildAttributes()">
     @ChildContent
 </BradixAlertDialogAction>
+}
+else
+{
+    <button type="button" disabled="@Disabled" @onclick="(_cachedHandleActionClickDelegate ??= HandleActionClick)" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
@@ -38,8 +47,8 @@
     private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private Func<MouseEventArgs, Task>? _cachedHandleActionClickDelegate;
 
 
@@ -83,7 +92,8 @@
 
     private async Task HandleActionClick(MouseEventArgs _)
     {
-        await OnAction.InvokeIfHasDelegate();
+        if (!Disabled)
+            await OnAction.InvokeIfHasDelegate();
     }
 
     protected override void ApplyDefaultParameters()

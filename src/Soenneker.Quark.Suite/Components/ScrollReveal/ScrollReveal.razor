@@ -22,7 +22,7 @@
 
     private ElementReference _element;
     private readonly AsyncLock _interopLock = new();
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed = new(false);
     private int _configurationHash;
 
@@ -107,7 +107,7 @@
                     });
 
                     _configurationHash = configurationHash;
-                    _initialized = true;
+                    _initialized.Value = true;
                 }
             }
         }
@@ -200,10 +200,10 @@
         {
             using (await _interopLock.Lock())
             {
-                if (_initialized)
+                if (_initialized.Value)
                 {
                     await ScrollRevealInterop.Destroy(_element);
-                    _initialized = false;
+                    _initialized.Value = false;
                 }
             }
         }

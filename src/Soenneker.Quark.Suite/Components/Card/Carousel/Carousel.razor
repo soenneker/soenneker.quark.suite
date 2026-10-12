@@ -51,11 +51,12 @@
     private CancellationTokenSource? _autoplayCancellation;
     private ElementReference _elementRef;
     private DotNetObjectReference<Carousel>? _dotNetReference;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed;
     private TimeSpan _autoplayPeriod;
     private double? _pointerStart;
-    private bool _pointerDragStarted;
+    private ValueAtomicBool _pointerDragStarted;
+    private int _notifiedIndex;
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
@@ -125,7 +126,7 @@
         if (_disposed.Read())
             return;
 
-        if (!_initialized)
+        if (!_initialized.Value)
         {
             _dotNetReference ??= DotNetObjectReference.Create(this);
             await CarouselInterop.Initialize(_elementRef, _dotNetReference, CurrentIndex, IsVertical, Align);
@@ -134,7 +135,7 @@
                 await CarouselInterop.Destroy(_elementRef);
                 return;
             }
-            _initialized = true;
+            _initialized.Value = true;
         }
 
         await MeasureScrollOffset();
@@ -177,12 +178,12 @@
             return;
 
         _pointerStart = GetAxisCoordinate(args);
-        _pointerDragStarted = true;
+        _pointerDragStarted.Value = true;
     }
 
     internal void CompletePointerDrag(PointerEventArgs args)
     {
-        if (!_pointerDragStarted || _pointerStart is null)
+        if (!_pointerDragStarted.Value || _pointerStart is null)
             return;
 
         CompleteDrag(GetAxisCoordinate(args));
@@ -194,12 +195,12 @@
             return;
 
         _pointerStart = coordinate;
-        _pointerDragStarted = true;
+        _pointerDragStarted.Value = true;
     }
 
     internal void CompleteTouchDrag(TouchEventArgs args)
     {
-        if (!_pointerDragStarted || _pointerStart is null || !TryGetTouchAxisCoordinate(args, out var coordinate))
+        if (!_pointerDragStarted.Value || _pointerStart is null || !TryGetTouchAxisCoordinate(args, out var coordinate))
             return;
 
         CompleteDrag(coordinate);
@@ -207,12 +208,12 @@
 
     private void CompleteDrag(double endCoordinate)
     {
-        if (!_pointerDragStarted || _pointerStart is null)
+        if (!_pointerDragStarted.Value || _pointerStart is null)
             return;
 
         var delta = endCoordinate - _pointerStart.Value;
         _pointerStart = null;
-        _pointerDragStarted = false;
+        _pointerDragStarted.Value = false;
 
         const double threshold = 40;
         if (Math.Abs(delta) < threshold)
@@ -232,16 +233,19 @@
     internal void CancelPointerDrag()
     {
         _pointerStart = null;
-        _pointerDragStarted = false;
+        _pointerDragStarted.Value = false;
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "ArrowLeft")
+        if (e.AltKey || e.CtrlKey || e.MetaKey)
+            return;
+
+        if (e.Key == (IsVertical ? "ArrowUp" : IsRtl ? "ArrowRight" : "ArrowLeft"))
         {
             await Previous();
         }
-        else if (e.Key == "ArrowRight")
+        else if (e.Key == (IsVertical ? "ArrowDown" : IsRtl ? "ArrowLeft" : "ArrowRight"))
         {
             await Next();
         }
@@ -278,11 +282,13 @@
         if (_disposed.Read())
             return;
 
-        SetApi?.Invoke(_api);
-        _api.NotifySelect();
-
-        if (SelectedIndexChanged.HasDelegate)
-            await SelectedIndexChanged.InvokeAsync(CurrentIndex);
+        if (_notifiedIndex != CurrentIndex)
+        {
+            _notifiedIndex = CurrentIndex;
+            _api.NotifySelect();
+            if (SelectedIndexChanged.HasDelegate)
+                await SelectedIndexChanged.InvokeAsync(CurrentIndex);
+        }
 
         StateChanged?.Invoke();
         await RefreshOffThread();
@@ -290,7 +296,7 @@
 
     private async Task MeasureScrollOffset(bool notifyStateChanged = true)
     {
-        if (_disposed.Read() || !_initialized)
+        if (_disposed.Read() || !_initialized.Value)
             return;
 
         var offset = await CarouselInterop.MeasureOffset(_elementRef, CurrentIndex, IsVertical, Align);
@@ -419,7 +425,7 @@
         StopAutoplay();
         try
         {
-            if (_initialized)
+            if (_initialized.Value)
                 await CarouselInterop.Destroy(_elementRef);
         }
         catch (JSDisconnectedException) { }

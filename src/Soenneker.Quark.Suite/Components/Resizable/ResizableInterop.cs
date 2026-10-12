@@ -8,7 +8,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IResizableInterop"/>
 public sealed class ResizableInterop : IResizableInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
@@ -65,6 +64,16 @@ public async ValueTask Initialize(CancellationToken cancellationToken = default)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
+        }
+    }
+
+    public async ValueTask StopDrag(ElementReference group, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("stopDrag", linked, group);
         }
     }
 

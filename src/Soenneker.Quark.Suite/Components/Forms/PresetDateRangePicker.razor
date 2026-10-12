@@ -13,9 +13,8 @@
             <Button Id="@TriggerId"
                     Type="@ButtonType.Button"
                     Variant="@TriggerVariant"
-                    Disabled="Disabled"
+                    Disabled="@(Disabled || ReadOnly)"
                     Justify="_renderCss0"
-                    Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (ShowCalendarIcon)
                 {
@@ -35,7 +34,7 @@
             <div class="@PanelClass">
                 @if (HasPresets)
                 {
-                    <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="menu">
+                    <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="group" aria-label="Date range presets">
                     @for (int presetIndex = 0; presetIndex < EffectivePresets.Count; presetIndex++)
                     {
                         var preset = EffectivePresets[presetIndex];
@@ -47,7 +46,7 @@
                                 Justify="_renderCss0"
                                 Class="@PresetButtonClass(active)"
                                 aria-pressed="@GetAriaBoolean(active)"
-                                Role="menuitemradio"
+                                Disabled="@(Disabled || ReadOnly)"
                                 OnClick="presetView.Click">
                             <span class="min-w-0 flex-1 truncate text-left">@preset.Label</span>
                             @if (active)
@@ -111,6 +110,15 @@
     private Func<DateOnly?, Task>? _cachedHandleCalendarMonthChangedDelegate;
 
     private QuarkAttributeDictionary _triggerAttributesBuffer;
+    private static readonly string[] _triggerExcludedAttributes = ["value", "name", "placeholder", "readonly", "required", "oninput", "onchange"];
+    private bool _openControlled;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<bool>(nameof(Open), out _))
+            _openControlled = true;
+        return base.SetParametersAsync(parameters);
+    }
     [Parameter]
     public CalendarDateRange? SelectedRange { get; set; }
 
@@ -184,13 +192,13 @@
     private DateOnly? _rangeAnchorDate;
     private string? _triggerId;
 
-    private bool EffectiveOpen => OpenChanged.HasDelegate ? Open : _open;
+    private bool EffectiveOpen => _openControlled ? Open : _open;
 
     private string TriggerId => Id ?? (_triggerId ??= BlazorIdGenerator.New("quark-preset-date-range-picker-trigger"));
 
     private DateOnly EffectiveMaxDate => Max ?? DateOnly.FromDateTime(DateTime.Today);
 
-    private DateOnly ConfiguredMinDate => Min ?? EffectiveMaxDate.AddYears(-100);
+    private DateOnly ConfiguredMinDate => Min ?? (EffectiveMaxDate.Year <= 100 ? DateOnly.MinValue : EffectiveMaxDate.AddYears(-100));
 
     private DateOnly EffectiveMinDate => PresetDateRangePickerUtil.GetSelectableMin(ConfiguredMinDate, EffectiveMaxDate, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
 
@@ -203,7 +211,7 @@
         get
         {
             var max = EffectiveMaxDate;
-            var min = Min ?? max.AddYears(-100);
+            var min = ConfiguredMinDate;
             var key = (SelectedRange?.From, SelectedRange?.To, min, max, MaxRangeDays, DisableDatesOutsideMaxRangeWindow);
             if (_rangeKey != key)
             {
@@ -227,11 +235,11 @@
     }
 
     private DateOnly CalendarMinDate => _rangeAnchorDate is { } anchor && MaxRangeDays is { } maxRangeDays
-        ? MaxDate(EffectiveMinDate, anchor.AddDays(-Math.Max(1, maxRangeDays) + 1))
+        ? DateOnly.FromDayNumber((int)Math.Max(EffectiveMinDate.DayNumber, (long)anchor.DayNumber - Math.Max(1, maxRangeDays) + 1))
         : EffectiveMinDate;
 
     private DateOnly CalendarMaxDate => _rangeAnchorDate is { } anchor && MaxRangeDays is { } maxRangeDays
-        ? MinDate(EffectiveMaxDate, anchor.AddDays(Math.Max(1, maxRangeDays) - 1))
+        ? DateOnly.FromDayNumber((int)Math.Min(EffectiveMaxDate.DayNumber, (long)anchor.DayNumber + Math.Max(1, maxRangeDays) - 1))
         : EffectiveMaxDate;
 
     private LucideIcon ChevronIcon => EffectiveOpen ? LucideIcon.ChevronUp : LucideIcon.ChevronDown;
@@ -260,37 +268,18 @@
             SyncDisplayMonthToSelection();
     }
 
-    private string GetTriggerClass()
-    {
-        const string baseClass = "w-[212px] text-left font-normal";
-        return Class.HasContent() ? AppendToClass(Class, baseClass, ref _triggerClass) : baseClass;
-    }
-
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        var attributes = _triggerAttributesBuffer.Create(3);
+        var attributes = _triggerAttributesBuffer.Create(BuildAttributes(), 3);
+        foreach (var key in _triggerExcludedAttributes)
+            attributes.Remove(key);
+        attributes.TryGetValue("class", out var userClass);
+        attributes["class"] = QuarkStringCache.Concat("w-[212px] text-left font-normal", " ", userClass?.ToString() ?? string.Empty, ref _triggerClass);
+        if (Disabled || ReadOnly)
+            attributes["disabled"] = QuarkAttributeValues.True;
         attributes["data-slot"] = "preset-date-range-picker-trigger";
         attributes["aria-label"] = AriaLabel.HasContent() ? AriaLabel! : "Select date range";
         attributes["aria-expanded"] = EffectiveOpen ? "true" : "false";
-
-        if (Attributes is not null)
-        {
-            foreach (var attribute in Attributes)
-            {
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("placeholder", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
 
         return attributes;
     }
@@ -323,19 +312,22 @@
 
     private async Task HandleOpenChanged(bool open)
     {
+        if (open && (Disabled || ReadOnly))
+            return;
         if (!open)
             _rangeAnchorDate = null;
 
-        if (OpenChanged.HasDelegate)
-            await OpenChanged.InvokeAsync(open);
-        else
+        if (!_openControlled)
             _open = open;
+        await OpenChanged.InvokeAsync(open);
 
         await RefreshOffThread();
     }
 
     private async Task ApplyPreset(PresetDateRangePickerOption preset)
     {
+        if (Disabled || ReadOnly)
+            return;
         _rangeAnchorDate = null;
 
         if (CloseOnRangeSelected)
@@ -346,7 +338,7 @@
 
     private async Task SetDateRange(CalendarDateRange? range)
     {
-        if (range is null)
+        if (Disabled || ReadOnly || range is null)
             return;
 
         var selectedStart = range.From ?? range.To;

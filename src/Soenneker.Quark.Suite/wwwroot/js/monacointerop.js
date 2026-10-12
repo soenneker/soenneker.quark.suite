@@ -303,6 +303,23 @@ export function getValue(container) {
     return getEditor(container).getValue();
 }
 
+export async function updateEditorOptions(container, readOnly, wordWrap, minimap, autoHeight, minLines, maxLines, ariaLabel) {
+    const state = editors.get(container);
+    if (!state?.editor) return;
+    state.editor.updateOptions({ readOnly: !!readOnly, wordWrap: wordWrap ? 'on' : 'off', minimap: { enabled: !!minimap }, ariaLabel: ariaLabel || 'Code editor' });
+    if (autoHeight) {
+        if (!state.autoHeight) state.heightBeforeAuto = container.style.height;
+        state.autoHeight = true;
+        await addContentChangeListener(container, minLines, maxLines);
+    } else if (state.autoHeight) {
+        state.contentChangeDisposable?.dispose();
+        state.contentChangeDisposable = null;
+        state.autoHeight = false;
+        container.style.height = state.heightBeforeAuto || '';
+        state.editor.layout();
+    }
+}
+
 export async function setLanguage(container, language) {
     const monaco = await ensureMonacoLoaded();
     const editor = getEditor(container);

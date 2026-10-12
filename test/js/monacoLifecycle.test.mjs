@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = (await readFile(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/monacointerop.js', import.meta.url), 'utf8'))
-  .replace("'./filedropinterop.js'", JSON.stringify(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/filedropinterop.js', import.meta.url).href));
+  .replace(/(['"])\.\/filedropinterop(?:\.min)?\.js\1/g,
+    JSON.stringify(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/filedropinterop.js', import.meta.url).href));
 let moduleId = 0;
 
 async function fixture(t) {
@@ -30,6 +31,7 @@ async function fixture(t) {
   };
   const editor = {
     layouts: 0, disposed: false,
+    updateOptions(options) { this.options = options; },
     getModel: () => model,
     getOption: () => 20,
     layout() { this.layouts++; },
@@ -48,6 +50,22 @@ async function fixture(t) {
     change(lines) { model.lines = lines; listeners.forEach(callback => callback()); }
   };
 }
+
+test('runtime options update without recreating Monaco and disabling auto-height removes its listener', async t => {
+  const env = await fixture(t);
+  env.ready();
+  env.container.style.height = '300px';
+  await env.module.createEditor(env.container, '{}');
+  await env.module.updateEditorOptions(env.container, true, true, false, true, 2, 5, 'Source');
+  assert.deepEqual(env.editor.options, { readOnly: true, wordWrap: 'on', minimap: { enabled: false }, ariaLabel: 'Source' });
+  assert.equal(env.listeners.size, 1);
+  assert.equal(env.container.style.height, '60px');
+  await env.module.updateEditorOptions(env.container, false, false, true, false, 2, 5, 'Source');
+  assert.equal(env.editor.options.readOnly, false);
+  assert.equal(env.listeners.size, 0);
+  assert.equal(env.container.style.height, '300px');
+  assert.equal(env.creations.length, 1);
+});
 
 test('typing at unchanged/clamped height does not repeatedly lay out Monaco', async t => {
   const env = await fixture(t);

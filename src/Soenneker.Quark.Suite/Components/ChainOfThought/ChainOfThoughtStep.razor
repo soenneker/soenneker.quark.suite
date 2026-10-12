@@ -1,9 +1,10 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 @if (HasContent)
 {
-    <Collapsible DefaultOpen="@ResolvedDefaultOpen" Attributes="@BuildStepAttributes()">
+    <Collapsible Open="@_open" OpenChanged="HandleOpenChanged" Attributes="@BuildStepAttributes()">
         <CascadingValue Value="@Context" IsFixed="true">
             @ChildContent
         </CascadingValue>
@@ -26,6 +27,13 @@ else
     private static readonly string CompletedStatus = nameof(ChainOfThoughtStatus.Completed).ToLowerInvariant();
     private static readonly string FailedStatus = nameof(ChainOfThoughtStatus.Failed).ToLowerInvariant();
     private ChainOfThoughtStepContext? _context;
+    private ChainOfThought? _registeredParent;
+    private ValueAtomicBool _initialized;
+    private bool _open;
+    private bool _wasComplete;
+
+    [CascadingParameter]
+    private ChainOfThought? ParentChain { get; set; }
 
     [Parameter]
     public ChainOfThoughtStatus Status { get; set; } = ChainOfThoughtStatus.Running;
@@ -36,7 +44,33 @@ else
     [Parameter]
     public bool AutoCloseOnComplete { get; set; } = true;
 
-    private bool ResolvedDefaultOpen => HasContent && (!AutoCloseOnComplete || Status != ChainOfThoughtStatus.Completed);
+    protected override void OnParametersSet()
+    {
+        var complete = AutoCloseOnComplete && Status == ChainOfThoughtStatus.Completed;
+        if (!_initialized.Value)
+        {
+            _open = !complete;
+            _initialized.Value = true;
+        }
+        else if (complete && !_wasComplete)
+            _open = false;
+
+        _wasComplete = complete;
+        if (_registeredParent != ParentChain)
+            _registeredParent?.UnregisterStep(this);
+        _registeredParent = ParentChain;
+        ParentChain?.RegisterStep(this, Status);
+        base.OnParametersSet();
+    }
+
+    private void HandleOpenChanged(bool open) => _open = open;
+
+    public override async ValueTask DisposeAsync()
+    {
+        _registeredParent?.UnregisterStep(this);
+        _registeredParent = null;
+        await base.DisposeAsync();
+    }
 
     private ChainOfThoughtStepContext Context
     {
@@ -81,5 +115,6 @@ else
         hc.Add(Status);
         hc.Add(HasContent);
         hc.Add(AutoCloseOnComplete);
+        hc.Add(_open);
     }
 }

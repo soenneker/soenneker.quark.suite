@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -12,15 +13,15 @@ internal sealed class AdaptiveTableLayout : IAsyncDisposable
     private Task _work = Task.CompletedTask;
     private ElementReference _element;
     private TableColumnSizingOptions? _options;
-    private bool _attached;
-    private bool _disposed;
+    private ValueAtomicBool _attached;
+    private ValueAtomicBool _disposed;
 
     public AdaptiveTableLayout(ITablesInterop interop) => _interop = interop;
 
     public Task Synchronize(ElementReference element, ElementReference columns, bool enabled, TableColumnSizingOptions options)
     {
-        if (_disposed || _work.IsCompletedSuccessfully &&
-            (enabled ? _attached && _element.Equals(element) && _options == options : !_attached))
+        if (_disposed.Value || _work.IsCompletedSuccessfully &&
+            (enabled ? _attached.Value && _element.Equals(element) && _options == options : !_attached.Value))
             return Task.CompletedTask;
 
         return _work = SynchronizeCore(_work, element, columns, enabled, options);
@@ -29,33 +30,32 @@ internal sealed class AdaptiveTableLayout : IAsyncDisposable
     private async Task SynchronizeCore(Task previous, ElementReference element, ElementReference columns, bool enabled, TableColumnSizingOptions options)
     {
         await previous;
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
-        if (_attached && (!enabled || !_element.Equals(element) || _options != options))
+        if (_attached.Value && (!enabled || !_element.Equals(element) || _options != options))
         {
             await _interop.StopAdaptiveLayout(_element);
-            _attached = false;
+            _attached.Value = false;
         }
 
-        if (enabled && !_attached)
+        if (enabled && !_attached.Value)
         {
             _element = element;
             _options = options;
             await _interop.StartAdaptiveLayout(element, columns, options);
-            _attached = true;
+            _attached.Value = true;
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (!_disposed.TrySetTrue())
             return;
-        _disposed = true;
         try
         {
             await _work;
-            if (_attached)
+            if (_attached.Value)
                 await _interop.StopAdaptiveLayout(_element);
         }
         catch (JSDisconnectedException)

@@ -1,4 +1,6 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
+@inject IInputInterop InputInterop
 @inherits Soenneker.Quark.FormControlElementBase
 
 <div @attributes="BuildAttributes()">
@@ -33,7 +35,7 @@
             {
                 var option = filteredAutocompleteOptions[index];
                 var optionView = GetOptionView(option, index);
-                <button type="button" data-slot="tag-input-autocomplete-item" data-active="@(index == _activeAutocompleteIndex ? "true" : "false")" role="option" class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" @onclick="optionView.Click">
+                <button type="button" data-slot="tag-input-autocomplete-item" data-active="@(index == _activeAutocompleteIndex ? "true" : "false")" role="option" aria-selected="@(index == _activeAutocompleteIndex ? "true" : "false")" @onmousedown:preventDefault="true" class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" @onclick="optionView.Click">
                     @option
                 </button>
             }
@@ -99,7 +101,10 @@
     private string _inputValue = string.Empty;
     private int? _activeTagIndexInternal;
     private int _activeAutocompleteIndex = -1;
-    private bool _preventDefaultKeys;
+    private ElementReference _registeredInput;
+    private string[]? _registeredDelimiters;
+    private ValueAtomicBool _keysRegistered;
+    private ValueAtomicBool _disposed;
     private bool _isFocused;
     private RenderFragment? _tagListFragment;
     private RenderFragment? _inputWithAutocomplete;
@@ -302,7 +307,7 @@
         builder.AddAttribute(6, "value", _inputValue);
         builder.AddAttribute(7, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, _inputHandleInputCallback ??= HandleInput));
         builder.AddAttribute(8, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, _inputHandleKeyDownCallback ??= HandleKeyDown));
-        builder.AddAttribute(9, "onkeydown:preventDefault", _preventDefaultKeys);
+
         builder.AddAttribute(10, "onfocus", EventCallback.Factory.Create<FocusEventArgs>(this, _inputHandleFocusCallback ??= HandleFocus));
         builder.AddAttribute(11, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, _inputHandleBlurCallback ??= HandleBlur));
         builder.AddAttribute(12, "data-slot", "tag-input-input");
@@ -358,7 +363,9 @@
             {
                 builder.OpenElement(13, "button");
                 builder.AddAttribute(14, "data-slot", "tag-input-tag-remove");
+                builder.AddAttribute(15, "type", "button");
                 builder.AddAttribute(15, "aria-label", view.RemoveLabel);
+                builder.AddEventStopPropagationAttribute(15, "onclick", true);
                 builder.AddAttribute(16, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Remove));
                 builder.AddAttribute(17, "class", "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
                 builder.OpenComponent<Icon>(18);
@@ -376,6 +383,8 @@
 
     private async Task HandleInput(ChangeEventArgs args)
     {
+        if (Disabled || ReadOnly)
+            return;
         _inputValue = args.Value?.ToString() ?? string.Empty;
         _activeAutocompleteIndex = -1;
         await SetActiveTagIndex(null);
@@ -390,9 +399,7 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        _preventDefaultKeys = ShouldPreventKey(args.Key);
-
-        if (Disabled || ReadOnly)
+        if (Disabled || ReadOnly || args.CtrlKey || args.AltKey || args.MetaKey)
             return;
 
         switch (args.Key)
@@ -461,16 +468,6 @@
         await base.HandleBlur(args);
     }
 
-    private bool ShouldPreventKey(string key)
-    {
-        if (Disabled || ReadOnly)
-            return false;
-
-        return key is "Enter" or "ArrowUp" or "ArrowDown" ||
-               (key is "Backspace" or "Delete" or "ArrowLeft" or "ArrowRight" or "Home" or "End" && _inputValue.Length == 0) ||
-               IsDelimiterKey(key);
-    }
-
     private bool IsDelimiterKey(string key)
     {
         if (key == "Enter")
@@ -495,6 +492,8 @@
 
     private async Task AddTags(string raw)
     {
+        if (Disabled || ReadOnly)
+            return;
         var delimiters = GetSplitDelimiters();
         var candidates = raw.Split(delimiters, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var nextTags = new List<string>(Values.Length + candidates.Length);
@@ -639,7 +638,7 @@
 
     private async Task RemoveTagAt(int index, bool moveToPrevious)
     {
-        if (index < 0 || index >= Values.Length)
+        if (Disabled || ReadOnly || index < 0 || index >= Values.Length)
             return;
 
         if (MinTags is not null && Values.Length <= MinTags.Value)
@@ -711,7 +710,7 @@
 
     private async Task ClearTags()
     {
-        if (Disabled || ReadOnly)
+        if (Disabled || ReadOnly || MinTags > 0)
             return;
 
         Values = [];
@@ -850,5 +849,43 @@
         hc.Add(TagSize);
         hc.Add(Direction);
         hc.Add(InputFieldPosition);
+        hc.Add(InputClass);
+        hc.Add(TagClass);
+        hc.Add(TagListClass);
+        hc.Add(AutocompleteClass);
+        foreach (var delimiter in DelimiterList) hc.Add(delimiter);
+        foreach (var option in AutocompleteOptions) hc.Add(option);
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        var delimiters = GetSplitDelimiters();
+        if (_disposed.Value || (_keysRegistered.Value && _registeredInput.Equals(_inputRef) && ReferenceEquals(_registeredDelimiters, delimiters)))
+            return;
+        if (_keysRegistered.Value)
+            await InputInterop.UnregisterComboboxKeys(_registeredInput);
+        var input = _inputRef;
+        await InputInterop.RegisterTagInputKeys(input, delimiters);
+        if (_disposed.Value)
+        {
+            await InputInterop.UnregisterComboboxKeys(input);
+            return;
+        }
+        _registeredInput = input;
+        _registeredDelimiters = delimiters;
+        _keysRegistered.Value = true;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_keysRegistered.Value)
+                await InputInterop.UnregisterComboboxKeys(_registeredInput);
+        }
+        finally { await base.DisposeAsync(); }
+    }
+
 }

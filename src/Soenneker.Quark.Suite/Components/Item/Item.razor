@@ -54,27 +54,18 @@ else
         OutlineStyle ??= _defaultOutlineStyle;
         RingColor ??= _defaultRingColor;
 
-        ApplyVariantDefaults();
 
     }
 
-    private void ApplyVariantDefaults()
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
-        if (ReferenceEquals(Variant, ItemVariant.Outline))
-        {
-            BorderColor ??= _defaultBorderColor2;
-            return;
-        }
-
-        if (ReferenceEquals(Variant, ItemVariant.Muted))
-        {
-            BorderColor ??= _defaultBorderColor;
-            BackgroundColor ??= _defaultBackgroundColor2;
-            return;
-        }
-
-        BorderColor ??= _defaultBorderColor;
-        BackgroundColor ??= _defaultBackgroundColor;
+        base.BuildDefaultClasses(ref cls);
+        var preset = AppliedPresetContext;
+        if (ResolvePresetValue(BorderColor, preset?.BorderColor, nameof(BorderColor)) is null)
+            AddCss<BorderColorBuilder>(ref cls, ReferenceEquals(Variant, ItemVariant.Outline) ? _defaultBorderColor2 : _defaultBorderColor);
+        if (ResolvePresetValue(BackgroundColor, preset?.BackgroundColor, nameof(BackgroundColor)) is null &&
+            !ReferenceEquals(Variant, ItemVariant.Outline))
+            AddCss<BackgroundColorBuilder>(ref cls, ReferenceEquals(Variant, ItemVariant.Muted) ? _defaultBackgroundColor2 : _defaultBackgroundColor);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

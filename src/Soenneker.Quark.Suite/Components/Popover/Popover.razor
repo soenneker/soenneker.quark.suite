@@ -2,7 +2,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixPopover Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+<BradixPopover Open="@(_hasControlledOpen ? Open : (bool?)null)"
                DefaultOpen="@DefaultOpen"
                OpenChanged="@OpenChanged"
                Modal="@Modal">
@@ -12,6 +12,15 @@
 </BradixPopover>
 
 @code {
+    private bool _hasControlledOpen;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<bool>(nameof(Open), out _))
+            _hasControlledOpen = true;
+
+        return base.SetParametersAsync(parameters);
+    }
     [Parameter]
     public bool Open { get; set; }
 
@@ -45,6 +54,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
+        hc.Add(_hasControlledOpen);
         hc.Add(DefaultOpen);
         hc.Add(Modal);
     }

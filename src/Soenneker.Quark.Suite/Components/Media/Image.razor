@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.MediaElement
@@ -39,7 +40,7 @@ else
     private string? _resolvedBase64Input;
     private string? _resolvedMediaTypeInput;
     private IThemeInterop? _variantTheme;
-    private bool _variantThemeInitialized;
+    private ValueAtomicBool _variantThemeInitialized;
 
     [Inject]
     private IServiceProvider ImageServices { get; set; } = null!;
@@ -96,16 +97,16 @@ else
         {
             _variantTheme.ThemeChanged -= OnVariantThemeChanged;
             _variantTheme = null;
-            _variantThemeInitialized = false;
+            _variantThemeInitialized.Value = false;
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (_variantTheme is not null && !_variantThemeInitialized)
+        if (_variantTheme is not null && !_variantThemeInitialized.Value)
         {
-            _variantThemeInitialized = true;
+            _variantThemeInitialized.Value = true;
             await _variantTheme.Initialize();
             if (!IsDisposed)
                 Refresh();

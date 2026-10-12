@@ -3,11 +3,24 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixContextMenuRadioGroup AdditionalAttributes="@RadioGroupAttributes">
+<BradixContextMenuRadioGroup Value="@Value" DefaultValue="@DefaultValue" ValueChanged="@ValueChanged" Disabled="@Disabled" AdditionalAttributes="@RadioGroupAttributes">
     @ChildContent
 </BradixContextMenuRadioGroup>
 
 @code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public string? DefaultValue { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(DefaultValue);
+        hc.Add(Disabled);
+    }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();

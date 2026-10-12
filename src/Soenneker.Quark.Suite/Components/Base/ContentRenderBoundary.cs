@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -9,8 +10,8 @@ namespace Soenneker.Quark;
 public sealed class ContentRenderBoundary<TVersion> : ComponentBase
 {
     private TVersion _rendered = default!;
-    private bool _initialized;
-    private bool _shouldRender;
+    private ValueAtomicBool _initialized;
+    private ValueAtomicBool _shouldRender;
 
     /// <summary>Gets or sets the complete state of the retained content.</summary>
     [Parameter] public TVersion Version { get; set; } = default!;
@@ -21,11 +22,11 @@ public sealed class ContentRenderBoundary<TVersion> : ComponentBase
 
     protected override void OnParametersSet()
     {
-        _shouldRender = AlwaysRender || !_initialized || !EqualityComparer<TVersion>.Default.Equals(_rendered, Version);
+        _shouldRender.Value = AlwaysRender || !_initialized.Value || !EqualityComparer<TVersion>.Default.Equals(_rendered, Version);
         _rendered = Version;
-        _initialized = true;
+        _initialized.Value = true;
     }
 
-    protected override bool ShouldRender() => _shouldRender;
+    protected override bool ShouldRender() => _shouldRender.Value;
     protected override void BuildRenderTree(RenderTreeBuilder builder) => builder.AddContent(0, ChildContent);
 }

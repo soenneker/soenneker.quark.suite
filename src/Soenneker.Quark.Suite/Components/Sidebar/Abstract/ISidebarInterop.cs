@@ -16,6 +16,14 @@ public interface ISidebarInterop : IAsyncDisposable
     /// </summary>
     ValueTask InitializeSidebar(DotNetObjectReference<SidebarProvider> componentRef, string shortcutKey, CancellationToken cancellationToken = default);
 
+    /// <summary>Registers an independently disposable sidebar provider.</summary>
+    ValueTask InitializeSidebar(DotNetObjectReference<SidebarProvider> componentRef, string shortcutKey, string instanceId, CancellationToken cancellationToken = default)
+        => InitializeSidebar(componentRef, shortcutKey, cancellationToken);
+
+    /// <summary>Removes only the named provider's event handlers.</summary>
+    ValueTask Cleanup(string instanceId, CancellationToken cancellationToken = default)
+        => Cleanup(cancellationToken);
+
     /// <summary>
     /// Returns the saved sidebar state, or null when no valid state is stored.
     /// </summary>

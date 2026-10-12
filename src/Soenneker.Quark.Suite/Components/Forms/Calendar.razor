@@ -1,25 +1,30 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Globalization
+@using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@inject ICalendarInterop CalendarInterop
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
 @{ BeginDayRender(); }
 
-<Div @attributes="BuildAttributes()">
+<div @ref="_calendarElement" @attributes="BuildAttributes()">
     <Div Position="_renderCss0" Display="_renderCss1" FlexDirection="_renderCss2" Gap="_renderCss3" Class="rdp-months">
         <Nav Position="_renderCss4" Inset="_renderCss5" Top="_renderCss6" Display="_renderCss1" Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss9" Gap="_renderCss10" AriaLabel="" Class="rdp-nav">
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="(_calendarPrevCallback ??= PrevMonth)">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" Disabled="@(!CanNavigatePrevious())" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="(_calendarPrevCallback ??= PrevMonth)">
                 <Icon Name="LucideIcon.ChevronLeft" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="(_calendarNextCallback ??= NextMonth)">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" Disabled="@(!CanNavigateNext())" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="(_calendarNextCallback ??= NextMonth)">
                 <Icon Name="LucideIcon.ChevronRight" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
         </Nav>
 
-        @for (var monthIndex = 0; monthIndex < Math.Max(NumberOfMonths, 1); monthIndex++)
+        @for (var monthIndex = 0; monthIndex < VisibleMonthCount; monthIndex++)
         {
-            var month = _displayMonth.AddMonths(monthIndex);
+            var month = AddCalendarMonths(_displayMonth, monthIndex);
             var weeks = BuildMonthWeeks(month);
+            var monthView = GetMonthView(monthIndex);
 
             <Div @key="month" Display="_renderCss1" Width="_renderCss7" FlexDirection="_renderCss14" Gap="_renderCss3" Class="rdp-month">
                 <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Padding='_renderCss17' Class="rdp-month_caption">
@@ -27,26 +32,26 @@
                     {
                         <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Gap='_renderCss18' TextSize="_renderCss19" FontWeight="_renderCss20" Class="rdp-dropdowns">
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((month.Month - 1).ToString(CultureInfo.InvariantCulture))" OnChange="(_cachedOnMonthChangedDelegate ??= OnMonthChanged)">
-                                    @for (var optionMonth = 0; optionMonth < 12; optionMonth++)
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((GetCalendarMonth(month) - 1).ToString(CultureInfo.InvariantCulture))" OnChange="monthView.MonthChanged">
+                                    @for (var optionMonth = 0; optionMonth < GetCalendarMonthsInYear(month); optionMonth++)
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
                                 </SelectPrimitive>
                                 <Span FontWeight="_renderCss20" UserSelect="_renderCss11" Display="_renderCss1" ItemsAlign="_renderCss8" Gap="_renderCss10" TextSize="_renderCss19" Rounded='_renderCss21' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
-                                    <Span>@GetMonthDropdownLabel(month.Month)</Span>
+                                    <Span>@GetMonthDropdownLabel(GetCalendarMonth(month))</Span>
                                     <Icon Name="LucideIcon.ChevronDown" Size="_renderCss13" Class="rdp-chevron"/>
                                 </Span>
                             </Span>
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@month.Year.ToString(CultureInfo.InvariantCulture)" OnChange="(_cachedOnYearChangedDelegate ??= OnYearChanged)">
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@GetCalendarYear(month).ToString(CultureInfo.InvariantCulture)" OnChange="monthView.YearChanged">
                                     @for (var year = GetMinSelectableYear(); year <= GetMaxSelectableYear(); year++)
                                     {
                                         <option value="@year">@year</option>
                                     }
                                 </SelectPrimitive>
                                 <Span FontWeight="_renderCss20" UserSelect="_renderCss11" Display="_renderCss1" ItemsAlign="_renderCss8" Gap="_renderCss10" TextSize="_renderCss19" Rounded='_renderCss21' Class="cn-calendar-caption-label [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label" aria-hidden="true">
-                                    <Span>@month.Year</Span>
+                                    <Span>@GetCalendarYear(month)</Span>
                                     <Icon Name="LucideIcon.ChevronDown" Size="_renderCss13" Class="rdp-chevron"/>
                                 </Span>
                             </Span>
@@ -76,7 +81,7 @@
                     <TbodyPrimitive Class="rdp-weeks">
                         @foreach (var week in weeks)
                         {
-                            <TrPrimitive @key="week[0].Date" Margin="_renderCss30" Display="_renderCss1" Width="_renderCss7" Class="rdp-week">
+                            <TrPrimitive @key="week" Margin="_renderCss30" Display="_renderCss1" Width="_renderCss7" Class="rdp-week">
                                 @if (ShowWeekNumber)
                                 {
                                     <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
@@ -88,6 +93,11 @@
 
                                 @foreach (var day in week)
                                 {
+                                    if (!day.Available)
+                                    {
+                                        <td aria-hidden="true" class="rdp-day"></td>
+                                        continue;
+                                    }
                                     var view = GetDayView(day);
                                 var dayContext = BuildDayContext(day, view);
                                 view.UpdateFormatting(_formatVersion, dayContext);
@@ -95,7 +105,7 @@
                                     var buttonCss = GetDayButtonClass(dayContext, day);
 
                                     <TdPrimitive @key="day.Date" Class="@cellCss" role="gridcell" aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)" data-day="@view.IsoDate" data-month="@view.IsoMonth" data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))">
-                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="_renderCss1" Width="_renderCss7" FlexDirection="_renderCss14" Gap="_renderCss10" Leading="_renderCss33" FontWeight="_renderCss28" Class="@buttonCss" Disabled="@day.Disabled" AriaLabel="@view.AriaLabel" aria-disabled="@GetDataBoolean(day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-day="@view.DataDay" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="view.Click">
+                                        <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" Display="_renderCss1" Width="_renderCss7" FlexDirection="_renderCss14" Gap="_renderCss10" Leading="_renderCss33" FontWeight="_renderCss28" Class="@buttonCss" Disabled="@(Disabled || day.Disabled)" AriaLabel="@view.AriaLabel" aria-disabled="@GetDataBoolean(Disabled || day.Disabled)" TabIndex="@GetDayTabIndex(dayContext, day)" data-calendar-date="@view.IsoDate" data-calendar-outside="@GetDataBoolean(!day.InMonth)" data-day="@view.DataDay" data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))" data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))" data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))" data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))" OnClick="view.Click">
                                             @if (DayContent is not null)
                                             {
                                                 @DayContent(dayContext)
@@ -114,7 +124,7 @@
             </Div>
         }
     </Div>
-</Div>
+</div>
 
 @code {
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
@@ -139,7 +149,7 @@
     private static readonly CssValue<JustifyBuilder> _renderCss9 = Quark.Justify.Between;
     private static readonly CssValue<GapBuilder> _renderCss10 = Quark.Gap.Is1;
     private static readonly CssValue<UserSelectBuilder> _renderCss11 = Quark.UserSelect.None;
-    private static readonly CssValue<OpacityBuilder> _renderCss12 = Quark.Opacity.Is50.Aria("disabled");
+    private static readonly CssValue<OpacityBuilder> _renderCss12 = Quark.Variant.Of(Quark.Opacity.Is50).Custom("aria-disabled");
     private static readonly CssValue<SizeBuilder> _renderCss13 = Quark.Size.Is4;
     private static readonly CssValue<FlexDirectionBuilder> _renderCss14 = Quark.FlexDirection.Col;
     private static readonly CssValue<HeightBuilder> _renderCss15 = Quark.Height.Token("(--cell-size)");
@@ -161,8 +171,6 @@
     private static readonly CssValue<SizeBuilder> _renderCss31 = Quark.Size.Token("(--cell-size)");
     private static readonly CssValue<TextAlignBuilder> _renderCss32 = Quark.TextAlign.Center;
     private static readonly CssValue<LeadingBuilder> _renderCss33 = Quark.Leading.None;
-    private Func<ChangeEventArgs, Task>? _cachedOnMonthChangedDelegate;
-    private Func<ChangeEventArgs, Task>? _cachedOnYearChangedDelegate;
 
 
     protected override void ApplyDefaultParameters()
@@ -301,6 +309,7 @@
     private void BeginDayRender()
     {
         _dayGeneration = unchecked(_dayGeneration + 1);
+        EnsureFocusableDate();
         if (IsMultipleMode && EffectiveSelectedDates.Count > 8)
         {
             var selected = _selectedDateSet ??= [];
@@ -329,6 +338,18 @@
                 if (pair.Value.Generation != _dayGeneration)
                     _dayViews.Remove(pair.Key);
         }
+        using (await _calendarLock.Lock())
+        {
+            if (_calendarDisposed.Value)
+                return;
+            if (firstRender)
+                await CalendarInterop.Initialize(_calendarElement, _calendarReference ??= DotNetObjectReference.Create(this));
+            if (_pendingFocus is { } date)
+            {
+                _pendingFocus = null;
+                await CalendarInterop.Focus(_calendarElement, date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            }
+        }
     }
 
     private string GetCachedMonthCaption(DateOnly month)
@@ -348,14 +369,16 @@
     private string[] _dayNames = [];
     private string[] _fullDayNames = [];
     private CultureInfo _resolvedCulture = CultureInfo.CurrentCulture;
+    private CultureInfo? _gregorianCultureSource;
+    private CultureInfo? _gregorianCulture;
     private string[] _nativeDigits = [];
     private DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
     private readonly Dictionary<DateOnly, List<Cell[]>> _monthWeeks = [];
     private CalendarGridState _calendarGridState;
     private CultureInfo? _dayNamesCulture;
     private DayOfWeek _dayNamesFirstDay;
-    private bool _dayNamesInitialized;
-    private bool _initialized;
+    private ValueAtomicBool _dayNamesInitialized;
+    private ValueAtomicBool _initialized;
     private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
     private bool IsMultipleMode => Mode == CalendarSelectionMode.Multiple;
     private DateOnly? EffectiveSelectedDate => SelectedDate ?? DateOnlyValue;
@@ -394,24 +417,26 @@
 
         if (DisplayMonth.HasValue)
         {
-            var displayMonth = new DateOnly(DisplayMonth.Value.Year, DisplayMonth.Value.Month, 1);
+            var displayMonth = GetDisplayMonthStart(DisplayMonth.Value);
 
-            if (!_initialized || _lastAppliedDisplayMonth != displayMonth)
+            if (!_initialized.Value || _lastAppliedDisplayMonth != displayMonth)
                 _displayMonth = displayMonth;
 
             _lastAppliedDisplayMonth = displayMonth;
-            _initialized = true;
+            _initialized.Value = true;
             return;
         }
 
         _lastAppliedDisplayMonth = null;
 
-        if (!_initialized)
+        if (!_initialized.Value)
         {
             var initialDate = IsRangeMode ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? _today : IsMultipleMode ? GetInitialMultipleDate() : EffectiveSelectedDate ?? _today;
-            _displayMonth = new DateOnly(initialDate.Year, initialDate.Month, 1);
-            _initialized = true;
+            _displayMonth = GetDisplayMonthStart(initialDate);
+            _initialized.Value = true;
         }
+        else
+            _displayMonth = GetDisplayMonthStart(_displayMonth);
     }
 
     private void InitializeDayNames()
@@ -419,7 +444,7 @@
         var culture = _resolvedCulture;
         var first = GetFirstDayOfWeek(culture);
 
-        if (_dayNamesInitialized && culture.IsReadOnly && ReferenceEquals(_dayNamesCulture, culture) && _dayNamesFirstDay == first)
+        if (_dayNamesInitialized.Value && culture.IsReadOnly && ReferenceEquals(_dayNamesCulture, culture) && _dayNamesFirstDay == first)
             return;
 
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
@@ -439,7 +464,7 @@
         _fullDayNames = fullDayNames;
         _dayNamesCulture = culture;
         _dayNamesFirstDay = first;
-        _dayNamesInitialized = true;
+        _dayNamesInitialized.Value = true;
     }
 
     private DateOnly GetInitialMultipleDate()
@@ -447,7 +472,7 @@
         return EffectiveSelectedDates.Count == 0 ? _today : EffectiveSelectedDates[0];
     }
 
-    private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
+    private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled, bool Available = true);
 
     private readonly record struct CalendarGridState(string CultureName, DayOfWeek FirstDayOfWeek, bool UseCultureCalendar,
         bool ShowOutsideDays, bool FixedWeeks, DateOnly? Min, DateOnly? Max, int DisabledDatesVersion);
@@ -468,7 +493,7 @@
             var displayDate = month.ToDateTime(TimeOnly.MinValue);
             cultureCalendarYear = calendar.GetYear(displayDate);
             cultureCalendarMonth = calendar.GetMonth(displayDate);
-            firstOfMonth = DateOnly.FromDateTime(calendar.ToDateTime(cultureCalendarYear, cultureCalendarMonth, 1, 0, 0, 0, 0));
+            firstOfMonth = GetDisplayMonthStart(month);
         }
         else
         {
@@ -477,14 +502,26 @@
 
         var startDow = GetFirstDayOfWeek(culture);
         var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        var gridStart = firstOfMonth.AddDays(-offset);
+        var gridStart = firstOfMonth.DayNumber - offset;
         var weeks = new List<Cell[]>(6);
         var currentWeek = new Cell[7];
         var lastWeekWithMonthDays = -1;
 
         for (var i = 0; i < 42; i++)
         {
-            var d = gridStart.AddDays(i);
+            var dayNumber = gridStart + i;
+            if (dayNumber < CalendarMinimum.DayNumber || dayNumber > CalendarMaximum.DayNumber)
+            {
+                currentWeek[i % 7] = new Cell(dayNumber < CalendarMinimum.DayNumber ? CalendarMinimum : CalendarMaximum, false, true, false);
+                if (i % 7 == 6)
+                {
+                    if (WeekHasMonthDays(currentWeek)) lastWeekWithMonthDays = weeks.Count;
+                    weeks.Add(currentWeek);
+                    if (i < 41) currentWeek = new Cell[7];
+                }
+                continue;
+            }
+            var d = DateOnly.FromDayNumber(dayNumber);
             var inMonth = IsInDisplayedMonth(d, month, calendar, cultureCalendarYear, cultureCalendarMonth);
             var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value) ||
                 (_disabledDatesSnapshot.Length > 8 ? _disabledDateSet!.Contains(d) : ContainsDisabledDate(d));
@@ -538,7 +575,7 @@
     private bool IsInDisplayedMonth(DateOnly date, DateOnly month, System.Globalization.Calendar calendar, int cultureCalendarYear, int cultureCalendarMonth)
     {
         if (!UseCultureCalendar)
-            return date.Month == month.Month;
+            return date.Month == month.Month && date.Year == month.Year;
 
         var dateTime = date.ToDateTime(TimeOnly.MinValue);
         return calendar.GetYear(dateTime) == cultureCalendarYear && calendar.GetMonth(dateTime) == cultureCalendarMonth;
@@ -557,7 +594,7 @@
 
     private async Task SelectDate(DateOnly date)
     {
-        if (IsDisabledDate(date))
+        if (Disabled || ReadOnly || IsDisabledDate(date))
             return;
 
         if (IsRangeMode)
@@ -631,7 +668,7 @@
     private int GetWeekNumber(DateOnly date)
     {
         var culture = _resolvedCulture;
-        return culture.Calendar.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), culture.DateTimeFormat.CalendarWeekRule, GetFirstDayOfWeek(culture));
+        return culture.DateTimeFormat.Calendar.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), culture.DateTimeFormat.CalendarWeekRule, GetFirstDayOfWeek(culture));
     }
 
     private DayOfWeek GetFirstDayOfWeek(CultureInfo culture)
@@ -639,42 +676,41 @@
         return UseCultureCalendar ? culture.DateTimeFormat.FirstDayOfWeek : DayOfWeek.Sunday;
     }
 
-    private async Task OnMonthChanged(ChangeEventArgs args)
+    private async Task OnMonthChanged(ChangeEventArgs args, int displayedIndex)
     {
-        if (!int.TryParse(args.Value?.ToString(), out var monthIndex))
+        if (Disabled || !int.TryParse(args.Value?.ToString(), out var monthIndex) || monthIndex is < 0 or > 12)
             return;
 
         var month = monthIndex + 1;
-        _displayMonth = new DateOnly(_displayMonth.Year, month, 1);
-        await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        Refresh();
+        var displayed = AddCalendarMonths(_displayMonth, displayedIndex);
+        await SetCaptionMonth(GetCalendarYear(displayed), month, displayedIndex);
     }
 
-    private async Task OnYearChanged(ChangeEventArgs args)
+    private async Task OnYearChanged(ChangeEventArgs args, int displayedIndex)
     {
-        if (!int.TryParse(args.Value?.ToString(), out var year))
+        if (Disabled || !int.TryParse(args.Value?.ToString(), out var year) || year is < 1 or > 9999)
             return;
 
-        _displayMonth = new DateOnly(year, _displayMonth.Month, 1);
-        await DisplayMonthChanged.InvokeAsync(_displayMonth);
-        Refresh();
+        var displayed = AddCalendarMonths(_displayMonth, displayedIndex);
+        await SetCaptionMonth(year, GetCalendarMonth(displayed), displayedIndex);
     }
 
     private int GetMinSelectableYear()
     {
-        var currentYear = DateTime.Today.Year;
-        return Min?.Year ?? (currentYear - 100);
+        var currentYear = GetCalendarYear(PresetDateRangePickerUtil.Clamp(_today, CalendarMinimum, CalendarMaximum));
+        return Min is { } min ? GetCalendarYear(PresetDateRangePickerUtil.Clamp(min, CalendarMinimum, CalendarMaximum)) : Math.Max(GetCalendarYear(CalendarMinimum), currentYear - 100);
     }
 
     private int GetMaxSelectableYear()
     {
-        return Max?.Year ?? DateTime.Today.Year;
+        return Max is { } max ? GetCalendarYear(PresetDateRangePickerUtil.Clamp(max, CalendarMinimum, CalendarMaximum)) : Math.Max(GetCalendarYear(_displayMonth), GetCalendarYear(PresetDateRangePickerUtil.Clamp(_today, CalendarMinimum, CalendarMaximum)));
     }
 
     private string GetMonthDropdownLabel(int month)
     {
         var culture = _resolvedCulture;
-
+        if (UseCultureCalendar)
+            return UseFullMonthNames ? culture.DateTimeFormat.GetMonthName(month) : culture.DateTimeFormat.GetAbbreviatedMonthName(month);
         return GetLocalizedGregorianMonthName(culture, month, abbreviated: !UseFullMonthNames);
     }
 
@@ -689,6 +725,9 @@
             var year = ToNativeDigits(culture.Calendar.GetYear(dateTime).ToString(CultureInfo.InvariantCulture), culture);
             return $"{PersianMonthNames[monthIndex]} {year}";
         }
+
+        if (UseCultureCalendar)
+            return month.ToString("MMMM yyyy", culture);
 
         if (!culture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) && TryGetGregorianMonthNames(culture, out _))
             return $"{GetLocalizedGregorianMonthName(culture, month.Month, abbreviated: false)} {month.Year.ToString(CultureInfo.InvariantCulture)}";
@@ -787,17 +826,29 @@
 
     private CultureInfo ResolveCultureCore()
     {
-        if (CultureName.IsNullOrEmpty())
-            return CultureInfo.CurrentCulture;
+        var culture = CultureInfo.CurrentCulture;
+        if (!CultureName.IsNullOrEmpty())
+        {
+            try { culture = CultureInfo.GetCultureInfo(CultureName); }
+            catch (CultureNotFoundException) { }
+        }
+        if (UseCultureCalendar || culture.DateTimeFormat.Calendar is GregorianCalendar)
+            return culture;
+        if (culture.IsReadOnly && ReferenceEquals(_gregorianCultureSource, culture))
+            return _gregorianCulture!;
 
-        try
+        // Gregorian grid dates must also use Gregorian formatting, including dates
+        // outside the culture's default calendar (for example Persian year 1).
+        _gregorianCultureSource = culture;
+        foreach (var calendar in culture.OptionalCalendars)
         {
-            return CultureInfo.GetCultureInfo(CultureName);
+            if (calendar is not GregorianCalendar)
+                continue;
+            var gregorianCulture = (CultureInfo)culture.Clone();
+            gregorianCulture.DateTimeFormat.Calendar = calendar;
+            return _gregorianCulture = CultureInfo.ReadOnly(gregorianCulture);
         }
-        catch (CultureNotFoundException)
-        {
-            return CultureInfo.CurrentCulture;
-        }
+        return _gregorianCulture = CultureInfo.InvariantCulture;
     }
 
     private string GetDayLabel(DateOnly date)
@@ -834,6 +885,9 @@
 
             return $"{PersianWeekdays[(int)date.DayOfWeek]} {day}-ام {month} {year}";
         }
+
+        if (UseCultureCalendar)
+            return date.ToString("D", culture);
 
         if (culture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
         {
@@ -904,7 +958,7 @@
 
     private int GetDayTabIndex(CalendarDayContext dayContext, Cell day)
     {
-        return !day.Disabled && IsFocusableDay(dayContext, day.Date) ? 0 : -1;
+        return !Disabled && !day.Disabled && day.InMonth && day.Date == _focusedDate ? 0 : -1;
     }
 
     private bool IsFocusableDay(CalendarDayContext dayContext, DateOnly date)
@@ -967,7 +1021,7 @@
 
     private bool IsDisabledDate(DateOnly date)
     {
-        return (Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || ContainsDisabledDate(date);
+        return date < CalendarMinimum || date > CalendarMaximum || (Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || ContainsDisabledDate(date);
     }
 
     private bool ContainsDisabledDate(DateOnly date)
@@ -1175,7 +1229,7 @@
         if (!CanNavigatePrevious())
             return;
 
-        _displayMonth = _displayMonth.AddMonths(-1);
+        _displayMonth = GetDisplayMonthStart(AddCalendarMonths(_displayMonth, -1));
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
         Refresh();
     }
@@ -1185,23 +1239,22 @@
         if (!CanNavigateNext())
             return;
 
-        _displayMonth = _displayMonth.AddMonths(1);
+        _displayMonth = GetDisplayMonthStart(AddCalendarMonths(_displayMonth, 1));
         await DisplayMonthChanged.InvokeAsync(_displayMonth);
         Refresh();
     }
 
     private bool CanNavigatePrevious()
     {
-        var minMonth = Min.HasValue ? new DateOnly(Min.Value.Year, Min.Value.Month, 1) : new DateOnly(DateTime.Today.Year - 100, 1, 1);
-
-        return _displayMonth.AddMonths(-1) >= minMonth;
+        var minMonth = GetDisplayMonthStart(Min ?? CalendarMinimum);
+        return !Disabled && _displayMonth > minMonth;
     }
 
     private bool CanNavigateNext()
     {
-        var maxMonth = Max.HasValue ? new DateOnly(Max.Value.Year, Max.Value.Month, 1) : new DateOnly(DateTime.Today.Year, 12, 1);
-
-        return _displayMonth.AddMonths(Math.Max(NumberOfMonths, 1)) <= maxMonth;
+        var maxMonth = GetDisplayMonthStart(Max ?? CalendarMaximum);
+        var lastVisibleMonth = GetDisplayMonthStart(AddCalendarMonths(_displayMonth, VisibleMonthCount - 1));
+        return !Disabled && lastVisibleMonth < maxMonth;
     }
 
     private static int? GetNavTabIndex(bool enabled)
@@ -1247,6 +1300,7 @@
         hc.Add(Min);
         hc.Add(Max);
         hc.Add(_displayMonth);
+        hc.Add(_focusedDate);
         hc.Add(DisplayMonth);
         hc.Add(ShowOutsideDays);
         hc.Add(NumberOfMonths);

@@ -54,7 +54,12 @@
                 return dirValue.ToString();
             }
 
-            return DirectionProviderDir;
+            if (AdditionalAttributes is not null &&
+                AdditionalAttributes.TryGetValue("dir", out var additionalDir) &&
+                !string.IsNullOrWhiteSpace(additionalDir?.ToString()))
+                return additionalDir.ToString();
+
+            return string.IsNullOrWhiteSpace(Dir) ? DirectionProviderDir : Dir;
         }
     }
 

@@ -145,3 +145,25 @@ test('a disposed registration does not receive late diagnostic writes', async t 
   await Promise.resolve();
   assert.equal(env.handle.dataset.resizableDotnet, undefined);
 });
+
+for (const [orientation, key, size] of [['horizontal', 'ArrowRight', 200], ['vertical', 'ArrowDown', 400]]) {
+  test(`${orientation} keyboard resizing forwards live pixel dimensions and shift`, t => {
+    const env = fixture(t, orientation);
+    let prevented = 0;
+    env.handle.emit('keydown', { key, shiftKey: true, preventDefault() { prevented++; } });
+    assert.equal(prevented, 1);
+    assert.deepEqual(env.calls, [['HandleKeyboardResize', 0, key, true, size]]);
+    env.handle.emit('keydown', { key, ctrlKey: true });
+    env.handle.emit('keydown', { key: orientation === 'horizontal' ? 'ArrowDown' : 'ArrowRight' });
+    assert.equal(env.calls.length, 1);
+  });
+}
+
+test('disposing another panel group does not interrupt the active group drag', t => {
+  const env = fixture(t);
+  env.handle.emit('pointerdown');
+  resizable.stopDrag(new ElementStub());
+  assert.equal(env.handle.capture, 1);
+  window.emit('pointerup');
+  assert.deepEqual(env.calls, [['HandlePointerDragEnd', 0, 25, 200]]);
+});

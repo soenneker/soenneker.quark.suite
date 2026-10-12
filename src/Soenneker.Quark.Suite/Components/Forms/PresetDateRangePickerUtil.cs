@@ -12,7 +12,7 @@ internal static class PresetDateRangePickerUtil
         if (!disableDatesOutsideMaxRangeWindow || maxRangeDays is null)
             return min;
 
-        var rangeMin = max.AddDays(-Math.Max(1, maxRangeDays.Value) + 1);
+        var rangeMin = DateOnly.FromDayNumber((int)Math.Max(min.DayNumber, (long)max.DayNumber - Math.Max(1, maxRangeDays.Value) + 1));
         return rangeMin > min ? rangeMin : min;
     }
 

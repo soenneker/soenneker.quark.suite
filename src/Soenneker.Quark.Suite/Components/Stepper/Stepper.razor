@@ -8,6 +8,9 @@
 </CascadingValue>
 
 @code {
+    private readonly string _instanceId = $"stepper-{Guid.NewGuid():N}";
+    private int _uncontrolledStep;
+    private string? _uncontrolledValueKey;
     private int _stepValuesVersion;
     private int _resolvedStepVersion = -1;
     private string? _resolvedStepValue;
@@ -57,11 +60,20 @@
     [Parameter]
     public RenderFragment? LoadingIndicator { get; set; }
 
-    internal int ActiveStep => Value ?? (HasValueKey ? GetStepForValue(ActiveValue) : null) ?? DefaultValue;
+    internal int ActiveStep => Value ?? (HasValueKey ? GetStepForValue(ActiveValue) : null) ?? _uncontrolledStep;
 
-    internal string ActiveValue => NormalizeValueKey(ValueKey) ?? NormalizeValueKey(DefaultValueKey) ?? (Value ?? DefaultValue).ToString();
+    internal string ActiveValue => NormalizeValueKey(ValueKey) ?? (Value is { } value ? value.ToString() : _uncontrolledValueKey ?? _uncontrolledStep.ToString());
 
-    private bool HasValueKey => NormalizeValueKey(ValueKey) is not null || NormalizeValueKey(DefaultValueKey) is not null;
+    private bool HasValueKey => NormalizeValueKey(ValueKey) is not null || (Value is null && _uncontrolledValueKey is not null);
+
+    internal string IdPrefix => Id ?? _instanceId;
+
+    protected override void OnInitialized()
+    {
+        _uncontrolledStep = DefaultValue;
+        _uncontrolledValueKey = NormalizeValueKey(DefaultValueKey);
+        base.OnInitialized();
+    }
 
     internal string ResolvedOrientation => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
 
@@ -101,11 +113,14 @@
 
         var resolvedValue = GetStepValue(step, value);
 
-        if (Value is null)
-            DefaultValue = step;
+        if (IsStepActive(step, resolvedValue))
+            return;
 
-        if (NormalizeValueKey(ValueKey) is null && NormalizeValueKey(value) is not null)
-            DefaultValueKey = resolvedValue;
+        if (Value is null && NormalizeValueKey(ValueKey) is null)
+        {
+            _uncontrolledStep = step;
+            _uncontrolledValueKey = NormalizeValueKey(value);
+        }
 
         if (ValueChanged.HasDelegate)
             await ValueChanged.InvokeAsync(step);
@@ -121,7 +136,7 @@
         var resolvedValue = GetStepValue(step, value);
         var valueChanged = !_stepValues.TryGetValue(step, out var existingValue) || !string.Equals(existingValue, resolvedValue, StringComparison.Ordinal);
         var resolvesActiveStep = HasValueKey && GetStepForValue(ActiveValue) is null && string.Equals(resolvedValue, ActiveValue, StringComparison.Ordinal);
-        var fallbackActiveStep = Value ?? DefaultValue;
+        var fallbackActiveStep = Value ?? _uncontrolledStep;
 
         _stepValues[step] = resolvedValue;
         if (valueChanged) _stepValuesVersion++;
@@ -147,9 +162,12 @@
         _triggers[step] = element;
     }
 
+    internal void UnregisterTrigger(int step) => _triggers.Remove(step);
+
     internal async Task HandleTriggerKeyDown(int step, KeyboardEventArgs args)
     {
-        if (args.Key is not ("ArrowRight" or "ArrowDown" or "ArrowLeft" or "ArrowUp" or "Home" or "End" or "Enter" or " ")) return;
+        if (args.Key is not ("ArrowRight" or "ArrowDown" or "ArrowLeft" or "ArrowUp" or "Home" or "End")) return;
+        if (ResolvedOrientation == "vertical" ? args.Key is "ArrowRight" or "ArrowLeft" : args.Key is "ArrowDown" or "ArrowUp") return;
         var first = 0;
         var last = 0;
         var previous = 0;
@@ -204,7 +222,6 @@
             "ArrowLeft" or "ArrowUp" => hasPrevious ? previous : last,
             "Home" => first,
             "End" => last,
-            "Enter" or " " => step,
             _ => 0
         };
 
@@ -249,6 +266,8 @@
         hc.Add(CompletedIndicator);
         hc.Add(InactiveIndicator);
         hc.Add(LoadingIndicator);
+        hc.Add(_uncontrolledStep);
+        hc.Add(_uncontrolledValueKey);
     }
 
     private int? GetStepForValue(string value)

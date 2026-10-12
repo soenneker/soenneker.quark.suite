@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Threading
 @using Soenneker.Blazor.SignaturePads.Configuration
 @using Soenneker.Blazor.SignaturePads.Dtos
@@ -22,8 +23,8 @@
     private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.White;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private Func<Task>? _cachedHandleReadyDelegate;
 
@@ -31,7 +32,7 @@
 
     private Blazor.SignaturePads.SignaturePadCanvas? _canvas;
     private bool? _lastInteractionDisabled;
-    private bool _ready;
+    private ValueAtomicBool _ready;
 
     [Parameter]
     public double? DotSize { get; set; }
@@ -104,7 +105,7 @@
     private async Task ApplyInteractionState()
     {
         var interactionDisabled = Disabled || ReadOnly;
-        if (!_ready || _canvas is null || _lastInteractionDisabled == interactionDisabled)
+        if (!_ready.Value || _canvas is null || _lastInteractionDisabled == interactionDisabled)
             return;
 
         _lastInteractionDisabled = interactionDisabled;
@@ -117,7 +118,7 @@
 
     private async Task HandleReady()
     {
-        _ready = true;
+        _ready.Value = true;
         _lastInteractionDisabled = null;
         await ApplyInteractionState();
         if (OnReady.HasDelegate)

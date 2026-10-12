@@ -33,13 +33,14 @@
     private string? _patternString;
     private bool _hasPattern;
     private bool _hasInputPattern;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private FieldIdentifier _fieldIdentifier;
     private bool _hasFieldIdentifier;
     private CancellationTokenSource? _cts;
     private ValueAtomicBool _disposed;
     private EditContext? _messageEditContext;
     private ValidationMessageStore? _messageStore;
+    private Validations? _registeredValidations;
 
     /// <summary>
     /// Gets or sets the parent validations context.
@@ -148,22 +149,24 @@
 
     public bool ShouldShowInvalid => Status == ValidationStatus.Error && (ShowErrorsOnInput || _explicitlyValidated || _touched);
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (ParentValidations is not null)
-        {
-            ParentValidations.ClearingAll += OnClearingAll;
-            ParentValidations.NotifyValidationInitialized(this);
-        }
-
-        // Ensure validation CSS is available
-
-        await base.OnInitializedAsync();
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+
+        if (!ReferenceEquals(_registeredValidations, ParentValidations))
+        {
+            if (_registeredValidations is not null)
+            {
+                _registeredValidations.ClearingAll -= OnClearingAll;
+                _registeredValidations.NotifyValidationRemoved(this);
+            }
+            _registeredValidations = ParentValidations;
+            if (_registeredValidations is not null)
+            {
+                _registeredValidations.ClearingAll += OnClearingAll;
+                _registeredValidations.NotifyValidationInitialized(this);
+            }
+        }
 
         if (PatternString.HasContent())
         {
@@ -178,10 +181,10 @@
         ClearDataAnnotationMessages();
         CurrentFieldContext?.SetValidationInvalid(false);
 
-        if (ParentValidations is not null)
+        if (_registeredValidations is not null)
         {
-            ParentValidations.ClearingAll -= OnClearingAll;
-            ParentValidations.NotifyValidationRemoved(this);
+            _registeredValidations.ClearingAll -= OnClearingAll;
+            _registeredValidations.NotifyValidationRemoved(this);
         }
 
         var pending = _cts;
@@ -200,7 +203,20 @@
             await ValidateValue(input.ValidationValue!);
         }
 
-        _initialized = true;
+        if (ReferenceEquals(_input, input))
+            _initialized.Value = true;
+    }
+
+    internal void UnregisterInput(IValidationInput input)
+    {
+        if (!ReferenceEquals(_input, input))
+            return;
+        _input = null;
+        _lastKnownValue = null;
+        _initialized.Value = false;
+        _hasFieldIdentifier = false;
+        ClearInputPattern();
+        Clear();
     }
 
     public async Task InitializeInputPattern<T>(string pattern, T value, bool enablePatternValidation = false)
@@ -217,7 +233,7 @@
                 Pattern = new Regex(pattern);
 
                 if (_hasPattern && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false) &&
-                    _initialized)
+                    _initialized.Value)
                 {
                     await NotifyInputChanged(value, true);
                 }
@@ -250,15 +266,16 @@
     {
         if ((ParentValidations is not null || EditContext is not null) && expression is not null)
         {
-            if (!_hasFieldIdentifier || (ParentValidations?.Model is not null && !ReferenceEquals(ParentValidations.Model, _fieldIdentifier.Model)) ||
-                (EditContext?.Model is not null && !ReferenceEquals(EditContext.Model, _fieldIdentifier.Model)))
+            var fieldIdentifier = FieldIdentifier.Create(expression);
+            if (!_hasFieldIdentifier || !fieldIdentifier.Equals(_fieldIdentifier))
             {
-                _fieldIdentifier = FieldIdentifier.Create(expression);
+                ClearDataAnnotationMessages();
+                _fieldIdentifier = fieldIdentifier;
                 _lastKnownValue = expression.Compile(preferInterpretation: true)
                     .Invoke();
 
                 if (_hasFieldIdentifier && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
-                    (ParentValidations?.ValidateOnLoad ?? false) && _initialized)
+                    (ParentValidations?.ValidateOnLoad ?? false) && _initialized.Value)
                 {
                     await NotifyInputChanged(_lastKnownValue, true);
                 }
@@ -268,13 +285,14 @@
         }
         else
         {
+            ClearDataAnnotationMessages();
             _hasFieldIdentifier = false;
         }
     }
 
     public Task NotifyInputChanged<T>(T newValue, bool overrideNewValue = false)
     {
-        var newValidationValue = overrideNewValue ? newValue : _input?.ValidationValue;
+        var newValidationValue = overrideNewValue || _input is null ? newValue : _input.ValidationValue;
         _lastKnownValue = newValidationValue;
 
         if (EditContext is not null && _hasFieldIdentifier)
@@ -286,7 +304,7 @@
 
         if (mode == ValidationMode.Auto || _explicitlyValidated)
         {
-            return ValidateValue(newValidationValue!);
+            return ValidateValueCore(newValidationValue!, explicitlyValidated: false);
         }
 
         return Task.CompletedTask;
@@ -300,12 +318,13 @@
     public ValidationStatus Validate()
     {
         var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
-        _explicitlyValidated = true;
+        MarkExplicitlyValidated();
         return Validate(value);
     }
 
     public ValidationStatus Validate(object newValidationValue)
     {
+        MarkExplicitlyValidated();
         _cts?.Cancel();
         if (!_disposed.Read() && _input is not null && !_input.Disabled)
         {
@@ -321,12 +340,15 @@
         return ValidateValue(value);
     }
 
-    public async Task<ValidationStatus> ValidateValue(object newValidationValue)
+    public Task<ValidationStatus> ValidateValue(object newValidationValue) => ValidateValueCore(newValidationValue, explicitlyValidated: true);
+
+    private async Task<ValidationStatus> ValidateValueCore(object newValidationValue, bool explicitlyValidated)
     {
         if (_disposed.Read() || _input is null || _input.Disabled)
             return Status;
 
-        _explicitlyValidated = true;
+        if (explicitlyValidated)
+            MarkExplicitlyValidated();
         var handler = GetValidationHandler();
         // Arbitrary IValidator implementations may override async behavior. Only known
         // synchronous handlers/actions or explicitly synchronous validators bypass cancellation infrastructure.
@@ -420,6 +442,8 @@
     public void Clear()
     {
         _cts?.Cancel();
+        _explicitlyValidated = false;
+        _touched = false;
         ClearDataAnnotationMessages();
         NotifyValidationStatusChanged(ValidationStatus.None);
     }
@@ -474,6 +498,20 @@
             _touched = true;
             SyncFieldInvalidState();
             // Broadcast to update UI with same status but new gating
+            ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
+            InvokeAsync(_refreshCallback ??= StateHasChanged);
+        }
+    }
+
+    private void MarkExplicitlyValidated()
+    {
+        if (_explicitlyValidated)
+            return;
+        var wasVisible = ShouldShowInvalid;
+        _explicitlyValidated = true;
+        if (wasVisible != ShouldShowInvalid)
+        {
+            SyncFieldInvalidState();
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
             InvokeAsync(_refreshCallback ??= StateHasChanged);
         }

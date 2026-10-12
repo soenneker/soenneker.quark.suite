@@ -353,11 +353,11 @@
     private readonly List<string> _selectionScratch = [];
     private readonly Dictionary<string, NodeEditorNodeContext> _nodeContexts = new(StringComparer.Ordinal);
     private DotNetObjectReference<NodeEditor>? _dotNetReference;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed;
     private Task? _initializeTask;
     private int _lastInteropRefreshKey;
-    private bool _interopSynchronized;
+    private ValueAtomicBool _interopSynchronized;
     private int _changeVersion;
     private int _graphRenderKey;
     private int _graphInteropKey;
@@ -405,7 +405,7 @@
         base.BuildAttributesCore(attributes);
         attributes["tabindex"] = "0";
         attributes["aria-keyshortcuts"] = "Control+Z Meta+Z Control+Y Meta+Shift+Z Control+D Meta+D Control+C Meta+C Control+V Meta+V";
-        attributes["data-initialized"] = _initialized ? "true" : "false";
+        attributes["data-initialized"] = _initialized.Value ? "true" : "false";
         attributes["data-drop-target"] = "false";
 
         const string prefix = "quark-node-editor isolate focus-visible:ring-2 focus-visible:ring-ring";
@@ -425,16 +425,16 @@
             return;
         }
 
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var refreshKey = ComputeInteropRefreshKey();
-        if (_interopSynchronized && refreshKey == _lastInteropRefreshKey)
+        if (_interopSynchronized.Value && refreshKey == _lastInteropRefreshKey)
             return;
 
         await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
         _lastInteropRefreshKey = refreshKey;
-        _interopSynchronized = true;
+        _interopSynchronized.Value = true;
     }
 
     private async Task InitializeEditor()
@@ -442,9 +442,9 @@
         _dotNetReference = DotNetObjectReference.Create(this);
         await EditorInterop.Initialize(Id!, Options, _dotNetReference);
         await EditorInterop.Refresh(Id!, Options, SelectedNodeId, EffectiveSelectedNodeIds(), SelectedEdgeId);
-        _initialized = true;
+        _initialized.Value = true;
         _lastInteropRefreshKey = ComputeInteropRefreshKey();
-        _interopSynchronized = true;
+        _interopSynchronized.Value = true;
     }
 
     [JSInvokable]

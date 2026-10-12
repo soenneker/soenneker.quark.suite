@@ -21,13 +21,13 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
     private readonly object _operationSync = new();
     private CancellationTokenSource? _operationCancellationTokenSource;
     private int _version;
-    private bool _hasPendingValue;
+    private ValueAtomicBool _hasPendingValue;
     private TValue _pendingValue = default!;
     private ValueAtomicBool _disposed;
 
     public AutoSaveState State { get; private set; } = AutoSaveState.Idle;
 
-    public bool HasPendingValue => _hasPendingValue;
+    public bool HasPendingValue => _hasPendingValue.Value;
 
     public bool HasSaved { get; private set; }
 
@@ -40,14 +40,14 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
         if (!CanAutoSave(autoSave, onAutoSave))
         {
             await CancelOperation();
-            _hasPendingValue = false;
+            _hasPendingValue.Value = false;
             HasSaved = false;
             QueueSetState(AutoSaveState.Idle, autoSaveStateChanged, refreshAsync);
             return;
         }
 
         _pendingValue = value;
-        _hasPendingValue = true;
+        _hasPendingValue.Value = true;
 
         var delay = Math.Max(0, autoSaveDelay);
 
@@ -63,7 +63,7 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
     public Task Flush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed.Value || !_hasPendingValue)
+        if (_disposed.Value || !_hasPendingValue.Value)
             return Task.CompletedTask;
 
         var value = _pendingValue;
@@ -73,7 +73,7 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
     public void QueueFlush(TValue currentValue, bool autoSave, Func<TValue, CancellationToken, ValueTask>? onAutoSave,
         EventCallback<AutoSaveState> autoSaveStateChanged, Func<Task> refreshAsync)
     {
-        if (_disposed.Value || !_hasPendingValue || !CanAutoSave(autoSave, onAutoSave))
+        if (_disposed.Value || !_hasPendingValue.Value || !CanAutoSave(autoSave, onAutoSave))
             return;
 
         _ = RunQueuedFlush(currentValue, autoSave, onAutoSave, autoSaveStateChanged, refreshAsync);
@@ -124,7 +124,7 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
         if (!IsCurrent(version) || cancellationToken.IsCancellationRequested)
             return;
 
-        _hasPendingValue = false;
+        _hasPendingValue.Value = false;
         await SetState(AutoSaveState.Saving, autoSaveStateChanged, refreshAsync);
         var savingStarted = Environment.TickCount64;
 

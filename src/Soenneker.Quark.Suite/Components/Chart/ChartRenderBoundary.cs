@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -16,7 +17,7 @@ public sealed class ChartRenderBoundary : ComponentBase
 {
     private int _renderedVersion;
     private bool _hasRenderedVersion;
-    private bool _shouldRender;
+    private ValueAtomicBool _shouldRender;
 
     /// <summary>Gets or sets the generation of the static chart content.</summary>
     [Parameter]
@@ -28,16 +29,16 @@ public sealed class ChartRenderBoundary : ComponentBase
 
     protected override void OnParametersSet()
     {
-        _shouldRender = !_hasRenderedVersion || Version != _renderedVersion;
+        _shouldRender.Value = !_hasRenderedVersion || Version != _renderedVersion;
 
-        if (_shouldRender)
+        if (_shouldRender.Value)
         {
             _renderedVersion = Version;
             _hasRenderedVersion = true;
         }
     }
 
-    protected override bool ShouldRender() => _shouldRender;
+    protected override bool ShouldRender() => _shouldRender.Value;
 
     protected override void BuildRenderTree(RenderTreeBuilder builder) => builder.AddContent(0, ChildContent);
 }

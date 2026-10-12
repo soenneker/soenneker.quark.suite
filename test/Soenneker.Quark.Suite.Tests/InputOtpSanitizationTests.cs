@@ -9,6 +9,7 @@ public sealed class InputOtpSanitizationTests : BunitContext
     public InputOtpSanitizationTests()
     {
         Services.AddLogging();
+        Services.AddScoped<IInputInterop, InputSelectionTestInterop>();
         Services.AddDefaultQuarkOptionsAsScoped();
     }
 

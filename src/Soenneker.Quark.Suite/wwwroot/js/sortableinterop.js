@@ -57,7 +57,7 @@ export function initializeList(element, disabled, sort, animation, forceFallback
   const instance = new window.Sortable(element, options);
   element.__quarkSortable = instance;
   sortableInstances.set(element, instance);
-  registerKeyboardReorder(element, !!disabled, itemSelector || "[data-sortable-item]", handleSelector, notifyOnReorder, dotNetRef);
+  registerKeyboardReorder(element, !!disabled || sort === false, itemSelector || "[data-sortable-item]", handleSelector, notifyOnReorder, dotNetRef);
 }
 
 export function destroy(element) {
@@ -130,6 +130,7 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
     }
 
     const target = event.target;
+    if (!handleSelector && target?.closest?.("input, textarea, select, [contenteditable=true]")) return;
     const activeItem = target?.closest?.(itemSelector);
     if (!activeItem || !element.contains(activeItem) || isDisabledItem(activeItem)) {
       return;

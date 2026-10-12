@@ -28,10 +28,18 @@
         DataSlot ??= "card-img";
         Width ??= _defaultWidth;
 
-        if (AtTop)
-            Rounded ??= _defaultRounded2;
-        else if (AtBottom)
-            Rounded ??= _defaultRounded;
+    }
+
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (ResolvePresetValue(Rounded, AppliedPresetContext?.Rounded, nameof(Rounded)) is null)
+        {
+            if (AtTop)
+                AddCss<RoundedBuilder>(ref cls, _defaultRounded2);
+            else if (AtBottom)
+                AddCss<RoundedBuilder>(ref cls, _defaultRounded);
+        }
 
     }
 

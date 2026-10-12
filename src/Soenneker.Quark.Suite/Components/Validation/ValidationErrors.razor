@@ -29,16 +29,32 @@
     [Parameter]
     public bool ShowErrorMessages { get; set; } = true;
 
+    private Validations? _subscribedValidations;
     private bool _visible;
     private ValidationStatus _status = ValidationStatus.None;
     private IReadOnlyCollection<string>? _messages;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        if (ParentValidations is not null)
+        base.OnParametersSet();
+        UpdateParentSubscription();
+    }
+
+    private void UpdateParentSubscription()
+    {
+        if (ReferenceEquals(_subscribedValidations, ParentValidations)) return;
+        if (_subscribedValidations is not null)
         {
-            ParentValidations._statusChanged += OnStatusChanged;
-            ParentValidations.ClearingAll += OnClearingAll;
+            _subscribedValidations._statusChanged -= OnStatusChanged;
+            _subscribedValidations.ClearingAll -= OnClearingAll;
+        }
+        _subscribedValidations = ParentValidations;
+        _visible = false;
+        _status = ValidationStatus.None;
+        if (_subscribedValidations is not null)
+        {
+            _subscribedValidations._statusChanged += OnStatusChanged;
+            _subscribedValidations.ClearingAll += OnClearingAll;
         }
     }
 
@@ -85,10 +101,10 @@
     {
         await base.DisposeAsync();
 
-        if (ParentValidations is not null)
+        if (_subscribedValidations is not null)
         {
-            ParentValidations._statusChanged -= OnStatusChanged;
-            ParentValidations.ClearingAll -= OnClearingAll;
+            _subscribedValidations._statusChanged -= OnStatusChanged;
+            _subscribedValidations.ClearingAll -= OnClearingAll;
         }
         }
 

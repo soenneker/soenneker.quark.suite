@@ -1,17 +1,18 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Variant="@Variant" ButtonSize="@ButtonSize" Class="@BuildClass()" Attributes="@ActionAttributes">
+<Button Variant="@Variant" ButtonSize="@ButtonSize" Attributes="@BuildAttributes()">
     @ChildContent
 </Button>
 
 @code {
     private string? _composedClass;
     private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = Soenneker.Quark.ButtonSize.IconSm;
-    private static readonly IReadOnlyDictionary<string, object> ActionAttributes = new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "image-action"
-    };
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image-action";
+    }
 
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Secondary;
@@ -19,9 +20,10 @@
     [Parameter]
     public CssValue<ButtonSizeBuilder>? ButtonSize { get; set; } = _staticCss0;
 
-    private string BuildClass()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
         const string baseClass = "pointer-events-auto bg-background/90 shadow-xs backdrop-blur hover:bg-background";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : AppendToClass(baseClass, Class!, ref _composedClass);
+        PrependClassAttribute(attributes, baseClass, ref _composedClass);
     }
 }

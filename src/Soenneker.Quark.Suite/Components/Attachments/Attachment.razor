@@ -97,6 +97,12 @@
 
     private RenderFragment PreviewContent => _previewContent ??= builder =>
     {
+        if (Icon is not null)
+        {
+            builder.AddContent(0, Icon);
+            return;
+        }
+
         builder.OpenComponent<Icon>(0);
         builder.AddAttribute(1, "Name", GetPreviewIcon());
         builder.AddAttribute(2, "Class", Variant == "inline" ? "size-5" : "size-7");

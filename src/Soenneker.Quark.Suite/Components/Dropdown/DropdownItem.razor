@@ -96,7 +96,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        var variant = Variant.Equals("destructive", StringComparison.OrdinalIgnoreCase) ? "destructive" : "default";
+        var variant = string.Equals(Variant, "destructive", StringComparison.OrdinalIgnoreCase) ? "destructive" : "default";
         attributes["data-variant"] = variant;
         if (Indented)
             attributes["data-inset"] = "true";
@@ -131,9 +131,13 @@
         hc.Add(Variant);
     }
 
-    private Task HandleSelect()
+    private async Task HandleSelect()
     {
-        return Clicked.HasDelegate ? Clicked.InvokeAsync(new MouseEventArgs()) : Task.CompletedTask;
+        if (Disabled) return;
+        if (!Clicked.HasDelegate && !OnClick.HasDelegate) return;
+        var args = new MouseEventArgs();
+        if (Clicked.HasDelegate) await Clicked.InvokeAsync(args);
+        if (OnClick.HasDelegate) await OnClick.InvokeAsync(args);
     }
 
 }

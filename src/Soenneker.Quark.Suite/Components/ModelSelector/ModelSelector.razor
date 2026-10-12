@@ -32,15 +32,15 @@
                 </Span>
             </Button>
         </PopoverTrigger>
-        <PopoverContent Align="Alignment.Start" Class="@MenuClass">
+        <PopoverContent Align="@(RightAligned ? Alignment.End : Alignment.Start)" Class="@MenuClass">
             <Div DataSlot="model-selector-group">
                 <Div DataSlot="model-selector-label" Padding="_renderCss10" TextSize="_renderCss11" FontWeight="_renderCss12" TextColor="_renderCss13">Select model</Div>
-                <Div DataSlot="model-selector-radio-group">
+                <Div DataSlot="model-selector-radio-group" Role="group" AriaLabel="Select model">
                     @for (var optionIndex = 0; optionIndex < Options.Count; optionIndex++)
                     {
                         var view = GetOptionView(optionIndex);
                         var option = view.Option;
-                        <Button Type="@ButtonType.Button" DataSlot="model-selector-radio-item" Variant="ButtonVariant.Ghost" Width="_renderCss14" MinHeight='_renderCss15' Position="_renderCss16" Cursor="_renderCss17" ItemsAlign="_renderCss3" Justify="_renderCss18" Gap="_renderCss19" Rounded="_renderCss20" Padding='_renderCss21' TextAlign="_renderCss22" TextSize="_renderCss1" BackgroundColor="_renderCss23" TextColor="_renderCss24" OutlineStyle="_renderCss25" Transition="_renderCss26" Duration="_renderCss27" UserSelect="_renderCss28" @onclick="@view.Select">
+                        <Button Type="@ButtonType.Button" DataSlot="model-selector-radio-item" aria-pressed="@(IsSelected(option) ? "true" : "false")" Variant="ButtonVariant.Ghost" Width="_renderCss14" MinHeight='_renderCss15' Position="_renderCss16" Cursor="_renderCss17" ItemsAlign="_renderCss3" Justify="_renderCss18" Gap="_renderCss19" Rounded="_renderCss20" Padding='_renderCss21' TextAlign="_renderCss22" TextSize="_renderCss1" BackgroundColor="_renderCss23" TextColor="_renderCss24" OutlineStyle="_renderCss25" Transition="_renderCss26" Duration="_renderCss27" UserSelect="_renderCss28" @onclick="@view.Select">
                             <Span DataSlot="model-selector-item-icon" Display="_renderCss2" Shrink="_renderCss6" ItemsAlign="_renderCss3" Justify="_renderCss29">
                                 <Icon Name="@GetModelIcon(option)" Size="_renderCss5"/>
                             </Span>
@@ -236,6 +236,27 @@
             "Google" => LucideIcon.Sparkles,
             _ => LucideIcon.Circle
         };
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(_open);
+        hc.Add(Placeholder);
+        hc.Add(Label);
+        hc.Add(Description);
+        hc.Add(ShowLabel);
+        hc.Add(AriaLabel);
+        hc.Add(MenuClass);
+        hc.Add(RightAligned);
+        foreach (var option in Options)
+        {
+            hc.Add(option.Value);
+            hc.Add(option.Label);
+            hc.Add(option.Description);
+            hc.Add(option.Group);
+        }
     }
 
 }

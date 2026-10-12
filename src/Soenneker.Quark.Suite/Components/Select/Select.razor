@@ -10,7 +10,7 @@
 @implements ISelect<TValue>
 
 <CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
-    <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="true">
+    <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="false">
         @if (UsesAutoSaveStatusSlot)
         {
             <Div Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
@@ -196,6 +196,7 @@
 
     private async Task HandleBradixValueChanged(string? value)
     {
+        if (Disabled || ReadOnly) return;
         var nextValue = ResolveSelectedValue(value);
         var valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, nextValue);
 

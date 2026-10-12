@@ -33,7 +33,7 @@ internal static class ConsoleJsonFormatter
                         value.WriteTo(writer);
                     result ??= new StringBuilder(text.Length);
                     result.Append(text, copied, start - copied);
-                    result.Append(value.ValueKind == JsonValueKind.Object ? "{ … }" : "[ … ]");
+                    result.Append(value.ValueKind == JsonValueKind.Object ? "{ \u2026 }" : "[ \u2026 ]");
                     payloads.Add(Encoding.UTF8.GetString(stream.GetBuffer(), 0, checked((int)stream.Length)));
                     copied = end + 1;
                 }

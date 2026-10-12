@@ -238,13 +238,14 @@
     private string? _lastText;
     private string? _lastLanguage;
     private string? _lastTheme;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed;
     private Task? _initializationTask;
-    private bool _valueChanged;
-    private bool _copyStateChanged;
+    private ValueAtomicBool _valueChanged;
+    private ValueAtomicBool _copyStateChanged;
     private bool _themeIsAuto;
-    private bool _fileDropConfigured;
+    private ValueAtomicBool _fileDropConfigured;
+    private (bool ReadOnly, bool WordWrap, bool Minimap, bool AutoHeight, int? MinLines, int? MaxLines, string? AriaLabel)? _lastOptions;
     private string _copyButtonLabel = "Copy";
     private DotNetObjectReference<CodeEditor>? _themeCallbackRef;
     private DotNetObjectReference<CodeEditor>? _editorCallbackRef;
@@ -254,19 +255,19 @@
     [JSInvokable]
     public async Task OnThemeChanged(bool isDark)
     {
-        if (!_disposed.Read() && _themeIsAuto && _initialized)
+        if (!_disposed.Read() && _themeIsAuto && _initialized.Value)
             await CodeEditorInterop.SetTheme(GetAutoTheme(isDark));
     }
 
     [JSInvokable]
     public async Task OnCodeEditorTextChanged(string value)
     {
-        if (_disposed.Read() || string.Equals(Text, value, StringComparison.Ordinal))
+        if (_disposed.Read() || ReadOnly || Disabled || string.Equals(Text, value, StringComparison.Ordinal))
             return;
 
         Text = value;
         _lastText = value;
-        _valueChanged = true;
+        _valueChanged.Value = true;
         await TextChanged.InvokeAsync(value);
         await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
     }
@@ -281,7 +282,7 @@
             if (_disposed.Read())
                 return;
         }
-        else if (_initialized)
+        else if (_initialized.Value)
         {
             // OnParametersSet runs before the browser lays out visibility changes (e.g. DemoSection code panel
             // uses `hidden` on small viewports until "View Code"). Sync Monaco after paint.
@@ -291,19 +292,19 @@
                 await CodeEditorInterop.Layout(_container);
         }
 
-        if (_initialized && AllowFileDrop && !ReadOnly && !_fileDropConfigured)
+        if (_initialized.Value && AllowFileDrop && !ReadOnly && !Disabled && !_fileDropConfigured.Value)
         {
             await CodeEditorInterop.ConfigureFileDrop(_container, _dropZone, _fileInputId);
-            _fileDropConfigured = true;
+            _fileDropConfigured.Value = true;
         }
-        else if (_initialized && (!AllowFileDrop || ReadOnly) && _fileDropConfigured)
+        else if (_initialized.Value && (!AllowFileDrop || ReadOnly || Disabled) && _fileDropConfigured.Value)
         {
             await CodeEditorInterop.RemoveFileDrop(_container);
-            _fileDropConfigured = false;
+            _fileDropConfigured.Value = false;
         }
 
-        _valueChanged = false;
-        _copyStateChanged = false;
+        _valueChanged.Value = false;
+        _copyStateChanged.Value = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -327,13 +328,9 @@
         _editorCallbackRef = DotNetObjectReference.Create(this);
         await CodeEditorInterop.RegisterContentChangedCallback(_container, _editorCallbackRef);
 
-        // If auto-height is enabled, set up content change listener
-        if (AutoHeight)
-        {
-            await CodeEditorInterop.AddContentChangeListener(_container, MinLines, MaxLines);
-        }
+        await SynchronizeOptions();
 
-        _initialized = true;
+        _initialized.Value = true;
         _lastLanguage = Language;
         _lastTheme = Theme;
         _lastText = Text;
@@ -353,7 +350,7 @@
             Style = "height: 300px";
         }
 
-        if (_initialized)
+        if (_initialized.Value)
         {
 
             if (!string.Equals(Text, _lastText, StringComparison.Ordinal))
@@ -370,13 +367,26 @@
 
             if (!string.Equals(Theme, _lastTheme, StringComparison.OrdinalIgnoreCase))
             {
-                var effectiveTheme = string.Equals(Theme, "auto", StringComparison.OrdinalIgnoreCase)
+                _themeIsAuto = string.Equals(Theme, "auto", StringComparison.OrdinalIgnoreCase);
+                if (_themeIsAuto && _themeCallbackRef is null)
+                {
+                    await ThemeInterop.Initialize();
+                    _themeCallbackRef = DotNetObjectReference.Create(this);
+                    await CodeEditorInterop.RegisterThemeChangedCallback(_themeCallbackRef);
+                }
+                else if (!_themeIsAuto && _themeCallbackRef is not null)
+                {
+                    await CodeEditorInterop.UnregisterThemeChangedCallback(_themeCallbackRef);
+                    _themeCallbackRef.Dispose();
+                    _themeCallbackRef = null;
+                }
+                var effectiveTheme = _themeIsAuto
                     ? GetAutoTheme(await ThemeInterop.GetIsDark())
                     : Theme;
                 await CodeEditorInterop.SetTheme(effectiveTheme);
                 _lastTheme = Theme;
             }
-
+            await SynchronizeOptions();
         }
 
         await base.OnParametersSetAsync();
@@ -384,7 +394,16 @@
 
     protected override bool ShouldRender()
     {
-        return _valueChanged || _copyStateChanged || base.ShouldRender();
+        return _valueChanged.Value || _copyStateChanged.Value || base.ShouldRender();
+    }
+
+    private async Task SynchronizeOptions()
+    {
+        var options = (ReadOnly || Disabled, WordWrap, Minimap, AutoHeight, MinLines, MaxLines, AriaLabel);
+        if (_lastOptions == options)
+            return;
+        await CodeEditorInterop.UpdateOptions(_container, options.Item1, WordWrap, Minimap, AutoHeight, MinLines, MaxLines, AriaLabel);
+        _lastOptions = options;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
@@ -420,7 +439,7 @@
 
     private async Task HandleFilesDropped(InputFileChangeEventArgs args)
     {
-        if (_disposed.Read() || OnFilesDropped is null || args.FileCount == 0)
+        if (_disposed.Read() || ReadOnly || Disabled || !AllowFileDrop || OnFilesDropped is null || args.FileCount == 0)
             return;
 
         if (MaxDroppedFiles < 1)
@@ -534,7 +553,7 @@
             return;
         try
         {
-            var value = _initialized
+            var value = _initialized.Value
                 ? await CodeEditorInterop.GetValue(_container)
                 : Text;
 
@@ -545,7 +564,7 @@
             if (_disposed.Read())
                 return;
             _copyButtonLabel = "Copied!";
-            _copyStateChanged = true;
+            _copyStateChanged.Value = true;
             StateHasChanged();
 
             await Task.Delay(1500, _disposeCts.Token);
@@ -553,13 +572,13 @@
                 return;
 
             _copyButtonLabel = "Copy";
-            _copyStateChanged = true;
+            _copyStateChanged.Value = true;
             StateHasChanged();
         }
         catch
         {
             _copyButtonLabel = "Copy";
-            _copyStateChanged = true;
+            _copyStateChanged.Value = true;
         }
     }
 

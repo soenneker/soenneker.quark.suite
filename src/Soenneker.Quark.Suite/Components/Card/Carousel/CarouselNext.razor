@@ -73,14 +73,11 @@
             _subscribedCarousel.StateChanged += OnCarouselStateChanged;
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        base.BuildAttributesCore(attributes);
-
-
-        var horizontal = ParentCarousel?.IsVertical != true;
-
-
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCarousel?.IsVertical);
+        hc.Add(ParentCarousel?.CanScrollNext);
     }
 
     private void OnCarouselStateChanged()

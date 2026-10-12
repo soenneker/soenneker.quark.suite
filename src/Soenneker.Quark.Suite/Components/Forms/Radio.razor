@@ -1,3 +1,5 @@
+@using Soenneker.Atomics.ValueBools
+@using System.Linq.Expressions
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
 
@@ -55,8 +57,7 @@ else
                     @attributes="BuildInputAttributes()"
                     @onclick="(_cachedHandleInputClickDelegate ??= HandleInputClick)"
                     @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
-                    @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
-                    @onkeydown:preventDefault="_preventDefault" />
+                    @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" />
                 <Span @attributes="BuildIndicatorAttributes()">
                     @if (EffectiveChecked)
                     {
@@ -75,8 +76,7 @@ else
                 @attributes="BuildInputAttributes()"
                 @onclick="(_cachedHandleInputClickDelegate ??= HandleInputClick)"
                 @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
-                @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
-                @onkeydown:preventDefault="_preventDefault" />
+                @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" />
             <Span @attributes="BuildIndicatorAttributes()">
                 @if (EffectiveChecked)
                 {
@@ -118,6 +118,7 @@ else
 
     private string? _lastBuiltClass;
     private string? _lastPrependedClass;
+    private string? _groupedItemClass;
 
     private Func<MouseEventArgs, Task>? _cachedHandleInputClickDelegate;
     private Func<ChangeEventArgs, Task>? _cachedHandleChangeDelegate;
@@ -154,7 +155,7 @@ else
     [CascadingParameter(Name = "ParentRadioGroup")]
     public RadioGroup? ParentRadioGroup { get; set; }
 
-    private bool _preventDefault;
+
     private QuarkAttributeDictionary _wrapperAttributeDictionaries;
     private QuarkAttributeDictionary _labelAttributeDictionaries;
     private QuarkAttributeDictionary _inputAttributeDictionaries;
@@ -204,17 +205,44 @@ else
             Id = _generatedId = BlazorIdGenerator.New("quark-radio");
     }
 
+    private Validation? _subscribedValidation;
+    private Expression<Func<bool>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
+        {
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
+            }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        if (validation is null)
+            return;
+        var expression = ParentRadioGroup is null ? CheckedExpression : null;
+        if (!ReferenceEquals(_registeredValidationExpression, expression))
+        {
+            _registeredValidationExpression = expression;
+            await validation.InitializeInputExpression(expression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
-        {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-            await ParentValidation.InitializeInput(this);
-
-            if (ParentRadioGroup is null && CheckedExpression is not null)
-                await ParentValidation.InitializeInputExpression(CheckedExpression);
-        }
-
         if (ParentRadioGroup is not null)
         {
             if (!_hasObservedGroupedCheckedState)
@@ -322,13 +350,6 @@ else
         }
     }
 
-    protected override Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        _preventDefault = ParentRadioGroup is null &&
-                          e.Key is "Home" or "End" or "ArrowLeft" or "ArrowRight" or "ArrowUp" or "ArrowDown";
-
-        return base.HandleKeyDown(e);
-    }
 
     private const string _shadcnRadioItemBase =
         "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary";
@@ -345,6 +366,8 @@ else
     private Dictionary<string, object> BuildInputAttributes()
     {
         var attributes = _inputAttributeDictionaries.Create(12 + (Attributes?.Count ?? 0));
+        foreach (var attribute in base.BuildAttributes())
+            attributes[attribute.Key] = attribute.Value;
         attributes["id"] = ControlId;
         attributes["type"] = "radio";
         attributes["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId;
@@ -361,20 +384,6 @@ else
 
         if (EffectiveDisabled)
             attributes["disabled"] = QuarkAttributeValues.True;
-
-        if (Attributes is not null)
-        {
-            foreach (var attribute in Attributes)
-            {
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
 
         PrependClassAttribute(attributes, "peer sr-only", ref _lastPrependedClass);
 
@@ -401,41 +410,24 @@ else
     private Dictionary<string, object> BuildGroupedItemAttributes()
     {
         var attributes = _groupedItemAttributeDictionaries.Create(4 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
+        foreach (var attribute in base.BuildAttributes())
+            attributes[attribute.Key] = attribute.Value;
+        attributes.Remove("type");
+        attributes.Remove("role");
+        attributes.Remove("aria-checked");
+        attributes.Remove("data-state");
+        attributes.Remove("disabled");
+        attributes.Remove("name");
+        attributes.Remove("value");
+        attributes.Remove("checked");
+        attributes.Remove("onclick");
+        attributes.Remove("onchange");
+        attributes.Remove("onkeydown");
+        attributes.Remove("onfocus");
         attributes["data-slot"] = "radio-group-item";
-
-        attributes["class"] = GetRadioItemClass();
-
-        ApplyGroupedPassthroughAttributes(attributes, AdditionalAttributes);
-        ApplyGroupedPassthroughAttributes(attributes, Attributes);
+        PrependClassAttribute(attributes, GetRadioItemClass(), ref _groupedItemClass);
 
         return attributes;
-    }
-
-    private static void ApplyGroupedPassthroughAttributes(Dictionary<string, object> target, IReadOnlyDictionary<string, object>? source)
-    {
-        if (source is null)
-            return;
-
-        foreach (var attribute in source)
-        {
-            if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("id", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("checked", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("onkeydown", StringComparison.OrdinalIgnoreCase) ||
-                attribute.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            target[attribute.Key] = attribute.Value;
-        }
     }
 
     private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorAttributes() => GroupedIndicatorAttributes;
@@ -465,8 +457,14 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
         await base.DisposeAsync();
     }
 }

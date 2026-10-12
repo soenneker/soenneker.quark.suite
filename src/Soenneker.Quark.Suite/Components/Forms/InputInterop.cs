@@ -9,7 +9,6 @@ using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IInputInterop"/>
 public sealed class InputInterop : IInputInterop
 {
     private readonly string _modulePath;
@@ -40,6 +39,46 @@ public sealed class InputInterop : IInputInterop
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return QuarkInteropJson.Deserialize(await module.InvokeAsync<JsonElement?>("getSelection", linked, input),
                 QuarkInteropJsonContext.Default.InputSelectionSnapshot);
+        }
+    }
+
+    public async ValueTask RegisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("registerComboboxKeys", linked, input);
+        }
+    }
+
+    public async ValueTask RegisterTagInputKeys(ElementReference input, string[] delimiters, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("registerTagInputKeys", linked, input, delimiters);
+        }
+    }
+
+    public async ValueTask RegisterNavigationKeys(ElementReference element, string[] keys, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("registerNavigationKeys", linked, element, keys);
+        }
+    }
+
+    public async ValueTask UnregisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("unregisterComboboxKeys", linked, input);
         }
     }
 

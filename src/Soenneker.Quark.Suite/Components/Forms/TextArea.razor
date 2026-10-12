@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Utils.PooledStringBuilders
 @using System.Linq.Expressions
 @using System.Threading
@@ -99,8 +100,8 @@ else
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is2;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
@@ -219,23 +220,47 @@ else
         }
     }
 
+    private Validation? _subscribedValidation;
+    private Expression<Func<string?>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
+        {
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
+            }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        if (validation is null)
+            return;
+        if (!ReferenceEquals(_registeredValidationExpression, ValueExpression))
+        {
+            _registeredValidationExpression = ValueExpression;
+            await validation.InitializeInputExpression(ValueExpression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-
         if (firstRender)
         {
             InputGroupContext?.RegisterControl(_elementRef);
             await InputInterop.Initialize();
-        }
-
-        if (firstRender && ParentValidation is not null)
-        {
-            await ParentValidation.InitializeInput(this);
-
-            if (ValueExpression is not null)
-                await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await RestorePendingSelection();
@@ -254,6 +279,7 @@ else
 
     private async Task HandleInputValueChanged(string? next)
     {
+        if (Disabled || ReadOnly || _validationDisposed.Value) return;
         var valueChanged = !string.Equals(Value, next, StringComparison.Ordinal);
 
         if (valueChanged)
@@ -298,6 +324,7 @@ else
 
     private async Task HandleChange(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly || _validationDisposed.Value) return;
         var next = e.Value?.ToString();
         var valueChanged = !string.Equals(Value, next, StringComparison.Ordinal);
         Value = next;
@@ -423,8 +450,14 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
     }

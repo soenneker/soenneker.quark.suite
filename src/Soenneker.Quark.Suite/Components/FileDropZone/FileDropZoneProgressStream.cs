@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.IO;
 using System.Threading;
@@ -9,7 +10,7 @@ internal sealed class FileDropZoneProgressStream(Stream inner, FileDropZoneUploa
 {
     private long _loadedBytes;
     private int? _lastPercent;
-    private bool _reported;
+    private ValueAtomicBool _reported;
 
     public override bool CanRead => inner.CanRead;
     public override bool CanSeek => false;
@@ -44,11 +45,11 @@ internal sealed class FileDropZoneProgressStream(Stream inner, FileDropZoneUploa
                 : _loadedBytes <= long.MaxValue / 100 ? (int)(_loadedBytes * 100 / totalBytes)
                 : (int)Math.Min(100m, (decimal)_loadedBytes * 100 / totalBytes)
             : null;
-        if (!_reported || percent != _lastPercent)
+        if (!_reported.Value || percent != _lastPercent)
         {
             await request.ReportUploadProgress(percent);
             _lastPercent = percent;
-            _reported = true;
+            _reported.Value = true;
         }
 
         return bytesRead;

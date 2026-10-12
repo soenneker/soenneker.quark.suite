@@ -7,6 +7,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using QuarkThread = Soenneker.Quark.Thread;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -17,6 +18,9 @@ public sealed class LeafLifecycleTests : BunitContext
     {
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddResourceLoaderAsScoped();
+        var resources = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        resources.SetupVoid("loadStyle", _ => true).SetVoidResult();
     }
 
     [Test]
@@ -53,21 +57,22 @@ public sealed class LeafLifecycleTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Thread_initialization_finishing_after_disposal_is_destroyed_again(CancellationToken cancellationToken)
+    public async ValueTask Thread_initialization_finishing_during_disposal_is_destroyed(CancellationToken cancellationToken)
     {
         var interop = new PendingThreadInterop();
         Services.AddSingleton<IThreadsInterop>(interop);
         var cut = Render<QuarkThread>();
         interop.Reference.Should().NotBeNull();
-        await cut.Instance.DisposeAsync();
-        interop.Removals.Should().Be(1);
+        var disposal = cut.Instance.DisposeAsync().AsTask();
+        disposal.IsCompleted.Should().BeFalse();
+        interop.Removals.Should().Be(0);
         interop.Completion.SetResult();
-        await interop.RemovedAfterRegistration.Task.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
-        interop.Removals.Should().Be(2);
+        await disposal.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken: cancellationToken);
+        interop.Removals.Should().Be(1);
         Action access = () => _ = interop.Reference!.Value;
         access.Should().Throw<ObjectDisposedException>();
         await cut.Instance.DisposeAsync();
-        interop.Removals.Should().Be(2);
+        interop.Removals.Should().Be(1);
     }
 
     private sealed class PendingPromptInterop : IPromptInputInterop
@@ -96,7 +101,6 @@ public sealed class LeafLifecycleTests : BunitContext
     private sealed class PendingThreadInterop : IThreadsInterop
     {
         public TaskCompletionSource Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        public TaskCompletionSource RemovedAfterRegistration { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public DotNetObjectReference<QuarkThread>? Reference { get; private set; }
         public int Removals { get; private set; }
         public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -109,8 +113,6 @@ public sealed class LeafLifecycleTests : BunitContext
         public ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default)
         {
             Removals++;
-            if (Removals == 2)
-                RemovedAfterRegistration.TrySetResult();
             return ValueTask.CompletedTask;
         }
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

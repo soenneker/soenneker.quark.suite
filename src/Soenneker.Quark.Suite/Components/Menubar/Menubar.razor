@@ -6,6 +6,7 @@
 
 <CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
     <BradixMenubar Value="@_openMenuValue"
+                   Dir="@GetResolvedDirection()"
                    ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
                    AdditionalAttributes="@MenubarAttributes">
         @ChildContent
@@ -33,6 +34,9 @@
 
     private string GetResolvedDirection()
     {
+        if (Dir.HasContent())
+            return Dir!;
+
         if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
             return "rtl";
 

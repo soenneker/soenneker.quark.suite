@@ -1,4 +1,6 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
+@inject IInputInterop InputInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElementBase
@@ -79,7 +81,13 @@
     private string[] _expandedPath = [];
     private int _focusedColumn;
     private int _focusedIndex;
-    private bool _preventKeyDefault;
+    private ValueAtomicBool _focusPending;
+    private ValueAtomicBool _disposed;
+    private ValueAtomicBool _keysRegistered;
+    private ElementReference _contentRef;
+    private ElementReference _registeredContent;
+    private Action<ElementReference>? _captureContent;
+    private static readonly string[] NavigationKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Enter", " ", "Backspace"];
     private IReadOnlyList<CascaderOption> _selectedOptionsCache = [];
     private IReadOnlyList<string> _selectedLabelsCache = [];
     private IReadOnlyList<IReadOnlyList<CascaderOption>> _columnsCache = [];
@@ -91,6 +99,9 @@
     private static readonly object OptionChevronMargin = (CssValue<MarginBuilder>) Quark.Margin.FromLeft.Is2;
     private static readonly object OptionChevronShrink = (CssValue<ShrinkBuilder>) Quark.Shrink.Is0;
     private static readonly object OptionChevronOpacity = (CssValue<OpacityBuilder>) Quark.Opacity.Is50;
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
 
     [Parameter]
     public IReadOnlyList<CascaderOption> Options { get; set; } = [];
@@ -168,6 +179,7 @@
         builder.AddAttribute(2, "class", "flex");
         builder.AddAttribute(3, "role", "listbox");
         builder.AddAttribute(4, "aria-label", Placeholder);
+        builder.AddElementReferenceCapture(4, _captureContent ??= element => _contentRef = element);
 
         for (var columnIndex = 0; columnIndex < columns.Count; columnIndex++)
         {
@@ -207,13 +219,13 @@
                 if (option.HasChildren)
                     builder.AddAttribute(16, "aria-expanded", isExpanded ? "true" : "false");
 
-                builder.AddAttribute(17, "tabindex", _focusedColumn == columnIndex && _focusedIndex == itemIndex && _open ? 0 : -1);
+                builder.AddAttribute(17, "tabindex", _focusedColumn == columnIndex && _focusedIndex == itemIndex && _open && !option.Disabled ? 0 : -1);
                 builder.AddAttribute(18, "class", GetOptionClass(isSelected, isExpanded, option.Disabled));
                 builder.AddAttribute(19, "onclick", handlers.Click);
                 builder.AddAttribute(20, "onmouseenter", handlers.MouseEnter);
                 builder.AddAttribute(21, "onfocus", handlers.Focus);
                 builder.AddAttribute(22, "onkeydown", handlers.KeyDown);
-                builder.AddAttribute(23, "onkeydown:preventDefault", _preventKeyDefault);
+                builder.AddElementReferenceCapture(23, handlers.CaptureElement);
 
                 builder.OpenElement(24, "span");
                 builder.AddAttribute(25, "class", "truncate");
@@ -252,6 +264,7 @@
 
     private async Task HandleOpenChanged(bool open)
     {
+        if (open && Disabled) return;
         _open = open;
 
         if (open)
@@ -259,7 +272,8 @@
             var currentValue = CurrentValue;
             _expandedPath = currentValue.Length > 1 ? currentValue[..^1] : currentValue;
             _focusedColumn = 0;
-            _focusedIndex = 0;
+            _focusedIndex = FindEnabledIndex(Options, 0, 1);
+            _focusPending.Value = true;
         }
         else
         {
@@ -280,7 +294,8 @@
         {
             _expandedPath = nextPath;
             _focusedColumn = columnIndex + 1;
-            _focusedIndex = 0;
+            _focusedIndex = FindEnabledIndex(option.Children, 0, 1);
+            _focusPending.Value = true;
             await RefreshOffThread();
             return;
         }
@@ -290,7 +305,7 @@
 
     private async Task ExpandOnHover(CascaderOption option, int columnIndex)
     {
-        if (ExpandTrigger != CascaderExpandTrigger.Hover || !option.HasChildren || option.Disabled)
+        if (Disabled || ReadOnly || ExpandTrigger != CascaderExpandTrigger.Hover || !option.HasChildren || option.Disabled)
             return;
 
         _expandedPath = BuildPath(columnIndex, option.Value);
@@ -306,42 +321,66 @@
 
     private async Task HandleOptionKeyDown(KeyboardEventArgs args, CascaderOption option, int columnIndex, int itemIndex)
     {
-        _preventKeyDefault = args.Key is "ArrowDown" or "ArrowUp" or "ArrowRight" or "ArrowLeft" or "Enter" or "Escape" or "Backspace";
-
+        if (Disabled || ReadOnly || args.AltKey || args.CtrlKey || args.MetaKey)
+            return;
         var columns = GetColumns();
+        if (columnIndex < 0 || columnIndex >= columns.Count) return;
         var column = columns[columnIndex];
-
-        switch (args.Key)
+        _focusedColumn = columnIndex;
+        _focusedIndex = itemIndex;
+        var key = args.Key;
+        if (string.Equals(Dir ?? DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            key = key == "ArrowLeft" ? "ArrowRight" : key == "ArrowRight" ? "ArrowLeft" : key;
+        switch (key)
         {
             case "ArrowDown":
-                _focusedIndex = Math.Min(itemIndex + 1, column.Count - 1);
+                _focusedIndex = FindEnabledIndex(column, itemIndex + 1, 1, itemIndex);
                 break;
             case "ArrowUp":
-                _focusedIndex = Math.Max(itemIndex - 1, 0);
+                _focusedIndex = FindEnabledIndex(column, itemIndex - 1, -1, itemIndex);
+                break;
+            case "Home":
+                _focusedIndex = FindEnabledIndex(column, 0, 1, itemIndex);
+                break;
+            case "End":
+                _focusedIndex = FindEnabledIndex(column, column.Count - 1, -1, itemIndex);
                 break;
             case "ArrowRight":
-                if (option.HasChildren)
-                    await SelectOption(option, columnIndex);
+                if (option.HasChildren) await SelectOption(option, columnIndex);
                 break;
             case "Enter":
+            case " ":
                 await SelectOption(option, columnIndex);
                 break;
             case "ArrowLeft":
             case "Backspace":
                 if (columnIndex > 0)
                 {
+                    var parentValue = _expandedPath[columnIndex - 1];
                     _expandedPath = BuildPath(columnIndex - 1);
                     _focusedColumn = columnIndex - 1;
                     _focusedIndex = 0;
+                    var parentColumn = columns[_focusedColumn];
+                    for (var index = 0; index < parentColumn.Count; index++)
+                        if (parentColumn[index].Value == parentValue) { _focusedIndex = index; break; }
                 }
                 break;
             case "Escape":
                 _open = false;
                 _expandedPath = [];
                 break;
+            default:
+                return;
         }
-
+        _focusPending.Value = _open;
         await RefreshOffThread();
+    }
+
+    private static int FindEnabledIndex(IReadOnlyList<CascaderOption> options, int start, int direction, int fallback = -1)
+    {
+        for (var index = start; index >= 0 && index < options.Count; index += direction)
+            if (!options[index].Disabled) return index;
+        return fallback;
     }
 
     private async Task ClearSelection()
@@ -581,4 +620,40 @@
         hc.Add(Disabled);
         hc.Add(ReadOnly);
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_disposed.Value) return;
+        if (_keysRegistered.Value && (!_open || !_registeredContent.Equals(_contentRef)))
+        {
+            await InputInterop.UnregisterComboboxKeys(_registeredContent);
+            _keysRegistered.Value = false;
+        }
+        if (_open && !_keysRegistered.Value)
+        {
+            var content = _contentRef;
+            await InputInterop.RegisterNavigationKeys(content, NavigationKeys);
+            if (_disposed.Value) { await InputInterop.UnregisterComboboxKeys(content); return; }
+            _registeredContent = content;
+            _keysRegistered.Value = true;
+        }
+        if (!_focusPending.Value || !_open) return;
+        _focusPending.Value = false;
+        var columns = GetColumns();
+        if (_focusedColumn >= 0 && _focusedColumn < columns.Count && _focusedIndex >= 0 && _focusedIndex < columns[_focusedColumn].Count &&
+            _optionHandlers?.TryGetValue((columns[_focusedColumn][_focusedIndex], _focusedColumn, _focusedIndex), out var handler) == true)
+            await handler.Element.FocusAsync();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_disposed.TrySetTrue())
+            return;
+        try
+        {
+            if (_keysRegistered.Value) await InputInterop.UnregisterComboboxKeys(_registeredContent);
+        }
+        finally { await base.DisposeAsync(); }
+    }
+
 }

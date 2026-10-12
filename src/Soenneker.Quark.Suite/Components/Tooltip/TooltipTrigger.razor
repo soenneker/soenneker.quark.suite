@@ -9,7 +9,9 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
+        <CascadingValue Name="@SlotAttributes.Name" Value="BuildAttributes()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 }
 else
@@ -28,17 +30,23 @@ else
         DataSlot ??= "tooltip-trigger";
     }
 
-    private bool _hasPointerMoveOpened;
-    private bool _pointerDown;
+    private ValueAtomicBool _hasPointerMoveOpened;
+    private ValueAtomicBool _pointerDown;
     private ElementReference _triggerElement;
     private DotNetObjectReference<TooltipTrigger>? _dotNetReference;
-    private bool _triggerRegistered;
+    private ValueAtomicBool _triggerRegistered;
 
     [CascadingParameter]
     private BradixTooltip? Tooltip { get; set; }
 
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? ParentTriggerContext { get; set; }
+
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+
+    private string? _slotClass;
+    private string? _slotStyle;
 
     [Parameter]
     public bool AsChild { get; set; }
@@ -58,7 +66,7 @@ else
             return;
         try
         {
-            if (_triggerRegistered)
+            if (_triggerRegistered.Value)
                 await Interop.UnregisterTooltipTrigger(_triggerElement);
         }
         finally
@@ -96,6 +104,7 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
 
 
         if (ParentTriggerContext?.TriggerId is not null)
@@ -143,6 +152,7 @@ else
         {
             DataSlot = ParentTriggerContext?.DataSlot ?? "tooltip-trigger",
             TriggerId = ParentTriggerContext?.TriggerId,
+            ParentDisabled = ParentTriggerContext?.ParentDisabled == true,
             IsOpen = ParentTriggerContext?.AriaControls is not null ? ParentTriggerContext.IsOpen : Tooltip?.CurrentOpen == true,
             DataState = ParentTriggerContext?.AriaControls is not null
                 ? ParentTriggerContext.IsOpen ? "open" : "closed"
@@ -152,6 +162,7 @@ else
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
             SuppressClickAfterPointerDown = ParentTriggerContext?.SuppressClickAfterPointerDown == true,
+            PreventPointerDownDefault = ParentTriggerContext?.PreventPointerDownDefault == true,
             OnClick = (_contextOnClickCallback ??= HandleTriggerClick),
             OnPointerMove = (_contextOnPointerMoveCallback ??= HandleTriggerPointerMove),
             OnPointerLeave = (_contextOnPointerLeaveCallback ??= HandleTriggerPointerLeave),
@@ -163,24 +174,23 @@ else
             OnMouseMove = (_contextOnMouseMoveCallback ??= HandleTriggerMouseMove),
             OnMouseLeave = (_contextOnMouseLeaveCallback ??= HandleTriggerMouseLeave),
             OnFocusIn = (_contextOnFocusInCallback ??= HandleTriggerFocusIn),
-            OnFocusOut = Tooltip is null ? null : (_contextOnFocusOutCallback ??= () => Tooltip.HandleTriggerBlur()),
-            OnKeyDown = Tooltip is null ? null : (_contextOnKeyDownCallback ??= e => HandleTriggerKeyDownCore(e, Tooltip)),
-            RegisterElement = Tooltip is null
-                ? null
-                : (_contextRegisterElementCallback ??= elementReference => _ = InvokeAsync(() => HandleTriggerElementRegistered(elementReference)))
+            OnFocusOut = (_contextOnFocusOutCallback ??= HandleTriggerFocusOut),
+            OnKeyDown = (_contextOnKeyDownCallback ??= HandleTriggerKeyDown),
+            RegisterElement = (_contextRegisterElementCallback ??= elementReference => _ = InvokeAsync(() => HandleTriggerElementRegistered(elementReference)))
         };
     }
 
     private async Task HandleTriggerElementRegistered(ElementReference elementReference)
     {
         _triggerElement = elementReference;
+        ParentTriggerContext?.RegisterElement?.Invoke(elementReference);
         Tooltip?.RegisterTrigger(elementReference);
         await EnsureTriggerRegistered();
     }
 
     private async Task EnsureTriggerRegistered()
     {
-        if (_disposed.Read() || _triggerRegistered || Tooltip is null || _triggerElement.Context is null)
+        if (_disposed.Read() || _triggerRegistered.Value || Tooltip is null || _triggerElement.Context is null)
             return;
 
         _dotNetReference ??= DotNetObjectReference.Create(this);
@@ -191,7 +201,7 @@ else
             return;
         }
 
-        _triggerRegistered = true;
+        _triggerRegistered.Value = true;
     }
 
     private string? _combinedDescribedBy;
@@ -209,26 +219,38 @@ else
         return QuarkStringCache.Concat(parentDescribedBy, " ", tooltipId, ref _combinedDescribedBy);
     }
 
-    private Task HandleTriggerPointerMove()
+    private async Task HandleTriggerPointerMove()
     {
-        if (Tooltip is null || _hasPointerMoveOpened || ShouldBlockOpenFromPointerTransit())
-            return Task.CompletedTask;
+        if (ParentTriggerContext?.OnPointerMove is not null)
+            await ParentTriggerContext.OnPointerMove();
 
-        _hasPointerMoveOpened = true;
-        return Tooltip.HandleTriggerEnter();
+        if (Tooltip is null || _hasPointerMoveOpened.Value || ShouldBlockOpenFromPointerTransit())
+            return;
+
+        _hasPointerMoveOpened.Value = true;
+        await Tooltip.HandleTriggerEnter();
     }
 
-    private Task HandleTriggerMouseEnter()
+    private async Task HandleTriggerMouseEnter()
     {
-        return HandleTriggerMouseMove();
+        if (ParentTriggerContext?.OnMouseEnter is not null)
+            await ParentTriggerContext.OnMouseEnter();
+        await OpenFromMouse();
     }
 
-    private Task HandleTriggerMouseMove()
+    private async Task HandleTriggerMouseMove()
     {
-        if (Tooltip is null || _hasPointerMoveOpened || ShouldBlockOpenFromPointerTransit())
+        if (ParentTriggerContext?.OnMouseMove is not null)
+            await ParentTriggerContext.OnMouseMove();
+        await OpenFromMouse();
+    }
+
+    private Task OpenFromMouse()
+    {
+        if (Tooltip is null || _hasPointerMoveOpened.Value || ShouldBlockOpenFromPointerTransit())
             return Task.CompletedTask;
 
-        _hasPointerMoveOpened = true;
+        _hasPointerMoveOpened.Value = true;
         return Tooltip.HandleTriggerEnter();
     }
 
@@ -239,23 +261,29 @@ else
                Tooltip.ShouldBlockTriggerHoverOpen;
     }
 
-    private Task HandleTriggerMouseLeave()
+    private async Task HandleTriggerMouseLeave()
     {
-        _hasPointerMoveOpened = false;
+        _hasPointerMoveOpened.Value = false;
 
-        return Tooltip?.HandleTriggerLeave() ?? Task.CompletedTask;
+        if (ParentTriggerContext?.OnMouseLeave is not null)
+            await ParentTriggerContext.OnMouseLeave();
+        if (Tooltip is not null)
+            await Tooltip.HandleTriggerLeave();
     }
 
-    private Task HandleTriggerPointerLeave()
+    private async Task HandleTriggerPointerLeave()
     {
-        _hasPointerMoveOpened = false;
+        _hasPointerMoveOpened.Value = false;
 
-        return Tooltip?.HandleTriggerLeave() ?? Task.CompletedTask;
+        if (ParentTriggerContext?.OnPointerLeave is not null)
+            await ParentTriggerContext.OnPointerLeave();
+        if (Tooltip is not null)
+            await Tooltip.HandleTriggerLeave();
     }
 
     private async Task HandleTriggerPointerDown(PointerEventArgs args)
     {
-        _pointerDown = true;
+        _pointerDown.Value = true;
 
         if (Tooltip is not null)
             await Tooltip.Close();
@@ -270,37 +298,50 @@ else
             await ParentTriggerContext.OnPointerDown();
     }
 
-    private Task HandleTriggerPointerUp()
+    private async Task HandleTriggerPointerUp()
     {
-        _pointerDown = false;
-        return Task.CompletedTask;
+        _pointerDown.Value = false;
+        if (ParentTriggerContext?.OnPointerUp is not null)
+            await ParentTriggerContext.OnPointerUp();
     }
 
-    private Task HandleTriggerFocusIn()
+    private async Task HandleTriggerFocusIn()
     {
-        return Tooltip is null
-            ? Task.CompletedTask
-            : Tooltip.HandleTriggerFocus(_pointerDown);
+        if (ParentTriggerContext?.OnFocusIn is not null)
+            await ParentTriggerContext.OnFocusIn();
+        if (Tooltip is not null)
+            await Tooltip.HandleTriggerFocus(_pointerDown.Value);
     }
 
-    private static Task HandleTriggerKeyDownCore(KeyboardEventArgs e, BradixTooltip tooltip)
+    private async Task HandleTriggerFocusOut()
     {
-        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && tooltip.CurrentOpen)
-            return tooltip.Close();
-
-        return Task.CompletedTask;
+        if (ParentTriggerContext?.OnFocusOut is not null)
+            await ParentTriggerContext.OnFocusOut();
+        if (Tooltip is not null)
+            await Tooltip.HandleTriggerBlur();
     }
 
-    private Task HandleTriggerClick()
+    private async Task HandleTriggerKeyDown(KeyboardEventArgs e)
     {
-        _pointerDown = false;
-        return Tooltip?.HandleTriggerClick() ?? Task.CompletedTask;
+        if (ParentTriggerContext?.OnKeyDown is not null)
+            await ParentTriggerContext.OnKeyDown(e);
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && Tooltip?.CurrentOpen == true)
+            await Tooltip.Close();
+    }
+
+    private async Task HandleTriggerClick()
+    {
+        _pointerDown.Value = false;
+        if (ParentTriggerContext?.OnClick is not null)
+            await ParentTriggerContext.OnClick();
+        if (Tooltip is not null)
+            await Tooltip.HandleTriggerClick();
     }
 
     [JSInvokable]
     public Task HandleDocumentPointerUp()
     {
-        _pointerDown = false;
+        _pointerDown.Value = false;
         return Task.CompletedTask;
     }
 
@@ -317,5 +358,8 @@ else
         hc.Add(ParentTriggerContext?.AriaDescribedBy);
         hc.Add(ParentTriggerContext?.IsOpen);
         hc.Add(ParentTriggerContext?.SuppressClickAfterPointerDown == true);
+        hc.Add(ParentTriggerContext?.ParentDisabled == true);
+        hc.Add(ParentTriggerContext?.PreventPointerDownDefault == true);
+        hc.Add(SlotAttributeOverrides);
     }
 }

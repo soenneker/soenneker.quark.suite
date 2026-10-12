@@ -20,8 +20,8 @@ else
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer;
     private static readonly CssValue<ItemsBuilder> _defaultItemsAlign = Items.Center;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is60.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is60;
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Full;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2_5;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
@@ -31,6 +31,8 @@ else
     private ElementReference _button;
     private string? _tabId;
     private string? _panelId;
+    private Stepper? _registeredParent;
+    private int _registeredStep;
 
     [CascadingParameter(Name = nameof(ParentStepper))]
     internal Stepper? ParentStepper { get; set; }
@@ -50,8 +52,18 @@ else
 
     protected override void OnAfterRender(bool firstRender)
     {
+        if (_registeredParent != ParentStepper || _registeredStep != Step || AsChild)
+        {
+            _registeredParent?.UnregisterTrigger(_registeredStep);
+            _registeredParent = null;
+        }
+
         if (!AsChild && Step > 0)
+        {
             ParentStepper?.RegisterTrigger(Step, _button);
+            _registeredParent = ParentStepper;
+            _registeredStep = Step;
+        }
 
         base.OnAfterRender(firstRender);
     }
@@ -89,9 +101,9 @@ else
 
         attributes["type"] = "button";
         attributes["role"] = "tab";
-        attributes["id"] = QuarkStringCache.Concat("stepper-tab-", "", StepValue, ref _tabId);
+        attributes["id"] = QuarkStringCache.Concat(ParentStepper?.IdPrefix ?? "stepper", "-tab-", StepValue, ref _tabId);
         attributes["aria-selected"] = Selected ? "true" : "false";
-        attributes["aria-controls"] = QuarkStringCache.Concat("stepper-panel-", "", StepValue, ref _panelId);
+        attributes["aria-controls"] = QuarkStringCache.Concat(ParentStepper?.IdPrefix ?? "stepper", "-panel-", StepValue, ref _panelId);
         attributes["tabindex"] = Selected ? QuarkAttributeValues.Zero : QuarkAttributeValues.MinusOne;
         attributes["data-state"] = ParentStepperItem?.State ?? "inactive";
         attributes["data-loading"] = ParentStepperItem?.Loading == true ? "true" : "false";
@@ -103,6 +115,9 @@ else
 
     private async Task HandleClick(MouseEventArgs args)
     {
+        if (ParentStepperItem?.Disabled == true)
+            return;
+
         if (OnClick.HasDelegate)
             await OnClick.InvokeAsync(args);
 
@@ -115,6 +130,13 @@ else
         return ParentStepper is not null && Step > 0
             ? ParentStepper.HandleTriggerKeyDown(Step, args)
             : Task.CompletedTask;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        _registeredParent?.UnregisterTrigger(_registeredStep);
+        _registeredParent = null;
+        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

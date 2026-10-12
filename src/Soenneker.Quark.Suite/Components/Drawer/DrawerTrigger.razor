@@ -7,7 +7,9 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
+        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 }
 else
@@ -20,6 +22,22 @@ else
 }
 
 @code {
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+
+    private QuarkAttributeDictionary _slotAttributesBuffer;
+    private string? _slotClass;
+    private string? _slotStyle;
+
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        var attributes = _slotAttributesBuffer.Create(BuildAttributes());
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
+        if (OnClick.HasDelegate)
+            attributes["onclick"] = OnClick;
+        return attributes;
+    }
+
     [CascadingParameter(Name = nameof(ParentDrawer))]
     public Drawer? ParentDrawer { get; set; }
 

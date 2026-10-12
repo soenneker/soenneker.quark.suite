@@ -101,6 +101,11 @@
             : Horizontal ? "duration-200 ease-in-out max-w-0" : "duration-200 ease-in-out max-h-0", ref _lastBuiltClass);
 
         attributes["id"] = Id!;
+        if (!Expanded)
+        {
+            attributes["inert"] = QuarkAttributeValues.True;
+            attributes["aria-hidden"] = "true";
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -119,8 +124,12 @@
         if (ClassContainsToken(Class, className))
             return true;
 
-        if (Attributes is not null && Attributes.TryGetValue("class", out var classObj))
-            return ClassContainsToken(classObj?.ToString(), className);
+        if (Attributes is not null && Attributes.TryGetValue("class", out var classObj) &&
+            ClassContainsToken(classObj?.ToString(), className))
+            return true;
+
+        if (AdditionalAttributes is not null && AdditionalAttributes.TryGetValue("class", out var additionalClass))
+            return ClassContainsToken(additionalClass?.ToString(), className);
 
         return false;
     }

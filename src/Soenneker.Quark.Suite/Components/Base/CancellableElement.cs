@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -138,7 +139,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
     public string? AriaBrailleRoleDescription { get; set; }
 
     private RenderFragment? _lastChildContentRef;
-    private bool _childContentChanged;
+    private ValueAtomicBool _childContentChanged;
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
@@ -332,7 +333,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
     protected override void OnParametersSet()
     {
         var cc = ChildContent;
-        _childContentChanged = !ReferenceEquals(cc, _lastChildContentRef);
+        _childContentChanged.Value = !ReferenceEquals(cc, _lastChildContentRef);
         _lastChildContentRef = cc;
 
         base.OnParametersSet();
@@ -340,9 +341,9 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
 
     protected override bool ShouldRender()
     {
-        if (_childContentChanged)
+        if (_childContentChanged.Value)
         {
-            _childContentChanged = false;
+            _childContentChanged.Value = false;
             return true;
         }
 
@@ -351,10 +352,10 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_childContentChanged)
+        if (_childContentChanged.Value)
         {
             _lastChildContentRef = ChildContent;
-            _childContentChanged = false;
+            _childContentChanged.Value = false;
         }
 
         return base.OnAfterRenderAsync(firstRender);

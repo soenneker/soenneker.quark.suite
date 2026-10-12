@@ -71,8 +71,8 @@
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
     private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
     private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFit;
     private static readonly CssValue<PointerEventsBuilder> _renderCss2 = Quark.PointerEvents.None;
@@ -144,7 +144,7 @@
 
     private string GetSizeValue() => ReferenceEquals(NativeSelectSize, NativeSelectSize.Sm) ? "sm" : "default";
 
-    private bool IsRtl => string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
+    private bool IsRtl => string.Equals(Dir.HasContent() ? Dir : DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase);
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     private string GetIconClass() => IsRtl

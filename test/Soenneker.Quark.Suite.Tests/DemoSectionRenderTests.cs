@@ -47,7 +47,8 @@ public sealed partial class RenderedShadcnParityTests
         var hash = cut.Find("h2 a span[aria-hidden='true']");
 
         heading.GetAttribute("id").Should().Be("multiple");
-        heading.GetAttribute("class").Should().Contain("scroll-m-24");
+        heading.GetAttribute("class").Should().Contain("scroll-mt-24");
+        heading.ClassList.Should().Contain("transition-colors").And.NotContain("transition-transition-colors");
         anchor.TextContent.Should().Contain("Multiple");
         anchor.GetAttribute("class").Should().Contain("group/title-anchor");
         hash.TextContent.Should().Be("#");

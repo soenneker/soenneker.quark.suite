@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
@@ -23,7 +24,9 @@
     private readonly List<CommandEntry> _entries = [];
     private readonly Dictionary<CommandItem, CommandEntry> _entryLookup = new(ReferenceEqualityComparer.Instance);
     private List<CommandEntry>? _orderedEntries;
-    private bool _orderDirty = true;
+    private readonly List<CommandEntry> _navigationEntries = [];
+    private readonly Dictionary<CommandGroup, int> _groupRegistrationOrder = new(ReferenceEqualityComparer.Instance);
+    private ValueAtomicBool _orderDirty = new(true);
     private CommandItem? _activeItem;
     private string? _search;
     private readonly string _listId = BlazorIdGenerator.New("quark-command-list");
@@ -50,7 +53,7 @@
         var entry = new CommandEntry { Item = item, Group = group, SearchTextSnapshot = item.SearchText };
         _entries.Add(entry);
         _entryLookup.Add(item, entry);
-        _orderDirty = true;
+        _orderDirty.Value = true;
 
         if (_activeItem is null && item.IsVisibleResolved && !item.Disabled)
             _activeItem = item;
@@ -65,7 +68,7 @@
         {
             entry.Group = group;
             entry.SearchTextSnapshot = item.SearchText;
-            _orderDirty = true;
+            _orderDirty.Value = true;
         }
     }
 
@@ -78,7 +81,7 @@
         _entries.Remove(entry);
         _entryLookup.Remove(item);
         _orderedEntries?.Clear();
-        _orderDirty = true;
+        _orderDirty.Value = true;
 
         if (ReferenceEquals(_activeItem, item))
             _activeItem = GetFirstVisibleEntry()?.Item;
@@ -110,11 +113,11 @@
         return entry.SearchOrder;
     }
 
-    internal void InvalidateItemOrder() => _orderDirty = true;
+    internal void InvalidateItemOrder() => _orderDirty.Value = true;
 
     private void EnsureItemOrder()
     {
-        if (!_orderDirty)
+        if (!_orderDirty.Value)
             return;
 
         var ordered = _orderedEntries ??= [];
@@ -136,17 +139,39 @@
             ordered[i].SearchOrder = order++;
         }
 
-        _orderDirty = false;
+        _groupRegistrationOrder.Clear();
+        _navigationEntries.Clear();
+        foreach (var entry in _entries)
+        {
+            if (entry.Group is not null)
+            {
+                if (!_groupRegistrationOrder.TryGetValue(entry.Group, out var groupOrder))
+                {
+                    groupOrder = entry.RegistrationOrder;
+                    _groupRegistrationOrder.Add(entry.Group, groupOrder);
+                }
+                entry.NavigationGroupOrder = groupOrder;
+            }
+            else
+                entry.NavigationGroupOrder = entry.RegistrationOrder;
+
+            if (entry.Matches(_search))
+                _navigationEntries.Add(entry);
+        }
+        _navigationEntries.Sort(CommandNavigationOrderComparer.Instance);
+        _orderDirty.Value = false;
+    }
+
+    private List<CommandEntry> GetNavigationEntries()
+    {
+        if (string.IsNullOrWhiteSpace(_search))
+            return _entries;
+        EnsureItemOrder();
+        return _navigationEntries;
     }
 
     internal bool GroupHasVisibleItems(CommandGroup group)
     {
-        foreach (var entry in _entries)
-        {
-            if (entry.Group is null && entry.Matches(_search))
-                return true;
-        }
-
         foreach (var entry in _entries)
         {
             if (IsSameGroup(entry.Group, group) && entry.Matches(_search))
@@ -181,7 +206,7 @@
     internal async Task SetSearch(string? value)
     {
         _search = value;
-        _orderDirty = true;
+        _orderDirty.Value = true;
         _activeItem = GetFirstVisibleEntry()?.Item;
         await RefreshOffThread();
     }
@@ -247,7 +272,7 @@
 
     private CommandEntry? GetFirstVisibleEntry()
     {
-        foreach (var entry in _entries)
+        foreach (var entry in GetNavigationEntries())
         {
             if (entry.IsVisible && !entry.IsDisabled)
                 return entry;
@@ -261,7 +286,7 @@
         activeIndex = -1;
         var count = 0;
 
-        foreach (var entry in _entries)
+        foreach (var entry in GetNavigationEntries())
         {
             if (!entry.IsVisible || entry.IsDisabled)
                 continue;
@@ -279,7 +304,7 @@
     {
         var index = 0;
 
-        foreach (var entry in _entries)
+        foreach (var entry in GetNavigationEntries())
         {
             if (!entry.IsVisible || entry.IsDisabled)
                 continue;

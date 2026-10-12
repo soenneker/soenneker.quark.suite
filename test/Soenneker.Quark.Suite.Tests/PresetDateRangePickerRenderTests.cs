@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(component => component.DefaultOpen, true));
 
         cut.Find("button[data-slot='preset-date-range-picker-trigger']").TextContent.Should().Contain("Last 30 days");
-        cut.Find("button[role='menuitemradio'][aria-pressed='true']").TextContent.Should().Contain("Last 30 days");
+        cut.Find("[role='group'][aria-label='Date range presets'] button[aria-pressed='true']").TextContent.Should().Contain("Last 30 days");
 
         cut.Find("td[data-day='2026-05-31'] button").HasAttribute("disabled").Should().BeTrue();
         cut.Find("td[data-day='2026-06-01'] button").HasAttribute("disabled").Should().BeFalse();
@@ -63,7 +63,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(component => component.RangePresets, presets)
             .Add(component => component.DefaultOpen, true));
 
-        cut.FindAll("button[role='menuitemradio']").Should().HaveCount(2);
+        cut.FindAll("[role='group'][aria-label='Date range presets'] button").Should().HaveCount(2);
         cut.Markup.Should().Contain("Last 7 days");
         cut.Markup.Should().Contain("Last 14 days");
         cut.Markup.Should().NotContain("Last 30 days");

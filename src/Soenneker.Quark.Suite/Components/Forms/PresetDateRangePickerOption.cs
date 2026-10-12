@@ -42,12 +42,15 @@ public sealed record PresetDateRangePickerOption(string Key, string Label, int S
     /// </summary>
     /// <param name="anchorDate">Anchor Date for the get start operation.</param>
     /// <returns>The requested date Only.</returns>
-    public DateOnly GetStart(DateOnly anchorDate) => anchorDate.AddDays(StartOffsetDays);
+    public DateOnly GetStart(DateOnly anchorDate) => AddDaysClamped(anchorDate, StartOffsetDays);
 
     /// <summary>
     /// Retrieves end.
     /// </summary>
     /// <param name="anchorDate">Anchor Date for the get end operation.</param>
     /// <returns>The requested date Only.</returns>
-    public DateOnly GetEnd(DateOnly anchorDate) => anchorDate.AddDays(EndOffsetDays);
+    public DateOnly GetEnd(DateOnly anchorDate) => AddDaysClamped(anchorDate, EndOffsetDays);
+
+    private static DateOnly AddDaysClamped(DateOnly date, int days) =>
+        DateOnly.FromDayNumber((int)Math.Clamp((long)date.DayNumber + days, DateOnly.MinValue.DayNumber, DateOnly.MaxValue.DayNumber));
 }

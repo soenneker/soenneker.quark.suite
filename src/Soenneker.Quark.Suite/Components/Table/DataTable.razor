@@ -194,7 +194,24 @@
         }
     }
 
-    public bool IsRowSelected(string key) => SelectedKeys.Contains(key);
+    private readonly HashSet<string> _selectedKeySet = new(StringComparer.Ordinal);
+
+    public bool IsRowSelected(string key) => _selectedKeySet.Contains(key);
+
+    private void SynchronizeSelectedKeys()
+    {
+        if (_selectedKeySet.SetEquals(SelectedKeys))
+            return;
+
+        _selectedKeySet.Clear();
+        _selectedKeySet.UnionWith(SelectedKeys);
+    }
+
+    protected override void OnParametersSet()
+    {
+        SynchronizeSelectedKeys();
+        base.OnParametersSet();
+    }
 
     public async Task SetRowSelected(string key, bool selected)
     {
@@ -233,6 +250,7 @@
     private async Task PublishSelection(string[] keys)
     {
         SelectedKeys = keys;
+        SynchronizeSelectedKeys();
         await SelectedKeysChanged.InvokeAsync(SelectedKeys);
         await RefreshOffThread();
     }
@@ -307,8 +325,8 @@
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "BL0007", Justification = "Preserve the existing effective loading getter while accepting independent external loading state.")]
     public bool IsLoading
     {
-        get => _externalLoading || _isLoading;
-        set => _externalLoading = value;
+        get => _externalLoading.Value || _isLoading.Value;
+        set => _externalLoading.Value = value;
     }
 
     public string? SearchTerm => _searchTerm;
@@ -334,21 +352,21 @@
     private string _searchTerm = string.Empty;
     private string? _continuationToken;
 
-    private bool _isLoading;
-    private bool _externalLoading;
-    private bool _initialized;
-    private bool _dataLoaded;
-    private bool _hasLoadedOnce; // Flag to track if data has been loaded at least once
-    private bool _isUpdatingParameters; // Flag to prevent infinite loops
-    private bool _pendingInteraction;
+    private ValueAtomicBool _isLoading;
+    private ValueAtomicBool _externalLoading;
+    private ValueAtomicBool _initialized;
+    private ValueAtomicBool _dataLoaded;
+    private ValueAtomicBool _hasLoadedOnce; // Flag to track if data has been loaded at least once
+    private ValueAtomicBool _isUpdatingParameters; // Flag to prevent infinite loops
+    private ValueAtomicBool _pendingInteraction;
     private ValueAtomicBool _disposed;
-    private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
+    private ValueAtomicBool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private DataTableOptions? _previousOptions;
     private int[]? _pageSizeOptionsSnapshot;
     private int[] _resolvedPageSizeOptions = [];
     private int _resolvedForPageSize;
-    private bool _pageSizeOptionsInitialized;
+    private ValueAtomicBool _pageSizeOptionsInitialized;
     private bool ShouldRenderPageSizeSelector => Options.ShowPageSizeSelector && BottomContent is null;
     private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
     private int StartRecord => TotalRecordsCount == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
@@ -404,7 +422,7 @@
             PageSize = GetDefaultPageSize();
             await TablesInterop.Initialize(CancellationToken);
 
-            _initialized = true;
+            _initialized.Value = true;
 
             if (OnInitialize.HasDelegate)
                 await OnInitialize.InvokeAsync();
@@ -419,7 +437,7 @@
     protected override async Task OnParametersSetAsync()
     {
         // Prevent infinite loops by checking if we're already updating parameters
-        if (_isUpdatingParameters)
+        if (!_isUpdatingParameters.TrySetTrue())
         {
             if (Options.Debug)
                 Logger.LogDebug("OnParametersSetAsync called while already updating parameters - skipping");
@@ -428,14 +446,12 @@
         }
 
         if (Options.Debug)
-            Logger.LogDebug("OnParametersSetAsync called: _dataLoaded={DataLoaded}, _initialized={Initialized}, TotalRecords={TotalRecords}, _totalRecords={CurrentTotalRecords}", _dataLoaded, _initialized, TotalRecords, TotalRecordsCount);
-
-        _isUpdatingParameters = true;
+            Logger.LogDebug("OnParametersSetAsync called: _dataLoaded={DataLoaded}, _initialized={Initialized}, TotalRecords={TotalRecords}, _totalRecords={CurrentTotalRecords}", _dataLoaded.Value, _initialized.Value, TotalRecords, TotalRecordsCount);
 
         try
         {
             // Initialize total records and pages on first parameter set
-            if (!_dataLoaded)
+            if (!_dataLoaded.Value)
             {
                 if (Options.Debug)
                     Logger.LogDebug("First parameter set - initializing data");
@@ -451,13 +467,13 @@
                     if (Options.Debug)
                         Logger.LogDebug("Scheduling OnInteractionInternal for initial data load");
 
-                    _isLoading = true; // ensure loader visible on first render
+                    _isLoading.Value = true; // ensure loader visible on first render
                     await RefreshOffThread();
 
                     _ = OnInteractionInternal();
                 }
 
-                _dataLoaded = true;
+                _dataLoaded.Value = true;
             }
             else
             {
@@ -481,7 +497,7 @@
             // Check if options have changed and trigger reload if needed
             var optionsChanged = _previousOptions != null && !Options.Equals(_previousOptions);
 
-            if (_initialized && optionsChanged)
+            if (_initialized.Value && optionsChanged)
             {
                 if (Options.Debug)
                     Logger.LogDebug("Options changed - resetting table");
@@ -502,7 +518,7 @@
         }
         finally
         {
-            _isUpdatingParameters = false;
+            _isUpdatingParameters.Value = false;
         }
 
         await base.OnParametersSetAsync();
@@ -579,10 +595,10 @@
     {
         var options = Options.PageSizeOptions;
 
-        if (_pageSizeOptionsInitialized && _resolvedForPageSize == PageSize && PageSizeOptionsEqual(options, _pageSizeOptionsSnapshot))
+        if (_pageSizeOptionsInitialized.Value && _resolvedForPageSize == PageSize && PageSizeOptionsEqual(options, _pageSizeOptionsSnapshot))
             return _resolvedPageSizeOptions;
 
-        _pageSizeOptionsInitialized = true;
+        _pageSizeOptionsInitialized.Value = true;
         _resolvedForPageSize = PageSize;
         _pageSizeOptionsSnapshot = options is null ? null : [.. options];
         _resolvedPageSizeOptions = NormalizePageSizeOptions(options, PageSize);
@@ -815,9 +831,17 @@
         if (_disposed.Read())
             return;
 
-        if (_isHandlingManualRequest)
+        if (!OnInteraction.HasDelegate)
         {
-            _pendingInteraction = true;
+            if (Options.Debug)
+                Logger.LogWarning("OnInteractionInternal: No OnInteraction delegate");
+
+            return;
+        }
+
+        if (!_isHandlingManualRequest.TrySetTrue())
+        {
+            _pendingInteraction.Value = true;
             if (Options.Debug)
                 Logger.LogDebug("OnInteractionInternal called while already handling a request - queued latest state");
 
@@ -829,17 +853,8 @@
         if (Options.Debug)
             Logger.LogDebug("OnInteractionInternal called (count: {Count}): Page={Page}, PageSize={PageSize}, SearchTerm='{SearchTerm}'", _manualRequestCount, CurrentPage, PageSize, _searchTerm);
 
-        if (!OnInteraction.HasDelegate)
-        {
-            if (Options.Debug)
-                Logger.LogWarning("OnInteractionInternal: No OnInteraction delegate");
-
-            return;
-        }
-
-        _isHandlingManualRequest = true;
-        bool loadingChanged = !_isLoading;
-        _isLoading = true;
+        bool loadingChanged = !_isLoading.Value;
+        _isLoading.Value = true;
 
         try
         {
@@ -847,7 +862,7 @@
                 await RefreshOffThread();
             do
             {
-                _pendingInteraction = false;
+                _pendingInteraction.Value = false;
                 try
                 {
                     // Calculate the actual start position based on current page
@@ -872,9 +887,9 @@
                     await OnInteraction.InvokeAsync(request);
 
                     // Mark that we've loaded data at least once after a successful request
-                    if (!_hasLoadedOnce)
+                    if (!_hasLoadedOnce.Value)
                     {
-                        _hasLoadedOnce = true;
+                        _hasLoadedOnce.Value = true;
                         HasLoadedOnce = true;
                         if (Options.Debug)
                             Logger.LogDebug("Set HasLoadedOnce to true after first successful data load");
@@ -889,12 +904,12 @@
                 {
                     Logger.LogError(ex, "OnInteractionInternal error: {Message}", ex.Message);
                 }
-            } while (_pendingInteraction && !_disposed.Read());
+            } while (_pendingInteraction.Value && !_disposed.Read());
         }
         finally
         {
-            _isLoading = false;
-            _isHandlingManualRequest = false;
+            _isLoading.Value = false;
+            _isHandlingManualRequest.Value = false;
 
             if (!_disposed.Read())
                 await RefreshOffThread();
@@ -908,7 +923,7 @@
         _continuationTokenPaging.Reset();
         _continuationToken = null;
         _manualRequestCount = 0; // Reset the counter
-        _hasLoadedOnce = false; // Reset the loaded flag
+        _hasLoadedOnce.Value = false; // Reset the loaded flag
         HasLoadedOnce = false;
 
         await OnInteractionInternal();
@@ -921,7 +936,7 @@
         _continuationToken = null;
         _continuationTokenPaging.Reset();
         _manualRequestCount = 0; // Reset the counter
-        _hasLoadedOnce = false; // Reset the loaded flag
+        _hasLoadedOnce.Value = false; // Reset the loaded flag
         HasLoadedOnce = false;
 
         await OnInteractionInternal();
@@ -936,8 +951,8 @@
 
         await Cancel();
 
-        _isLoading = false;
-        _isHandlingManualRequest = false;
+        _isLoading.Value = false;
+        _isHandlingManualRequest.Value = false;
 
         await RefreshOffThread();
     }
@@ -983,7 +998,7 @@
     {
         if (!_disposed.TrySetTrue())
             return;
-        _pendingInteraction = false;
+        _pendingInteraction.Value = false;
         _registeredColumns.Clear();
         try
         {
@@ -1019,7 +1034,7 @@
 
         hc.Add(_registeredColumns.Count);
 
-        hc.Add(_hasLoadedOnce);
+        hc.Add(_hasLoadedOnce.Value);
         hc.Add(TotalRecordsCount);
         hc.Add(HasExactTotalRecords);
         hc.Add(TotalPages);

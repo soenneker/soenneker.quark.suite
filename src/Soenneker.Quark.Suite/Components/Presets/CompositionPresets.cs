@@ -22,7 +22,7 @@ internal static class CompositionPresets
     private static readonly CssValue<TextSizeBuilder> _css17 = TextSize.Lg;
     private static readonly CssValue<FontFamilyBuilder> _css18 = FontFamily.Mono;
 
-    internal static readonly QuarkPresetToken Panel = new("composition-panel", c =>
+    internal static readonly QuarkPresetToken Panel = QuarkPresetToken.Freeze("composition-panel", c =>
     {
         c.Display = _css0;
         c.Gap = _css1;
@@ -32,13 +32,13 @@ internal static class CompositionPresets
         c.BorderColor = _css5;
         c.Rounded = _css6;
     });
-    internal static readonly QuarkPresetToken Stack = new("composition-stack", c =>
+    internal static readonly QuarkPresetToken Stack = QuarkPresetToken.Freeze("composition-stack", c =>
     {
         c.Display = _css0;
         c.Gap = _css7;
         c.MinWidth = _css2;
     });
-    internal static readonly QuarkPresetToken Header = new("composition-header", c =>
+    internal static readonly QuarkPresetToken Header = QuarkPresetToken.Freeze("composition-header", c =>
     {
         c.Display = _css8;
         c.FlexWrap = _css9;
@@ -47,24 +47,24 @@ internal static class CompositionPresets
         c.Gap = _css12;
         c.MinWidth = _css2;
     });
-    internal static readonly QuarkPresetToken Actions = new("composition-actions", c =>
+    internal static readonly QuarkPresetToken Actions = QuarkPresetToken.Freeze("composition-actions", c =>
     {
         c.Display = _css8;
         c.FlexWrap = _css9;
         c.ItemsAlign = _css10;
         c.Gap = _css7;
     });
-    internal static readonly QuarkPresetToken Muted = new("composition-muted", c =>
+    internal static readonly QuarkPresetToken Muted = QuarkPresetToken.Freeze("composition-muted", c =>
     {
         c.Margin = _css13;
         c.TextSize = _css14;
         c.TextColor = _css15;
     });
-    internal static readonly QuarkPresetToken Title = new("composition-title", c =>
+    internal static readonly QuarkPresetToken Title = QuarkPresetToken.Freeze("composition-title", c =>
     {
         c.Margin = _css13;
         c.FontWeight = _css16;
         c.TextSize = _css17;
     });
-    internal static readonly QuarkPresetToken Code = new("composition-code", c => c.FontFamily = _css18);
+    internal static readonly QuarkPresetToken Code = QuarkPresetToken.Freeze("composition-code", c => c.FontFamily = _css18);
 }

@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -15,7 +16,7 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IHandleEvent
 {
-    private bool _shouldRender = true;
+    private ValueAtomicBool _shouldRender = new(true);
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
     private Dictionary<string, object>? _attrsA;
@@ -24,11 +25,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private int _renderVersion;
     private int _incomingParametersKey;
     private int _lastIncomingParametersKey;
-    private bool _renderKeyDirty;
+    private ValueAtomicBool _renderKeyDirty;
     private bool _useAttrsA;
     private bool _hasIncomingParametersKey;
-    private bool _incomingParametersChanged;
-    private bool _defaultsApplied;
+    private ValueAtomicBool _incomingParametersChanged;
+    private ValueAtomicBool _defaultsApplied;
     private bool _requiresDetailedRenderKey;
     private string? _lastClass;
     private string? _lastStyle;
@@ -51,14 +52,14 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     public override Task SetParametersAsync(ParameterView parameters)
     {
-        _defaultsApplied = false;
+        _defaultsApplied.Value = false;
 
         // No fingerprint is consumed while suppression is disabled. Forget the previous
         // fingerprint so switching suppression back on forces a fresh render and cache.
         if (AlwaysRender)
         {
             _hasIncomingParametersKey = false;
-            _incomingParametersChanged = true;
+            _incomingParametersChanged.Value = true;
             _cachedAttrs = null;
             return base.SetParametersAsync(parameters);
         }
@@ -67,10 +68,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         // A render fragment can keep the same delegate identity while reading mutated state from its owner.
         // Re-render fragment-bearing components so they do not freeze otherwise valid descendant updates.
-        _incomingParametersChanged = hasRenderFragment || !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
+        _incomingParametersChanged.Value = hasRenderFragment || !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
 
-        if (_incomingParametersChanged && !(IndependentChildContent && hasRenderFragment && _hasIncomingParametersKey &&
-            _incomingParametersKey == _lastIncomingParametersKey && !_requiresDetailedRenderKey && !_renderKeyDirty))
+        if (_incomingParametersChanged.Value && !(IndependentChildContent && hasRenderFragment && _hasIncomingParametersKey &&
+            _incomingParametersKey == _lastIncomingParametersKey && !_requiresDetailedRenderKey && !_renderKeyDirty.Value))
         {
             _cachedAttrs = null;
             _cachedAttrsKey = 0;
@@ -108,18 +109,18 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         // Multiple state changes can be coalesced into one render. Defer the expensive
         // component-wide hash until attributes are actually requested for that render.
-        _renderKeyDirty = true;
-        _defaultsApplied = false;
+        _renderKeyDirty.Value = true;
+        _defaultsApplied.Value = false;
         _cachedAttrs = null;
         _cachedAttrsKey = 0;
-        _shouldRender = true;
+        _shouldRender.Value = true;
     }
 
     /// <summary>Renders content after a local change that cannot affect this component's attributes.</summary>
     /// <remarks>Use only when all attribute inputs are unchanged. Parameter delivery and Refresh still invalidate attributes normally.</remarks>
     protected void RequestContentRender()
     {
-        _shouldRender = true;
+        _shouldRender.Value = true;
         StateHasChanged();
     }
 
@@ -128,7 +129,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (AlwaysRender)
             return true;
 
-        return _shouldRender;
+        return _shouldRender.Value;
     }
 
     protected override void OnParametersSet()
@@ -137,8 +138,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (AlwaysRender)
         {
-            _shouldRender = true;
-            _renderKeyDirty = false;
+            _shouldRender.Value = true;
+            _renderKeyDirty.Value = false;
             return;
         }
 
@@ -148,28 +149,28 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         // ParameterView fingerprint lets us avoid recomputing every inherited and component-local
         // render-key value. Conversely, any changed parameter forces a render, so a parameter that
         // a component forgot to include in ComputeRenderKeyCore cannot leave stale UI.
-        if (!_incomingParametersChanged && !_renderKeyDirty && !requiresDetailedRenderKey)
+        if (!_incomingParametersChanged.Value && !_renderKeyDirty.Value && !requiresDetailedRenderKey)
         {
-            _shouldRender = false;
+            _shouldRender.Value = false;
             return;
         }
 
         // Direct parameter changes already guarantee a render and invalidate the attribute cache.
         // Avoid the detailed component-wide key walk unless a mutable model or cascading context can affect
         // output without changing its reference.
-        if (_incomingParametersChanged && !requiresDetailedRenderKey)
+        if (_incomingParametersChanged.Value && !requiresDetailedRenderKey)
         {
             _lastRenderKey = HashCode.Combine(_incomingParametersKey, _renderVersion);
-            _shouldRender = true;
-            _renderKeyDirty = false;
+            _shouldRender.Value = true;
+            _renderKeyDirty.Value = false;
             CommitIncomingParametersKey();
             return;
         }
 
         var key = ComputeRenderKey();
-        _shouldRender = _incomingParametersChanged || key != _lastRenderKey;
+        _shouldRender.Value = _incomingParametersChanged.Value || key != _lastRenderKey;
         _lastRenderKey = key;
-        _renderKeyDirty = false;
+        _renderKeyDirty.Value = false;
         CommitIncomingParametersKey();
     }
 
@@ -177,10 +178,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
         EnsureDefaultParameters();
 
-        if (!AlwaysRender && _renderKeyDirty)
+        if (!AlwaysRender && _renderKeyDirty.Value)
         {
             _lastRenderKey = ComputeRenderKey();
-            _renderKeyDirty = false;
+            _renderKeyDirty.Value = false;
         }
 
         var currentKey = _lastRenderKey;
@@ -286,11 +287,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void EnsureDefaultParameters()
     {
-        if (_defaultsApplied)
+        if (_defaultsApplied.Value)
             return;
 
         ApplyDefaultParameters();
-        _defaultsApplied = true;
+        _defaultsApplied.Value = true;
     }
 
     /// <summary>
@@ -431,7 +432,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
         _lastIncomingParametersKey = _incomingParametersKey;
         _hasIncomingParametersKey = true;
-        _incomingParametersChanged = false;
+        _incomingParametersChanged.Value = false;
     }
 
     private static bool IsKnownImmutableCascadingType(Type type)

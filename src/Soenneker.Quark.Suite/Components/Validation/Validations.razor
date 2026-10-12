@@ -79,6 +79,7 @@
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
         var hasExternalEditContext = EditContext is not null && !ReferenceEquals(EditContext, _ownedEditContext);
 
         if (hasExternalEditContext && Model is not null)
@@ -93,6 +94,11 @@
         }
         else if (hasExternalEditContext)
         {
+            _ownedEditContext = null;
+        }
+        else
+        {
+            EditContext = null;
             _ownedEditContext = null;
         }
     }

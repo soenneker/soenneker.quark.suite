@@ -43,7 +43,7 @@
     public QuarkPresetToken? Preset { get; set; }
 
     private CopyButtonState _state = CopyButtonState.Idle;
-    private bool _copying;
+    private ValueAtomicBool _copying;
     private ValueAtomicBool _disposed;
     private CancellationTokenSource? _resetCancellationTokenSource;
 
@@ -144,10 +144,8 @@
 
     private async Task Copy()
     {
-        if (_disposed.Read() || Disabled || _copying)
+        if (_disposed.Read() || Disabled || !_copying.TrySetTrue())
             return;
-
-        _copying = true;
 
         try
         {
@@ -181,7 +179,7 @@
         }
         finally
         {
-            _copying = false;
+            _copying.Value = false;
             ScheduleReset();
         }
     }

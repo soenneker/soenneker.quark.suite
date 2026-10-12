@@ -8,6 +8,7 @@
 @code {
     private (long Size, bool Vertical, int? Min, int? Max)? _styleKey;
     private string? _panelStyle;
+    private string? _mergedPanelStyle;
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -100,7 +101,7 @@
                 _panelStyle = ParentPanelGroup.BuildPanelStyle(this, _index);
                 _styleKey = key;
             }
-            attributes["style"] = _panelStyle;
+            PrependStyleAttribute(attributes, _panelStyle, ref _mergedPanelStyle);
         }
     }
 

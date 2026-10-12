@@ -1,8 +1,8 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Soenneker.Bradix
 @inherits TriggerElement
 @implements IButton
-@inject NavigationManager Navigation
 @inject ICollapseCoordinator CollapseCoordinator
 
 @if (AsChild)
@@ -91,7 +91,7 @@ else
         var effectiveSize = ButtonSize ?? ButtonGroup?.ButtonSize;
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true ||
-            Attributes?.ContainsKey("disabled") == true || AdditionalAttributes?.ContainsKey("disabled") == true;
+            HasDisabledAttribute(Attributes) || HasDisabledAttribute(AdditionalAttributes) || HasDisabledAttribute(SlotAttributeOverrides);
         AppendClass(ref cls, "group/button bg-clip-padding focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px");
         AppendClass(ref cls, GetButtonFocusClass(Variant));
         AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
@@ -116,8 +116,8 @@ else
     private static readonly CssValue<BorderBuilder> _defaultBorder = Quark.Border.Default;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<SizeBuilder> _renderCss1 = Quark.Size.Is4;
     private static readonly CssValue<MarginBuilder> _renderCss2 = Quark.Margin.FromRight.Is2;
@@ -141,6 +141,12 @@ else
     private RenderFragment? _triggerChildContent;
     private RenderAttributeDictionary? _wrapperAttributes;
 
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+
+    private string? _slotClass;
+    private string? _slotStyle;
+
     [CascadingParameter]
     public IButtonGroup? ButtonGroup { get; set; }
 
@@ -151,15 +157,16 @@ else
     private BradixDialogCloseContext? DialogCloseContext { get; set; }
 
     private ElementReference _elementRef;
-    private bool _triggerElementRegistered;
-    private bool _ignoreNextKeyboardClick;
-    private bool _ignoreNextPointerClick;
+    private ValueAtomicBool _triggerElementRegistered;
+    private ValueAtomicBool _ignoreNextKeyboardClick;
+    private ValueAtomicBool _ignoreNextPointerClick;
     private string? _registeredTriggerId;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || Href.HasContent();
 
     private bool PreventLinkDefault =>
-        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null || (Href.HasContent() && !Href!.StartsWith("#", StringComparison.Ordinal));
+        Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true ||
+        HasDisabledAttribute(Attributes) || HasDisabledAttribute(AdditionalAttributes) || HasDisabledAttribute(SlotAttributeOverrides) || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null;
 
     private bool StopClickPropagation => TriggerContext?.Toggle is not null || InputGroupButton;
 
@@ -268,10 +275,10 @@ else
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered.Value || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
         {
             TriggerContext.RegisterElement(_elementRef);
-            _triggerElementRegistered = true;
+            _triggerElementRegistered.Value = true;
             _registeredTriggerId = TriggerContext.TriggerId;
         }
 
@@ -285,12 +292,14 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
+
         attributes.Remove("onclick");
         attributes.Remove("onkeydown");
         attributes.Remove("onkeyup");
 
         var isLink = RenderAsLink;
-        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || attributes.ContainsKey("disabled");
+        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || HasDisabledAttribute(attributes);
 
         attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
@@ -453,6 +462,7 @@ else
         attributes.Remove("form");
         attributes.Remove("name");
         attributes.Remove("value");
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleClickDelegate ??= HandleClick);
 
         return attributes;
     }
@@ -469,21 +479,19 @@ else
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || (Attributes is not null && Attributes.ContainsKey("disabled"));
+        var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true || HasDisabledAttribute(Attributes) || HasDisabledAttribute(AdditionalAttributes) || HasDisabledAttribute(SlotAttributeOverrides);
         if (isDisabled)
             return;
 
-        if (_ignoreNextKeyboardClick)
+        if (_ignoreNextKeyboardClick.Exchange(false))
         {
-            _ignoreNextKeyboardClick = false;
             return;
         }
 
         var ignoreTriggerClick = false;
 
-        if (_ignoreNextPointerClick)
+        if (_ignoreNextPointerClick.Exchange(false))
         {
-            _ignoreNextPointerClick = false;
             ignoreTriggerClick = true;
         }
 
@@ -499,9 +507,6 @@ else
         if (DialogCloseContext is not null)
             await DialogCloseContext.Close(args);
 
-        if (Href.HasContent() && !Href!.StartsWith("#"))
-            Navigation.NavigateTo(Href!);
-
         if (CollapseTarget.HasContent())
             await CollapseCoordinator.ToggleTargets(CollapseTarget);
         else if (Attributes is not null && Attributes.TryGetValue("data-toggle", out var dataToggleObj) && string.Equals(dataToggleObj?.ToString(), "collapse", StringComparison.OrdinalIgnoreCase) && Attributes.TryGetValue("data-target", out var dataTargetObj))
@@ -515,6 +520,9 @@ else
 
     private async Task InvokeCapturedClick(MouseEventArgs args)
     {
+        if (SlotAttributeOverrides is not null)
+            await InvokeClickAttribute(GetAttribute(SlotAttributeOverrides, "onclick"), args);
+
         object? callback = null;
 
         if (AdditionalAttributes is not null)
@@ -523,9 +531,11 @@ else
         if (callback is null && Attributes is not null)
             callback = GetAttribute(Attributes, "onclick");
 
-        if (callback is null)
-            return;
+        await InvokeClickAttribute(callback, args);
+    }
 
+    private static async Task InvokeClickAttribute(object? callback, MouseEventArgs args)
+    {
         switch (callback)
         {
             case EventCallback<MouseEventArgs> eventCallback when eventCallback.HasDelegate:
@@ -548,6 +558,9 @@ else
                 break;
         }
     }
+
+    private static bool HasDisabledAttribute(IReadOnlyDictionary<string, object>? attributes) =>
+        attributes is not null && GetAttribute(attributes, "disabled") is { } value && value is not false;
 
     private static object? GetAttribute(IReadOnlyDictionary<string, object> attributes, string name)
     {
@@ -593,7 +606,7 @@ else
         if (TriggerContext?.OnPointerDownEvent is not null)
         {
             if (TriggerContext.SuppressClickAfterPointerDown && args.Button == 0 && !args.CtrlKey)
-                _ignoreNextPointerClick = true;
+                _ignoreNextPointerClick.Value = true;
 
             return TriggerContext.OnPointerDownEvent(args);
         }
@@ -601,7 +614,7 @@ else
         if (TriggerContext?.OnPointerDown is not null)
         {
             if (TriggerContext.SuppressClickAfterPointerDown && args.Button == 0 && !args.CtrlKey)
-                _ignoreNextPointerClick = true;
+                _ignoreNextPointerClick.Value = true;
 
             return TriggerContext.OnPointerDown();
         }
@@ -631,8 +644,8 @@ else
         if (TriggerContext?.OnKeyDown is not null)
         {
             // Tooltips close on activation but still allow the button's native keyboard click.
-            if (TriggerContext.DataSlot != "tooltip-trigger" && args.Key is ("ArrowDown" or "Enter" or " " or "Space" or "Spacebar"))
-                _ignoreNextKeyboardClick = true;
+            if (TriggerContext.DataSlot != "tooltip-trigger" && args.Key is ("Enter" or " " or "Space" or "Spacebar"))
+                _ignoreNextKeyboardClick.Value = true;
 
             await TriggerContext.OnKeyDown(args);
         }
@@ -670,6 +683,14 @@ else
         hc.Add(Name);
         hc.Add(Variant);
         hc.Add(CollapseTarget);
+        if (SlotAttributeOverrides is not null)
+        {
+            foreach (var attribute in SlotAttributeOverrides)
+            {
+                hc.Add(attribute.Key);
+                hc.Add(attribute.Value);
+            }
+        }
         hc.Add(TriggerContext?.DataSlot);
         hc.Add(TriggerContext?.TriggerId);
         hc.Add(TriggerContext?.AriaControls);

@@ -3,24 +3,20 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixMenubarRadioGroup Value="@CurrentValue"
+<BradixMenubarRadioGroup Value="@Value"
                          DefaultValue="@DefaultValue"
                          Disabled="@Disabled"
-                         ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
+                         ValueChanged="@ValueChanged"
                          AdditionalAttributes="@GroupAttributes">
     @ChildContent
 </BradixMenubarRadioGroup>
 
 @code {
-    private Func<string?, Task>? _cachedHandleValueChangedDelegate;
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "menubar-radio-group";
     }
-
-    private string? _currentValue;
 
     [Parameter]
     public string? Value { get; set; }
@@ -34,31 +30,11 @@
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    private string? CurrentValue => _currentValue;
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        _currentValue = Value ?? DefaultValue;
-    }
-
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
-
-    private async Task HandleValueChanged(string? value)
-    {
-        _currentValue = value;
-
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(value);
-
-        Refresh();
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(CurrentValue);
         hc.Add(Value);
         hc.Add(DefaultValue);
         hc.Add(Disabled);

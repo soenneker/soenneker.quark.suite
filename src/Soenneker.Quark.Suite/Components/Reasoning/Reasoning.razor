@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Component
 
@@ -13,7 +14,7 @@
 
     private string? _lastBuiltClass;
 
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private bool _open;
     private DateTimeOffset? _startedAt;
     private string? _durationLabel;
@@ -72,10 +73,10 @@
 
     protected override void OnParametersSet()
     {
-        if (!_initialized)
+        if (!_initialized.Value)
         {
             _open = DefaultOpen || IsStreaming;
-            _initialized = true;
+            _initialized.Value = true;
         }
 
         if (IsStreaming)

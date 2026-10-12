@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 
@@ -7,6 +8,55 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public async Task Audit_date_time_picker_keeps_validation_ownership_when_panel_inputs_render()
+    {
+        object? observed = null;
+        var initial = new DateTime(2026, 10, 11, 10, 30, 0);
+        var cut = Render<Validation>(p => p.Add(c => c.AsyncFunc, (args, _) =>
+            {
+                observed = args.Value;
+                args.Status = ValidationStatus.Success;
+                return Task.CompletedTask;
+            }).AddChildContent<DateTimePicker>(d => d.Add(c => c.SelectedDateTime, initial)));
+        cut.Find("input[type=text]").Focus();
+        cut.Find("input[aria-label=Hour]").Input("11");
+        observed.Should().Be(initial.AddHours(1));
+        cut.FindComponent<DateTimePicker>().Render(p => p.Add(c => c.ReadOnly, true));
+        await cut.InvokeAsync(() => cut.Instance.ValidateCurrent());
+        observed.Should().Be(initial.AddHours(1));
+    }
+
+    [Test]
+    public void Audit_date_time_picker_enforces_time_bounds_and_disabled_updates()
+    {
+        var minimum = new DateTime(2026, 10, 11, 10, 30, 0);
+        var cut = Render<DateTimePicker>(p => p.Add(c => c.SelectedDateTime, minimum)
+            .Add(c => c.Min, minimum).Add(c => c.Max, minimum.AddHours(2)));
+        cut.Find("input[type=text]").ClassList.Should().Contain("placeholder:text-muted-foreground")
+            .And.NotContain("text-muted-foreground");
+        cut.Find("input[type=text]").Input("2026-10-11 09:00 AM");
+        cut.Instance.SelectedDateTime.Should().Be(minimum);
+        cut.Find("input[type=text]").Focus();
+        cut.Find("button[aria-label='Decrease hour']").Click();
+        cut.Instance.SelectedDateTime.Should().Be(minimum);
+        cut.Render(p => p.Add(c => c.ReadOnly, true));
+        cut.Find("input[type=text]").GetAttribute("aria-expanded").Should().Be("false");
+        cut.Find("input[type=text]").Input("2026-10-11 11:00 AM");
+        cut.Instance.SelectedDateTime.Should().Be(minimum);
+    }
+
+    [Test]
+    public void Audit_date_time_picker_reuses_accessible_calendar_at_date_bounds()
+    {
+        var cut = Render<DateTimePicker>(p => p.Add(c => c.SelectedDateTime, DateTime.MinValue));
+        cut.Find("input[type=text]").Focus();
+        cut.FindComponent<Calendar>().Should().NotBeNull();
+        cut.FindAll("[role=grid] button[tabindex='0']").Should().ContainSingle();
+        cut.Render(p => p.Add(c => c.SelectedDateTime, DateTime.MaxValue));
+        cut.FindAll("[role=grid] button[tabindex='0']").Should().ContainSingle();
+    }
+
     [Test]
     public void Date_time_picker_preserves_partial_edits_and_syncs_completed_input()
     {

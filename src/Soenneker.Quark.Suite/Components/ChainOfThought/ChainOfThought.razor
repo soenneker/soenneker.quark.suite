@@ -1,13 +1,20 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Collapsible Open="@Open" DefaultOpen="@DefaultOpen" OpenChanged="@OpenChanged" Attributes="@BuildAttributes()">
-    @ChildContent
-</Collapsible>
+<CascadingValue Value="this" IsFixed="true">
+    <Collapsible Open="@(Open ?? _open)" OpenChanged="HandleOpenChanged" Attributes="@BuildAttributes()">
+        @ChildContent
+    </Collapsible>
+</CascadingValue>
 
 @code {
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private string? _lastBuiltClass;
+    private readonly Dictionary<ChainOfThoughtStep, ChainOfThoughtStatus> _steps = [];
+    private bool _open;
+    private ValueAtomicBool _completionHandled;
+    private ValueAtomicBool _completionCheckPending;
 
     [Parameter]
     public bool? Open { get; set; }
@@ -20,6 +27,62 @@
 
     [Parameter]
     public bool AutoCloseOnAllComplete { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        _open = DefaultOpen;
+        base.OnInitialized();
+    }
+
+    internal void RegisterStep(ChainOfThoughtStep step, ChainOfThoughtStatus status)
+    {
+        if (_steps.TryGetValue(step, out var previous) && previous == status)
+            return;
+
+        _steps[step] = status;
+        if (status != ChainOfThoughtStatus.Completed)
+            _completionHandled.Value = false;
+
+        if (!_completionCheckPending.Value)
+        {
+            _completionCheckPending.Value = true;
+            _ = RefreshOffThread();
+        }
+    }
+
+    internal void UnregisterStep(ChainOfThoughtStep step) => _steps.Remove(step);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!_completionCheckPending.Value)
+            return;
+
+        _completionCheckPending.Value = false;
+        if (!AutoCloseOnAllComplete || _completionHandled.Value || _steps.Count == 0)
+            return;
+
+        foreach (var status in _steps.Values)
+        {
+            if (status != ChainOfThoughtStatus.Completed)
+                return;
+        }
+
+        _completionHandled.Value = true;
+        if (Open ?? _open)
+        {
+            await HandleOpenChanged(false);
+            Refresh();
+        }
+    }
+
+    private Task HandleOpenChanged(bool open)
+    {
+        if (Open is null)
+            _open = open;
+
+        return OpenChanged.InvokeAsync(open);
+    }
 
     protected override void ApplyDefaultParameters()
     {
@@ -44,5 +107,6 @@
         hc.Add(Open);
         hc.Add(DefaultOpen);
         hc.Add(AutoCloseOnAllComplete);
+        hc.Add(_open);
     }
 }

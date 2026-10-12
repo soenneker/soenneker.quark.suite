@@ -14,7 +14,7 @@
     <BradixDialogContent Id="@Context?.ContentId"
                          ForceMount="@ShouldKeepMounted"
                          PreventMountAutoFocus="@IsMountedClosed"
-                         CloseOnEscapeKeyDown="@(!IsMountedClosed && (ParentSheet?.CloseOnEscape ?? true))"
+                         CloseOnEscapeKeyDown="@(!IsMountedClosed && ParentSheet?.Static != true && (ParentSheet?.CloseOnEscape ?? true))"
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
                          OnPointerDownOutside="(_cachedHandleBackdropPointerDownOutsideDelegate ??= HandleBackdropPointerDownOutside)"
@@ -33,6 +33,8 @@
 
 @code {
     private string? _closedStyle;
+    private string? _containerClass;
+    private string? _containerStyle;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
     private static readonly CssValue<ZIndexBuilder> _defaultZIndex = Quark.ZIndex.Is50;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
@@ -132,6 +134,10 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        if (!string.IsNullOrWhiteSpace(ContainerClass))
+            PrependClassAttribute(attributes, ContainerClass, ref _containerClass);
+        if (!string.IsNullOrWhiteSpace(ContainerStyle))
+            PrependStyleAttribute(attributes, ContainerStyle, ref _containerStyle);
 
         PrependClassAttribute(attributes, "bg-clip-padding transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[50vh] data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:max-h-[50vh] data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[side=bottom]:data-[state=open]:slide-in-from-bottom-10 data-[side=left]:data-[state=open]:slide-in-from-left-10 data-[side=right]:data-[state=open]:slide-in-from-right-10 data-[side=top]:data-[state=open]:slide-in-from-top-10 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[side=bottom]:data-[state=closed]:slide-out-to-bottom-10 data-[side=left]:data-[state=closed]:slide-out-to-left-10 data-[side=right]:data-[state=closed]:slide-out-to-right-10 data-[side=top]:data-[state=closed]:slide-out-to-top-10", ref _lastPrependedClass);
 

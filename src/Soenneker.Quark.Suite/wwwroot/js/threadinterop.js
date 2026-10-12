@@ -23,7 +23,7 @@ function notify(instance) {
   }
 
   instance.lastIsAtBottom = next;
-  instance.dotNetRef.invokeMethodAsync("SetIsAtBottom", next);
+  instance.dotNetRef.invokeMethodAsync("SetIsAtBottom", next).catch(() => {});
 }
 
 export function initialize(element, dotNetRef, initial = "smooth", resize = "smooth", stickToBottom = true) {
@@ -31,7 +31,14 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
     return;
   }
 
-  dispose(element);
+  const existing = instances.get(element);
+  if (existing) {
+    existing.dotNetRef = dotNetRef;
+    existing.initial = initial;
+    existing.resize = resize;
+    existing.stickToBottom = stickToBottom;
+    return;
+  }
 
   const instance = {
     element,
@@ -42,13 +49,19 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
     resizeObserver: null,
     frame: 0,
     initialPending: true,
+    initial,
+    resize,
+    stickToBottom,
+    following: true,
+    lastScrollTop: element.scrollTop,
+    observedChildren: new Set(),
   };
 
   const update = () => {
     instance.frame = 0;
     if (instances.get(element) !== instance) return;
-    if (instance.initialPending || (stickToBottom && instance.lastIsAtBottom)) {
-      scrollToBottomInternal(element, instance.initialPending ? initial : resize);
+    if (instance.initialPending || (instance.stickToBottom && instance.following)) {
+      scrollToBottomInternal(element, instance.initialPending ? instance.initial : instance.resize);
     }
     instance.initialPending = false;
     notify(instance);
@@ -57,15 +70,39 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
     if (!instance.frame) instance.frame = requestAnimationFrame(update);
   };
 
-  instance.onScroll = () => notify(instance);
+  instance.onScroll = () => {
+    if (element.scrollTop < instance.lastScrollTop - 1) instance.following = false;
+    if (isAtBottom(element)) instance.following = true;
+    instance.lastScrollTop = element.scrollTop;
+    notify(instance);
+  };
   element.addEventListener("scroll", instance.onScroll, { passive: true });
 
-  instance.mutationObserver = new MutationObserver(scheduleUpdate);
+  const observeChildren = () => {
+    if (!instance.resizeObserver) return;
+    for (const child of instance.observedChildren) {
+      if (child.parentElement !== element) {
+        instance.resizeObserver.unobserve(child);
+        instance.observedChildren.delete(child);
+      }
+    }
+    for (const child of element.children || []) {
+      if (!instance.observedChildren.has(child)) {
+        instance.observedChildren.add(child);
+        instance.resizeObserver.observe(child);
+      }
+    }
+  };
+  instance.mutationObserver = new MutationObserver(() => {
+    observeChildren();
+    scheduleUpdate();
+  });
   instance.mutationObserver.observe(element, { childList: true, subtree: true, characterData: true });
 
   if ("ResizeObserver" in window) {
     instance.resizeObserver = new ResizeObserver(scheduleUpdate);
     instance.resizeObserver.observe(element);
+    observeChildren();
   }
 
   instances.set(element, instance);
@@ -79,6 +116,8 @@ export function scrollToBottom(element, behavior = "smooth") {
   }
 
   scrollToBottomInternal(element, behavior);
+  const instance = instances.get(element);
+  if (instance) instance.following = true;
 }
 
 export function dispose(element) {

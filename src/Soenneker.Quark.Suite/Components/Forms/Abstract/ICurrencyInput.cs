@@ -28,7 +28,7 @@ public interface ICurrencyInput : IInput
     EventCallback<decimal?> ValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the number of decimal places used for formatting and rounding.
+    /// Gets or sets the number of decimal places used for formatting and rounding, clamped to the decimal range of 0 through 28.
     /// </summary>
     int DecimalPlaces { get; set; }
 }

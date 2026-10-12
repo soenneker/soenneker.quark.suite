@@ -2,6 +2,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as carousel from '../../src/Soenneker.Quark.Suite/wwwroot/js/carouselinterop.js';
 
+test('carousel retains signed offsets for RTL slides', () => {
+  const root = {
+    querySelector: () => ({ clientWidth: 200 }),
+    querySelectorAll: () => [{ offsetLeft: 200 }, { offsetLeft: 100, offsetWidth: 100 }]
+  };
+  assert.equal(carousel.measureOffset(root, 1), -100);
+  assert.equal(carousel.measureOffset(root, 1, false, 'center'), -50);
+});
+
 test('carousel resize reports only changed measurements and ignores disposed registrations', () => {
   const observers = [], calls = [];
   globalThis.ResizeObserver = class {

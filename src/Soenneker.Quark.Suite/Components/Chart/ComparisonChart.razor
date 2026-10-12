@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System
 @using System.Collections.Generic
 @using System.Globalization
@@ -215,8 +216,10 @@
     private readonly string _tooltipPrefix = $"comparison-{Guid.NewGuid():N}";
     private readonly Dictionary<ComparisonChartRow, ElementReference> _rowElements = new();
     private readonly Dictionary<ComparisonChartRow, ElementReference> _observedRows = new();
+    private readonly Dictionary<ComparisonChartRow, ElementReference> _currentElements = new();
+    private readonly List<ComparisonChartRow> _staleRows = new();
     private readonly AsyncLock _revealLock = new();
-    private bool _disposed;
+    private ValueAtomicBool _disposed;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -226,24 +229,43 @@
 
         using (await _revealLock.Lock())
         {
-            if (_disposed)
+            if (_disposed.Value)
                 return;
 
-            var elements = _rowElements.Where(pair => Metrics.Count > 0 && Rows.Contains(pair.Key)).ToDictionary();
-            foreach (var row in _rowElements.Keys.Except(elements.Keys).ToArray())
-                _rowElements.Remove(row);
-            foreach (var observed in _observedRows.ToArray())
+            _currentElements.Clear();
+            if (Metrics.Count > 0)
             {
-                if (!Animate || !elements.TryGetValue(observed.Key, out var current) || current.Id != observed.Value.Id)
+                foreach (var row in Rows)
                 {
-                    await ComparisonChartInterop.Destroy(observed.Value);
-                    _observedRows.Remove(observed.Key);
+                    if (_rowElements.TryGetValue(row, out var element))
+                        _currentElements[row] = element;
                 }
+            }
+
+            _staleRows.Clear();
+            foreach (var row in _rowElements.Keys)
+            {
+                if (!_currentElements.ContainsKey(row))
+                    _staleRows.Add(row);
+            }
+            foreach (var row in _staleRows)
+                _rowElements.Remove(row);
+
+            _staleRows.Clear();
+            foreach (var observed in _observedRows)
+            {
+                if (!Animate || !_currentElements.TryGetValue(observed.Key, out var current) || current.Id != observed.Value.Id)
+                    _staleRows.Add(observed.Key);
+            }
+            foreach (var row in _staleRows)
+            {
+                await ComparisonChartInterop.Destroy(_observedRows[row]);
+                _observedRows.Remove(row);
             }
 
             if (Animate)
             {
-                foreach (var element in elements)
+                foreach (var element in _currentElements)
                 {
                     if (!_observedRows.ContainsKey(element.Key))
                     {
@@ -257,9 +279,8 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (!_disposed.TrySetTrue())
             return;
-        _disposed = true;
         try
         {
             using (await _revealLock.Lock())
@@ -317,7 +338,7 @@
 
     private IEnumerable<int> Columns()
     {
-        if (MirrorFirstMetric)
+        if (MirrorFirstMetric && Metrics.Count > 0)
             yield return 0;
         yield return -1;
         for (var index = MirrorFirstMetric ? 1 : 0; index < Metrics.Count; index++)

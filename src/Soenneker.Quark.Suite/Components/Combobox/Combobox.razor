@@ -114,6 +114,9 @@
 
     internal async Task Select(string? v)
     {
+        if (Disabled)
+            return;
+
         if (Multiple)
         {
             await ToggleValue(v);
@@ -143,6 +146,9 @@
 
     internal async Task SetOpen(bool open)
     {
+        if (open && Disabled)
+            return;
+
         Open = open;
         var searchChanged = false;
         if (open)
@@ -164,6 +170,9 @@
 
     internal async Task SetSearch(string? s)
     {
+        if (Disabled)
+            return;
+
         Search = s ?? "";
         await SearchChanged.InvokeAsync(Search);
         EnsureActiveItem();
@@ -226,6 +235,12 @@
 
     internal async Task HandleInputKeyDown(string key)
     {
+        if (Disabled)
+            return;
+
+        if (!Open && key is "Home" or "End" or "Enter" or "Escape")
+            return;
+
         switch (key)
         {
             case "ArrowDown":
@@ -256,7 +271,7 @@
 
     internal async Task RemoveValue(string value)
     {
-        if (!Multiple || value.IsNullOrEmpty())
+        if (Disabled || !Multiple || value.IsNullOrEmpty())
             return;
 
         if (Values is null || Values.Length == 0)
@@ -282,6 +297,9 @@
 
     internal async Task Clear()
     {
+        if (Disabled)
+            return;
+
         Search = "";
 
         if (Multiple)

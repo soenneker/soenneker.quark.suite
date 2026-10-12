@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -17,7 +18,7 @@
     private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Input.OnFocusVisible.Ring;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnX.Is2_5.OnY.Is1;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Base.OnMd.Sm;
-    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-colors");
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("colors");
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<FlexBuilder> _defaultFlex = Quark.Flex.Is1;
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.None;
@@ -25,9 +26,9 @@
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
     private static readonly CssValue<ShadowBuilder> _defaultShadow = Quark.Shadow.None;
     private static readonly CssValue<RingBuilder> _defaultRing = Quark.Ring.None;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private string? _lastPrependedClass;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
@@ -36,9 +37,9 @@
     private object? _cachedHandleInputBlurFocusEventArgsCallback;
 
     private ElementReference _elementRef;
-    private bool _hasPendingNativeTimeValue;
+    private ValueAtomicBool _hasPendingNativeTimeValue;
     private string? _pendingNativeTimeValue;
-    private bool _suppressNextRender;
+    private ValueAtomicBool _suppressNextRender;
 
     [CascadingParameter]
     internal InputGroupContext? InputGroupContext { get; set; }
@@ -74,6 +75,7 @@
 
     private Task HandleInput(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return Task.CompletedTask;
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(e);
@@ -81,12 +83,14 @@
         }
 
         var value = e.Value?.ToString();
+        if (string.Equals(Value, value, StringComparison.Ordinal)) return Task.CompletedTask;
         Value = value;
         return ValueChanged.InvokeIfHasDelegate(value);
     }
 
     private Task HandleChange(ChangeEventArgs e)
     {
+        if (Disabled || ReadOnly) return Task.CompletedTask;
         if (IsNativeTimeInput())
         {
             TrackPendingNativeTimeValue(e);
@@ -94,6 +98,7 @@
         }
 
         var value = e.Value?.ToString();
+        if (string.Equals(Value, value, StringComparison.Ordinal)) return Task.CompletedTask;
         Value = value;
         return ValueChanged.InvokeIfHasDelegate(value);
     }
@@ -103,15 +108,15 @@
         var value = e.Value?.ToString();
         Value = value;
         _pendingNativeTimeValue = value;
-        _hasPendingNativeTimeValue = true;
-        _suppressNextRender = true;
+        _hasPendingNativeTimeValue.Value = true;
+        _suppressNextRender.Value = true;
     }
 
     private async Task HandleInputBlur(FocusEventArgs e)
     {
-        if (_hasPendingNativeTimeValue)
+        if (_hasPendingNativeTimeValue.Value)
         {
-            _hasPendingNativeTimeValue = false;
+            _hasPendingNativeTimeValue.Value = false;
             var value = _pendingNativeTimeValue;
             _pendingNativeTimeValue = null;
             await ValueChanged.InvokeIfHasDelegate(value);
@@ -122,9 +127,8 @@
 
     protected override bool ShouldRender()
     {
-        if (_suppressNextRender)
+        if (_suppressNextRender.Exchange(false))
         {
-            _suppressNextRender = false;
             return false;
         }
 

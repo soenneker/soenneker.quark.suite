@@ -4,6 +4,9 @@
 
 <BradixToggleGroupItem Value="@ResolvedValue"
                        Disabled="@Disabled"
+                       OnClick="@OnClick"
+                       OnFocus="@OnFocus"
+                       OnKeyDown="@OnKeyDown"
                        AdditionalAttributes="@ItemAttributes">
     @ChildContent
 </BradixToggleGroupItem>
@@ -41,8 +44,8 @@
     private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.OnFocusVisible.Ring;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
 
     [CascadingParameter(Name = "ParentToggleGroup")]
     private ToggleGroup? ParentToggleGroup { get; set; }
@@ -126,6 +129,7 @@
         hc.Add(ParentToggleGroup?.ToggleSize);
         hc.Add(ParentToggleGroup?.Spacing);
         hc.Add(ParentToggleGroup?.Orientation);
+        hc.Add(ParentToggleGroup?.ResolvedDirection);
         hc.Add(ParentToggleGroup?.IsItemPressed(ResolvedValue) == true);
     }
 

@@ -17,10 +17,10 @@ public abstract class DateTimeComponentBase : Element
 {
     private string? _lastBuiltClass;
 
-    private bool _browserTimeZoneResolved;
+    private ValueAtomicBool _browserTimeZoneResolved;
     private ValueAtomicBool _dateTimeDisposed;
     private RenderFragment? _contentFragment;
-    private bool _restartTimerAfterRender = true;
+    private ValueAtomicBool _restartTimerAfterRender = new(true);
     private string? _browserTimeZone;
     private string _displayText = string.Empty;
     private string? _displayTitle;
@@ -169,7 +169,7 @@ public abstract class DateTimeComponentBase : Element
         _lastParameterState = state;
         InvalidateOptions();
         UpdateDisplay(now);
-        _restartTimerAfterRender = true;
+        _restartTimerAfterRender.Value = true;
     }
 
 
@@ -180,9 +180,9 @@ public abstract class DateTimeComponentBase : Element
         if (_dateTimeDisposed.Read())
             return;
 
-        if (!_browserTimeZoneResolved)
+        if (!_browserTimeZoneResolved.Value)
         {
-            _browserTimeZoneResolved = true;
+            _browserTimeZoneResolved.Value = true;
             var timeZone = await BrowserTimeZoneService.GetTimeZoneId();
             if (_dateTimeDisposed.Read())
                 return;
@@ -195,13 +195,13 @@ public abstract class DateTimeComponentBase : Element
                 if (UpdateDisplay(DateTimeOffset.UtcNow))
                     await InvokeAsync(StateHasChanged);
 
-                _restartTimerAfterRender = true;
+                _restartTimerAfterRender.Value = true;
             }
         }
 
-        if (_restartTimerAfterRender)
+        if (_restartTimerAfterRender.Value)
         {
-            _restartTimerAfterRender = false;
+            _restartTimerAfterRender.Value = false;
             SyncScheduleRegistration();
         }
     }

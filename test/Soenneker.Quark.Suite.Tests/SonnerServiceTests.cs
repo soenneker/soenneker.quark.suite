@@ -8,6 +8,40 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed class SonnerServiceTests
 {
     [Test]
+    public async Task Disposing_during_creation_prevents_publishing_a_toast(CancellationToken cancellationToken)
+    {
+        await using var service = new SonnerService { DefaultDuration = 0 };
+        var id = await service.Toast("Discarded", _ => service.Dispose(), cancellationToken);
+        id.Should().BeEmpty();
+        (await service.GetToasts(cancellationToken)).Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Replacing_a_timed_toast_cancels_the_previous_expiration(CancellationToken cancellationToken)
+    {
+        await using var service = new SonnerService { DefaultDuration = 0 };
+        await service.Toast("Temporary", options => { options.Id = "replace-timer"; options.Duration = 50; }, cancellationToken);
+        await service.Toast("Persistent", options => { options.Id = "replace-timer"; options.Duration = 0; }, cancellationToken);
+        await Task.Delay(150, cancellationToken);
+        var toast = (await service.GetToasts(cancellationToken)).Should().ContainSingle().Subject;
+        toast.Title.Should().Be("Persistent");
+        toast.Removed.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Dismiss_finishes_removing_toast_when_caller_cancels_during_exit(CancellationToken cancellationToken)
+    {
+        await using var service = new SonnerService { DefaultDuration = 0 };
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var id = await service.Toast("Temporary", cancellationToken: cancellationToken);
+        var dismissal = service.Dismiss(id, source.Token);
+        (await service.GetToasts(cancellationToken))[0].Removed.Should().BeTrue();
+        await source.CancelAsync();
+        await dismissal;
+        (await service.GetToasts(cancellationToken)).Should().BeEmpty();
+    }
+
+    [Test]
     [Arguments(false)]
     [Arguments(true)]
     public async Task Promise_preserves_configuration_precedence_for_success_and_error(bool fail, CancellationToken cancellationToken)
@@ -42,7 +76,7 @@ public sealed class SonnerServiceTests
     [Arguments(true)]
     public async ValueTask Pause_and_resume_preserve_active_or_initially_paused_timers(bool pauseBeforeCreation, CancellationToken cancellationToken)
     {
-        await using var service = new SonnerService { DefaultDuration = 100 };
+        await using var service = new SonnerService { DefaultDuration = 1000 };
         var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         if (pauseBeforeCreation)
             await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
@@ -54,7 +88,7 @@ public sealed class SonnerServiceTests
         if (!pauseBeforeCreation)
             await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
         await service.Pause(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
-        await Task.Delay(150, cancellationToken: cancellationToken);
+        await Task.Delay(1100, cancellationToken: cancellationToken);
         (await service.GetToasts(cancellationToken: cancellationToken))[0].Removed.Should().BeFalse();
         await service.Resume(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);
         await service.Resume(null, SonnerPosition.TopCenter, cancellationToken: cancellationToken);

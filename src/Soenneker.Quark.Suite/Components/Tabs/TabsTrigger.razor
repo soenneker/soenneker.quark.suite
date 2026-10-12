@@ -4,7 +4,6 @@
 
 <BradixTabsTrigger Value="@ResolvedValue"
                    Disabled="@Disabled"
-                   OnMouseDown="(_cachedHandleClickDelegate ??= HandleClick)"
                    AdditionalAttributes="@TriggerAttributes">
     @ChildContent
 </BradixTabsTrigger>
@@ -49,6 +48,8 @@
             attributes.Remove("disabled");
             attributes.Remove("onfocus");
             attributes.Remove("onkeydown");
+            if (OnClick.HasDelegate)
+                attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleClickDelegate ??= HandleClick);
 
             return attributes;
         }
@@ -90,6 +91,6 @@
 
     private Task HandleClick(MouseEventArgs args)
     {
-        return OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
+        return !Disabled && OnClick.HasDelegate ? OnClick.InvokeAsync(args) : Task.CompletedTask;
     }
 }

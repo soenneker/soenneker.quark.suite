@@ -1,16 +1,52 @@
 const MOBILE_BREAKPOINT = 768;
 
-let dotNetRef = null;
-let mediaQueryList = null;
-let mediaQueryHandler = null;
-let keyboardHandler = null;
+const providers = new Map();
 
-export function initializeSidebar(componentRef, shortcutKey) {
-  cleanup();
+export function initializeSidebar(componentRef, shortcutKey, instanceId = "default") {
+  cleanup(instanceId);
+  if (!componentRef) return;
 
-  dotNetRef = componentRef;
-  setupMobileDetection();
-  setupKeyboardShortcut(shortcutKey);
+  let mediaQueryList = null;
+  let mediaQueryHandler = null;
+  let keyboardHandler = null;
+  let active = true;
+  const invoke = (method, ...args) => {
+    if (active) componentRef.invokeMethodAsync(method, ...args).catch(() => {});
+  };
+
+  if (typeof window !== "undefined") {
+    mediaQueryList = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    mediaQueryHandler = event => invoke("OnMobileChange", event.matches);
+    invoke("OnMobileChange", mediaQueryList.matches);
+    if (typeof mediaQueryList.addEventListener === "function")
+      mediaQueryList.addEventListener("change", mediaQueryHandler);
+    else if (typeof mediaQueryList.addListener === "function")
+      mediaQueryList.addListener(mediaQueryHandler);
+  }
+
+  if (typeof document !== "undefined") {
+    const normalizedKey = (shortcutKey || "b").toLowerCase();
+    keyboardHandler = event => {
+      if (!event.defaultPrevented && !event.isComposing && !event.altKey &&
+          (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === normalizedKey) {
+        event.preventDefault();
+        invoke("OnToggleShortcut");
+      }
+    };
+    document.addEventListener("keydown", keyboardHandler);
+  }
+
+  providers.set(instanceId, () => {
+    active = false;
+    if (mediaQueryList && mediaQueryHandler) {
+      if (typeof mediaQueryList.removeEventListener === "function")
+        mediaQueryList.removeEventListener("change", mediaQueryHandler);
+      else if (typeof mediaQueryList.removeListener === "function")
+        mediaQueryList.removeListener(mediaQueryHandler);
+    }
+    if (keyboardHandler && typeof document !== "undefined")
+      document.removeEventListener("keydown", keyboardHandler);
+  });
 }
 
 export function getSidebarState(cookieKey) {
@@ -29,42 +65,6 @@ export function getSidebarState(cookieKey) {
 
 export function saveSidebarState(cookieKey, value) {
   setCookie(cookieKey, value ? "true" : "false", 7);
-}
-
-function setupMobileDetection() {
-  if (!dotNetRef || typeof window === "undefined") {
-    return;
-  }
-
-  mediaQueryList = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-  mediaQueryHandler = (event) => {
-    dotNetRef.invokeMethodAsync("OnMobileChange", event.matches);
-  };
-
-  dotNetRef.invokeMethodAsync("OnMobileChange", mediaQueryList.matches);
-
-  if (typeof mediaQueryList.addEventListener === "function") {
-    mediaQueryList.addEventListener("change", mediaQueryHandler);
-  } else if (typeof mediaQueryList.addListener === "function") {
-    mediaQueryList.addListener(mediaQueryHandler);
-  }
-}
-
-function setupKeyboardShortcut(shortcutKey) {
-  if (!dotNetRef || typeof document === "undefined") {
-    return;
-  }
-
-  const normalizedKey = (shortcutKey || "b").toLowerCase();
-
-  keyboardHandler = (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === normalizedKey) {
-      event.preventDefault();
-      dotNetRef.invokeMethodAsync("OnToggleShortcut");
-    }
-  };
-
-  document.addEventListener("keydown", keyboardHandler);
 }
 
 function getCookie(name) {
@@ -98,23 +98,9 @@ function setCookie(name, value, days) {
   document.cookie = `${name}=${value || ""}${expires}; path=/; SameSite=Lax`;
 }
 
-export function cleanup() {
-  if (mediaQueryList && mediaQueryHandler) {
-    if (typeof mediaQueryList.removeEventListener === "function") {
-      mediaQueryList.removeEventListener("change", mediaQueryHandler);
-    } else if (typeof mediaQueryList.removeListener === "function") {
-      mediaQueryList.removeListener(mediaQueryHandler);
-    }
-  }
-
-  if (keyboardHandler && typeof document !== "undefined") {
-    document.removeEventListener("keydown", keyboardHandler);
-  }
-
-  mediaQueryList = null;
-  mediaQueryHandler = null;
-  keyboardHandler = null;
-  dotNetRef = null;
+export function cleanup(instanceId = "default") {
+  providers.get(instanceId)?.();
+  providers.delete(instanceId);
 }
 // Each handle owns its listeners; provider cleanup must not affect other sidebars.
 const resizeHandles = new WeakMap();

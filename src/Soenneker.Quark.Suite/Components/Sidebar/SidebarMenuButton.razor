@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Microsoft.AspNetCore.Components.Routing
@@ -63,11 +64,11 @@ else
     private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Left;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.Utility("ring-sidebar-ring");
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
-    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("transition-[width,height,padding]");
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("[width,height,padding]");
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor2 = Quark.BackgroundColor.Transparent;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Background;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<HeightBuilder> _defaultHeight4 = Quark.Height.Token("[30px]");
@@ -127,7 +128,7 @@ else
 
     private RenderFragment? _triggerChildContent;
     private ElementReference _elementRef;
-    private bool _triggerElementRegistered;
+    private ValueAtomicBool _triggerElementRegistered;
     private string? _registeredTriggerId;
 
     private const string _activeClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
@@ -289,7 +290,9 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        return BuildAttributes();
+        var attributes = BuildAttributes();
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleActivate);
+        return attributes;
     }
 
     private RenderFragment? RenderChildContent()
@@ -304,6 +307,8 @@ else
 
     private async Task HandleActivate(MouseEventArgs args)
     {
+        if (TriggerContext?.ParentDisabled == true)
+            return;
         if (TriggerContext?.OnClick is not null)
             await TriggerContext.OnClick();
 
@@ -324,11 +329,11 @@ else
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (TriggerContext?.RegisterElement is not null &&
-            (!_triggerElementRegistered || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        if (!AsChild && !Href.HasContent() && TriggerContext?.RegisterElement is not null &&
+            (!_triggerElementRegistered.Value || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
         {
             TriggerContext.RegisterElement(_elementRef);
-            _triggerElementRegistered = true;
+            _triggerElementRegistered.Value = true;
             _registeredTriggerId = TriggerContext.TriggerId;
         }
     }

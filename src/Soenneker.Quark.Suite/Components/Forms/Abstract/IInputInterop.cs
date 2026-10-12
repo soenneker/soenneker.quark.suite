@@ -18,6 +18,24 @@ public interface IInputInterop : IAsyncDisposable
     ValueTask Initialize(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Prevents native defaults for combobox navigation keys synchronously, while preserving text editing and composition.
+    /// </summary>
+    ValueTask RegisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes the combobox keyboard listener from an input.
+    /// </summary>
+    ValueTask UnregisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default);
+
+    /// <summary>Prevents tag navigation and delimiter keys synchronously while preserving native text editing and IME composition.</summary>
+    ValueTask RegisterTagInputKeys(ElementReference input, string[] delimiters, CancellationToken cancellationToken = default);
+
+    /// <summary>Prevents default browser handling for the supplied navigation keys on a composite control.</summary>
+    ValueTask RegisterNavigationKeys(ElementReference element, string[] keys, CancellationToken cancellationToken = default);
+
+
+
+    /// <summary>
     /// Gets the current text selection for the input.
     /// </summary>
     /// <param name="input">input to read or transform.</param>

@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISpinner
@@ -80,7 +81,7 @@
     private string? _lastBuiltClass;
     private string? _lastBuiltStyle;
 
-    private bool _styleInitialized;
+    private ValueAtomicBool _styleInitialized;
 
     [Parameter]
     public string? ForegroundColor { get; set; }
@@ -331,10 +332,10 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!_styleInitialized && !Name.HasValue)
+        if (!_styleInitialized.Value && !Name.HasValue)
         {
             await SpinnerInterop.Initialize();
-            _styleInitialized = true;
+            _styleInitialized.Value = true;
         }
     }
 

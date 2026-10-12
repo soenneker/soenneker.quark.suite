@@ -27,6 +27,20 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <returns>A task that completes when the editor creation is complete.</returns>
     ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default);
 
+    /// <summary>Updates editable options and the content height subscription without recreating the editor or its model.</summary>
+    /// <param name="container">Container hosting the editor.</param>
+    /// <param name="readOnly">Whether editing is disabled.</param>
+    /// <param name="wordWrap">Whether long lines wrap.</param>
+    /// <param name="minimap">Whether the minimap is shown.</param>
+    /// <param name="autoHeight">Whether content changes resize the editor.</param>
+    /// <param name="minLines">Minimum visible lines.</param>
+    /// <param name="maxLines">Maximum visible lines.</param>
+    /// <param name="ariaLabel">Accessible name of the editor.</param>
+    /// <param name="cancellationToken">Token used to cancel the update.</param>
+    /// <returns>A task representing the option update.</returns>
+    ValueTask UpdateOptions(ElementReference container, bool readOnly, bool wordWrap, bool minimap, bool autoHeight,
+        int? minLines, int? maxLines, string? ariaLabel, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Sets the value (full text) of the editor instance bound to the container.
     /// </summary>

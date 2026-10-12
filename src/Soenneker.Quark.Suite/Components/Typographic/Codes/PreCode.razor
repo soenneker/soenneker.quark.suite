@@ -9,8 +9,6 @@
 </pre>
 
 @code {
-    private string? _scrollClass;
-    private string? _heightStyle;
     private QuarkAttributeDictionary _preAttributesBuffer;
     private QuarkAttributeDictionary _codeAttributesBuffer;
     [Parameter]
@@ -25,53 +23,40 @@
     [Parameter]
     public bool Scrollable { get; set; } = true;
 
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var preset = AppliedPresetContext;
+        if (ResolvePresetValue(Padding, preset?.Padding, nameof(Padding)) is null)
+            AppendClass(ref cls, "p-3");
+        if (ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)) is null)
+            AppendClass(ref cls, "rounded");
+        if (Scrollable && ResolvePresetValue(Overflow, preset?.Overflow, nameof(Overflow)) is null)
+            AppendClass(ref cls, "overflow-auto");
+    }
+
     protected virtual Dictionary<string, object> BuildPreAttributes()
     {
         var attributes = _preAttributesBuffer.Create(BuildAttributes(), 1);
         attributes["data-slot"] = "pre-code";
         if (Scrollable)
-        attributes.TryAdd("tabindex", QuarkAttributeValues.Zero);
-
-        if (!Class.HasContent())
-        {
-            var baseClasses = Scrollable ? "p-3 rounded overflow-auto" : "p-3 rounded";
-
-            if (MaxHeight.HasValue)
-            {
-                attributes["style"] = QuarkStringCache.Concat("max-height: ", MaxHeight.Value.ToString(), "px;", ref _heightStyle);
-            }
-
-            attributes["class"] = baseClasses;
-        }
-        else
-        {
-            var currentClass = attributes.TryGetValue("class", out var classValue) ? classValue?.ToString() ?? Class : Class;
-
-            if (Scrollable && !currentClass.Contains("overflow-auto"))
-            {
-                currentClass = AppendToClass(currentClass, "overflow-auto", ref _scrollClass);
-            }
-
-            attributes["class"] = currentClass;
-        }
+            attributes.TryAdd("tabindex", QuarkAttributeValues.Zero);
 
         return attributes;
     }
 
     protected virtual Dictionary<string, object> BuildCodeAttributes()
     {
-        var attributes = _codeAttributesBuffer.Create(4);
+        var attributes = _codeAttributesBuffer.Create(3);
 
         if (Language.HasContent())
-            attributes["Language"] = Language;
+            attributes["data-language"] = Language;
 
         if (Theme.HasContent() && Theme != "default")
-            attributes["Theme"] = Theme;
+            attributes["data-theme"] = Theme;
 
         if (Highlight)
-            attributes["Highlight"] = QuarkAttributeValues.True;
-
-        attributes["Inline"] = QuarkAttributeValues.False;
+            attributes["data-highlight"] = "true";
 
         return attributes;
     }

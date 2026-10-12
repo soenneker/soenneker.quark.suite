@@ -21,7 +21,6 @@
            ReadOnly="@ReadOnly"
            Required="@Required"
            Class="@ResolvedInputClass"
-           Style="@Style"
            AriaInvalid="@AriaInvalid"
            AriaDisabled="@AriaDisabled"
            AriaExpanded="@AriaExpanded"
@@ -29,6 +28,7 @@
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
+           OnClick="@OnClick"
            OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
            OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
            OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)"
@@ -54,7 +54,6 @@
     private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private QuarkInt32Attribute _stepAttribute;
     private DateInputValueCache _currentValueCache, _minValueCache, _maxValueCache;
-    private string? _resolvedInputClass;
     private Func<object?>? _validationValueSelector;
     private Func<Task>? _autoSaveRefreshCallback;
     private Func<string?, Task>? _cachedHandleValueChangedDelegate;
@@ -67,6 +66,8 @@
     private QuarkAttributeDictionary _wrapperAttributesBuffer;
     private AutoSaveController<DateTime?> _dateAutoSave;
     private AutoSaveController<DateOnly?> _dateOnlyAutoSave;
+    private Validation? _subscribedValidation;
+    private LambdaExpression? _registeredExpression;
 
     /// <summary>
     /// Gets or sets the date value.
@@ -243,22 +244,22 @@
     }
 
     private string InputModeValue => InputMode?.Value ?? DateInputMode.Date.Value;
-    private bool UsesDateOnlyValue => DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate;
+    private bool UsesDateOnlyValue => DateExpression is null && !Date.HasValue && !DateChanged.HasDelegate &&
+        (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate);
     private AutoSaveState CurrentAutoSaveState => UsesDateOnlyValue ? _dateOnlyAutoSave.State : _dateAutoSave.State;
     private bool CurrentAutoSaveHasSaved => UsesDateOnlyValue ? _dateOnlyAutoSave.HasSaved : _dateAutoSave.HasSaved;
     private bool UsesAutoSaveStatusSlot => AutoSave && ShowAutoSaveStatus && (OnAutoSave is not null || OnAutoSaveDateOnly is not null);
 
-    private string ResolvedInputClass => UsesAutoSaveStatusSlot
-        ? AppendToClass(Class, "min-w-0 flex-1", ref _resolvedInputClass)
-        : Class ?? string.Empty;
+    private string? ResolvedInputClass => UsesAutoSaveStatusSlot ? "min-w-0 flex-1" : null;
 
     private string GetCurrentValue() => _currentValueCache.Get(Date, DateOnly, InputModeValue);
 
     private async Task HandleValueChanged(string? value)
     {
-        if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
+        if (!UsesDateOnlyValue)
         {
-            DateTime? next = DateTime.TryParse(value, out var dateValue) ? dateValue : null;
+            DateTime? next = DateTime.TryParse(value, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var dateValue) ? dateValue : null;
             var valueChanged = Date != next;
             Date = next;
 
@@ -273,7 +274,8 @@
 
         if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
         {
-            DateOnly? next = System.DateOnly.TryParse(value, out var dateOnlyValue) ? dateOnlyValue : null;
+            DateOnly? next = System.DateOnly.TryParse(value, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var dateOnlyValue) ? dateOnlyValue : null;
             var valueChanged = DateOnly != next;
             DateOnly = next;
 
@@ -285,22 +287,32 @@
         }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender && ParentValidation is not null)
+        await base.OnParametersSetAsync();
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation = ParentValidation;
+            _registeredExpression = null;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        var expression = (LambdaExpression?)DateExpression ?? DateOnlyExpression;
+        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, expression))
+        {
+            _registeredExpression = expression;
             if (DateExpression is not null)
             {
                 await ParentValidation.InitializeInputExpression(DateExpression);
             }
-            else if (DateOnlyExpression is not null)
+            else
             {
-                await ParentValidation.InitializeInputExpression(DateOnlyExpression);
+                await ParentValidation.InitializeInputExpression(DateOnlyExpression!);
             }
         }
 
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
@@ -312,11 +324,7 @@
     {
         await OnInput.InvokeIfHasDelegate(e);
 
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(ValidationValue);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private async Task HandleInputBlur(FocusEventArgs e)
@@ -355,8 +363,8 @@
     /// </summary>
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (_subscribedValidation is not null)
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         try { await _dateAutoSave.DisposeAsync(); }
         finally
         {
@@ -369,11 +377,7 @@
     {
         await OnChange.InvokeIfHasDelegate(e);
 
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(ValidationValue);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private string GetInputModeString()
@@ -383,35 +387,9 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = _inputAttributesBuffer.Create((AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0), StringComparer.OrdinalIgnoreCase);
-
-        if (AdditionalAttributes is not null)
-        {
-            foreach (var pair in AdditionalAttributes)
-            {
-                if (pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
-                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[pair.Key] = pair.Value;
-            }
-        }
-
-        if (Attributes is not null)
-        {
-            foreach (var pair in Attributes)
-            {
-                if (pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
-                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[pair.Key] = pair.Value;
-            }
-        }
+        var attributes = _inputAttributesBuffer.Create(BuildAttributes(), 5);
+        attributes.Remove("oninput");
+        attributes.Remove("onchange");
 
         // Add DateInput-specific attributes
         if (Min != default)

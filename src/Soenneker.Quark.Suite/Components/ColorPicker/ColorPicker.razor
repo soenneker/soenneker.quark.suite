@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Rendering
@@ -87,8 +88,7 @@ else
     private string? _lastValue;
     private ElementReference _rootRef;
     private DotNetObjectReference<ColorPicker>? _dotNetRef;
-    private bool _canvasRegistered;
-    private bool? _lastCanvasDisabled;
+    private ValueAtomicBool _disposed;
     private static readonly object EyedropperIconSize = (CssValue<SizeBuilder>) Quark.Size.Is4;
     private static readonly ColorPickerFormat[] DefaultFormats = Enum.GetValues<ColorPickerFormat>();
     private static readonly string[] DefaultPresets =
@@ -508,7 +508,7 @@ else
         get
         {
             EnsureColorState();
-            return _cachedCanvasStyle ??= $"background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl({_hue:0} 100% 50%));";
+            return _cachedCanvasStyle ??= $"background: linear-gradient(to bottom, #fff, transparent 50%, #000), linear-gradient(to right, #808080, hsl({_hue:0} 100% 50%));";
         }
     }
 
@@ -561,7 +561,7 @@ else
 
     private async Task SetSaturationLightness(double saturation, double lightness)
     {
-        if (ControlsDisabled)
+        if (_disposed.Value || ControlsDisabled || !double.IsFinite(saturation) || !double.IsFinite(lightness))
             return;
 
         _saturation = Math.Clamp(saturation, 0, 100);
@@ -649,7 +649,7 @@ else
             ColorPickerFormat.Rgb => $"rgb({rgb.R}, {rgb.G}, {rgb.B})",
             ColorPickerFormat.Css => $"rgba({rgb.R}, {rgb.G}, {rgb.B}, {alpha})",
             ColorPickerFormat.Hsl => $"hsl({Math.Round(_hue):0} {_saturation:0}% {_lightness:0}% / {alpha})",
-            _ => BaseHex
+            _ => _alpha < 1 ? $"{BaseHex}{(int)Math.Round(_alpha * 255):x2}" : BaseHex
         };
     }
 
@@ -673,7 +673,7 @@ else
 
     private static double ParseDouble(object? value, double fallback, double min, double max)
     {
-        if (!double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed))
+        if (!double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed) || !double.IsFinite(parsed))
             return fallback;
 
         return Math.Clamp(parsed, min, max);
@@ -705,9 +705,9 @@ else
         while (!hex.IsEmpty && hex[0] == '#')
             hex = hex[1..];
 
-        Span<char> expandedHex = stackalloc char[6];
+        Span<char> expandedHex = stackalloc char[8];
 
-        if (hex.Length == 3)
+        if (hex.Length is 3 or 4)
         {
             for (var i = 0; i < hex.Length; i++)
             {
@@ -715,7 +715,7 @@ else
                 expandedHex[(i * 2) + 1] = hex[i];
             }
 
-            hex = expandedHex;
+            hex = expandedHex[..(hex.Length * 2)];
         }
 
         if (hex.Length is not 6 and not 8 ||
@@ -755,6 +755,9 @@ else
             !double.TryParse(alphaToken, NumberStyles.Float, CultureInfo.InvariantCulture, out alpha))
             return false;
 
+        if (!double.IsFinite(alpha) || TryReadCssToken(ref body, out _))
+            return false;
+
         color = RgbToHsl(Math.Clamp(r, 0, 255), Math.Clamp(g, 0, 255), Math.Clamp(b, 0, 255), Math.Clamp(alpha, 0, 1));
         return true;
     }
@@ -776,6 +779,9 @@ else
         var alpha = 1d;
         if (TryReadCssToken(ref body, out var alphaToken) &&
             !double.TryParse(alphaToken, NumberStyles.Float, CultureInfo.InvariantCulture, out alpha))
+            return false;
+
+        if (!double.IsFinite(h) || !double.IsFinite(s) || !double.IsFinite(l) || !double.IsFinite(alpha) || TryReadCssToken(ref body, out _))
             return false;
 
         color = (NormalizeHue(h), Math.Clamp(s, 0, 100), Math.Clamp(l, 0, 100), Math.Clamp(alpha, 0, 1));
@@ -941,44 +947,13 @@ else
         hc.Add(ReadOnly);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            var canvasDisabled = ControlsDisabled;
-
-            if (ShowCanvas && (!_canvasRegistered || _lastCanvasDisabled != canvasDisabled))
-            {
-                _dotNetRef ??= DotNetObjectReference.Create(this);
-                _canvasRegistered = await ColorPickerInterop.RegisterCanvas(_rootRef, _dotNetRef, canvasDisabled);
-
-                if (_canvasRegistered)
-                    _lastCanvasDisabled = canvasDisabled;
-            }
-            else if (!ShowCanvas && _canvasRegistered)
-            {
-                await ColorPickerInterop.UnregisterCanvas(_rootRef);
-                _canvasRegistered = false;
-                _lastCanvasDisabled = null;
-            }
-        }
-        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
-        {
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
+    internal DotNetObjectReference<ColorPicker> GetCanvasReference() =>
+        _dotNetRef ??= DotNetObjectReference.Create(this);
 
     public override async ValueTask DisposeAsync()
     {
-        try
-        {
-            await ColorPickerInterop.UnregisterCanvas(_rootRef);
-        }
-        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
-        {
-        }
-
+        if (!_disposed.TrySetTrue())
+            return;
         _dotNetRef?.Dispose();
         await base.DisposeAsync();
     }

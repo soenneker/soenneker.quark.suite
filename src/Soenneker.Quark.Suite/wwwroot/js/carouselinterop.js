@@ -65,10 +65,10 @@ export function measureOffset(root, currentIndex = 0, isVertical = false, align 
   const alignMode = align || state?.align || "start";
 
   if (alignMode === "center" && viewportSize && itemSize && itemSize * 2 <= viewportSize + 8 && itemSize * 3 > viewportSize + 8) {
-    targetOffset -= itemSize / 2;
+    targetOffset -= Math.sign(targetOffset) * itemSize / 2;
   }
 
-  const offset = Math.abs(targetOffset);
+  const offset = targetOffset;
   if (state) state.lastOffset = offset;
   return offset;
 }

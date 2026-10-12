@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
@@ -6,8 +7,7 @@
 @inject IResizableInterop ResizableInterop
 
 <div @ref="ElementRef"
-     @attributes="BuildAttributes()"
-     @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)">
+     @attributes="BuildAttributes()">
     @if (WithHandle)
     {
         <Div Display="_renderCss0"
@@ -37,7 +37,6 @@
     private string? _lastBuiltClass;
     private string? _lastBuiltStyle;
 
-    private Func<KeyboardEventArgs, Task>? _cachedHandleKeyDownDelegate;
 
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
@@ -49,7 +48,7 @@
     private ResizablePanelGroup? _interopParentPanelGroup;
     private string? _interopOrientation;
     private int _interopIndex = -1;
-    private bool _interopRegistered;
+    private ValueAtomicBool _interopRegistered;
     private int _index;
 
     /// <summary>
@@ -110,27 +109,24 @@
         _ = InvokeAsync(StateHasChanged);
     }
 
-    private Task HandleKeyDown(KeyboardEventArgs e) =>
-        ParentPanelGroup?.HandleHandleKeyDown(_index, e) ?? Task.CompletedTask;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (ParentPanelGroup is null)
         {
-            if (_interopRegistered)
+            if (_interopRegistered.Value)
             {
                 await ResizableInterop.UnregisterHandle(ElementRef);
                 ClearInteropRegistration();
             }
         }
-        else if (!_interopRegistered ||
+        else if (!_interopRegistered.Value ||
                  !ReferenceEquals(_interopParentPanelGroup, ParentPanelGroup) ||
                  _interopIndex != _index ||
                  !string.Equals(_interopOrientation, ParentPanelGroup.OrientationValue, StringComparison.Ordinal))
         {
             await ResizableInterop.RegisterHandle(ElementRef, ParentPanelGroup.GroupElementRef, ParentPanelGroup.OrientationValue,
                 ParentPanelGroup.GetOrCreateDotNetRef(), _index);
-            _interopRegistered = true;
+            _interopRegistered.Value = true;
             _interopParentPanelGroup = ParentPanelGroup;
             _interopOrientation = ParentPanelGroup.OrientationValue;
             _interopIndex = _index;
@@ -141,7 +137,7 @@
 
     private void ClearInteropRegistration()
     {
-        _interopRegistered = false;
+        _interopRegistered.Value = false;
         _interopParentPanelGroup = null;
         _interopOrientation = null;
         _interopIndex = -1;
@@ -180,7 +176,7 @@
     {
         _registeredParentPanelGroup?.UnregisterHandle(this);
 
-        if (_interopRegistered)
+        if (_interopRegistered.Value)
         {
             await ResizableInterop.UnregisterHandle(ElementRef);
             ClearInteropRegistration();

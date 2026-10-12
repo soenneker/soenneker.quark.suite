@@ -22,8 +22,16 @@
         base.ApplyDefaultParameters();
         DataSlot ??= "stack";
 
-        Display ??= Inline ? InlineFlexDisplay : FlexDisplay;
-        FlexDirection ??= Orientation == StackOrientation.Horizontal ? RowDirection : ColumnDirection;
+    }
+
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        var preset = AppliedPresetContext;
+        if (ResolvePresetValue(Display, preset?.Display, nameof(Display)) is null)
+            AddCss<DisplayBuilder>(ref cls, Inline ? InlineFlexDisplay : FlexDisplay);
+        if (ResolvePresetValue(FlexDirection, preset?.FlexDirection, nameof(FlexDirection)) is null)
+            AddCss<FlexDirectionBuilder>(ref cls, Orientation == StackOrientation.Horizontal ? RowDirection : ColumnDirection);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

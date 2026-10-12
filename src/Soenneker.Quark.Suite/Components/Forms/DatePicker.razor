@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Threading
 @using System.Globalization
 @using System.Linq.Expressions
@@ -18,10 +19,9 @@
         <PopoverTrigger AsChild="true" Id="@TriggerId">
             <Button Variant="ButtonVariant.Outline"
                     Type="@ButtonType.Button"
-                    Disabled="Disabled"
+                    Disabled="@(Disabled || ReadOnly)"
                     OnBlur="(_cachedHandleAutoSaveBlurDelegate ??= HandleAutoSaveBlur)"
                     OnKeyDown="(_cachedHandleAutoSaveKeyDownDelegate ??= HandleAutoSaveKeyDown)"
-                    Class="@GetTriggerClass()"
                     @attributes="BuildTriggerAttributes()">
                 @if (SelectedDate.HasValue)
                 {
@@ -65,6 +65,7 @@
 
 @code {
     private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
+    private static readonly string[] _triggerExcludedAttributes = ["value", "name", "placeholder", "readonly", "required", "autocomplete", "oninput", "onchange"];
     private string? _triggerClass;
     private DateOnly _formattedDate;
     private string? _formattedDisplay;
@@ -179,6 +180,9 @@
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _lastSyncedSelectedDate;
     private string? _triggerId;
+    private Validation? _subscribedValidation;
+    private Expression<Func<DateOnly?>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
@@ -212,41 +216,26 @@
         return _serializedDate.Get(null, SelectedDate, "date");
     }
 
-    private string GetTriggerClass()
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
-        var baseClass = "w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground";
-        return Class.HasContent() ? AppendToClass(Class, baseClass, ref _triggerClass) : baseClass;
+        base.BuildDefaultClasses(ref cls);
+        if (InputSize.HasValue)
+            AppendClass(ref cls, InputSize.Value.ToString());
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        var attributes = _triggerAttributesBuffer.Create(2);
+        var attributes = _triggerAttributesBuffer.Create(BuildAttributes(), 3);
+        foreach (var key in _triggerExcludedAttributes)
+            attributes.Remove(key);
+        attributes.TryGetValue("class", out var userClass);
+        attributes["class"] = QuarkStringCache.Concat("w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground", " ", userClass?.ToString() ?? string.Empty, ref _triggerClass);
         attributes["id"] = TriggerId;
+        if (Disabled || ReadOnly)
+            attributes["disabled"] = QuarkAttributeValues.True;
 
         if (!SelectedDate.HasValue)
             attributes["data-empty"] = "true";
-
-        if (Attributes is not null)
-        {
-            foreach (var attribute in Attributes)
-            {
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("placeholder", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("readonly", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("required", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("autocomplete", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
 
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
         return attributes;
@@ -268,34 +257,44 @@
         return attributes;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender && ParentValidation is not null)
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
         {
-            await ParentValidation.InitializeInput(this);
-
-            if (SelectedDateExpression is not null)
-                await ParentValidation.InitializeInputExpression(SelectedDateExpression);
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            if (SelectedDate.HasValue)
-                _displayMonth = new DateOnly(SelectedDate.Value.Year, SelectedDate.Value.Month, 1);
-            else
+            if (_subscribedValidation is not null)
             {
-                var today = DateOnly.FromDateTime(DateTime.Today);
-                _displayMonth = new DateOnly(today.Year, today.Month, 1);
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
             }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
+        if (validation is null)
+            return;
+        if (!ReferenceEquals(_registeredValidationExpression, SelectedDateExpression))
+        {
+            _registeredValidationExpression = SelectedDateExpression;
+            await validation.InitializeInputExpression(SelectedDateExpression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
     }
+
+    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e) => _ = RefreshOffThread();
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
+        if (Disabled || ReadOnly)
+            _open = false;
         if (SelectedDate != _lastSyncedSelectedDate)
             SyncDisplayMonthToSelection(SelectedDate);
     }
@@ -304,6 +303,8 @@
 
     private async Task HandleOpenChanged(bool open)
     {
+        if (open && (Disabled || ReadOnly))
+            return;
         _open = open;
         await RefreshOffThread();
     }
@@ -335,7 +336,7 @@
 
     private async Task HandleCalendarChanged(DateOnly? date)
     {
-        if (!date.HasValue)
+        if (Disabled || ReadOnly || !date.HasValue)
             return;
 
         if ((Min.HasValue && date.Value < Min.Value) || (Max.HasValue && date.Value > Max.Value))
@@ -375,6 +376,14 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
     }

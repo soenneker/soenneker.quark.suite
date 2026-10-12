@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
@@ -35,8 +36,8 @@
 
     [Parameter] public bool RenderInput { get; set; } = true;
     private readonly AsyncLock _interopLock = new();
-    private bool _disposed;
-    private bool _registered;
+    private ValueAtomicBool _disposed;
+    private ValueAtomicBool _registered;
     private string? _registeredInputId;
 
     protected override void ApplyDefaultParameters()
@@ -68,36 +69,35 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_disposed || (_registered && _registeredInputId == InputId))
+        if (_disposed.Value || (_registered.Value && _registeredInputId == InputId))
         {
             await base.OnAfterRenderAsync(firstRender);
             return;
         }
         using (await _interopLock.Lock())
         {
-            if (!_disposed && (!_registered || _registeredInputId != InputId))
+            if (!_disposed.Value && (!_registered.Value || _registeredInputId != InputId))
             {
                 var inputId = InputId;
                 await FileDropInterop.Register(ElementRef, inputId);
                 _registeredInputId = inputId;
-                _registered = true;
+                _registered.Value = true;
             }
         }
         await base.OnAfterRenderAsync(firstRender);
     }
 
     private Task HandleFilesDropped(InputFileChangeEventArgs args) =>
-        _disposed || Disabled ? Task.CompletedTask : OnFilesDropped.InvokeAsync(args);
+        _disposed.Value || Disabled ? Task.CompletedTask : OnFilesDropped.InvokeAsync(args);
 
     public override async ValueTask DisposeAsync()
     {
         using (await _interopLock.Lock())
         {
-            if (_disposed) return;
-            _disposed = true;
+            if (!_disposed.TrySetTrue()) return;
             try
             {
-                if (_registered) await FileDropInterop.Unregister(ElementRef);
+                if (_registered.Value) await FileDropInterop.Unregister(ElementRef);
             }
             catch (JSDisconnectedException) { }
             finally { await base.DisposeAsync(); }

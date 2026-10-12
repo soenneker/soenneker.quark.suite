@@ -80,6 +80,13 @@ export function initialize(element, options, dotNetRef) {
     return Number.isFinite(parsed) ? parsed : offset;
   };
 
+  const getSectionTop = (section, scrollElement) => {
+    const top = section.getBoundingClientRect().top + getScrollTop(scrollElement);
+    return scrollElement === document.documentElement || scrollElement === document.body
+      ? top
+      : top - scrollElement.getBoundingClientRect().top - scrollElement.clientTop;
+  };
+
   const handleScroll = () => {
     anchors = element.querySelectorAll(anchorSelector);
 
@@ -101,7 +108,7 @@ export function initialize(element, options, dotNetRef) {
       }
 
       const customOffset = getAnchorOffset(anchor);
-      const top = section.offsetTop - customOffset;
+      const top = getSectionTop(section, scrollElement) - customOffset;
       const delta = Math.abs(top - scrollTop);
 
       if (top <= scrollTop && delta < minDelta) {
@@ -162,7 +169,7 @@ export function initialize(element, options, dotNetRef) {
     }
 
     const scrollElement = getScrollElement();
-    const top = section.offsetTop - getAnchorOffset(anchor);
+    const top = getSectionTop(section, scrollElement) - getAnchorOffset(anchor);
 
     if (scrollElement === document.documentElement || scrollElement === document.body) {
       window.scrollTo({ top, left: 0, behavior: smooth ? "smooth" : "auto" });
@@ -174,6 +181,7 @@ export function initialize(element, options, dotNetRef) {
   };
 
   const handleClick = (event) => {
+    if (event.defaultPrevented || event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     const anchor = event.target?.closest?.(anchorSelector);
 
     if (!anchor || !element.contains(anchor)) {

@@ -243,6 +243,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddQuarkSidebarAsScoped();
         Services.AddQuarkChartScrollAsScoped();
+        Services.AddQuarkCalendarAsScoped();
+        var calendarModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/calendarinterop.js");
+        calendarModule.SetupVoid("initialize", _ => true).SetVoidResult();
+        calendarModule.SetupVoid("focus", _ => true).SetVoidResult();
+        calendarModule.SetupVoid("destroy", _ => true).SetVoidResult();
         Services.AddScoped<Demo.Interops.Abstract.IDemoPageInterop, Demo.Interops.DemoPageInterop>();
         Services.AddKeyedSingleton<Func<Soenneker.Librarian.Browser.IBrowserLibrarianDatabase>>(typeof(Sidebar), () => new FakeSidebarLibrarianDatabase());
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
@@ -408,10 +413,19 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeInputInterop : IInputInterop
     {
+        public InputSelectionSnapshot? Selection { get; set; }
         public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask RegisterNavigationKeys(ElementReference element, string[] keys, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RegisterTagInputKeys(ElementReference input, string[] delimiters, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RegisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask UnregisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public ValueTask<InputSelectionSnapshot?> GetSelection(ElementReference input, CancellationToken cancellationToken = default) =>
-            ValueTask.FromResult<InputSelectionSnapshot?>(null);
+            ValueTask.FromResult(Selection);
 
         public ValueTask RestoreSelection(ElementReference input, int start, int end, string? value, CancellationToken cancellationToken = default) =>
             ValueTask.CompletedTask;
@@ -444,6 +458,17 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeCodeEditorInterop : ICodeEditorInterop
     {
+        public List<(bool ReadOnly, bool WordWrap, bool Minimap, bool AutoHeight, int? MinLines, int? MaxLines, string? AriaLabel)> OptionUpdates { get; } = [];
+        public int ThemeRegistrations { get; private set; }
+        public int ThemeUnregistrations { get; private set; }
+
+        public ValueTask UpdateOptions(ElementReference container, bool readOnly, bool wordWrap, bool minimap, bool autoHeight,
+            int? minLines, int? maxLines, string? ariaLabel, CancellationToken cancellationToken = default)
+        {
+            OptionUpdates.Add((readOnly, wordWrap, minimap, autoHeight, minLines, maxLines, ariaLabel));
+            return ValueTask.CompletedTask;
+        }
+
         public ValueTask Initialize(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
@@ -475,9 +500,17 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask InsertTextAtDropPosition(ElementReference container, string text,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
-        public ValueTask RegisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask RegisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef, CancellationToken cancellationToken = default)
+        {
+            ThemeRegistrations++;
+            return ValueTask.CompletedTask;
+        }
 
-        public ValueTask UnregisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef) => ValueTask.CompletedTask;
+        public ValueTask UnregisterThemeChangedCallback(DotNetObjectReference<CodeEditor> dotNetRef)
+        {
+            ThemeUnregistrations++;
+            return ValueTask.CompletedTask;
+        }
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

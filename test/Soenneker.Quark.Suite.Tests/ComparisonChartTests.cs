@@ -13,6 +13,8 @@ public sealed class ComparisonChartTests : BunitContext
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddLogging();
         Services.AddQuarkComparisonChartAsScoped();
+        var resources = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        resources.SetupVoid("loadStyle", _ => true).SetVoidResult();
         var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/comparisonchartinterop.js");
         module.SetupVoid("initialize", _ => true).SetVoidResult();
         module.SetupVoid("destroy", _ => true).SetVoidResult();

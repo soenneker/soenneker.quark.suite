@@ -8,7 +8,7 @@
 @inject IConsolePanelInterop ConsolePanelInterop
 
 <div @ref="_element" @attributes="BuildAttributes()">
-    @if (ShowDownload || ShowCopy)
+    @if (ShowDownload || ShowCopy || Actions is not null)
     {
         <Div DataSlot="console-actions"
              Display="_renderCss0"
@@ -98,7 +98,7 @@
     private ElementReference _element;
     private Func<string?>? _resolveTextCallback;
     private readonly AsyncLock _interopLock = new();
-    private bool _autoScrollInitialized;
+    private ValueAtomicBool _autoScrollInitialized;
     private ValueAtomicBool _disposed = new(false);
 
     /// <summary>The complete plain-text console content used for copy and download actions.</summary>
@@ -193,7 +193,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_disposed.Value || AutoScroll == _autoScrollInitialized)
+        if (_disposed.Value || AutoScroll == _autoScrollInitialized.Value)
         {
             await base.OnAfterRenderAsync(firstRender);
             return;
@@ -201,14 +201,14 @@
 
         using (await _interopLock.Lock())
         {
-            if (!_disposed.Value && AutoScroll != _autoScrollInitialized)
+            if (!_disposed.Value && AutoScroll != _autoScrollInitialized.Value)
             {
                 if (AutoScroll)
                     await ConsolePanelInterop.InitializeAutoScroll(_element);
                 else
                     await ConsolePanelInterop.DestroyAutoScroll(_element);
 
-                _autoScrollInitialized = AutoScroll;
+                _autoScrollInitialized.Value = AutoScroll;
             }
         }
 
@@ -291,10 +291,10 @@
         {
             using (await _interopLock.Lock())
             {
-                if (_autoScrollInitialized)
+                if (_autoScrollInitialized.Value)
                 {
                     await ConsolePanelInterop.DestroyAutoScroll(_element);
-                    _autoScrollInitialized = false;
+                    _autoScrollInitialized.Value = false;
                 }
             }
         }

@@ -32,6 +32,9 @@
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
            AdditionalAttributes="BuildInputAttributes()"
+           OnClick="@OnClick"
+           OnBlur="@OnBlur"
+           OnKeyDown="@OnKeyDown"
            OnInput="(_cachedHandleInputDelegate ??= HandleInput)"
            OnChange="(_cachedHandleChangeDelegate ??= HandleChange)"
            AutoSave="@AutoSave"
@@ -206,6 +209,8 @@
 
     private string? _registeredEditMask;
 
+    private Validation? _subscribedValidation;
+    private LambdaExpression? _registeredExpression;
     public object? ValidationValue => Value;
 
     public string? GetValidationClass()
@@ -226,9 +231,10 @@
         return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (ParentValidation is not null && _registeredEditMask != EditMask)
+        await base.OnParametersSetAsync();
+        if (ParentValidation is not null && (_registeredEditMask != EditMask || !ReferenceEquals(_subscribedValidation, ParentValidation)))
         {
             if (EditMask.HasContent())
                 await ParentValidation.InitializeInputPattern(EditMask, Value ?? string.Empty, enablePatternValidation: true);
@@ -238,13 +244,20 @@
             _registeredEditMask = EditMask;
         }
 
-        if (firstRender && ParentValidation is not null && ValueExpression is not null)
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-            await ParentValidation.InitializeInputExpression(ValueExpression);
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation = ParentValidation;
+            _registeredExpression = null;
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
-
-        await base.OnAfterRenderAsync(firstRender);
+        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, ValueExpression))
+        {
+            _registeredExpression = ValueExpression;
+            await ParentValidation.InitializeInputExpression(ValueExpression!);
+        }
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
@@ -268,11 +281,7 @@
         var next = e.Value?.ToString();
         Value = next;
         await OnInput.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -280,23 +289,19 @@
         var next = e.Value?.ToString();
         Value = next;
         await OnChange.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
-        }
+        ParentValidation?.MarkTouched();
     }
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (_subscribedValidation is not null)
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         await base.DisposeAsync();
     }
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = _wrapperAttributes.Create(AdditionalAttributes, 3);
+        var attributes = _wrapperAttributes.Create(BuildAttributes(), 3);
 
         // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
         if (MaxLength > 0) attributes["maxlength"] = _maxLengthAttribute.Get(MaxLength);

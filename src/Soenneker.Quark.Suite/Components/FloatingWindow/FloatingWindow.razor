@@ -229,7 +229,7 @@
 
     public bool IsVisible => _visible;
 
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed;
     private Task? _initializeTask;
     private bool _visible;
@@ -393,7 +393,7 @@
             return;
         }
 
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var currentOptions = MergedOptions;
@@ -430,7 +430,7 @@
             _dotNetRef = DotNetObjectReference.Create(this);
             await WindowInterop.Create(Id!, options, _disposeCts.Token);
             await WindowInterop.SetCallbacks(Id!, _dotNetRef, _disposeCts.Token);
-            _initialized = true;
+            _initialized.Value = true;
             _initialization.TrySetResult(true);
             _appliedVisible = false;
             _appliedOptions = options;
@@ -479,7 +479,7 @@
 
         using (cts)
         {
-            if (!_initialized)
+            if (!_initialized.Value)
                 await _initialization.Task.WaitAsync(linked);
 
             await WindowInterop.Show(Id!, linked);
@@ -492,7 +492,7 @@
 
         using (cts)
         {
-            if (!_initialized)
+            if (!_initialized.Value)
                 await _initialization.Task.WaitAsync(linked);
 
             await WindowInterop.Hide(Id!, linked);
@@ -505,7 +505,7 @@
 
         using (cts)
         {
-            if (!_initialized)
+            if (!_initialized.Value)
                 await _initialization.Task.WaitAsync(linked);
 
             await WindowInterop.Toggle(Id!, linked);
@@ -514,7 +514,7 @@
 
     public async ValueTask Close(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -525,7 +525,7 @@
 
     public async ValueTask<(int x, int y)> GetPosition(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return (0, 0);
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -536,7 +536,7 @@
 
     public async ValueTask SetPosition(int x, int y, CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -547,7 +547,7 @@
 
     public async ValueTask<FloatingWindowSize> GetSize(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return new FloatingWindowSize();
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -558,7 +558,7 @@
 
     public async ValueTask SetSize(int width, int height, CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -569,7 +569,7 @@
 
     public async ValueTask Center(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
+        if (!_initialized.Value)
             return;
 
         var linked = _disposeCts.Token.Link(cancellationToken, out var cts);
@@ -600,7 +600,7 @@
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or OperationCanceledException or ObjectDisposedException) { }
         finally
         {
-            _initialized = false;
+            _initialized.Value = false;
             _dotNetRef?.Dispose();
             _dotNetRef = null;
             _disposeCts.Dispose();

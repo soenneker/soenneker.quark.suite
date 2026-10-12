@@ -84,9 +84,17 @@
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
+    private bool _hasExplicitSide;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<Side>(nameof(Side), out _)) _hasExplicitSide = true;
+        return base.SetParametersAsync(parameters);
+    }
+
     private bool ResolvedRightAligned => RightAligned || ParentDropdown?.RightAligned == true;
 
-    private Side ResolvedSide => ParentDropdown?.Side ?? Side;
+    private Side ResolvedSide => _hasExplicitSide ? Side : ParentDropdown?.Side ?? Side;
 
     private Alignment ResolvedAlign => Align ?? (ResolvedRightAligned ? Alignment.End : Alignment.Start);
 

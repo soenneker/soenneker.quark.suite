@@ -32,6 +32,26 @@ public sealed class SidebarInterop : ISidebarInterop
         }
     }
 
+    public async ValueTask InitializeSidebar(DotNetObjectReference<SidebarProvider> componentRef, string shortcutKey, string instanceId, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("initializeSidebar", linked, componentRef, shortcutKey, instanceId);
+        }
+    }
+
+    public async ValueTask Cleanup(string instanceId, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("cleanup", linked, instanceId);
+        }
+    }
+
     public async ValueTask<bool?> GetSidebarState(string cookieKey, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

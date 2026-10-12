@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using Soenneker.Blazor.Utils.Ids
 @namespace Soenneker.Quark
 @inherits Element
@@ -251,7 +252,7 @@
     private readonly string _descriptionId = BlazorIdGenerator.New("file-drop-zone-help");
     private readonly string _reorderHelpId = BlazorIdGenerator.New("file-drop-zone-reorder");
     private DotNetObjectReference<FileDropZone>? _dragCallback;
-    private bool _dragInitialized;
+    private ValueAtomicBool _dragInitialized;
     private string? _dropBeforeId;
     private string? _reorderAnnouncement;
     private readonly List<string> _inputs = [BlazorIdGenerator.New("file-drop-zone-input")];
@@ -261,11 +262,11 @@
     private HashSet<string>? _usedInputIds;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly Dictionary<string, string> _previewUrls = new();
-    private bool _previewInteropUsed;
-    private bool _selecting;
+    private ValueAtomicBool _previewInteropUsed;
+    private ValueAtomicBool _selecting;
     private string? _selectionError;
-    private bool _disposed;
-    private bool SelectionDisabled => Disabled || ReadOnly || _selecting || Upload is null || Files.Count >= MaxFiles;
+    private ValueAtomicBool _disposed;
+    private bool SelectionDisabled => Disabled || ReadOnly || _selecting.Value || Upload is null || Files.Count >= MaxFiles;
     private string DefaultDescription
     {
         get
@@ -305,7 +306,7 @@
     [JSInvokable]
     public async Task MoveFile(string fileId, string? beforeId)
     {
-        if (_disposed || Disabled || ReadOnly || !AllowReorder || fileId == beforeId) return;
+        if (_disposed.Value || Disabled || ReadOnly || !AllowReorder || fileId == beforeId) return;
         var sourceIndex = -1;
         var targetIndex = beforeId is null ? Files.Count : -1;
         for (var i = 0; i < Files.Count; i++)
@@ -328,7 +329,7 @@
     [JSInvokable]
     public Task SetDropTarget(string? beforeId)
     {
-        if (!_disposed && !ReadOnly && !SelectionDisabled) _dropBeforeId = beforeId;
+        if (!_disposed.Value && !ReadOnly && !SelectionDisabled) _dropBeforeId = beforeId;
         return Task.CompletedTask;
     }
 
@@ -363,7 +364,7 @@
 
     private async Task SelectFiles(InputFileChangeEventArgs args, string inputKey)
     {
-        if (_disposed || ReadOnly || SelectionDisabled || inputKey != _inputs[^1]) return;
+        if (_disposed.Value || ReadOnly || SelectionDisabled || inputKey != _inputs[^1]) return;
         var beforeId = _dropBeforeId;
         _dropBeforeId = null;
         _selectionError = null;
@@ -396,7 +397,7 @@
             _browserFiles[file.Id] = (browserFile, inputKey, index);
         }
         _selectionError = errors.Count > 0 ? string.Join(" ", errors) : null;
-        _selecting = true;
+        _selecting.Value = true;
         try
         {
             var updated = Files.ToList();
@@ -414,8 +415,8 @@
             await SetFiles(updated);
             if (ShowPreviews && added.Any(FileDropZoneMedia.CanPreview))
             {
-                if (_disposed) return;
-                _previewInteropUsed = true;
+                if (_disposed.Value) return;
+                _previewInteropUsed.Value = true;
                 foreach (var file in added)
                 {
                     if (!FileDropZoneMedia.CanPreview(file)) continue;
@@ -426,9 +427,9 @@
             }
         }
         catch (JSException) { /* Preview failure must not prevent uploading the file. */ }
-        catch (OperationCanceledException) when (_disposed) { }
-        finally { _selecting = false; }
-        if (_disposed) return;
+        catch (OperationCanceledException) when (_disposed.Value) { }
+        finally { _selecting.Value = false; }
+        if (_disposed.Value) return;
         // Each batch keeps its own native input until no retryable browser files reference it.
         // Reusing InputFile would invalidate streams from previous selections.
         _inputs.Add(BlazorIdGenerator.New("file-drop-zone-input"));
@@ -464,7 +465,7 @@
     private async Task UploadFile(string id)
     {
         var handler = Upload;
-        if (_disposed || Disabled || ReadOnly || handler is null || _operations.ContainsKey(id) || !_browserFiles.TryGetValue(id, out var source)) return;
+        if (_disposed.Value || Disabled || ReadOnly || handler is null || _operations.ContainsKey(id) || !_browserFiles.TryGetValue(id, out var source)) return;
         var file = FindFile(id);
         if (file is null) return;
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
@@ -474,7 +475,7 @@
             await Update(id, item => item with { State = FileDropZoneState.Uploading, Progress = 0, Error = null, StatusText = null });
             var request = new FileDropZoneUploadRequest(source.File, file, MaxFileSize, cts.Token, (state, progress, text) => InvokeAsync(async () =>
             {
-                if (_disposed || cts.IsCancellationRequested || !_operations.TryGetValue(id, out var current) || current != cts) return;
+                if (_disposed.Value || cts.IsCancellationRequested || !_operations.TryGetValue(id, out var current) || current != cts) return;
                 await Update(id, (State: state, Progress: progress.HasValue ? Math.Clamp(progress.Value, 0, 100) : (int?)null, Text: text),
                     static (item, update) => item with { State = update.State, Progress = update.Progress, StatusText = update.Text });
             }));
@@ -498,7 +499,7 @@
         {
             _operations.Remove(id);
             ReleaseUnusedInputs();
-            if (!_disposed) Refresh();
+            if (!_disposed.Value) Refresh();
         }
     }
 
@@ -509,7 +510,7 @@
 
     private async Task DeleteFile(string id)
     {
-        if (_disposed || Disabled || ReadOnly || _operations.ContainsKey(id)) return;
+        if (_disposed.Value || Disabled || ReadOnly || _operations.ContainsKey(id)) return;
         var file = FindFile(id);
         if (file is null) return;
         var handler = Delete;
@@ -532,7 +533,7 @@
         {
             _operations.Remove(id);
             ReleaseUnusedInputs();
-            if (!_disposed) Refresh();
+            if (!_disposed.Value) Refresh();
         }
     }
 
@@ -560,7 +561,7 @@
 
     private async Task SetFiles(IReadOnlyList<FileDropZoneFile> files)
     {
-        if (_disposed) return;
+        if (_disposed.Value) return;
         Files = files;
         Refresh();
         await FilesChanged.InvokeAsync(files);
@@ -590,10 +591,10 @@
 
     private async Task InitializeDrag(ElementReference element)
     {
-        if (!_disposed && !_dragInitialized)
+        if (!_disposed.Value && !_dragInitialized.Value)
         {
-            _dragInitialized = true;
-            _previewInteropUsed = true;
+            _dragInitialized.Value = true;
+            _previewInteropUsed.Value = true;
             _dragCallback = DotNetObjectReference.Create(this);
             try { await FileDropZoneInterop.Initialize(_descriptionId, element, _dragCallback); }
             catch (JSException) { /* Native file selection remains available if drag interop cannot initialize. */ }
@@ -615,7 +616,7 @@
                 if (!_inputs.Contains(pair.Key))
                     _inputEvents.Remove(pair.Key);
         }
-        if (_disposed || _selecting || _previewUrls.Count == 0 || !_previewInteropUsed) return;
+        if (_disposed.Value || _selecting.Value || _previewUrls.Count == 0 || !_previewInteropUsed.Value) return;
         _fileIds ??= new HashSet<string>(StringComparer.Ordinal);
         _fileIds.Clear();
         for (var i = 0; i < Files.Count; i++) _fileIds.Add(Files[i].Id);
@@ -641,12 +642,11 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (!_disposed.TrySetTrue()) return;
         await _lifetime.CancelAsync();
         _lifetime.Dispose();
         _browserFiles.Clear();
-        if (_previewInteropUsed)
+        if (_previewInteropUsed.Value)
         {
             try
             {

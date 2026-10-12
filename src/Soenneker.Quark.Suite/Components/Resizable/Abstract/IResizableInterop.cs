@@ -60,4 +60,7 @@ public interface IResizableInterop : IAsyncDisposable
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>A task that completes after the Resizable has stopped.</returns>
     ValueTask StopDrag(CancellationToken cancellationToken = default);
+
+    /// <summary>Stops drag tracking only when it belongs to the supplied panel group.</summary>
+    ValueTask StopDrag(ElementReference group, CancellationToken cancellationToken = default) => StopDrag(cancellationToken);
 }

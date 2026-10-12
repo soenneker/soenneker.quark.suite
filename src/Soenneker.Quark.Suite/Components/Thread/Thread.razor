@@ -3,6 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
 @using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
 @inject IThreadsInterop ThreadsInterop
 
 <CascadingValue Value="this" IsFixed="false">
@@ -15,7 +16,9 @@
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
     private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
     private DotNetObjectReference<Thread>? _dotNetRef;
-    private bool _initialized;
+    private ValueAtomicBool _initialized;
+    private readonly AsyncLock _interopLock = new();
+    private (string Initial, string Resize, bool Stick)? _configuration;
     private ValueAtomicBool _disposed;
 
     internal bool IsAtBottom { get; private set; } = true;
@@ -64,14 +67,20 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (_disposed.Read() || !firstRender || _initialized)
+        var configuration = (Initial, ResizeBehavior, StickToBottom);
+        if (_disposed.Read() || _configuration == configuration)
             return;
 
-        _initialized = true;
-        _dotNetRef = DotNetObjectReference.Create(this);
-        await ThreadsInterop.InitializeThread(ElementRef, _dotNetRef, Initial, ResizeBehavior, StickToBottom);
-        if (_disposed.Read())
-            await ThreadsInterop.Destroy(ElementRef);
+        using (await _interopLock.Lock())
+        {
+            if (_disposed.Read() || _configuration == configuration)
+                return;
+
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await ThreadsInterop.InitializeThread(ElementRef, _dotNetRef, configuration.Initial, configuration.ResizeBehavior, configuration.StickToBottom);
+            _configuration = configuration;
+            _initialized.Value = true;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -89,8 +98,14 @@
             return;
         try
         {
-            if (_initialized)
-                await ThreadsInterop.Destroy(ElementRef);
+            using (await _interopLock.Lock())
+            {
+                if (_initialized.Value)
+                    await ThreadsInterop.Destroy(ElementRef);
+            }
+        }
+        catch (Exception exception) when (exception is JSDisconnectedException or TaskCanceledException or ObjectDisposedException)
+        {
         }
         finally
         {

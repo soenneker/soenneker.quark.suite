@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -23,8 +24,11 @@ public partial class Cascader
             MouseEnter = EventCallback.Factory.Create(this, Expand);
             Focus = EventCallback.Factory.Create(this, SetFocus);
             KeyDown = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown);
+            CaptureElement = element => Element = element;
         }
 
+        public ElementReference Element { get; private set; }
+        public Action<ElementReference> CaptureElement { get; }
         public int Generation { get; set; }
         public EventCallback Click { get; }
         public EventCallback MouseEnter { get; }

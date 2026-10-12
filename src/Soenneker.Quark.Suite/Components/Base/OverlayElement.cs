@@ -84,11 +84,12 @@ public abstract class OverlayElement : InteractiveElement
     private readonly string _overlayId = BlazorIdGenerator.New("quark-overlay");
     private bool _renderedVisible;
     private ElementReference _restoreFocusTarget;
-    private bool _hasRestoreFocusTarget;
+    private ValueAtomicBool _hasRestoreFocusTarget;
     private ElementReference _overlayContentElement;
-    private bool _hasOverlayContentElement;
-    private bool _overlayBehaviorActive;
+    private ValueAtomicBool _hasOverlayContentElement;
+    private ValueAtomicBool _overlayBehaviorActive;
     private ValueAtomicBool _overlayDisposed;
+    private (bool TrapFocus, bool LockScroll, string? InitialFocusSelector) _renderedOptions;
 
     protected override bool ShouldRender()
     {
@@ -102,8 +103,11 @@ public abstract class OverlayElement : InteractiveElement
     {
         var wasVisible = _renderedVisible;
         _renderedVisible = Visible;
+        var options = (TrapFocus, LockScroll, InitialFocusSelector);
+        bool optionsChanged = _renderedOptions != options;
+        _renderedOptions = options;
 
-        if (wasVisible == Visible)
+        if (wasVisible == Visible && (!Visible || !optionsChanged))
             return base.OnAfterRenderAsync(firstRender);
 
         return HandleAfterRender(firstRender, wasVisible);
@@ -113,7 +117,7 @@ public abstract class OverlayElement : InteractiveElement
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (Visible && !wasVisible)
+        if (Visible)
         {
             await OnOverlayShown();
             return;
@@ -126,13 +130,13 @@ public abstract class OverlayElement : InteractiveElement
     internal void SetRestoreFocusTarget(ElementReference elementReference)
     {
         _restoreFocusTarget = elementReference;
-        _hasRestoreFocusTarget = true;
+        _hasRestoreFocusTarget.Value = true;
     }
 
     internal async Task SetOverlayContentElement(ElementReference elementReference)
     {
         _overlayContentElement = elementReference;
-        _hasOverlayContentElement = true;
+        _hasOverlayContentElement.Value = true;
 
         if (Visible)
             await OnOverlayShown();
@@ -145,17 +149,20 @@ public abstract class OverlayElement : InteractiveElement
 
         try
         {
-            if (!_hasOverlayContentElement)
+            if (!_hasOverlayContentElement.Value)
             {
                 if (LockScroll)
+                {
                     await OverlayInterop.ActivateScrollLock(_overlayId);
-
-                _overlayBehaviorActive = true;
+                    _overlayBehaviorActive.Value = true;
+                }
+                else
+                    await DeactivateOverlayBehavior();
             }
             else
             {
                 await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
-                _overlayBehaviorActive = true;
+                _overlayBehaviorActive.Value = true;
             }
 
             if (_overlayDisposed.Read() || !Visible)
@@ -174,7 +181,7 @@ public abstract class OverlayElement : InteractiveElement
 
     protected async Task RestoreFocus()
     {
-        if (!_hasRestoreFocusTarget)
+        if (!_hasRestoreFocusTarget.Value)
             return;
 
         try
@@ -188,7 +195,7 @@ public abstract class OverlayElement : InteractiveElement
 
     private async Task DeactivateOverlayBehavior()
     {
-        if (!_overlayBehaviorActive)
+        if (!_overlayBehaviorActive.Value)
             return;
 
         try
@@ -202,7 +209,7 @@ public abstract class OverlayElement : InteractiveElement
         }
         finally
         {
-            _overlayBehaviorActive = false;
+            _overlayBehaviorActive.Value = false;
         }
     }
 

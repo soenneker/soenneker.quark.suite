@@ -67,6 +67,34 @@ test('disposal cancels initial and streaming frames without stale interop', () =
   assert.ok(env.observers.every(observer => observer.disconnected));
 });
 
+test('thread settings can change without scrolling back to the bottom', () => {
+  const env = environment();
+  thread.initialize(env.element, env.receiver, 'instant', 'auto', true);
+  env.flush();
+  thread.initialize(env.element, env.receiver, 'instant', 'auto', false);
+  env.element.scrollHeight += 100;
+  env.observers[0].callback();
+  env.flush();
+  assert.equal(env.scrolls.length, 1);
+  assert.equal(env.observers.length, 2);
+  thread.dispose(env.element);
+});
+
+test('smooth scrolling keeps following during intermediate scroll events', () => {
+  const env = environment();
+  env.element.scrollTop = 0;
+  env.element.scrollTo = options => env.scrolls.push(options);
+  thread.initialize(env.element, env.receiver, 'smooth', 'smooth', true);
+  env.flush();
+  env.element.scrollTop = 20;
+  env.element.listeners.get('scroll')();
+  env.element.scrollHeight += 100;
+  env.observers[0].callback();
+  env.flush();
+  assert.equal(env.scrolls.length, 2);
+  thread.dispose(env.element);
+});
+
 test('node edges measure every unique endpoint before writing paths', async () => {
   const source = await readFile(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/nodeeditorinterop.js', import.meta.url), 'utf8');
   // Expose the pure scheduling boundary in the test module without changing its public API.
@@ -92,4 +120,28 @@ test('node edges measure every unique endpoint before writing paths', async () =
   assert.deepEqual(operations.slice(0, 3), ['read0', 'read1', 'read2']);
   assert.equal(operations.filter(op => op.startsWith('read')).length, 3);
   assert.ok(operations.slice(3).every(op => op === 'write'));
+});
+
+test('node keyboard movement advances a grid cell and leaves descendant controls alone', async () => {
+  const source = await readFile(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/nodeeditorinterop.js', import.meta.url), 'utf8');
+  const { handleKeyDown } = await import('data:text/javascript;base64,' + Buffer.from(source + '\nexport { handleKeyDown };').toString('base64'));
+  const calls = [];
+  const node = { dataset: { nodeId: 'first', nodeX: '0', nodeY: '0', selectable: 'true' }, style: {},
+    closest(selector) { return selector === "[data-slot='node-editor-node']" ? this : null; }
+  };
+  const state = { options: { draggableNodes: true, snapToGrid: true, gridSize: 16 }, selectedNodeIds: new Set(),
+    edgeFrame: 1, dotNetRef: { invokeMethodAsync(...args) { calls.push(args); return Promise.resolve(); } } };
+  let prevented = 0;
+  handleKeyDown(state, { target: node, key: 'ArrowRight', preventDefault() { prevented++; } });
+  assert.equal(node.dataset.nodeX, '16');
+  assert.equal(calls.length, 1);
+  assert.equal(prevented, 1);
+  const button = { closest(selector) { return selector === "[data-slot='node-editor-node']" ? node : null; } };
+  handleKeyDown(state, { target: button, key: 'ArrowLeft', preventDefault() { prevented++; } });
+  assert.equal(node.dataset.nodeX, '16');
+  assert.equal(calls.length, 1);
+  assert.equal(prevented, 1);
+  node.dataset.disabled = 'true';
+  handleKeyDown(state, { target: node, key: 'ArrowLeft', preventDefault() { prevented++; } });
+  assert.equal(calls.length, 1);
 });

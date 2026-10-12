@@ -5,12 +5,13 @@ let moveFrame = 0;
 let listenersInstalled = false;
 const handleRegistrations = new WeakMap();
 
-function invokeDotNet(handleElement, dotNetRef, methodName, handleIndex, percentage, size) {
+function invokeDotNet(handleElement, dotNetRef, methodName, handleIndex, value, size, containerSize) {
   const registration = handleRegistrations.get(handleElement);
   try {
-    return dotNetRef
-      .invokeMethodAsync(methodName, handleIndex, percentage, size)
-      .then(() => {
+    const result = methodName === "HandleKeyboardResize"
+      ? dotNetRef.invokeMethodAsync(methodName, handleIndex, value, size, containerSize)
+      : dotNetRef.invokeMethodAsync(methodName, handleIndex, value, size);
+    return result.then(() => {
         if (handleRegistrations.get(handleElement) !== registration) return;
         handleElement.dataset.resizableDotnet = "ok";
         delete handleElement.dataset.resizableDotnetError;
@@ -270,14 +271,12 @@ export function registerHandle(handleElement, groupElement, orientation, dotNetR
   };
 
   const onKeyDown = (event) => {
-    if (
-      event.key === "ArrowLeft" ||
-      event.key === "ArrowRight" ||
-      event.key === "ArrowUp" ||
-      event.key === "ArrowDown"
-    ) {
-      event.preventDefault();
-    }
+    if (event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const vertical = orientation === "vertical";
+    if (vertical ? event.key !== "ArrowUp" && event.key !== "ArrowDown" : event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const rect = groupElement.getBoundingClientRect();
+    invokeDotNet(handleElement, dotNetRef, "HandleKeyboardResize", handleIndex, event.key, !!event.shiftKey, vertical ? rect.height : rect.width);
   };
 
   handleElement.addEventListener("pointerdown", onPointerDown);
@@ -296,6 +295,6 @@ export function unregisterHandle(handleElement) {
   disposeHandleRegistration(handleElement);
 }
 
-export function stopDrag() {
-  cancelActiveDrag();
+export function stopDrag(groupElement) {
+  if (!groupElement || activeDrag?.groupElement === groupElement) cancelActiveDrag();
 }

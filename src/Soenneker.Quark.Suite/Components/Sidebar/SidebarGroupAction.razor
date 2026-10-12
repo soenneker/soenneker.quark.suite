@@ -74,7 +74,9 @@ else
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
-        return BuildAttributes();
+        var attributes = BuildAttributes();
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick);
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

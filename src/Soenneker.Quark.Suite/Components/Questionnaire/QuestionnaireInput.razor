@@ -18,9 +18,9 @@
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
     private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
-    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.None.OnDisabled;
-    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.NotAllowed.OnDisabled;
-    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.Is50.OnDisabled;
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
+    private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
+    private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private string? _lastPrependedClass;
 
     private Func<ChangeEventArgs, Task>? _cachedHandleInputDelegate;
@@ -43,8 +43,18 @@
     private string? EffectiveValue => Value ?? ParentItem?.InputValue;
     private bool Filled => !string.IsNullOrWhiteSpace(EffectiveValue);
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (Value is not null && ParentItem is not null && !string.Equals(Value, ParentItem.InputValue, StringComparison.Ordinal))
+            await ParentItem.SetInputValue(Value);
+    }
+
     private async Task HandleInput(ChangeEventArgs args)
     {
+        if (Disabled || ParentItem?.Disabled == true)
+            return;
+
         var value = args.Value?.ToString();
         await (ParentItem?.SetInputValue(value) ?? Task.CompletedTask);
         if (ValueChanged.HasDelegate)

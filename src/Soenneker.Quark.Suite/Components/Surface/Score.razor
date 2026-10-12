@@ -1,3 +1,4 @@
+@using Soenneker.Atomics.ValueBools
 @using System.Globalization
 
 @namespace Soenneker.Quark
@@ -35,8 +36,8 @@
     private static readonly CultureInfo _inv = CultureInfo.InvariantCulture;
     private const string NeutralScoreColor = "var(--score-neutral-color, var(--foreground))";
 
-    private bool _parametersChanged;
-    private bool _initialized;
+    private ValueAtomicBool _parametersChanged;
+    private ValueAtomicBool _initialized;
     private string _viewBox = "";
     private string _center = "";
     private string _radius = "";
@@ -83,8 +84,8 @@
     {
         _normalizedValue = NormalizeValue(Value);
 
-        _parametersChanged =
-            !_initialized ||
+        _parametersChanged.Value =
+            !_initialized.Value ||
             _normalizedValue != _lastValue ||
             ScoreSize != _lastSize ||
             Thickness != _lastThickness ||
@@ -93,9 +94,9 @@
 
         var size = ScoreSize <= 0 ? 88 : ScoreSize;
         var thickness = Math.Clamp(Thickness <= 0 ? 8 : Thickness, 1, Math.Max(1, size / 2));
-        var geometryChanged = !_initialized || size != _sizePx || thickness != _thicknessPx;
-        var valueChanged = !_initialized || _normalizedValue != _lastValue;
-        var colorChanged = !_initialized || valueChanged || Colored != _lastColored;
+        var geometryChanged = !_initialized.Value || size != _sizePx || thickness != _thicknessPx;
+        var valueChanged = !_initialized.Value || _normalizedValue != _lastValue;
+        var colorChanged = !_initialized.Value || valueChanged || Colored != _lastColored;
         if (geometryChanged)
         {
             _sizePx = size;
@@ -117,7 +118,7 @@
             _colorCss = Colored ? GetColoredScoreColor(_normalizedValue) : NeutralScoreColor;
         if (geometryChanged || valueChanged || colorChanged)
             _scoreStyle = $"--score-angle: {_angleCss}; --score-color: {_colorCss}; --score-size: {_sizeCss}; --score-thickness: {_thicknessCss}";
-        _initialized = true;
+        _initialized.Value = true;
 
         _lastValue = _normalizedValue;
         _lastSize = ScoreSize;
@@ -128,11 +129,11 @@
         base.OnParametersSet();
     }
 
-    protected override bool ShouldRender() => _parametersChanged || base.ShouldRender();
+    protected override bool ShouldRender() => _parametersChanged.Value || base.ShouldRender();
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _parametersChanged = false;
+        _parametersChanged.Value = false;
         return base.OnAfterRenderAsync(firstRender);
     }
 

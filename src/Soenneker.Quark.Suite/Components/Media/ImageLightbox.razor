@@ -1,20 +1,22 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<DialogContent ShowCloseButton="false" Class="@BuildClass()" Attributes="@LightboxAttributes">
+<DialogContent ShowCloseButton="false" Attributes="@BuildAttributes()">
     @ChildContent
 </DialogContent>
 
 @code {
     private string? _composedClass;
-    private static readonly IReadOnlyDictionary<string, object> LightboxAttributes = new Dictionary<string, object>
+    protected override void ApplyDefaultParameters()
     {
-        ["data-slot"] = "image-lightbox"
-    };
+        base.ApplyDefaultParameters();
+        DataSlot ??= "image-lightbox";
+    }
 
-    private string BuildClass()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
         const string baseClass = "!flex !max-w-none !items-center !justify-center !border-0 !bg-transparent !p-0 !shadow-none !ring-0 sm:!max-w-none";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : AppendToClass(baseClass, Class!, ref _composedClass);
+        PrependClassAttribute(attributes, baseClass, ref _composedClass);
     }
 }

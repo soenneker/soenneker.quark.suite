@@ -40,17 +40,29 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "code";
+    }
 
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
         if (!Inline)
             return;
 
-        BackgroundColor ??= _defaultBackgroundColor;
-        Rounded ??= _defaultRounded;
-        Position ??= _defaultPosition;
-        Padding ??= _defaultPadding;
-        FontFamily ??= _defaultFontFamily;
-        TextSize ??= _defaultTextSize;
-        FontWeight ??= _defaultFontWeight;
+        var preset = AppliedPresetContext;
+        if (ResolvePresetValue(BackgroundColor, preset?.BackgroundColor, nameof(BackgroundColor)) is null)
+            AddCss<BackgroundColorBuilder>(ref cls, _defaultBackgroundColor);
+        if (ResolvePresetValue(Rounded, preset?.Rounded, nameof(Rounded)) is null)
+            AddCss<RoundedBuilder>(ref cls, _defaultRounded);
+        if (ResolvePresetValue(Position, preset?.Position, nameof(Position)) is null)
+            AddCss<PositionBuilder>(ref cls, _defaultPosition);
+        if (ResolvePresetValue(Padding, preset?.Padding, nameof(Padding)) is null)
+            AddCss<PaddingBuilder>(ref cls, _defaultPadding);
+        if (ResolvePresetValue(FontFamily, preset?.FontFamily, nameof(FontFamily)) is null)
+            AddCss<FontFamilyBuilder>(ref cls, _defaultFontFamily);
+        if (ResolvePresetValue(TextSize, preset?.TextSize, nameof(TextSize)) is null)
+            AddCss<TextSizeBuilder>(ref cls, _defaultTextSize);
+        if (ResolvePresetValue(FontWeight, preset?.FontWeight, nameof(FontWeight)) is null)
+            AddCss<FontWeightBuilder>(ref cls, _defaultFontWeight);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

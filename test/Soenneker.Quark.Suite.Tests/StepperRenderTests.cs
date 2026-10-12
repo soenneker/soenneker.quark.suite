@@ -34,7 +34,7 @@ public sealed partial class RenderedShadcnParityTests
         trigger.Should().NotBeNull();
         trigger!.GetAttribute("role").Should().Be("tab");
         trigger.GetAttribute("aria-selected").Should().Be("true");
-        trigger.GetAttribute("aria-controls").Should().Be("stepper-panel-2");
+        trigger.GetAttribute("aria-controls").Should().EndWith("-panel-2");
         trigger.GetAttribute("data-state").Should().Be("active");
 
         ShouldContainClasses(cut.Find("[data-slot='stepper-indicator']").GetAttribute("class"), "bg-primary", "text-primary-foreground");
@@ -45,7 +45,8 @@ public sealed partial class RenderedShadcnParityTests
 
         var content = cut.Find("[data-slot='stepper-content']");
         content.GetAttribute("role").Should().Be("tabpanel");
-        content.GetAttribute("id").Should().Be("stepper-panel-2");
+        content.GetAttribute("id").Should().Be(trigger.GetAttribute("aria-controls"));
+        content.GetAttribute("aria-labelledby").Should().Be(trigger.GetAttribute("id"));
         content.TextContent.Should().Contain("Security");
     }
 
@@ -130,8 +131,8 @@ public sealed partial class RenderedShadcnParityTests
         nav.GetAttribute("data-state").Should().Be("details");
 
         var trigger = cut.Find("[data-slot='stepper-trigger']");
-        trigger.GetAttribute("id").Should().Be("stepper-tab-details");
-        trigger.GetAttribute("aria-controls").Should().Be("stepper-panel-details");
+        trigger.GetAttribute("id").Should().EndWith("-tab-details");
+        trigger.GetAttribute("aria-controls").Should().EndWith("-panel-details");
         trigger.GetAttribute("aria-selected").Should().Be("true");
     }
 

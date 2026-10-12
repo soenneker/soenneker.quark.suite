@@ -4,6 +4,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 
+@if (Value is not null)
+{
+    <BradixContextMenuRadioItem Value="@Value" Disabled="@Disabled" OnSelect="(_cachedHandleSelectDelegate ??= HandleSelect)" AdditionalAttributes="@RadioItemAttributes">
+        <Span DataSlot="context-menu-radio-item-indicator" PointerEvents="_renderCss0" Position="_renderCss1" Right="_renderCss2">
+            <BradixContextMenuItemIndicator><Icon Name="LucideIcon.Check" Size="_renderCss3" /></BradixContextMenuItemIndicator>
+        </Span>
+        @ChildContent
+    </BradixContextMenuRadioItem>
+}
+else
+{
 <BradixMenuItem Role="menuitemradio"
                 Disabled="@Disabled"
                 OnSelect="(_cachedHandleSelectDelegate ??= HandleSelect)"
@@ -19,6 +30,8 @@
     </Span>
     @ChildContent
 </BradixMenuItem>
+
+}
 
 @code {
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
@@ -55,8 +68,11 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-state"] = Selected ? "checked" : "unchecked";
-        attributes["aria-checked"] = Selected ? "true" : "false";
+        if (Value is null)
+        {
+            attributes["data-state"] = Selected ? "checked" : "unchecked";
+            attributes["aria-checked"] = Selected ? "true" : "false";
+        }
         if (Indented)
             attributes["data-inset"] = "true";
 
@@ -97,10 +113,10 @@
 
     private async Task HandleSelect()
     {
-        if (Disabled || Selected)
+        if (Disabled || (Value is null && Selected))
             return;
 
-        Selected = true;
+        if (Value is null) Selected = true;
         await SelectedChanged.InvokeIfHasDelegate(true);
     }
 }

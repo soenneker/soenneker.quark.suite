@@ -29,7 +29,13 @@
         ItemsAlign ??= _defaultItemsAlign;
         Gap ??= _defaultGap;
         FontWeight ??= _defaultFontWeight;
-        TextColor ??= GetTextColor();
+    }
+
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (ResolvePresetValue(TextColor, AppliedPresetContext?.TextColor, nameof(TextColor)) is null)
+            AddCss<TextColorBuilder>(ref cls, GetTextColor());
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

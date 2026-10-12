@@ -9,6 +9,11 @@ export function registerTextarea(textarea) {
     unregisterTextarea(textarea);
 
     const keydown = event => {
+        if (event.isComposing || event.keyCode === 229) {
+            event.stopPropagation();
+            return;
+        }
+
         if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.defaultPrevented) {
             return;
         }
@@ -65,7 +70,11 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
     const useGlobalDrop = globalDrop || promptInput?.dataset.globalDrop === "true";
 
     const addFiles = files => {
-        const attachments = Array.from(files || [], file => ({
+        if (input.disabled) return;
+
+        const acceptedFiles = Array.from(files || []).filter(file => acceptsFile(input.accept, file));
+        if (!input.multiple && acceptedFiles.length > 1) acceptedFiles.length = 1;
+        const attachments = acceptedFiles.map(file => ({
             id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
             name: file.name,
             size: file.size,
@@ -94,7 +103,7 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
     };
 
     const dragOver = event => {
-        if (!hasFiles(event)) {
+        if (input.disabled || !hasFiles(event)) {
             return;
         }
 
@@ -102,7 +111,7 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
     };
 
     const drop = event => {
-        if (!hasFiles(event)) {
+        if (input.disabled || !hasFiles(event)) {
             return;
         }
 
@@ -110,7 +119,8 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
         addFiles(event.dataTransfer.files);
     };
 
-    input.addEventListener("change", change);
+    if (input.dataset.quarkBlazorInputFile !== "true")
+        input.addEventListener("change", change);
 
     const dropTarget = useGlobalDrop ? document : promptInput;
     dropTarget?.addEventListener("dragover", dragOver);
@@ -151,4 +161,17 @@ function hasFiles(event) {
     if (!types) return false;
     for (let index = 0; index < types.length; index++) if (types[index] === "Files") return true;
     return false;
+}
+
+function acceptsFile(accept, file) {
+    if (!accept?.trim()) return true;
+    const name = file.name.toLowerCase();
+    const type = (file.type || "").toLowerCase();
+    return accept.split(",").some(value => {
+        const rule = value.trim().toLowerCase();
+        if (!rule) return false;
+        if (rule.startsWith(".")) return name.endsWith(rule);
+        if (rule.endsWith("/*")) return type.startsWith(rule.slice(0, -1));
+        return type === rule;
+    });
 }

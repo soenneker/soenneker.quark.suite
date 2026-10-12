@@ -30,7 +30,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<QuarkSimpleIcon>(parameters => parameters
             .Add(p => p.Name, SimpleIconEnum.Github)
-            .AddUnmatched("fill", "#ff0000"));
+            .Add(p => p.Attributes, new System.Collections.Generic.Dictionary<string, object> { ["fill"] = "#ff0000" }));
 
         cut.Find("svg").GetAttribute("fill").Should().Be("#ff0000");
     }

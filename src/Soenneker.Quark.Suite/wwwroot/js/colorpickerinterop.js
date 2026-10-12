@@ -32,7 +32,7 @@ export function registerCanvas(root, dotNetRef, disabled) {
   let currentCanvas = null;
 
   const attachCanvas = () => {
-    const canvas = root.querySelector("[data-slot='color-picker-canvas']");
+    const canvas = root.closest?.("[data-slot='color-picker-canvas']") ?? root.querySelector("[data-slot='color-picker-canvas']");
 
     if (canvas === currentCanvas) {
       return;

@@ -44,7 +44,13 @@
         Size ??= _defaultSize;
         Shrink ??= _defaultShrink;
         Rounded ??= _renderCss2;
-        BackgroundColor ??= GetBackgroundColor();
+    }
+
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (ResolvePresetValue(BackgroundColor, AppliedPresetContext?.BackgroundColor, nameof(BackgroundColor)) is null)
+            AddCss<BackgroundColorBuilder>(ref cls, GetBackgroundColor());
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

@@ -5,7 +5,9 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
+        <CascadingValue Name="@SlotAttributes.Name" Value="TriggerAttributes" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 }
 else
@@ -49,7 +51,7 @@ else
 
     private TriggerContext GetTriggerContext()
     {
-        var key = (Collapsible, Collapsible?.Disabled == true, Collapsible?.IsOpen == true, Collapsible?.TriggerId, Collapsible?.ContentId);
+        var key = (Collapsible, Disabled || Collapsible?.Disabled == true, Collapsible?.IsOpen == true, Collapsible?.TriggerId, Collapsible?.ContentId);
         if (_contextSnapshot is not null && _contextSnapshotKey == key)
             return _contextSnapshot;
         _contextSnapshotKey = key;
@@ -57,7 +59,7 @@ else
         {
             DataSlot = "collapsible-trigger",
             TriggerId = Collapsible?.TriggerId,
-            ParentDisabled = Collapsible?.Disabled == true,
+            ParentDisabled = Disabled || Collapsible?.Disabled == true,
             IsOpen = Collapsible?.IsOpen == true,
             DataState = Collapsible?.IsOpen == true ? "open" : "closed",
             AriaControls = Collapsible?.ContentId,
@@ -88,7 +90,11 @@ else
         }
 
         if (AsChild)
+        {
             SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
+            if (OnClick.HasDelegate)
+                attributes["onclick"] = OnClick;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

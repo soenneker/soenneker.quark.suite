@@ -40,6 +40,7 @@
 
     private (bool Multiple, bool Reserve, int Offset, System.Globalization.CultureInfo Culture)? _styleInputs;
     private string? _contentStyle;
+    private string? _mergedContentStyle;
     private QuarkAttributeDictionary _contentAttributes;
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
@@ -74,7 +75,7 @@
             var attributes = _contentAttributes.Create(BuildAttributes(), 7);
             attributes["data-slot"] = "combobox-content";
             attributes["data-chips"] = ParentCombobox?.Multiple == true ? "true" : "false";
-            attributes["role"] = "presentation";
+            attributes["role"] = "listbox";
             attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
             if (ParentCombobox?.HasVisibleItems != true)
@@ -96,11 +97,10 @@
                 : "calc(var(--anchor-width) + 1.75rem)";
 
             _contentStyle =
-                $"--anchor-width: {anchorWidth}; --available-width: var(--radix-popper-available-width); --available-height: var(--radix-popper-available-height); --transform-origin: var(--radix-popover-content-transform-origin); width: var(--anchor-width); min-width: {minWidth}; max-width: var(--available-width); max-height: var(--available-height);" +
-                (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
+                $"--anchor-width: {anchorWidth}; --available-width: var(--radix-popper-available-width); --available-height: var(--radix-popper-available-height); --transform-origin: var(--radix-popover-content-transform-origin); width: var(--anchor-width); min-width: {minWidth}; max-width: var(--available-width); max-height: var(--available-height);";
 
             }
-            attributes["style"] = _contentStyle;
+            PrependStyleAttribute(attributes, _contentStyle, ref _mergedContentStyle);
 
             if (ParentCombobox?.Multiple == true)
                 attributes["aria-multiselectable"] = "true";
@@ -144,6 +144,7 @@
         hc.Add(AlignOffset);
         hc.Add(AvoidCollisions);
         hc.Add(ParentCombobox?.Open ?? false);
+        hc.Add(ParentCombobox?.Multiple ?? false);
         hc.Add(ParentCombobox?.TriggerReservesInlineEndAction ?? false);
         hc.Add(ParentCombobox?.HasVisibleItems ?? false);
     }

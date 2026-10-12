@@ -343,7 +343,7 @@ public sealed class QuarkDateTimeFormatter : IQuarkDateTimeFormatter
             return false;
 
         if (format.Length == 1)
-            return format[0] is 'F' or 'G' or 'O' or 'o' or 's' or 'T' or 'u' or 'U';
+            return format[0] is 'F' or 'G' or 'O' or 'o' or 'R' or 'r' or 's' or 'T' or 'u' or 'U';
 
         return ContainsUnescaped(format, 's') || ContainsUnescaped(format, 'f') || ContainsUnescaped(format, 'F');
     }

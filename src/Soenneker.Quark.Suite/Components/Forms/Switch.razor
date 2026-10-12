@@ -1,3 +1,5 @@
+@using Soenneker.Atomics.ValueBools
+@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -161,17 +163,43 @@ else
         base.OnInitialized();
     }
 
+    private Validation? _subscribedValidation;
+    private Expression<Func<bool>>? _registeredValidationExpression;
+    private ValueAtomicBool _validationDisposed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (_validationDisposed.Value)
+            return;
+        var validation = ParentValidation;
+        bool ownerChanged = !ReferenceEquals(_subscribedValidation, validation);
+        if (ownerChanged)
+        {
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+                _subscribedValidation.UnregisterInput(this);
+            }
+            _subscribedValidation = validation;
+            _registeredValidationExpression = null;
+            if (validation is not null)
+                validation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+        if (validation is null)
+            return;
+        if (!ReferenceEquals(_registeredValidationExpression, CheckedExpression))
+        {
+            _registeredValidationExpression = CheckedExpression;
+            await validation.InitializeInputExpression(CheckedExpression!);
+        }
+        if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
+            await validation.InitializeInput(this);
+    }
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
-        {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-            if (CheckedExpression is not null)
-                await ParentValidation.InitializeInputExpression(CheckedExpression);
-
-            await ParentValidation.InitializeInput(this);
-        }
-
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -201,6 +229,16 @@ else
     private Dictionary<string, object> BuildControlAttributes()
     {
         var attributes = _controlAttributesBuffer.Create(7);
+        foreach (var attribute in base.BuildAttributes())
+            attributes[attribute.Key] = attribute.Value;
+        attributes.Remove("type");
+        attributes.Remove("role");
+        attributes.Remove("aria-checked");
+        attributes.Remove("data-state");
+        attributes.Remove("disabled");
+        attributes.Remove("name");
+        attributes.Remove("value");
+        attributes.Remove("onclick");
         var sm = IsSmSize();
 
         attributes["id"] = ControlId;
@@ -215,27 +253,6 @@ else
 
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
             attributes["onkeydown"] = (_cachedHandleControlKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleControlKeyDown));
-
-        if (Attributes is not null)
-        {
-            foreach (var attribute in Attributes)
-            {
-                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("role", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("aria-checked", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                attributes[attribute.Key] = attribute.Value;
-            }
-        }
 
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
@@ -312,8 +329,14 @@ else
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        if (!_validationDisposed.TrySetTrue())
+            return;
+        if (_subscribedValidation is not null)
+        {
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+            _subscribedValidation.UnregisterInput(this);
+            _subscribedValidation = null;
+        }
 
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }

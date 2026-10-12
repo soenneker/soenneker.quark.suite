@@ -1,3 +1,4 @@
+using Soenneker.Atomics.ValueBools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
     private readonly ILogger<QuarkDateTimeScheduler> _logger;
     private CancellationTokenSource _wakeCts = new();
     private Task? _runner;
-    private bool _disposed;
+    private ValueAtomicBool _disposed;
 
     public QuarkDateTimeScheduler(ILogger<QuarkDateTimeScheduler> logger)
     {
@@ -32,7 +33,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
         lock (_sync)
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed.Value, this);
             _registrations.Add(registration);
             ScheduleCore(registration, DateTimeOffset.UtcNow);
 
@@ -58,7 +59,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
             lock (_sync)
             {
-                if (_disposed || _registrations.Count == 0)
+                if (_disposed.Value || _registrations.Count == 0)
                 {
                     _runner = null;
                     return;
@@ -160,7 +161,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
     {
         lock (_sync)
         {
-            if (_disposed || registration.Disposed || !_registrations.Contains(registration))
+            if (_disposed.Value || registration.Disposed || !_registrations.Contains(registration))
                 return;
 
             registration.Version++;
@@ -197,7 +198,7 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
     private void WakeRunnerCore()
     {
         // A burst of registrations needs one wake-up; the runner replaces the source when it waits again.
-        if (!_disposed && _runner is not null)
+        if (!_disposed.Value && _runner is not null)
             _wakeCts.Cancel();
     }
 
@@ -207,10 +208,8 @@ public sealed class QuarkDateTimeScheduler : IQuarkDateTimeScheduler
 
         lock (_sync)
         {
-            if (_disposed)
+            if (!_disposed.TrySetTrue())
                 return;
-
-            _disposed = true;
             _registrations.Clear();
             _disposeCts.Cancel();
             _wakeCts.Cancel();

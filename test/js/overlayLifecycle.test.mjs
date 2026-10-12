@@ -107,3 +107,31 @@ test('only the top overlay traps Tab and an empty container retains focus', t =>
     releaseScrollLocks();
     assert.equal(first.listeners.size + second.listeners.size, 0);
 });
+
+test('focus boundaries exclude negative tabindex, hidden ancestors and disabled fieldsets', t => {
+    const env = fixture(t), container = env.element();
+    const negative = env.element(), hidden = env.element(), disabled = env.element(), visible = env.element();
+    negative.tabIndex = -2;
+    hidden.closest = () => ({});
+    disabled.matches = () => true;
+    container.children = [negative, hidden, disabled, visible];
+    activate('a', container, true, false);
+    assert.equal(document.activeElement, visible);
+});
+
+test('reconfiguring an open overlay preserves current focus and nested overlay order', t => {
+    const env = fixture(t), parent = env.element(), child = env.element();
+    parent.children = [env.element(), env.element()];
+    activate('parent', parent, true, false);
+    parent.children[1].focus();
+    activate('parent', parent, true, true);
+    assert.equal(document.activeElement, parent.children[1]);
+    activate('child', child, true, true);
+    activate('parent', parent, true, false);
+    assert.equal(document.activeElement, child);
+    let prevented = 0;
+    parent.listeners.get('keydown')({ key: 'Tab', preventDefault() { prevented++; } });
+    assert.equal(prevented, 0);
+    child.listeners.get('keydown')({ key: 'Tab', preventDefault() { prevented++; } });
+    assert.equal(prevented, 1);
+});
