@@ -1,6 +1,18 @@
 @keyframes quark-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(calc(-100% - var(--marquee-gap))); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-100%, 0, 0); }
+}
+
+/* Include the seam gap in each track's width so one animation cycle moves
+   exactly to the next copy, without double-spacing children or jumping. */
+[data-slot="marquee"] > [data-slot="marquee-track"] {
+    box-sizing: border-box;
+    padding-right: var(--marquee-gap);
+    will-change: transform;
+}
+
+[data-slot="marquee"] > [data-slot="marquee-track"] > * {
+    flex-shrink: 0;
 }
 
 [data-slot="marquee"][data-pause-on-hover="true"]:hover [data-slot="marquee-track"] {
@@ -9,4 +21,21 @@
 
 [data-slot="marquee"]:focus-within [data-slot="marquee-track"] {
     animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-slot="marquee"] {
+        overflow-x: auto;
+        mask-image: none !important;
+    }
+
+    [data-slot="marquee"] > [data-slot="marquee-track"] {
+        animation: none !important;
+        padding-right: 0;
+        will-change: auto;
+    }
+
+    [data-slot="marquee"] > [data-slot="marquee-track"][aria-hidden="true"] {
+        display: none;
+    }
 }

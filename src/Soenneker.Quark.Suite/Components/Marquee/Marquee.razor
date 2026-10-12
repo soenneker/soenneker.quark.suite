@@ -6,14 +6,14 @@
 
 <div @attributes="BuildAttributes()">
     <div data-slot="marquee-track"
-         class="@GetTrackClass()"
+         class="@_trackClass"
          style="@GetTrackStyle()">
         @ChildContent
     </div>
     <div data-slot="marquee-track"
          aria-hidden="true"
          inert
-         class="@GetTrackClass()"
+         class="@_trackClass"
          style="@GetTrackStyle()">
         @ChildContent
     </div>
@@ -32,7 +32,7 @@
     private string? _lastBuiltStyle;
 
     private const string _baseClass = "group/marquee relative flex w-full overflow-hidden";
-    private const string _trackClass = "flex w-max min-w-full shrink-0 items-center justify-around";
+    private const string _trackClass = "flex w-max min-w-full shrink-0 items-center justify-between";
 
     /// <summary>
     /// Gets or sets the animation duration in seconds.
@@ -41,7 +41,8 @@
     public double ScrollDuration { get; set; } = 40;
 
     /// <summary>
-    /// Gets or sets the gap between repeated content groups.
+    /// Gets or sets the gap between direct children and at the repeated track boundary.
+    /// Nested content is responsible for its own internal spacing.
     /// </summary>
     [Parameter]
     public string ItemGap { get; set; } = "1rem";
@@ -121,8 +122,6 @@
         hc.Add(ShowFade);
         hc.Add(FadeWidth);
     }
-
-    private static string GetTrackClass() => _trackClass + " [&>*]:mx-[calc(var(--marquee-gap)/2)]";
 
     private string GetTrackStyle()
     {
