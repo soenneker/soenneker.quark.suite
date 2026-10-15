@@ -32,6 +32,32 @@ async function checks() {
             await settle();
             equal(container.scrollWidth, container.clientWidth, 'one pixel resize fits');
         });
+        await check('live text updates do not rewrite table layout', async () => {
+            const cell = table.tBodies[0].rows[0].cells[3];
+            const before = widths();
+            let writes = 0;
+            const observer = new MutationObserver(records => { writes += records.length; });
+            observer.observe(table, { attributes: true, attributeFilter: ['style'] });
+            try {
+                for (let i = 14; i < 18; i++) {
+                    cell.firstChild.data = `${i} seconds ago`;
+                    await settle();
+                }
+                cell.textContent = '18 seconds ago';
+                await settle();
+                equal(writes, 0, 'no intrinsic measurement style writes');
+                equal(widths(), before, 'live update widths');
+            } finally { observer.disconnect(); }
+        });
+        await check('text node growth still expands a column', async () => {
+            const cell = table.tBodies[0].rows[0].cells[1];
+            const before = widths()[1];
+            cell.firstChild.data = 'Waiting for upstream processing';
+            await settle();
+            assert(widths()[1] > before, 'wrapped text grows its column');
+            cell.firstChild.data = 'Succeeded';
+            await settle();
+        });
         await check('separate table borders and spacing fit the container', async () => {
             table.style.borderCollapse = 'separate';
             table.style.borderSpacing = '2px';
