@@ -50,12 +50,12 @@ internal sealed class FakeSidebarLibrarianDatabase : IBrowserLibrarianDatabase
     public ValueTask Save(CancellationToken cancellationToken = default) => throw new NotSupportedException();
     public ValueTask<bool> UnloadContainer(string containerName, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
-    public ValueTask DiscardAsync()
+    public ValueTask Discard()
     {
         foreach (ILibrarianContainer container in _containers) container.Dispose();
         _containers.Clear();
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask DisposeAsync() => DiscardAsync();
+    public ValueTask DisposeAsync() => Discard();
 }
