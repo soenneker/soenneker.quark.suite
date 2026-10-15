@@ -7,9 +7,8 @@
 
 @if (AsChild)
 {
-    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
+                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else if (RenderAsLink)
 {
@@ -123,6 +122,7 @@ else
     private static readonly CssValue<MarginBuilder> _renderCss2 = Quark.Margin.FromRight.Is2;
 
     private Func<MouseEventArgs, Task>? _cachedHandleClickDelegate;
+    private object? _slotClickCallback;
 
     private EventCallback<PointerEventArgs> TriggerPointerDownCallback =>
         TriggerContext?.OnPointerDownEvent is not null || TriggerContext?.OnPointerDown is not null
@@ -414,7 +414,7 @@ else
                 attributes["formmethod"] = FormMethod;
 
             if (FormNoValidate.HasValue)
-                attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : false;
+                attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
             if (FormTarget is not null)
                 attributes["formtarget"] = FormTarget;
@@ -462,7 +462,7 @@ else
         attributes.Remove("form");
         attributes.Remove("name");
         attributes.Remove("value");
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleClickDelegate ??= HandleClick);
+        attributes["onclick"] = _slotClickCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleClickDelegate ??= HandleClick);
 
         return attributes;
     }
@@ -472,9 +472,8 @@ else
         if (TriggerContext is null || ChildContent is null)
             return ChildContent;
 
-        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true">
-                   @ChildContent
-               </CascadingValue>;
+        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)

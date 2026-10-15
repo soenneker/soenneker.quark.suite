@@ -30,9 +30,8 @@ else
     @if (Href.HasContent() && !AsChild)
     {
         <li @attributes="BuildListItemAttributes()">
-            <Anchor Href="@Href" @attributes="BuildLinkAttributes()">
-                @ChildContent
-            </Anchor>
+            <Anchor Href="@Href" @attributes="BuildLinkAttributes()"
+                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
         </li>
     }
     else
@@ -40,9 +39,8 @@ else
         <li @attributes="BuildListItemAttributes()">
             @if (AsChild)
             {
-                <CascadingValue Name="@SlotAttributes.Name" Value="BuildLinkAttributes()" IsFixed="false">
-                    @ChildContent
-                </CascadingValue>
+                <CascadingValue Name="@SlotAttributes.Name" Value="BuildLinkAttributes()" IsFixed="false"
+                                ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
             }
             else if (Active)
             {

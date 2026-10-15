@@ -8,16 +8,14 @@
 @if (AsChild && AutoClose)
 {
     <BradixDialogClose AsChild="true" AriaLabel="@((string?) null)" Disabled="@Disabled" OnClick="(_cachedHandleBradixCloseClickDelegate ??= HandleBradixCloseClick)">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
     </BradixDialogClose>
 }
 else if (AsChild)
 {
-    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false"
+                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else if (AutoClose)
 {
@@ -25,9 +23,8 @@ else if (AutoClose)
         <Button Type="@ButtonType.Button"
                 Variant="@Variant"
                 ButtonSize="@ButtonSize"
-                @attributes="BuildAttributes()">
-            @ChildContent
-        </Button>
+                @attributes="BuildAttributes()"
+                ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
     </BradixDialogClose>
 }
 else
@@ -37,9 +34,8 @@ else
             ButtonSize="@ButtonSize"
             Disabled="@Disabled"
             OnClick="(_cachedHandleNonAutoCloseClickDelegate ??= HandleNonAutoCloseClick)"
-            @attributes="BuildAttributes()">
-        @ChildContent
-    </Button>
+            @attributes="BuildAttributes()"
+            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 
 @code {

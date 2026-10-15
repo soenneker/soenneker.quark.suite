@@ -38,6 +38,7 @@ else
 }
 
 @code {
+    private object? _clickCallback;
     [Parameter]
     public CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
@@ -48,7 +49,7 @@ else
     {
         base.BuildOwnedAttributes(attributes);
         if (OnClick.HasDelegate)
-            attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick);
+            attributes["onclick"] = _clickCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick);
         var inputType = (GetInputType() ?? "text").ToLowerInvariant();
         var isText = inputType is "text" or "search" or "tel" or "url" or "email" or "password";
         var isRange = inputType is "date" or "month" or "week" or "time" or "datetime-local" or "number" or "range";
@@ -82,7 +83,7 @@ else
             attributes["list"] = List;
 
         if ((inputType is "email" or "file") && Multiple.HasValue)
-            attributes["multiple"] = Multiple.Value ? QuarkAttributeValues.True : false;
+            attributes["multiple"] = Multiple.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
         if ((inputType == "file") && Accept is not null)
             attributes["accept"] = Accept;
@@ -109,7 +110,7 @@ else
             attributes["formmethod"] = FormMethod;
 
         if ((isSubmit) && FormNoValidate.HasValue)
-            attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : false;
+            attributes["formnovalidate"] = FormNoValidate.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
         if ((isSubmit) && FormTarget is not null)
             attributes["formtarget"] = FormTarget;

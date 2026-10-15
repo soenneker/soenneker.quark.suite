@@ -20,6 +20,39 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Forwarded_child_content_keeps_identity_and_observes_captured_state_changes()
+    {
+        var text = "first";
+        RenderFragment content = builder => builder.AddContent(0, text);
+        var cut = Render<CardHeader>(p => p.Add(c => c.ChildContent, content));
+        ReferenceEquals(cut.FindComponent<Div>().Instance.ChildContent, content).Should().BeTrue();
+        cut.Markup.Should().Contain("first");
+
+        text = "second";
+        cut.Render(p => p.Add(c => c.ChildContent, content));
+        ReferenceEquals(cut.FindComponent<Div>().Instance.ChildContent, content).Should().BeTrue();
+        cut.Markup.Should().Contain("second");
+        cut.Markup.Should().NotContain("first");
+
+        RenderFragment replacement = builder => builder.AddContent(0, "replacement");
+        cut.Render(p => p.Add(c => c.ChildContent, replacement));
+        ReferenceEquals(cut.FindComponent<Div>().Instance.ChildContent, replacement).Should().BeTrue();
+        cut.Markup.Should().Contain("replacement");
+    }
+
+    [Test]
+    public void Forwarded_empty_child_content_remains_nonnull_and_reuses_its_fragment()
+    {
+        var cut = Render<CardHeader>();
+        RenderFragment? empty = cut.FindComponent<Div>().Instance.ChildContent;
+        empty.Should().NotBeNull();
+        cut.Render(p => p.Add(c => c.Class, "updated"));
+        ReferenceEquals(cut.FindComponent<Div>().Instance.ChildContent, empty).Should().BeTrue();
+        cut.Find("div").GetAttribute("class").Should().Contain("updated");
+        cut.Find("div").TextContent.Should().BeEmpty();
+    }
+
+    [Test]
     public void Explicit_styles_render_and_update()
     {
         var cut = Render<Div>(p => p.Add(c => c.Style, "width:12px"));

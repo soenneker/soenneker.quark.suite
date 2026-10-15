@@ -5,9 +5,8 @@
 
 @if (AsChild)
 {
-    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
+                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else if (ShouldRenderNavLink)
 {
@@ -15,15 +14,13 @@ else if (ShouldRenderNavLink)
              Match="@Match"
              ActiveClass="@_activeClass"
              @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
-             @attributes="BuildAttributes()">
-        @ChildContent
-    </NavLink>
+             @attributes="BuildAttributes()"
+             ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else
 {
-    <Anchor Href="@Href" Target="@Target" @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)" @attributes="BuildAttributes()">
-        @ChildContent
-    </Anchor>
+    <Anchor Href="@Href" Target="@Target" @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)" @attributes="BuildAttributes()"
+            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 
 @code {

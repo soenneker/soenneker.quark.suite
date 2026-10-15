@@ -98,4 +98,38 @@ public sealed class CancellableComponentTests
         Action readWaitHandle = () => _ = token.WaitHandle;
         readWaitHandle.Should().Throw<ObjectDisposedException>();
     }
+
+    [Test]
+    public async ValueTask Disposal_waits_for_callback_completion_without_disposing_another_instance(CancellationToken cancellationToken)
+    {
+        var component = new CancellableComponentProbe();
+        await using var other = new CancellableComponentProbe();
+        CancellationToken otherToken = other.CancellationToken;
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var release = new ManualResetEventSlim();
+        using CancellationTokenRegistration registration = component.CancellationToken.Register(() =>
+        {
+            started.TrySetResult();
+            release.Wait(cancellationToken);
+        });
+
+        ValueTask disposal = component.DisposeAsync();
+        try
+        {
+            await started.Task.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
+            disposal.IsCompleted.Should().BeFalse();
+            component.CancellationToken.Should().Be(CancellationToken.None);
+            other.CancellationToken.Should().Be(otherToken);
+            otherToken.IsCancellationRequested.Should().BeFalse();
+        }
+        finally
+        {
+            release.Set();
+            await disposal;
+        }
+
+        await other.ResetCancellation();
+        other.CancellationToken.CanBeCanceled.Should().BeTrue();
+        other.CancellationToken.IsCancellationRequested.Should().BeFalse();
+    }
 }

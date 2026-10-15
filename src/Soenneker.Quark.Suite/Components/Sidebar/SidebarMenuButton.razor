@@ -6,9 +6,8 @@
 
 @if (AsChild)
 {
-    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
+                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else if (ShouldRenderNavLink)
 {
@@ -16,18 +15,16 @@ else if (ShouldRenderNavLink)
              Match="@Match"
              ActiveClass="@_activeClass"
              @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
-             @attributes="BuildAttributes()">
-        @ChildContent
-    </NavLink>
+             @attributes="BuildAttributes()"
+             ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else if (Href.HasContent())
 {
     <Anchor Href="@Href"
             Target="@Target"
             @onclick="(_cachedHandleActivateDelegate ??= HandleActivate)"
-            @attributes="BuildAttributes()">
-        @ChildContent
-    </Anchor>
+            @attributes="BuildAttributes()"
+            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 else
 {
@@ -301,9 +298,8 @@ else
         if (TriggerContext is null || ChildContent is null)
             return ChildContent;
 
-        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true">
-            @ChildContent
-        </CascadingValue>;
+        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />;
     }
 
     private async Task HandleActivate(MouseEventArgs args)

@@ -8,18 +8,16 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
+        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
     </CascadingValue>
 }
 else
 {
     <BradixDialogTrigger Disabled="@Disabled"
                          OnClick="@OnClick"
-                         AdditionalAttributes="@TriggerAttributes">
-        @ChildContent
-    </BradixDialogTrigger>
+                         AdditionalAttributes="@TriggerAttributes"
+                         ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 
 @code {

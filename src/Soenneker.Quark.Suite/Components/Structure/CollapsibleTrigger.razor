@@ -5,18 +5,16 @@
 @if (AsChild)
 {
     <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        <CascadingValue Name="@SlotAttributes.Name" Value="TriggerAttributes" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
+        <CascadingValue Name="@SlotAttributes.Name" Value="TriggerAttributes" IsFixed="false"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
     </CascadingValue>
 }
 else
 {
     <BradixCollapsibleTrigger Disabled="@Disabled"
                               OnClick="@OnClick"
-                              AdditionalAttributes="@TriggerAttributes">
-        @ChildContent
-    </BradixCollapsibleTrigger>
+                              AdditionalAttributes="@TriggerAttributes"
+                              ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 }
 
 @code {
