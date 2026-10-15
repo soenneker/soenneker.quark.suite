@@ -45,7 +45,7 @@ public sealed class RealtimeChartTests : BunitContext
         cut.Render(p => p.Add(c => c.Options, options));
         initialize.Invocations.Count.Should().Be(1);
         cut.Find("[data-slot=chart]").GetAttribute("data-scroll-duration").Should().Be("500");
-        cut.Find("[data-slot=chart-plot]").ParentElement!.GetAttribute("clip-path").Should().StartWith("url(#");
+        cut.Find("[data-slot=chart-scroll-layer]").ParentElement!.ParentElement!.GetAttribute("clip-path").Should().StartWith("url(#");
         data.Append(start.AddMilliseconds(1500), 40);
         cut.Render(p => p.Add(c => c.DataVersion, data.Version).Add(c => c.ScrollPaused, true));
         initialize.Invocations.Count.Should().Be(1);
@@ -131,6 +131,36 @@ public sealed class RealtimeChartTests : BunitContext
         cut.Render(p => p.Add(c => c.DataVersion, data.Version));
         cut.FindAll("[data-slot=chart-scroll-point]").Should().BeEmpty();
         cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().StartWith("M54,");
+    }
+
+    [Test]
+    public void Corrections_in_the_current_window_preserve_scrolling_geometry()
+    {
+        var data = new RealtimeChartData(5, "API");
+        var start = DateTimeOffset.UnixEpoch;
+        for (var i = 0; i < 5; i++)
+            data.Append(start.AddSeconds(i), (i + 1) * 10);
+        var cut = Render<Chart>(p => p.Add(c => c.Series, data.Series)
+            .Add(c => c.XValues, data.XValues).Add(c => c.DataVersion, data.Version)
+            .Add(c => c.Options, new ChartOptions
+            {
+                EnableRealtimeScrolling = true, Curve = ChartCurve.Monotone, Minimum = 0, Maximum = 100
+            }));
+        data.Append(start.AddSeconds(5), 60);
+        cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+        var path = cut.Find("[data-slot=chart-line]").GetAttribute("d");
+
+        // Flywheel rebuilds the buffer when a server snapshot corrects a bucket.
+        // Repeated same-window renders must not discard the outgoing segment.
+        for (var correction = 0; correction < 2; correction++)
+        {
+            data.Clear();
+            for (var i = 1; i <= 5; i++)
+                data.Append(start.AddSeconds(i), (i + 1) * 10);
+            cut.Render(p => p.Add(c => c.DataVersion, data.Version));
+            cut.Find("[data-slot=chart-line]").GetAttribute("d").Should().Be(path);
+            cut.FindAll("[data-slot=chart-scroll-point]").Count.Should().Be(1);
+        }
     }
 
     [Test]

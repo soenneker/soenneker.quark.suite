@@ -158,7 +158,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         }
 
                         <g clip-path="@(ClipPlot ? PlotClipReference : null)">
-                        <g data-slot="chart-plot" data-plot-width="@F(PlotWidth)" style="@(Options.EnableRangeSelection ? "touch-action:none" : null)">
+                        <ChartScrollLayer Enabled="RealtimeScrollingEnabled" Width="Options.Width" Height="Options.Height" Slot="chart-scroll-layer">
+                        <g data-slot="chart-plot" data-plot-width="@F(PlotWidth)" style="@(Options.EnableRangeSelection ? "touch-action:none;pointer-events:auto" : "pointer-events:auto")">
                         <ChartRenderBoundary Version="_hitAreaVersion">
                         @if (!Options.EnableRangeSelection && (Options.ShowTooltip || Options.ShowCursor))
                         {
@@ -241,7 +242,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                                                 var events = GetItemEvents(currentIndex, currentSeries);
                                             var hover = events.Hover;
                                                 var press = events.Press;
-                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="quark-chart-point cursor-pointer outline-none transition-colors" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="events.Complete" @onpointercancel="(_cachedCancelRangeSelectionDelegate ??= CancelRangeSelection)" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="events.Focus" @onblur="HoverEvents.ClearCallback" @onkeydown="events.KeyDown" @onclick="events.Click"/>
+                                                <circle cx="@F(CategoryCenter(index))" cy="@F(ValueY(value.Value))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="@(RealtimeScrollingEnabled ? "quark-chart-point cursor-pointer outline-none" : "quark-chart-point cursor-pointer outline-none transition-colors")" tabindex="0" role="button" aria-label="@PointAriaLabel(currentSeries, currentIndex, value.Value)" @onpointerenter="hover" @onpointerdown="press" @onpointerup="events.Complete" @onpointercancel="(_cachedCancelRangeSelectionDelegate ??= CancelRangeSelection)" @onpointerdown:preventDefault="Options.EnableRangeSelection" @onfocus="events.Focus" @onblur="HoverEvents.ClearCallback" @onkeydown="events.KeyDown" @onclick="events.Click"/>
                                             }
                                         }
                                     }
@@ -250,11 +251,13 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         }
 
                         </g>
+                        </ChartScrollLayer>
                         </g>
                     }
                 </ChartRenderBoundary>
 
                 <g clip-path="@(ClipPlot ? PlotClipReference : null)">
+                <ChartScrollLayer Enabled="RealtimeScrollingEnabled" Width="Options.Width" Height="Options.Height" Slot="chart-scroll-overlay-layer">
                 <g data-slot="chart-plot-overlay">
                 @if (!IsRadial && Options.EnableRangeSelection && _rangeAnchorIndex is not null && _rangeCurrentIndex is not null)
                 {
@@ -284,6 +287,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     }
                 }
                 </g>
+                </ChartScrollLayer>
                 </g>
             </svg>
 
@@ -1387,8 +1391,11 @@ data requires proportional horizontal spacing instead of categorical spacing.
         }
 
         var delta = previous is null ? 0 : _xMinimum - previous.Minimum;
-        _scrollHistory = sameScale && delta > 0 && delta < span &&
-            sameNames ? previous : null;
+        // Corrections within the current bucket still render under the active translation.
+        // Retain its outgoing segments until the window advances again.
+        _scrollHistory = sameScale && delta >= 0 && delta < span && sameNames
+            ? delta == 0 ? _scrollHistory : previous
+            : null;
 
         var samples = new ScrollSample[Series.Count][];
         for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)

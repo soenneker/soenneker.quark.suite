@@ -1,0 +1,37 @@
+@*
+<summary>Hosts live SVG content in an HTML layer that the browser can composite independently.</summary>
+<remarks>Animating an SVG group still requires main-thread painting. The HTML wrapper inside the
+foreign object lets scrolling continue while other components render, preserving SVG coordinates and clipping.</remarks>
+*@
+@namespace Soenneker.Quark
+@attribute [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+
+@if (Enabled)
+{
+    <foreignObject width="@WidthText" height="@HeightText" style="overflow:visible;pointer-events:none">
+        <div xmlns="http://www.w3.org/1999/xhtml" data-slot="@Slot" style="width:100%;height:100%;will-change:transform;pointer-events:none">
+            <svg viewBox="@($"0 0 {WidthText} {HeightText}")" width="100%" height="100%" style="overflow:visible;pointer-events:none">
+                @ChildContent
+            </svg>
+        </div>
+    </foreignObject>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    /// <summary>Whether to create a composited scrolling layer.</summary>
+    [Parameter] public bool Enabled { get; set; }
+    /// <summary>The width of the chart's SVG coordinate system.</summary>
+    [Parameter] public double Width { get; set; }
+    /// <summary>The height of the chart's SVG coordinate system.</summary>
+    [Parameter] public double Height { get; set; }
+    /// <summary>The interop slot identifying the animated HTML element.</summary>
+    [Parameter] public string? Slot { get; set; }
+    /// <summary>The SVG geometry to render inside the layer.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private string WidthText => Width.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    private string HeightText => Height.ToString(System.Globalization.CultureInfo.InvariantCulture);
+}

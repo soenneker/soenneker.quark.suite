@@ -5,6 +5,7 @@ import { initialize, destroy } from '../../src/Soenneker.Quark.Suite/wwwroot/js/
 function fixture(t) {
     const timeline = { currentTime: 0 };
     const frames = new Map();
+    const animations = new Set();
     let frameId = 0;
     globalThis.requestAnimationFrame = callback => { frames.set(++frameId, callback); return frameId; };
     globalThis.cancelAnimationFrame = id => frames.delete(id);
@@ -20,10 +21,27 @@ function fixture(t) {
     const position = element => Number(element.style.transform?.match(/translateX\((.*)px\)/)[1] ?? 0);
     globalThis.getComputedStyle = () => { throw new Error('Scrolling must not force style/layout during a data update'); };
     function element() {
-        return { style: {
-            setProperty(name, value) { this[name] = value; },
-            removeProperty(name) { delete this[name]; }
-        } };
+        let active;
+        return {
+            style: {
+                get transform() {
+                    if (!active) return undefined;
+                    const time = active.currentTime ?? timeline.currentTime - active.startTime;
+                    const progress = Math.max(0, Math.min(1, time / active.options.duration));
+                    const [from, to] = active.keyframes.map(frame => Number(frame.transform.match(/translateX\((.*)px\)/)[1]));
+                    return `translateX(${from + (to - from) * progress}px)`;
+                }
+            },
+            animate(keyframes, options) {
+                const animation = { keyframes, options, startTime: null, currentTime: null,
+                    pause() {},
+                    cancel() { animations.delete(animation); if (active === animation) active = null; }
+                };
+                animations.add(animation);
+                active = animation;
+                return animation;
+            }
+        };
     }
     const plot = element(), overlay = element();
     const root = {
@@ -34,7 +52,7 @@ function fixture(t) {
     };
     initialize(root);
     t.after(() => destroy(root));
-    return { root, plot, overlay, motion, update, frames, position: () => position(plot),
+    return { root, plot, overlay, motion, update, frames, animations, position: () => position(plot),
         time(value) {
             timeline.currentTime = value;
             const pending = [...frames.values()];
@@ -75,7 +93,7 @@ test('early samples preserve velocity and a stopped feed has bounded movement', 
     assert.equal(f.position(), -10);
 });
 
-test('sample updates compensate geometry immediately and keep only one frame scheduled', t => {
+test('sample updates share an explicit animation clock without scheduling JavaScript frames', t => {
     const f = fixture(t);
     f.sample(1);
     for (let second = 1; second <= 60; second++) {
@@ -84,7 +102,12 @@ test('sample updates compensate geometry immediately and keep only one frame sch
         f.sample(second + 1);
         assert.equal(f.position() - 10, before);
         assert.equal(f.plot.style.transform, f.overlay.style.transform);
-        assert.equal(f.frames.size, 1);
+        assert.equal(f.frames.size, 0);
+        assert.equal(f.animations.size, 2);
+        for (const animation of f.animations) {
+            assert.equal(animation.startTime, second * 1000);
+            assert.equal(animation.options.easing, 'linear');
+        }
     }
 });
 
@@ -106,19 +129,21 @@ test('pause freezes continuation and scale changes cancel it', t => {
     assert.equal(f.frames.size, 0);
 });
 
-test('system reduced motion keeps scrolling while destroy cancels scheduled frames', t => {
+test('system reduced motion keeps scrolling while destroy cancels browser animations', t => {
     const f = fixture(t);
     f.sample(1);
     f.motion.matches = true;
     f.update();
     assert.notEqual(f.plot.style.transform, undefined);
     assert.notEqual(f.overlay.style.transform, undefined);
-    assert.ok(f.frames.size > 0);
+    assert.equal(f.frames.size, 0);
+    assert.equal(f.animations.size, 2);
     f.sample(2);
     destroy(f.root);
     assert.equal(f.plot.style.transform, undefined);
     assert.equal(f.overlay.style.transform, undefined);
     assert.equal(f.frames.size, 0);
+    assert.equal(f.animations.size, 0);
 });
 
 test('each frame advances both SVG groups at constant speed and stops when the feed stalls', t => {

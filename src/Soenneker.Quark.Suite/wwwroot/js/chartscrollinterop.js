@@ -4,7 +4,7 @@ export function initialize(root) {
     if (controllers.has(root)) return;
     let previous = snapshot();
     let lastAdvance = previous.enabled ? document.timeline.currentTime : null;
-    let scrollFrame = null;
+    let scrollAnimations = [];
     let scrollElements = [];
     let scroll = null;
     let radialFrame = null;
@@ -110,9 +110,8 @@ export function initialize(root) {
     }
 
     function cancel() {
-        if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);
-        scrollFrame = null;
-        for (const element of scrollElements) element.style.removeProperty('transform');
+        for (const animation of scrollAnimations) animation.cancel();
+        scrollAnimations.length = 0;
         scrollElements.length = 0;
         scroll = null;
     }
@@ -124,21 +123,33 @@ export function initialize(root) {
         return scroll.from + (scroll.to - scroll.from) * fraction;
     }
 
-    function drawScroll(now) {
-        scrollFrame = null;
+    function animateScroll() {
         if (!scroll) return;
-        const transform = `translateX(${position(now)}px)`;
-        for (const element of scrollElements) element.style.setProperty('transform', transform);
-        if (scroll.pausedAt === null && now < scroll.started + scroll.duration)
-            scrollFrame = requestAnimationFrame(drawScroll);
+        for (const animation of scrollAnimations) animation.cancel();
+        scrollAnimations = scrollElements.map(element => {
+            const animation = element.animate([
+                { transform: `translateX(${scroll.from}px)` },
+                { transform: `translateX(${scroll.to}px)` }
+            ], { duration: scroll.duration, easing: 'linear', fill: 'both' });
+            // Set the timeline explicitly: waiting for the pending play task would
+            // give the new geometry a different clock from the outgoing animation.
+            animation.startTime = scroll.started;
+            if (scroll.pausedAt !== null) {
+                animation.pause();
+                animation.currentTime = scroll.pausedAt - scroll.started;
+            }
+            return animation;
+        });
     }
 
     function freeze(event) {
         if (event && !event.target.closest('[data-slot="chart-plot"]')) return;
         if (!scroll || scroll.pausedAt !== null) return;
         scroll.pausedAt = document.timeline.currentTime;
-        if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);
-        drawScroll(scroll.pausedAt);
+        for (const animation of scrollAnimations) {
+            animation.pause();
+            animation.currentTime = scroll.pausedAt - scroll.started;
+        }
     }
 
     function update() {
@@ -155,7 +166,7 @@ export function initialize(root) {
             const now = document.timeline.currentTime;
             scroll.started += now - scroll.pausedAt;
             scroll.pausedAt = null;
-            drawScroll(now);
+            animateScroll();
         }
         if (next.version === old.version) return;
 
@@ -168,8 +179,8 @@ export function initialize(root) {
 
         // Interaction-only geometry updates should not disturb a frozen selection.
         if (stableScale && delta === 0) return;
-        const plot = root.querySelector('[data-slot="chart-plot"]');
-        const overlay = root.querySelector('[data-slot="chart-plot-overlay"]');
+        const plot = root.querySelector('[data-slot="chart-scroll-layer"]');
+        const overlay = root.querySelector('[data-slot="chart-scroll-overlay-layer"]');
         // Reading computed SVG transforms after a Blazor update forces style/layout
         // work at every sample boundary. The animation clock already gives the offset.
         const now = document.timeline.currentTime;
@@ -198,12 +209,11 @@ export function initialize(root) {
             scrollElements.push(plot);
             if (overlay) scrollElements.push(overlay);
         }
-        if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);
-        // SVG geometry and its compensating translation must reach the same paint.
-        // A separate Web Animation can advance independently of Blazor's SVG updates,
-        // briefly displaying a new path with the previous window's translation.
+        // Install compensation in the same mutation checkpoint as the new geometry.
+        // The browser owns frames between samples; Blazor/table work cannot delay
+        // a JavaScript callback that is required to move the plot.
         scroll = { from: distance, to: end, duration, started: now, pausedAt: next.paused ? now : null };
-        drawScroll(now);
+        animateScroll();
     }
 
     root.addEventListener('pointerdown', freeze, true);
