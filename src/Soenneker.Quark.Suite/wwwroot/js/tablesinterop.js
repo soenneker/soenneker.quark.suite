@@ -55,7 +55,6 @@ function restoreLayout(state) {
 function measure(state) {
     const { table, columns, measured, styled, styles } = state;
     const height = table.offsetHeight;
-    const scrollLeft = state.container.scrollLeft;
     measured.length = 0;
     try {
         // Ask the browser for intrinsic widths on the existing DOM, then restore before paint.
@@ -97,7 +96,6 @@ function measure(state) {
     } finally {
         for (let i = 0; i < styled.length; i++) styled[i].style.cssText = styles[i];
         styled.length = styles.length = 0;
-        state.container.scrollLeft = scrollLeft;
     }
 }
 
@@ -136,6 +134,7 @@ function update(state) {
     const containerStyle = getComputedStyle(container);
     const available = Math.floor(container.clientWidth - parseFloat(containerStyle.paddingLeft) - parseFloat(containerStyle.paddingRight));
     if (available <= 0) return;
+    const scrollLeft = container.scrollLeft;
 
     // Pause observation for our own writes, so measuring and applying widths cannot feed back into themselves.
     state.mutations.disconnect();
@@ -144,14 +143,17 @@ function update(state) {
             restoreLayout(state);
             return;
         }
+        // Read computed styles before intrinsic measurement changes the layout.
+        // Reading them after restoration forces style/layout synchronization
+        // immediately before applying the final column widths.
+        const tableStyle = getComputedStyle(table);
+        const separate = tableStyle.borderCollapse === 'separate';
+        const borderSpacing = separate ? parseFloat(tableStyle.borderSpacing) : 0;
+        const borders = separate ? parseFloat(tableStyle.borderLeftWidth) + parseFloat(tableStyle.borderRightWidth) : 0;
         const measured = measure(state);
         // Do not relearn widths from an empty/loading/detail row between pages.
         if (!measured.length) return;
-        const tableStyle = getComputedStyle(table);
-        const spacing = tableStyle.borderCollapse === 'separate'
-            ? parseFloat(tableStyle.borderSpacing) * (measured.length + 1)
-                + parseFloat(tableStyle.borderLeftWidth) + parseFloat(tableStyle.borderRightWidth)
-            : 0;
+        const spacing = borderSpacing * (measured.length + 1) + borders;
         const reset = state.reset || spacing !== state.spacing || available !== state.available || measured.length !== state.widths?.length;
         // Reset the existing buffer instead of allocating a new array on resize.
         if (reset && state.widths) {
@@ -185,6 +187,9 @@ function update(state) {
         if (table.style.width !== state.appliedWidth || table.style.getPropertyPriority('width') !== 'important')
             table.style.setProperty('width', state.appliedWidth, 'important');
     } finally {
+        // Restore scroll only after final widths are installed. Doing this inside
+        // measure() forces an intermediate layout using the old column widths.
+        container.scrollLeft = scrollLeft;
         if (!state.disposed) observe(state);
     }
 }

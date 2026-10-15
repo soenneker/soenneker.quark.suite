@@ -56,14 +56,14 @@ async function benchmark() {
 const [output, baseline] = process.argv.slice(2);
 if (!output) throw new Error('Supply an output HTML path.');
 let source = await readFile(baseline || new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/tablesinterop.js', import.meta.url), 'utf8');
-const schedule = 'requestAnimationFrame(() => update(state))';
+const schedule = 'const render = () => update(state);';
 if (!source.includes(schedule)) throw new Error('Update benchmark instrumentation to match the sizing scheduler.');
-source = source.replace(schedule, `requestAnimationFrame(() => {
+source = source.replace(schedule, `const render = () => {
     const started = performance.now();
     update(state);
     void table.offsetWidth; // Include final layout, not just the temporary measurement.
     window.sizingDurations.push(performance.now() - started);
-})`);
+};`);
 await writeFile(output, `<!doctype html><html lang="en"><meta charset="utf-8"><title>Table sizing benchmark</title>
 <style>body{font:14px system-ui}div{width:1100px;overflow:auto}table{border-collapse:collapse;width:100%}
 th,td{padding:8px 12px;overflow-wrap:anywhere;border-bottom:1px solid #ddd}</style>
