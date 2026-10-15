@@ -12,21 +12,23 @@
 @inherits Element
 @implements IComparisonChart
 
+@{ UpdateRenderState(); }
+
 <div @attributes="BuildAttributes()">
     <div class="comparison" data-mirrored="@(MirrorFirstMetric ? "true" : "false")" data-single="@(Metrics.Count == 1 ? "true" : "false")" data-animated="@(Animate ? "true" : "false")" style="@ColumnStyle">
         @if (Rows.Count == 0 || Metrics.Count == 0)
         {
-            <Div Padding="Soenneker.Quark.Padding.Is8" TextAlign="Soenneker.Quark.TextAlign.Center" TextColor="Soenneker.Quark.TextColor.MutedForeground" Role="status">@EmptyText</Div>
+            <Div Padding="_emptyPadding" TextAlign="_centerText" TextColor="_mutedText" Role="status">@EmptyText</Div>
         }
         else
         {
-            <Div Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" ItemsAlign="Items.Center" Justify="Soenneker.Quark.Justify.Between" Gap='Soenneker.Quark.Gap.Token("[16px_24px]")' Margin="Soenneker.Quark.Margin.FromBottom.Is5">
+            <Div Display="_flexDisplay" FlexWrap="_wrap" ItemsAlign="_centerItems" Justify="_between" Gap='_headerGap' Margin="_headerMargin">
                 @if (ShowLegend)
                 {
-                    <Div Class="comparison-legend" Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" Gap='Soenneker.Quark.Gap.Token("[6px_16px]")' Role="group" AriaLabel="Emphasize entries">
-                        @foreach (var group in LegendGroups())
+                    <Div Class="comparison-legend" Display="_flexDisplay" FlexWrap="_wrap" Gap='_legendGap' Role="group" AriaLabel="Emphasize entries">
+                        @foreach (var group in _legendGroups)
                         {
-                            <button type="button" aria-pressed="@(_activeGroup == group ? "true" : "false")" @onclick="() => ToggleGroup(group)">
+                            <button type="button" aria-pressed="@(_activeGroup == group ? "true" : "false")" @onclick="GetGroupCallback(group)">
                                 <span class="comparison-swatch" data-group="@group" aria-hidden="true"></span>@LegendLabel(group)
                             </button>
                         }
@@ -34,12 +36,11 @@
                 }
                 @if (Sortable)
                 {
-                    <Div Class="comparison-sort" Display="Soenneker.Quark.Display.Flex" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is1" Role="group" AriaLabel="Sort rows">
+                    <Div Class="comparison-sort" Display="_flexDisplay" FlexWrap="_wrap" ItemsAlign="_centerItems" Gap="_sortGap" Role="group" AriaLabel="Sort rows">
                         <span>Sort by</span>
                         @for (var index = 0; index < Metrics.Count; index++)
                         {
-                            var sortIndex = index;
-                            <button type="button" aria-pressed="@(_sortIndex == index ? "true" : "false")" @onclick="() => Sort(sortIndex)">@Metrics[index].Name</button>
+                            <button type="button" aria-pressed="@(_sortIndex == index ? "true" : "false")" @onclick="_sortCallbacks[index]">@Metrics[index].Name</button>
                         }
                     </Div>
                 }
@@ -47,7 +48,7 @@
             <table class="comparison-chart" aria-label="@(AriaLabel ?? "Comparison chart")">
                 <thead>
                     <tr>
-                        @foreach (var column in Columns())
+                        @foreach (var column in _columns)
                         {
                             if (column < 0)
                             {
@@ -65,12 +66,14 @@
                     </tr>
                 </thead>
                 <tbody @key="_sortVersion">
-                    @{ var rowIndex = 0; }
-                    @foreach (var row in OrderedRows())
+                    @{ var orderedRows = OrderedRows(); }
+                    @for (int rowIndex = 0; rowIndex < orderedRows.Count; rowIndex++)
                     {
-                        var tooltipId = $"{_tooltipPrefix}-{rowIndex}";
-                        <tr @key="row" @ref="_rowElements[row]" style="@($"--comparison-order:{rowIndex++}")" data-highlighted="@(row.Highlighted ? "true" : "false")" data-reference="@(row.Reference ? "true" : "false")" data-dimmed="@(_activeGroup is not null && Group(row) != _activeGroup ? "true" : "false")" data-selected="@(ReferenceEquals(row, _selected) ? "true" : "false")" @onclick="() => Select(row)">
-                            @foreach (var column in Columns())
+                        var row = orderedRows[rowIndex];
+                        var rowState = GetRowState(row);
+                        var tooltipId = _tooltipIds[rowIndex];
+                        <tr @key="row" @ref="_rowElements[row]" style="@_rowStyles[rowIndex]" data-highlighted="@(row.Highlighted ? "true" : "false")" data-reference="@(row.Reference ? "true" : "false")" data-dimmed="@(_activeGroup is not null && Group(row) != _activeGroup ? "true" : "false")" data-selected="@(ReferenceEquals(row, _selected) ? "true" : "false")" @onclick="rowState.Click">
+                            @foreach (var column in _columns)
                             {
                                 if (column < 0)
                                 {
@@ -100,15 +103,17 @@
                                     var value = Value(row, column);
                                     <td class="comparison-cell" data-mirrored="@(MirrorFirstMetric && column == 0 ? "true" : "false")" data-marker="@(metric.ShowMarker ? "true" : "false")" data-label="@metric.Name">
                                         <span class="comparison-grid" aria-hidden="true">
-                                            @foreach (var tick in Ticks(metric))
+                                            @foreach (var tick in _tickCaches[column].Ticks)
                                             {
-                                                <i style="@($"--tick:{Percent(metric, tick)}%")" data-baseline="@(tick == metric.Minimum ? "true" : "false")"></i>
+                                                <i style="@tick.Style" data-baseline="@(tick.Baseline ? "true" : "false")"></i>
                                             }
                                         </span>
                                         @if (value is { } number)
                                         {
                                             var upper = UpperValue(row, column);
-                                            <div class="comparison-value" style="@MarkStyle(row, metric, number, upper)" data-inside="@((MirrorFirstMetric || Metrics.Count > 1) && Fraction(metric, upper ?? number) > .86 ? "true" : "false")" data-compact-inside="@((MirrorFirstMetric || Metrics.Count > 1) && Fraction(metric, upper ?? number) > .6 ? "true" : "false")">
+                                            var style = rowState.Cells[column].GetStyle(row, metric, number, upper);
+                                            var fraction = rowState.Cells[column].UpperFraction;
+                                            <div class="comparison-value" style="@style" data-inside="@((MirrorFirstMetric || Metrics.Count > 1) && fraction > .86 ? "true" : "false")" data-compact-inside="@((MirrorFirstMetric || Metrics.Count > 1) && fraction > .6 ? "true" : "false")">
                                                 @if (metric.ShowMarker)
                                                 {
                                                     <span class="comparison-stem" aria-hidden="true"></span>
@@ -143,16 +148,16 @@
                 </tbody>
                 <tfoot aria-hidden="true">
                     <tr>
-                        @foreach (var column in Columns())
+                        @foreach (var column in _columns)
                         {
                             <td class="@(column < 0 ? "comparison-name" : "comparison-axis-cell")" data-marker="@(column >= 0 && Metrics[column].ShowMarker ? "true" : "false")">
                                 @if (column >= 0)
                                 {
                                     var metric = Metrics[column];
                                     <div class="comparison-axis" data-mirrored="@(MirrorFirstMetric && column == 0 ? "true" : "false")">
-                                        @foreach (var tick in Ticks(metric))
+                                        @foreach (var tick in _tickCaches[column].Ticks)
                                         {
-                                            <span style="@($"--tick:{Percent(metric, tick)}%")" data-edge="@(tick == metric.Minimum ? "start" : tick == metric.Maximum ? "end" : null)">@Format(metric, tick)</span>
+                                            <span style="@tick.Style" data-edge="@tick.Edge">@Format(metric, tick.Value)</span>
                                         }
                                     </div>
                                 }
@@ -161,7 +166,7 @@
                     </tr>
                 </tfoot>
             </table>
-            <Div Display="@(_selected is null ? Soenneker.Quark.Display.None : Soenneker.Quark.Display.Flex)" FlexWrap="Soenneker.Quark.FlexWrap.Wrap" Gap='Soenneker.Quark.Gap.Token("[6px_20px]")' TextSize="Soenneker.Quark.TextSize.Xs" Padding='Soenneker.Quark.Padding.FromTop.Token("[14px]")' Class="comparison-detail" aria-live="polite" aria-atomic="true">
+            <Div Display="@(_selected is null ? _hiddenDisplay : _flexDisplay)" FlexWrap="_wrap" Gap='_detailGap' TextSize="_detailSize" Padding='_detailPadding' Class="comparison-detail" aria-live="polite" aria-atomic="true">
                 @if (_selected is not null)
                 {
                     <strong>@_selected.Name</strong>
@@ -177,6 +182,21 @@
 </div>
 
 @code {
+    private static readonly CssValue<PaddingBuilder> _emptyPadding = Soenneker.Quark.Padding.Is8;
+    private static readonly CssValue<TextAlignBuilder> _centerText = Soenneker.Quark.TextAlign.Center;
+    private static readonly CssValue<TextColorBuilder> _mutedText = Soenneker.Quark.TextColor.MutedForeground;
+    private static readonly CssValue<DisplayBuilder> _flexDisplay = Soenneker.Quark.Display.Flex;
+    private static readonly CssValue<DisplayBuilder> _hiddenDisplay = Soenneker.Quark.Display.None;
+    private static readonly CssValue<FlexWrapBuilder> _wrap = Soenneker.Quark.FlexWrap.Wrap;
+    private static readonly CssValue<ItemsBuilder> _centerItems = Items.Center;
+    private static readonly CssValue<JustifyBuilder> _between = Soenneker.Quark.Justify.Between;
+    private static readonly CssValue<GapBuilder> _headerGap = Soenneker.Quark.Gap.Token("[16px_24px]");
+    private static readonly CssValue<MarginBuilder> _headerMargin = Soenneker.Quark.Margin.FromBottom.Is5;
+    private static readonly CssValue<GapBuilder> _legendGap = Soenneker.Quark.Gap.Token("[6px_16px]");
+    private static readonly CssValue<GapBuilder> _sortGap = Soenneker.Quark.Gap.Is1;
+    private static readonly CssValue<GapBuilder> _detailGap = Soenneker.Quark.Gap.Token("[6px_20px]");
+    private static readonly CssValue<TextSizeBuilder> _detailSize = Soenneker.Quark.TextSize.Xs;
+    private static readonly CssValue<PaddingBuilder> _detailPadding = Soenneker.Quark.Padding.FromTop.Token("[14px]");
 
     [Inject]
     private IComparisonChartInterop ComparisonChartInterop { get; set; } = null!;
@@ -220,6 +240,29 @@
     private readonly List<ComparisonChartRow> _staleRows = new();
     private readonly AsyncLock _revealLock = new();
     private ValueAtomicBool _disposed;
+    private int[] _columns = [];
+    private readonly List<ComparisonChartTickCache> _tickCaches = new();
+    private readonly List<Action> _sortCallbacks = new();
+    private readonly Dictionary<ComparisonChartRow, ComparisonChartRowRenderState> _rowStates = new();
+    private Func<ComparisonChartRow, Task>? _selectRowCallback;
+    private readonly HashSet<ComparisonChartRow> _currentRows = new();
+    private readonly List<string> _legendGroups = new(3);
+    private string _highlightLabel = "Highlighted entries";
+    private string _referenceLabel = "Reference entries";
+    private string? _referenceLabelCache;
+    private string? _columnStyle;
+    private Action? _highlightCallback;
+    private Action? _referenceCallback;
+    private Action? _otherCallback;
+    private ComparisonChartRow[] _sortRowsSnapshot = [];
+    private double?[] _sortValuesSnapshot = [];
+    private readonly List<ComparisonChartSortEntry> _sortEntries = new();
+    private readonly List<ComparisonChartRow> _sortedRows = new();
+    private Comparison<ComparisonChartSortEntry>? _compareRows;
+    private int _preparedSortIndex = -1;
+    private bool _preparedAscending;
+    private string?[] _tooltipIds = [];
+    private string?[] _rowStyles = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -299,7 +342,7 @@
         }
     }
 
-    private string ColumnStyle => "--comparison-columns:" + string.Join(" ", Columns().Select(index => index < 0 ? (MirrorFirstMetric ? "minmax(130px, .65fr)" : "minmax(105px, 220px)") : Metrics[index].ShowMarker ? "minmax(100px, .42fr)" : "minmax(0, 1fr)"));
+    private string ColumnStyle => _columnStyle ?? "--comparison-columns:";
 
     protected override void OnParametersSet()
     {
@@ -308,8 +351,15 @@
         {
             if (!double.IsFinite(metric.Minimum) || !double.IsFinite(metric.Maximum) || metric.Maximum <= metric.Minimum || !double.IsFinite(metric.Maximum - metric.Minimum) || (metric.Logarithmic && metric.Minimum <= 0))
                 throw new ArgumentException($"Metric '{metric.Name}' requires finite, increasing bounds and a positive minimum for logarithmic scales.", nameof(Metrics));
-            if (metric.Ticks is not null && metric.Ticks.Any(tick => !double.IsFinite(tick) || tick < metric.Minimum || tick > metric.Maximum))
-                throw new ArgumentException($"Metric '{metric.Name}' requires finite ticks within its bounds.", nameof(Metrics));
+            if (metric.Ticks is { } ticks)
+            {
+                for (int index = 0; index < ticks.Count; index++)
+                {
+                    double tick = ticks[index];
+                    if (!double.IsFinite(tick) || tick < metric.Minimum || tick > metric.Maximum)
+                        throw new ArgumentException($"Metric '{metric.Name}' requires finite ticks within its bounds.", nameof(Metrics));
+                }
+            }
         }
 
         if (_sortIndex >= Metrics.Count || !Sortable)
@@ -325,24 +375,122 @@
     }
 
     private static string Group(ComparisonChartRow row) => row.Highlighted ? "highlight" : row.Reference ? "reference" : "other";
-    private IEnumerable<string> LegendGroups() => Rows.Select(Group).Distinct().OrderBy(group => group == "highlight" ? 0 : group == "reference" ? 1 : 2);
 
     private string LegendLabel(string group) => group switch
     {
-        "highlight" => Rows.Count(row => row.Highlighted) == 1 ? Rows.First(row => row.Highlighted).Name : "Highlighted entries",
-        "reference" => Rows.Count(row => row.Reference) == 1 ? Rows.First(row => row.Reference).Name + " (reference)" : "Reference entries",
+        "highlight" => _highlightLabel,
+        "reference" => _referenceLabel,
         _ => "Other entries"
     };
 
     private void ToggleGroup(string group) => _activeGroup = _activeGroup == group ? null : group;
 
-    private IEnumerable<int> Columns()
+    private void UpdateRenderState()
     {
+        int renderedRowCount = Metrics.Count == 0 ? 0 : Rows.Count;
+        if (_tooltipIds.Length != renderedRowCount)
+        {
+            Array.Resize(ref _tooltipIds, renderedRowCount);
+            Array.Resize(ref _rowStyles, renderedRowCount);
+        }
+        if (_columns.Length != Metrics.Count + 1)
+            _columns = new int[Metrics.Count + 1];
+        int column = 0;
         if (MirrorFirstMetric && Metrics.Count > 0)
-            yield return 0;
-        yield return -1;
-        for (var index = MirrorFirstMetric ? 1 : 0; index < Metrics.Count; index++)
-            yield return index;
+            _columns[column++] = 0;
+        _columns[column++] = -1;
+        for (int index = MirrorFirstMetric ? 1 : 0; index < Metrics.Count; index++)
+            _columns[column++] = index;
+
+        var style = new PooledStringBuilder(stackalloc char[256]);
+        try
+        {
+            style.Append("--comparison-columns:");
+            for (int index = 0; index < _columns.Length; index++)
+            {
+                if (index > 0)
+                    style.Append(' ');
+                int metricIndex = _columns[index];
+                style.Append(metricIndex < 0 ? MirrorFirstMetric ? "minmax(130px, .65fr)" : "minmax(105px, 220px)"
+                    : Metrics[metricIndex].ShowMarker ? "minmax(100px, .42fr)" : "minmax(0, 1fr)");
+            }
+            if (!style.AsSpan().SequenceEqual(_columnStyle.AsSpan()))
+                _columnStyle = style.ToString();
+        }
+        finally { style.Dispose(); }
+
+        if (renderedRowCount == 0)
+        {
+            _rowStates.Clear();
+            _currentRows.Clear();
+            _legendGroups.Clear();
+            _tickCaches.Clear();
+            _sortCallbacks.Clear();
+            _sortEntries.Clear();
+            _sortedRows.Clear();
+            _sortRowsSnapshot = [];
+            _sortValuesSnapshot = [];
+            _preparedSortIndex = -1;
+            return;
+        }
+
+        while (_tickCaches.Count < Metrics.Count)
+            _tickCaches.Add(new ComparisonChartTickCache());
+        if (_tickCaches.Count > Metrics.Count)
+            _tickCaches.RemoveRange(Metrics.Count, _tickCaches.Count - Metrics.Count);
+        for (int index = 0; index < Metrics.Count; index++)
+            _tickCaches[index].Update(Metrics[index]);
+        while (_sortCallbacks.Count < Metrics.Count)
+        {
+            int index = _sortCallbacks.Count;
+            _sortCallbacks.Add(() => Sort(index));
+        }
+        if (_sortCallbacks.Count > Metrics.Count)
+            _sortCallbacks.RemoveRange(Metrics.Count, _sortCallbacks.Count - Metrics.Count);
+
+        int highlighted = 0, references = 0;
+        ComparisonChartRow? highlightedRow = null, referenceRow = null;
+        bool referenceGroup = false, otherGroup = false;
+        _currentRows.Clear();
+        for (int index = 0; index < Rows.Count; index++)
+        {
+            var row = Rows[index];
+            _tooltipIds[index] ??= $"{_tooltipPrefix}-{index}";
+            _rowStyles[index] ??= $"--comparison-order:{index}";
+            _currentRows.Add(row);
+            if (row.Highlighted) { highlighted++; highlightedRow = row; }
+            if (row.Reference) { references++; referenceRow = row; }
+            referenceGroup |= !row.Highlighted && row.Reference;
+            otherGroup |= !row.Highlighted && !row.Reference;
+        }
+        foreach (var row in _rowStates.Keys)
+        {
+            if (!_currentRows.Contains(row))
+                _rowStates.Remove(row);
+        }
+        _legendGroups.Clear();
+        if (highlighted > 0) _legendGroups.Add("highlight");
+        if (referenceGroup) _legendGroups.Add("reference");
+        if (otherGroup) _legendGroups.Add("other");
+        _highlightLabel = highlighted == 1 ? highlightedRow!.Name : "Highlighted entries";
+        _referenceLabel = references == 1
+            ? QuarkStringCache.Concat(referenceRow!.Name, " ", "(reference)", ref _referenceLabelCache)
+            : "Reference entries";
+    }
+
+    private Action GetGroupCallback(string group) => group switch
+    {
+        "highlight" => _highlightCallback ??= () => ToggleGroup("highlight"),
+        "reference" => _referenceCallback ??= () => ToggleGroup("reference"),
+        _ => _otherCallback ??= () => ToggleGroup("other")
+    };
+
+    private ComparisonChartRowRenderState GetRowState(ComparisonChartRow row)
+    {
+        if (!_rowStates.TryGetValue(row, out var state))
+            _rowStates.Add(row, state = new ComparisonChartRowRenderState(row, _selectRowCallback ??= Select));
+        state.Resize(Metrics.Count);
+        return state;
     }
 
     private void Sort(int index)
@@ -354,14 +502,58 @@
 
     private string SortLabel(int index) => _sortIndex != index ? "none" : _ascending ? "ascending" : "descending";
 
-    private IEnumerable<ComparisonChartRow> OrderedRows()
+    private IReadOnlyList<ComparisonChartRow> OrderedRows()
     {
         if (_sortIndex < 0)
+        {
+            _sortEntries.Clear();
+            _sortedRows.Clear();
+            _sortRowsSnapshot = [];
+            _sortValuesSnapshot = [];
+            _preparedSortIndex = -1;
             return Rows;
+        }
+
+        bool changed = _preparedSortIndex != _sortIndex || _preparedAscending != _ascending || _sortRowsSnapshot.Length != Rows.Count;
+        if (_sortRowsSnapshot.Length != Rows.Count)
+        {
+            _sortRowsSnapshot = new ComparisonChartRow[Rows.Count];
+            _sortValuesSnapshot = new double?[Rows.Count];
+        }
+        for (int index = 0; index < Rows.Count; index++)
+        {
+            var row = Rows[index];
+            double? value = Value(row, _sortIndex);
+            changed |= !ReferenceEquals(_sortRowsSnapshot[index], row) || _sortValuesSnapshot[index] != value;
+            _sortRowsSnapshot[index] = row;
+            _sortValuesSnapshot[index] = value;
+        }
+        if (!changed)
+            return _sortedRows;
 
         // Missing values always stay last, including when the sort direction is reversed.
-        var available = Rows.OrderBy(row => Value(row, _sortIndex) is null);
-        return _ascending ? available.ThenBy(row => Value(row, _sortIndex)) : available.ThenByDescending(row => Value(row, _sortIndex));
+        _sortEntries.Clear();
+        for (int index = 0; index < Rows.Count; index++)
+            _sortEntries.Add(new ComparisonChartSortEntry(_sortRowsSnapshot[index], _sortValuesSnapshot[index], index));
+        _sortEntries.Sort(_compareRows ??= CompareRows);
+        _sortedRows.Clear();
+        foreach (var entry in _sortEntries)
+            _sortedRows.Add(entry.Row);
+        _preparedSortIndex = _sortIndex;
+        _preparedAscending = _ascending;
+        return _sortedRows;
+    }
+
+    private int CompareRows(ComparisonChartSortEntry left, ComparisonChartSortEntry right)
+    {
+        int compared;
+        if (!left.Value.HasValue)
+            compared = right.Value.HasValue ? 1 : 0;
+        else if (!right.Value.HasValue)
+            compared = -1;
+        else
+            compared = _ascending ? left.Value.Value.CompareTo(right.Value.Value) : right.Value.Value.CompareTo(left.Value.Value);
+        return compared != 0 ? compared : left.OriginalIndex.CompareTo(right.OriginalIndex);
     }
 
     private static double? Value(ComparisonChartRow row, int index) =>
@@ -371,24 +563,5 @@
         metric.ValueFormatter?.Invoke(value) ?? value.ToString("0.##", CultureInfo.CurrentCulture);
 
     private static double? UpperValue(ComparisonChartRow row, int index) => row.UpperValues is { } upper && index < upper.Count && upper[index] is { } value && double.IsFinite(value) && Value(row, index) is { } lower && value >= lower ? value : null;
-
-    private static IEnumerable<double> Ticks(ComparisonChartMetric metric)
-    {
-        if (metric.Ticks is not null)
-            return metric.Ticks;
-        var intervals = metric.ShowMarker ? 2 : 4;
-        return Enumerable.Range(0, intervals + 1).Select(index => metric.Logarithmic ? Math.Exp(Math.Log(metric.Minimum) + (Math.Log(metric.Maximum) - Math.Log(metric.Minimum)) * index / intervals) : metric.Minimum + (metric.Maximum - metric.Minimum) * index / intervals);
-    }
-
-    private static double Fraction(ComparisonChartMetric metric, double value)
-    {
-        var clamped = Math.Clamp(value, metric.Minimum, metric.Maximum);
-        return metric.Logarithmic ? (Math.Log(clamped) - Math.Log(metric.Minimum)) / (Math.Log(metric.Maximum) - Math.Log(metric.Minimum)) : (clamped - metric.Minimum) / (metric.Maximum - metric.Minimum);
-    }
-
-    private static string Percent(ComparisonChartMetric metric, double value) => (Fraction(metric, value) * 100).ToString("0.####", CultureInfo.InvariantCulture);
-
-    private static string MarkStyle(ComparisonChartRow row, ComparisonChartMetric metric, double value, double? upper) =>
-        $"--comparison-position:{Percent(metric, value)}%;--comparison-upper:{Percent(metric, upper ?? value)}%;" + (row.Color is null ? string.Empty : $"--comparison-color:{row.Color};");
 
 }

@@ -6,6 +6,18 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Omitted_presets_remain_active_and_explicit_null_clears_them()
+    {
+        var single = QuarkPresetToken.Freeze("size", c => c.Width = Width.IsFull);
+        QuarkPresetToken[] multiple = [QuarkPresetToken.Freeze("height", c => c.Height = Height.Is4)];
+        var cut = Render<Div>(p => p.Add(c => c.Preset, single).Add(c => c.Presets, multiple));
+        cut.Render(p => p.Add(c => c.Class, "custom"));
+        cut.Find("div").ClassList.Should().Contain("w-full").And.Contain("h-4").And.Contain("custom");
+        cut.Render(p => p.Add(c => c.Preset, null).Add(c => c.Presets, null));
+        cut.Find("div").ClassList.Should().Contain("custom").And.NotContain("w-full").And.NotContain("h-4");
+    }
+
+    [Test]
     public void Frozen_presets_replaced_in_the_same_list_update_even_when_names_match()
     {
         var presets = new System.Collections.Generic.List<QuarkPresetToken>

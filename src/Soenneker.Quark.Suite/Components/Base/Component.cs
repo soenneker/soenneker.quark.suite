@@ -879,11 +879,24 @@ public abstract class Component : RenderComponent, IComponent
         var resolvedPreset = Preset;
         var resolvedPresets = Presets;
 
-        if (parameters.TryGetValue(nameof(Preset), out QuarkPresetToken? preset))
-            resolvedPreset = preset;
+        bool foundPreset = false;
+        bool foundPresets = false;
+        foreach (var parameter in parameters)
+        {
+            if (!foundPreset && parameter.Name == nameof(Preset))
+            {
+                resolvedPreset = (QuarkPresetToken?)parameter.Value;
+                foundPreset = true;
+            }
+            else if (!foundPresets && parameter.Name == nameof(Presets))
+            {
+                resolvedPresets = (IReadOnlyList<QuarkPresetToken>?)parameter.Value;
+                foundPresets = true;
+            }
 
-        if (parameters.TryGetValue(nameof(Presets), out IReadOnlyList<QuarkPresetToken>? presets))
-            resolvedPresets = presets;
+            if (foundPreset && foundPresets)
+                break;
+        }
 
         // Explicit-parameter tracking is only needed while presets are active. Avoid a second
         // ParameterView enumeration and HashSet work for the overwhelmingly common no-preset path.

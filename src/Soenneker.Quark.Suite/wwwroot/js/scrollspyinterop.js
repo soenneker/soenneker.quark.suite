@@ -96,26 +96,29 @@ export function initialize(element, options, dotNetRef) {
 
     const scrollElement = getScrollElement();
     const scrollTop = getScrollTop(scrollElement);
+    const viewport = scrollElement === document.documentElement || scrollElement === document.body;
+    const containerTop = viewport ? 0 : scrollElement.getBoundingClientRect().top + scrollElement.clientTop;
     let activeIndex = 0;
     let minDelta = Number.POSITIVE_INFINITY;
 
-    anchors.forEach((anchor, index) => {
+    for (let index = 0; index < anchors.length; index++) {
+      const anchor = anchors[index];
       const sectionId = anchor.getAttribute(anchorAttribute)?.replace("#", "");
       const section = sectionId ? document.getElementById(sectionId) : null;
 
       if (!section) {
-        return;
+        continue;
       }
 
       const customOffset = getAnchorOffset(anchor);
-      const top = getSectionTop(section, scrollElement) - customOffset;
+      const top = section.getBoundingClientRect().top + scrollTop - containerTop - customOffset;
       const delta = Math.abs(top - scrollTop);
 
       if (top <= scrollTop && delta < minDelta) {
         minDelta = delta;
         activeIndex = index;
       }
-    });
+    }
 
     const scrollHeight = scrollElement.scrollHeight || document.documentElement.scrollHeight;
     const clientHeight = scrollElement.clientHeight || window.innerHeight;

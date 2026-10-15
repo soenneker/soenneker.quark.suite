@@ -308,8 +308,9 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     else
                     {
                         <div class="quark-chart-tooltip-label mb-2 whitespace-nowrap font-medium text-muted-foreground">@Options.FormatLabel(LabelAt(_hoveredIndex.Value))</div>
-                        @foreach (var row in TooltipRows)
+                        @for (int tooltipRowIndex = 0; tooltipRowIndex < TooltipRows.Count; tooltipRowIndex++)
                         {
+                            var row = TooltipRows[tooltipRowIndex];
                             <div class="quark-chart-tooltip-row mt-1 grid grid-cols-[0.55rem_minmax(max-content,1fr)_max-content] items-center gap-2">
                                 <span class="quark-chart-tooltip-swatch inline-block size-2 rounded-sm" style="background:@row.Color"></span>
                                 <span class="quark-chart-tooltip-name whitespace-nowrap">@row.Series</span>
@@ -327,8 +328,9 @@ data requires proportional horizontal spacing instead of categorical spacing.
                 <thead>
                     <tr>
                         <th>Label</th>
-                        @foreach (var series in AccessibleSeries)
+                        @for (int accessibleSeriesIndex = 0; accessibleSeriesIndex < AccessibleSeries.Count; accessibleSeriesIndex++)
                         {
+                            var series = AccessibleSeries[accessibleSeriesIndex];
                             <th>@series.Name</th>
                         }
                     </tr>
@@ -338,8 +340,9 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     {
                         <tr @key="(_useContinuousX ? XValues![index] : index)">
                             <th>@LabelAt(index)</th>
-                            @foreach (var series in AccessibleSeries)
+                            @for (int accessibleSeriesIndex = 0; accessibleSeriesIndex < AccessibleSeries.Count; accessibleSeriesIndex++)
                             {
+                                var series = AccessibleSeries[accessibleSeriesIndex];
                                 <td>@(ValueAt(series, index)?.ToString() ?? "")</td>
                             }
                         </tr>

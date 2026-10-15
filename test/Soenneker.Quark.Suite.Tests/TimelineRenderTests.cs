@@ -9,6 +9,29 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Event_timeline_preserves_source_order_for_equal_timestamps_in_both_directions()
+    {
+        var when = DateTimeOffset.UnixEpoch;
+        EventTimelineItem[] items = [
+            new() { Label = "First equal", When = when },
+            new() { Label = "Later", When = when.AddHours(1) },
+            new() { Label = "Second equal", When = when.ToOffset(TimeSpan.FromHours(2)) },
+            new() { Label = "", When = when }];
+        var cut = Render<EventTimeline>(p => p.Add(c => c.Layout, EventTimelineLayout.Vertical).Add(c => c.Items, items));
+        var ascending = cut.FindAll("[role='listitem']");
+        ascending.Should().HaveCount(3);
+        ascending[0].TextContent.Should().Contain("First equal");
+        ascending[1].TextContent.Should().Contain("Second equal");
+        ascending[2].TextContent.Should().Contain("Later");
+        cut.Render(p => p.Add(c => c.NewestFirst, true));
+        var rows = cut.FindAll("[role='listitem']");
+        rows.Should().HaveCount(3);
+        rows[0].TextContent.Should().Contain("Later");
+        rows[1].TextContent.Should().Contain("First equal");
+        rows[2].TextContent.Should().Contain("Second equal");
+    }
+
+    [Test]
     public void Event_timeline_observes_in_place_list_edits_and_sort_direction_changes()
     {
         var when = new DateTimeOffset(2026, 9, 22, 12, 0, 0, TimeSpan.Zero);

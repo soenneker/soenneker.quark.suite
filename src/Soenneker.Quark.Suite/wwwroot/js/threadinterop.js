@@ -15,9 +15,7 @@ function scrollToBottomInternal(element, behavior) {
   });
 }
 
-function notify(instance) {
-  const next = isAtBottom(instance.element);
-
+function notify(instance, next = isAtBottom(instance.element)) {
   if (next === instance.lastIsAtBottom) {
     return;
   }
@@ -71,10 +69,12 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
   };
 
   instance.onScroll = () => {
-    if (element.scrollTop < instance.lastScrollTop - 1) instance.following = false;
-    if (isAtBottom(element)) instance.following = true;
-    instance.lastScrollTop = element.scrollTop;
-    notify(instance);
+    const scrollTop = element.scrollTop;
+    const atBottom = element.scrollHeight - scrollTop - element.clientHeight <= 2;
+    if (scrollTop < instance.lastScrollTop - 1) instance.following = false;
+    if (atBottom) instance.following = true;
+    instance.lastScrollTop = scrollTop;
+    notify(instance, atBottom);
   };
   element.addEventListener("scroll", instance.onScroll, { passive: true });
 
@@ -93,8 +93,14 @@ export function initialize(element, dotNetRef, initial = "smooth", resize = "smo
       }
     }
   };
-  instance.mutationObserver = new MutationObserver(() => {
-    observeChildren();
+  instance.mutationObserver = new MutationObserver(records => {
+    // Streaming text and nested markup cannot change the direct children being observed.
+    for (const record of records) {
+      if (record.type === "childList" && record.target === element) {
+        observeChildren();
+        break;
+      }
+    }
     scheduleUpdate();
   });
   instance.mutationObserver.observe(element, { childList: true, subtree: true, characterData: true });

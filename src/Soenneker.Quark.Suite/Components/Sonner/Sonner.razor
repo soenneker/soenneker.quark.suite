@@ -236,7 +236,7 @@
             if (HaveHeightsChanged(heights))
             {
                 _heights = heights;
-                await InvokeAsync(StateHasChanged);
+                await RequestRender();
             }
         }
         catch
@@ -509,7 +509,7 @@
 
         _swipeDismissedToastIds.Add(id);
         await SonnerService.Dismiss(id, CancellationToken);
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     private string[]? GetHotkeySnapshot(IReadOnlyList<string>? hotkey)
@@ -576,7 +576,7 @@
             if (isActive) await SonnerService.Pause(ToasterId, position, CancellationToken);
             else await SonnerService.Resume(ToasterId, position, CancellationToken);
         }
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     private bool IsExpanded(SonnerPosition position)

@@ -31,7 +31,7 @@
             <Div Preset="@Appearance.VerticalTrackPreset" Role="list">
                 @for (int index = 0; index < TimelineItems.Count; index++)
                 {
-                    EventTimelineItem item = TimelineItems[index];
+                    EventTimelineItem item = TimelineItems[index].Item;
                     var view = GetItemView(item, index);
                     bool hasNext = index < TimelineItems.Count - 1;
                     <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@view.GetTestId(ItemTestIdPrefix)">
@@ -62,7 +62,7 @@
             <Div Preset="@Appearance.TrackPreset">
                 @for (int index = 0; index < TimelineItems.Count; index++)
                 {
-                    EventTimelineItem item = TimelineItems[index];
+                    EventTimelineItem item = TimelineItems[index].Item;
                     var view = GetItemView(item, index);
                     bool hasNext = index < TimelineItems.Count - 1;
                     <Div Preset="@ItemPreset" data-testid="@view.GetTestId(ItemTestIdPrefix)">
@@ -149,7 +149,7 @@
 
     private bool? _fitAllOverride;
 
-    private IReadOnlyList<EventTimelineItem> TimelineItems = [];
+    private readonly List<EventTimelineEntry> TimelineItems = [];
     private EventTimelineItem[] _sourceItems = [];
     private bool _sortedNewestFirst;
 
@@ -183,8 +183,17 @@
             _sourceItems[index] = Items[index];
         if (Items.Count == 0) _itemViews = [];
         _sortedNewestFirst = NewestFirst;
-        var items = Items.Where(item => item.Label.HasContent());
-        TimelineItems = (NewestFirst ? items.OrderByDescending(item => item.When) : items.OrderBy(item => item.When)).ToList();
+        TimelineItems.Clear();
+        TimelineItems.EnsureCapacity(Items.Count);
+        for (int index = 0; index < Items.Count; index++)
+        {
+            EventTimelineItem item = Items[index];
+            if (item.Label.HasContent())
+                TimelineItems.Add(new EventTimelineEntry(item, index));
+        }
+
+        // Retain source order for equal timestamps in both directions, matching stable OrderBy.
+        TimelineItems.Sort(NewestFirst ? EventTimelineEntry.NewestFirst : EventTimelineEntry.OldestFirst);
     }
 
     private string ResolvedAriaLabel => AriaLabel.HasContent() ? AriaLabel! : Title.HasContent() ? Title! : "Timeline";

@@ -486,7 +486,7 @@
         await SelectedNodeIdsChanged.InvokeAsync(selection);
         await SelectedNodeIdChanged.InvokeAsync(SelectedNodeId);
         await SelectedEdgeIdChanged.InvokeAsync(null);
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     /// <summary>
@@ -506,7 +506,7 @@
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
         await SelectedNodeIdChanged.InvokeAsync(null);
         await SelectedNodeIdsChanged.InvokeAsync(SelectedNodeIds);
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     /// <summary>
@@ -535,7 +535,7 @@
         await SelectedEdgeIdChanged.InvokeAsync(edgeId);
         await SelectedNodeIdChanged.InvokeAsync(null);
         await SelectedNodeIdsChanged.InvokeAsync(SelectedNodeIds);
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     [JSInvokable(nameof(InvokeNodeMoved))]
@@ -645,7 +645,7 @@
             _announcement = string.IsNullOrWhiteSpace(result.Message)
                 ? "That connection is not allowed"
                 : result.Message;
-            await InvokeAsync(StateHasChanged);
+            await RequestRender();
         }
 
         return result;
@@ -692,7 +692,7 @@
     public Task InvokeInteractionRejected(string message)
     {
         _announcement = message;
-        return InvokeAsync(StateHasChanged);
+        return RequestRender();
     }
 
     [JSInvokable(nameof(InvokeDeleteRequested))]
@@ -898,7 +898,7 @@
 
         if (previousLabel == label)
         {
-            await InvokeAsync(StateHasChanged);
+            await RequestRender();
             return;
         }
 
@@ -914,7 +914,7 @@
             Label = label
         });
         await NotifyChanged();
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     private async Task CancelEdgeLabelEdit()
@@ -925,7 +925,7 @@
         _editingEdgeId = null;
         _editingEdgeLabel = "";
         _announcement = "Connection label edit canceled";
-        await InvokeAsync(StateHasChanged);
+        await RequestRender();
     }
 
     /// <inheritdoc/>

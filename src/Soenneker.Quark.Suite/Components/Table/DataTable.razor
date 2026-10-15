@@ -569,7 +569,7 @@
 
     private static int[] NormalizePageSizeOptions(int[]? options, int currentPageSize)
     {
-        var result = new List<int>();
+        var result = new List<int>((options?.Length ?? 0) + 1);
 
         if (currentPageSize > 0)
             result.Add(currentPageSize);
@@ -594,13 +594,24 @@
     private int[] GetResolvedPageSizeOptions()
     {
         var options = Options.PageSizeOptions;
+        bool optionsChanged = !PageSizeOptionsEqual(options, _pageSizeOptionsSnapshot);
 
-        if (_pageSizeOptionsInitialized.Value && _resolvedForPageSize == PageSize && PageSizeOptionsEqual(options, _pageSizeOptionsSnapshot))
+        if (_pageSizeOptionsInitialized.Value && _resolvedForPageSize == PageSize && !optionsChanged)
             return _resolvedPageSizeOptions;
 
         _pageSizeOptionsInitialized.Value = true;
         _resolvedForPageSize = PageSize;
-        _pageSizeOptionsSnapshot = options is null ? null : [.. options];
+        if (optionsChanged)
+        {
+            if (options is null)
+                _pageSizeOptionsSnapshot = null;
+            else
+            {
+                if (_pageSizeOptionsSnapshot?.Length != options.Length)
+                    _pageSizeOptionsSnapshot = new int[options.Length];
+                options.CopyTo(_pageSizeOptionsSnapshot!, 0);
+            }
+        }
         _resolvedPageSizeOptions = NormalizePageSizeOptions(options, PageSize);
         return _resolvedPageSizeOptions;
     }

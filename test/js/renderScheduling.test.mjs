@@ -11,6 +11,7 @@ function environment() {
   globalThis.MutationObserver = globalThis.ResizeObserver = class {
     constructor(callback) { this.callback = callback; observers.push(this); }
     observe() {}
+    unobserve() {}
     disconnect() { this.disconnected = true; }
   };
   globalThis.window = { ResizeObserver };
@@ -33,7 +34,7 @@ test('streaming mutations and resize callbacks share one frame', () => {
   env.flush();
   for (let i = 0; i < 100; i++) {
     env.element.scrollHeight++;
-    env.observers.forEach(observer => observer.callback());
+    env.observers.forEach(observer => observer.callback([]));
   }
   assert.equal(env.frames.size, 1);
   env.flush();
@@ -46,7 +47,7 @@ test('a user who scrolls away before the pending frame is not pulled back', () =
   const env = environment();
   thread.initialize(env.element, env.receiver, 'instant');
   env.flush();
-  env.observers[0].callback();
+  env.observers[0].callback([]);
   env.element.scrollTop = 0;
   env.element.listeners.get('scroll')();
   env.flush();
@@ -73,7 +74,7 @@ test('thread settings can change without scrolling back to the bottom', () => {
   env.flush();
   thread.initialize(env.element, env.receiver, 'instant', 'auto', false);
   env.element.scrollHeight += 100;
-  env.observers[0].callback();
+  env.observers[0].callback([]);
   env.flush();
   assert.equal(env.scrolls.length, 1);
   assert.equal(env.observers.length, 2);
@@ -89,9 +90,48 @@ test('smooth scrolling keeps following during intermediate scroll events', () =>
   env.element.scrollTop = 20;
   env.element.listeners.get('scroll')();
   env.element.scrollHeight += 100;
-  env.observers[0].callback();
+  env.observers[0].callback([]);
   env.flush();
   assert.equal(env.scrolls.length, 2);
+  thread.dispose(env.element);
+});
+
+test('streaming text skips child observation scans while direct child replacement remains observed', () => {
+  const env = environment();
+  let childReads = 0;
+  const first = { parentElement: env.element }, second = { parentElement: env.element };
+  let children = [first];
+  Object.defineProperty(env.element, 'children', { get() { childReads++; return children; } });
+  thread.initialize(env.element, env.receiver, 'instant');
+  const mutation = env.observers[0], resize = env.observers[1], observed = [], unobserved = [];
+  resize.observe = child => observed.push(child);
+  resize.unobserve = child => unobserved.push(child);
+  const initialReads = childReads;
+  for (let i = 0; i < 100; i++) {
+    mutation.callback([{ type: 'characterData', target: first }]);
+    mutation.callback([{ type: 'childList', target: first }]);
+  }
+  assert.equal(childReads, initialReads);
+  first.parentElement = null;
+  children = [second];
+  mutation.callback([{ type: 'childList', target: env.element }]);
+  assert.equal(childReads, initialReads + 1);
+  assert.deepEqual(observed, [second]);
+  assert.deepEqual(unobserved, [first]);
+  thread.dispose(env.element);
+});
+
+test('scroll notifications read each geometry value once', () => {
+  const env = environment();
+  thread.initialize(env.element, env.receiver, 'instant');
+  env.flush();
+  const reads = { scrollTop: 0, scrollHeight: 0, clientHeight: 0 };
+  for (const name of Object.keys(reads)) {
+    const value = env.element[name];
+    Object.defineProperty(env.element, name, { get() { reads[name]++; return value; } });
+  }
+  env.element.listeners.get('scroll')();
+  assert.deepEqual(reads, { scrollTop: 1, scrollHeight: 1, clientHeight: 1 });
   thread.dispose(env.element);
 });
 

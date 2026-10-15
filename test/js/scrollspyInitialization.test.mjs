@@ -99,3 +99,25 @@ test('modified anchor clicks retain native navigation', t => {
   assert.equal(prevented, false);
   assert.equal(env.scrolls.length, 0);
 });
+
+test('a nested scroll frame measures its container once across all anchors', t => {
+  const env = fixture(t);
+  let containerReads = 0;
+  const viewport = Object.assign(new ElementStub(), {
+    scrollTop: 300, scrollHeight: 2000, clientHeight: 500, clientTop: 2,
+    getBoundingClientRect() { containerReads++; return { top: 200 }; }
+  });
+  document.querySelector = () => viewport;
+  const anchors = Array.from({ length: 100 }, (_, index) => {
+    const anchor = new ElementStub();
+    anchor.setAttribute('data-scrollspy-anchor', String(index));
+    return anchor;
+  });
+  env.element.querySelectorAll = () => anchors;
+  document.getElementById = id => ({ getBoundingClientRect: () => ({ top: Number(id) * 10 }) });
+  initialize(env.element, { targetSelector: '#scroll', history: false }, null);
+  env.scroll();
+  assert.equal(containerReads, 1);
+  assert.equal(anchors[20].getAttribute('data-active'), 'true');
+  assert.equal(anchors[21].getAttribute('data-active'), null);
+});

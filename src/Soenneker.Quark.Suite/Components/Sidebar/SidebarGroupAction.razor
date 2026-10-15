@@ -15,6 +15,7 @@ else
 }
 
 @code {
+    private object? _slotClickCallback;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
@@ -75,7 +76,7 @@ else
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
         var attributes = BuildAttributes();
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick);
+        attributes["onclick"] = _slotClickCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleClickDelegate ??= HandleClick);
         return attributes;
     }
 

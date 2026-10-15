@@ -77,7 +77,7 @@ public partial class Calendar
         var preferred = _focusedDate ?? (IsRangeMode ? EffectiveSelectedRange?.From : IsMultipleMode && EffectiveSelectedDates.Count > 0 ? EffectiveSelectedDates[0] : EffectiveSelectedDate) ?? _today;
         DateOnly? first = null;
         DateOnly? today = null;
-        for (var index = 0; index < VisibleMonthCount; index++)
+        for (int index = 0, count = VisibleMonthCount; index < count; index++)
         {
             foreach (var week in BuildMonthWeeks(AddCalendarMonths(_displayMonth, index)))
             {

@@ -27,6 +27,7 @@ else
 }
 
 @code {
+    private object? _slotClickCallback;
     private string? _navigationHref;
     private bool _relativeNavigationHref;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
@@ -125,7 +126,7 @@ else
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
         var attributes = BuildAttributes();
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleActivate);
+        attributes["onclick"] = _slotClickCallback ??= EventCallback.Factory.Create<MouseEventArgs>(this, _cachedHandleActivateDelegate ??= HandleActivate);
         return attributes;
     }
 

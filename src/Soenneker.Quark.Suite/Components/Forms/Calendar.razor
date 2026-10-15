@@ -7,20 +7,25 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-@{ BeginDayRender(); }
+@{
+    BeginDayRender();
+    var canNavigatePrevious = CanNavigatePrevious();
+    var canNavigateNext = CanNavigateNext();
+    var visibleMonthCount = VisibleMonthCount;
+}
 
 <div @ref="_calendarElement" @attributes="BuildAttributes()">
     <Div Position="_renderCss0" Display="_renderCss1" FlexDirection="_renderCss2" Gap="_renderCss3" Class="rdp-months">
         <Nav Position="_renderCss4" Inset="_renderCss5" Top="_renderCss6" Display="_renderCss1" Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss9" Gap="_renderCss10" AriaLabel="" Class="rdp-nav">
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" Disabled="@(!CanNavigatePrevious())" aria-disabled="@GetAriaDisabled(!CanNavigatePrevious())" TabIndex="@GetNavTabIndex(CanNavigatePrevious())" OnClick="(_calendarPrevCallback ??= PrevMonth)">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_previous")" AriaLabel="Go to the Previous Month" Disabled="@(!canNavigatePrevious)" aria-disabled="@GetAriaDisabled(!canNavigatePrevious)" TabIndex="@GetNavTabIndex(canNavigatePrevious)" OnClick="(_calendarPrevCallback ??= PrevMonth)">
                 <Icon Name="LucideIcon.ChevronLeft" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
-            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" Disabled="@(!CanNavigateNext())" aria-disabled="@GetAriaDisabled(!CanNavigateNext())" TabIndex="@GetNavTabIndex(CanNavigateNext())" OnClick="(_calendarNextCallback ??= NextMonth)">
+            <Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" ButtonSize="@NoButtonSize" UserSelect="_renderCss11" Opacity='_renderCss12' Class="@($"{CalendarNavButtonSize} rdp-button_next")" AriaLabel="Go to the Next Month" Disabled="@(!canNavigateNext)" aria-disabled="@GetAriaDisabled(!canNavigateNext)" TabIndex="@GetNavTabIndex(canNavigateNext)" OnClick="(_calendarNextCallback ??= NextMonth)">
                 <Icon Name="LucideIcon.ChevronRight" Size="_renderCss13" Class="rdp-chevron" aria-hidden="true"/>
             </Button>
         </Nav>
 
-        @for (var monthIndex = 0; monthIndex < VisibleMonthCount; monthIndex++)
+        @for (var monthIndex = 0; monthIndex < visibleMonthCount; monthIndex++)
         {
             var month = AddCalendarMonths(_displayMonth, monthIndex);
             var weeks = BuildMonthWeeks(month);
@@ -33,7 +38,8 @@
                         <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Gap='_renderCss18' TextSize="_renderCss19" FontWeight="_renderCss20" Class="rdp-dropdowns">
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
                                 <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((GetCalendarMonth(month) - 1).ToString(CultureInfo.InvariantCulture))" OnChange="monthView.MonthChanged">
-                                    @for (var optionMonth = 0; optionMonth < GetCalendarMonthsInYear(month); optionMonth++)
+                                    @{ var monthsInYear = GetCalendarMonthsInYear(month); }
+                                    @for (var optionMonth = 0; optionMonth < monthsInYear; optionMonth++)
                                     {
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth + 1)</option>
                                     }
@@ -45,7 +51,8 @@
                             </Span>
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
                                 <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@GetCalendarYear(month).ToString(CultureInfo.InvariantCulture)" OnChange="monthView.YearChanged">
-                                    @for (var year = GetMinSelectableYear(); year <= GetMaxSelectableYear(); year++)
+                                    @{ var maxSelectableYear = GetMaxSelectableYear(); }
+                                    @for (var year = GetMinSelectableYear(); year <= maxSelectableYear; year++)
                                     {
                                         <option value="@year">@year</option>
                                     }
@@ -84,9 +91,10 @@
                             <TrPrimitive @key="week" Margin="_renderCss30" Display="_renderCss1" Width="_renderCss7" Class="rdp-week">
                                 @if (ShowWeekNumber)
                                 {
-                                    <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
+                                    var weekNumber = GetWeekNumber(week[0].Date);
+                                    <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"Week {weekNumber}")">
                                         <Div Display="_renderCss1" Size='_renderCss31' ItemsAlign="_renderCss8" Justify="_renderCss16" TextAlign="_renderCss32">
-                                            @GetWeekNumber(week[0].Date).ToString("00", CultureInfo.InvariantCulture)
+                                            @weekNumber.ToString("00", CultureInfo.InvariantCulture)
                                         </Div>
                                     </ThPrimitive>
                                 }

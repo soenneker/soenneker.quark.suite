@@ -48,34 +48,34 @@
     {
         <div class="session-replay-controls" data-slot="session-replay-controls">
             <Slider Class="session-replay-timeline" Min="0" Max="@Math.Max(RecordingDuration, 1)" Step="100" SliderValue="@CurrentTime"
-                    SliderValueChanged="Seek" Disabled="@(!_ready.Value || RecordingDuration <= 0)" Label="Playback position" />
+                    SliderValueChanged="(_seekCallback ??= Seek)" Disabled="@(!_ready.Value || RecordingDuration <= 0)" Label="Playback position" />
             <div class="session-replay-toolbar">
                 <div class="session-replay-actions">
-                    <Button Class="session-replay-play" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
-                            Disabled="@(!_ready.Value)" OnClick="TogglePlayback" title="@(IsPlaying ? "Pause" : "Play")"
+                    <Button Class="session-replay-play" Variant="ButtonVariant.Ghost" ButtonSize="_controlButtonSize"
+                            Disabled="@(!_ready.Value)" OnClick="(_togglePlaybackCallback ??= TogglePlayback)" title="@(IsPlaying ? "Pause" : "Play")"
                             aria-label="@(IsPlaying ? "Pause recording" : "Play recording")">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             @if (IsPlaying) { <path d="M6 5h4v14H6zM14 5h4v14h-4z" /> }
                             else { <path d="m8 5 11 7-11 7z" /> }
                         </svg>
                     </Button>
-                    <Button Class="session-replay-restart" Variant="ButtonVariant.Ghost" ButtonSize="ButtonSize.IconSm"
-                            Disabled="@(!_ready.Value)" OnClick="Restart" title="Restart" aria-label="Restart recording">
+                    <Button Class="session-replay-restart" Variant="ButtonVariant.Ghost" ButtonSize="_controlButtonSize"
+                            Disabled="@(!_ready.Value)" OnClick="(_restartCallback ??= Restart)" title="Restart" aria-label="Restart recording">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2.6 8.4M3 4v6h6" /></svg>
                     </Button>
                     <span class="session-replay-time" aria-label="Playback time">
-                        <span>@FormatTime(CurrentTime)</span><span class="session-replay-time-divider">/</span><span class="session-replay-duration">@FormatTime(RecordingDuration)</span>
+                        <span>@CachedTime(CurrentTime, ref _positionSecond, ref _positionCulture, ref _positionText)</span><span class="session-replay-time-divider">/</span><span class="session-replay-duration">@CachedTime(RecordingDuration, ref _durationSecond, ref _durationCulture, ref _durationText)</span>
                     </span>
                 </div>
-                <NativeSelect Class="session-replay-speed" Value="@_speed.ToString(CultureInfo.InvariantCulture)" ValueChanged="ChangeSpeed"
+                <NativeSelect Class="session-replay-speed" Value="@SpeedText" ValueChanged="(_changeSpeedCallback ??= ChangeSpeed)"
                               Disabled="@(!_ready.Value)" aria-label="Playback speed" title="Playback speed">
-                    @foreach (double speed in PlaybackSpeeds)
+                    @foreach (string speed in PlaybackSpeedLabels)
                     {
-                        <NativeSelectOption Value="@speed.ToString(CultureInfo.InvariantCulture)">@speed.ToString(CultureInfo.InvariantCulture)&times;</NativeSelectOption>
+                        <NativeSelectOption Value="@speed">@speed&times;</NativeSelectOption>
                     }
                     @if (!PlaybackSpeeds.Contains(_speed))
                     {
-                        <NativeSelectOption Value="@_speed.ToString(CultureInfo.InvariantCulture)">@_speed.ToString(CultureInfo.InvariantCulture)&times;</NativeSelectOption>
+                        <NativeSelectOption Value="@SpeedText">@SpeedText&times;</NativeSelectOption>
                     }
                 </NativeSelect>
             </div>
@@ -84,6 +84,15 @@
 </div>
 @code {
     private static readonly double[] PlaybackSpeeds = [0.5, 1, 1.5, 2, 4];
+    private static readonly string[] PlaybackSpeedLabels = ["0.5", "1", "1.5", "2", "4"];
+    private static readonly CssValue<ButtonSizeBuilder> _controlButtonSize = ButtonSize.IconSm;
+    private Func<double, Task>? _seekCallback;
+    private Func<string?, Task>? _changeSpeedCallback;
+    private Func<Task>? _togglePlaybackCallback, _restartCallback, _pollCallback, _updatePositionCallback;
+    private long _positionSecond = -1, _durationSecond = -1;
+    private CultureInfo? _positionCulture, _durationCulture;
+    private string? _positionText, _durationText, _speedText;
+    private double _formattedSpeed;
     private readonly string _replayId = BlazorIdGenerator.New("quark-session-replay");
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly CancellationTokenSource _lifetime = new();
@@ -99,6 +108,19 @@
     private double _speed = 1;
     private Task? _polling;
     private string? _lastPrependedClass;
+
+    private string SpeedText
+    {
+        get
+        {
+            if (_speedText is null || _formattedSpeed != _speed)
+            {
+                _formattedSpeed = _speed;
+                _speedText = _speed.ToString(CultureInfo.InvariantCulture);
+            }
+            return _speedText;
+        }
+    }
 
     [Parameter, EditorRequired] public JsonElement[] Events { get; set; } = [];
     [Parameter] public RrwebReplayOptions Options { get; set; } = new();
@@ -241,18 +263,35 @@
             while (await timer.WaitForNextTickAsync(_lifetime.Token))
             {
                 if (!IsPlaying) continue;
-                await InvokeAsync(() => RunCommand(async () =>
-                {
-                    CurrentTime = Math.Clamp(await ReplayInterop.GetCurrentTime(_replayId), 0, RecordingDuration);
-                    if (CurrentTime >= RecordingDuration)
-                    {
-                        await ReplayInterop.Pause(_replayId, RecordingDuration);
-                        IsPlaying = false;
-                    }
-                }));
+                await InvokeAsync(_pollCallback ??= PollCurrentPosition);
             }
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+    }
+
+    private Task PollCurrentPosition() => RunCommand(_updatePositionCallback ??= UpdateCurrentPosition);
+
+    private async Task UpdateCurrentPosition()
+    {
+        CurrentTime = Math.Clamp(await ReplayInterop.GetCurrentTime(_replayId), 0, RecordingDuration);
+        if (CurrentTime >= RecordingDuration)
+        {
+            await ReplayInterop.Pause(_replayId, RecordingDuration);
+            IsPlaying = false;
+        }
+    }
+
+    private static string CachedTime(double milliseconds, ref long previousSecond, ref CultureInfo? previousCulture, ref string? text)
+    {
+        long second = TimeSpan.FromMilliseconds(milliseconds).Ticks / TimeSpan.TicksPerSecond;
+        var culture = CultureInfo.CurrentCulture;
+        if (text is null || second != previousSecond || !ReferenceEquals(culture, previousCulture) || !culture.IsReadOnly)
+        {
+            previousSecond = second;
+            previousCulture = culture;
+            text = FormatTime(milliseconds);
+        }
+        return text;
     }
 
     private static string FormatTime(double milliseconds)

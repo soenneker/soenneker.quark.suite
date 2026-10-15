@@ -204,7 +204,7 @@ public abstract class Element : Component, IElement
             attributes["translate"] = TranslateContent.Value ? "yes" : "no";
 
         if (Inert.HasValue)
-            attributes["inert"] = Inert.Value ? QuarkAttributeValues.True : false;
+            attributes["inert"] = Inert.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
         if (AutoFocus)
             attributes["autofocus"] = QuarkAttributeValues.True;
@@ -231,7 +231,7 @@ public abstract class Element : Component, IElement
             attributes["itemref"] = ItemRef;
 
         if (ItemScope.HasValue)
-            attributes["itemscope"] = ItemScope.Value ? QuarkAttributeValues.True : false;
+            attributes["itemscope"] = ItemScope.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
         if (ItemType is not null)
             attributes["itemtype"] = ItemType;

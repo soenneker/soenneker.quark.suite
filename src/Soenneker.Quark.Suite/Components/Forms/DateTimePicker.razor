@@ -25,9 +25,9 @@
                       Min="@(Min.HasValue ? DateOnly.FromDateTime(Min.Value) : (DateOnly?)null)"
                       Max="@(Max.HasValue ? DateOnly.FromDateTime(Max.Value) : (DateOnly?)null)"
                       Disabled="Disabled" ReadOnly="ReadOnly"
-                      Border="Quark.Border.Is0" Padding="Quark.Padding.Is0" />
+                      Border="_calendarBorder" Padding="_calendarPadding" />
 
-            <Div Flex="Quark.Flex.Wrap" Justify="Quark.Justify.Center" Margin="_renderCss20" Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss21" Border="_renderCss22" Padding="_renderCss23">
+            <Div Flex="_timeFlex" Justify="_timeJustify" Margin="_renderCss20" Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss21" Border="_renderCss22" Padding="_renderCss23">
                 <Div Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss14">
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Decrease hour" @onclick="(_cachedDecrementHourDelegate ??= DecrementHour)">-</Button>
                     <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="(_cachedOnHourInputDelegate ??= OnHourInput)"/>
@@ -47,6 +47,10 @@
 </Popover>
 
 @code {
+    private static readonly CssValue<BorderBuilder> _calendarBorder = Quark.Border.Is0;
+    private static readonly CssValue<PaddingBuilder> _calendarPadding = Quark.Padding.Is0;
+    private static readonly CssValue<FlexBuilder> _timeFlex = Quark.Flex.Wrap;
+    private static readonly CssValue<JustifyBuilder> _timeJustify = Quark.Justify.Center;
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);

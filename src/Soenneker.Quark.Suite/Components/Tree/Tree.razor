@@ -25,8 +25,8 @@
 
     internal void Register(TreeItem item)
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
+        // Each item registers once from OnInitialized; avoid scanning all prior rows on mount.
+        _items.Add(item);
 
         if (_currentItem is null && !item.Disabled && item.Visible)
             _currentItem = item;
