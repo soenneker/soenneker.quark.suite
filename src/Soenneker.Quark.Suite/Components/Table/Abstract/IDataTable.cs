@@ -82,7 +82,7 @@ public interface IDataTable : ICancellableElement
     bool IsLoading { get; set; }
 
     /// <summary>
-    /// Positions the default loading spinner at the top center of the table area with a small inset near the header.
+    /// Positions the default loading spinner at the top center of the table area, 3.5rem from the top to leave a small gap below the default header.
     /// Defaults to false, which vertically centers the spinner. Does not affect custom OverlayContent.
     /// </summary>
     bool LoadingAtTop { get; set; }
