@@ -1,5 +1,9 @@
+import { getViewport, setDragging, scrollToIndex } from "./virtualviewport.js";
+
 const sortableInstances = new WeakMap();
 const keyboardRegistrations = new WeakMap();
+const virtualRoots = new WeakMap();
+const dragIds = new WeakMap();
 
 export function ensureAvailable() {
   if (!window.Sortable) {
@@ -27,18 +31,43 @@ export function initializeList(element, disabled, sort, animation, forceFallback
   ensureAvailable();
   destroy(element);
 
+  const original = element;
+  const virtual = element.querySelector('[data-virtual-sortable="true"]');
+  if (virtual) {
+    element = virtual;
+    virtualRoots.set(original, virtual);
+    itemSelector = '[data-virtual-key]';
+    if (!notifyOnReorder) throw new Error('Virtual sortable lists require an OnReorder handler.');
+  }
+  element.__quarkItemSelector = itemSelector;
   const options = {
     animation: animation ?? 150,
     disabled: !!disabled,
     sort: sort !== false,
     forceFallback: forceFallback !== false,
     draggable: itemSelector || "[data-sortable-item]",
-    onEnd: (evt) => {
+    onStart: (evt) => {
+      dragIds.set(evt.from, getViewport(evt.from)?.keys.slice() ?? getDirectItemIds(evt.from, itemSelector));
+      document.querySelectorAll('[data-virtual-sortable="true"]').forEach(host => setDragging(host, true));
+    },
+    onEnd: async (evt) => {
+      document.querySelectorAll('[data-virtual-sortable="true"]').forEach(host => setDragging(host, false));
       if (!notifyOnReorder) {
         return;
       }
 
-      notifyReorder(dotNetRef, createPointerReorderArgs(evt, itemSelector || "[data-sortable-item]"));
+      const fromState = getViewport(evt.from), toState = getViewport(evt.to);
+      if (fromState || toState) {
+        const args = virtualPointerArgs(evt, fromState, toState, itemSelector);
+        // Restore Blazor's DOM before the owner applies the model mutation.
+        evt.item.remove();
+        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] ?? null);
+        await notifyReorder(dotNetRef, args);
+        const state = getViewport(evt.to);
+        if (state) scrollToIndex(evt.to, args.newIndex, handleSelector || '[data-virtual-key]');
+      } else {
+        await notifyReorder(dotNetRef, createPointerReorderArgs(evt, itemSelector || "[data-sortable-item]"));
+      }
     },
   };
 
@@ -46,8 +75,8 @@ export function initializeList(element, disabled, sort, animation, forceFallback
     options.handle = handleSelector;
   }
 
-  if (filterSelector) {
-    options.filter = filterSelector;
+  if (filterSelector || virtual) {
+    options.filter = virtual ? [filterSelector, '[data-disabled="true"]'].filter(Boolean).join(',') : filterSelector;
   }
 
   if (group) {
@@ -65,6 +94,9 @@ export function destroy(element) {
     return;
   }
 
+  const original = element;
+  element = virtualRoots.get(element) ?? element;
+  virtualRoots.delete(original);
   const instance = sortableInstances.get(element);
 
   if (!instance) {
@@ -131,7 +163,8 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
 
     const target = event.target;
     if (!handleSelector && target?.closest?.("input, textarea, select, [contenteditable=true]")) return;
-    const activeItem = target?.closest?.(itemSelector);
+    let activeItem = target?.closest?.(itemSelector);
+    while (activeItem && activeItem.parentElement !== element) activeItem = activeItem.parentElement?.closest(itemSelector);
     if (!activeItem || !element.contains(activeItem) || isDisabledItem(activeItem)) {
       return;
     }
@@ -140,6 +173,25 @@ function registerKeyboardReorder(element, disabled, itemSelector, handleSelector
       return;
     }
 
+    const viewport = getViewport(element);
+    if (viewport) {
+      const itemId = activeItem.getAttribute('data-sortable-id');
+      const oldIndex = viewport.keys.indexOf(itemId);
+      let newIndex = key === 'Home' ? 0 : key === 'End' ? viewport.keys.length - 1 :
+        Math.max(0, Math.min(viewport.keys.length - 1, oldIndex + (key === 'ArrowUp' ? -1 : 1)));
+      const direction = key === 'Home' || key === 'ArrowDown' ? 1 : -1;
+      while (newIndex >= 0 && newIndex < viewport.keys.length && viewport.disabledKeys?.has(viewport.keys[newIndex])) newIndex += direction;
+      if (oldIndex < 0 || oldIndex === newIndex || newIndex < 0 || newIndex >= viewport.keys.length) return;
+      event.preventDefault(); event.stopPropagation();
+      const ids = [...viewport.keys];
+      ids.splice(newIndex, 0, ...ids.splice(oldIndex, 1));
+      const listId = element.getAttribute('data-sortable-list-id');
+      await notifyReorder(dotNetRef, { oldIndex, newIndex, oldDraggableIndex: oldIndex, newDraggableIndex: newIndex,
+        itemId, fromListId: listId, toListId: listId, fromItemIds: ids, toItemIds: ids });
+      liveRegion.textContent = `${itemId} moved to position ${newIndex + 1}.`;
+      scrollToIndex(element, newIndex, handleSelector || '[data-virtual-key]');
+      return;
+    }
     const items = getEnabledItems(element, itemSelector);
     const oldIndex = items.indexOf(activeItem);
     if (oldIndex < 0) {
@@ -282,4 +334,20 @@ function cssEscape(value) {
   }
 
   return value.replace(/["\\]/g, "\\$&");
+}
+
+function virtualPointerArgs(evt, fromState, toState, itemSelector) {
+    const itemId = evt.item.getAttribute('data-sortable-id');
+    const from = fromState ? [...fromState.keys] : [...(dragIds.get(evt.from) ?? getDirectItemIds(evt.from, evt.from.__quarkItemSelector || itemSelector))];
+    const to = evt.from === evt.to ? from : toState ? [...toState.keys] : getDirectItemIds(evt.to, evt.to.__quarkItemSelector || itemSelector).filter(id => id !== itemId);
+    const oldIndex = from.indexOf(itemId);
+    if (oldIndex >= 0) from.splice(oldIndex, 1);
+    const destinationSelector = evt.to.__quarkItemSelector || itemSelector;
+    const next = evt.item.nextElementSibling?.matches(destinationSelector) ? evt.item.nextElementSibling : null;
+    const previous = evt.item.previousElementSibling?.matches(destinationSelector) ? evt.item.previousElementSibling : null;
+    let newIndex = next ? to.indexOf(next.getAttribute('data-sortable-id')) : previous ? to.indexOf(previous.getAttribute('data-sortable-id')) + 1 : toState?.range?.[0] ?? 0;
+    newIndex = Math.max(0, Math.min(to.length, newIndex));
+    to.splice(newIndex, 0, itemId);
+    return { oldIndex, newIndex, oldDraggableIndex: oldIndex, newDraggableIndex: newIndex, itemId,
+        fromListId: evt.from.getAttribute('data-sortable-list-id'), toListId: evt.to.getAttribute('data-sortable-list-id'), fromItemIds: from, toItemIds: to };
 }

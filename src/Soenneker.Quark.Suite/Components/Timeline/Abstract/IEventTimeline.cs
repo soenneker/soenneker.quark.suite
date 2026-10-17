@@ -9,6 +9,13 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IEventTimeline
 {
+    /// <summary>Uses a virtualized vertical history regardless of Layout. Requires a unique Key on every event.</summary>
+    bool Virtualize { get; set; }
+    /// <summary>Whether more events are available after the current window.</summary>
+    bool HasMoreItems { get; set; }
+    /// <summary>Loads and appends more events.</summary>
+    EventCallback LoadMore { get; set; }
+
     /// <summary>
     /// Events to display. Blank labels are omitted and events are ordered by timestamp, ascending unless NewestFirst is true.
     /// </summary>

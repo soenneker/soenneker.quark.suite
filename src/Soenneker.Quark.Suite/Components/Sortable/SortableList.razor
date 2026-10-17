@@ -9,11 +9,23 @@
 @inject ISortableInterop SortableInterop
 
 <div @ref="ElementRef" @attributes="BuildAttributes()">
-    <CascadingValue Value="this" IsFixed="true"
-                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    <CascadingValue Value="this" IsFixed="true">
+        @if (Virtualize)
+        {
+            <VirtualItems ParentScroll="true" Sortable="true" ListId="@ResolveListId()" ItemKeys="@ItemKeys" ItemTemplate="@ItemTemplate" DisabledKeys="@DisabledKeys" />
+        }
+        else { @ChildContent }
+    </CascadingValue>
 </div>
 
 @code {
+    [Parameter] public Func<int, bool>? ItemDisabled { get; set; }
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+    private bool _wasVirtual;
+    private IReadOnlyList<string> DisabledKeys => ItemKeys.Where((_, index) => ItemDisabled?.Invoke(index) == true).ToArray();
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is2;
@@ -73,6 +85,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "sortable-list";
+        if (Virtualize) { Height ??= Quark.Height.Is96; OverflowY ??= Quark.Overflow.Auto; }
 
         Display ??= _defaultDisplay;
         FlexDirection ??= _defaultFlexDirection;
@@ -115,7 +128,7 @@
             ResolveHandleSelector(), FilterSelector, Group, ResolveListId(), OnReorder.HasDelegate);
         try
         {
-            if (firstRender || _lastInitializationKey != initializationKey)
+            if (firstRender || _lastInitializationKey != initializationKey || _wasVirtual != Virtualize)
             {
                 await SortableInterop.Initialize();
                 if (_disposed.Read())
@@ -131,6 +144,7 @@
                 }
 
                 _lastInitializationKey = initializationKey;
+                _wasVirtual = Virtualize;
                 _lastFailedInitializationKey = null;
             }
 
@@ -179,6 +193,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Virtualize); hc.Add(ItemKeys); hc.Add(ItemTemplate);
         hc.Add(Disabled);
         hc.Add(Sort);
         hc.Add(AnimationMs);

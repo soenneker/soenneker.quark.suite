@@ -27,6 +27,20 @@
     private string? _inputId;
     private string? _contentId;
     private readonly List<ComboboxItem> _items = [];
+    private ComboboxList? _virtualList;
+    private IReadOnlyList<SelectOption>? _virtualOptions;
+    private string? _virtualActiveValue;
+    internal void SetVirtualOptions(ComboboxList list, IReadOnlyList<SelectOption> options)
+    {
+        _virtualList = list;
+        _virtualOptions = options;
+        EnsureActiveItem();
+    }
+    internal void ClearVirtualOptions(ComboboxList list)
+    {
+        if (!ReferenceEquals(_virtualList, list)) return;
+        _virtualList = null; _virtualOptions = null; _virtualActiveValue = null;
+    }
     private HashSet<ComboboxItem>? _registeredItems;
     private ComboboxItem? _firstActiveItem;
     private ComboboxItem? _visibleItem;
@@ -250,11 +264,17 @@
                 if (!Open)
                     Open = true;
 
-                MoveActiveItem(key);
+                await MoveActiveItem(key);
                 await OpenChanged.InvokeAsync(Open);
                 Refresh();
                 break;
             case "Enter":
+                if (_virtualOptions is not null)
+                {
+                    var option = _virtualOptions.FirstOrDefault(option => option.Value == _virtualActiveValue && !option.Disabled);
+                    if (option is not null) await Select(option.Value);
+                    break;
+                }
                 var activeItem = FindActiveSelectableItem();
                 if (activeItem is not null)
                     await Select(activeItem.Value);
@@ -320,8 +340,25 @@
         Refresh();
     }
 
-    private void MoveActiveItem(string key)
+    private async Task MoveActiveItem(string key)
     {
+        if (_virtualOptions is not null && _virtualList is not null)
+        {
+            var enabled = _virtualOptions.Select((option, index) => (option, index)).Where(entry => !entry.option.Disabled).ToList();
+            if (enabled.Count == 0) { SetActiveValue(null); return; }
+            int current = enabled.FindIndex(entry => entry.option.Value == _virtualActiveValue);
+            int targetIndex = key switch
+            {
+                "Home" => 0, "End" => enabled.Count - 1,
+                "ArrowUp" when current < 0 => enabled.Count - 1,
+                "ArrowDown" when current < 0 => 0,
+                "ArrowUp" => (current - 1 + enabled.Count) % enabled.Count,
+                _ => (current + 1) % enabled.Count
+            };
+            SetActiveValue(enabled[targetIndex].option.Value);
+            await _virtualList.Reveal(enabled[targetIndex].index);
+            return;
+        }
         var count = CountVisibleSelectableItems(out var currentIndex);
         if (count == 0)
         {
@@ -347,6 +384,14 @@
 
     private void EnsureActiveItem()
     {
+        if (_virtualOptions is not null)
+        {
+            var option = _virtualOptions.FirstOrDefault(option => option.Value == _virtualActiveValue && !option.Disabled)
+                ?? _virtualOptions.FirstOrDefault(option => option.Value == Value && !option.Disabled)
+                ?? (AutoHighlight ? _virtualOptions.FirstOrDefault(option => !option.Disabled) : null);
+            SetActiveValue(option?.Value);
+            return;
+        }
         if (FindActiveSelectableItem() is not null)
             return;
 
@@ -437,6 +482,7 @@
 
     private void SetActiveValue(string? value)
     {
+        if (_virtualOptions is not null) _virtualActiveValue = value;
         _firstActiveItem = null;
         foreach (var item in _items)
         {
@@ -466,6 +512,7 @@
 
     private bool HasAnyVisibleItem()
     {
+        if (_virtualOptions is not null) return _virtualOptions.Count > 0;
         if (_visibleItem is { Hidden: false })
             return true;
 

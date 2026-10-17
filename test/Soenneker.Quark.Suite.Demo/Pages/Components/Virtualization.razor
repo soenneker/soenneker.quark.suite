@@ -1,0 +1,120 @@
+@page "/components/virtualization"
+@using Microsoft.AspNetCore.Components.Web
+
+<QuarkSeoHead Title="Virtualized collections | Quark Suite" Description="Measured collection windows for options, conversations, tables, trees, timelines, and Kanban." />
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is5xl">
+    <H1>Virtualized collections</H1>
+    <Paragraph>Each collection renders a measured window. Keyboard navigation and selection use the full collection.</Paragraph>
+    <Section Space="Space.Y.Is3" data-testid="virtual-select">
+        <H2>Searchable select</H2>
+        <SearchableSelect Choices="@_options" Virtualize="true" @bind-Value="_selected" Placeholder="Choose from 2,000 options" />
+        <Paragraph>Selected: @_selected</Paragraph>
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-combobox">
+        <H2>Combobox</H2>
+        <Combobox @bind-Value="_comboValue" @bind-Search="_comboSearch" @bind-Open="_comboOpen" AutoHighlight="true">
+            <ComboboxInput Placeholder="Search 2,000 options" />
+            <ComboboxContent>
+                <ComboboxEmpty>No matching options.</ComboboxEmpty>
+                <ComboboxList Options="@_options" Virtualize="true" />
+            </ComboboxContent>
+        </Combobox>
+        <Paragraph>Selected: @_comboValue</Paragraph>
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-thread">
+        <H2>Conversation history</H2>
+        <Button OnClick="AppendMessage">Append message</Button>
+        <Thread Virtualize="true" ItemKeys="@_messages" Height="Height.Is96" HasOlderItems="@(_firstMessage > 0)" LoadOlder="OlderMessages">
+            <ItemTemplate Context="index">
+                <Paragraph Margin="Margin.Is0" Padding="Padding.Is3">Message @_messages[index]: @MessageText(index)</Paragraph>
+            </ItemTemplate>
+            <ChildContent><ThreadScrollToBottom /></ChildContent>
+        </Thread>
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-timeline">
+        <H2>Activity timeline</H2>
+        <EventTimeline Virtualize="true" Items="@_events" />
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-table">
+        <H2>Data table</H2>
+        <Paragraph>@_checked.Count selected across 10,000 rows.</Paragraph>
+        <DataTable Virtualize="true" RowKeys="@_tableKeys" VirtualColumnCount="3" AdaptiveLayout="false">
+            <HeaderContent><Thead><Tr><Th>Select</Th><Th>Record</Th><Th>Description</Th></Tr></Thead></HeaderContent>
+            <RowTemplate Context="index">
+                @{ var key = _tableKeys[index]; }
+                <Td><Check Checked="@_checked.Contains(key)" CheckedChanged="@(value => SelectRow(key, value))" aria-label="@($"Select {key}")" /></Td>
+                <Td>@key</Td><Td>@MessageText(index)</Td>
+            </RowTemplate>
+        </DataTable>
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-tree">
+        <H2>Tree</H2>
+        <Tree @ref="_tree" Virtualize="true" ItemKeys="@_treeKeys" ItemDisabled="@(index => _treeKeys[index] == "folder-99")">
+            <ItemTemplate Context="index">
+                @{ var key = _treeKeys[index]; var parts = key.Split('-'); int group = int.Parse(parts[1]); bool folder = parts[0] == "folder"; }
+                <TreeItem Id="@key" Level="@(folder ? 0 : 1)" Folder="@folder" Expanded="@_expanded.Contains(group)"
+                          Disabled="@(key == "folder-99")" PositionInSet="@(folder ? group + 1 : int.Parse(parts[2]) + 1)" SetSize="@(folder ? 100 : 20)"
+                          Click="@(_ => ToggleFolder(key))" KeyDown="@(args => TreeKey(key, args))">
+                    <TreeItemLabel>@key</TreeItemLabel>
+                </TreeItem>
+            </ItemTemplate>
+        </Tree>
+    </Section>
+    <Section Space="Space.Y.Is3" data-testid="virtual-kanban">
+        <H2>Kanban</H2>
+        <Grid Columns="GridCols.Is1.OnMd.Is2" Gap="Gap.Is4">
+            <Div><H3>Ready (@_ready.Length)</H3>
+                <KanbanColumnContent Virtualize="true" Value="ready" Group="virtual-demo" ItemKeys="@_ready" ItemDisabled="@(index => _ready[index] == "card-5")" HandleOnly="true" OnReorder="Reorder">
+                    <ItemTemplate Context="index"><KanbanItem Value="@_ready[index]" Disabled="@(_ready[index] == "card-5")"><KanbanItemHandle><Span>@_ready[index]</Span></KanbanItemHandle></KanbanItem></ItemTemplate>
+                </KanbanColumnContent>
+            </Div>
+            <Div><H3>Done (@_done.Length)</H3>
+                <KanbanColumnContent Virtualize="true" Value="done" Group="virtual-demo" ItemKeys="@_done" HandleOnly="true" OnReorder="Reorder">
+                    <ItemTemplate Context="index"><KanbanItem Value="@_done[index]"><KanbanItemHandle><Span>@_done[index]</Span></KanbanItemHandle></KanbanItem></ItemTemplate>
+                </KanbanColumnContent>
+            </Div>
+        </Grid>
+    </Section>
+</Div>
+
+@code {
+    private readonly SelectOption[] _options = Enumerable.Range(0, 2000).Select(i => new SelectOption($"option-{i}", $"Option {i}", i == 1999)).ToArray();
+    private string? _selected, _comboValue, _comboSearch;
+    private bool _comboOpen;
+    private int _firstMessage = 1800, _lastMessage = 2000;
+    private string[] _messages = Enumerable.Range(1800, 200).Select(i => i.ToString()).ToArray();
+    private readonly EventTimelineItem[] _events = Enumerable.Range(0, 2000).Select(i => new EventTimelineItem { Key = $"event-{i}", Label = $"Event {i}: {MessageText(i)}", When = DateTimeOffset.UnixEpoch.AddMinutes(i) }).ToArray();
+    private readonly string[] _tableKeys = Enumerable.Range(0, 10000).Select(i => $"record-{i}").ToArray();
+    private readonly HashSet<string> _checked = [];
+    private readonly HashSet<int> _expanded = Enumerable.Range(0, 50).ToHashSet();
+    private string[] _treeKeys = [];
+    private Tree? _tree;
+    private string[] _ready = Enumerable.Range(0, 1000).Select(i => $"card-{i}").ToArray();
+    private string[] _done = Enumerable.Range(1000, 1000).Select(i => $"card-{i}").ToArray();
+    protected override void OnInitialized() => UpdateTree();
+    private static string MessageText(int index) => index % 7 == 0 ? string.Join(" ", Enumerable.Repeat("A longer message demonstrates variable-height measurement and preserved scroll position.", 4)) : "A short message.";
+    private void AppendMessage() { _lastMessage++; UpdateMessages(); }
+    private void OlderMessages() { _firstMessage = Math.Max(0, _firstMessage - 200); UpdateMessages(); }
+    private void UpdateMessages() => _messages = Enumerable.Range(_firstMessage, _lastMessage - _firstMessage).Select(i => i.ToString()).ToArray();
+    private void SelectRow(string key, bool value) { if (value) _checked.Add(key); else _checked.Remove(key); }
+    private void UpdateTree() => _treeKeys = Enumerable.Range(0, 100).SelectMany(group => new[] { $"folder-{group}" }.Concat(_expanded.Contains(group) ? Enumerable.Range(0, 20).Select(child => $"node-{group}-{child}") : [])).ToArray();
+    private void ToggleFolder(string key)
+    {
+        if (!key.StartsWith("folder-")) return;
+        int group = int.Parse(key.Split('-')[1]);
+        if (!_expanded.Add(group)) _expanded.Remove(group);
+        UpdateTree();
+    }
+    private async Task TreeKey(string key, KeyboardEventArgs args)
+    {
+        int group = int.Parse(key.Split('-')[1]);
+        if (args.Key == "ArrowLeft" && key.StartsWith("node-") && _tree is not null) await _tree.FocusItem($"folder-{group}");
+        else if (key.StartsWith("folder-") && ((args.Key == "ArrowRight" && !_expanded.Contains(group)) || (args.Key == "ArrowLeft" && _expanded.Contains(group)))) ToggleFolder(key);
+        else if (args.Key == "ArrowRight" && key.StartsWith("folder-") && _expanded.Contains(group) && _tree is not null) await _tree.FocusItem($"node-{group}-0");
+    }
+    private void Reorder(SortableReorderEventArgs args)
+    {
+        if (args.FromListId == "ready") _ready = args.FromItemIds.ToArray(); else _done = args.FromItemIds.ToArray();
+        if (args.ToListId == "ready") _ready = args.ToItemIds.ToArray(); else _done = args.ToItemIds.ToArray();
+    }
+}

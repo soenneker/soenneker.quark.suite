@@ -8,6 +8,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISearchableSelect
 {
+    /// <summary>Renders only a measured window of matching options. Keyboard navigation still covers all choices.</summary>
+    bool Virtualize { get; set; }
+
     /// <summary>
     /// Available choices with unique logical values. Display labels may repeat and values may be empty.
     /// </summary>

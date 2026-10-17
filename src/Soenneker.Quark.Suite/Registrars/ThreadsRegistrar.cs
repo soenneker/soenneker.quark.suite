@@ -16,7 +16,7 @@ public static class ThreadsRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkThreadsAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
+        services.AddQuarkVirtualizationAsScoped().AddModuleImportUtilAsScoped()
                 .TryAddScoped<IThreadsInterop, ThreadsInterop>();
         return services;
     }

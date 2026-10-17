@@ -1,12 +1,39 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements ITree
 
 <CascadingValue Name="ParentTree" Value="@this" IsFixed="true">
-    <Div Attributes="@BuildAttributes()"
-         ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    <Div Attributes="@BuildAttributes()">
+        @if (Virtualize)
+        {
+            <VirtualItems @ref="_virtualItems" ParentScroll="true" ItemKeys="@ItemKeys" ItemTemplate="@ItemTemplate" />
+        }
+        else { @ChildContent }
+    </Div>
 </CascadingValue>
 
 @code {
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+    [Parameter] public Func<int, bool>? ItemDisabled { get; set; }
+    private VirtualItems? _virtualItems;
+    private string? _currentKey;
+    private IReadOnlyList<string> _previousKeys = [];
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (!Virtualize) return;
+        if (_currentKey is null || !ItemKeys.Contains(_currentKey))
+        {
+            int previous = _currentKey is null ? 0 : _previousKeys.ToList().IndexOf(_currentKey);
+            _currentKey = _previousKeys.Take(Math.Max(0, previous)).Reverse().FirstOrDefault(ItemKeys.Contains)
+                ?? ItemKeys.Where((_, index) => ItemDisabled?.Invoke(index) != true).FirstOrDefault();
+        }
+        _previousKeys = ItemKeys.ToArray();
+    }
+
     private CurrentCultureInt32TextCache _spacingText;
     private string? _spacingStyle;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
@@ -35,6 +62,7 @@
     {
         _items.Remove(item);
 
+        if (Virtualize) return;
         if (ReferenceEquals(_currentItem, item))
         {
             _currentItem = FindFirstEnabledItem();
@@ -42,7 +70,7 @@
         }
     }
 
-    internal bool IsCurrent(TreeItem item) => !item.Disabled && item.Visible && ReferenceEquals(_currentItem, item);
+    internal bool IsCurrent(TreeItem item) => !item.Disabled && item.Visible && (Virtualize ? item.Id == _currentKey : ReferenceEquals(_currentItem, item));
 
     internal void UpdateAvailability(TreeItem item)
     {
@@ -60,6 +88,7 @@
 
         var previous = _currentItem;
         _currentItem = item;
+        if (Virtualize) _currentKey = item.Id;
         previous?.RefreshTreeItem();
         item.RefreshTreeItem();
     }
@@ -67,6 +96,20 @@
     internal async Task<bool> MoveFocus(TreeItem item, string? key)
     {
         if (key is not ("ArrowDown" or "ArrowUp" or "Home" or "End")) return false;
+        if (Virtualize && _virtualItems is not null)
+        {
+            int index = ItemKeys.ToList().IndexOf(item.Id!);
+            int direction = key is "ArrowUp" or "End" ? -1 : 1;
+            int targetIndex = key == "Home" ? 0 : key == "End" ? ItemKeys.Count - 1 : index + direction;
+            while (targetIndex >= 0 && targetIndex < ItemKeys.Count && ItemDisabled?.Invoke(targetIndex) == true) targetIndex += direction;
+            if (targetIndex >= 0 && targetIndex < ItemKeys.Count)
+            {
+                _currentKey = ItemKeys[targetIndex];
+                await _virtualItems.ScrollToIndex(targetIndex, "[role=treeitem]");
+                await RequestRender();
+            }
+            return true;
+        }
         TreeItem? first = null;
         TreeItem? last = null;
         TreeItem? previous = null;
@@ -115,6 +158,14 @@
         return true;
     }
 
+    public ValueTask FocusItem(string key)
+    {
+        int index = ItemKeys.ToList().IndexOf(key);
+        if (index < 0 || ItemDisabled?.Invoke(index) == true || _virtualItems is null) return ValueTask.CompletedTask;
+        _currentKey = key;
+        return _virtualItems.ScrollToIndex(index, "[role=treeitem]");
+    }
+
     private TreeItem? FindFirstEnabledItem()
     {
         for (var i = 0; i < _items.Count; i++)
@@ -130,6 +181,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "tree";
+        if (Virtualize) { Height ??= Quark.Height.Is96; OverflowY ??= Quark.Overflow.Auto; }
         Display ??= _defaultDisplay;
         FlexDirection ??= _defaultFlexDirection;
     }
@@ -149,6 +201,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Virtualize); hc.Add(ItemKeys); hc.Add(ItemTemplate); hc.Add(_currentKey);
         hc.Add(Indent);
         hc.Add(ToggleIconType);
     }

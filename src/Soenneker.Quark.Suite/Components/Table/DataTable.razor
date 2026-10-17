@@ -28,7 +28,7 @@
                     </DataTableTopBar>
                 }
 
-                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="_renderCss12">
+                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="_renderCss12" Height="@(Virtualize ? ViewportHeight : null)" OverflowY="@(Virtualize ? (CssValue<OverflowBuilder>?)Quark.Overflow.Auto : null)">
                     @OverlayContent
                     @if (IsLoading && OverlayContent is null)
                     {
@@ -40,14 +40,20 @@
                         </Div>
                     }
 
-                    @if (TableContent != null)
+                    @if (TableContent != null || Virtualize)
                     {
                         <table @ref="_tableElement" @attributes="BuildAttributes()">
                             @if (AdaptiveLayout)
                             {
                                 <colgroup @ref="_columnsElement"></colgroup>
                             }
-                            @TableContent
+                            @if (Virtualize)
+                            {
+                                @HeaderContent
+                                <VirtualItems TableBody="true" VirtualColumnCount="@VirtualColumnCount" ItemKeys="@RowKeys" ItemTemplate="@RowTemplate"
+                                              HasAfter="@HasMoreRows" LoadAfter="@LoadMoreRows" />
+                            }
+                            else { @TableContent }
                         </table>
                     }
                     else if (!IsLoading && ChildContent == null)
@@ -95,6 +101,15 @@
 </CascadingValue>
 
 @code {
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<string> RowKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? RowTemplate { get; set; }
+    [Parameter] public RenderFragment? HeaderContent { get; set; }
+    [Parameter] public int VirtualColumnCount { get; set; } = 1;
+    [Parameter] public CssValue<HeightBuilder>? ViewportHeight { get; set; } = Quark.Height.Is96;
+    [Parameter] public bool HasMoreRows { get; set; }
+    [Parameter] public EventCallback LoadMoreRows { get; set; }
+
     private Func<MouseEventArgs, Task>? _clearSelectionCallback;
     private Task HandleClearSelection(MouseEventArgs _) => ClearSelection();
     private static readonly CssValue<ItemsBuilder> _loadingItemsStart = Items.Start;
@@ -289,7 +304,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        var enabled = AdaptiveLayout && Visible && TableContent is not null;
+        var enabled = AdaptiveLayout && Visible && (TableContent is not null || Virtualize);
         if (enabled || _adaptiveLayout is not null)
         {
             _adaptiveLayout ??= new AdaptiveTableLayout(TablesInterop);
@@ -367,7 +382,7 @@
     private int[] _resolvedPageSizeOptions = [];
     private int _resolvedForPageSize;
     private ValueAtomicBool _pageSizeOptionsInitialized;
-    private bool ShouldRenderPageSizeSelector => Options.ShowPageSizeSelector && BottomContent is null;
+    private bool ShouldRenderPageSizeSelector => !Virtualize && Options.ShowPageSizeSelector && BottomContent is null;
     private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
     private int StartRecord => TotalRecordsCount == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
     private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
@@ -1054,6 +1069,8 @@
         hc.Add(Options);
         hc.Add(TopContent);
         hc.Add(TableContent);
+        hc.Add(Virtualize); hc.Add(RowKeys); hc.Add(RowTemplate); hc.Add(HeaderContent); hc.Add(VirtualColumnCount);
+        hc.Add(ViewportHeight); hc.Add(HasMoreRows);
         hc.Add(OverlayContent);
         hc.Add(BottomContent);
 

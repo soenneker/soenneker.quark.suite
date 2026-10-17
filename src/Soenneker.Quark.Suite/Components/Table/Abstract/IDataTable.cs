@@ -10,6 +10,23 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IDataTable : ICancellableElement
 {
+    /// <summary>Uses a continuously scrolling measured row window instead of the default paged presentation.</summary>
+    bool Virtualize { get; set; }
+    /// <summary>Stable keys for all currently loaded rows, in display order.</summary>
+    IReadOnlyList<string> RowKeys { get; set; }
+    /// <summary>Renders td/th cells for a full collection index inside the generated tr. Selection state belongs to the data model.</summary>
+    RenderFragment<int>? RowTemplate { get; set; }
+    /// <summary>Table header markup used in virtual mode, typically a Thead.</summary>
+    RenderFragment? HeaderContent { get; set; }
+    /// <summary>Column count used by spacer rows.</summary>
+    int VirtualColumnCount { get; set; }
+    /// <summary>Height of the virtual scrolling surface.</summary>
+    CssValue<HeightBuilder>? ViewportHeight { get; set; }
+    /// <summary>Whether another page can be appended.</summary>
+    bool HasMoreRows { get; set; }
+    /// <summary>Loads and appends the next page. Sorting and filtering should replace RowKeys and reset their data.</summary>
+    EventCallback LoadMoreRows { get; set; }
+
     /// <summary>Enables checkbox cells on rows with SelectionKey or SelectionHeader set. Defaults to false.</summary>
     bool SelectionEnabled { get; set; }
 

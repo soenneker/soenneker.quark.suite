@@ -2,15 +2,30 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
+@implements IThread
 @using Microsoft.JSInterop
 @using Soenneker.Asyncs.Locks
 @inject IThreadsInterop ThreadsInterop
 
 <CascadingValue Value="this" IsFixed="false">
-    <div @ref="ElementRef" @attributes="BuildAttributes()">@ChildContent</div>
+    <div @ref="ElementRef" @attributes="BuildAttributes()">
+        @if (Virtualize)
+        {
+            <VirtualItems @ref="_virtualItems" ParentScroll="true" ItemKeys="@ItemKeys" ItemTemplate="@ItemTemplate"
+                          FollowEnd="@StickToBottom" HasBefore="@HasOlderItems" LoadBefore="@LoadOlder" AtEndChanged="SetIsAtBottom" />
+        }
+        @ChildContent
+    </div>
 </CascadingValue>
 
 @code {
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+    [Parameter] public bool HasOlderItems { get; set; }
+    [Parameter] public EventCallback LoadOlder { get; set; }
+    private VirtualItems? _virtualItems;
+
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.IsFull;
@@ -32,7 +47,7 @@
     [Parameter]
     public bool StickToBottom { get; set; } = true;
 
-    internal Task ScrollToBottom() => ThreadsInterop.ScrollToBottom(ElementRef, Initial).AsTask();
+    internal Task ScrollToBottom() => Virtualize && _virtualItems is not null ? _virtualItems.JumpToEnd().AsTask() : ThreadsInterop.ScrollToBottom(ElementRef, Initial).AsTask();
 
     [JSInvokable]
     public void SetIsAtBottom(bool isAtBottom)
@@ -67,6 +82,11 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        if (Virtualize)
+        {
+            if (_initialized.Value) { await ThreadsInterop.Destroy(ElementRef); _initialized.Value = false; _configuration = null; }
+            return;
+        }
         var configuration = (Initial, ResizeBehavior, StickToBottom);
         if (_disposed.Read() || _configuration == configuration)
             return;
@@ -86,6 +106,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Virtualize); hc.Add(ItemKeys); hc.Add(ItemTemplate); hc.Add(HasOlderItems);
         hc.Add(Initial);
         hc.Add(ResizeBehavior);
         hc.Add(StickToBottom);

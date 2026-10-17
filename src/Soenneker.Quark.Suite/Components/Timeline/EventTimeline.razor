@@ -28,34 +28,16 @@
         }
         else if (IsVertical)
         {
-            <Div Preset="@Appearance.VerticalTrackPreset" Role="list">
-                @for (int index = 0; index < TimelineItems.Count; index++)
-                {
-                    EventTimelineItem item = TimelineItems[index].Item;
-                    var view = GetItemView(item, index);
-                    bool hasNext = index < TimelineItems.Count - 1;
-                    <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@view.GetTestId(ItemTestIdPrefix)">
-                        @if (hasNext)
-                        {
-                            <Div Preset="@Appearance.VerticalConnectorPreset" AriaHidden="true" data-slot="event-timeline-connector" />
-                        }
-                        <Div Preset="@Appearance.VerticalMarkerPreset" TextColor="@MarkerColor(item)" AriaHidden="true" data-slot="event-timeline-marker" />
-                        <Div Preset="@Appearance.VerticalTimePreset">
-                            <time datetime="@view.DateTimeText">@FormatWhen(view)</time>
-                        </Div>
-                        <Div Preset="@Appearance.VerticalContentPreset">
-                            @if (ItemTemplate is not null)
-                            {
-                                @ItemTemplate(item)
-                            }
-                            else
-                            {
-                                @item.Label
-                            }
-                        </Div>
-                    </Div>
-                }
-            </Div>
+            @if (Virtualize)
+            {
+                <VirtualItems ItemKeys="@_virtualKeys" ItemTemplate="@VerticalItem" HasAfter="@HasMoreItems" LoadAfter="@LoadMore" />
+            }
+            else
+            {
+                <Div Preset="@Appearance.VerticalTrackPreset" Role="list">
+                    @for (int index = 0; index < TimelineItems.Count; index++) { @VerticalItem(index) }
+                </Div>
+            }
         }
         else
         {
@@ -86,6 +68,38 @@
 </Section>
 
 @code {
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public bool HasMoreItems { get; set; }
+    [Parameter] public EventCallback LoadMore { get; set; }
+    private string[] _virtualKeys = [];
+    private RenderFragment<int> VerticalItem => index => @<text>
+    @{
+        EventTimelineItem item = TimelineItems[index].Item;
+        var view = GetItemView(item, index);
+        bool hasNext = index < TimelineItems.Count - 1;
+    }
+                    <Div Preset="@Appearance.VerticalItemPreset" Role="listitem" data-testid="@view.GetTestId(ItemTestIdPrefix)">
+                        @if (hasNext)
+                        {
+                            <Div Preset="@Appearance.VerticalConnectorPreset" AriaHidden="true" data-slot="event-timeline-connector" />
+                        }
+                        <Div Preset="@Appearance.VerticalMarkerPreset" TextColor="@MarkerColor(item)" AriaHidden="true" data-slot="event-timeline-marker" />
+                        <Div Preset="@Appearance.VerticalTimePreset">
+                            <time datetime="@view.DateTimeText">@FormatWhen(view)</time>
+                        </Div>
+                        <Div Preset="@Appearance.VerticalContentPreset">
+                            @if (ItemTemplate is not null)
+                            {
+                                @ItemTemplate(item)
+                            }
+                            else
+                            {
+                                @item.Label
+                            }
+                        </Div>
+                    </Div>
+    </text>;
+
     private static readonly CssValue<TextColorBuilder> _markerColor4 = TextColor.Token("[var(--foreground)]");
     private static readonly CssValue<TextColorBuilder> _markerColor3 = TextColor.Token("[var(--destructive)]");
     private static readonly CssValue<TextColorBuilder> _markerColor2 = TextColor.Token("amber-700").OnDark.Token("amber-400");
@@ -145,7 +159,7 @@
     [Parameter]
     public RenderFragment<EventTimelineItem>? ItemTemplate { get; set; }
 
-    private bool IsVertical => Layout == EventTimelineLayout.Vertical;
+    private bool IsVertical => Virtualize || Layout == EventTimelineLayout.Vertical;
 
     private bool? _fitAllOverride;
 
@@ -175,7 +189,10 @@
             }
         }
         if (!changed)
+        {
+            if (Virtualize) UpdateVirtualKeys();
             return;
+        }
 
         if (_sourceItems.Length != Items.Count)
             _sourceItems = new EventTimelineItem[Items.Count];
@@ -194,7 +211,10 @@
 
         // Retain source order for equal timestamps in both directions, matching stable OrderBy.
         TimelineItems.Sort(NewestFirst ? EventTimelineEntry.NewestFirst : EventTimelineEntry.OldestFirst);
+        if (Virtualize) UpdateVirtualKeys();
     }
+
+    private void UpdateVirtualKeys() => _virtualKeys = TimelineItems.Select(entry => entry.Item.Key.HasContent() ? entry.Item.Key : throw new InvalidOperationException("Virtual timelines require stable event keys.")).ToArray();
 
     private string ResolvedAriaLabel => AriaLabel.HasContent() ? AriaLabel! : Title.HasContent() ? Title! : "Timeline";
 

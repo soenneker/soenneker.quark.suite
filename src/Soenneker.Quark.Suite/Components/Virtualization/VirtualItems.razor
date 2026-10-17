@@ -1,0 +1,187 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@inherits Soenneker.Quark.Element
+@implements IVirtualItems
+@inject IVirtualViewportInterop ViewportInterop
+
+@if (TableBody)
+{
+    <tbody @ref="ElementRef" @attributes="BuildAttributes()">
+        @foreach (var index in RenderedIndexes)
+        {
+            @if (SpaceBefore(index) is { } space)
+            {
+                <tr @key="(index, true)" aria-hidden="true" data-virtual-spacer="@(index == FirstIndex ? "top" : null)"><td colspan="@VirtualColumnCount" style="@SpacerStyle(space)" /></tr>
+            }
+            <tr @key="ItemKeys[index]" data-virtual-key="@ItemKeys[index]" aria-rowindex="@(index + 2)">@ItemTemplate?.Invoke(index)</tr>
+        }
+        @if (End == 0) { <tr data-virtual-spacer="top" aria-hidden="true"><td colspan="@VirtualColumnCount" style="@SpacerStyle(0)" /></tr> }
+        <tr aria-hidden="true" data-virtual-spacer="bottom"><td colspan="@VirtualColumnCount" style="@SpacerStyle(TailSpace)" /></tr>
+    </tbody>
+}
+else
+{
+    <div @ref="ElementRef" @attributes="BuildAttributes()" data-virtual-sortable="@(Sortable ? "true" : null)" data-sortable-list-id="@ListId">
+        @foreach (var index in RenderedIndexes)
+        {
+            @if (SpaceBefore(index) is { } space)
+            {
+                <div @key="(index, true)" aria-hidden="true" data-virtual-spacer="@(index == FirstIndex ? "top" : null)" style="@SpacerStyle(space)" />
+            }
+            <div @key="ItemKeys[index]" data-virtual-key="@ItemKeys[index]" data-sortable-id="@(Sortable ? ItemKeys[index] : null)"
+                 data-disabled="@(_disabledKeys.Contains(ItemKeys[index]) ? "true" : null)" aria-disabled="@(_disabledKeys.Contains(ItemKeys[index]) ? "true" : null)"
+                 data-sortable-item="@(Sortable ? "" : null)" data-kanban-item="@(Sortable ? "" : null)"
+                 style="@(Sortable ? "display: flow-root; overflow-anchor: none; padding-bottom:0.5rem;" : "display: flow-root; overflow-anchor: none;")">
+                @ItemTemplate?.Invoke(index)
+            </div>
+        }
+        @if (End == 0) { <div data-virtual-spacer="top" aria-hidden="true" style="@SpacerStyle(0)" /> }
+        <div aria-hidden="true" data-virtual-spacer="bottom" style="@SpacerStyle(TailSpace)" />
+    </div>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<string> DisabledKeys { get; set; } = [];
+    private HashSet<string> _disabledKeys = [];
+    private IReadOnlyList<string>? _validatedKeys;
+    private ElementReference _initializedElement;
+    [Parameter] public bool Enabled { get; set; } = true;
+    [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+    [Parameter] public bool ParentScroll { get; set; }
+    [Parameter] public bool TableBody { get; set; }
+    [Parameter] public int VirtualColumnCount { get; set; } = 1;
+    [Parameter] public bool FollowEnd { get; set; }
+    [Parameter] public bool HasBefore { get; set; }
+    [Parameter] public bool HasAfter { get; set; }
+    [Parameter] public EventCallback LoadBefore { get; set; }
+    [Parameter] public EventCallback LoadAfter { get; set; }
+    [Parameter] public EventCallback<bool> AtEndChanged { get; set; }
+    [Parameter] public bool Sortable { get; set; }
+    [Parameter] public string? ListId { get; set; }
+    private DotNetObjectReference<VirtualItems>? _receiver;
+    private bool _disposed, _initialized, _beforeLoading, _afterLoading, _paused;
+    private int _start, _count, _pinned = -1;
+    private double _pinBefore, _pinAfter;
+    private bool HasPin => Enabled && _pinned >= 0 && _pinned < ItemKeys.Count && (_pinned < Start || _pinned >= End);
+    private int FirstIndex => HasPin && _pinned < Start ? _pinned : Start;
+    private double TailSpace => !Enabled ? 0 : HasPin && _pinned >= End ? _pinAfter : _bottom;
+    private IEnumerable<int> RenderedIndexes => HasPin
+        ? Enumerable.Range(Start, End - Start).Append(_pinned).Order()
+        : Enumerable.Range(Start, End - Start);
+    private double? SpaceBefore(int index)
+    {
+        if (!Enabled) return index == 0 ? 0 : null;
+        if (HasPin && index == _pinned) return _pinBefore;
+        if (index == Start) return HasPin && _pinned < Start ? _pinAfter : _top;
+        return null;
+    }
+    private double _top, _bottom;
+    private int Start => Enabled ? Math.Min(_start, ItemKeys.Count) : 0;
+    private int End => Enabled ? Math.Min(ItemKeys.Count, _start + _count) : ItemKeys.Count;
+    private static string SpacerStyle(double height) => $"height:{height.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; padding:0; border:0; overflow-anchor:none;";
+
+    public ValueTask ScrollToIndex(int index, string? focusSelector = null) => ViewportInterop.ScrollToIndex(ElementRef, index, focusSelector);
+    public ValueTask JumpToEnd() => ViewportInterop.JumpToEnd(ElementRef);
+
+    [JSInvokable]
+    public Task SetVirtualWindow(int start, int count, double top, double bottom, bool paused, int pinned, double before, double after)
+    {
+        _pinned = pinned; _pinBefore = before; _pinAfter = after;
+        return SetWindow(start, count, top, bottom, paused);
+    }
+
+    [JSInvokable]
+    public Task SetWindow(int start, int count, double top, double bottom, bool paused) => InvokeAsync(async () =>
+    {
+        if (_disposed) return;
+        _start = start; _count = count; _top = top; _bottom = bottom;
+        bool changed = _paused != paused;
+        _paused = paused;
+        StateHasChanged();
+        if (changed) await AtEndChanged.InvokeAsync(!paused);
+    });
+    [JSInvokable]
+    public async Task RequestOlder()
+    {
+        if (_disposed || _beforeLoading || !HasBefore) return;
+        _beforeLoading = true;
+        try { await LoadBefore.InvokeAsync(); } finally { _beforeLoading = false; }
+    }
+    [JSInvokable]
+    public async Task RequestAfter()
+    {
+        if (_disposed || _afterLoading || !HasAfter) return;
+        _afterLoading = true;
+        try { await LoadAfter.InvokeAsync(); } finally { _afterLoading = false; }
+    }
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (VirtualColumnCount < 1) throw new ArgumentOutOfRangeException(nameof(VirtualColumnCount));
+        if (!ReferenceEquals(_validatedKeys, ItemKeys))
+        {
+            if (_validatedKeys is not null)
+            {
+                string? firstKey = _start < _validatedKeys.Count ? _validatedKeys[_start] : null;
+                string? pinnedKey = _pinned >= 0 && _pinned < _validatedKeys.Count ? _validatedKeys[_pinned] : null;
+                var nextKeys = ItemKeys.ToList();
+                if (firstKey is not null && nextKeys.IndexOf(firstKey) is var nextStart && nextStart >= 0) _start = nextStart;
+                if (pinnedKey is not null) _pinned = nextKeys.IndexOf(pinnedKey);
+            }
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var key in ItemKeys)
+                if (key is null || !keys.Add(key)) throw new ArgumentException("Virtual item keys must be non-null and unique.", nameof(ItemKeys));
+            _validatedKeys = ItemKeys;
+        }
+        _disabledKeys = DisabledKeys.ToHashSet(StringComparer.Ordinal);
+    }
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "virtual-items";
+        if (!ParentScroll && !TableBody && Enabled)
+        {
+            Height ??= Quark.Height.Is96;
+            OverflowY ??= Quark.Overflow.Auto;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_disposed) return;
+        if (_initialized && !_initializedElement.Equals(ElementRef))
+        {
+            await ViewportInterop.Destroy(_initializedElement);
+            _initialized = false;
+        }
+        if (Enabled)
+        {
+            _receiver ??= DotNetObjectReference.Create(this);
+            await ViewportInterop.Update(ElementRef, _receiver, ItemKeys, FollowEnd, HasBefore, HasAfter, ParentScroll || TableBody, DisabledKeys);
+            if (_disposed) { await ViewportInterop.Destroy(ElementRef); return; }
+            _initializedElement = ElementRef;
+            _initialized = true;
+        }
+        else if (_initialized)
+        {
+            await ViewportInterop.Destroy(ElementRef);
+            _initialized = false; _top = _bottom = 0;
+            StateHasChanged();
+        }
+    }
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_pinned); hc.Add(_pinBefore); hc.Add(_pinAfter); hc.Add(DisabledKeys); hc.Add(Enabled); hc.Add(ItemKeys); hc.Add(ItemTemplate); hc.Add(_start); hc.Add(_count); hc.Add(_top); hc.Add(_bottom);
+        hc.Add(FollowEnd); hc.Add(HasBefore); hc.Add(HasAfter); hc.Add(_paused); hc.Add(ParentScroll); hc.Add(TableBody);
+    }
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        try { if (_initialized) await ViewportInterop.Destroy(_initializedElement); }
+        catch (Exception exception) when (exception is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        finally { _receiver?.Dispose(); await base.DisposeAsync(); }
+    }
+}

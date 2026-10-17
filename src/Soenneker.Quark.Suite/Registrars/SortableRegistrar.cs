@@ -17,7 +17,7 @@ public static class SortableRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkSortableAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped().AddResourceLoaderAsScoped().TryAddScoped<ISortableInterop, SortableInterop>();
+        services.AddQuarkVirtualizationAsScoped().AddModuleImportUtilAsScoped().AddResourceLoaderAsScoped().TryAddScoped<ISortableInterop, SortableInterop>();
         return services;
     }
 }

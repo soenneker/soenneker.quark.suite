@@ -1,7 +1,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IKanbanColumnContent
 
-<SortableList Id="@Id"
+<SortableList Id="@Id" Virtualize="@Virtualize" ItemDisabled="@ItemDisabled" ItemKeys="@ItemKeys" ItemTemplate="@ItemTemplate"
               ListId="@Value"
               Group="@Group"
               Sort="@Sort"
@@ -18,6 +19,11 @@
               ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 
 @code {
+    [Parameter] public Func<int, bool>? ItemDisabled { get; set; }
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+
     private string? _composedClass;
     private const string _baseClass = "flex min-h-20 flex-1 flex-col gap-2 overflow-y-auto rounded-lg p-0.5";
 
@@ -58,6 +64,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Virtualize); hc.Add(ItemKeys); hc.Add(ItemTemplate);
         hc.Add(Value);
         hc.Add(Group);
         hc.Add(Sort);

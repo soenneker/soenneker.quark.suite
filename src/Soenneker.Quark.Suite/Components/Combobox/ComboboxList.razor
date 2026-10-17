@@ -1,11 +1,65 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IComboboxList
+@implements IDisposable
 
 <div @attributes="BuildAttributes()">
-    @ChildContent
+    @if (Virtualize && Options is not null)
+    {
+        <VirtualItems @ref="_virtualItems" ParentScroll="true" ItemKeys="@_keys">
+            <ItemTemplate Context="index">
+                @{ var option = _filtered[index]; }
+                <ComboboxItem @key="option.Value" Value="@option.Value" Disabled="@option.Disabled" aria-posinset="@(index + 1)" aria-setsize="@_filtered.Count">
+                    @if (OptionTemplate is not null) { @OptionTemplate(option) } else { @option.Label }
+                </ComboboxItem>
+            </ItemTemplate>
+        </VirtualItems>
+    }
+    else if (Options is not null)
+    {
+        @foreach (var option in _filtered)
+        {
+            <ComboboxItem @key="option.Value" Value="@option.Value" Disabled="@option.Disabled">
+                @if (OptionTemplate is not null) { @OptionTemplate(option) } else { @option.Label }
+            </ComboboxItem>
+        }
+    }
+    else { @ChildContent }
 </div>
 
 @code {
+    [Parameter] public bool FilterOptions { get; set; } = true;
+    [Parameter] public bool Virtualize { get; set; }
+    [Parameter] public IReadOnlyList<SelectOption>? Options { get; set; }
+    [Parameter] public RenderFragment<SelectOption>? OptionTemplate { get; set; }
+    private List<SelectOption> _filtered = [];
+    private string[] _keys = [];
+    private VirtualItems? _virtualItems;
+    private string? _lastSearch;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _filtered = Options?.Where(option => !FilterOptions || string.IsNullOrWhiteSpace(ParentCombobox?.Search) ||
+            option.Label.Contains(ParentCombobox.Search, StringComparison.OrdinalIgnoreCase) ||
+            option.Value.Contains(ParentCombobox.Search, StringComparison.OrdinalIgnoreCase)).ToList() ?? [];
+        _keys = _filtered.Select(option => option.Value).ToArray();
+        if (Virtualize && Options is not null) ParentCombobox?.SetVirtualOptions(this, _filtered);
+        else ParentCombobox?.ClearVirtualOptions(this);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_lastSearch != ParentCombobox?.Search)
+        {
+            _lastSearch = ParentCombobox?.Search;
+            if (_virtualItems is not null && _filtered.Count > 0) await _virtualItems.ScrollToIndex(0);
+        }
+    }
+    internal ValueTask Reveal(int index) => _virtualItems?.ScrollToIndex(index) ?? ValueTask.CompletedTask;
+    public void Dispose() => ParentCombobox?.ClearVirtualOptions(this);
+    public override async ValueTask DisposeAsync() { Dispose(); await base.DisposeAsync(); }
+
     private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Y.Auto;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is1;
     private static readonly CssValue<ScrollPaddingBuilder> _defaultScrollPadding = Quark.ScrollPadding.OnY.Is1;
@@ -52,7 +106,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ParentCombobox?.HasVisibleItems);
+        hc.Add(ParentCombobox?.HasVisibleItems); hc.Add(Options); hc.Add(Virtualize); hc.Add(ParentCombobox?.Search);
     }
 
 }
