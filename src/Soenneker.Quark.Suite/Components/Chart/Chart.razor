@@ -17,6 +17,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 </para>
 </remarks>
 *@
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
@@ -300,25 +301,32 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
             @if (Options.ShowTooltip && _hoveredIndex is not null)
             {
-                <div class="quark-chart-tooltip pointer-events-none absolute z-10 w-max min-w-48 max-w-xs rounded-md border bg-popover px-2.5 py-2 text-xs leading-tight text-popover-foreground shadow-xl" style="@TooltipStyle" role="status">
-                    @if (TooltipTemplate is not null && TooltipContext is not null)
-                    {
-                        @TooltipTemplate(TooltipContext)
-                    }
-                    else
-                    {
-                        <div class="quark-chart-tooltip-label mb-2 whitespace-nowrap font-medium text-muted-foreground">@Options.FormatLabel(LabelAt(_hoveredIndex.Value))</div>
-                        @for (int tooltipRowIndex = 0; tooltipRowIndex < TooltipRows.Count; tooltipRowIndex++)
-                        {
-                            var row = TooltipRows[tooltipRowIndex];
-                            <div class="quark-chart-tooltip-row mt-1 grid grid-cols-[0.55rem_minmax(max-content,1fr)_max-content] items-center gap-2">
-                                <span class="quark-chart-tooltip-swatch inline-block size-2 rounded-sm" style="background:@row.Color"></span>
-                                <span class="quark-chart-tooltip-name whitespace-nowrap">@row.Series</span>
-                                <strong class="whitespace-nowrap text-right tabular-nums">@Options.FormatValue(row.Value)</strong>
-                            </div>
-                        }
-                    }
-                </div>
+                var tooltipLabel = Options.FormatLabel(LabelAt(_hoveredIndex.Value));
+                <BradixPopper @key="TooltipAnchorStyle">
+                    <BradixPopperAnchor Style="@TooltipAnchorStyle" Class="pointer-events-none" aria-hidden="true" />
+                    <BradixPortal>
+                        <BradixPopperContent Side="Soenneker.Bradix.Side.Top" SideOffset="12" CollisionPadding="8" HideWhenDetached="true"
+                                            Class="quark-chart-tooltip pointer-events-none z-50 w-max min-w-48 max-w-xs rounded-md border bg-popover px-2.5 py-2 text-xs leading-tight text-popover-foreground shadow-xl" role="status">
+                            @if (TooltipTemplate is not null && TooltipContext is not null)
+                            {
+                                @TooltipTemplate(TooltipContext)
+                            }
+                            else
+                            {
+                                <div class="quark-chart-tooltip-label mb-2 whitespace-nowrap font-medium text-muted-foreground">@tooltipLabel</div>
+                                @for (int tooltipRowIndex = 0; tooltipRowIndex < TooltipRows.Count; tooltipRowIndex++)
+                                {
+                                    var row = TooltipRows[tooltipRowIndex];
+                                    <div class="quark-chart-tooltip-row mt-1 grid grid-cols-[0.55rem_minmax(max-content,1fr)_max-content] items-center gap-2">
+                                        <span class="quark-chart-tooltip-swatch inline-block size-2 rounded-sm" style="background:@row.Color"></span>
+                                        <span class="quark-chart-tooltip-name whitespace-nowrap">@row.Series</span>
+                                        <strong class="whitespace-nowrap text-right tabular-nums">@Options.FormatValue(row.Value)</strong>
+                                    </div>
+                                }
+                            }
+                        </BradixPopperContent>
+                    </BradixPortal>
+                </BradixPopper>
             }
         </div>
 
@@ -715,7 +723,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private IReadOnlyList<ChartTooltipRow> TooltipRows => _tooltipRows;
     private ChartTooltipContext? TooltipContext => _tooltipContext;
 
-    private string TooltipStyle
+    private string TooltipAnchorStyle
     {
         get
         {
@@ -724,10 +732,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
             var x = IsRadial ? 50 : CategoryCenter(_hoveredIndex.Value) / Options.Width * 100;
             var y = IsRadial ? 50 : TooltipY(_hoveredIndex.Value) / Options.Height * 100;
-            var horizontal = IsRadial ? "-50%" : x > 58 ? "calc(-100% - 12px)" : "12px";
-            var vertical = IsRadial ? "-50%" : y < 35 ? "12px" : "calc(-100% - 12px)";
-            var shift = $"translate({horizontal},{vertical})";
-            return $"left:{F(x)}%;top:{F(y)}%;transform:{shift}";
+            // A real, zero-size anchor lets the portaled tooltip follow chart layout and scrolling.
+            return $"display:block;position:absolute;left:{F(x)}%;top:{F(y)}%;width:0;height:0";
         }
     }
 

@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
+using Soenneker.Bradix;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -18,6 +19,8 @@ public sealed class ChartRenderTests : BunitContext
 
     public ChartRenderTests()
     {
+        Services.AddBradixSuiteAsScoped();
+        JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddLogging();
         Services.AddQuarkChartScrollAsScoped();
@@ -339,9 +342,33 @@ public sealed class ChartRenderTests : BunitContext
         cut.Find(".quark-chart-tooltip-label").TextContent.Should().Be("Feb");
         cut.Find(".quark-chart-tooltip-row").TextContent.Should().Contain("Revenue").And.Contain("18");
         cut.Find(".quark-chart-tooltip").GetAttribute("class").Should().Contain("min-w-48").And.Contain("w-max");
-        cut.Find(".quark-chart-tooltip").GetAttribute("style").Should().Contain("transform:translate(12px,12px)");
+        cut.FindComponent<BradixPortal>().Find(".quark-chart-tooltip").Should().NotBeNull();
+        var tooltip = cut.FindComponent<BradixPopperContent>().Instance;
+        tooltip.AvoidCollisions.Should().BeTrue();
+        tooltip.CollisionPadding.Should().Be(8);
+        tooltip.HideWhenDetached.Should().BeTrue();
         cut.Find(".quark-chart-tooltip-row").GetAttribute("class").Should().Contain("minmax(max-content,1fr)");
         cut.FindAll(".quark-chart-cursor").Should().ContainSingle().Which.GetAttribute("class").Should().Contain("opacity-70");
+    }
+
+    [Test]
+    public void Tooltip_portal_tracks_the_active_point_and_is_removed_on_pointer_leave()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Revenue", new double[] { 12, 18, 15 }) }));
+
+        cut.FindAll(".quark-chart-hit-area")[0].PointerEnter();
+        var firstAnchor = cut.FindComponent<BradixPopperAnchor>().Instance.Style;
+        cut.FindComponent<BradixPortal>().Find(".quark-chart-tooltip-label").TextContent.Should().Be("Jan");
+
+        cut.FindAll(".quark-chart-hit-area")[2].PointerEnter();
+        cut.FindComponents<BradixPortal>().Should().ContainSingle();
+        cut.FindComponent<BradixPopperAnchor>().Instance.Style.Should().NotBe(firstAnchor);
+        cut.FindComponent<BradixPortal>().Find(".quark-chart-tooltip-label").TextContent.Should().Be("Mar");
+
+        cut.Find("[data-slot=chart]").PointerLeave();
+        cut.FindComponents<BradixPortal>().Should().BeEmpty();
+        cut.FindComponents<BradixPopperAnchor>().Should().BeEmpty();
     }
 
     [Test]

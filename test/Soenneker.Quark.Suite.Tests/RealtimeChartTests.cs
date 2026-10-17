@@ -1,6 +1,7 @@
 using System;
 using AwesomeAssertions;
 using Bunit;
+using Soenneker.Bradix;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -9,6 +10,8 @@ public sealed class RealtimeChartTests : BunitContext
 {
     public RealtimeChartTests()
     {
+        Services.AddBradixSuiteAsScoped();
+        JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddQuarkChartScrollAsScoped();
