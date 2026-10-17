@@ -5,10 +5,10 @@ using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IConsolePanelInterop"/>
 public sealed class ConsolePanelInterop : IConsolePanelInterop
 {
     private readonly string _modulePath;
@@ -30,6 +30,23 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("initializeAutoScroll", linked, element);
         }
+    }
+
+    public async ValueTask UpdateViewport(ElementReference element, DotNetObjectReference<ConsolePanel> receiver, IReadOnlyList<string>? keys,
+        bool autoScroll, bool hasOlderItems, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("updateViewport", linked, element, receiver, keys, autoScroll, hasOlderItems);
+        }
+    }
+
+    public async ValueTask JumpToLatest(ElementReference element, CancellationToken cancellationToken = default)
+    {
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("jumpToLatest", cancellationToken, element);
     }
 
     public async ValueTask DestroyAutoScroll(ElementReference element, CancellationToken cancellationToken = default)

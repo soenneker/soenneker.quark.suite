@@ -8,9 +8,10 @@
 @inject IConsolePanelInterop ConsolePanelInterop
 
 <div @ref="_element" @attributes="BuildAttributes()">
-    @if (ShowDownload || ShowCopy || Actions is not null)
+    @if (ShowDownload || ShowCopy || Actions is not null || (_paused && AutoScroll))
     {
         <Div DataSlot="console-actions"
+             BackgroundColor="_actionsBackground"
              Display="_renderCss0"
              FlexWrap="_renderCss1"
              ItemsAlign="_renderCss2"
@@ -46,21 +47,74 @@
                     @CopyLabel
                 </CopyButton>
             }
+            @if (_paused && AutoScroll)
+            {
+                <Button Type="@ButtonType.Button" Variant="@ActionVariant" ButtonSize="@ActionSize" OnClick="JumpToLatest">Jump to latest</Button>
+            }
             @Actions
         </Div>
     }
     <CascadingValue Name="ConsoleFormatExceptions" Value="FormatExceptions">
         <CascadingValue Name="ConsoleFormatJson" Value="FormatJson">
             <CascadingValue Name="ConsoleWrapLines" Value="WrapLines">
-                <CascadingValue Name="ConsoleShowWrapToggle" Value="ShowWrapToggle"
-                                ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+                <CascadingValue Name="ConsoleShowWrapToggle" Value="ShowWrapToggle">
+                    @ChildContent
+                    @if (ItemKeys is not null && ItemTemplate is not null)
+                    {
+                        <div data-console-spacer="top" aria-hidden="true" style="@SpacerStyle(_top)" />
+                        @for (var index = _start; index < Math.Min(ItemKeys.Count, _start + _count); index++)
+                        {
+                            <div @key="ItemKeys[index]" data-console-key="@ItemKeys[index]" style="display: flow-root; overflow-anchor: none;">
+                                @ItemTemplate(index)
+                            </div>
+                        }
+                        <div data-console-spacer="bottom" aria-hidden="true" style="@SpacerStyle(_bottom)" />
+                    }
+                </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
 </div>
 
 @code {
+    [Parameter] public IReadOnlyList<string>? ItemKeys { get; set; }
+    [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
+    [Parameter] public EventCallback LoadOlder { get; set; }
+    [Parameter] public bool HasOlderItems { get; set; }
+    private DotNetObjectReference<ConsolePanel>? _receiver;
+    private int _start;
+    private int _count;
+    private double _top;
+    private double _bottom;
+    private bool _paused;
+    private bool _loadingOlder;
+    private static string SpacerStyle(double height) => $"height: {height.ToString(System.Globalization.CultureInfo.InvariantCulture)}px; overflow-anchor: none;";
+
+    [JSInvokable]
+    public Task SetWindow(int start, int count, double top, double bottom, bool paused) => InvokeAsync(() =>
+    {
+        if (_disposed.Value) return;
+        _start = start;
+        _count = count;
+        _top = top;
+        _bottom = bottom;
+        _paused = paused;
+        StateHasChanged();
+    });
+
+    [JSInvokable]
+    public async Task RequestOlder()
+    {
+        if (_disposed.Value || _loadingOlder || !HasOlderItems || !LoadOlder.HasDelegate) return;
+        _loadingOlder = true;
+        try { await LoadOlder.InvokeAsync(); }
+        finally { _loadingOlder = false; }
+    }
+
+    private async Task JumpToLatest() => await ConsolePanelInterop.JumpToLatest(_element);
+
     private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = ButtonSize.Sm;
+    private static readonly CssValue<BackgroundColorBuilder> _actionsBackground = Quark.BackgroundColor.Background;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
     private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Auto;
@@ -100,91 +154,69 @@
     private ValueAtomicBool _autoScrollInitialized;
     private ValueAtomicBool _disposed = new(false);
 
-    /// <summary>The complete plain-text console content used for copy and download actions.</summary>
     [Parameter]
     public string? Text { get; set; }
 
-    /// <summary>Resolves the latest plain-text console content when an action is invoked.</summary>
     [Parameter]
     public Func<string?>? TextProvider { get; set; }
 
-    /// <summary>The filename used when downloading the console content.</summary>
     [Parameter]
     public string DownloadFileName { get; set; } = "console.log";
 
-    /// <summary>The MIME type used when downloading the console content.</summary>
     [Parameter]
     public string DownloadContentType { get; set; } = "text/plain;charset=utf-8";
 
-    /// <summary>Shows the download action.</summary>
     [Parameter]
     public bool ShowDownload { get; set; } = true;
 
-    /// <summary>Shows the copy action.</summary>
     [Parameter]
     public bool ShowCopy { get; set; } = true;
 
-    /// <summary>Disables the built-in actions.</summary>
     [Parameter]
     public bool ActionsDisabled { get; set; }
 
-    /// <summary>Text displayed by the download action.</summary>
     [Parameter]
     public string DownloadLabel { get; set; } = "Download log";
 
-    /// <summary>Text displayed by the copy action.</summary>
     [Parameter]
     public string CopyLabel { get; set; } = "Copy";
 
-    /// <summary>Text exposed after a successful copy.</summary>
     [Parameter]
     public string CopiedLabel { get; set; } = "Copied";
 
-    /// <summary>Icon displayed by the download action.</summary>
     [Parameter]
     public LucideIcon DownloadIcon { get; set; } = LucideIcon.Download;
 
-    /// <summary>Icon displayed by the copy action.</summary>
     [Parameter]
     public LucideIcon CopyIcon { get; set; } = LucideIcon.Copy;
 
-    /// <summary>Visual variant used by the built-in actions.</summary>
     [Parameter]
     public ButtonVariant ActionVariant { get; set; } = ButtonVariant.Outline;
 
-    /// <summary>Size used by the built-in actions.</summary>
     [Parameter]
     public CssValue<ButtonSizeBuilder>? ActionSize { get; set; } = _staticCss0;
 
-    /// <summary>Optional actions rendered after the built-in actions.</summary>
     [Parameter]
     public RenderFragment? Actions { get; set; }
 
-    /// <summary>Automatically scrolls to the latest console output when rendered content changes.</summary>
     [Parameter]
     public bool AutoScroll { get; set; } = true;
 
-    /// <summary>Fixed console height below the medium breakpoint.</summary>
     [Parameter]
     public string SmallScreenHeight { get; set; } = "24rem";
 
-    /// <summary>Fixed console height at the medium breakpoint and above.</summary>
     [Parameter]
     public string MediumScreenHeight { get; set; } = "32rem";
 
-    /// <summary>Raised after the log is downloaded.</summary>
     [Parameter]
     public EventCallback<string> OnDownload { get; set; }
 
-    /// <summary>Raised when downloading the log fails.</summary>
     [Parameter]
     public EventCallback<Exception?> OnDownloadError { get; set; }
 
-    /// <summary>Raised after the log is copied.</summary>
     [Parameter]
     public EventCallback<string> OnCopySuccess { get; set; }
 
-    /// <summary>Raised when copying the log fails.</summary>
     [Parameter]
     public EventCallback<Exception?> OnCopyError { get; set; }
 
@@ -192,22 +224,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_disposed.Value || AutoScroll == _autoScrollInitialized.Value)
+        if (!_disposed.Value)
         {
-            await base.OnAfterRenderAsync(firstRender);
-            return;
-        }
-
-        using (await _interopLock.Lock())
-        {
-            if (!_disposed.Value && AutoScroll != _autoScrollInitialized.Value)
+            using (await _interopLock.Lock())
             {
-                if (AutoScroll)
-                    await ConsolePanelInterop.InitializeAutoScroll(_element);
-                else
-                    await ConsolePanelInterop.DestroyAutoScroll(_element);
-
-                _autoScrollInitialized.Value = AutoScroll;
+                if (!_disposed.Value)
+                {
+                    _receiver ??= DotNetObjectReference.Create(this);
+                    await ConsolePanelInterop.UpdateViewport(_element, _receiver, ItemTemplate is null ? null : ItemKeys, AutoScroll, HasOlderItems);
+                    _autoScrollInitialized.Value = true;
+                }
             }
         }
 
@@ -303,6 +329,7 @@
 
         finally
         {
+            _receiver?.Dispose();
             await base.DisposeAsync();
         }
     }
@@ -310,6 +337,14 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_start);
+        hc.Add(_count);
+        hc.Add(_top);
+        hc.Add(_bottom);
+        hc.Add(_paused);
+        hc.Add(ItemKeys);
+        hc.Add(ItemTemplate);
+        hc.Add(HasOlderItems);
         hc.Add(AutoScroll);
         hc.Add(FormatExceptions);
         hc.Add(FormatJson);

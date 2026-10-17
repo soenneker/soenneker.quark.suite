@@ -6,6 +6,17 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
     <Section Space="Space.Y.Is4">
+        <H2>Virtualized history</H2>
+        <Paragraph>Only visible entries are rendered. Scroll up to load older logs; new entries follow only while you are at the bottom.</Paragraph>
+        <Button OnClick="AppendVirtualEntry">Append log</Button>
+        <ConsolePanel ItemKeys="@_virtualKeys" HasOlderItems="@(_virtualFirst > 0)" LoadOlder="LoadVirtualHistory"
+                      TextProvider="@VirtualText" FormatExceptions="true" FormatJson="true" AriaLabel="Virtualized log history">
+            <ItemTemplate Context="index">
+                <ConsoleLogEntry Text="@VirtualEntry(_virtualKeys[index])" />
+            </ItemTemplate>
+        </ConsolePanel>
+    </Section>
+    <Section Space="Space.Y.Is4">
         <DemoSection PreviewInnerClass="demo-section-preview-inner mx-auto flex w-full min-w-0 max-w-full flex-col items-stretch" Description="A live log surface with fake deployment events streaming in, plus built-in download and copy actions."
                      Code="@BasicCode"
                      CodeLanguage="razor">
@@ -56,6 +67,25 @@
 </Div>
 
 @code {
+    private int _virtualFirst = 9800;
+    private int _virtualEnd = 10000;
+    private string[] _virtualKeys = Enumerable.Range(9800, 200).Select(i => i.ToString()).ToArray();
+    private static string VirtualEntry(string key) => int.Parse(key) % 10 == 0
+        ? $"Entry {key}: {ExceptionText}"
+        : $"Entry {key}: Processed execution successfully.";
+    private string VirtualText() => string.Join(Environment.NewLine, _virtualKeys.Select(VirtualEntry));
+    private void AppendVirtualEntry()
+    {
+        _virtualEnd++;
+        UpdateVirtualKeys();
+    }
+    private void LoadVirtualHistory()
+    {
+        _virtualFirst = Math.Max(0, _virtualFirst - 200);
+        UpdateVirtualKeys();
+    }
+    private void UpdateVirtualKeys() => _virtualKeys = Enumerable.Range(_virtualFirst, _virtualEnd - _virtualFirst).Select(i => i.ToString()).ToArray();
+
     private bool _formatJson = true;
     private bool _wrapLines = true;
     private bool _showWrapToggle = true;

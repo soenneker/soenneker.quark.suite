@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System.Collections.Generic;
 
 namespace Soenneker.Quark;
 
@@ -10,8 +12,15 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IConsolePanelInterop : IAsyncDisposable
 {
+    /// <summary>Updates a measured, variable-height console viewport and its paging callback. Null keys disable virtualization.</summary>
+    ValueTask UpdateViewport(ElementReference element, DotNetObjectReference<ConsolePanel> receiver, IReadOnlyList<string>? keys,
+        bool autoScroll, bool hasOlderItems, CancellationToken cancellationToken = default);
+
+    /// <summary>Resumes following the latest console entry.</summary>
+    ValueTask JumpToLatest(ElementReference element, CancellationToken cancellationToken = default);
+
     /// <summary>
-    /// Observes console content and scrolls the element to the latest output after mutations.
+    /// Observes console content and follows the latest output while the user remains at the bottom.
     /// </summary>
     /// <param name="element">DOM element to inspect or update.</param>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
