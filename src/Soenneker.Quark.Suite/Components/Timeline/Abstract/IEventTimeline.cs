@@ -63,7 +63,7 @@ public interface IEventTimeline
     EventTimelineAppearance Appearance { get; set; }
 
     /// <summary>
-    /// Initial layout. Vertical displays an activity feed. Auto fits dense horizontal timelines and scrolls shorter timelines. Changing this value resets the user-selected view.
+    /// Initial layout. Vertical displays an activity feed. Auto fits dense horizontal timelines and scrolls shorter timelines. Horizontal layouts use compact, scrollable items below the medium breakpoint. Changing this value resets the user-selected view.
     /// </summary>
     EventTimelineLayout Layout { get; set; }
 
@@ -73,7 +73,7 @@ public interface IEventTimeline
     int DenseTimelineThreshold { get; set; }
 
     /// <summary>
-    /// Whether dense horizontal timelines offer Fit all and Scroll buttons.
+    /// Whether dense horizontal timelines offer Fit all and Scroll buttons at medium and larger widths.
     /// </summary>
     bool ShowViewControls { get; set; }
 

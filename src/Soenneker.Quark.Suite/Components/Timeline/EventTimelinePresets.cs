@@ -8,7 +8,7 @@ internal static class EventTimelinePresets
     private static readonly CssValue<OverflowBuilder> _css3 = Overflow.X.Auto;
     private static readonly CssValue<OverflowBuilder> _css4 = Overflow.Y.Hidden;
     private static readonly CssValue<BackgroundColorBuilder> _css5 = BackgroundColor.Transparent;
-    private static readonly CssValue<PaddingBuilder> _css6 = Padding.Is8;
+    private static readonly CssValue<PaddingBuilder> _css6 = Padding.OnX.Is1.OnY.Is3.OnMd.Is8;
     private static readonly CssValue<DisplayBuilder> _css7 = Display.Flex;
     private static readonly CssValue<ItemsBuilder> _css8 = Items.Center;
     private static readonly CssValue<JustifyBuilder> _css9 = Justify.Between;
@@ -25,20 +25,20 @@ internal static class EventTimelinePresets
     private static readonly CssValue<WidthBuilder> _css20 = Width.IsFull;
     private static readonly CssValue<JustifyBuilder> _css21 = Justify.Start;
     private static readonly CssValue<GapBuilder> _css22 = Gap.Is0;
-    private static readonly CssValue<WidthBuilder> _css23 = Width.Token("[12rem]");
+    private static readonly CssValue<WidthBuilder> _css23 = Width.Token("[6.5rem]").OnMd.Token("[12rem]");
     private static readonly CssValue<GrowBuilder> _css24 = Grow.Is0;
     private static readonly CssValue<ShrinkBuilder> _css25 = Shrink.Is0;
-    private static readonly CssValue<WidthBuilder> _css26 = Width.Token("[auto]");
-    private static readonly CssValue<GrowBuilder> _css27 = Grow.Is1;
-    private static readonly CssValue<ShrinkBuilder> _css28 = Shrink.Is1;
+    private static readonly CssValue<WidthBuilder> _css26 = Width.Token("[6.5rem]").OnMd.Auto;
+    private static readonly CssValue<GrowBuilder> _css27 = Grow.Is0.OnMd.Is1;
+    private static readonly CssValue<ShrinkBuilder> _css28 = Shrink.Is0.OnMd.Is1;
     private static readonly CssValue<PositionBuilder> _css29 = Position.Absolute;
-    private static readonly CssValue<LeftBuilder> _css30 = Left.Token("[calc(50%+1.25rem)]");
-    private static readonly CssValue<TopBuilder> _css31 = Top.Token("[1.25rem]");
+    private static readonly CssValue<LeftBuilder> _css30 = Left.Token("[calc(50%+1rem)]").OnMd.Token("[calc(50%+1.25rem)]");
+    private static readonly CssValue<TopBuilder> _css31 = Top.Token("[1rem]").OnMd.Token("[1.25rem]");
     private static readonly CssValue<HeightBuilder> _css32 = Height.Token("[2px]");
-    private static readonly CssValue<WidthBuilder> _css33 = Width.Token("[calc(100%-2.5rem)]");
+    private static readonly CssValue<WidthBuilder> _css33 = Width.Token("[calc(100%-2rem)]").OnMd.Token("[calc(100%-2.5rem)]");
     private static readonly CssValue<BackgroundColorBuilder> _css34 = BackgroundColor.Token("[color-mix(in_oklch,var(--foreground),var(--border)_38%)]");
     private static readonly CssValue<PointerEventsBuilder> _css35 = PointerEvents.None;
-    private static readonly CssValue<WhitespaceBuilder> _css36 = Whitespace.Nowrap;
+    private static readonly CssValue<WhitespaceBuilder> _css36 = Whitespace.Normal.OnMd.Nowrap;
     private static readonly CssValue<MaxWidthBuilder> _css37 = MaxWidth.IsFull;
     private static readonly CssValue<OverflowBuilder> _css38 = Overflow.Hidden;
     private static readonly CssValue<TextOverflowBuilder> _css39 = TextOverflow.Ellipsis;
@@ -54,17 +54,17 @@ internal static class EventTimelinePresets
     private static readonly CssValue<BackgroundColorBuilder> _css49 = BackgroundColor.Token("sky-500/10");
     private static readonly CssValue<BackgroundColorBuilder> _css50 = BackgroundColor.Token("amber-500/10");
     private static readonly CssValue<DisplayBuilder> _css51 = Display.InlineFlex;
-    private static readonly CssValue<SizeBuilder> _css52 = Size.Is10;
+    private static readonly CssValue<WidthBuilder> _css52 = Width.Token("[2rem]").OnMd.Token("[2.5rem]");
     private static readonly CssValue<JustifyBuilder> _css53 = Justify.Center;
     private static readonly CssValue<RoundedBuilder> _css54 = Rounded.Xl;
     private static readonly CssValue<ZIndexBuilder> _css55 = ZIndex.Is10;
     private static readonly CssValue<FlexDirectionBuilder> _css56 = FlexDirection.Col;
-    private static readonly CssValue<GapBuilder> _css57 = Gap.Is2;
-    private static readonly CssValue<HeightBuilder> _css58 = Height.Is6;
+    private static readonly CssValue<GapBuilder> _css57 = Gap.Is1.OnMd.Is2;
+    private static readonly CssValue<HeightBuilder> _css58 = Height.Auto.OnMd.Is6;
     private static readonly CssValue<RoundedBuilder> _css59 = Rounded.Lg;
-    private static readonly CssValue<PaddingBuilder> _css60 = Padding.OnX.Is2;
+    private static readonly CssValue<PaddingBuilder> _css60 = Padding.OnX.Is1.OnY.Is1.OnMd.OnX.Is2.OnMd.OnY.Is0;
     private static readonly CssValue<TextTransformBuilder> _css61 = TextTransform.Capitalize;
-    private static readonly CssValue<LeadingBuilder> _css62 = Leading.None;
+    private static readonly CssValue<LeadingBuilder> _css62 = Leading.Is4.OnMd.None;
 
     internal static readonly QuarkPresetToken VerticalContentPreset = new("event-timeline-verticalcontent", static context => context.Class = "min-w-0 text-sm text-muted-foreground break-words");
 
@@ -97,7 +97,7 @@ internal static class EventTimelinePresets
 
     internal static readonly QuarkPresetToken ViewControlsPreset = new("event-timeline-view-controls", static context =>
     {
-        context.Display = _css7;
+        context.Display = Display.None.OnMd.Flex;
         context.ItemsAlign = _css8;
         context.Justify = _css9;
         context.Gap = _css10;
@@ -143,7 +143,7 @@ internal static class EventTimelinePresets
         context.Width = _css23;
         context.Grow = _css24;
         context.Shrink = _css25;
-        context.Class = "basis-[12rem]";
+        context.FlexBasis = FlexBasis.Token("[6.5rem]").OnMd.Token("[12rem]");
     });
 
     internal static readonly QuarkPresetToken FitItemPreset = new("event-timeline-item-fit", static context =>
@@ -152,7 +152,7 @@ internal static class EventTimelinePresets
         context.Width = _css26;
         context.Grow = _css27;
         context.Shrink = _css28;
-        context.Class = "basis-0";
+        context.FlexBasis = FlexBasis.Token("[6.5rem]").OnMd.Is0;
     });
 
     internal static readonly QuarkPresetToken ConnectorPreset = new("event-timeline-connector", static context =>
@@ -168,7 +168,7 @@ internal static class EventTimelinePresets
 
     internal static readonly QuarkPresetToken TimePreset = new("event-timeline-time", static context =>
     {
-        context.Whitespace = _css36;
+        context.Whitespace = Whitespace.PreLine.OnMd.Nowrap;
         context.MaxWidth = _css37;
         context.Overflow = _css38;
         context.TextOverflow = _css39;
@@ -249,7 +249,8 @@ internal static class EventTimelinePresets
     {
         context.Position = _css2;
         context.Display = _css51;
-        context.Size = _css52;
+        context.Width = _css52;
+        context.Height = Height.Token("[2rem]").OnMd.Token("[2.5rem]");
         context.ItemsAlign = _css8;
         context.Justify = _css53;
         context.Rounded = _css54;
@@ -257,7 +258,7 @@ internal static class EventTimelinePresets
         context.BorderColor = _css13;
         context.BackgroundColor = _css14;
         context.ZIndex = _css55;
-        context.Class = "shadow-[0_1px_2px_color-mix(in_oklch,var(--foreground),transparent_88%),inset_0_1px_0_color-mix(in_oklch,var(--foreground),transparent_94%)] [&_svg]:size-5";
+        context.Class = "shadow-[0_1px_2px_color-mix(in_oklch,var(--foreground),transparent_88%),inset_0_1px_0_color-mix(in_oklch,var(--foreground),transparent_94%)] [&_svg]:size-4 md:[&_svg]:size-5";
     }
 
     private static void ApplyItemBase(QuarkPresetContext context)
@@ -267,13 +268,14 @@ internal static class EventTimelinePresets
         context.MinWidth = _css1;
         context.FlexDirection = _css56;
         context.ItemsAlign = _css8;
-        context.Justify = _css53;
+        context.Justify = Justify.Start.OnMd.Center;
         context.Gap = _css57;
     }
 
     private static void ApplyLabelBase(QuarkPresetContext context)
     {
         context.Display = _css51;
+        context.MinHeight = MinHeight.Token("[1.5rem]");
         context.Height = _css58;
         context.ItemsAlign = _css8;
         context.Rounded = _css59;
