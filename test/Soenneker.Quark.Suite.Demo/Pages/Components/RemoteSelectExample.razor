@@ -1,0 +1,24 @@
+@using System.Threading
+<Div Class="space-y-6">
+    <H1>Remote options</H1>
+    <Paragraph>Search contacts by name. Results arrive in pages of ten; the initially selected contact is resolved independently of search results.</Paragraph>
+    <SearchableSelect LoadOptions="Search" Resolve="Resolve" @bind-Values="_values" Multiple="true" PageSize="10" aria-label="Contacts" />
+    <PreCode Language="razor">@Example</PreCode>
+</Div>
+@code {
+    private IReadOnlyList<string> _values = ["75"];
+    private readonly SelectOption[] _contacts = Enumerable.Range(1, 120).Select(i => new SelectOption(i.ToString(), $"Contact {i}")).ToArray();
+    private async ValueTask<SelectSearchResult> Search(SelectSearchRequest request, CancellationToken token)
+    {
+        await Task.Delay(80, token);
+        var start = int.TryParse(request.ContinuationToken, out var offset) ? offset : 0;
+        var matches = _contacts.Where(c => c.Label.Contains(request.Search, StringComparison.OrdinalIgnoreCase)).ToArray();
+        var page = matches.Skip(start).Take(request.PageSize).ToArray();
+        return new(page, start + page.Length < matches.Length ? (start + page.Length).ToString() : null);
+    }
+    private ValueTask<IReadOnlyList<SelectOption>> Resolve(IReadOnlyList<string> values, CancellationToken token) => ValueTask.FromResult<IReadOnlyList<SelectOption>>(_contacts.Where(c => values.Contains(c.Value)).ToArray());
+    private const string Example = """
+<SearchableSelect LoadOptions="SearchContacts" Resolve="ResolveContacts"
+              @bind-Values="selectedIds" Multiple="true" PageSize="10" aria-label="Contacts" />
+""";
+}

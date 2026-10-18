@@ -1,4 +1,7 @@
 using System;
+using System.Globalization;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
@@ -72,5 +75,19 @@ public sealed partial class RenderedShadcnParityTests
         calendarClass.Should().NotContain("rdp-button_previous>svg");
         cut.Find(".rdp-button_previous svg").GetAttribute("class").Should().NotContain("cn-rtl-flip");
         cut.Find(".rdp-button_next svg").GetAttribute("class").Should().NotContain("cn-rtl-flip");
+    }
+
+    [Test]
+    public async Task Calendar_and_pagination_refresh_when_shared_localizer_changes()
+    {
+        var localizer = Services.GetRequiredService<QuarkLocalizer>();
+        var calendar = Render<Calendar>(p => p.Add(c => c.DisplayMonth, new DateOnly(2026, 4, 1)).Add(c => c.CaptionLayout, "dropdown"));
+        var pagination = Render<PaginationNext>();
+        localizer.SetTranslations("es", new Dictionary<string, string> { ["ChooseMonth"] = "Elegir mes", ["Next"] = "Siguiente", ["NextPage"] = "Página siguiente" });
+        await calendar.InvokeAsync(() => localizer.SetCulture(CultureInfo.GetCultureInfo("es-ES")));
+        calendar.Find("select.rdp-months_dropdown").GetAttribute("aria-label").Should().Be("Elegir mes");
+        calendar.Find("select.rdp-months_dropdown option[value='3']").TextContent.Should().Be("abr");
+        pagination.Find("button").GetAttribute("aria-label").Should().Be("Página siguiente");
+        pagination.Markup.Should().Contain("Siguiente");
     }
 }

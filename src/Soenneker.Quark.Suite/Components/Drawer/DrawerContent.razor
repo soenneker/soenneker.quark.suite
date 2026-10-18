@@ -51,11 +51,10 @@
 
     private Side ResolvedSide => Side ?? ParentDrawer?.DirectionSide ?? Side.Bottom;
 
-    private bool ShouldCloseOnOutsideInteraction =>
-        ParentDrawer is not null && !ParentDrawer.Static && ParentDrawer.CloseOnBackdropClick;
+    private bool ShouldCloseOnOutsideInteraction => ParentDrawer?.DismissOnOutside == true;
 
     private bool ShouldCloseOnEscape =>
-        ParentDrawer is not null && !ParentDrawer.Static && ParentDrawer.CloseOnEscape;
+        ParentDrawer?.DismissOnEscape == true;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
@@ -99,7 +98,7 @@
 
     private Task HandleBackdropPointerDownOutside()
     {
-        return ParentDrawer?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
+        return ParentDrawer?.NotifyBackdropClick() ?? Task.CompletedTask;
     }
 
     private async Task HandleElementReferenceCaptured(ElementReference element)

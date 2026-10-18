@@ -26,7 +26,7 @@ public interface ISheet : IElement
     bool BlurBackdrop { get; set; }
 
     /// <summary>
-    /// When <c>true</c>, Escape and backdrop do not dismiss (same idea as <see cref="Dialog.Static"/>).
+    /// When <c>true</c>, Escape and backdrop do not dismiss (same idea as <see cref="IDialogOverlay.Static"/>).
     /// </summary>
     bool Static { get; set; }
 

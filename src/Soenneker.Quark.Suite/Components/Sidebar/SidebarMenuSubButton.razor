@@ -129,7 +129,9 @@ else
 
     private async Task HandleActivate(MouseEventArgs args)
     {
-        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider?.CloseMobileOnNavigation == true &&
+            (Target is null || Target == Quark.Target.Self) &&
+            args.Button == 0 && !args.CtrlKey && !args.MetaKey && !args.ShiftKey && !args.AltKey)
             await SidebarProvider.SetOpenMobile(false);
 
         if (OnClick.HasDelegate)

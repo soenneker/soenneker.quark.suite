@@ -1,0 +1,74 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements ISavedViews
+@using System.Linq
+@using System.Text.Json
+@using System.Threading
+@inject IQuarkViewStore Store
+<div @attributes="@(WorkflowAttributes("saved-views", "flex flex-wrap items-center gap-2"))" aria-busy="@(_busy ? "true" : "false")">
+    <select aria-label="@Text["SavedViews"]" value="@_selected" disabled="@_busy" @onchange="Choose">
+        <option value="">@Text["SavedViews"]</option>
+        @foreach (var view in Views) { <option value="@view.Id">@view.Name</option> }
+    </select>
+    <input aria-label="@Text["Name"]" class="rounded border bg-background p-2" @bind="_name" @bind:event="oninput" disabled="@_busy" />
+    <button type="button" class="rounded border px-3 py-2" disabled="@(_busy || string.IsNullOrWhiteSpace(_name))" @onclick="Save">@Text["SaveView"]</button>
+    <button type="button" class="rounded border px-3 py-2" disabled="@(_busy || string.IsNullOrEmpty(_selected))" @onclick="Delete">@Text["Delete"]</button>
+    @if (_adjusted) { <span role="status">@Text["ViewAdjusted"]</span> }
+    @if (_invalid) { <span role="alert">@Text["InvalidView"]</span> }
+    @if (_error) { <span role="alert">@Text[_loadError ? "LoadError" : "SaveError"]</span>@if (_loadError) { <button type="button" @onclick="Reload">@Text["Retry"]</button> } }
+</div>
+@code {
+    [Parameter] public QuarkViewState State { get; set; } = new();
+    [Parameter] public EventCallback<QuarkViewState> StateChanged { get; set; }
+    [Parameter] public IReadOnlyList<QuarkSavedView> Views { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<QuarkSavedView>> ViewsChanged { get; set; }
+    [Parameter] public IReadOnlyList<FilterField>? Fields { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string>? FieldAliases { get; set; }
+    [Parameter] public string? StorageKey { get; set; }
+    private bool _adjusted, _invalid;
+    private string? _loadedKey, _selected;
+    private string _name = "";
+    private bool _busy, _error, _loadError;
+    private readonly CancellationTokenSource _lifetime = new();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    { if (StorageKey is not null && _loadedKey != StorageKey && !_busy) await Reload(); }
+    private async Task Reload()
+    {
+        if (StorageKey is null || _busy) return;
+        var key = StorageKey;
+        if (_loadedKey is not null && _loadedKey != key) { Views = []; _selected = null; _name = ""; }
+        _loadedKey = key; _busy = true; _error = false; _loadError = true;
+        try { var views = await Store.Load(key, _lifetime.Token); if (!IsDisposed && StorageKey == key) { Views = views; await ViewsChanged.InvokeAsync(views); } }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "load saved views"); _error = true; }
+        finally { _busy = false; if (!IsDisposed) StateHasChanged(); }
+    }
+    private static QuarkViewState Clone(QuarkViewState state) => JsonSerializer.Deserialize(JsonSerializer.Serialize(state, QuarkViewJsonContext.Default.QuarkViewState), QuarkViewJsonContext.Default.QuarkViewState)!;
+    private async Task Choose(ChangeEventArgs e)
+    { _selected = e.Value?.ToString(); var view = Views.FirstOrDefault(v => v.Id == _selected); if (view is null) return; _name = view.Name; _invalid = false; _adjusted = false;
+        try {
+            var normalized = QuarkViewValidation.Normalize(view.State, Fields, FieldAliases);
+            _adjusted = JsonSerializer.Serialize(normalized, QuarkViewJsonContext.Default.QuarkViewState) != JsonSerializer.Serialize(view.State, QuarkViewJsonContext.Default.QuarkViewState);
+            State = Clone(normalized); await StateChanged.InvokeAsync(State);
+        } catch (JsonException exception) { ReportError(exception, "restore view"); _invalid = true; } }
+    private async Task Save()
+    {
+        if (_busy || string.IsNullOrWhiteSpace(_name)) return;
+        QuarkViewState snapshot;
+        try { snapshot = Clone(QuarkViewValidation.Normalize(State, Fields, FieldAliases)); _invalid = false; }
+        catch (JsonException exception) { ReportError(exception, "save view"); _invalid = true; return; }
+        var existing = Views.FirstOrDefault(v => string.Equals(v.Name, _name.Trim(), StringComparison.OrdinalIgnoreCase));
+        var saved = new QuarkSavedView(existing?.Id ?? Guid.NewGuid().ToString("N"), _name.Trim(), snapshot);
+        if (await Persist(Views.Where(v => v.Id != saved.Id).Append(saved).ToArray())) _selected = saved.Id;
+    }
+    private async Task Delete() { if (await Persist(Views.Where(v => v.Id != _selected).ToArray())) { _selected = null; _name = ""; } }
+    private async Task<bool> Persist(IReadOnlyList<QuarkSavedView> views)
+    {
+        if (_busy) return false; _busy = true; _error = false; _loadError = false; var key = StorageKey;
+        try { if (key is not null) await Store.Save(key, views, _lifetime.Token); if (IsDisposed || key != StorageKey) return false; Views = views; await ViewsChanged.InvokeAsync(views); return true; }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { return false; }
+        catch (Exception exception) { ReportError(exception, "persist saved views"); _error = true; return false; }
+        finally { _busy = false; }
+    }
+    public override void Dispose() { if (IsDisposed) return; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
+}

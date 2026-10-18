@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 
@@ -8,6 +11,21 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISearchableSelect
 {
+    /// <summary>Optional remote provider. When supplied, replaces local Choices filtering. Continuation tokens must advance.</summary>
+    Func<SelectSearchRequest, CancellationToken, ValueTask<SelectSearchResult>>? LoadOptions { get; set; }
+    /// <summary>Resolves selected values absent from loaded options.</summary>
+    Func<IReadOnlyList<string>, CancellationToken, ValueTask<IReadOnlyList<SelectOption>>>? Resolve { get; set; }
+    /// <summary>Allows multiple selection using Values instead of Value.</summary>
+    bool Multiple { get; set; }
+    /// <summary>Selected logical values in multiple mode.</summary>
+    IReadOnlyList<string> Values { get; set; }
+    /// <summary>Raised when multiple selection changes.</summary>
+    EventCallback<IReadOnlyList<string>> ValuesChanged { get; set; }
+    /// <summary>Remote search debounce delay in milliseconds, clamped to 0–10000.</summary>
+    int DebounceMilliseconds { get; set; }
+    /// <summary>Requested remote page size, clamped to 1–1000.</summary>
+    int PageSize { get; set; }
+
     /// <summary>Renders only a measured window of matching options. Keyboard navigation still covers all choices.</summary>
     bool Virtualize { get; set; }
 

@@ -5,7 +5,7 @@
 @inject ICalendarInterop CalendarInterop
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@inherits LocalizedFormControlElement
 
 @{
     BeginDayRender();
@@ -37,7 +37,7 @@
                     {
                         <Div Display="_renderCss1" Height='_renderCss15' Width="_renderCss7" ItemsAlign="_renderCss8" Justify="_renderCss16" Gap='_renderCss18' TextSize="_renderCss19" FontWeight="_renderCss20" Class="rdp-dropdowns">
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-months_dropdown" aria-label="Choose the Month" Value="@((GetCalendarMonth(month) - 1).ToString(CultureInfo.InvariantCulture))" OnChange="monthView.MonthChanged">
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-months_dropdown" aria-label="@Localizer["ChooseMonth"]" Value="@((GetCalendarMonth(month) - 1).ToString(CultureInfo.InvariantCulture))" OnChange="monthView.MonthChanged">
                                     @{ var monthsInYear = GetCalendarMonthsInYear(month); }
                                     @for (var optionMonth = 0; optionMonth < monthsInYear; optionMonth++)
                                     {
@@ -50,7 +50,7 @@
                                 </Span>
                             </Span>
                             <Span data-disabled="false" Position="_renderCss0" Rounded='_renderCss21' Class="cn-calendar-dropdown-root rdp-dropdown_root">
-                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-years_dropdown" aria-label="Choose the Year" Value="@GetCalendarYear(month).ToString(CultureInfo.InvariantCulture)" OnChange="monthView.YearChanged">
+                                <SelectPrimitive Position="_renderCss4" Inset="_renderCss22" BackgroundColor="_renderCss23" Opacity="_renderCss24" Disabled="@Disabled" Class="rdp-dropdown rdp-years_dropdown" aria-label="@Localizer["ChooseYear"]" Value="@GetCalendarYear(month).ToString(CultureInfo.InvariantCulture)" OnChange="monthView.YearChanged">
                                     @{ var maxSelectableYear = GetMaxSelectableYear(); }
                                     @for (var year = GetMinSelectableYear(); year <= maxSelectableYear; year++)
                                     {
@@ -74,7 +74,7 @@
                         <TrPrimitive Display="_renderCss1" Class="rdp-weekdays">
                             @if (ShowWeekNumber)
                             {
-                                <ThPrimitive Width='_renderCss25' UserSelect="_renderCss11" Class="rdp-week_number_header" scope="col" aria-label="Week Number"></ThPrimitive>
+                                <ThPrimitive Width='_renderCss25' UserSelect="_renderCss11" Class="rdp-week_number_header" scope="col" aria-label="@Localizer["WeekNumber"]"></ThPrimitive>
                             }
 
                             @for (var dayIndex = 0; dayIndex < _dayNames.Length; dayIndex++)
@@ -92,7 +92,7 @@
                                 @if (ShowWeekNumber)
                                 {
                                     var weekNumber = GetWeekNumber(week[0].Date);
-                                    <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"Week {weekNumber}")">
+                                    <ThPrimitive TextSize='_renderCss27' TextColor="_renderCss29" UserSelect="_renderCss11" Class="rdp-week_number" scope="row" aria-label="@($"{Localizer["Week"]} {weekNumber}")">
                                         <Div Display="_renderCss1" Size='_renderCss31' ItemsAlign="_renderCss8" Justify="_renderCss16" TextAlign="_renderCss32">
                                             @weekNumber.ToString("00", CultureInfo.InvariantCulture)
                                         </Div>
@@ -832,9 +832,11 @@
         ])
     };
 
+    protected override void OnLocalizationChanged() => OnParametersSet();
+
     private CultureInfo ResolveCultureCore()
     {
-        var culture = CultureInfo.CurrentCulture;
+        var culture = Localizer.Culture;
         if (!CultureName.IsNullOrEmpty())
         {
             try { culture = CultureInfo.GetCultureInfo(CultureName); }
@@ -1223,11 +1225,11 @@
             " group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring" +
             " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50" +
             " data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius)" +
-            " data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-end=true]:hover:bg-primary data-[range-end=true]:hover:text-primary-foreground" +
+            " data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-end=true]:hover:bg-primary data-[range-end=true]:hover:text-primary-foreground dark:data-[range-end=true]:hover:bg-primary" +
             " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground" +
             " data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius)" +
-            " data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-start=true]:hover:bg-primary data-[range-start=true]:hover:text-primary-foreground" +
-            " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[selected-single=true]:hover:bg-primary data-[selected-single=true]:hover:text-primary-foreground" +
+            " data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-start=true]:hover:bg-primary data-[range-start=true]:hover:text-primary-foreground dark:data-[range-start=true]:hover:bg-primary" +
+            " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[selected-single=true]:hover:bg-primary data-[selected-single=true]:hover:text-primary-foreground dark:data-[selected-single=true]:hover:bg-primary" +
             " [&>span]:text-xs [&>span]:opacity-70 rdp-day rdp-day_button";
         return day.Disabled ? css + " pointer-events-none opacity-50" : css;
     }

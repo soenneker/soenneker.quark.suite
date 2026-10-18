@@ -103,7 +103,7 @@ else
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.OnDisabled.NotAllowed;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Colors;
-    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
     private static readonly CssValue<WidthBuilder> _renderCss1 = Quark.Width.IsFull;
     private static readonly CssValue<ItemsBuilder> _renderCss2 = Items.Start;
@@ -406,9 +406,12 @@ else
         if (OnKeyDown.HasDelegate || (AutoSave && AutoSaveOnEnter && OnAutoSave is not null))
             attributes["onkeydown"] = (_cachedHandleTextAreaKeyDownKeyboardEventArgsCallback ??= EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleTextAreaKeyDown));
 
-        const string inputClass = "field-sizing-content focus-visible:ring-3 placeholder:text-muted-foreground disabled:bg-input/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
+        const string inputClass = "focus-visible:ring-3 placeholder:text-muted-foreground disabled:bg-input/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
         const string autoSaveClass = inputClass + " min-w-0 flex-1";
-        PrependClassAttribute(attributes, UsesAutoSaveStatusSlot ? autoSaveClass : inputClass, ref _lastBuiltClass);
+        var classes = UsesAutoSaveStatusSlot ? autoSaveClass : inputClass;
+        if (ResolvePresetValue(FieldSizing, AppliedPresetContext?.FieldSizing, nameof(FieldSizing)) is null)
+            classes += attributes.ContainsKey("rows") ? " field-sizing-fixed" : " field-sizing-content";
+        PrependClassAttribute(attributes, classes, ref _lastBuiltClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

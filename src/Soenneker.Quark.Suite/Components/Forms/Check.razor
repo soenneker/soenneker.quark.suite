@@ -57,7 +57,7 @@ else
     private RenderFragment ControlContent => _controlContent ??= @<text>
         @if (Switch)
         {
-            <BradixSwitch Checked="@Checked" Required="@Required" Disabled="@Disabled" Name="@Name"
+            <BradixSwitch Checked="@Checked" Required="@Required" Disabled="@Disabled" Name="@Name" Form="@ResolvedForm"
                           Value="@ResolvedCheckboxValue" CheckedChanged="HandleSwitchChanged" OnClick="@OnClick"
                           AdditionalAttributes="@BuildControlAttributes()">
                 <BradixSwitchThumb AdditionalAttributes="SwitchThumbAttributes" />
@@ -69,6 +69,7 @@ else
                             Required="@Required"
                             Disabled="@Disabled"
                             Name="@Name"
+                            Form="@ResolvedForm"
                             Value="@ResolvedCheckboxValue"
                             CheckedChanged="(_cachedHandleCheckedStateChangedDelegate ??= HandleCheckedStateChanged)" OnClick="@OnClick"
                             AdditionalAttributes="@BuildControlAttributes()">
@@ -91,7 +92,7 @@ else
     private static readonly IReadOnlyDictionary<string, object> SwitchThumbAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "switch-thumb",
-        ["class"] = "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0"
+        ["class"] = "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] rtl:data-[state=checked]:-translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0"
     };
     private string? _switchClass;
 
@@ -114,7 +115,7 @@ else
     private static readonly IReadOnlyDictionary<string, object> IndicatorAttributes = new Dictionary<string, object>
     {
         ["data-slot"] = "checkbox-indicator",
-        ["class"] = "grid place-content-center text-current transition-none [&>svg]:size-3.5"
+        ["class"] = "grid place-content-center text-current print:text-black transition-none [&>svg]:size-3.5"
     };
 
     private QuarkAttributeDictionary _wrapperAttributeDictionaries;
@@ -311,7 +312,7 @@ else
         {
             attributes["data-slot"] = "switch";
             attributes["data-size"] = CheckSize?.ToString() is "h-3 w-3" or "h-3.5 w-3.5" ? "sm" : "default";
-            PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input disabled:cursor-not-allowed disabled:opacity-50", ref _switchClass);
+            PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input disabled:cursor-not-allowed disabled:opacity-50", ref _switchClass);
             if (IndicatorStyle.HasContent())
                 PrependStyleAttribute(attributes, IndicatorStyle!, ref _lastControlStyle);
             return attributes;
@@ -327,11 +328,11 @@ else
             var cls = new PooledStringBuilder(stackalloc char[64]);
             try
             {
-                AppendClass(ref cls, "peer relative flex shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-none");
-                AppendClass(ref cls, "group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2");
+                AppendClass(ref cls, "peer relative flex shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors outline-hidden");
+                AppendClass(ref cls, "print:border-black print:data-[state=checked]:border-black print:data-[state=indeterminate]:border-black print:data-[state=checked]:bg-transparent print:data-[state=indeterminate]:bg-transparent group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2");
                 AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
                 AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50");
-                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary");
+                AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary");
                 AppendClass(ref cls, "dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
                 AppendClass(ref cls, "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary");
                 AppendClass(ref cls, string.IsNullOrWhiteSpace(size) ? "size-4" : size);
@@ -354,6 +355,8 @@ else
 
         return attributes;
     }
+
+    private string? ResolvedForm => BuildControlAttributes().TryGetValue("form", out var form) ? form?.ToString() : null;
 
     private static IReadOnlyDictionary<string, object> BuildIndicatorAttributes() => IndicatorAttributes;
 

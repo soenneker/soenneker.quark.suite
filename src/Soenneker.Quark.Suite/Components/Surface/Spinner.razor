@@ -16,6 +16,7 @@
              stroke-width="2"
              stroke-linecap="round"
              stroke-linejoin="round"
+             aria-hidden="true"
              focusable="false">
             @if (Name == LucideIcon.Loader)
             {
@@ -66,6 +67,10 @@
                 </span>
             </span>
         </span>
+    }
+    @if (!Decorative)
+    {
+        <span class="sr-only">@GetStatusText()</span>
     }
 </span>
 
@@ -181,6 +186,10 @@
             attributes.TryAdd("aria-label", "Loading");
         }
     }
+
+    private string GetStatusText() => BuildAttributes().TryGetValue("aria-label", out var label)
+        ? label.ToString() ?? "Loading"
+        : "Loading";
 
     private SpinnerStyleKey _styleKey;
     private string? _spinnerStyle;

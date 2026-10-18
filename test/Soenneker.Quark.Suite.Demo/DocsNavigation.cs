@@ -31,6 +31,11 @@ public static class DocsNavigation
 
     public static IReadOnlyList<NavigationItem> ComponentLinks { get; } =
     [
+        new("Filter Builder", ComponentRoute("filter-builder"), IsNew: true),
+        new("Rich Text Editor", ComponentRoute("rich-text-editor"), IsNew: true),
+        new("Scheduler", ComponentRoute("scheduler"), IsNew: true),
+        new("Notification Center", ComponentRoute("notification-center"), IsNew: true),
+        new("Localization", ComponentRoute("localization"), IsNew: true),
         new("Accordion", ComponentRoute("accordion")),
         new("Alert", ComponentRoute("alert")),
         new("Alert Dialog", ComponentRoute("alert-dialog")),
@@ -148,7 +153,6 @@ public static class DocsNavigation
         new("Code Viewer", ComponentRoute("code-viewer"), IsNew: true),
         new("Consent Manager", ComponentRoute("consent-manager")),
         new("ConsolePanel", ComponentRoute("console-panel"), IsNew: true),
-        new("Copy Field", ComponentRoute("copy-field"), IsNew: true),
         new("Details Item", ComponentRoute("details-item"), IsNew: true),
         new("Details Section", ComponentRoute("details-section"), IsNew: true),
         new("Empty State", ComponentRoute("empty-state"), IsNew: true),

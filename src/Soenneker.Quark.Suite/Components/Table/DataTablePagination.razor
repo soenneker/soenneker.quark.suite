@@ -1,15 +1,15 @@
 @namespace Soenneker.Quark
-@inherits Element
+@inherits LocalizedComponentBase
 
 @if (ShowPagination)
 {
     <nav @attributes="BuildAttributes()">
         <ul @attributes="_controlsAttributes">
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_firstCallback ??= HandleFirstClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to first page">«</PaginationLink>
+                <PaginationLink OnClick="@(_firstCallback ??= HandleFirstClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="@Text["FirstPage"]">«</PaginationLink>
             </PaginationItem>
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_previousCallback ??= HandlePreviousClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to previous page">‹</PaginationLink>
+                <PaginationLink OnClick="@(_previousCallback ??= HandlePreviousClick)" Disabled="@(ComputedCurrentPage == 1)" aria-label="@Text["PreviousPage"]">‹</PaginationLink>
             </PaginationItem>
 
             @if (ComputedTotalPages <= 1)
@@ -36,10 +36,10 @@
             }
 
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_nextCallback ??= HandleNextClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to next page">›</PaginationLink>
+                <PaginationLink OnClick="@(_nextCallback ??= HandleNextClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="@Text["NextPage"]">›</PaginationLink>
             </PaginationItem>
             <PaginationItem Class="list-none">
-                <PaginationLink OnClick="@(_lastCallback ??= HandleLastClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to last page">»</PaginationLink>
+                <PaginationLink OnClick="@(_lastCallback ??= HandleLastClick)" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="@Text["LastPage"]">»</PaginationLink>
             </PaginationItem>
         </ul>
     </nav>

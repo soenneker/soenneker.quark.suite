@@ -6,7 +6,7 @@
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@inherits LocalizedFormControlElement
 @implements IValidationInput
 @implements IDateTimePicker
 
@@ -30,13 +30,13 @@
             <Div Flex="_timeFlex" Justify="_timeJustify" Margin="_renderCss20" Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss21" Border="_renderCss22" Padding="_renderCss23">
                 <Div Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss14">
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Decrease hour" @onclick="(_cachedDecrementHourDelegate ??= DecrementHour)">-</Button>
-                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Hour" step="1" min="1" max="12" OnInput="(_cachedOnHourInputDelegate ??= OnHourInput)"/>
+                    <Input Type="number" Value="@DisplayHour.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="@Localizer["Hour"]" step="1" min="1" max="12" OnInput="(_cachedOnHourInputDelegate ??= OnHourInput)"/>
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Increase hour" @onclick="(_cachedIncrementHourDelegate ??= IncrementHour)">+</Button>
                 </Div>
                 <Span TextSize="_renderCss11" TextColor="_renderCss19">:</Span>
                 <Div Display="_renderCss8" ItemsAlign="_renderCss9" Gap="_renderCss14">
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Decrease minute" @onclick="(_cachedDecrementMinuteDelegate ??= DecrementMinute)">-</Button>
-                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="Minute" Step="@_minuteStep.ToString(CultureInfo.InvariantCulture)" min="0" max="59" OnInput="(_cachedOnMinuteInputDelegate ??= OnMinuteInput)"/>
+                    <Input Type="number" Value="@_minute.ToString(CultureInfo.InvariantCulture)" Width="_renderCss24" TextAlign="_renderCss25" Class="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" aria-label="@Localizer["Minute"]" Step="@_minuteStep.ToString(CultureInfo.InvariantCulture)" min="0" max="59" OnInput="(_cachedOnMinuteInputDelegate ??= OnMinuteInput)"/>
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss2" AriaLabel="Increase minute" @onclick="(_cachedIncrementMinuteDelegate ??= IncrementMinute)">+</Button>
                 </Div>
                 <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" ButtonSize="_staticCss1" Title="Click to toggle" @onclick="(_cachedToggleAmPmDelegate ??= ToggleAmPm)">@(_isAm ? "AM" : "PM")</Button>

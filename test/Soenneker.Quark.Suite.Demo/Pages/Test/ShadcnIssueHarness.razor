@@ -1,0 +1,120 @@
+@page "/test/shadcn-issues"
+@using Soenneker.Razor.Sitemap
+@attribute [Sitemap(Exclude = true)]
+
+<QuarkSeoHead Title="Issue Regression Harness | Quark Suite" Description="Component issue regression fixtures." NoIndex="true" />
+<Div Display="Display.Flex" FlexDirection="FlexDirection.Col" Gap="Gap.Is6" Padding="Padding.Is6" MaxWidth="MaxWidth.Is2xl">
+    <NavigationMenu Viewport="false"><NavigationMenuList><NavigationMenuItem><NavigationMenuTrigger Id="audit-inline-navigation">Inline navigation</NavigationMenuTrigger><NavigationMenuContent><NavigationMenuLink Href="#audit-rows">Visible inline content</NavigationMenuLink></NavigationMenuContent></NavigationMenuItem></NavigationMenuList></NavigationMenu>
+    <form id="audit-submit-form" @onsubmit="@(() => _submissions++)" @onsubmit:preventDefault="true">
+        <Field><FieldLabel>Required name</FieldLabel><Input Id="audit-submit-input" Required="true" /><Button Type="ButtonType.Submit">Submit audit form</Button></Field>
+        <Span Id="audit-submissions">@_submissions</Span>
+    </form>
+    <Div Id="audit-horizontal-separators" Display="Display.Flex" FlexDirection="FlexDirection.Col" Width='Width.Token("[280px]")'>
+        <Span>Short</Span><Separator /><Span>A longer metadata row</Span><Separator />
+    </Div>
+    <Popover>
+        <PopoverTrigger AsChild="true"><Button Id="audit-open-popover">Open nested select popover</Button></PopoverTrigger>
+        <PopoverContent>
+            <Select TValue="string"><SelectTrigger Id="audit-popover-select"><SelectValue Placeholder="Choose nested value" /></SelectTrigger>
+                <SelectContent><SelectItem TValue="string" ItemValue='@("a")'>Alpha</SelectItem><SelectItem TValue="string" ItemValue='@("b")'>Beta</SelectItem></SelectContent>
+            </Select>
+        </PopoverContent>
+    </Popover>
+    <FieldSet Id="audit-fieldset">
+        <Div Display="Display.Grid.OnSm.Flex">Responsive fieldset sibling</Div>
+        <FieldGroup Id="audit-fieldgroup">
+            <Field IsInvalid="true">
+                <FieldLabel>Grouped email</FieldLabel>
+                <InputGroup><InputGroupInput Name="email" Required="true" /></InputGroup>
+                <FieldDescription>Email description</FieldDescription>
+                <FieldError>Email error</FieldError>
+            </Field>
+            <FieldLabel For="audit-labeled-select">Department</FieldLabel>
+            <Select TValue="string" @bind-SelectedValue="_department">
+                <SelectTrigger Id="audit-labeled-select"><SelectValue Placeholder="Choose department" /></SelectTrigger>
+                <SelectContent><SelectItem TValue="string" ItemValue='@("engineering")'>Engineering</SelectItem><SelectItem TValue="string" ItemValue='@("design")'>Design</SelectItem></SelectContent>
+            </Select>
+            @if (_department == "design") { <Input Id="audit-conditional" AriaLabel="Design details" /> }
+        </FieldGroup>
+    </FieldSet>
+    <Tooltip>
+        <TooltipTrigger AsChild="true"><Toggle Id="audit-tooltip-toggle">Toggle with tooltip</Toggle></TooltipTrigger>
+        <TooltipContent>Toggle hint</TooltipContent>
+    </Tooltip>
+    <ContextMenu>
+        <ContextMenuTrigger Id="audit-context" Display="Display.Flex" Height="Height.Is16" Width="Width.IsFull">Right click for dialog</ContextMenuTrigger>
+        <ContextMenuContent><ContextMenuItem Clicked="@(() => _contextDialog = true)">Open audit dialog</ContextMenuItem></ContextMenuContent>
+    </ContextMenu>
+    <Dialog @bind-Visible="_contextDialog"><DialogContent><DialogTitle>Context dialog</DialogTitle><DialogDescription>Menu handoff check</DialogDescription><Input AriaLabel="Context dialog input" /></DialogContent></Dialog>
+    <Drawer>
+        <DrawerTrigger AsChild="true"><Button Id="audit-open-drawer">Open calendar drawer</Button></DrawerTrigger>
+        <DrawerContent><DrawerTitle>Calendar drawer</DrawerTitle><DrawerDescription>Calendar interaction check</DrawerDescription><Calendar @bind-SelectedDate="_date" /><Span Id="audit-date">@_date</Span></DrawerContent>
+    </Drawer>
+    <Div Id="audit-constrained" Width="Width.Is48">
+        <Select TValue="string">
+            <SelectTrigger Id="audit-long-select" Width="Width.IsFull"><SelectValue Placeholder="A very long selected value that must fit its narrow container" /></SelectTrigger>
+            <SelectContent><SelectItem TValue="string" ItemValue='@("long")'>A very long selected value that must fit its narrow container</SelectItem>
+                @for (var i = 0; i < 100; i++) { var option = i; <SelectItem TValue="string" ItemValue="@(option.ToString())">Option @option</SelectItem> }
+            </SelectContent>
+        </Select>
+    </Div>
+    <form id="audit-external-form"></form>
+    <Check Id="audit-external-check" Name="consent" Checked="true" form="audit-external-form" Label="External consent" />
+    <TextArea Id="audit-rows" Rows="6" AriaLabel="Six rows" />
+    <TextArea Id="audit-auto" AriaLabel="Automatic rows" />
+    <Div Id="audit-separators" Display="Display.Flex" ItemsAlign="Items.Center" Height="Height.Is16" Gap="Gap.Is4">
+        <Span>Before</Span>
+        <Separator Id="audit-fixed-separator" Orientation="SeparatorOrientation.Vertical" Height="Height.Is4" />
+        <Separator Id="audit-stretched-separator" Orientation="SeparatorOrientation.Vertical" />
+        <Span>After</Span>
+    </Div>
+    <Div Dir="rtl">
+        <Switch Id="audit-switch" Checked="true" Label="RTL switch" />
+        <InputOtp Id="audit-otp" OtpValue="123456" AriaLabel="Verification code">
+            <InputOtpGroup>
+                @for (var i = 0; i < 6; i++)
+                {
+                    <InputOtpSlot Index="i" />
+                }
+            </InputOtpGroup>
+        </InputOtp>
+    </Div>
+    <ItemGroup Id="audit-items"><Item>First item</Item><Item AsChild="true"><Anchor Href="#audit-rows">Linked item</Anchor></Item></ItemGroup>
+    <Spinner Id="audit-spinner" AriaLabel="Saving" />
+    <NativeSelect Id="audit-native" AriaLabel="Theme aware select"><NativeSelectOption Value="one">One</NativeSelectOption></NativeSelect>
+    <Button Id="audit-focus-start">Focus start</Button>
+    <TextShimmer Id="audit-shimmer">Loading results</TextShimmer>
+    <Dropdown>
+        <DropdownToggle Id="audit-dropdown">Track</DropdownToggle>
+        <DropdownMenu Id="audit-dropdown-menu"><DropdownItem>Adult ADHD diagnostics</DropdownItem></DropdownMenu>
+    </Dropdown>
+    <Menubar><MenubarMenu><MenubarTrigger Id="audit-menu">File</MenubarTrigger><MenubarContent><MenubarItem>New</MenubarItem></MenubarContent></MenubarMenu></Menubar>
+    <Dialog>
+        <DialogTrigger AsChild="true"><Button Id="audit-open-dialog">Open nested controls</Button></DialogTrigger>
+        <DialogContent>
+            <DialogHeader><DialogTitle>Nested controls</DialogTitle><DialogDescription>Overlay interaction regression checks.</DialogDescription></DialogHeader>
+            <TextArea Id="audit-dialog-textarea" AriaLabel="Long dialog text" />
+            <Select TValue="string" @bind-SelectedValue="_selected">
+                <SelectTrigger Id="audit-select"><SelectValue Placeholder="Choose number" /></SelectTrigger>
+                <SelectContent><SelectItem TValue="string" ItemValue='@("one")'>One</SelectItem><SelectItem TValue="string" ItemValue='@("two")'>Two</SelectItem></SelectContent>
+            </Select>
+            <Combobox @bind-Value="_framework">
+                <ComboboxInput Placeholder="Choose framework" />
+                <ComboboxContent><ComboboxEmpty>No items</ComboboxEmpty><ComboboxList>
+                    <ComboboxItem Value="Blazor">Blazor</ComboboxItem><ComboboxItem Value="React">React</ComboboxItem>
+                    @for (var i = 0; i < 30; i++) { var value = $"Framework {i}"; <ComboboxItem Value="@value">@value</ComboboxItem> }
+                </ComboboxList></ComboboxContent>
+            </Combobox>
+            <Span Id="audit-selection">@_selected @_framework</Span>
+        </DialogContent>
+    </Dialog>
+</Div>
+
+@code {
+    private int _submissions;
+    private string? _selected;
+    private string? _framework;
+    private string? _department;
+    private bool _contextDialog;
+    private DateOnly? _date;
+}

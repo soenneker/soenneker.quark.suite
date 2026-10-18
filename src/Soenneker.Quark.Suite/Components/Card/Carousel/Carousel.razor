@@ -8,8 +8,15 @@
 @inject ICarouselInterop CarouselInterop
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
-    <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)">
+    <div @ref="_elementRef" @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)"
+         @onmouseenter="HandleMouseEnter" @onmouseleave="HandleMouseLeave" @onfocusin="HandleFocusIn" @onfocusout="HandleFocusOut">
         @ChildContent
+        <span class="sr-only" aria-live="@(Autoplay && !InteractionPaused ? "off" : "polite")" aria-atomic="true" data-slot="carousel-status">
+            @if (ItemCount > 0)
+            {
+                @($"Slide {CurrentIndex + 1} of {ItemCount}")
+            }
+        </span>
     </div>
 </CascadingValue>
 
@@ -54,6 +61,9 @@
     private ValueAtomicBool _initialized;
     private ValueAtomicBool _disposed;
     private TimeSpan _autoplayPeriod;
+    private bool _mouseWithin;
+    private bool _focusWithin;
+    private bool InteractionPaused => _mouseWithin || _focusWithin;
     private double? _pointerStart;
     private ValueAtomicBool _pointerDragStarted;
     private int _notifiedIndex;
@@ -323,9 +333,14 @@
         });
     }
 
+    private void HandleMouseEnter() { _mouseWithin = true; ConfigureAutoplay(); }
+    private void HandleMouseLeave() { _mouseWithin = false; ConfigureAutoplay(); }
+    private void HandleFocusIn() { _focusWithin = true; ConfigureAutoplay(); }
+    private void HandleFocusOut() { _focusWithin = false; ConfigureAutoplay(); }
+
     private void ConfigureAutoplay()
     {
-        if (_disposed.Read() || !Autoplay || AutoplayDelay <= TimeSpan.Zero)
+        if (_disposed.Read() || !Autoplay || InteractionPaused || AutoplayDelay <= TimeSpan.Zero)
         {
             StopAutoplay();
             return;
@@ -351,7 +366,7 @@
             {
                 await InvokeAsync(async () =>
                 {
-                    if (_disposed.Read() || ItemCount <= 1)
+                    if (_disposed.Read() || cancellationToken.IsCancellationRequested || InteractionPaused || ItemCount <= 1)
                         return;
 
                     await Next();
@@ -396,6 +411,8 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        if (!attributes.ContainsKey("aria-labelledby"))
+            attributes.TryAdd("aria-label", "Carousel");
 
 
         if (!string.IsNullOrWhiteSpace(ResolvedDir))
@@ -411,6 +428,7 @@
         hc.Add(Dir);
         hc.Add(DirectionProviderDir);
         hc.Add(Autoplay);
+        hc.Add(InteractionPaused);
         hc.Add(AutoplayDelay);
         hc.Add(SelectedIndexChanged.HasDelegate);
         hc.Add(CurrentIndex);

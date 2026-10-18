@@ -1,0 +1,343 @@
+@namespace Soenneker.Quark.Internal
+@typeparam TItem
+@implements IDataTableDataView
+@inherits LocalizedComponentBase
+@using Microsoft.JSInterop
+@inject IWorkflowInteractionInterop InteractionInterop
+@using System.Linq
+@using System.Globalization
+@using System.Threading
+<div @ref="_interactionRoot" @attributes="@(ViewAttributes())">
+    <div class="flex flex-wrap items-center gap-2">
+        <input class="rounded border bg-background p-2" aria-label="@Text["Search"]" placeholder="@Text["Search"]" value="@State.Search" @oninput="SearchChanged" />
+        <button type="button" class="rounded border px-3 py-2" aria-expanded="@(_showColumns ? "true" : "false")" @onclick="() => _showColumns = !_showColumns">@Text["Columns"]</button>
+        <button type="button" class="rounded border px-3 py-2" aria-expanded="@(_showFilters ? "true" : "false")" @onclick="() => _showFilters = !_showFilters">@Text["Filters"]</button>
+        @ToolbarContent
+    </div>
+    @if (_showColumns)
+    {
+        <fieldset class="space-y-2 rounded border p-3"><legend>@Text["Columns"]</legend>
+            @foreach (var preference in Preferences())
+            {
+                var column = _columnMap[preference.Key];
+                <div @key="column.Key" class="flex flex-wrap items-center gap-2" draggable="true" @ondragstart="() => _dragColumn = column.Key" @ondragover:preventDefault @ondrop="() => MoveBefore(column.Key)">
+                    <label><input type="checkbox" checked="@preference.Visible" @onchange="e => UpdateColumn(preference with { Visible = e.Value is true })" /> @column.Title</label>
+                    <input type="range" min="64" max="1200" step="8" aria-label="@(column.Title + " " + Text["Width"])" value="@preference.Width" @oninput="e => ResizeColumn(preference, e)" />
+                    <select aria-label="@(column.Title + " " + Text["Pin"])" value="@preference.Pin" @onchange="e => Pin(preference, e)">
+                        @foreach (var pin in Enum.GetValues<DataTableColumnPin>()) { <option value="@pin">@Text[pin.ToString()]</option> }
+                    </select>
+                    <button type="button" aria-label="@(column.Title + " " + Text["MoveUp"])" @onclick="() => Move(column.Key, -1)">↑</button>
+                    <button type="button" aria-label="@(column.Title + " " + Text["MoveDown"])" @onclick="() => Move(column.Key, 1)">↓</button>
+                </div>
+            }
+        </fieldset>
+    }
+    @if (_showFilters) { <QueryBuilder Fields="FilterFields()" Value="State.Filters" ValueChanged="f => Change(State with { Filters = f })" /> }
+    <ActiveFilters Fields="FilterFields()" Value="State.Filters" ValueChanged="f => Change(State with { Filters = f })" />
+    @if (_loading) { <div role="status">@Text["Loading"]</div> }
+    @if (_loadError) { <div role="alert">@Text["LoadError"]</div><button type="button" @onclick="Retry">@Text["Retry"]</button> }
+    <DataTable @ref="_table" Virtualize="UseVirtualRows" ViewportHeight="ViewportHeight" RowKeys="VisibleRowKeys()"
+               HeaderContent="Headers" RowTemplate="VirtualRow" VirtualColumnCount="RenderedColumnCount"
+               HasMoreRows="HasNextRows" LoadMoreRows="LoadNextRows" TableContent="Rows"
+               SelectionContent="Owner.SelectionContent" OverlayContent="Owner.OverlayContent" IsLoading="Owner.IsLoading"
+               SelectionEnabled="SelectionEnabled" SelectableRowKeys="VisibleRowKeys()" SelectedKeys="SelectedKeys" SelectedKeysChanged="Select"
+               Style="@GridStyle" Class="w-full text-sm" aria-label="@Label" AdaptiveLayout="false" />
+    @if (UseVirtualRows && !_loading && PageItems().Count == 0) { <p role="status">@Text["NoResults"]</p> }
+    @if (Owner.BottomContent is not null) { @Owner.BottomContent }
+    else if (!UseVirtualRows)
+    {
+    <div class="flex items-center gap-3">
+        <button type="button" disabled="@(_page == 0)" @onclick="() => GoToPage(_page - 1)">@Text["Previous"]</button>
+        <span role="status">@Text["Page"] @(_page + 1) / @PageCount</span>
+        <button type="button" disabled="@(_page + 1 >= PageCount)" @onclick="() => GoToPage(_page + 1)">@Text["Next"]</button>
+        <select aria-label="@Text["Page"]" value="@State.PageSize" @onchange="e => Change(State with { PageSize = int.TryParse(e.Value?.ToString(), out var size) ? size : 25 })">
+            @foreach (var size in new[] { 10, 25, 50, 100 }) { <option value="@size">@size</option> }
+        </select>
+    </div>
+    }
+</div>
+@code {
+    [Parameter] public DataTable Owner { get; set; } = null!;
+    protected override void OnInitialized() { base.OnInitialized(); Owner.DataView = this; }
+    Task IDataTableDataView.SetState(QuarkViewState state) => Change(state);
+    Task IDataTableDataView.GoToPage(int page) => UseVirtualRows ? Task.CompletedTask : GoToPage(page);
+    public void CancelLoad() { _requestVersion++; _loadCancellation?.Cancel(); _searchCancellation?.Cancel(); _loading = false; if (!IsDisposed) StateHasChanged(); }
+
+    [Parameter] public Dictionary<string, object>? RootAttributes { get; set; }
+    [Parameter] public CssValue<HeightBuilder>? ViewportHeight { get; set; } = Quark.Height.Is96;
+    private DataTable? _table;
+    private bool UseVirtualRows => Virtualize && DetailTemplate is null;
+    private int RenderedColumnCount => Math.Max(1, VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + (DetailTemplate is null ? 0 : 1));
+    private Dictionary<string, object> ViewAttributes()
+    {
+        var result = RootAttributes is null ? new Dictionary<string, object>() : new(RootAttributes);
+        result["data-slot"] = "datatable-data";
+        PrependClassAttribute(result, "space-y-3");
+        return result;
+    }
+    private IReadOnlyList<string> VisibleRowKeys() { _ = PageItems(); return _pageKeys; }
+    private RenderFragment<int> VirtualRow => index => RowCells(PageItems()[index]);
+    private RenderFragment Headers => @<text>
+            <thead><tr class="border-b">
+                @if (SelectionEnabled) { <th style="width:40px"><input type="checkbox" aria-label="@Text["SelectAll"]" data-mixed="@(PageItems().Any(x => SelectedKeys.Contains(RowKey(x))) && !PageItems().All(x => SelectedKeys.Contains(RowKey(x))) ? "true" : "false")" checked="@(PageItems().Count > 0 && PageItems().All(x => SelectedKeys.Contains(RowKey(x))))" @onchange="SelectPage" /></th> }
+                @if (DetailTemplate is not null) { <th style="width:40px"><span class="sr-only">@Text["Details"]</span></th> }
+                @foreach (var preference in VisibleColumns())
+                {
+                    var column = _columnMap[preference.Key];
+                    var sort = State.Sorts.FirstOrDefault(x => x.Key == column.Key);
+                    <th @key="column.Key" scope="col" class="relative bg-background p-2 text-start" style="@ColumnStyle(preference)" aria-sort="@(sort is null ? "none" : sort.Descending ? "descending" : "ascending")">
+                        @if (column.Sortable) { <button type="button" @onclick="e => Sort(column.Key, e.ShiftKey)">@column.Title @(sort is null ? "" : sort.Descending ? "↓" : "↑")</button> }
+                        else { @column.Title }
+                        <button type="button" role="separator" aria-orientation="vertical" aria-valuemin="64" aria-valuemax="1200" aria-valuenow="@preference.Width" aria-label="@(column.Title + " " + Text["Width"])" data-column-resize="@column.Key" class="absolute end-0 top-0 h-full w-2 cursor-col-resize" style="touch-action:none"></button>
+                    </th>
+                }
+            </tr></thead>
+    </text>;
+    private RenderFragment Rows => @<text>
+        @Headers
+            <tbody>
+                @foreach (var item in PageItems())
+                {
+                    var key = RowKey(item);
+                    <tr @key="key" class="border-b" aria-selected="@(SelectionEnabled ? SelectedKeys.Contains(key).ToString().ToLowerInvariant() : null)">
+                        @RowCells(item)
+                    </tr>
+                    @if (_expanded.Contains(key) && DetailTemplate is not null) { <tr><td colspan="@(VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + 1)" class="p-3">@DetailTemplate(item)</td></tr> }
+                }
+                @if (PageItems().Count == 0) { <tr><td colspan="@(Math.Max(1, VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + (DetailTemplate is not null ? 1 : 0)))" class="p-4 text-center">@Text["NoResults"]</td></tr> }
+            </tbody>
+    </text>;
+
+    private RenderFragment RowCells(TItem item) => @<text>
+        @{ var key = RowKey(item); }
+                        @if (SelectionEnabled) { <td class="p-2"><input type="checkbox" aria-label="@(Text["Select"] + " " + key)" checked="@SelectedKeys.Contains(key)" @onchange="e => SelectRow(key, e.Value is true)" /></td> }
+                        @if (DetailTemplate is not null) { <td><button type="button" aria-label="@Text[_expanded.Contains(key) ? "Collapse" : "Expand"]" aria-expanded="@(_expanded.Contains(key) ? "true" : "false")" @onclick="() => Toggle(key)">@(_expanded.Contains(key) ? "−" : "+")</button></td> }
+                        @foreach (var preference in VisibleColumns())
+                        {
+                            var column = _columnMap[preference.Key];
+                            <td @key="column.Key" class="bg-background p-2 align-top" style="@ColumnStyle(preference)">
+                                @if (_editing is not null && _editingKey == key && _editing.ColumnKey == column.Key)
+                                {
+                                    @if (column.EditTemplate is not null) { @column.EditTemplate(_editing) }
+                                    else { <input aria-label="@column.Title" class="w-full rounded border bg-background p-1" @bind="_editing.Value" disabled="@_saving" /> }
+                                    <button type="button" disabled="@_saving" @onclick="Commit">@Text["Save"]</button>
+                                    <button type="button" disabled="@_saving" @onclick="() => { _editing = null; _editError = false; }">@Text["Cancel"]</button>
+                                    @if (_editError) { <span role="alert">@Text["SaveError"]</span> }
+                                }
+                                else
+                                {
+                                    @if (column.Template is not null) { @column.Template(item) } else { @Convert.ToString(column.Value(item), Text.Culture) }
+                                    @if (column.Editable && SaveEdit is not null) { <button type="button" class="ms-2 underline" aria-label="@(Text["Edit"] + " " + column.Title)" @onclick="() => BeginEdit(item, column)">@Text["Edit"]</button> }
+                                }
+                            </td>
+                        }
+    </text>;
+    [Parameter] public bool Virtualize { get; set; }
+    private IReadOnlyList<string> _pageKeys = [];
+
+    private ElementReference _interactionRoot;
+    private DotNetObjectReference<DataTableItems<TItem>>? _interactionReference;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (IsDisposed) return;
+        if (_interactionReference is null) { _interactionReference = DotNetObjectReference.Create(this); await InteractionInterop.Mount(_interactionRoot, _interactionReference); }
+        if (IsDisposed) await InteractionInterop.Unmount(_interactionRoot);
+        else await InteractionInterop.Update(_interactionRoot);
+    }
+    public override async ValueTask DisposeAsync()
+    {
+        Dispose();
+        try { if (_interactionReference is not null) await InteractionInterop.Unmount(_interactionRoot); }
+        catch (JSDisconnectedException) { }
+        finally { _interactionReference?.Dispose(); await base.DisposeAsync(); }
+    }
+
+    [Parameter] public IReadOnlyList<TItem> Items { get; set; } = [];
+    [Parameter] public IReadOnlyList<DataTableColumn<TItem>> Columns { get; set; } = [];
+    [Parameter, EditorRequired] public Func<TItem, string> RowKey { get; set; } = null!;
+    [Parameter] public QuarkViewState State { get; set; } = new();
+    [Parameter] public EventCallback<QuarkViewState> StateChanged { get; set; }
+    [Parameter] public RenderFragment<TItem>? DetailTemplate { get; set; }
+    [Parameter] public RenderFragment? ToolbarContent { get; set; }
+    [Parameter] public string Label { get; set; } = "Data";
+    [Parameter] public bool SelectionEnabled { get; set; }
+    [Parameter] public IReadOnlyCollection<string> SelectedKeys { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyCollection<string>> SelectedKeysChanged { get; set; }
+    [Parameter] public Func<DataTableEditContext<TItem>, CancellationToken, ValueTask>? SaveEdit { get; set; }
+    [Parameter] public Func<DataTableRequest, CancellationToken, ValueTask<DataTableResult<TItem>>>? LoadData { get; set; }
+    [Parameter] public int SearchDebounceMilliseconds { get; set; } = 250;
+    private CancellationTokenSource? _searchCancellation;
+    private Dictionary<string, DataTableColumn<TItem>> _columnMap = [];
+    private IReadOnlyList<FilterField> _fields = [];
+    private Dictionary<string, string> _columnStyles = [];
+    private List<DataTableColumnState> _preferences = [], _visibleColumns = [];
+    private IReadOnlyList<TItem>? _pageItems;
+    private QuarkViewState? _loadedState;
+    private Func<DataTableRequest, CancellationToken, ValueTask<DataTableResult<TItem>>>? _loadedProvider;
+    private CancellationTokenSource? _loadCancellation;
+    private int _requestVersion, _remoteCount;
+    private bool _loading, _loadError, _failedAppend;
+    private Task Retry() => FetchPage(_failedAppend);
+    private IReadOnlyList<TItem> _remoteItems = [];
+    private bool _showColumns, _showFilters, _saving, _editError;
+    private int _page;
+    private string? _dragColumn, _editingKey;
+    private DataTableEditContext<TItem>? _editing;
+    private readonly HashSet<string> _expanded = [];
+    private readonly CancellationTokenSource _lifetime = new();
+    private List<TItem> _filtered = [];
+    private int PageCount => Math.Max(1, ((LoadData is null ? _filtered.Count : _remoteCount) + PageSize - 1) / PageSize);
+    private int PageSize => Math.Clamp(State.PageSize, 1, 10000);
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!ReferenceEquals(State, _loadedState)) _page = 0;
+        Prepare();
+        if (LoadData is not null && (!ReferenceEquals(State, _loadedState) || LoadData != _loadedProvider)) { _page = 0; await Reload(); }
+        else if (LoadData is null) { _loadedState = State; if (_loadedProvider is not null) { _requestVersion++; _loadCancellation?.Cancel(); _loadedProvider = null; _loading = false; } }
+    }
+    private bool HasNextRows => UseVirtualRows && LoadData is not null && !_loadError && _remoteItems.Count < _remoteCount;
+    private Task LoadNextRows() => _loading || !HasNextRows ? Task.CompletedTask : FetchPage(true);
+    public Task Reload() => FetchPage(false);
+    private async Task FetchPage(bool append)
+    {
+        if (IsDisposed) return;
+        if (LoadData is null) { Prepare(); StateHasChanged(); return; }
+        _loadCancellation?.Cancel();
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _loadCancellation = cancellation;
+        var version = ++_requestVersion;
+        _loadedProvider = LoadData; _loadedState = State; _loading = true; _loadError = false; _failedAppend = append;
+        try
+        {
+            var requestedPage = append ? _page + 1 : UseVirtualRows ? 0 : _page;
+            var result = await LoadData(new(State, requestedPage, PageSize), cancellation.Token);
+            if (version != _requestVersion || cancellation.IsCancellationRequested || IsDisposed) return;
+            if (result.Items.Select(RowKey).Distinct().Count() != result.Items.Count) throw new ArgumentException("Row keys must be unique.");
+            var combined = append ? _remoteItems.Concat(result.Items).ToArray() : result.Items;
+            if (combined.Select(RowKey).Distinct().Count() != combined.Count) throw new ArgumentException("Appended row keys must be unique.");
+            _remoteItems = combined; _page = requestedPage;
+            _remoteCount = result.Items.Count == 0 ? _remoteItems.Count : Math.Max(0, result.TotalCount); Prepare();
+            if (!UseVirtualRows && _page >= PageCount) { _page = PageCount - 1; await Reload(); }
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "load table page"); if (version == _requestVersion && !IsDisposed) _loadError = true; }
+        finally { if (version == _requestVersion) { _loading = false; if (!IsDisposed) StateHasChanged(); } if (ReferenceEquals(_loadCancellation, cancellation)) _loadCancellation = null; }
+    }
+    private async Task GoToPage(int page) { _page = Math.Clamp(page, 0, PageCount - 1); _pageItems = null; if (LoadData is not null) await Reload(); else { Owner.UpdateDataStatus(_filtered.Count, _page, PageSize, VisibleRowKeys()); StateHasChanged(); } }
+
+    private IReadOnlyList<FilterField> FilterFields() => _fields;
+    private void Prepare()
+    {
+        if (Columns.Select(c => c.Key).Distinct().Count() != Columns.Count) throw new ArgumentException("Column keys must be unique.");
+        _columnMap = Columns.ToDictionary(c => c.Key);
+        _fields = Columns.Select(c => new FilterField(c.Key, c.Title, c.FilterType, c.Choices)).ToArray();
+        _preferences = BuildPreferences();
+        _visibleColumns = _preferences.Where(p => p.Visible).OrderBy(p => p.Pin == DataTableColumnPin.Start ? 0 : p.Pin == DataTableColumnPin.End ? 2 : 1).ToList();
+        _columnStyles = _visibleColumns.ToDictionary(c => c.Key, ComputeColumnStyle);
+        _pageItems = null;
+        if (RowKey is null) throw new ArgumentException("RowKey is required.");
+        if (LoadData is not null) { _filtered = _remoteItems.ToList(); Owner.UpdateDataStatus(_remoteCount, _page, PageSize, VisibleRowKeys()); return; }
+        if (Items.Select(RowKey).Distinct().Count() != Items.Count) throw new ArgumentException("Row keys must be unique.");
+        var fields = FilterFields();
+        IEnumerable<TItem> query = Items.Where(item => FilterEvaluator.Matches(State.Filters, fields, key => _columnMap[key].Value(item)) &&
+            (string.IsNullOrWhiteSpace(State.Search) || Columns.Any(c => (Convert.ToString(c.Value(item), Text.Culture) ?? "").Contains(State.Search, StringComparison.OrdinalIgnoreCase))));
+        IOrderedEnumerable<TItem>? ordered = null;
+        foreach (var sort in State.Sorts)
+        {
+            var column = Columns.FirstOrDefault(c => c.Key == sort.Key && c.Sortable);
+            if (column is null) continue;
+            var comparer = Comparer<object?>.Create(Compare);
+            ordered = ordered is null ? sort.Descending ? query.OrderByDescending(column.Value, comparer) : query.OrderBy(column.Value, comparer)
+                : sort.Descending ? ordered.ThenByDescending(column.Value, comparer) : ordered.ThenBy(column.Value, comparer);
+        }
+        _filtered = (ordered ?? query).ToList(); _page = Math.Clamp(_page, 0, PageCount - 1); Owner.UpdateDataStatus(_filtered.Count, _page, PageSize, VisibleRowKeys());
+    }
+    private static int Compare(object? a, object? b) => a is null ? b is null ? 0 : -1 : b is null ? 1 : a.GetType() == b.GetType() && a is IComparable comparable ? comparable.CompareTo(b) : StringComparer.OrdinalIgnoreCase.Compare(a.ToString(), b.ToString());
+    private IReadOnlyList<TItem> PageItems()
+    {
+        if (_pageItems is null) { _pageItems = LoadData is not null ? _remoteItems : UseVirtualRows ? _filtered : _filtered.Skip(_page * PageSize).Take(PageSize).ToArray(); _pageKeys = _pageItems.Select(RowKey).ToArray(); }
+        return _pageItems;
+    }
+    private List<DataTableColumnState> Preferences() => _preferences;
+    private List<DataTableColumnState> BuildPreferences() => State.Columns.Where(p => Columns.Any(c => c.Key == p.Key)).DistinctBy(p => p.Key)
+        .Concat(Columns.Where(c => !State.Columns.Any(p => p.Key == c.Key)).Select(c => new DataTableColumnState(c.Key, Width: c.Width))).Select(p => p with { Width = Math.Clamp(p.Width, 64, 1200) }).ToList();
+    private List<DataTableColumnState> VisibleColumns() => _visibleColumns;
+    private string GridStyle => $"table-layout:fixed;width:{VisibleColumns().Sum(c => c.Width) + (SelectionEnabled ? 40 : 0) + (DetailTemplate is not null ? 40 : 0)}px";
+    private string ColumnStyle(DataTableColumnState p) => _columnStyles[p.Key];
+    private string ComputeColumnStyle(DataTableColumnState p)
+    {
+        var style = $"width:{p.Width}px;min-width:{p.Width}px;max-width:{p.Width}px;overflow-wrap:anywhere;";
+        if (p.Pin == DataTableColumnPin.None) return style;
+        var columns = VisibleColumns(); var index = columns.FindIndex(x => x.Key == p.Key);
+        var offset = p.Pin == DataTableColumnPin.Start ? columns.Take(index).Where(x => x.Pin == p.Pin).Sum(x => x.Width) : columns.Skip(index + 1).Where(x => x.Pin == p.Pin).Sum(x => x.Width);
+        return style + $"position:sticky;inset-inline-{(p.Pin == DataTableColumnPin.Start ? "start" : "end")}:{offset}px;z-index:1;";
+    }
+    private async Task SearchChanged(ChangeEventArgs e)
+    {
+        _searchCancellation?.Cancel();
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _searchCancellation = cancellation;
+        _requestVersion++; _loadCancellation?.Cancel(); _loading = false;
+        try
+        {
+            var state = State with { Search = e.Value?.ToString() ?? "" };
+            await Change(state, LoadData is null);
+            if (LoadData is not null)
+            {
+                await Task.Delay(Math.Clamp(SearchDebounceMilliseconds, 0, 10000), cancellation.Token);
+                if (!cancellation.IsCancellationRequested && ReferenceEquals(State, state)) { _page = 0; await Reload(); }
+            }
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        finally { if (ReferenceEquals(_searchCancellation, cancellation)) _searchCancellation = null; }
+    }
+    private async Task Change(QuarkViewState state, bool reload = true)
+    {
+        State = state;
+        if (reload) _page = 0;
+        Prepare(); _loadedState = state; _loadedProvider = LoadData;
+        await StateChanged.InvokeAsync(state);
+        if (reload && LoadData is not null && ReferenceEquals(State, state)) await Reload();
+    }
+    private Task UpdateColumn(DataTableColumnState state) => Change(State with { Columns = Preferences().Select(p => p.Key == state.Key ? state : p).ToArray() }, false);
+    [JSInvokable]
+    public async Task OnColumnResize(string key, int width)
+    {
+        if (IsDisposed) return;
+        var preference = Preferences().FirstOrDefault(p => p.Key == key);
+        if (preference is null) return;
+        await UpdateColumn(preference with { Width = Math.Clamp(width, 64, 1200) });
+        StateHasChanged();
+    }
+    private Task ResizeColumn(DataTableColumnState p, ChangeEventArgs e) => int.TryParse(e.Value?.ToString(), out var width) ? UpdateColumn(p with { Width = Math.Clamp(width, 64, 1200) }) : Task.CompletedTask;
+    private Task Pin(DataTableColumnState p, ChangeEventArgs e) => Enum.TryParse<DataTableColumnPin>(e.Value?.ToString(), out var pin) ? UpdateColumn(p with { Pin = pin }) : Task.CompletedTask;
+    private Task Move(string key, int delta) { var list = Preferences().ToList(); var i = list.FindIndex(p => p.Key == key); var j = Math.Clamp(i + delta, 0, list.Count - 1); (list[i], list[j]) = (list[j], list[i]); return Change(State with { Columns = list }, false); }
+    private Task MoveBefore(string key) { var list = Preferences().ToList(); var source = list.FirstOrDefault(p => p.Key == _dragColumn); if (source is null || source.Key == key) return Task.CompletedTask; list.Remove(source); list.Insert(list.FindIndex(p => p.Key == key), source); _dragColumn = null; return Change(State with { Columns = list }, false); }
+    private Task Sort(string key, bool multi)
+    {
+        var previous = State.Sorts.FirstOrDefault(s => s.Key == key);
+        var sorts = multi ? State.Sorts.ToList() : [];
+        var index = sorts.FindIndex(s => s.Key == key);
+        if (previous?.Descending == true) { if (index >= 0) sorts.RemoveAt(index); }
+        else if (index >= 0) sorts[index] = new(key, true);
+        else sorts.Add(new(key, previous is not null));
+        return Change(State with { Sorts = sorts });
+    }
+
+    private void Toggle(string key) { if (!_expanded.Add(key)) _expanded.Remove(key); }
+    private async Task Select(IReadOnlyCollection<string> keys) { SelectedKeys = keys; await SelectedKeysChanged.InvokeAsync(keys); }
+    private Task SelectRow(string key, bool selected) => _table?.SetRowSelected(key, selected) ?? Task.CompletedTask;
+    private Task SelectPage(ChangeEventArgs e) => _table?.SelectAllRows(e.Value is true) ?? Task.CompletedTask;
+    private void BeginEdit(TItem item, DataTableColumn<TItem> column) { if (_saving) return; _editingKey = RowKey(item); _editError = false; _editing = new() { Item = item, ColumnKey = column.Key, Value = Convert.ToString(column.Value(item), CultureInfo.InvariantCulture) }; }
+    private async Task Commit()
+    {
+        if (_saving || _editing is null || SaveEdit is null) return;
+        _saving = true; _editError = false;
+        try { await SaveEdit(_editing, _lifetime.Token); if (!IsDisposed) { _editing = null; if (LoadData is not null) await Reload(); else Prepare(); } }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "save table cell"); _editError = true; }
+        finally { _saving = false; }
+    }
+    public override void Dispose() { if (IsDisposed) return; if (ReferenceEquals(Owner.DataView, this)) Owner.DataView = null; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
+}

@@ -94,6 +94,8 @@ else
             AriaHasPopup = "dialog",
             AriaControls = BradixPopover?.ContentId,
             OnPointerDownEvent = BradixPopover is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
+            // Opening on pointerdown moves focus into the popup; native button focus must not immediately dismiss it.
+            PreventPointerDownDefault = true,
             SuppressClickAfterPointerDown = true,
             Toggle = BradixPopover is null || Disabled ? null : (_contextToggleCallback ??= () => BradixPopover.ToggleOpen()),
             Open = BradixPopover is null || Disabled ? null : (_contextOpenCallback ??= () => BradixPopover.SetOpen(true)),

@@ -268,7 +268,7 @@
             if (!option.HasContent() || (!AllowDuplicates && (selected?.Contains(option) ?? ContainsTag(option))))
                 continue;
 
-            if (!(AutocompleteFilter?.Invoke(option, input) ?? option.Contains(input, StringComparison.OrdinalIgnoreCase)))
+            if (!(AutocompleteFilter?.Invoke(option, input) ?? OptionNavigation.Matches(option, null, input)))
                 continue;
 
             options ??= _filteredOptions = new List<string>(Math.Min(8, AutocompleteOptions.Length));
@@ -690,15 +690,7 @@
     private void MoveAutocomplete(int delta)
     {
         var count = GetFilteredAutocompleteOptions().Count;
-        if (count == 0)
-        {
-            _activeAutocompleteIndex = -1;
-            return;
-        }
-
-        _activeAutocompleteIndex = _activeAutocompleteIndex < 0
-            ? delta > 0 ? 0 : count - 1
-            : (_activeAutocompleteIndex + delta + count) % count;
+        _activeAutocompleteIndex = OptionNavigation.Move(_activeAutocompleteIndex, count, delta > 0 ? "ArrowDown" : "ArrowUp");
     }
 
     private async Task SetActiveTagIndex(int? index)
@@ -721,16 +713,7 @@
             await OnClearAll.InvokeAsync();
     }
 
-    private bool ContainsTag(string tag)
-    {
-        foreach (var value in Values)
-        {
-            if (string.Equals(value, tag, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
+    private bool ContainsTag(string tag) => OptionNavigation.IndexOf(Values, tag, StringComparison.OrdinalIgnoreCase) >= 0;
 
     private async Task HandleTagClick(string tag, int index)
     {

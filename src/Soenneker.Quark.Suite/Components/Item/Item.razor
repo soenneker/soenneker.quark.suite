@@ -2,7 +2,14 @@
 @inherits Soenneker.Quark.Element
 @implements IItem
 
-@if (AsChild)
+@if (IsInItemList && AsChild)
+{
+    <div role="listitem">
+        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    </div>
+}
+else if (AsChild)
 {
     <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
                     ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
@@ -28,6 +35,9 @@ else
     private static readonly CssValue<BorderColorBuilder> _defaultBorderColor = Quark.BorderColor.Transparent.OnFocusVisible.Ring;
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Transparent;
     private string? _lastBuiltClass;
+
+    [CascadingParameter(Name = "QuarkItemList")]
+    private bool IsInItemList { get; set; }
 
     [Parameter]
     public ItemVariant Variant { get; set; } = ItemVariant.Default;
@@ -70,6 +80,8 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        if (IsInItemList && !AsChild)
+            attributes.TryAdd("role", "listitem");
         attributes["data-variant"] = GetDataVariant(Variant);
         attributes["data-size"] = GetDataSize(ItemSize);
 
@@ -116,5 +128,6 @@ else
         hc.Add(Variant);
         hc.Add(ItemSize);
         hc.Add(AsChild);
+        hc.Add(IsInItemList);
     }
 }

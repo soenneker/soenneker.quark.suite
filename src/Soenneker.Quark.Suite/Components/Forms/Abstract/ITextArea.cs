@@ -8,8 +8,11 @@ public interface ITextArea : IElement
     /// <summary>Gets or sets the CaretColor utilities, including responsive and state variants.</summary>
     CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
-    /// <summary>Gets or sets the FieldSizing utilities, including responsive and state variants.</summary>
+    /// <summary>Gets or sets explicit field sizing utilities. Overrides the automatic sizing selected by Rows.</summary>
     CssValue<FieldSizingBuilder>? FieldSizing { get; set; }
+
+    /// <summary>Gets or sets the visible row count. Uses fixed field sizing unless FieldSizing is explicitly configured.</summary>
+    int? Rows { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the owning form, including a form outside the control ancestry.

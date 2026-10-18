@@ -1,9 +1,9 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@inherits LocalizedFormControlElement
 
-<PaginationLink Href="@Href" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="_staticCss0" @attributes="BuildAttributes()" aria-label="Go to previous page">
+<PaginationLink Href="@Href" OnClick="@OnClick" Disabled="@Disabled" ButtonSize="_staticCss0" @attributes="BuildAttributes()" aria-label="@Localizer["PreviousPage"]">
     <Icon Name="LucideIcon.ChevronLeft" data-icon="inline-start" Class="cn-rtl-flip" />
-    <Span Display="_renderCss0">@Text</Span>
+    <Span Display="_renderCss0">@(Text ?? Localizer["Previous"])</Span>
 </PaginationLink>
 
 @code {
@@ -12,7 +12,7 @@
     private string? _lastBuiltClass;
 
     [Parameter] public string? Href { get; set; }
-    [Parameter] public string Text { get; set; } = "Previous";
+    [Parameter] public string? Text { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

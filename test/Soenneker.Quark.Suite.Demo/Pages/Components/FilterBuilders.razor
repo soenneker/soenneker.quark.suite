@@ -1,0 +1,17 @@
+@page "/components/filter-builder"
+<QuarkSeoHead Title="Blazor Filter Builder | Quark Suite" Description="Build reusable nested typed predicates with AND and OR groups." />
+<Div Class="space-y-6">
+    <H1>Filter builder</H1>
+    <Paragraph>Combine typed conditions with All (AND) or Any (OR). The same filter tree can be evaluated locally or translated into a backend query.</Paragraph>
+    <QueryBuilder Fields="_fields" @bind-Value="_filters" />
+    <PreCode Language="json">@Json</PreCode>
+    <PreCode Language="razor">@Example</PreCode>
+</Div>
+@code {
+    private FilterGroup _filters = new();
+    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Name"), new("score", "Score", FilterFieldType.Number), new("created", "Created", FilterFieldType.Date), new("active", "Active", FilterFieldType.Boolean), new("status", "Status", FilterFieldType.Choice, [new("new", "New"), new("qualified", "Qualified")])];
+    private string Json => System.Text.Json.JsonSerializer.Serialize(new QuarkViewState { Filters = _filters }, QuarkViewJsonContext.Default.QuarkViewState);
+    private const string Example = """
+<QueryBuilder Fields="fields" @bind-Value="filters" />
+""";
+}

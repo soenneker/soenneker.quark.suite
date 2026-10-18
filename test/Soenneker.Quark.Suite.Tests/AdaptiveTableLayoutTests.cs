@@ -13,6 +13,7 @@ public sealed class AdaptiveTableLayoutTests : BunitContext
 
     public AdaptiveTableLayoutTests()
     {
+        Services.AddQuarkLocalizationAsScoped();
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddSingleton<ITablesInterop>(_interop);

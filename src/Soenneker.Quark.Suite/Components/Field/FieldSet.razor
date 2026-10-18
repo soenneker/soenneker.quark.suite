@@ -1,11 +1,35 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@inject IFieldLayoutInterop FieldLayoutInterop
 
-<fieldset @attributes="BuildAttributes()">
+<fieldset @ref="_fieldset" @attributes="BuildAttributes()">
     @ChildContent
 </fieldset>
 
 @code {
+    private ElementReference _fieldset;
+    private bool _observed;
+    private bool _disposed;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender || _disposed) return;
+        await FieldLayoutInterop.Observe(_fieldset);
+        _observed = true;
+        if (_disposed) await FieldLayoutInterop.Unobserve(_fieldset);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        try
+        {
+            if (_observed) await FieldLayoutInterop.Unobserve(_fieldset);
+        }
+        finally { await base.DisposeAsync(); }
+    }
+
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
     private static readonly CssValue<GapBuilder> _defaultGap = Quark.Gap.Is4;

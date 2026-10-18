@@ -2,7 +2,7 @@
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.OverlayElement
+@inherits Soenneker.Quark.DialogOverlayElement
 
 <BradixDialog Open="@Visible"
               OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)"
@@ -16,22 +16,7 @@
 @code {
     private Func<bool, Task>? _cachedHandleOpenChangedDelegate;
 
-    public Drawer()
-    {
-        LockScroll = false;
-    }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the backdrop is clicked.
-    /// </summary>
-    [Parameter]
-    public EventCallback OnBackdropClick { get; set; }
-
-    /// <summary>
-    /// When <c>true</c>, Escape and backdrop clicks do not close the drawer.
-    /// </summary>
-    [Parameter]
-    public bool Static { get; set; }
+    public Drawer() : base("drawer") { }
 
     /// <summary>
     /// Gets or sets the drawer edge using the current shadcn/Vaul root API: <c>top</c>, <c>right</c>, <c>bottom</c>, or <c>left</c>.
@@ -39,42 +24,7 @@
     [Parameter]
     public string? Direction { get; set; }
 
-    private readonly OverlayLabelContext _context = new("drawer");
-
     internal Side? DirectionSide => ParseDirection(Direction);
-
-    /// <summary>
-    /// Shows the drawer.
-    /// </summary>
-    public Task Show() => SetVisible(true);
-
-    /// <summary>
-    /// Hides the drawer.
-    /// </summary>
-    public Task Hide() => SetVisible(false);
-
-    private Task HandleOpenChanged(bool open)
-    {
-        return SetVisible(open);
-    }
-
-    private async Task SetVisible(bool visible)
-    {
-        if (Visible == visible)
-            return;
-
-        Visible = visible;
-
-        if (VisibleChanged.HasDelegate)
-            await VisibleChanged.InvokeAsync(Visible);
-
-        if (visible)
-            await OnShow.InvokeIfHasDelegate();
-        else
-            await OnHide.InvokeIfHasDelegate();
-
-        await RefreshOffThread();
-    }
 
     private static Side? ParseDirection(string? direction)
     {
@@ -105,16 +55,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Visible);
-        hc.Add(ShowBackdrop);
-        hc.Add(Static);
-        hc.Add(CloseOnBackdropClick);
-        hc.Add(CloseOnEscape);
-        hc.Add(_context.ContentId);
-        hc.Add(_context.HasTitle);
-        hc.Add(_context.HasDescription);
-        hc.Add(_context.TitleId);
-        hc.Add(_context.DescriptionId);
         hc.Add(Direction);
     }
 }

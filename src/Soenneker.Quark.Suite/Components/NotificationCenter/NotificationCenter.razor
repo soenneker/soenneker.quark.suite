@@ -1,0 +1,115 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements INotificationCenter
+@using System.Linq
+@using System.Threading
+<section @attributes="@(WorkflowAttributes("notification-center", "space-y-3 rounded-md border p-3"))" aria-label="@Text["Notifications"]" aria-busy="@(_loading ? "true" : "false")">
+    <header class="flex flex-wrap items-center justify-between gap-2">
+        <strong>@Text["Notifications"] <span role="status">@Unread @Text["Unread"]</span></strong>
+        <button type="button" disabled="@(_loading || _marking)" @onclick="RefreshItems">@Text["Refresh"]</button>
+        <label><input type="checkbox" @bind="_unreadOnly" /> @Text["Unread"]</label>
+        <button type="button" disabled="@(_marking || !Items.Any(n => !n.IsRead))" @onclick="() => Read(Items.Where(n => !n.IsRead).Select(n => n.Id).ToArray())">@Text["MarkAllRead"]</button>
+    </header>
+    @foreach (var group in Items.Where(n => !_unreadOnly || !n.IsRead).OrderByDescending(n => n.CreatedAt).GroupBy(n => n.Group))
+    {
+        <div class="space-y-2">
+            @if (!string.IsNullOrEmpty(group.Key)) { <h3 class="font-medium">@group.Key</h3> }
+            @foreach (var notification in group)
+            {
+                <article @key="notification.Id" data-read="@(notification.IsRead ? "true" : "false")" class="rounded border p-3 data-[read=false]:bg-accent">
+                    <strong>@notification.Title</strong>
+                    <time datetime="@notification.CreatedAt.ToString("O")" class="ms-2 text-xs text-muted-foreground">@TimeZoneInfo.ConvertTime(notification.CreatedAt, TimeZone).ToString("g", Text.Culture)</time>
+                    @if (notification.Body is not null) { <p>@notification.Body</p> }
+                    <div class="flex gap-3">
+                        @if (Action.HasDelegate) { <button type="button" disabled="@(_marking || _acting)" @onclick="() => Activate(notification)">@(notification.ActionLabel ?? Text["Action"])</button> }
+                        @if (!notification.IsRead) { <button type="button" disabled="@_marking" @onclick="() => Read([notification.Id])">@Text["MarkRead"]</button> }
+                    </div>
+                    @if (ItemContent is not null) { @ItemContent(notification) }
+                </article>
+            }
+        </div>
+    }
+    @if (!_loading && !Items.Any(n => !_unreadOnly || !n.IsRead)) { <p>@Text["NoNotifications"]</p> }
+    @if (_loading) { <div role="status">@Text["Loading"]</div> }
+    @if (_loadError) { <div role="alert">@Text["LoadError"]</div><button type="button" @onclick="LoadPage">@Text["Retry"]</button> }
+    @if (_mutationError) { <div role="alert">@Text["SaveError"]</div> }
+    @if (!_loading && !_loadError && Load is not null && (!_loaded || _continuation is not null)) { <button type="button" class="rounded border px-3 py-2" @onclick="LoadPage">@Text["LoadMore"]</button> }
+</section>
+@code {
+    [Parameter] public IReadOnlyList<QuarkNotification> Items { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<QuarkNotification>> ItemsChanged { get; set; }
+    [Parameter] public Func<string?, CancellationToken, ValueTask<NotificationPage>>? Load { get; set; }
+    [Parameter] public Func<IReadOnlyList<string>, CancellationToken, ValueTask>? MarkRead { get; set; }
+    [Parameter] public EventCallback<QuarkNotification> Action { get; set; }
+    [Parameter] public int? UnreadCount { get; set; }
+    [Parameter] public EventCallback<int?> UnreadCountChanged { get; set; }
+    [Parameter] public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
+    [Parameter] public RenderFragment<QuarkNotification>? ItemContent { get; set; }
+    private readonly CancellationTokenSource _lifetime = new();
+    private bool _loaded, _loading, _marking, _acting, _unreadOnly, _loadError, _mutationError;
+    private string? _continuation;
+    private readonly HashSet<string> _readIds = [];
+    private readonly HashSet<string> _seenTokens = [];
+    private int _readRevision, _loadVersion;
+    private bool _resetPending;
+    private CancellationTokenSource? _pageCancellation;
+    public async Task RefreshItems()
+    {
+        if (IsDisposed || _marking) return;
+        _pageCancellation?.Cancel(); _resetPending = true;
+        _loadVersion++; _loading = false; _loaded = false; _continuation = null; _seenTokens.Clear();
+        await LoadPage(true);
+        if (!IsDisposed) StateHasChanged();
+    }
+    private Task LoadPage() => LoadPage(false);
+    private int Unread => Math.Max(0, UnreadCount ?? Items.Count(n => !n.IsRead));
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Load is not null) { await LoadPage(); if (!IsDisposed) StateHasChanged(); } }
+    private async Task LoadPage(bool reset)
+    {
+        if (Load is null || _loading || IsDisposed) return; _loading = true; _loadError = false;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _pageCancellation = cancellation; reset |= _resetPending;
+        var version = ++_loadVersion; var readRevision = _readRevision;
+        try
+        {
+            var page = await Load(_continuation, cancellation.Token); if (IsDisposed || version != _loadVersion || cancellation.IsCancellationRequested) return;
+            var merged = (reset ? [] : Items).ToDictionary(n => n.Id);
+            foreach (var item in page.Items) merged[item.Id] = _readIds.Contains(item.Id) ? item with { IsRead = true } : item;
+            Items = merged.Values.ToArray();
+            _continuation = page.ContinuationToken is { } token && _seenTokens.Add(token) ? token : null;
+            _loaded = true; _resetPending = false;
+            // A response has no server revision: retain the locally adjusted total if reads overlapped the request. A subsequent refresh reconciles it.
+            if (page.UnreadCount is not null && readRevision == _readRevision) { UnreadCount = Math.Max(0, page.UnreadCount.Value); await UnreadCountChanged.InvokeAsync(UnreadCount); }
+            await ItemsChanged.InvokeAsync(Items);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "load notifications"); if (version == _loadVersion) _loadError = true; }
+        finally { if (version == _loadVersion) _loading = false; if (ReferenceEquals(_pageCancellation, cancellation)) _pageCancellation = null; }
+    }
+    private async Task Read(IReadOnlyList<string> ids)
+    {
+        if (_marking || IsDisposed) return; _marking = true; _mutationError = false;
+        try
+        {
+            var unreadIds = Items.Where(n => !n.IsRead && ids.Contains(n.Id)).Select(n => n.Id).Distinct().ToArray();
+            if (MarkRead is not null) await MarkRead(unreadIds, _lifetime.Token);
+            if (IsDisposed) return;
+            _readIds.UnionWith(unreadIds); _readRevision += unreadIds.Length;
+            var updated = Items.Select(n => unreadIds.Contains(n.Id) ? n with { IsRead = true } : n).ToArray();
+            Items = updated;
+            if (UnreadCount is not null) { UnreadCount = Math.Max(0, UnreadCount.Value - unreadIds.Length); await UnreadCountChanged.InvokeAsync(UnreadCount); }
+            await ItemsChanged.InvokeAsync(updated);
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "mark notifications read"); _mutationError = true; }
+        finally { _marking = false; }
+    }
+    private async Task Activate(QuarkNotification notification)
+    {
+        if (_acting) return; _acting = true; _mutationError = false;
+        try { await Action.InvokeAsync(notification); if (!notification.IsRead) await Read([notification.Id]); }
+        catch (Exception exception) { ReportError(exception, "activate notification"); _mutationError = true; }
+        finally { _acting = false; }
+    }
+    public override void Dispose() { if (IsDisposed) return; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
+}

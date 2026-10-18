@@ -1,4 +1,3 @@
-@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 @using System.Threading
 
@@ -9,8 +8,7 @@
 @if (UsesAutoSaveStatusSlot)
 {
     <Span Display="_renderCss0" ItemsAlign="_renderCss1" Gap="_renderCss2">
-        <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="(_cachedHandlePressedChangedDelegate ??= HandlePressedChanged)" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="(_cachedHandleToggleKeyDownDelegate ??= HandleToggleKeyDown)" AdditionalAttributes="@ToggleAttributes"
-                      ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        <button @ref="_element" @onclick="HandleToggleClick" @onfocus="OnFocus" @onkeydown="HandleToggleKeyDown" @attributes="ToggleAttributes">@ChildContent</button>
         <AutoSaveStatus State="@_autoSave.State"
                         HasSaved="@_autoSave.HasSaved"
                         Visible="@UsesAutoSaveStatusSlot"
@@ -22,8 +20,7 @@
 }
 else
 {
-    <BradixToggle Pressed="@Pressed" Disabled="@Disabled" PressedChanged="(_cachedHandlePressedChangedDelegate ??= HandlePressedChanged)" OnClick="@OnClick" OnFocus="@OnFocus" OnKeyDown="(_cachedHandleToggleKeyDownDelegate ??= HandleToggleKeyDown)" AdditionalAttributes="@ToggleAttributes"
-                  ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    <button @ref="_element" @onclick="HandleToggleClick" @onfocus="OnFocus" @onkeydown="HandleToggleKeyDown" @attributes="ToggleAttributes">@ChildContent</button>
 }
 
 @code {
@@ -46,7 +43,7 @@ else
     private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
     private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
-    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
@@ -58,8 +55,11 @@ else
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
     private static readonly CssValue<ItemsBuilder> _renderCss1 = Items.Center;
     private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
-    private Func<bool, Task>? _cachedHandlePressedChangedDelegate;
-    private Func<KeyboardEventArgs, Task>? _cachedHandleToggleKeyDownDelegate;
+    private ElementReference _element;
+    private ElementReference _registeredElement;
+    [CascadingParameter(Name = "TriggerContext")]
+    private TriggerContext? TriggerContext { get; set; }
+
 
 
     private object? _cachedHandleToggleBlurFocusEventArgsCallback;
@@ -163,10 +163,14 @@ else
         {
             var attributes = _toggleAttributes.Create(BuildAttributes(), 3);
 
-            attributes.Remove("disabled");
-            attributes.Remove("aria-pressed");
+            if (Disabled)
+            {
+                attributes["disabled"] = QuarkAttributeValues.True;
+                attributes["data-disabled"] = string.Empty;
+            }
+            attributes["aria-pressed"] = Pressed ? "true" : "false";
             attributes.Remove("data-state");
-            attributes.Remove("type");
+            attributes["type"] = "button";
             attributes.Remove("onclick");
             attributes.Remove("onfocus");
             attributes.Remove("onkeydown");
@@ -175,6 +179,7 @@ else
                 attributes["dir"] = ResolvedDir;
 
             attributes["data-state"] = Pressed ? "on" : "off";
+            ApplyTriggerAttributes(attributes);
 
             if (OnBlur.HasDelegate || (AutoSave && AutoSaveOnBlur && OnAutoSave is not null))
                 attributes["onblur"] = (_cachedHandleToggleBlurFocusEventArgsCallback ??= EventCallback.Factory.Create<FocusEventArgs>(this, HandleToggleBlur));
@@ -183,6 +188,44 @@ else
 
             return attributes;
         }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (TriggerContext?.RegisterElement is { } register && _registeredElement.Id != _element.Id)
+        {
+            register(_element);
+            _registeredElement = _element;
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void ApplyTriggerAttributes(Dictionary<string, object> attributes)
+    {
+        if (TriggerContext is not { } context) return;
+        if (context.AriaDescribedBy is { } describedBy)
+            attributes["aria-describedby"] = attributes.TryGetValue("aria-describedby", out var existing)
+                ? $"{existing} {describedBy}" : describedBy;
+        if (context.OnPointerMove is { } move)
+            attributes["onpointermove"] = EventCallback.Factory.Create(this, move);
+        if (context.OnPointerLeave is { } leave)
+            attributes["onpointerleave"] = EventCallback.Factory.Create(this, leave);
+        if (context.OnPointerDownEvent is { } down)
+            attributes["onpointerdown"] = EventCallback.Factory.Create<PointerEventArgs>(this, down);
+        if (context.OnPointerUp is { } up)
+            attributes["onpointerup"] = EventCallback.Factory.Create(this, up);
+        if (context.OnFocusIn is { } focus)
+            attributes["onfocusin"] = EventCallback.Factory.Create(this, focus);
+        if (context.OnFocusOut is { } blur)
+            attributes["onfocusout"] = EventCallback.Factory.Create(this, blur);
+    }
+
+    private async Task HandleToggleClick(MouseEventArgs args)
+    {
+        if (Disabled) return;
+        await OnClick.InvokeIfHasDelegate(args);
+        if (TriggerContext?.OnClick is { } click) await click();
+        await HandlePressedChanged(!Pressed);
     }
 
     private async Task HandlePressedChanged(bool pressed)
@@ -208,6 +251,7 @@ else
             await _autoSave.Flush(Pressed, AutoSave, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
 
         await OnKeyDown.InvokeIfHasDelegate(e);
+        if (TriggerContext?.OnKeyDown is { } keyDown) await keyDown(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -215,6 +259,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Pressed);
+        hc.Add(TriggerContext);
         hc.Add(Disabled);
         hc.Add(Variant);
         hc.Add(ToggleSize);

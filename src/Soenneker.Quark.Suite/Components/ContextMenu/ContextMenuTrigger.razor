@@ -8,6 +8,9 @@
                           ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 
 @code {
+    // The modal menu disables body pointer events; its own trigger must still receive repeated right-clicks.
+    private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = "data-[state=open]:pointer-events-auto";
+
     [Parameter]
     public bool Disabled { get; set; }
 
@@ -15,6 +18,7 @@
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "context-menu-trigger";
+        PointerEvents ??= _defaultPointerEvents;
     }
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();

@@ -1,5 +1,5 @@
 @namespace Soenneker.Quark
-@inherits Element
+@inherits LocalizedComponentBase
 
 @if (IsLoading)
 {
@@ -24,10 +24,10 @@
                  MinHeight='_renderCss9'
                  role="status"
                  aria-live="polite"
-                 aria-label="@Label">
+                 aria-label="@(Label ?? Text["LoadingData"])">
                 <Div DataSlot="datatable-loader-default" Display="_renderCss2" ItemsAlign="_staticCss0" Gap="_renderCss10" TextColor="_renderCss11">
                     <Spinner DataSlot="datatable-spinner" Size="_spinnerSize" TextColor="Quark.TextColor.Primary" Decorative="true" />
-                    <Span TextSize="_renderCss18">Loading...</Span>
+                    <Span TextSize="_renderCss18">@Text["Loading"]</Span>
                 </Div>
                 @ChildContent
             </Div>
@@ -74,7 +74,7 @@
 
 	// shadcn Skeleton/Spinner overlay - new-york-v4 ui/skeleton.tsx + spinner
 	[Parameter]
-	public string Label { get; set; } = "Loading table data";
+	public string? Label { get; set; }
 
 	protected override void ApplyDefaultParameters()
 	{

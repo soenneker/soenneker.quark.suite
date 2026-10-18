@@ -1,19 +1,21 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+@if (ParentCombobox?.HasVisibleItems != true)
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
 
 @code {
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.OnY.Is2;
     private static readonly CssValue<TextAlignBuilder> _defaultTextAlign = Quark.TextAlign.Center;
     private static readonly CssValue<TextSizeBuilder> _defaultTextSize = Quark.TextSize.Sm;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
-    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.None;
+    private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
     private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
-    private string? _lastPrependedClass;
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
 
     protected override void ApplyDefaultParameters()
     {
@@ -29,10 +31,9 @@
         TextColor ??= _defaultTextColor;
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        base.BuildAttributesCore(attributes);
-
-        PrependClassAttribute(attributes, "group-data-empty/combobox-content:flex", ref _lastPrependedClass);
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCombobox?.HasVisibleItems == true);
     }
 }

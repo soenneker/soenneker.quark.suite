@@ -44,7 +44,7 @@ else
         base.BuildDefaultClasses(ref cls);
         var sizeClass = GetSizeClass(ButtonSize);
         var variantClass = GetVariantClass(Variant);
-        AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
+        AppendClass(ref cls, "peer/menu-button group/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate");
         AppendClass(ref cls, sizeClass);
         AppendClass(ref cls, variantClass);
     }
@@ -170,7 +170,7 @@ else
         if (ReferenceEquals(size, SidebarMenuButtonSize.Lg))
             return "group-data-[collapsible=icon]:p-0!";
 
-        return "";
+        return "group-data-[collapsible=icon]:p-2!";
     }
 
     private static string GetDataSize(SidebarMenuButtonSize size)
@@ -194,13 +194,10 @@ else
         Gap ??= _defaultGap;
         Rounded ??= _defaultRounded;
         Padding ??= _defaultPadding;
-        Width ??= _defaultWidth2;
-        Overflow ??= _defaultOverflow2;
         TextAlign ??= _defaultTextAlign;
         RingColor ??= _defaultRingColor;
         OutlineStyle ??= _defaultOutlineStyle;
         Transition ??= _defaultTransition;
-        BackgroundColor ??= _defaultBackgroundColor2;
         Cursor ??= _defaultCursor;
         PointerEvents ??= _defaultPointerEvents;
         Opacity ??= _defaultOpacity;
@@ -226,6 +223,10 @@ else
         {
             ApplySizeDefaults();
         }
+
+        Width ??= _defaultWidth2;
+        Overflow ??= _defaultOverflow2;
+        BackgroundColor ??= _defaultBackgroundColor2;
     }
 
     private void ApplySizeDefaults()
@@ -312,7 +313,9 @@ else
         if (TriggerContext?.Toggle is not null)
             await TriggerContext.Toggle();
 
-        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+        if (Href.HasContent() && State?.IsMobile == true && SidebarProvider?.CloseMobileOnNavigation == true &&
+            (Target is null || Target == Quark.Target.Self) &&
+            args.Button == 0 && !args.CtrlKey && !args.MetaKey && !args.ShiftKey && !args.AltKey)
             await SidebarProvider.SetOpenMobile(false);
 
         if (OnClick.HasDelegate)

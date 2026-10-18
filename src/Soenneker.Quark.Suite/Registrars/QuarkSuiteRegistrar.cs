@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Soenneker.Blazor.C15t.Registrars;
 using Soenneker.Blazor.SignaturePads.Registrars;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.Clipboard.Registrars;
 using Soenneker.Bradix;
 
@@ -28,6 +29,14 @@ public static class QuarkSuiteRegistrar
         if (!HasQuarkOptionsRegistration(services))
             services.AddDefaultQuarkOptionsAsScoped();
 
+        // Keep default portals within their fullscreen surface; preserve explicit app overrides.
+        for (var i = services.Count - 1; i >= 0; i--)
+        {
+            if (services[i].ServiceType == typeof(IPortalInterop) && services[i].ImplementationType == typeof(PortalInterop))
+                services.RemoveAt(i);
+        }
+        services.TryAddScoped<IPortalInterop, QuarkPortalInterop>();
+        services.TryAddScoped<IFieldLayoutInterop, FieldLayoutInterop>();
         services.AddBradixSuiteAsScoped()
                 .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
                 .AddQuarkOverlayAsScoped()
@@ -59,6 +68,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkColorPickerAsScoped()
                 .AddQuarkConsolePanelAsScoped()
                 .AddQuarkVirtualizationAsScoped()
+                .AddQuarkWorkflowsAsScoped()
                 .AddQuarkOnThisPageAsScoped()
                 .AddQuarkDateTimesAsScoped()
                 .AddQuarkPaymentCardAsScoped()

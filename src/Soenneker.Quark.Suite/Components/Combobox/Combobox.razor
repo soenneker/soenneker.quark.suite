@@ -72,6 +72,12 @@
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
 
+    /// <summary>Whether another remote page is available when keyboard navigation reaches the last option.</summary>
+    [Parameter] public bool HasMoreOptions { get; set; }
+
+    /// <summary>Loads the next page when ArrowDown reaches the last enabled option.</summary>
+    [Parameter] public EventCallback LoadMoreOptions { get; set; }
+
     [Parameter]
     public bool AutoHighlight { get; set; }
 
@@ -264,6 +270,18 @@
                 if (!Open)
                     Open = true;
 
+                if (key == "ArrowDown" && HasMoreOptions)
+                {
+                    bool atEnd;
+                    if (_virtualOptions is not null)
+                        atEnd = _virtualOptions.LastOrDefault(o => !o.Disabled)?.Value == _virtualActiveValue;
+                    else
+                    {
+                        var count = CountVisibleSelectableItems(out var activeIndex);
+                        atEnd = count > 0 && activeIndex == count - 1;
+                    }
+                    if (atEnd) await LoadMoreOptions.InvokeAsync();
+                }
                 await MoveActiveItem(key);
                 await OpenChanged.InvokeAsync(Open);
                 Refresh();
@@ -347,14 +365,7 @@
             var enabled = _virtualOptions.Select((option, index) => (option, index)).Where(entry => !entry.option.Disabled).ToList();
             if (enabled.Count == 0) { SetActiveValue(null); return; }
             int current = enabled.FindIndex(entry => entry.option.Value == _virtualActiveValue);
-            int targetIndex = key switch
-            {
-                "Home" => 0, "End" => enabled.Count - 1,
-                "ArrowUp" when current < 0 => enabled.Count - 1,
-                "ArrowDown" when current < 0 => 0,
-                "ArrowUp" => (current - 1 + enabled.Count) % enabled.Count,
-                _ => (current + 1) % enabled.Count
-            };
+            int targetIndex = OptionNavigation.Move(current, enabled.Count, key);
             SetActiveValue(enabled[targetIndex].option.Value);
             await _virtualList.Reveal(enabled[targetIndex].index);
             return;
@@ -366,16 +377,7 @@
             return;
         }
 
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => count - 1,
-            "ArrowUp" when currentIndex < 0 => count - 1,
-            "ArrowDown" when currentIndex < 0 => 0,
-            "ArrowDown" => (currentIndex + 1) % count,
-            "ArrowUp" => (currentIndex - 1 + count) % count,
-            _ => currentIndex
-        };
+        var nextIndex = OptionNavigation.Move(currentIndex, count, key);
 
         var next = GetVisibleSelectableItemAt(nextIndex);
         if (next is not null)
@@ -590,19 +592,7 @@
         return null;
     }
 
-    private int IndexOfSelectedValue(string value)
-    {
-        if (Values is null)
-            return -1;
-
-        for (var i = 0; i < Values.Length; i++)
-        {
-            if (string.Equals(Values[i], value, StringComparison.Ordinal))
-                return i;
-        }
-
-        return -1;
-    }
+    private int IndexOfSelectedValue(string value) => OptionNavigation.IndexOf(Values, value, StringComparison.Ordinal);
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

@@ -1,7 +1,7 @@
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.LocalizedComponentBase
 @implements IDialogCloseButton
 
 @if (AutoClose)
@@ -10,7 +10,7 @@
         @if (ChildContent == null)
         {
             <Svg Size="_renderCss0" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss1" Stroke='_renderCss2' StrokeWidth="_renderCss3" StrokeLineCap="_renderCss4" StrokeLineJoin="_renderCss5" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
-            <Span ScreenReader="_renderCss6">Close</Span>
+            <Span ScreenReader="_renderCss6">@Text["Close"]</Span>
         }
         else
         {
@@ -24,7 +24,7 @@ else
         @if (ChildContent == null)
         {
             <Svg Size="_renderCss0" NativeWidth="16" NativeHeight="16" ViewBox="0 0 24 24" Fill="_renderCss1" Stroke='_renderCss2' StrokeWidth="_renderCss3" StrokeLineCap="_renderCss4" StrokeLineJoin="_renderCss5" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
-            <Span ScreenReader="_renderCss6">Close</Span>
+            <Span ScreenReader="_renderCss6">@Text["Close"]</Span>
         }
         else
         {
@@ -37,7 +37,6 @@ else
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Absolute;
     private static readonly CssValue<TopBuilder> _defaultTop = Quark.Top.Is2;
-    private static readonly CssValue<RightBuilder> _defaultRight = Quark.Right.Is2;
     private static readonly CssValue<SizeBuilder> _defaultSize = Quark.Size.Is7;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
@@ -48,7 +47,7 @@ else
     private static readonly CssValue<FontWeightBuilder> _defaultFontWeight = Quark.FontWeight.Medium;
     private static readonly CssValue<WhitespaceBuilder> _defaultWhitespace = Quark.Whitespace.Nowrap;
     private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
-    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
     private static readonly CssValue<UserSelectBuilder> _defaultUserSelect = Quark.UserSelect.None;
     private static readonly CssValue<RingColorBuilder> _defaultRingColor = Quark.RingColor.OnFocusVisible.Ring50;
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
@@ -91,7 +90,6 @@ else
 
         Position ??= _defaultPosition;
         Top ??= _defaultTop;
-        Right ??= _defaultRight;
         Size ??= _defaultSize;
         Display ??= _defaultDisplay;
         Shrink ??= _defaultShrink;
@@ -120,6 +118,16 @@ else
         attributes["data-variant"] = "ghost";
         attributes["data-size"] = "icon-sm";
 
+    }
+
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (ResolvePresetValue(Right, AppliedPresetContext?.Right, nameof(Right)) is null &&
+            ResolvePresetValue(Left, AppliedPresetContext?.Left, nameof(Left)) is null &&
+            ResolvePresetValue(InsetStart, AppliedPresetContext?.InsetStart, nameof(InsetStart)) is null &&
+            ResolvePresetValue(InsetEnd, AppliedPresetContext?.InsetEnd, nameof(InsetEnd)) is null)
+            AppendClass(ref cls, "end-2");
     }
 
     private async Task HandleClick(MouseEventArgs e)

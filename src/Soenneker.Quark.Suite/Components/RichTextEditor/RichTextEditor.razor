@@ -1,0 +1,106 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements IRichTextEditor
+@implements IAsyncDisposable
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using System.Threading
+@inject IRichTextEditorInterop EditorInterop
+<div @attributes="@(WorkflowAttributes("rich-text-editor", "rounded-md border"))">
+    @if (!ReadOnly)
+    {
+        <div role="toolbar" aria-label="@Text["Editor"]" class="flex flex-wrap items-center gap-2 border-b p-2">
+            @foreach (var command in Commands)
+            {
+                <button type="button" class="rounded border px-2 py-1" aria-label="@Text[command.Label]" aria-pressed="@(command.Command is "undo" or "redo" ? null : IsActive(command.Command) ? "true" : "false")" @onmousedown:preventDefault @onclick="() => Command(command.Command)">@Text[command.Label]</button>
+            }
+            <button type="button" class="rounded border px-2 py-1" @onmousedown:preventDefault @onclick="ShowLink">@Text["Link"]</button>
+            <button type="button" disabled="@(_format.LinkUrl is null)" @onmousedown:preventDefault @onclick="@(async () => await Command("unlink"))">@Text["RemoveLink"]</button>
+            @if (Mentions.Count > 0)
+            {
+                <select aria-label="@Text["Mention"]" value="" @onchange="InsertMention"><option value="">@Text["Mention"]</option>
+                    @foreach (var mention in Mentions) { <option value="@mention.Value" disabled="@mention.Disabled">@mention.Label</option> }
+                </select>
+            }
+            @if (UploadAttachment is not null)
+            {
+                <label class="rounded border px-2 py-1">@Text["Attachment"]<InputFile OnChange="Upload" disabled="@_uploading" /></label>
+            }
+            @ToolbarContent
+        </div>
+        @if (_showLink)
+        {
+            <div class="flex flex-wrap gap-2 p-2">
+                <input aria-label="@Text["Link"]" class="rounded border bg-background p-2" @bind="_url" placeholder="https://" />
+                <input aria-label="@Text["Name"]" class="rounded border bg-background p-2" @bind="_linkLabel" />
+                <button type="button" @onclick="InsertLink">@Text["Insert"]</button>
+            </div>
+        }
+    }
+    <div @ref="_editor" role="@(ReadOnly ? "document" : "textbox")" aria-multiline="@(!ReadOnly ? "true" : null)" aria-readonly="@(ReadOnly ? "true" : "false")" aria-label="@(Label ?? Text["Editor"])" tabindex="0" class="min-h-32 p-3 outline-none [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"></div>
+    @if (_uploading) { <div role="status">@Text["Loading"]</div> }
+    @if (_error is not null) { <div role="alert" class="p-2 text-destructive">@Text[_error]</div> }
+</div>
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public IReadOnlyList<SelectOption> Mentions { get; set; } = [];
+    [Parameter] public Func<IBrowserFile, CancellationToken, ValueTask<RichTextAttachment>>? UploadAttachment { get; set; }
+    [Parameter] public RenderFragment? ToolbarContent { get; set; }
+    [Parameter] public string? Label { get; set; }
+    private static readonly (string Command, string Label)[] Commands = [("undo", "Undo"), ("redo", "Redo"), ("bold", "Bold"), ("italic", "Italic"), ("underline", "Underline"), ("insertUnorderedList", "BulletList"), ("insertOrderedList", "NumberedList")];
+    private RichTextFormatState _format = new();
+    private bool IsActive(string command) => command switch { "bold" => _format.Bold, "italic" => _format.Italic, "underline" => _format.Underline, "insertUnorderedList" => _format.Bullets, "insertOrderedList" => _format.Numbered, _ => false };
+    private void ShowLink() { _url = _format.LinkUrl ?? ""; _linkLabel = _format.LinkText ?? ""; _showLink = !_showLink; }
+    [JSInvokable]
+    public Task OnFormatChanged(RichTextFormatState state) { if (IsDisposed) return Task.CompletedTask; _format = state; return InvokeAsync(StateHasChanged); }
+    private ElementReference _editor;
+    private DotNetObjectReference<RichTextEditor>? _reference;
+    private readonly CancellationTokenSource _lifetime = new();
+    private bool _mounted, _showLink, _uploading;
+    private string _url = "", _linkLabel = "";
+    private string? _error;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsDisposed) return;
+        if (!_mounted) { _reference = DotNetObjectReference.Create(this); await EditorInterop.Mount(_editor, _reference); _mounted = true; if (IsDisposed) await EditorInterop.Unmount(_editor); }
+        if (!IsDisposed) await EditorInterop.SetContent(_editor, Value ?? "", ReadOnly);
+    }
+    [JSInvokable]
+    public async Task OnContentChanged(string html) { if (ReadOnly || IsDisposed) return; Value = html; await ValueChanged.InvokeAsync(html); }
+    private async Task Command(string command) { if (!ReadOnly && _mounted) await EditorInterop.Execute(_editor, command); }
+    private async Task InsertLink()
+    {
+        if (!RichTextUrl.IsSafe(_url)) { _error = "InvalidLink"; return; }
+        _error = null; await EditorInterop.Execute(_editor, "link", _url.Trim(), _linkLabel); _showLink = false;
+    }
+    private async Task InsertMention(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        foreach (var mention in Mentions) if (mention.Value == value && !mention.Disabled) { await EditorInterop.Execute(_editor, "mention", value, mention.Label); break; }
+    }
+    private async Task Upload(InputFileChangeEventArgs e)
+    {
+        if (_uploading || ReadOnly || UploadAttachment is null) return;
+        _uploading = true; _error = null;
+        try
+        {
+            var attachment = await UploadAttachment(e.File, _lifetime.Token);
+            if (IsDisposed || ReadOnly) return;
+            if (!RichTextUrl.IsSafe(attachment.Url)) { _error = "InvalidLink"; return; }
+            await EditorInterop.Execute(_editor, "attachment", attachment.Url, attachment.Name);
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "upload attachment"); _error = "SaveError"; }
+        finally { _uploading = false; }
+    }
+    public override void Dispose() { if (IsDisposed) return; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
+    public override async ValueTask DisposeAsync()
+    {
+        Dispose();
+        try { if (_mounted) await EditorInterop.Unmount(_editor); }
+        catch (JSDisconnectedException) { }
+        finally { _reference?.Dispose(); await base.DisposeAsync(); }
+    }
+}

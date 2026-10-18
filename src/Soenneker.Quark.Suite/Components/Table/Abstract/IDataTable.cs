@@ -10,6 +10,14 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IDataTable : ICancellableElement
 {
+    /// <summary>Optional typed records and columns. Omit to compose table markup as before.</summary>
+    DataTableData? Data { get; set; }
+    /// <summary>Filters, search, sorting and column preferences for typed data.</summary>
+    QuarkViewState State { get; set; }
+    /// <summary>Receives updated typed view state; supports SavedViews.</summary>
+    EventCallback<QuarkViewState> StateChanged { get; set; }
+    /// <summary>Debounce delay for typed server search, in milliseconds.</summary>
+    int SearchDebounceMilliseconds { get; set; }
     /// <summary>Uses a continuously scrolling measured row window instead of the default paged presentation.</summary>
     bool Virtualize { get; set; }
     /// <summary>Stable keys for all currently loaded rows, in display order.</summary>

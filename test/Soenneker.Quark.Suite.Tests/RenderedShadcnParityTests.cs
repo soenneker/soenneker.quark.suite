@@ -134,12 +134,12 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public void Composition_copy_field_accepts_presets_and_retains_accessibility_and_empty_state()
+    public void Composition_copyable_text_field_accepts_presets_and_retains_accessibility_and_empty_state()
     {
         var preset = new QuarkPresetToken("test-copy-field", c => c.Width = Width.IsFull);
-        var cut = Render<CopyField>(p => p.Add(c => c.Preset, preset).Add(c => c.AriaLabel, "Reference")
+        var cut = Render<CopyableText>(p => p.Add(c => c.Preset, preset).Add(c => c.AriaLabel, "Reference")
             .Add(c => c.Placeholder, "Not issued"));
-        cut.Find("[data-slot='copy-field']").GetAttribute("aria-label").Should().Be("Reference");
+        cut.Find("[data-slot='copyable-text']").GetAttribute("aria-label").Should().Be("Reference");
         cut.Find("button").HasAttribute("disabled").Should().BeTrue();
         cut.Markup.Should().Contain("Not issued");
     }
@@ -153,4 +153,197 @@ public sealed partial class RenderedShadcnParityTests
         badge.ClassList.Should().Contain("text-primary").And.NotContain("text-destructive");
         badge.GetAttribute("data-tone").Should().Be("danger");
     }
+
+    [Test]
+    public void Deep_audit_textarea_rows_and_explicit_sizing_override_auto_size()
+    {
+        var cut = Render<TextArea>(p => p.Add(c => c.Rows, 6));
+        cut.Find("textarea").GetAttribute("rows").Should().Be("6");
+        cut.Find("textarea").ClassList.Should().Contain("field-sizing-fixed").And.NotContain("field-sizing-content");
+        cut.Render(p => p.Add(c => c.Rows, (int?)null));
+        cut.Find("textarea").ClassList.Should().Contain("field-sizing-content").And.NotContain("field-sizing-fixed");
+        cut.Render(p => p.Add(c => c.FieldSizing, FieldSizing.Fixed));
+        cut.Find("textarea").ClassList.Should().Contain("field-sizing-fixed").And.NotContain("field-sizing-content");
+    }
+
+    [Test]
+    public void Deep_audit_separator_stretches_only_without_explicit_cross_size_or_alignment()
+    {
+        var cut = Render<Separator>(p => p.Add(c => c.Orientation, SeparatorOrientation.Vertical));
+        cut.Find("[data-slot='separator']").GetAttribute("data-auto-stretch").Should().Be("true");
+        cut.Render(p => p.Add(c => c.Height, Height.Is4));
+        cut.Find("[data-slot='separator']").HasAttribute("data-auto-stretch").Should().BeFalse();
+        cut.Render(p => p.Add(c => c.Height, (CssValue<HeightBuilder>?)null).Add(c => c.SelfAlign, Self.Center));
+        cut.Find("[data-slot='separator']").HasAttribute("data-auto-stretch").Should().BeFalse();
+    }
+
+    [Test]
+    public void Deep_audit_closed_offcanvas_is_inert_but_icon_sidebar_remains_interactive()
+    {
+        var cut = Render<SidebarProvider>(p => p.Add(c => c.Open, false).Add(c => c.IsMobile, false)
+            .Add(c => c.PersistState, false).AddChildContent<Sidebar>());
+        cut.Find("[data-slot='sidebar-container']").HasAttribute("inert").Should().BeTrue();
+        cut.Find("[data-slot='sidebar-container']").GetAttribute("aria-hidden").Should().Be("true");
+        cut.Render(p => p.Add(c => c.Open, true));
+        cut.Find("[data-slot='sidebar-container']").HasAttribute("inert").Should().BeFalse();
+        cut.Render(p => p.Add(c => c.Open, false).AddChildContent<Sidebar>(s => s.Add(c => c.Collapsible, SidebarCollapsible.Icon)));
+        cut.Find("[data-slot='sidebar-container']").HasAttribute("inert").Should().BeFalse();
+    }
+
+    [Test]
+    public void Deep_audit_item_group_exposes_list_items_and_preserves_slotted_link_semantics()
+    {
+        var cut = Render<ItemGroup>(p => p.AddChildContent<Item>(i => i.AddChildContent("First")));
+        cut.Find("[role='list'] [role='listitem']").TextContent.Should().Be("First");
+        var standalone = Render<Item>();
+        standalone.Find("[data-slot='item']").HasAttribute("role").Should().BeFalse();
+        var linked = Render<ItemGroup>(p => p.AddChildContent<Item>(i => i.Add(c => c.AsChild, true)
+            .AddChildContent<Anchor>(a => a.Add(c => c.Href, "/destination").AddChildContent("Destination"))));
+        linked.Find("[role='listitem'] a").HasAttribute("role").Should().BeFalse();
+    }
+
+    [Test]
+    public void Deep_audit_spinner_status_contains_announced_text_and_decorative_spinner_is_silent()
+    {
+        var cut = Render<Spinner>(p => p.Add(c => c.AriaLabel, "Saving"));
+        cut.Find("[role='status'] .sr-only").TextContent.Should().Be("Saving");
+        cut.Render(p => p.Add(c => c.Decorative, true));
+        cut.FindAll(".sr-only").Should().BeEmpty();
+        cut.FindAll("[role='status']").Should().BeEmpty();
+    }
+
+    [Test]
+    public void Deep_audit_menubar_trigger_has_closed_keyboard_focus_style()
+    {
+        var cut = Render<Menubar>(p => p.AddChildContent<MenubarMenu>(m => m.AddChildContent<MenubarTrigger>(t => t.AddChildContent("File"))));
+        cut.Find("[data-slot='menubar-trigger']").ClassList.Should().Contain("focus-visible:ring-2").And.Contain("focus-visible:ring-ring");
+    }
+
+    [Test]
+    public void Deep_audit_switch_checked_thumb_reverses_in_rtl()
+    {
+        var cut = Render<Switch>(p => p.Add(c => c.Checked, true).Add(c => c.Dir, "rtl"));
+        cut.Find("[data-slot='switch-thumb']").ClassList.Should().Contain("rtl:data-[state=checked]:-translate-x-[calc(100%-2px)]");
+    }
+
+
+    [Test]
+    public void Deep_audit_otp_keeps_numeric_order_inside_rtl_layouts()
+    {
+        var cut = Render<InputOtp>(p => p.Add(c => c.Dir, "rtl"));
+        cut.Find("[data-input-otp-container]").GetAttribute("dir").Should().Be("ltr");
+        cut.Find("input").GetAttribute("dir").Should().Be("ltr");
+    }
+
+    [Test]
+    public void Deep_audit_native_select_has_theme_aware_native_popup_colors()
+    {
+        var cut = Render<NativeSelect>();
+        cut.Find("select").ClassList.Should().Contain("scheme-light").And.Contain("dark:scheme-dark");
+    }
+
+
+    [Test]
+    public void Deep_audit_navigation_dropdown_has_stacking_priority()
+    {
+        var cut = Render<NavigationMenuContent>(p => p.Add(c => c.ForceMount, true));
+        cut.Find("[data-slot='navigation-menu-content']").ClassList.Should().Contain("z-50");
+    }
+
+    [Test]
+    public void Deep_audit_sizing_presets_are_not_overridden_by_component_fallbacks()
+    {
+        var areaPreset = new QuarkPresetToken("audit-area", c => c.FieldSizing = FieldSizing.Fixed);
+        var area = Render<TextArea>(p => p.Add(c => c.Preset, areaPreset));
+        area.Find("textarea").ClassList.Should().Contain("field-sizing-fixed").And.NotContain("field-sizing-content");
+        var separatorPreset = new QuarkPresetToken("audit-separator", c => c.Height = Height.Is4);
+        var separator = Render<Separator>(p => p.Add(c => c.Orientation, SeparatorOrientation.Vertical).Add(c => c.Preset, separatorPreset));
+        separator.Find("[data-slot='separator']").HasAttribute("data-auto-stretch").Should().BeFalse();
+    }
+
+
+    [Test]
+    public async System.Threading.Tasks.Task Deep_audit_carousel_announces_manual_slide_changes()
+    {
+        var cut = Render<Carousel>(p => p.Add(c => c.AriaLabel, "Product photos").AddChildContent(builder =>
+        {
+            builder.OpenComponent<CarouselItem>(0); builder.CloseComponent();
+            builder.OpenComponent<CarouselItem>(1); builder.CloseComponent();
+        }));
+        cut.Find("[data-slot='carousel']").GetAttribute("aria-label").Should().Be("Product photos");
+        cut.Find("[data-slot='carousel-status']").TextContent.Trim().Should().Be("Slide 1 of 2");
+        await cut.Find("[data-slot='carousel']").KeyDownAsync(new Microsoft.AspNetCore.Components.Web.KeyboardEventArgs { Key = "ArrowRight" });
+        cut.Find("[data-slot='carousel-status']").TextContent.Trim().Should().Be("Slide 2 of 2");
+        cut.Find("[data-slot='carousel-status']").GetAttribute("aria-live").Should().Be("polite");
+        cut.Render(p => p.Add(c => c.Autoplay, true));
+        cut.Find("[data-slot='carousel-status']").GetAttribute("aria-live").Should().Be("off");
+    }
+
+    [Test]
+    public void Deep_audit_checkbox_switch_variant_also_supports_rtl()
+    {
+        var cut = Render<Check>(p => p.Add(c => c.Switch, true).Add(c => c.Checked, true).Add(c => c.Dir, "rtl"));
+        cut.Find("[data-slot='switch-thumb']").ClassList.Should().Contain("rtl:data-[state=checked]:-translate-x-[calc(100%-2px)]");
+    }
+
+
+    [Test]
+    public void Deep_audit_inline_combobox_empty_state_tracks_available_items()
+    {
+        var cut = Render<Combobox>(p => p.AddChildContent<ComboboxEmpty>(e => e.AddChildContent("No matches")));
+        cut.Find("[data-slot='combobox-empty']").TextContent.Should().Be("No matches");
+        cut.Find("[data-slot='combobox-empty']").ClassList.Should().NotContain("hidden");
+        cut.Render(p => p.AddChildContent(builder =>
+        {
+            builder.OpenComponent<ComboboxEmpty>(0); builder.CloseComponent();
+            builder.OpenComponent<ComboboxItem>(1); builder.AddAttribute(2, "Value", "option"); builder.CloseComponent();
+        }));
+        cut.WaitForAssertion(() => cut.FindAll("[data-slot='combobox-empty']").Should().BeEmpty());
+        cut.Render(p => p.AddChildContent<ComboboxEmpty>(e => e.AddChildContent("No matches")));
+        cut.WaitForAssertion(() => cut.Find("[data-slot='combobox-empty']").TextContent.Should().Be("No matches"));
+    }
+
+    [Test]
+    public void Deep_audit_command_selected_styles_require_true_not_attribute_presence()
+    {
+        var cut = Render<CommandItem>(p => p.AddChildContent<CommandShortcut>(s => s.AddChildContent("Ctrl+K")));
+        var item = cut.Find("[cmdk-item]");
+        item.GetAttribute("data-selected").Should().Be("false");
+        item.ClassList.Should().Contain("data-[selected=true]:bg-muted").And.NotContain("data-selected:bg-muted");
+        cut.Find("[data-slot='command-shortcut']").ClassList.Should().Contain("group-data-[selected=true]/command-item:text-foreground");
+    }
+
+    [Test]
+    public void Deep_audit_dropdown_sizes_to_content_unless_width_is_explicit()
+    {
+        var cut = Render<Dropdown>(p => p.Add(c => c.Visible, true).AddChildContent<DropdownMenu>());
+        var menu = cut.Find("[data-slot='dropdown-menu-content']");
+        menu.ClassList.Should().Contain("min-w-32").And.NotContain("w-(--radix-dropdown-menu-trigger-width)");
+        cut.Render(p => p.AddChildContent<DropdownMenu>(m => m.Add(c => c.Width, Width.Is64)));
+        cut.Find("[data-slot='dropdown-menu-content']").ClassList.Should().Contain("w-64");
+    }
+
+    [Test]
+    public void Deep_audit_invalid_controls_reserve_ring_width_for_keyboard_focus()
+    {
+        var cut = Render<Div>(p => p.AddChildContent(builder =>
+        {
+            var sequence = 0;
+            foreach (var type in new[] { typeof(Button), typeof(Check), typeof(Switch), typeof(Input), typeof(TextArea), typeof(MemoInput), typeof(NativeSelect) })
+            {
+                builder.OpenComponent(sequence++, type);
+                builder.AddAttribute(sequence++, "aria-invalid", "true");
+                builder.CloseComponent();
+            }
+        }));
+        var controls = cut.FindAll("[aria-invalid='true']");
+        controls.Count.Should().BeGreaterThanOrEqualTo(7);
+        foreach (var control in controls)
+        {
+            control.ClassList.Should().NotContain("aria-invalid:ring-3");
+            control.ClassList.Should().Contain("aria-invalid:border-destructive");
+            control.ClassList.Any(c => c is "focus-visible:ring-3" or "focus-visible:ring-[3px]").Should().BeTrue();
+        }
+    }
+
 }

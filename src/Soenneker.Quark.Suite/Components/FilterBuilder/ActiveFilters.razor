@@ -1,0 +1,22 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements IActiveFilters
+@using System.Linq
+<div @attributes="@(WorkflowAttributes("active-filters", "flex flex-wrap items-center gap-2"))" aria-label="@Text["Filters"]">
+    @foreach (var rule in Rules(Value))
+    {
+        var field = Fields.FirstOrDefault(f => f.Key == rule.Field);
+        var label = (field?.Label ?? rule.Field) + " " + Text[rule.Operator.ToString()] + " " + (field?.Choices?.FirstOrDefault(c => c.Value == rule.Value)?.Label ?? rule.Value);
+        <span @key="rule.Id" class="inline-flex gap-2 rounded-full border px-3 py-1 text-sm">@label <button type="button" disabled="@Disabled" aria-label="@(Text["Remove"] + " " + label)" @onclick="() => Publish(Remove(Value, rule.Id))">×</button></span>
+    }
+    @if (Rules(Value).Any()) { <button type="button" disabled="@Disabled" @onclick="() => Publish(Value with { Rules = [], Groups = [] })">@Text["Clear"]</button> }
+</div>
+@code {
+    [Parameter] public IReadOnlyList<FilterField> Fields { get; set; } = [];
+    [Parameter] public FilterGroup Value { get; set; } = new();
+    [Parameter] public EventCallback<FilterGroup> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    private static IEnumerable<FilterRule> Rules(FilterGroup group) => group.Rules.Concat(group.Groups.SelectMany(Rules));
+    private static FilterGroup Remove(FilterGroup group, string id) => group with { Rules = group.Rules.Where(r => r.Id != id).ToArray(), Groups = group.Groups.Select(g => Remove(g, id)).Where(g => g.Rules.Count > 0 || g.Groups.Count > 0).ToArray() };
+    private async Task Publish(FilterGroup value) { if (Disabled) return; Value = value; await ValueChanged.InvokeAsync(value); }
+}

@@ -1,0 +1,189 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@using Microsoft.JSInterop
+@inject IWorkflowInteractionInterop InteractionInterop
+@implements IScheduler
+@using System.Linq
+@using System.Globalization
+@using System.Threading
+<div @ref="_interactionRoot" @attributes="@(WorkflowAttributes("scheduler", "space-y-3"))" aria-busy="@(_busy ? "true" : "false")">
+    <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="rounded border px-3 py-2" @onclick="() => Navigate(-1)">@Text["Previous"]</button>
+        <button type="button" class="rounded border px-3 py-2" @onclick="Today">@Text["Today"]</button>
+        <button type="button" class="rounded border px-3 py-2" @onclick="() => Navigate(1)">@Text["Next"]</button>
+        <strong aria-live="polite">@Date.ToString("D", Text.Culture)</strong>
+        <select aria-label="@Text["Select"]" value="@View" @onchange="ChangeView">
+            @foreach (var view in Enum.GetValues<SchedulerView>()) { <option value="@view">@Text[view.ToString()]</option> }
+        </select>
+        <span class="text-sm text-muted-foreground">@TimeZone.DisplayName</span>
+        @if (!ReadOnly) { <button type="button" class="rounded border px-3 py-2" disabled="@_busy" @onclick="() => New(Date, 9 * 60, null)">@Text["NewEvent"]</button> }
+    </div>
+    @if (_error is not null) { <div role="alert" class="text-destructive">@Text[_error]</div> }
+    @if (_editing)
+    {
+        <fieldset disabled="@_busy" class="space-y-2 rounded border p-3">
+            <legend>@Text[_editId is null ? "NewEvent" : "Edit"]</legend>
+            <label class="block">@Text["Title"] <input class="rounded border bg-background p-2" @bind="_title" /></label>
+            <label class="block">@Text["Start"] <input type="datetime-local" class="rounded border bg-background p-2" @bind="_start" @bind:format="yyyy-MM-ddTHH:mm" /></label>
+            <label class="block">@Text["End"] <input type="datetime-local" class="rounded border bg-background p-2" @bind="_end" @bind:format="yyyy-MM-ddTHH:mm" /></label>
+            @if (Resources.Count > 0) { <label>@Text["Resource"] <select @bind="_resource"><option value="">@Text["NoResource"]</option>@foreach (var resource in Resources) { <option value="@resource.Id">@resource.Label</option> }</select></label> }
+            <div class="flex gap-3"><button type="button" @onclick="SaveDraft">@Text["Save"]</button><button type="button" @onclick="() => _editing = false">@Text["Cancel"]</button>
+                @if (_editId is not null) { <button type="button" @onclick="DeleteDraft">@Text["Delete"]</button> }
+            </div>
+        </fieldset>
+    }
+    @if (View == SchedulerView.Month)
+    {
+        <div class="grid grid-cols-7 overflow-auto rounded border">
+            @foreach (var day in MonthDays())
+            {
+                <div class="min-h-28 min-w-24 border p-2" @ondragover:preventDefault @ondrop="() => Drop(day, null, null)">
+                    <button type="button" class="font-medium" disabled="@ReadOnly" aria-label="@(Text["NewEvent"] + " " + day.ToString("D", Text.Culture))" @onclick="() => New(day, 9 * 60, null)">@day.ToString("ddd d", Text.Culture)</button>
+                    @foreach (var appointment in DayEvents(day))
+                    { <button @key="appointment.Id" type="button" class="mt-1 block w-full truncate rounded bg-accent p-1 text-start text-xs" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button> }
+                </div>
+            }
+        </div>
+    }
+    else if (View == SchedulerView.Agenda)
+    {
+        <div class="divide-y rounded border">
+            @foreach (var appointment in Events.Where(e => e.End > StartInstant(Date) && e.Start < StartInstant(Date.AddDays(31))).OrderBy(e => e.Start))
+            {
+                <button @key="appointment.Id" type="button" class="block w-full p-3 text-start" @onclick="() => Edit(appointment)">
+                    <strong>@appointment.Title</strong> <span>@TimeZoneInfo.ConvertTime(appointment.Start, TimeZone).ToString("g", Text.Culture) – @TimeZoneInfo.ConvertTime(appointment.End, TimeZone).ToString("g", Text.Culture)</span>
+                    <span>@ResourceLabel(appointment.ResourceId)</span>
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="max-h-[40rem] overflow-auto rounded border">
+            <div class="flex" style="min-width:max-content">
+                @foreach (var day in VisibleDays())
+                {
+                    @foreach (var resource in Lanes())
+                    {
+                        var appointments = SchedulerLayout.Arrange(DayEvents(day).Where(e => resource is null || e.ResourceId == resource.Id || (resource.Id == "" && !Resources.Any(r => r.Id == e.ResourceId))), day, TimeZone);
+                        <div class="relative border-e" style="width:240px;flex:1 0 240px">
+                            <div class="sticky top-0 z-10 border-b bg-background p-2 font-medium">@day.ToString("ddd d", Text.Culture) @resource?.Label</div>
+                            <div class="relative" style="height:960px" data-scheduler-lane="@day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-resource="@resource?.Id">
+                                @for (var minute = 0; minute < 1440; minute += 30)
+                                {
+                                    var slot = minute;
+                                    <button type="button" class="absolute w-full border-b text-start text-xs text-muted-foreground" style="@SlotStyle(slot)" aria-label="@(Text["NewEvent"] + " " + day.ToString("d", Text.Culture) + " " + TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture) + " " + resource?.Label)" @ondragover:preventDefault @ondrop="() => Drop(day, slot, resource?.Id)" @onclick="() => New(day, slot, resource?.Id)">@TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture)</button>
+                                }
+                                @for (var i = 0; i < appointments.Count; i++)
+                                {
+                                    var placement = appointments[i];
+                                    var appointment = placement.Event;
+                                    <div @key="appointment.Id" class="absolute overflow-hidden rounded border bg-accent p-1 text-xs" style="@EventStyle(placement)">
+                                        <button type="button" data-touch-event="@(ReadOnly ? null : appointment.Id)" style="touch-action:none" class="w-full text-start" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button>
+                                        @if (!ReadOnly) { <button type="button" data-touch-event="@appointment.Id" data-touch-resize="true" style="touch-action:none" class="absolute bottom-0 start-0 h-2 w-full cursor-ns-resize border-t" aria-label="@(Text["End"] + " " + appointment.Title)" draggable="true" @ondragstart="() => Drag(appointment, true)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)"></button> }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+@code {
+    private ElementReference _interactionRoot;
+    private DotNetObjectReference<Scheduler>? _interactionReference;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (IsDisposed) return;
+        if (_interactionReference is null) { _interactionReference = DotNetObjectReference.Create(this); await InteractionInterop.Mount(_interactionRoot, _interactionReference); }
+        if (IsDisposed) await InteractionInterop.Unmount(_interactionRoot);
+        else await InteractionInterop.Update(_interactionRoot);
+    }
+    public override async ValueTask DisposeAsync()
+    {
+        Dispose();
+        try { if (_interactionReference is not null) await InteractionInterop.Unmount(_interactionRoot); }
+        catch (JSDisconnectedException) { }
+        finally { _interactionReference?.Dispose(); await base.DisposeAsync(); }
+    }
+
+    [Parameter] public IReadOnlyList<SchedulerEvent> Events { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<SchedulerEvent>> EventsChanged { get; set; }
+    [Parameter] public IReadOnlyList<SchedulerResource> Resources { get; set; } = [];
+    [Parameter] public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
+    [Parameter] public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+    [Parameter] public EventCallback<DateOnly> DateChanged { get; set; }
+    [Parameter] public SchedulerView View { get; set; } = SchedulerView.Week;
+    [Parameter] public EventCallback<SchedulerView> ViewChanged { get; set; }
+    [Parameter] public Func<SchedulerEvent, CancellationToken, ValueTask>? Save { get; set; }
+    [Parameter] public Func<SchedulerEvent, CancellationToken, ValueTask>? Delete { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    private readonly CancellationTokenSource _lifetime = new();
+    private bool _editing, _busy, _resize;
+    private string? _editId, _resource, _error;
+    private string _title = "";
+    private DateTime _start, _end;
+    private SchedulerEvent? _drag, _originalEvent;
+    private DateOnly WeekStart => SchedulerDates.WeekStart(Date, Text.Culture.DateTimeFormat.FirstDayOfWeek);
+    private IEnumerable<DateOnly> VisibleDays() => View == SchedulerView.Day ? [Date] : Enumerable.Range(0, 7).Select(WeekStart.AddDays);
+    private IEnumerable<DateOnly> MonthDays() { var first = SchedulerDates.WeekStart(new(Date.Year, Date.Month, 1), Text.Culture.DateTimeFormat.FirstDayOfWeek); return Enumerable.Range(0, 42).Select(first.AddDays); }
+    private IEnumerable<SchedulerResource?> Lanes() => Resources.Count == 0 ? new SchedulerResource?[] { null } : Resources.Cast<SchedulerResource?>().Append(new("", Text["NoResource"]));
+    private DateTimeOffset StartInstant(DateOnly day) => SchedulerDates.ToInstant(day.ToDateTime(TimeOnly.MinValue), TimeZone) ?? SchedulerDates.ToInstant(day.ToDateTime(new TimeOnly(1, 0)), TimeZone) ?? throw new InvalidOperationException("The selected date has no valid start in this timezone.");
+    private IEnumerable<SchedulerEvent> DayEvents(DateOnly day) => Events.Where(e => e.End > StartInstant(day) && e.Start < StartInstant(day.AddDays(1))).OrderBy(e => e.Start);
+    private string ResourceLabel(string? id) => Resources.FirstOrDefault(r => r.Id == id)?.Label ?? Text["NoResource"];
+    private string TimeLabel(SchedulerEvent e) => TimeZoneInfo.ConvertTime(e.Start, TimeZone).ToString("t", Text.Culture);
+    private static string SlotStyle(int minute) => FormattableString.Invariant($"top:{minute * 2d / 3}px;height:20px;");
+    private static string EventStyle(SchedulerEventPlacement p) => FormattableString.Invariant($"top:{p.StartMinute * 2d / 3}px;height:{Math.Max(20, (p.EndMinute - p.StartMinute) * 2d / 3)}px;inset-inline-start:{40 + p.Column * (196d / p.ColumnCount)}px;width:{196d / p.ColumnCount}px;");
+    private async Task Navigate(int direction) { Date = View is SchedulerView.Month or SchedulerView.Agenda ? Date.AddMonths(direction) : Date.AddDays(direction * (View == SchedulerView.Week ? 7 : 1)); await DateChanged.InvokeAsync(Date); }
+    private async Task Today() { Date = SchedulerDates.LocalDate(DateTimeOffset.UtcNow, TimeZone); await DateChanged.InvokeAsync(Date); }
+    private async Task ChangeView(ChangeEventArgs e) { if (Enum.TryParse<SchedulerView>(e.Value?.ToString(), out var view)) { View = view; await ViewChanged.InvokeAsync(view); } }
+    private void New(DateOnly day, int minute, string? resource) { if (ReadOnly || _busy) return; _originalEvent = null; _editId = null; _title = ""; _resource = resource; _start = day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute); _end = _start.AddHours(1); _editing = true; _error = null; }
+    private void Edit(SchedulerEvent e) { if (ReadOnly || _busy) return; _originalEvent = e; _editId = e.Id; _title = e.Title; _resource = e.ResourceId; _start = TimeZoneInfo.ConvertTime(e.Start, TimeZone).DateTime; _end = TimeZoneInfo.ConvertTime(e.End, TimeZone).DateTime; _editing = true; _error = null; }
+    private async Task SaveDraft()
+    {
+        if (ReadOnly || _busy) return;
+        var start = SchedulerDates.ResolveEdit(_start, TimeZone, _originalEvent?.Start); var end = SchedulerDates.ResolveEdit(_end, TimeZone, _originalEvent?.End);
+        if (string.IsNullOrWhiteSpace(_title)) { _error = "Required"; return; }
+        if (start is null || end is null || end <= start) { _error = "InvalidDate"; return; }
+        if (await Persist(new(_editId ?? Guid.NewGuid().ToString("N"), _title.Trim(), start.Value, end.Value, string.IsNullOrEmpty(_resource) ? null : _resource))) _editing = false;
+    }
+    private async Task<bool> Persist(SchedulerEvent value)
+    {
+        if (ReadOnly || _busy || value.End <= value.Start) return false;
+        _busy = true; _error = null;
+        try { if (Save is not null) await Save(value, _lifetime.Token); if (IsDisposed) return false; var updated = Events.Where(e => e.Id != value.Id).Append(value).ToArray(); await EventsChanged.InvokeAsync(updated); Events = updated; return true; }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { return false; }
+        catch (Exception exception) { ReportError(exception, "save scheduler event"); _error = "SaveError"; return false; }
+        finally { _busy = false; }
+    }
+    private async Task DeleteDraft()
+    {
+        var value = Events.FirstOrDefault(e => e.Id == _editId); if (value is null || ReadOnly || _busy) return;
+        _busy = true; _error = null;
+        try { if (Delete is not null) await Delete(value, _lifetime.Token); if (IsDisposed) return; var updated = Events.Where(e => e.Id != value.Id).ToArray(); await EventsChanged.InvokeAsync(updated); Events = updated; _editing = false; }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "delete scheduler event"); _error = "SaveError"; }
+        finally { _busy = false; }
+    }
+    private void Drag(SchedulerEvent value, bool resize) { if (ReadOnly || _busy) return; _drag = value; _resize = resize; }
+    [JSInvokable]
+    public async Task OnTouchDrop(string id, bool resize, string date, int minute, string? resource)
+    {
+        if (IsDisposed || ReadOnly || _busy || !DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day)) return;
+        var value = Events.FirstOrDefault(e => e.Id == id); if (value is null) return;
+        Drag(value, resize); await Drop(day, Math.Clamp(minute, 0, 1440), resource); StateHasChanged();
+    }
+    private void ClearDrag() { _drag = null; }
+    private async Task Drop(DateOnly day, int? minute, string? resource)
+    {
+        var value = _drag; _drag = null; if (value is null || ReadOnly || _busy) return;
+        var local = TimeZoneInfo.ConvertTime(value.Start, TimeZone);
+        var instant = SchedulerDates.ToInstant(day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute ?? local.Hour * 60 + local.Minute), TimeZone);
+        if (instant is null || (_resize && instant <= value.Start)) { _error = "InvalidDate"; return; }
+        await Persist(_resize ? value with { End = instant.Value } : value with { Start = instant.Value, End = instant.Value + (value.End - value.Start), ResourceId = minute is null ? value.ResourceId : string.IsNullOrEmpty(resource) ? null : resource });
+    }
+    public override void Dispose() { if (IsDisposed) return; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
+}

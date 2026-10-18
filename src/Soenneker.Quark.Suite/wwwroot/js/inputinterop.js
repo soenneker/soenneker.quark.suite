@@ -27,6 +27,7 @@ export function restoreSelection(input, start, end, value) {
 }
 
 const comboboxKeyHandlers = new WeakMap();
+const comboboxObservers = new WeakMap();
 
 export function registerComboboxKeys(input) {
     if (!input || comboboxKeyHandlers.has(input)) return;
@@ -49,11 +50,20 @@ export function registerComboboxKeys(input) {
         }
     };
 
+    const observer = new MutationObserver(() => {
+        const id = input.getAttribute("aria-activedescendant");
+        const option = id && document.getElementById(id);
+        if (option && input.getAttribute("aria-expanded") === "true") option.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+    observer.observe(input, { attributes: true, attributeFilter: ["aria-activedescendant", "aria-expanded"] });
+    comboboxObservers.set(input, observer);
     comboboxKeyHandlers.set(input, onKeyDown);
     input.addEventListener("keydown", onKeyDown);
 }
 
 export function unregisterComboboxKeys(input) {
+    comboboxObservers.get(input)?.disconnect();
+    comboboxObservers.delete(input);
     const handler = input && comboboxKeyHandlers.get(input);
     if (!handler) return;
     input.removeEventListener("keydown", handler);

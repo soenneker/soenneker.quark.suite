@@ -1,9 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements ICopyableText
 
 <span @ref="ElementRef" @attributes="BuildAttributes()">
-    <span @attributes="BuildTextAttributes()">@Text</span>
-    <CopyButton Text="@ResolvedCopyText"
+    @if (TextPreset is not null)
+    {
+        <Span Preset="@TextPreset" @attributes="BuildTextAttributes()">@DisplayText</Span>
+    }
+    else
+    {
+        <span @attributes="BuildTextAttributes()">@DisplayText</span>
+    }
+    <CopyButton Preset="@CopyButtonPreset" Text="@ResolvedCopyText"
                 Variant="@CopyButtonVariant"
                 ButtonSize="@CopyButtonSize"
                 Disabled="@CopyDisabled"
@@ -26,35 +34,27 @@
     private string? _copyButtonClass;
     private string? _mergedTextClass;
     private QuarkAttributeDictionary _textAttributes;
-    /// <summary>Text displayed by the component.</summary>
     [Parameter]
     public string? Text { get; set; }
 
-    /// <summary>Optional text copied instead of <see cref="Text"/>.</summary>
     [Parameter]
     public string? CopyText { get; set; }
 
-    /// <summary>Indicates whether overflowing text is truncated with an ellipsis.</summary>
     [Parameter]
     public bool TruncateText { get; set; } = true;
 
-    /// <summary>Exposes the full text as a native tooltip when truncation is enabled.</summary>
     [Parameter]
     public bool ShowFullTextOnHover { get; set; } = true;
 
-    /// <summary>Keeps the copy button visible instead of revealing it on hover or keyboard focus.</summary>
     [Parameter]
     public bool AlwaysShowCopyButton { get; set; }
 
-    /// <summary>Indicates whether copying is disabled.</summary>
     [Parameter]
     public bool Disabled { get; set; }
 
-    /// <summary>Additional classes applied to the displayed text.</summary>
     [Parameter]
     public string? TextClass { get; set; }
 
-    /// <summary>Additional classes applied to the copy button.</summary>
     [Parameter]
     public string? CopyButtonClass { get; set; }
 
@@ -85,11 +85,9 @@
     [Parameter]
     public int ResetDelay { get; set; } = 1600;
 
-    /// <summary>Additional attributes applied to the displayed text.</summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? TextAttributes { get; set; }
 
-    /// <summary>Additional attributes applied to the copy button.</summary>
     [Parameter]
     public IReadOnlyDictionary<string, object>? CopyButtonAttributes { get; set; }
 
@@ -99,17 +97,24 @@
     [Parameter]
     public EventCallback<Exception?> OnCopyError { get; set; }
 
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public bool DisableCopyWhenEmpty { get; set; } = true;
+    [Parameter] public bool FieldAppearance { get; set; }
+    [Parameter] public QuarkPresetToken? TextPreset { get; set; }
+    [Parameter] public QuarkPresetToken? CopyButtonPreset { get; set; }
+    private string DisplayText => Text ?? Placeholder ?? string.Empty;
     private string? ResolvedCopyText => CopyText ?? Text;
-    private bool CopyDisabled => Disabled || string.IsNullOrEmpty(ResolvedCopyText);
-    private string ResolvedTextClass => AppendClass(TruncateText ? "min-w-0 flex-1 truncate" : "min-w-0 flex-1", TextClass, ref _textClass);
+    private bool CopyDisabled => Disabled || (DisableCopyWhenEmpty && string.IsNullOrEmpty(ResolvedCopyText));
+    private string ResolvedTextClass => TextPreset is not null ? TextClass ?? string.Empty : AppendClass(TruncateText ? "min-w-0 flex-1 truncate" : "min-w-0 flex-1", FieldAppearance ? "font-mono text-[13px] leading-none text-foreground/80 " + TextClass : TextClass, ref _textClass);
 
     private string ResolvedCopyButtonClass
     {
         get
         {
+            if (CopyButtonPreset is not null) return CopyButtonClass ?? string.Empty;
             const string always = "shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0";
             const string onHover = always + " transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100";
-            return AppendClass(AlwaysShowCopyButton ? always : onHover, CopyButtonClass, ref _copyButtonClass);
+            return AppendClass(AlwaysShowCopyButton || FieldAppearance ? always : onHover, CopyButtonClass, ref _copyButtonClass);
         }
     }
 
@@ -130,6 +135,12 @@
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder style, ref PooledStringBuilder cssClass)
     {
         base.BuildOwnedClassAndStyle(ref style, ref cssClass);
+        if (FieldAppearance && Preset is not null)
+        {
+            AppendClass(ref cssClass, "group/copyable-text");
+            return;
+        }
+        if (FieldAppearance) AppendClass(ref cssClass, "h-8 w-full cursor-default select-none rounded-lg border border-transparent bg-input/60 px-2 py-1 shadow-none dark:bg-input/40");
         AppendClass(ref cssClass, "group/copyable-text inline-flex max-w-full min-w-0 items-center gap-1 align-middle");
     }
 
@@ -148,6 +159,11 @@
     protected override void ComputeRenderKeyCore(ref HashCode hashCode)
     {
         base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(Placeholder);
+        hashCode.Add(DisableCopyWhenEmpty);
+        hashCode.Add(FieldAppearance);
+        hashCode.Add(TextPreset);
+        hashCode.Add(CopyButtonPreset);
         hashCode.Add(Text);
         hashCode.Add(CopyText);
         hashCode.Add(TruncateText);

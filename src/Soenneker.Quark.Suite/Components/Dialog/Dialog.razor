@@ -2,7 +2,7 @@
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.OverlayElement
+@inherits Soenneker.Quark.DialogOverlayElement
 @implements IDialog
 
 <BradixDialog Open="@Visible"
@@ -17,75 +17,16 @@
 @code {
     private Func<bool, Task>? _cachedHandleOpenChangedDelegate;
 
-    public Dialog()
-    {
-        LockScroll = false;
-    }
+    public Dialog() : base("dialog") { }
 
-    /// <summary>
-    /// Gets or sets whether the dialog should be centered vertically.
-    /// </summary>
     [Parameter]
     public bool Centered { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the dialog content should be scrollable.
-    /// </summary>
     [Parameter]
-    public bool Scrollable { get; set; }
+    public bool Scrollable { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets the size of the dialog.
-    /// </summary>
     [Parameter]
     public DialogSize? DialogSize { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the dialog backdrop is static (doesn't close on click).
-    /// </summary>
-    [Parameter]
-    public bool Static { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked When the backdrop is clicked.
-    /// </summary>
-    [Parameter]
-    public EventCallback OnBackdropClick { get; set; }
-
-    private readonly OverlayLabelContext _context = new("dialog");
-
-    /// <summary>
-    /// Shows the dialog.
-    /// </summary>
-    public Task Show() => SetVisible(true);
-
-    /// <summary>
-    /// Hides the dialog.
-    /// </summary>
-    public Task Hide() => SetVisible(false);
-
-    private Task HandleOpenChanged(bool open)
-    {
-        return SetVisible(open);
-    }
-
-    private async Task SetVisible(bool visible)
-    {
-        if (Visible == visible)
-            return;
-
-        Visible = visible;
-
-        if (VisibleChanged.HasDelegate)
-            await VisibleChanged.InvokeAsync(Visible);
-
-        if (visible)
-            await OnShow.InvokeIfHasDelegate();
-        else
-            await OnHide.InvokeIfHasDelegate();
-
-        await RefreshOffThread();
-    }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
@@ -93,13 +34,6 @@
         hc.Add(Centered);
         hc.Add(Scrollable);
         hc.Add(DialogSize);
-        hc.Add(Static);
-        hc.Add(Visible);
-        hc.Add(_context.ContentId);
-        hc.Add(_context.HasTitle);
-        hc.Add(_context.HasDescription);
-        hc.Add(_context.TitleId);
-        hc.Add(_context.DescriptionId);
     }
 
 }

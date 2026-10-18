@@ -15,6 +15,7 @@ public static class QuarkOptionsRegistrar
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddQuarkOptionsAsScoped(this IServiceCollection services, QuarkOptions quarkOptions)
     {
+        services.AddQuarkLocalizationAsScoped();
         services.AddSingleton(quarkOptions);
         return services;
     }
@@ -26,6 +27,7 @@ public static class QuarkOptionsRegistrar
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddDefaultQuarkOptionsAsScoped(this IServiceCollection services)
     {
+        services.AddQuarkLocalizationAsScoped();
         services.AddSingleton(new QuarkOptions());
         return services;
     }

@@ -1,0 +1,18 @@
+@page "/components/rich-text-editor"
+<QuarkSeoHead Title="Blazor Rich Text Editor | Quark Suite" Description="Edit formatted text, links and mentions with controlled HTML and read-only previews." />
+<Div Class="space-y-6">
+    <H1>Rich text editor</H1>
+    <Paragraph>Select text and apply formatting, add links, or insert a mention. Applications can supply UploadAttachment to persist files and insert their returned URLs.</Paragraph>
+    <RichTextEditor @bind-Value="@_html" Mentions="_mentions" Label="Message" />
+    <H2>Read-only preview</H2>
+    <RichTextEditor Value="@_html" ReadOnly="true" Label="Message preview" />
+    <PreCode Language="razor">@Example</PreCode>
+</Div>
+@code {
+    private string _html = "<p>Hello <strong>team</strong>! Share an update.</p>";
+    private readonly IReadOnlyList<SelectOption> _mentions = [new("alex", "Alex"), new("sam", "Sam")];
+    private const string Example = """
+<RichTextEditor @bind-Value="html" Mentions="people" Label="Message" />
+<RichTextEditor Value="html" ReadOnly="true" Label="Preview" />
+""";
+}

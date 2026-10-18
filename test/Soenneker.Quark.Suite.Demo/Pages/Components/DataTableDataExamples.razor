@@ -1,0 +1,72 @@
+@using System.Threading
+@using System.Globalization
+<Div Class="space-y-6">
+    <H2>Typed columns, editing and saved views</H2>
+    <Paragraph>Manage columns, filter records, select across pages, and expand rows. Shift-click headings to sort by multiple columns. Save a named view to restore its filters and column preferences after reloading.</Paragraph>
+    <DataTable Data="_data" @bind-State="_state" SelectionEnabled="true" @bind-SelectedKeys="_selected">
+        <TopContent><SavedViews @bind-State="_state" StorageKey="demo.contacts" Fields="_fields" /></TopContent>
+    </DataTable>
+    <H2>Server-loaded virtual rows</H2>
+    <Paragraph>Scroll to load more records. DataTable appends server pages while keeping only the visible rows in the DOM. Searching resets the loaded pages.</Paragraph>
+    <DataTable Data="_largeData" Virtualize="true" />
+    <PreCode Language="razor">@Example</PreCode>
+</Div>
+@code {
+    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Name"), new("company", "Company"), new("score", "Score", FilterFieldType.Number)];
+    private DataTableData<WorkflowContact> _data = null!, _largeData = null!;
+    protected override void OnInitialized()
+    {
+        _data = new() { Items = _contacts, Columns = _columns, RowKey = c => c.Id, SaveEdit = Save, DetailTemplate = Details };
+        _largeData = new() { Columns = _columns, RowKey = c => c.Id, Label = "Virtual contacts", LoadData = LoadContacts };
+    }
+    private RenderFragment<WorkflowContact> Details => contact => @<Paragraph>@contact.Name works at @contact.Company. Score: @contact.Score</Paragraph>;
+    private ValueTask<DataTableResult<WorkflowContact>> LoadContacts(DataTableRequest request, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        IEnumerable<WorkflowContact> query = _largeContacts.Where(c => c.Name.Contains(request.State.Search, StringComparison.OrdinalIgnoreCase) &&
+            FilterEvaluator.Matches(request.State.Filters, _fields, key => key == "name" ? c.Name : key == "company" ? c.Company : c.Score));
+        IOrderedEnumerable<WorkflowContact>? ordered = null;
+        foreach (var sort in request.State.Sorts)
+        {
+            Func<WorkflowContact, object> value = c => sort.Key == "score" ? c.Score : sort.Key == "company" ? c.Company : c.Name;
+            ordered = ordered is null ? sort.Descending ? query.OrderByDescending(value) : query.OrderBy(value)
+                : sort.Descending ? ordered.ThenByDescending(value) : ordered.ThenBy(value);
+        }
+        var matches = (ordered ?? query).ToArray();
+        return ValueTask.FromResult(new DataTableResult<WorkflowContact>(matches.Skip(request.PageIndex * request.PageSize).Take(request.PageSize).ToArray(), matches.Length));
+    }
+    private readonly IReadOnlyList<WorkflowContact> _largeContacts = Enumerable.Range(1, 1000).Select(i => new WorkflowContact(i.ToString(), $"Virtual contact {i}", "Acme", i)).ToArray();
+    private QuarkViewState _state = new();
+    private IReadOnlyCollection<string> _selected = [];
+    private IReadOnlyList<WorkflowContact> _contacts = Enumerable.Range(1, 75).Select(i => new WorkflowContact(i.ToString(), $"Contact {i}", i % 2 == 0 ? "Acme" : "Northwind", i % 100)).ToArray();
+    private readonly IReadOnlyList<DataTableColumn<WorkflowContact>> _columns = [
+        new() { Key = "name", Title = "Name", Value = c => c.Name, Editable = true },
+        new() { Key = "company", Title = "Company", Value = c => c.Company, Editable = true },
+        new() { Key = "score", Title = "Score", Value = c => c.Score, FilterType = FilterFieldType.Number, Editable = true }
+    ];
+    private ValueTask Save(DataTableEditContext<WorkflowContact> edit, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (string.IsNullOrWhiteSpace(edit.Value)) throw new ArgumentException("A value is required.");
+        var changed = edit.ColumnKey switch { "name" => edit.Item with { Name = edit.Value }, "company" => edit.Item with { Company = edit.Value }, _ => edit.Item with { Score = decimal.Parse(edit.Value, CultureInfo.InvariantCulture) } };
+        _contacts = _contacts.Select(c => c.Id == changed.Id ? changed : c).ToArray();
+        _data.Items = _contacts;
+        StateHasChanged();
+        return ValueTask.CompletedTask;
+    }
+    private const string Example = """
+<DataTable Data="contacts" @bind-State="view" SelectionEnabled="true">
+    <TopContent><SavedViews @bind-State="view" StorageKey="account.contacts" /></TopContent>
+</DataTable>
+
+@code {
+    private DataTableData<Contact> contacts = new()
+    {
+        Items = records,
+        Columns = columns,
+        RowKey = c => c.Id,
+        SaveEdit = SaveCell
+    };
+}
+""";
+}

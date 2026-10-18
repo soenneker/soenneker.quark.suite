@@ -41,8 +41,7 @@
     {
         base.OnParametersSet();
         _filtered = Options?.Where(option => !FilterOptions || string.IsNullOrWhiteSpace(ParentCombobox?.Search) ||
-            option.Label.Contains(ParentCombobox.Search, StringComparison.OrdinalIgnoreCase) ||
-            option.Value.Contains(ParentCombobox.Search, StringComparison.OrdinalIgnoreCase)).ToList() ?? [];
+            OptionNavigation.Matches(option.Label, option.Value, ParentCombobox.Search)).ToList() ?? [];
         _keys = _filtered.Select(option => option.Value).ToArray();
         if (Virtualize && Options is not null) ParentCombobox?.SetVirtualOptions(this, _filtered);
         else ParentCombobox?.ClearVirtualOptions(this);

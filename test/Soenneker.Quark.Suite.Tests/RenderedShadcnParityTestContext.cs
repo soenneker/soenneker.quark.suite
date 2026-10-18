@@ -22,6 +22,10 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 {
     public RenderedShadcnParityTests()
     {
+        Services.AddQuarkLocalizationAsScoped();
+        Services.AddSingleton<IWorkflowInteractionInterop, WorkflowInteractionTestInterop>();
+        Services.AddSingleton<IVirtualViewportInterop, WorkflowViewportTestInterop>();
+        Services.AddSingleton<IQuarkViewStore, WorkflowViewStore>();
         JSInterop.Mode = JSRuntimeMode.Loose;
 
         var module = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix.js");

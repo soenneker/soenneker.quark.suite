@@ -1,0 +1,25 @@
+@page "/components/notification-center"
+@using System.Threading
+<QuarkSeoHead Title="Blazor Notification Center | Quark Suite" Description="Display a persistent notification inbox with grouping, unread state, actions and paged loading." />
+<Div Class="space-y-6">
+    <H1>Notification center</H1>
+    <Paragraph>Read state and actions are application-owned. Supply Load and MarkRead callbacks to connect the inbox to persistent account storage. Mark all read affects loaded notifications.</Paragraph>
+    <NotificationCenter @bind-Items="_items" Load="Load" Action="Open" />
+    @if (_opened is not null) { <Alert>@_opened</Alert> }
+    <PreCode Language="razor">@Example</PreCode>
+</Div>
+@code {
+    private IReadOnlyList<QuarkNotification> _items = [];
+    private string? _opened;
+    private ValueTask<NotificationPage> Load(string? token, CancellationToken cancellationToken)
+    {
+        var start = token is null ? 0 : int.Parse(token);
+        var items = Enumerable.Range(start, 5).Select(i => new QuarkNotification(i.ToString(), $"Update {i + 1}", "An account update is ready to review.", DateTimeOffset.UtcNow.AddHours(-i), Group: i % 2 == 0 ? "Assignments" : "Activity", ActionLabel: "Review")).ToArray();
+        return ValueTask.FromResult(new NotificationPage(items, start < 10 ? (start + 5).ToString() : null));
+    }
+    private void Open(QuarkNotification notification) => _opened = $"Opened {notification.Title}";
+    private const string Example = """
+<NotificationCenter @bind-Items="notifications" Load="LoadNotifications"
+                    MarkRead="PersistReadState" Action="OpenNotification" />
+""";
+}

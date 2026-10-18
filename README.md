@@ -1,10 +1,10 @@
 # Quark Suite
 
-**Beautiful Blazor interfaces. Composable components. Your design.**
+**Blazor components with shadcn/ui styling and typed C# APIs.**
 
-Bring the visual language of shadcn/ui to your next Blazor application. Quark combines ready-to-use components, Tailwind styling, and native C# and Razor APIs so you can go from a blank page to a polished product.
+Quark gives you forms, tables, navigation, dialogs, and more with consistent defaults. Compose components in Razor, handle events in C#, and control layout and appearance with typed properties.
 
-Build a dashboard, an admin workspace, a customer portal, or an AI chat experience. Start with cohesive defaults, compose the pieces your screen needs, and make them your own.
+Use it to build dashboards, admin tools, customer portals, and other Blazor applications without styling every control from scratch.
 
 [**Explore the live demo →**](https://quark.soenneker.com/) · [Component catalog](https://quark.soenneker.com/components) · [Get started](#get-started) · [NuGet](https://www.nuget.org/packages/soenneker.quark.suite/)
 
@@ -15,28 +15,13 @@ Build a dashboard, an admin workspace, a customer portal, or an AI chat experien
 
 ## Why build with Quark?
 
-- **A cohesive starting point.** Cards, forms, navigation, overlays, tables, and charts share a visual language that works across your application.
-- **Composition that feels like Razor.** Combine headers, content, actions, and triggers directly in your markup. Bind values and handle events with ordinary C#.
-- **Styling with room to grow.** Choose a component variant, use fluent C# builders for responsive layouts, or apply your own Tailwind classes and CSS.
-- **Your brand, throughout the UI.** Shared theme tokens let you customize colors and light/dark appearances across components.
-- **More than the basics.** Build richer workflows with file uploads, date pickers, data tables, real-time charts, and AI/chat components.
-- **Fits your .NET workflow.** Install through NuGet and generate styles and icons during your .NET build, without manually setting up Node.js or npm. The suite also declares AOT compatibility.
+- **Less styling to repeat.** Components share defaults for spacing, typography, colors, and interaction states. Variants cover common choices such as primary and secondary actions.
+- **Ordinary Razor and C#.** Compose headers, content, and actions in markup. Bind values and handle events using the Blazor patterns you already know.
+- **Typed styling.** Set layout, spacing, colors, and responsive behavior with Quark properties and fluent builders. Reuse styling through presets.
+- **Shared themes.** Theme tokens apply your colors and light/dark appearances across components.
+- **Build tooling included.** Install through NuGet and generate styles and icons during your .NET build. The generators provision Node.js and npm when needed.
 
-Quark is an **MIT-licensed Blazor component library** inspired by shadcn/ui. Its components use Bradix interaction primitives for behaviors such as focus management and overlays, alongside Quark styling and .NET APIs.
-
-## From everyday controls to complete experiences
-
-Explore working examples and adapt them to your application:
-
-| What you are building | What to reach for |
-| --- | --- |
-| **Application workspaces** | [Sidebars](https://quark.soenneker.com/components/sidebar), [cards](https://quark.soenneker.com/components/card), and [tabs](https://quark.soenneker.com/components/tabs) for navigation and page structure. |
-| **Forms and settings** | [Inputs](https://quark.soenneker.com/components/input), [fields](https://quark.soenneker.com/components/field), and [date pickers](https://quark.soenneker.com/components/date-picker) for collecting and organizing input. |
-| **Dashboards and reporting** | [Data tables](https://quark.soenneker.com/components/datatables), [charts](https://quark.soenneker.com/components/charts), and [real-time charts](https://quark.soenneker.com/components/realtime-charts) for exploring data. |
-| **Actions and feedback** | [Dialogs](https://quark.soenneker.com/components/dialog), [dropdown menus](https://quark.soenneker.com/components/dropdown-menu), and [toast notifications](https://quark.soenneker.com/components/sonner) for focused interactions. |
-| **AI and attachment workflows** | [Prompt inputs](https://quark.soenneker.com/components/prompt-inputs), [attachments](https://quark.soenneker.com/components/attachments), and [file drop zones](https://quark.soenneker.com/components/file-drop-zone) for composing messages and working with files. |
-
-[**Browse the full component catalog →**](https://quark.soenneker.com/components)
+Quark is MIT-licensed and uses Bradix interaction primitives for behaviors such as focus management and overlays.
 
 ## Get started
 
@@ -107,10 +92,10 @@ Create `Pages/QuarkStart.razor`:
 ```razor
 @page "/quark-start"
 
-<Card Class="max-w-md">
+<Card MaxWidth="MaxWidth.IsMd">
     <CardHeader>
-        <CardTitle>Make room for your next idea</CardTitle>
-        <CardDescription>Create a workspace for your team.</CardDescription>
+        <CardTitle>Create a workspace</CardTitle>
+        <CardDescription>Choose a name for your team's workspace.</CardDescription>
     </CardHeader>
     <CardContent>
         <Field>
@@ -135,7 +120,7 @@ Create `Pages/QuarkStart.razor`:
     {
         _message = string.IsNullOrWhiteSpace(_name)
             ? "Give your workspace a name to get started."
-            : $"Ready to create {_name}!";
+            : $"Workspace name: {_name}";
     }
 }
 ```
@@ -146,28 +131,21 @@ Run the app:
 dotnet run
 ```
 
-Open `/quark-start` at the address printed in your terminal. You now have a styled card, a labelled input, an icon, and a working button. This example updates a local message; connect the handler to your application service to create a real workspace.
+Open `/quark-start` at the address printed in your terminal. The example demonstrates component composition, input binding, and a button handler. It only updates a local message; connect the handler to your application service to create a workspace.
 
-## Make it yours
+## Components
 
-### Stable, content-based table columns
+The [component catalog](https://quark.soenneker.com/components) includes working examples. Common starting points:
 
-Set `AdaptiveLayout="true"` on `Table` or `DataTable` to size columns from rendered content without assigning individual widths:
+| What you are building | What to reach for |
+| --- | --- |
+| **Application workspaces** | [Sidebars](https://quark.soenneker.com/components/sidebar), [cards](https://quark.soenneker.com/components/card), and [tabs](https://quark.soenneker.com/components/tabs) for navigation and page structure. |
+| **Forms and settings** | [Inputs](https://quark.soenneker.com/components/input), [fields](https://quark.soenneker.com/components/field), and [date pickers](https://quark.soenneker.com/components/date-picker) for collecting and organizing input. |
+| **Dashboards and reporting** | [Data tables](https://quark.soenneker.com/components/datatables), [charts](https://quark.soenneker.com/components/charts), and [real-time charts](https://quark.soenneker.com/components/realtime-charts) for exploring data. |
+| **Actions and feedback** | [Dialogs](https://quark.soenneker.com/components/dialog), [dropdown menus](https://quark.soenneker.com/components/dropdown-menu), and [toast notifications](https://quark.soenneker.com/components/sonner) for focused interactions. |
+| **AI and attachment workflows** | [Prompt inputs](https://quark.soenneker.com/components/prompt-inputs), [attachments](https://quark.soenneker.com/components/attachments), and [file drop zones](https://quark.soenneker.com/components/file-drop-zone) for composing messages and working with files. |
 
-```razor
-<Table AdaptiveLayout="true">
-    <Thead><Tr><Th>Job</Th><Th>Attempt</Th><Th>Action</Th></Tr></Thead>
-    <Tbody>
-        <Tr><Td>PhoneLookupRefreshJob.Recover</Td><Td>1 / 1</Td><Td><Button>Retry</Button></Td></Tr>
-    </Tbody>
-</Table>
-```
-
-Adaptive sizing measures visible content, adds 24 pixels of spare room per column, and gives remaining container space to the widest column. Small button, status, or timestamp changes within those allocations do not move columns. Larger changes grow the affected column; shorter content keeps its allocation across refreshes and pages. Container resizing, changed headers, or a changed column count triggers fresh sizing.
-
-Optional `ColumnSizing="@(new TableColumnSizingOptions { Padding = 32, MinWidth = 64, MaxWidth = 640 })"` configures the reserve and measurement limits for the whole table. Long content wraps at the limit, while narrow containers scroll horizontally. The widest column may exceed `MaxWidth` when filling unused container space. A child `Table` inherits its `DataTable` settings unless overridden.
-
-Adaptive sizing is opt-in and takes precedence over `FixedLayout`. Remove old per-column width rules when adopting it. Authored `colgroup` elements and rowspans retain native table sizing; spanning detail, loading, and summary rows are excluded from measurements. It requires interactive rendering and the normal Quark service registration.
+## Styling
 
 ### Start with a variant
 
@@ -195,20 +173,13 @@ Typed styling keeps spacing and responsive behavior alongside your components:
 
 The actions stack on smaller screens and sit in a row from the medium breakpoint. Read the chains left to right: `OnMd.Row` applies the breakpoint to the row layout; `OnX.Is4.OnY.Is2` sets horizontal and vertical padding.
 
-Prefer writing Tailwind directly? Use `Class`:
-
-```razor
-<Div Class="flex flex-col gap-3 px-4 py-2 md:flex-row">
-    <Button>Save changes</Button>
-    <Button Variant="ButtonVariant.Outline">Cancel</Button>
-</Div>
-```
+Use typed Quark properties for styling whenever an equivalent property exists. For reusable styling, group those properties in a dedicated Quark preset.
 
 [Explore styling properties](https://quark.soenneker.com/properties) · [Build responsive grids](https://quark.soenneker.com/grid-system)
 
-### Give your application its own identity
+### Apply your theme
 
-Customize shared theme tokens for your brand colors and light/dark appearances. Use semantic colors in your components so the same markup follows your theme:
+Use semantic colors so components follow your theme in light and dark mode:
 
 ```razor
 <Div BackgroundColor="BackgroundColor.Card"
@@ -220,7 +191,7 @@ Customize shared theme tokens for your brand colors and light/dark appearances. 
 
 Configure tokens in `tailwind/quark-shadcn.theme.json`, or use the optional `Soenneker.Quark.Gen.Themes` package to define a shared theme in C#. The [theme guide](https://quark.soenneker.com/themes) walks through configuration, stylesheet setup, and switching between light and dark mode.
 
-### Add icons to your actions
+## Icons
 
 The quick start includes Lucide icons. Reference an icon by name in your markup:
 
@@ -237,7 +208,7 @@ For brand logos, add `Soenneker.Quark.Gen.SimpleIcons` and `Soenneker.SimpleIcon
 
 Use [`SeoHead`](src/Soenneker.Quark.Suite/Components/SeoHead/README.md) for page titles, descriptions, canonical URLs, Open Graph, Twitter cards, and optional JSON-LD. It works with Blazor's `HeadOutlet`; your application supplies its own branding and structured data.
 
-## Keep building
+## Documentation
 
 | Next step | Guide |
 | --- | --- |
@@ -248,10 +219,18 @@ Use [`SeoHead`](src/Soenneker.Quark.Suite/Components/SeoHead/README.md) for page
 | Resolve missing styles, icons, or interaction | [Troubleshooting](https://quark.soenneker.com/troubleshooting) |
 | Learn from a working application | [Demo source](test/Soenneker.Quark.Suite.Demo) |
 
-If your first page looks unstyled, check that CSS generation is enabled and the stylesheet is loaded. If a button does not respond in a Blazor Web App, check the page's interactive render mode.
+## Troubleshooting
 
-## Open source, ready for your next project
+| Problem | Check |
+| --- | --- |
+| Components appear unstyled | Enable `TailwindGeneratorBuildEnabled`, rebuild, and confirm the generated stylesheet is loaded by the page. |
+| Buttons or inputs do not respond | In a Blazor Web App, ensure the page uses an interactive render mode and Quark services are registered in the project running the components. |
+| Lucide icons do not appear | Confirm both Lucide packages are installed and `AddLucideIconsAsScoped()` is registered, then rebuild. |
 
-Quark is available under the [MIT license](LICENSE). Explore the demo, try it in your app, and help shape what comes next.
+See the [troubleshooting guide](https://quark.soenneker.com/troubleshooting) for more details.
 
-Found a bug or have a component idea? [Open an issue](https://github.com/soenneker/soenneker.quark.suite/issues). Contributions and example improvements are welcome. If Quark helps you ship, consider starring the repository so other Blazor developers can find it.
+## License and contributions
+
+Quark is available under the [MIT license](LICENSE). Issues and contributions are welcome.
+
+For bugs, [open an issue](https://github.com/soenneker/soenneker.quark.suite/issues) with the package version, hosting model, and a minimal reproduction. For feature requests, describe the workflow you need to support.

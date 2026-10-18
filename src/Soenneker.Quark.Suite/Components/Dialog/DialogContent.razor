@@ -52,7 +52,7 @@
     private static readonly CssValue<RoundedBuilder> _defaultRounded = Quark.Rounded.Xl;
     private static readonly CssValue<BackgroundColorBuilder> _defaultBackgroundColor = Quark.BackgroundColor.Popover;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Is4;
-    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.None;
+    private static readonly CssValue<OutlineStyleBuilder> _defaultOutlineStyle = Quark.OutlineStyle.Hidden;
     private Func<Task>? _cachedHandleBackdropPointerDownOutsideDelegate;
 
     private string? _lastBuiltClass2;
@@ -70,10 +70,7 @@
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
 
-    private bool ShouldCloseOnOutsideInteraction =>
-        ParentDialog is not null &&
-        !ParentDialog.Static &&
-        ParentDialog.CloseOnBackdropClick;
+    private bool ShouldCloseOnOutsideInteraction => ParentDialog?.DismissOnOutside == true;
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
@@ -81,7 +78,7 @@
 
     private Task HandleBackdropPointerDownOutside()
     {
-        return ParentDialog?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
+        return ParentDialog?.NotifyBackdropClick() ?? Task.CompletedTask;
     }
 
     protected override void ApplyDefaultParameters()

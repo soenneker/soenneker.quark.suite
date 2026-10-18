@@ -1,126 +1,174 @@
 @namespace Soenneker.Quark
 @implements ISearchableSelect
 @implements IValidationInput
-        <Combobox Value="@ItemValue"
-                  ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
-                  Search="@_search"
-                  SearchChanged="(_searchChanged ??= SetSearch)"
-                  Open="@_open"
-                  OpenChanged="(_openChanged ??= SetOpen)"
-                  Disabled="@Disabled"
-                  AutoHighlight="true"
-                  Width="_staticCss1"
-                  MinWidth="_staticCss0">
-            <ComboboxInput DisplayValue="@DisplayValue" Placeholder="@Placeholder" @attributes="InputAttributes" />
-            <ComboboxContent>
-                <ComboboxEmpty>@EmptyText</ComboboxEmpty>
-                <ComboboxList FilterOptions="false" Virtualize="@Virtualize" Options="@EncodedOptions" />
-            </ComboboxContent>
-        </Combobox>
-
+@implements IDisposable
+@using System.Threading
+@using Microsoft.Extensions.DependencyInjection
+@using Microsoft.Extensions.Logging
+@inject IServiceProvider Services
+<Combobox Value="@EncodedValue" ValueChanged="HandleValueChanged" Multiple="@Multiple"
+          Values="@EncodedValues" ValueChangedMultiple="HandleValuesChanged"
+          Search="@_search" SearchChanged="SetSearch" Open="@_open" OpenChanged="SetOpen"
+          HasMoreOptions="@(_continuation is not null && !_loading && !_error)" LoadMoreOptions="() => Load(true, false)"
+          Disabled="@Disabled" AutoHighlight="true" Width="Width.IsFull" MinWidth="MinWidth.Is0">
+    @if (Multiple)
+    {
+        <ComboboxChips>
+            @foreach (var value in Values)
+            {
+                <ComboboxChip @key="value" Value="@EncodeValue(value)">@LabelFor(value)</ComboboxChip>
+            }
+        </ComboboxChips>
+    }
+    <ComboboxInput DisplayValue="@DisplayValue" Placeholder="@Placeholder" @attributes="InputAttributes" />
+    <ComboboxContent aria-busy="@(_loading ? "true" : "false")">
+        <ComboboxList FilterOptions="false" Virtualize="@Virtualize" Options="@EncodedOptions" />
+        @if (_loading) { <Div role="status">@Text["Loading"]</Div> }
+        else if (_error) { <Div role="alert">@Text["LoadError"]</Div><Button OnClick="() => Load(_failedAppend, false)">@Text["Retry"]</Button> }
+        else { <ComboboxEmpty>@EmptyText</ComboboxEmpty> }
+        @if (!_loading && !_error && _continuation is not null) { <Button OnClick="() => Load(true, false)">@Text["LoadMore"]</Button> }
+    </ComboboxContent>
+</Combobox>
+@if (_resolveError) { <Div role="alert">@Text["LoadError"] <Button OnClick="ResolveValues">@Text["Retry"]</Button></Div> }
 @code {
     [Parameter] public bool Virtualize { get; set; }
-    private IReadOnlyList<SelectOption> EncodedOptions => Choices.Where(MatchesSearch).Select((choice, index) => new SelectOption(EncodeChoice(index, choice.Value), choice.Label, choice.Disabled)).ToArray();
-
-    private static readonly CssValue<MinWidthBuilder> _staticCss0 = MinWidth.Is0;
-    private static readonly CssValue<WidthBuilder> _staticCss1 = Width.IsFull;
-    private Func<string?, Task>? _cachedHandleValueChangedDelegate;
-
-    private Action<string?>? _searchChanged;
-    private Action<bool>? _openChanged;
-    private string? _encodedValueSource;
-    private string? _encodedValue;
-    private string?[] _encodedChoices = [];
-    private void SetSearch(string? value) => _search = value;
-    private void SetOpen(bool value) => _open = value;
-    private string? _search;
-    private bool _open;
-    [Parameter]
-    public IReadOnlyList<SelectOption> Choices { get; set; } = [];
-    [Parameter]
-    public string? Value { get; set; }
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
-    [Parameter]
-    public string Placeholder { get; set; } = "Select an option";
-    [Parameter]
-    public string EmptyText { get; set; } = "No options found.";
-    [Parameter]
-    public bool Disabled { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? InputAttributes { get; set; }
-    [CascadingParameter(Name = nameof(ParentValidation))]
-    public Validation? ParentValidation { get; set; }
-    public object? ValidationValue => Value;
-    private string? ItemValue
-    {
-        get
-        {
-            if (_encodedValueSource != Value)
-            {
-                _encodedValueSource = Value;
-                _encodedValue = Value is null ? null : EncodeValue(Value);
-            }
-            return _encodedValue;
-        }
-    }
-
-    private string EncodeChoice(int index, string value)
-    {
-        if (_encodedChoices.Length != Choices.Count)
-            Array.Resize(ref _encodedChoices, Choices.Count);
-
-        string? encoded = _encodedChoices[index];
-        if (encoded is null || !encoded.AsSpan("option:".Length).SequenceEqual(value))
-            _encodedChoices[index] = encoded = EncodeValue(value);
-        return encoded;
-    }
-    private string DisplayValue
-    {
-        get
-        {
-            for (int index = 0; index < Choices.Count; index++)
-            {
-                SelectOption choice = Choices[index];
-                if (string.Equals(choice.Value, Value, StringComparison.Ordinal))
-                    return choice.Label;
-            }
-            return string.Empty;
-        }
-    }
-    private bool MatchesSearch(SelectOption choice) => string.IsNullOrWhiteSpace(_search)
-        || choice.Label.Contains(_search, StringComparison.OrdinalIgnoreCase) || choice.Value.Contains(_search, StringComparison.OrdinalIgnoreCase);
+    [Parameter] public IReadOnlyList<SelectOption> Choices { get; set; } = [];
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public IReadOnlyList<string> Values { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<string>> ValuesChanged { get; set; }
+    [Parameter] public bool Multiple { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Select an option";
+    [Parameter] public string EmptyText { get; set; } = "No options found.";
+    [Parameter] public Func<SelectSearchRequest, CancellationToken, ValueTask<SelectSearchResult>>? LoadOptions { get; set; }
+    [Parameter] public Func<IReadOnlyList<string>, CancellationToken, ValueTask<IReadOnlyList<SelectOption>>>? Resolve { get; set; }
+    [Parameter] public int DebounceMilliseconds { get; set; } = 250;
+    [Parameter] public int PageSize { get; set; } = 25;
+    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? InputAttributes { get; set; }
+    [CascadingParameter(Name = nameof(ParentValidation))] public Validation? ParentValidation { get; set; }
+    public object? ValidationValue => Multiple ? Values : Value;
+    private readonly CancellationTokenSource _lifetime = new();
+    private CancellationTokenSource? _searchCancellation;
+    private CancellationTokenSource? _resolveCancellation;
+    private readonly Dictionary<string, SelectOption> _labels = [];
+    private List<SelectOption> _items = [];
+    private string? _search, _continuation;
+    private bool _open, _loading, _error, _failedAppend, _resolveError, IsDisposed;
+    private int _version, _resolveVersion;
+    private bool _hasLoaded, _selectionChanged;
+    private IQuarkLocalizer Text => Services.GetService<IQuarkLocalizer>() ?? _fallback;
+    private readonly QuarkLocalizer _fallback = new();
+    private IEnumerable<SelectOption> Options => LoadOptions is null ? Choices.Where(o => string.IsNullOrWhiteSpace(_search) || OptionNavigation.Matches(o.Label, o.Value, _search)) : _items;
+    private IReadOnlyList<SelectOption> EncodedOptions => Options.Select(o => new SelectOption(EncodeValue(o.Value), o.Label, o.Disabled)).ToArray();
+    private string? EncodedValue => Value is null ? null : EncodeValue(Value);
+    private string[] EncodedValues => Values.Select(EncodeValue).ToArray();
     private static string EncodeValue(string value) => "option:" + value;
-
+    private string LabelFor(string value) => Choices.FirstOrDefault(o => o.Value == value)?.Label ?? (_labels.TryGetValue(value, out var option) ? option.Label : value);
+    private string DisplayValue => Value is null ? "" : LabelFor(Value);
+    private void ReportError(Exception exception, string operation) => Services.GetService<ILogger<SearchableSelect>>()?.LogWarning(exception, "SearchableSelect failed to {Operation}", operation);
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
-            await ParentValidation.InitializeInput(this);
-        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender && ParentValidation is not null) await ParentValidation.InitializeInput(this);
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Disabled) { _open = false; _version++; _searchCancellation?.Cancel(); _loading = false; }
+        await ResolveValues();
+    }
+    private async Task ResolveValues()
+    {
+        _resolveCancellation?.Cancel();
+        var version = ++_resolveVersion;
+        var selected = Multiple ? Values : Value is null ? [] : new[] { Value };
+        var missing = selected.Where(v => !_labels.ContainsKey(v) && !Choices.Any(o => o.Value == v)).Distinct().ToArray();
+        _resolveError = false;
+        if (Resolve is null || missing.Length == 0 || IsDisposed) return;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _resolveCancellation = cancellation;
+        try
+        {
+            var resolved = await Resolve(missing, cancellation.Token);
+            if (version != _resolveVersion || cancellation.IsCancellationRequested || IsDisposed) return;
+            foreach (var option in resolved) _labels[option.Value] = option;
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "resolve selected options"); if (!IsDisposed && version == _resolveVersion) _resolveError = true; }
+        finally { if (ReferenceEquals(_resolveCancellation, cancellation)) _resolveCancellation = null; }
+    }
+    private async Task SetSearch(string? value)
+    {
+        if (Disabled) return;
+        _search = value;
+        if (_selectionChanged)
+        {
+            _selectionChanged = false;
+            _version++;
+            _searchCancellation?.Cancel();
+            _loading = false;
+            _error = false;
+            _hasLoaded = false;
+            _items = [];
+            _continuation = null;
+            return;
+        }
+        _open = true;
+        if (LoadOptions is not null) await Load(false, true);
+    }
+    private async Task SetOpen(bool value)
+    {
+        var opening = value && !_open;
+        _open = value && !Disabled;
+        if (opening && LoadOptions is not null && !_loading && !_hasLoaded && !_error) await Load(false, false);
+    }
+    private async Task Load(bool append, bool debounce)
+    {
+        if (Disabled || IsDisposed || LoadOptions is null || (append && _loading)) return;
+        _hasLoaded = true;
+        _searchCancellation?.Cancel();
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _searchCancellation = cancellation;
+        var version = ++_version; var query = _search ?? ""; var token = append ? _continuation : null;
+        _loading = true; _error = false; _failedAppend = append;
+        if (!append) { _items = []; _continuation = null; }
+        try
+        {
+            if (debounce) await Task.Delay(Math.Clamp(DebounceMilliseconds, 0, 10000), cancellation.Token);
+            var result = await LoadOptions(new(query, token, Math.Clamp(PageSize, 1, 1000)), cancellation.Token);
+            if (version != _version || cancellation.IsCancellationRequested || IsDisposed) return;
+            var combined = append ? _items.Concat(result.Items) : result.Items;
+            _items = combined.DistinctBy(o => o.Value).ToList();
+            foreach (var option in result.Items) _labels[option.Value] = option;
+            _continuation = result.ContinuationToken == token ? null : result.ContinuationToken;
+
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception exception) { ReportError(exception, "load options"); if (version == _version && !IsDisposed) _error = true; }
+        finally { if (version == _version) _loading = false; if (ReferenceEquals(_searchCancellation, cancellation)) _searchCancellation = null; }
     }
 
-    private async Task HandleValueChanged(string? itemValue)
+    private async Task HandleValueChanged(string? encoded)
     {
-        if (Disabled)
-            return;
-        if (itemValue is null || !itemValue.StartsWith("option:", StringComparison.Ordinal))
-            return;
-
-        SelectOption? choice = null;
-        for (int index = 0; index < Choices.Count; index++)
-        {
-            SelectOption candidate = Choices[index];
-            if (candidate.Value.AsSpan().SequenceEqual(itemValue.AsSpan("option:".Length)))
-            {
-                choice = candidate;
-                break;
-            }
-        }
-        if (choice is null || choice.Disabled)
-            return;
-        Value = choice.Value;
+        if (Disabled || encoded is null || !encoded.StartsWith("option:", StringComparison.Ordinal)) return;
+        var option = Options.FirstOrDefault(o => o.Value == encoded[7..] && !o.Disabled);
+        if (option is null) return;
+        _labels[option.Value] = option;
+        _selectionChanged = true;
+        Value = option.Value;
         await ValueChanged.InvokeAsync(Value);
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+        if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Value);
+    }
+    private async Task HandleValuesChanged(string[] encoded)
+    {
+        if (Disabled) return;
+        foreach (var option in Options) _labels[option.Value] = option;
+        Values = encoded.Where(v => v.StartsWith("option:", StringComparison.Ordinal)).Select(v => v[7..]).ToArray();
+        await ValuesChanged.InvokeAsync(Values);
+        if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Values);
+    }
+    public void Dispose()
+    {
+        if (IsDisposed) return;
+        IsDisposed = true; _version++; _resolveVersion++; _lifetime.Cancel(); _lifetime.Dispose();
     }
 }

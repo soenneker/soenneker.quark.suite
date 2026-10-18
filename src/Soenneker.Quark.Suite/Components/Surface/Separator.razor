@@ -50,7 +50,11 @@
 
         attributes["data-orientation"] = Orientation == SeparatorOrientation.Vertical ? "vertical" : "horizontal";
 
-        PrependClassAttribute(attributes, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch", ref _lastPrependedClass);
+        if (Orientation == SeparatorOrientation.Vertical && ResolvePresetValue(Height, AppliedPresetContext?.Height, nameof(Height)) is null &&
+            ResolvePresetValue(SelfAlign, AppliedPresetContext?.SelfAlign, nameof(SelfAlign)) is null)
+            attributes.TryAdd("data-auto-stretch", "true");
+
+        PrependClassAttribute(attributes, "data-[auto-stretch=true]:self-stretch data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px", ref _lastPrependedClass);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

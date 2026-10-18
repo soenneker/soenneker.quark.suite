@@ -1,0 +1,71 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements IQueryBuilder
+@using System.Linq
+<div @attributes="@(WorkflowAttributes("filter-builder", "space-y-3 rounded-md border p-3"))" role="group" aria-label="@Text["Filters"]">
+    <fieldset disabled="@Disabled" class="space-y-3">
+        <legend class="sr-only">@Text["Filters"]</legend>
+        <select aria-label="@Text["Filters"]" class="rounded border bg-background p-2" value="@Value.Junction" @onchange="ChangeJunction">
+            <option value="All">@Text["All"]</option><option value="Any">@Text["Any"]</option>
+        </select>
+        @foreach (var rule in Value.Rules)
+        {
+            var field = Fields.FirstOrDefault(f => f.Key == rule.Field);
+            <div @key="rule.Id" class="flex flex-wrap items-center gap-2" data-slot="filter-rule">
+                <select aria-label="@Text["Field"]" class="rounded border bg-background p-2" value="@rule.Field" @onchange="e => ChangeField(rule, e.Value?.ToString())">
+                    @foreach (var item in Fields) { <option value="@item.Key">@item.Label</option> }
+                </select>
+                @if (field is not null)
+                {
+                    <select aria-label="@Text["Operator"]" class="rounded border bg-background p-2" value="@rule.Operator" @onchange="e => ChangeOperator(rule, e.Value?.ToString())">
+                        @foreach (var op in FilterEvaluator.Operators(field.Type)) { <option value="@op">@Text[op.ToString()]</option> }
+                    </select>
+                    @if (rule.Operator is not FilterOperator.IsEmpty and not FilterOperator.IsNotEmpty)
+                    {
+                        @if (field.Type is FilterFieldType.Choice or FilterFieldType.Boolean)
+                        {
+                            <select aria-label="@Text["Value"]" value="@rule.Value" class="rounded border bg-background p-2" @onchange="e => Replace(rule with { Value = e.Value?.ToString() })">
+                                <option value="">@Text["Select"]</option>
+                                @if (field.Type == FilterFieldType.Boolean) { <option value="true">@Text["True"]</option><option value="false">@Text["False"]</option> }
+                                else { @foreach (var choice in field.Choices ?? []) { <option value="@choice.Value" disabled="@choice.Disabled">@choice.Label</option> } }
+                            </select>
+                        }
+                        else
+                        {
+                            <input aria-label="@Text["Value"]" aria-invalid="@(!FilterEvaluator.IsValid(rule, field) ? "true" : "false")" class="rounded border bg-background p-2" type="@(field.Type == FilterFieldType.Date ? "date" : field.Type == FilterFieldType.Number ? "number" : "text")" step="any" value="@rule.Value" @onchange="e => Replace(rule with { Value = e.Value?.ToString() })" />
+                        }
+                        @if (!FilterEvaluator.IsValid(rule, field)) { <span role="status" class="text-sm text-destructive">@Text["InvalidFilter"]</span> }
+                    }
+                }
+                <button type="button" class="rounded border px-2 py-1" aria-label="@Text["Remove"]" @onclick="() => Publish(Value with { Rules = Value.Rules.Where(x => x.Id != rule.Id).ToArray() })">×</button>
+            </div>
+        }
+        @foreach (var group in Value.Groups)
+        {
+            <div @key="group.Id" class="space-y-2 border-s ps-3">
+                <QueryBuilder Fields="Fields" Value="group" ValueChanged="g => ReplaceGroup(g)" Disabled="Disabled" MaxDepth="MaxDepth" Depth="@(Depth + 1)" />
+                <button type="button" class="rounded border px-2 py-1" @onclick="() => Publish(Value with { Groups = Value.Groups.Where(x => x.Id != group.Id).ToArray() })">@Text["Remove"]</button>
+            </div>
+        }
+        <div class="flex gap-2">
+            <button type="button" class="rounded border px-3 py-1" disabled="@(Fields.Count == 0)" @onclick="AddRule">@Text["AddRule"]</button>
+            @if (Depth < MaxDepth) { <button type="button" class="rounded border px-3 py-1" @onclick="() => Publish(Value with { Groups = Value.Groups.Append(new FilterGroup()).ToArray() })">@Text["AddGroup"]</button> }
+            <button type="button" class="rounded border px-3 py-1" @onclick="() => Publish(Value with { Rules = [], Groups = [] })">@Text["Clear"]</button>
+        </div>
+    </fieldset>
+</div>
+@code {
+    [Parameter] public IReadOnlyList<FilterField> Fields { get; set; } = [];
+    [Parameter] public FilterGroup Value { get; set; } = new();
+    [Parameter] public EventCallback<FilterGroup> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public int MaxDepth { get; set; } = 4;
+    [Parameter] public int Depth { get; set; }
+    private async Task Publish(FilterGroup value) { if (Disabled) return; Value = value; await ValueChanged.InvokeAsync(value); }
+    private Task Replace(FilterRule rule) => Publish(Value with { Rules = Value.Rules.Select(x => x.Id == rule.Id ? rule : x).ToArray() });
+    private Task ReplaceGroup(FilterGroup group) => Publish(Value with { Groups = Value.Groups.Select(x => x.Id == group.Id ? group : x).ToArray() });
+    private Task ChangeJunction(ChangeEventArgs e) => Enum.TryParse<FilterJunction>(e.Value?.ToString(), out var junction) ? Publish(Value with { Junction = junction }) : Task.CompletedTask;
+    private Task ChangeOperator(FilterRule rule, string? value) => Enum.TryParse<FilterOperator>(value, out var op) ? Replace(rule with { Operator = op }) : Task.CompletedTask;
+    private Task ChangeField(FilterRule rule, string? value) => Replace(rule with { Field = value ?? "", Operator = FilterOperator.Equals, Value = "" });
+    private Task AddRule() => Fields.Count == 0 ? Task.CompletedTask : Publish(Value with { Rules = Value.Rules.Append(new FilterRule { Field = Fields[0].Key, Value = "" }).ToArray() });
+}

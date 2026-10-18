@@ -1,0 +1,33 @@
+@page "/components/localization"
+@implements IDisposable
+@using System.Globalization
+@inject QuarkLocalizer Localizer
+<QuarkSeoHead Title="Blazor Component Localization | Quark Suite" Description="Configure shared UI translations with culture fallback and live updates." />
+<Div Class="space-y-6">
+    <H1>Localization</H1>
+    <Paragraph>Shared text supports regional-to-parent fallback and English defaults. Switch culture to update the filter controls without recreating them. Register IQuarkLocalizer to use your application's resource system.</Paragraph>
+    <Div Class="flex gap-2"><Button OnClick="English">English</Button><Button OnClick="Spanish">Español</Button></Div>
+    <QueryBuilder Fields="_fields" @bind-Value="_filters" />
+    <PreCode Language="csharp">@Example</PreCode>
+</Div>
+@code {
+    private CultureInfo _original = CultureInfo.InvariantCulture;
+    private FilterGroup _filters = new();
+    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Name")];
+    protected override void OnInitialized()
+    {
+        _original = Localizer.Culture;
+        Localizer.SetTranslations("es", new Dictionary<string, string> { ["AddRule"] = "Añadir filtro", ["AddGroup"] = "Añadir grupo", ["All"] = "Todos", ["Any"] = "Cualquiera", ["Clear"] = "Limpiar", ["Remove"] = "Eliminar", ["Equals"] = "Igual a", ["Filters"] = "Filtros", ["Contains"] = "Contiene" });
+    }
+    private void English() => Localizer.SetCulture(CultureInfo.GetCultureInfo("en-US"));
+    private void Spanish() => Localizer.SetCulture(CultureInfo.GetCultureInfo("es-MX"));
+    public void Dispose() => Localizer.SetCulture(_original);
+    private const string Example = """
+localizer.SetTranslations("es", new Dictionary<string, string>
+{
+    ["AddRule"] = "Añadir filtro",
+    ["Clear"] = "Limpiar"
+});
+localizer.SetCulture(CultureInfo.GetCultureInfo("es-MX"));
+""";
+}

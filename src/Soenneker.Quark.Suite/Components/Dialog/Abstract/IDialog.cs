@@ -34,7 +34,7 @@ public interface IDialog : IElement
     bool Centered { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the dialog content should be scrollable.
+    /// Gets or sets whether oversized dialog content is constrained to the viewport and scrollable. Defaults to true.
     /// </summary>
     bool Scrollable { get; set; }
 

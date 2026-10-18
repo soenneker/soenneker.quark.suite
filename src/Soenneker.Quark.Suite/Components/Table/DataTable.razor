@@ -7,7 +7,14 @@
 @namespace Soenneker.Quark
 @inherits CancellableElement
 @implements IDataTable
+@inject IQuarkLocalizer Localizer
 
+@if (Data is not null)
+{
+    @if (Visible) { <CascadingValue Name="DataTable" Value="this">@Data.Render(this)</CascadingValue> }
+}
+else
+{
 <CascadingValue Name="DataTable" Value="this">
     <CascadingValue Value="@IsLoading" Name="IsLoading" >
 		@if (Visible)
@@ -17,14 +24,14 @@
 
                 @if (SelectionEnabled && SelectedKeys.Count > 0)
                 {
-                    <DataTableTopBar data-slot="datatable-selection-toolbar" role="region" aria-label="Selection actions"
+                    <DataTableTopBar data-slot="datatable-selection-toolbar" role="region" aria-label="@Localizer["SelectionActions"]"
                                      TextSize="_renderCss2" Gap="_renderCss3" Padding="_renderCss4"
                                      Margin="_renderCss5" Shadow="_renderCss6">
-                        <Span role="status" TextSize="_renderCss2" FontWeight="_renderCss7">@SelectedKeys.Count selected</Span>
+                        <Span role="status" TextSize="_renderCss2" FontWeight="_renderCss7">@SelectedKeys.Count @Localizer["Selected"]</Span>
                         @SelectionContent
                         <Button Variant="ButtonVariant.Ghost" ButtonSize="_staticCss1" TextSize="_renderCss2"
                                 Height="_renderCss8" Padding="_renderCss9" TextColor="_renderCss10"
-                                Margin="_renderCss11" OnClick="@(_clearSelectionCallback ??= HandleClearSelection)">Clear selection</Button>
+                                Margin="_renderCss11" OnClick="@(_clearSelectionCallback ??= HandleClearSelection)">@Localizer["ClearSelection"]</Button>
                     </DataTableTopBar>
                 }
 
@@ -36,7 +43,7 @@
                              Display="_renderCss16" ItemsAlign="@(LoadingAtTop ? _loadingItemsStart : _loadingItemsCenter)" Justify="_renderCss17"
                              Padding="@(LoadingAtTop ? (CssValue<PaddingBuilder>?)_loadingPadding : null)"
                              Style="background: color-mix(in srgb, var(--background) 60%, transparent);">
-                            <Spinner Size="_renderCss18" aria-label="Loading data" />
+                            <Spinner Size="_renderCss18" aria-label="@Localizer["LoadingData"]" />
                         </Div>
                     }
 
@@ -59,7 +66,7 @@
                     else if (!IsLoading && ChildContent == null)
                     {
                         <Div TextAlign="_renderCss19" Padding="_renderCss20">
-                            <p>No content available</p>
+                            <p>@Localizer["NoContent"]</p>
                         </Div>
                     }
                     else
@@ -100,7 +107,25 @@
     </CascadingValue>
 </CascadingValue>
 
+}
+
 @code {
+    internal Internal.IDataTableDataView? DataView { get; set; }
+    internal void UpdateDataStatus(int count, int page, int pageSize, IReadOnlyCollection<string> keys)
+    {
+        SelectableRowKeys = keys;
+        TotalRecordsCount = count; CurrentPage = page + 1; PageSize = pageSize;
+        TotalPages = Math.Max(1, (count + pageSize - 1) / pageSize);
+    }
+    [Parameter] public DataTableData? Data { get; set; }
+    [Parameter] public QuarkViewState State { get; set; } = new();
+    [Parameter] public EventCallback<QuarkViewState> StateChanged { get; set; }
+    [Parameter] public int SearchDebounceMilliseconds { get; set; } = 250;
+    protected override bool AlwaysRender => Data is not null || base.AlwaysRender;
+    internal Dictionary<string, object> DataAttributes() => new(BuildAttributes());
+    internal async Task AcceptViewState(QuarkViewState state) { State = state; await StateChanged.InvokeAsync(state); }
+    internal Task AcceptDataSelection(IReadOnlyCollection<string> keys) => PublishSelection(keys.ToArray());
+
     [Parameter] public bool Virtualize { get; set; }
     [Parameter] public IReadOnlyList<string> RowKeys { get; set; } = [];
     [Parameter] public RenderFragment<int>? RowTemplate { get; set; }
@@ -304,7 +329,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        var enabled = AdaptiveLayout && Visible && (TableContent is not null || Virtualize);
+        var enabled = Data is null && AdaptiveLayout && Visible && (TableContent is not null || Virtualize);
         if (enabled || _adaptiveLayout is not null)
         {
             _adaptiveLayout ??= new AdaptiveTableLayout(TablesInterop);
@@ -430,8 +455,11 @@
             PrependStyleAttribute(attributes, "table-layout: fixed;", ref _lastBuiltStyle);
     }
 
+    private int _localizationVersion;
+    private void OnLocalizationChanged() { _localizationVersion++; if (!_disposed.Read()) _ = RefreshOffThread(); }
     protected override async Task OnInitializedAsync()
     {
+        Localizer.Changed += OnLocalizationChanged;
         try
         {
             PageSize = GetDefaultPageSize();
@@ -451,6 +479,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (Data is not null) return;
         // Prevent infinite loops by checking if we're already updating parameters
         if (!_isUpdatingParameters.TrySetTrue())
         {
@@ -541,6 +570,7 @@
 
     public async ValueTask HandleGoToPage(int page)
     {
+        if (DataView is not null) { await DataView.GoToPage(page - 1); if (OnGoToPage.HasDelegate) await OnGoToPage.InvokeAsync(CurrentPage); return; }
         if (page < 1 || page > TotalPages || page == CurrentPage)
             return;
 
@@ -556,6 +586,7 @@
 
     public async ValueTask HandlePageSizeChanged(int pageSize)
     {
+        if (DataView is not null) { await DataView.SetState(State with { PageSize = Math.Clamp(pageSize, 1, 10000) }); if (OnPageSizeChanged.HasDelegate) await OnPageSizeChanged.InvokeAsync(State.PageSize); return; }
         if (pageSize <= 0 || pageSize == PageSize)
             return;
 
@@ -650,6 +681,7 @@
 
     public async ValueTask HandleSearch(string searchTerm)
     {
+        if (DataView is not null) { await DataView.SetState(State with { Search = searchTerm }); return; }
         if (Options.Debug)
             Logger.LogDebug("HandleSearch called with term: {SearchTerm}", searchTerm);
 
@@ -664,11 +696,13 @@
 
     public List<DataTableOrderRequest> GetCurrentOrders()
     {
+        if (Data is not null) return State.Sorts.Where(s => Data.ColumnIndex(s.Key) >= 0).Select(s => new DataTableOrderRequest { Column = Data.ColumnIndex(s.Key), Dir = s.Descending ? "desc" : "asc" }).ToList();
         return _currentOrders.Count == 0 ? [] : [.._currentOrders];
     }
 
     public async ValueTask SetOrders(List<DataTableOrderRequest> orders)
     {
+        if (DataView is not null && Data is not null) { await DataView.SetState(State with { Sorts = orders.Where(o => Data.ColumnKey(o.Column) is not null).Select(o => new DataTableSort(Data.ColumnKey(o.Column)!, o.Dir == "desc")).ToArray() }); return; }
         _currentOrders.Clear();
 
         if (orders != null)
@@ -716,6 +750,7 @@
 
     public async ValueTask HandleColumnSort(int columnIndex)
     {
+        if (DataView is not null && Data?.ColumnKey(columnIndex) is { } key) { var previous = State.Sorts.FirstOrDefault(s => s.Key == key); await DataView.SetState(State with { Sorts = previous?.Descending == true ? [] : [new(key, previous is not null)] }); return; }
         if (!IsColumnSortable(columnIndex))
             return;
 
@@ -944,6 +979,7 @@
 
     public async ValueTask ClearSorting()
     {
+        if (DataView is not null) { await DataView.SetState(State with { Sorts = [] }); return; }
         _currentOrders.Clear();
         CurrentPage = 1;
         _continuationTokenPaging.Reset();
@@ -957,6 +993,7 @@
 
     public async ValueTask Reset()
     {
+        if (DataView is not null) { await DataView.SetState(State with { Sorts = [] }); return; }
         _currentOrders.Clear();
         CurrentPage = 1;
         _continuationToken = null;
@@ -972,6 +1009,7 @@
 
     public async ValueTask CancelOperations()
     {
+        if (DataView is not null) { DataView.CancelLoad(); return; }
         if (Options.Debug)
             Logger.LogDebug("Cancelling ongoing operations");
 
@@ -1024,6 +1062,7 @@
     {
         if (!_disposed.TrySetTrue())
             return;
+        Localizer.Changed -= OnLocalizationChanged;
         _pendingInteraction.Value = false;
         _registeredColumns.Clear();
         try
@@ -1041,7 +1080,9 @@
     {
         base.ComputeRenderKeyCore(ref hc);
 
+        hc.Add(_localizationVersion);
         hc.Add(Visible);
+        hc.Add(Data); hc.Add(State);
         hc.Add(SelectionEnabled);
         hc.Add(SelectionContent);
         foreach (var key in SelectedKeys)
